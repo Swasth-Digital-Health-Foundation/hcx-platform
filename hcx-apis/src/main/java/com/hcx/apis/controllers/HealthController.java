@@ -32,7 +32,7 @@ public class HealthController {
     public ResponseEntity<JsonNode> serviceHealth() throws JsonProcessingException, ExecutionException, InterruptedException {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode json;
-        String topicName = env.getProperty("${kafka.topic}");
+        String topicName = env.getProperty("${kafka.topic}","test");
         try{
             NewTopic newTopic = new NewTopic(topicName, 1, (short)1);
             kafkaAdminOperations.createOrModifyTopics(newTopic);
