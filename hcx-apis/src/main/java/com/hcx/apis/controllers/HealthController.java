@@ -28,14 +28,16 @@ public class HealthController {
     public ResponseEntity<JsonNode> serviceHealth() throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode json;
+        Boolean health;
         try{
             NewTopic newTopic = new NewTopic("healthCheck", 1, (short) 1);
             kafkaAdminOperations.createOrModifyTopics(newTopic);
-            json = mapper.readTree("{\"id\":\"api.hcx.service.health\",\"ver\":\"1.0\",\"params\":{\"msgid\":null,\"err\":null,\"status\":\"successful\",\"errmsg\":null},\"responseCode\":\"OK\",\"result\":{\"service healthy\":true}}");
+            health = true;
         }
         catch (Exception e) {
-            json = mapper.readTree("{\"id\":\"api.hcx.service.health\",\"ver\":\"1.0\",\"params\":{\"msgid\":null,\"err\":null,\"status\":\"successful\",\"errmsg\":null},\"responseCode\":\"OK\",\"result\":{\"service healthy\":false}}");
+            health = false;
         }
+        json = mapper.readTree("{\"id\":\"api.hcx.service.health\",\"ver\":\"1.0\",\"params\":{\"msgid\":null,\"err\":null,\"status\":\"successful\",\"errmsg\":null},\"responseCode\":\"OK\",\"result\":{\"service healthy\":" + health + "}}");
         return ResponseEntity.ok(json);
     }
 
