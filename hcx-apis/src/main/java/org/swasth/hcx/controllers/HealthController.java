@@ -1,4 +1,4 @@
-package com.hcx.apis.controllers;
+package org.swasth.hcx.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;

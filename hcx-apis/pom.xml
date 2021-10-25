@@ -8,11 +8,10 @@
 		<version>2.5.5</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.hcx</groupId>
-	<artifactId>apis</artifactId>
+	<groupId>org.swasth</groupId>
+	<artifactId>hcx</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>apis</name>
-	<description>hcx apis</description>
+	<name>hcx</name>
 	<properties>
 		<java.version>11</java.version>
 	</properties>
