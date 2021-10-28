@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class ApisApplication {
+public class HCXApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(ApisApplication.class, args);
+		SpringApplication.run(HCXApplication.class, args);
 	}
 
 }

@@ -1,44 +1,53 @@
 package org.swasth.hcx.controllers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.kafka.clients.admin.*;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.kafka.core.*;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.swasth.hcx.pojos.Response;
+import org.swasth.hcx.utils.ApiId;
+
+import java.util.*;
 
 @RestController
-public class HealthController {
+public class HealthController extends BaseController {
 
-    @Autowired
-    private KafkaAdminOperations kafkaAdminOperations;
-
-    @RequestMapping(value = "/health", method = RequestMethod.GET, produces = { "application/json", "text/json" })
-    public ResponseEntity<JsonNode> health() throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode json = mapper.readTree("{\"id\":\"api.hcx.health\",\"ver\":\"1.0\",\"params\":{\"msgid\":null,\"err\":null,\"status\":\"successful\",\"errmsg\":null},\"responseCode\":\"OK\",\"result\":{\"healthy\":true}}");
-        return ResponseEntity.ok(json);
+    @RequestMapping(value = "/service/health", method = RequestMethod.GET)
+    public ResponseEntity<Object> serviceHealth() {
+        Response response = getResponse(ApiId.APPLICATION_SERVICE_HEALTH);
+        response.put("healthy",true);
+        response.setResponseCode(HttpStatus.OK.toString());
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/service/health", method = RequestMethod.GET, produces = { "application/json", "text/json" })
-    public ResponseEntity<JsonNode> serviceHealth() throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode json;
-        Boolean health;
-        try{
-            NewTopic newTopic = new NewTopic("healthCheck", 1, (short) 1);
-            kafkaAdminOperations.createOrModifyTopics(newTopic);
-            health = true;
+    @RequestMapping(value = "/health", method = RequestMethod.GET)
+    public ResponseEntity<Object> health() {
+        Response response = getResponse(ApiId.APPLICATION_HEALTH);
+        List<Map<String,Object>> allChecks = new ArrayList<>();
+        List<Boolean> getAllHealth = new ArrayList<>();
+        allChecks.add(checkKafkaHealth());
+        allChecks.forEach(check -> getAllHealth.add((Boolean) check.get("healthy")));
+        response.put("checks", allChecks);
+        response.put("healthy", !getAllHealth.contains(false));
+        response.setResponseCode(HttpStatus.OK.toString());
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    public Map checkKafkaHealth(){
+        String serviceName = "kafka";
+        if(kafkaClient.health()){
+            return generateCheck(serviceName, true);
+        } else {
+            return generateCheck(serviceName, false);
         }
-        catch (Exception e) {
-            health = false;
-        }
-        json = mapper.readTree("{\"id\":\"api.hcx.service.health\",\"ver\":\"1.0\",\"params\":{\"msgid\":null,\"err\":null,\"status\":\"successful\",\"errmsg\":null},\"responseCode\":\"OK\",\"result\":{\"service healthy\":" + health + "}}");
-        return ResponseEntity.ok(json);
+    }
+
+    public Map generateCheck(String serviceName, Boolean health){
+        return new LinkedHashMap(){{
+           put("name", serviceName);
+           put("healthy", health);
+        }};
     }
 
 }
