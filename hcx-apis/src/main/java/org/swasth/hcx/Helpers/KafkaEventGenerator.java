@@ -6,10 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+
+import java.util.*;
 
 @Component
 public class KafkaEventGenerator {
@@ -25,16 +23,16 @@ public class KafkaEventGenerator {
         return apiEvent;
     }
 
-    public String generateMetadataEvent(String mid, String action, HttpHeaders header ,Map<String, Object> payload) throws JsonProcessingException {
+    public String generateMetadataEvent(String mid, String action, HttpHeaders header) throws JsonProcessingException {
         Map<String,Object> constructEvent = new LinkedHashMap<>();
-        List<String> protocalHeaders = (List<String>) env.getProperty("protocal.mandatory.headers", List.class);
-        protocalHeaders.addAll((List<String>) env.getProperty("protocal.optional.headers", List.class));
-        List<String> domainHeaders = (List<String>) env.getProperty("domain.headers", List.class);
-        Map<String,Object> filterProtocalHeaders = new HashMap<>();
+        List<String> protocolHeaders = (List<String>) env.getProperty("protocol.mandatory.headers", List.class, new ArrayList<String>());
+        protocolHeaders.addAll((List<String>) env.getProperty("protocol.optional.headers", List.class, new ArrayList<String>()));
+        List<String> domainHeaders = (List<String>) env.getProperty("domain.headers", List.class, new ArrayList<String>());
+        Map<String,Object> filterProtocolHeaders = new HashMap<>();
         Map<String,Object> filterDomainHeaders = new HashMap<>();
-        protocalHeaders.forEach(key -> {
+        protocolHeaders.forEach(key -> {
             if (header.containsKey(key))
-                filterProtocalHeaders.put(key,header.get(key));
+                filterProtocolHeaders.put(key,header.get(key));
         });
         domainHeaders.forEach(key -> {
             if (header.containsKey(key))
@@ -43,7 +41,7 @@ public class KafkaEventGenerator {
         constructEvent.put("mid", mid);
         constructEvent.put("ets", System.currentTimeMillis());
         constructEvent.put("action", action);
-        constructEvent.put("protocol_header", filterProtocalHeaders);
+        constructEvent.put("protocol_header", filterProtocolHeaders);
         constructEvent.put("domain_header",  filterDomainHeaders);
         constructEvent.put("sender", new HashMap<String,Object>() {{
             put("participant_code", header.get("x-hcx-sender_code"));
