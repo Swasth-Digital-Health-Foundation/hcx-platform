@@ -5,14 +5,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.swasth.hcx.exception.ClientException;
 import org.swasth.hcx.exception.ResponseCode;
 import org.swasth.hcx.helpers.KafkaEventGenerator;
 import org.swasth.hcx.middleware.KafkaClient;
 import org.swasth.hcx.pojos.Response;
 import org.swasth.hcx.pojos.ResponseParams;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
