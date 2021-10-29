@@ -27,15 +27,15 @@ public class BaseController {
     private String key;
 
     @Autowired
-    protected KafkaEventGenerator kafkaEventGenerator;
+    KafkaEventGenerator kafkaEventGenerator;
 
     @Autowired
-    protected KafkaClient kafkaClient;
+    KafkaClient kafkaClient;
 
     @Autowired
-    protected Environment env;
+    Environment env;
 
-    protected String getUUID() {
+    private String getUUID() {
         UUID uid = UUID.randomUUID();
         return uid.toString();
     }
