@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.swasth.hcx.exception.ResponseCode;
 import org.swasth.hcx.pojos.Response;
 import org.swasth.hcx.utils.ApiId;
 
@@ -17,7 +18,7 @@ public class HealthController extends BaseController {
     public ResponseEntity<Object> serviceHealth() {
         Response response = getResponse(ApiId.APPLICATION_SERVICE_HEALTH);
         response.put("healthy",true);
-        response.setResponseCode(HttpStatus.OK.toString());
+        response.setResponseCode(ResponseCode.OK);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -30,7 +31,7 @@ public class HealthController extends BaseController {
         allChecks.forEach(check -> getAllHealth.add((Boolean) check.get("healthy")));
         response.put("checks", allChecks);
         response.put("healthy", !getAllHealth.contains(false));
-        response.setResponseCode(HttpStatus.OK.toString());
+        response.setResponseCode(ResponseCode.OK);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

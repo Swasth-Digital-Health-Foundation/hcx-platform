@@ -10,7 +10,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.servlet.MockMvc;
-import org.swasth.hcx.Helpers.KafkaEventGenerator;
+import org.swasth.hcx.helpers.KafkaEventGenerator;
 import org.swasth.hcx.middleware.KafkaClient;
 
 @WebMvcTest(BaseController.class)

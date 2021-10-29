@@ -23,7 +23,7 @@ public class ClaimsController extends BaseController {
             processAndSendEvent(ApiId.PRE_AUTH_SUBMIT, header, requestBody);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
-            return new ResponseEntity<>(getErrorResponse(response, e), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(badRequestResponse(response, e), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -36,7 +36,7 @@ public class ClaimsController extends BaseController {
             processAndSendEvent(ApiId.PRE_AUTH_ONSUBMIT, header, requestBody);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
-            return new ResponseEntity<>(getErrorResponse(response, e), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(badRequestResponse(response, e), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -49,7 +49,7 @@ public class ClaimsController extends BaseController {
             processAndSendEvent(ApiId.PRE_AUTH_SEARCH, header, requestBody);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
-            return new ResponseEntity<>(getErrorResponse(response, e), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(badRequestResponse(response, e), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -62,7 +62,7 @@ public class ClaimsController extends BaseController {
             processAndSendEvent(ApiId.PRE_AUTH_ONSEARCH, header, requestBody);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
-            return new ResponseEntity<>(getErrorResponse(response, e), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(badRequestResponse(response, e), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -75,7 +75,7 @@ public class ClaimsController extends BaseController {
             processAndSendEvent(ApiId.CLAIM_SUBMIT, header, requestBody);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
-            return new ResponseEntity<>(getErrorResponse(response, e), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(badRequestResponse(response, e), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -88,7 +88,7 @@ public class ClaimsController extends BaseController {
             processAndSendEvent(ApiId.CLAIM_ONSUBMIT, header, requestBody);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
-            return new ResponseEntity<>(getErrorResponse(response, e), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(badRequestResponse(response, e), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -101,7 +101,7 @@ public class ClaimsController extends BaseController {
             processAndSendEvent(ApiId.CLAIM_SEARCH, header, requestBody);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
-            return new ResponseEntity<>(getErrorResponse(response, e), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(badRequestResponse(response, e), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -114,7 +114,7 @@ public class ClaimsController extends BaseController {
             processAndSendEvent(ApiId.CLAIM_ONSEARCH, header, requestBody);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
-            return new ResponseEntity<>(getErrorResponse(response, e), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(badRequestResponse(response, e), HttpStatus.BAD_REQUEST);
         }
     }
 }

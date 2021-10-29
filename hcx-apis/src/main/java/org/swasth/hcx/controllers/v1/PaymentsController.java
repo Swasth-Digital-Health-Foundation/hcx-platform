@@ -23,7 +23,7 @@ public class PaymentsController extends BaseController {
             processAndSendEvent(ApiId.PAYMENT_NOTICE_REQUEST, header, requestBody);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
-            return new ResponseEntity<>(getErrorResponse(response, e), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(badRequestResponse(response, e), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -36,7 +36,7 @@ public class PaymentsController extends BaseController {
             processAndSendEvent(ApiId.PAYMENT_NOTICE_ONREQUEST, header, requestBody);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
-            return new ResponseEntity<>(getErrorResponse(response, e), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(badRequestResponse(response, e), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -49,7 +49,7 @@ public class PaymentsController extends BaseController {
             processAndSendEvent(ApiId.PAYMENT_NOTICE_SEARCH, header, requestBody);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
-            return new ResponseEntity<>(getErrorResponse(response, e), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(badRequestResponse(response, e), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -62,7 +62,7 @@ public class PaymentsController extends BaseController {
             processAndSendEvent(ApiId.PAYMENT_NOTICE_ONSEARCH, header, requestBody);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
-            return new ResponseEntity<>(getErrorResponse(response, e), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(badRequestResponse(response, e), HttpStatus.BAD_REQUEST);
         }
     }
 }

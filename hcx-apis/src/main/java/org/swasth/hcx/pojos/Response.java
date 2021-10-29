@@ -1,5 +1,7 @@
 package org.swasth.hcx.pojos;
 
+import org.swasth.hcx.exception.ResponseCode;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -10,7 +12,7 @@ public class Response {
     private String ver;
     private String ts;
     private ResponseParams params;
-    private String responseCode;
+    private ResponseCode responseCode;
     private Map<String, Object> result = new HashMap<String, Object>();
 
     public Response() {
@@ -18,11 +20,11 @@ public class Response {
         this.ts = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date());
     }
 
-    public Response(String apiId, String httpStatus, ResponseParams responseParams) {
+    public Response(String apiId, ResponseCode responseCode, ResponseParams responseParams) {
         this.ver = "1.0";
         this.ts = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date());
         this.id = apiId;
-        this.responseCode = httpStatus;
+        this.responseCode = responseCode;
         this.params = responseParams;
     }
 
@@ -76,11 +78,11 @@ public class Response {
         return this;
     }
 
-    public String getResponseCode() {
+    public ResponseCode getResponseCode() {
         return responseCode;
     }
 
-    public void setResponseCode(String responseCode) {
+    public void setResponseCode(ResponseCode responseCode) {
         this.responseCode = responseCode;
     }
 

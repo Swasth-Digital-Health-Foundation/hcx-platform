@@ -7,7 +7,8 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClientException;
+import org.swasth.hcx.exception.ClientException;
+
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
@@ -18,13 +19,13 @@ public class KafkaClient {
     @Value("${spring.kafka.bootstrap-servers}")
     private String kafkaServerUrl;
 
-    public void send(String topic, String key, String message) {
+    public void send(String topic, String key, String message) throws ClientException {
         if (validate(topic)) {
             KafkaProducer producer = createProducer();
             producer.send(new ProducerRecord<>(topic, key, message));
         }
 		else {
-            throw new RestClientException("Topic with name: " + topic + ", does not exists.");
+            throw new ClientException("Topic with name: " + topic + ", does not exists.");
         }
     }
 

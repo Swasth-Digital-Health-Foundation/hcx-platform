@@ -6,8 +6,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.client.RestClientException;
-import org.swasth.hcx.Helpers.KafkaEventGenerator;
+import org.swasth.hcx.exception.ClientException;
+import org.swasth.hcx.exception.ResponseCode;
+import org.swasth.hcx.helpers.KafkaEventGenerator;
 import org.swasth.hcx.middleware.KafkaClient;
 import org.swasth.hcx.pojos.Response;
 import org.swasth.hcx.pojos.ResponseParams;
@@ -40,47 +41,56 @@ public class BaseController {
         return uid.toString();
     }
 
-    public void validatePayload(Map<String, Object> requestBody) {
+    public void validatePayload(Map<String, Object> requestBody) throws ClientException {
         if(requestBody.isEmpty()) {
-            throw new RestClientException("Request Body cannot be Empty.");
+            throw new ClientException("Request Body cannot be Empty.");
         } else {
             List<String> mandatoryPayloadProps = (List<String>) env.getProperty("payload.mandatory.properties", List.class, new ArrayList<String>());
             List<String> missingPayloadProps = mandatoryPayloadProps.stream().filter(key -> mandatoryPayloadProps.contains(key)).collect(Collectors.toList());
            if(!missingPayloadProps.isEmpty()) {
-               throw new RestClientException("Payload mandatory properties are missing: " + missingPayloadProps);
+               throw new ClientException("Payload mandatory properties are missing: " + missingPayloadProps);
            }
         }
     }
 
-    public void validateHeaders(HttpHeaders header) {
+    public void validateHeaders(HttpHeaders header) throws ClientException {
         List<String> mandatoryProtocolHeaders = (List<String>) env.getProperty("protocol.mandatory.headers", List.class, new ArrayList<String>());
         List<String> mandatoryJoseHeaders = (List<String>) env.getProperty("jose.headers", List.class, new ArrayList<String>());
         List<String> missingJoseHeaders = mandatoryJoseHeaders.stream().filter(key -> !header.containsKey(key)).collect(Collectors.toList());
         if(!missingJoseHeaders.isEmpty()) {
-            throw new RestClientException("Jose mandatory headers are missing: " + missingJoseHeaders);
+            throw new ClientException("Jose mandatory headers are missing: " + missingJoseHeaders);
         }
         List<String> missingProtocolHeaders = mandatoryProtocolHeaders.stream().filter(key -> !header.containsKey(key)).collect(Collectors.toList());
         if(!missingProtocolHeaders.isEmpty()) {
-            throw new RestClientException("Protocol mandatory headers are missing: " + missingProtocolHeaders);
+            throw new ClientException("Protocol mandatory headers are missing: " + missingProtocolHeaders);
         }
     }
 
     public Response getResponse(String apiId){
         ResponseParams responseParams = new ResponseParams();
-        Response response = new Response(apiId, "ACCEPTED", responseParams);
+        Response response = new Response(apiId, ResponseCode.ACCEPTED, responseParams);
         return response;
     }
 
-    public Response getErrorResponse(Response response, Exception e){
+    public Response badRequestResponse(Response response, Exception e){
         ResponseParams responseParams = new ResponseParams();
         responseParams.setStatus(Response.Status.UNSUCCESSFUL);
         responseParams.setErrmsg(e.getMessage());
         response.setParams(responseParams);
-        response.setResponseCode(HttpStatus.BAD_REQUEST.toString());
+        response.setResponseCode(ResponseCode.CLIENT_ERROR);
         return response;
     }
 
-    public void processAndSendEvent(String apiId, HttpHeaders header, Map<String, Object> requestBody) throws JsonProcessingException {
+    public Response serverErrorResponse(Response response, Exception e){
+        ResponseParams responseParams = new ResponseParams();
+        responseParams.setStatus(Response.Status.UNSUCCESSFUL);
+        responseParams.setErrmsg(e.getMessage());
+        response.setParams(responseParams);
+        response.setResponseCode(ResponseCode.SERVER_ERROR);
+        return response;
+    }
+
+    public void processAndSendEvent(String apiId, HttpHeaders header, Map<String, Object> requestBody) throws JsonProcessingException, ClientException {
         String mid = getUUID();
         String payloadEvent = kafkaEventGenerator.generatePayloadEvent(mid, requestBody);
         String metadataEvent = kafkaEventGenerator.generateMetadataEvent(mid, apiId, header);
