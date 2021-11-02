@@ -5,12 +5,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
-import org.swasth.hcx.exception.ClientException;
-import org.swasth.hcx.exception.ResponseCode;
+import org.swasth.common.dto.Response;
+import org.swasth.common.dto.ResponseParams;
+import org.swasth.common.exception.ClientException;
+import org.swasth.common.exception.ResponseCode;
 import org.swasth.hcx.helpers.KafkaEventGenerator;
-import org.swasth.hcx.middleware.KafkaClient;
-import org.swasth.hcx.pojos.Response;
-import org.swasth.hcx.pojos.ResponseParams;
+import org.swasth.kafka.client.KafkaClient;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -29,10 +29,9 @@ public class BaseController {
     KafkaEventGenerator kafkaEventGenerator;
 
     @Autowired
-    KafkaClient kafkaClient;
-
-    @Autowired
     Environment env;
+
+    KafkaClient kafkaClient = new KafkaClient();
 
     private String getUUID() {
         UUID uid = UUID.randomUUID();
@@ -44,7 +43,7 @@ public class BaseController {
             throw new ClientException("Request Body cannot be Empty.");
         } else {
             List<String> mandatoryPayloadProps = (List<String>) env.getProperty("payload.mandatory.properties", List.class, new ArrayList<String>());
-            List<String> missingPayloadProps = mandatoryPayloadProps.stream().filter(key -> mandatoryPayloadProps.contains(key)).collect(Collectors.toList());
+            List<String> missingPayloadProps = mandatoryPayloadProps.stream().filter(key -> !requestBody.keySet().contains(key)).collect(Collectors.toList());
            if(!missingPayloadProps.isEmpty()) {
                throw new ClientException("Payload mandatory properties are missing: " + missingPayloadProps);
            }
