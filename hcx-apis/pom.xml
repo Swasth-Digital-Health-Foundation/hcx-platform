@@ -31,6 +31,16 @@
 			<artifactId>spring-kafka</artifactId>
 			<version>2.7.7</version>
 		</dependency>
+		<dependency>
+			<groupId>org.swasth</groupId>
+			<artifactId>hcx-common</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.swasth</groupId>
+			<artifactId>kafka-client</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
