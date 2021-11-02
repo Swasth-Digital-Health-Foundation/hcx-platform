@@ -1,23 +1,20 @@
-package org.swasth.hcx.middleware;
+package org.swasth.kafka.client;
 
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.ListTopicsOptions;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.swasth.hcx.exception.ClientException;
+import org.swasth.common.Platform;
+import org.swasth.common.exception.ClientException;
 
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 
-@Service
 public class KafkaClient {
 
-    @Value("${spring.kafka.bootstrap-servers}")
-    private String kafkaServerUrl;
+    private String kafkaServerUrl = Platform.getString("bootstrap-servers","localhost:9092");
 
     public void send(String topic, String key, String message) throws ClientException {
         if (validate(topic)) {
@@ -38,6 +35,7 @@ public class KafkaClient {
     public KafkaProducer createProducer(){
         Properties props = new Properties();
         props.put("bootstrap.servers", kafkaServerUrl);
+        props.put("client.id", "KafkaClientProducer");
         props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         KafkaProducer<String, String> producer = new KafkaProducer<>(props);
@@ -47,6 +45,7 @@ public class KafkaClient {
     public KafkaConsumer createConsumer(){
         Properties props = new Properties();
         props.put("bootstrap.servers", kafkaServerUrl);
+        props.put("client.id", "KafkaClientConsumer");
         props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);

@@ -1,6 +1,6 @@
-package org.swasth.hcx.pojos;
+package org.swasth.common.dto;
 
-import org.swasth.hcx.exception.ResponseCode;
+import org.swasth.common.exception.ResponseCode;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

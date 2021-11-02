@@ -1,4 +1,4 @@
-package org.swasth.hcx.exception;
+package org.swasth.common.exception;
 
 public enum ResponseCode {
 
