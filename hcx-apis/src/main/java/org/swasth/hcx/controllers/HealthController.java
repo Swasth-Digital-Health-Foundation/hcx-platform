@@ -5,8 +5,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import org.swasth.hcx.exception.ResponseCode;
-import org.swasth.hcx.pojos.Response;
+import org.swasth.common.exception.ResponseCode;
+import org.swasth.common.dto.Response;
 import org.swasth.hcx.utils.ApiId;
 
 import java.util.*;
