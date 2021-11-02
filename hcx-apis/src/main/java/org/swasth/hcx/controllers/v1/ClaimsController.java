@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.swasth.hcx.controllers.BaseController;
-import org.swasth.hcx.pojos.Response;
+import org.swasth.common.dto.Response;
 import org.swasth.hcx.utils.ApiId;
 
 import java.util.Map;
