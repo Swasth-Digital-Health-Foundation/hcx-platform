@@ -2,6 +2,7 @@ package org.swasth.hcx.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
@@ -11,7 +12,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.servlet.MockMvc;
 import org.swasth.hcx.helpers.KafkaEventGenerator;
-import org.swasth.hcx.middleware.KafkaClient;
+import org.swasth.kafka.client.KafkaClient;
 
 @WebMvcTest(BaseController.class)
 public class BaseControllerTests {
@@ -22,8 +23,7 @@ public class BaseControllerTests {
     @MockBean
     protected KafkaEventGenerator mockKafkaEventGenerator;
 
-    @MockBean
-    protected KafkaClient mockKafkaClient;
+    protected KafkaClient mockKafkaClient = Mockito.mock(KafkaClient.class);
 
     @Mock
     protected Environment mockEnv;
@@ -43,7 +43,12 @@ public class BaseControllerTests {
 
     public String getRequestBody() throws JsonProcessingException, JSONException {
         JSONObject obj = new JSONObject();
-        obj.put("request","payload");
+        obj.put("protected","test");
+        obj.put("encrypted_key","test_key");
+        obj.put("aad","test");
+        obj.put("iv","test");
+        obj.put("ciphertext","test");
+        obj.put("tag","test");
         return String.valueOf(obj);
     }
 }
