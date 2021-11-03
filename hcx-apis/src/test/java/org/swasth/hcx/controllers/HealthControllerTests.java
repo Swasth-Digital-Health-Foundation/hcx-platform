@@ -9,8 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
-@WebMvcTest(HealthController.class)
-public class HealthControllerTests extends BaseControllerTests {
+public class HealthControllerTests extends BaseSpec {
 
     @Test
     public void testServiceHealth() throws Exception {

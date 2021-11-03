@@ -14,8 +14,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.swasth.hcx.helpers.KafkaEventGenerator;
 import org.swasth.kafka.client.KafkaClient;
 
-@WebMvcTest(BaseController.class)
-public class BaseControllerTests {
+@WebMvcTest
+public class BaseSpec {
 
     @Autowired
     protected MockMvc mockMvc;
@@ -23,10 +23,10 @@ public class BaseControllerTests {
     @MockBean
     protected KafkaEventGenerator mockKafkaEventGenerator;
 
-    protected KafkaClient mockKafkaClient = Mockito.mock(KafkaClient.class);
-
     @Mock
     protected Environment mockEnv;
+
+    protected KafkaClient mockKafkaClient = Mockito.mock(KafkaClient.class);
 
     public HttpHeaders getHeaders(){
         HttpHeaders header = new HttpHeaders();
