@@ -1,7 +1,6 @@
 package org.swasth.common.dto;
 
 import org.swasth.common.exception.ResponseCode;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
