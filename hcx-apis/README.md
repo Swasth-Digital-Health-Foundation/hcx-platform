@@ -45,17 +45,18 @@ docker-compose -f docker-compose.yml up -d
 ```shell
 docker exec -it kafka sh
 ```
-Go to path /opt/kafka/bin, where we will have executable files to perform operations(creating topics, running producers and consumers, etc) and create the topic using the following command.
+Go to path `/opt/kafka/bin`, where we will have executable files to perform operations(creating topics, running producers and consumers, etc) and create the topic using the following command.
 ```shell
 kafka-topics.sh --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 --topic test 
 ```
 
 ### Running protocol-service:
-1. Go to the path: /hcx-platform/hcx-apis and run the below maven command to build the application.
+1. Go to the path: `/hcx-platform/hcx-core` and run the below maven command to build the module.
 ```shell
 mvn clean install -DskipTests
 ```
-2. After build, run the below maven command to start the tomcat server.
+Similarly, build `/hcx-platform/hcx-apis` module. 
+2. After build, go to the path: `/hcx-platform/hcx-apis` run the below maven command to start the tomcat server.
 ```shell
 mvn spring-boot:run
 ```
