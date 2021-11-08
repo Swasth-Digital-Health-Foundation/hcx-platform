@@ -23,7 +23,7 @@ services:
       - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://127.0.0.1:2181     
     
   kafka:
-    image: 'wurstmeister/kafka:2.11-1.0.1'
+    image: 'wurstmeister/kafka:latest'
     container_name: kafka
     ports:
       - "9092:9092"
