@@ -19,7 +19,7 @@ public class BaseController {
     @Value("${kafka.denormaliser.topic}")
     private String topic;
 
-    @Value("${kafka.denormaliser.topic.key}")
+    @Value("${kafka.denormaliser.key}")
     private String key;
 
     @Autowired
