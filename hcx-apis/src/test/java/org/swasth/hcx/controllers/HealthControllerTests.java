@@ -1,15 +1,31 @@
 package org.swasth.hcx.controllers;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.MockitoAnnotations;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
+
 public class HealthControllerTests extends BaseSpec {
+
+    @InjectMocks
+    HealthController healthController;
+
+    @BeforeEach
+    public void setup() {
+        /* this must be called for the @Mock annotations above to be processed
+          and for the mock service to be injected into the controller under test. */
+        MockitoAnnotations.openMocks(this);
+        this.mockMvc = MockMvcBuilders.standaloneSetup(healthController).build();
+    }
 
     @Test
     public void testServiceHealth() throws Exception {
@@ -24,10 +40,10 @@ public class HealthControllerTests extends BaseSpec {
         MvcResult mvcResult = mockMvc.perform(get("/health")).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
-        JSONObject jsonObject= new JSONObject(response.getContentAsString());
-        JSONObject result = jsonObject.getJSONObject("result");
+        JSONObject resp= new JSONObject(response.getContentAsString());
+        Boolean overallHealth = resp.getBoolean("overall health");
         assertEquals(200, status);
-        assertEquals(true, result.get("healthy"));
+        assertEquals(true, overallHealth);
     }
 
 }

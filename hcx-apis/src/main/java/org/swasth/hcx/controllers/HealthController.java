@@ -5,33 +5,33 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import org.swasth.common.exception.ResponseCode;
-import org.swasth.common.dto.Response;
-import org.swasth.hcx.utils.ApiId;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 public class HealthController extends BaseController {
 
     @RequestMapping(value = "/service/health", method = RequestMethod.GET)
     public ResponseEntity<Object> serviceHealth() {
-        Response response = getResponse(ApiId.APPLICATION_SERVICE_HEALTH);
-        response.put("healthy",true);
-        response.setResponseCode(ResponseCode.OK);
+        Map<String,Object> response = new LinkedHashMap<>();
+        response.put("timestamp", String.valueOf(System.currentTimeMillis()));
+        response.put("health",true);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/health", method = RequestMethod.GET)
     public ResponseEntity<Object> health() {
-        Response response = getResponse(ApiId.APPLICATION_HEALTH);
+        Map<String,Object> response = new LinkedHashMap<>();
+        response.put("timestamp", String.valueOf(System.currentTimeMillis()));
         List<Map<String,Object>> allChecks = new ArrayList<>();
         List<Boolean> getAllHealth = new ArrayList<>();
         allChecks.add(checkKafkaHealth());
         allChecks.forEach(check -> getAllHealth.add((Boolean) check.get("healthy")));
         response.put("checks", allChecks);
-        response.put("healthy", !getAllHealth.contains(false));
-        response.setResponseCode(ResponseCode.OK);
+        response.put("overall health", !getAllHealth.contains(false));
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

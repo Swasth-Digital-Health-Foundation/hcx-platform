@@ -35,7 +35,6 @@ public class KafkaClient {
     public KafkaProducer createProducer(){
         Properties props = new Properties();
         props.put("bootstrap.servers", kafkaServerUrl);
-        props.put("client.id", "KafkaClientProducer");
         props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         KafkaProducer<String, String> producer = new KafkaProducer<>(props);
@@ -45,7 +44,6 @@ public class KafkaClient {
     public KafkaConsumer createConsumer(){
         Properties props = new Properties();
         props.put("bootstrap.servers", kafkaServerUrl);
-        props.put("client.id", "KafkaClientConsumer");
         props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);

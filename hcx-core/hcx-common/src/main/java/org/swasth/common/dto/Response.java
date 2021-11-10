@@ -7,48 +7,33 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Response {
-    private String id;
-    private String ver;
-    private String ts;
+    private String timestamp;
+    private String correlation_id;
     private ResponseParams params;
-    private ResponseCode responseCode;
-    private Map<String, Object> result = new HashMap<String, Object>();
 
     public Response() {
-        this.ver = "1.0";
-        this.ts = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date());
+        this.timestamp = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date());
     }
 
-    public Response(String apiId, ResponseCode responseCode, ResponseParams responseParams) {
-        this.ver = "1.0";
-        this.ts = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date());
-        this.id = apiId;
-        this.responseCode = responseCode;
+    public Response(ResponseParams responseParams) {
+        this.timestamp = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date());
         this.params = responseParams;
     }
 
-    public String getId() {
-        return id;
+    public String getTimestamp() {
+        return timestamp;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setTimestamp(String timestamp) {
+        this.timestamp = timestamp;
     }
 
-    public String getVer() {
-        return ver;
+    public String getCorrelationId() {
+        return correlation_id;
     }
 
-    public void setVer(String ver) {
-        this.ver = ver;
-    }
-
-    public String getTs() {
-        return ts;
-    }
-
-    public void setTs(String ets) {
-        this.ts = ts;
+    public void setCorrelationId(String correlation_id) {
+        this.correlation_id = correlation_id;
     }
 
     public ResponseParams getParams() {
@@ -57,36 +42,6 @@ public class Response {
 
     public void setParams(ResponseParams params) {
         this.params = params;
-    }
-
-    public Map<String, Object> getResult() {
-        return result;
-    }
-
-    public Object get(String key) {
-        return result.get(key);
-    }
-
-    public Response put(String key, Object vo) {
-        result.put(key, vo);
-        return this;
-    }
-
-    public Response putAll(Map<String, Object> resultMap) {
-        result.putAll(resultMap);
-        return this;
-    }
-
-    public ResponseCode getResponseCode() {
-        return responseCode;
-    }
-
-    public void setResponseCode(ResponseCode responseCode) {
-        this.responseCode = responseCode;
-    }
-
-    public enum Status {
-        SUCCESSFUL, UNSUCCESSFUL;
     }
 
 }

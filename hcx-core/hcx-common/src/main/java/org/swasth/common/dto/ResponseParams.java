@@ -6,7 +6,6 @@ public class ResponseParams {
     public String resmsgid;
     private String msgid;
     private String err;
-    private Response.Status status;
     private String errmsg;
 
     public ResponseParams() {
@@ -14,7 +13,7 @@ public class ResponseParams {
         this.resmsgid = "";
         this.err = "";
         this.errmsg = "";
-        this.status = Response.Status.SUCCESSFUL; // When there is no error, treat status as success
+        // When there is no error, treat status as success
     }
 
     public String getResmsgid() {
@@ -31,14 +30,6 @@ public class ResponseParams {
 
     public void setMsgid(String msgid) {
         this.msgid = msgid;
-    }
-
-    public Response.Status getStatus() {
-        return status;
-    }
-
-    public void setStatus(Response.Status status) {
-        this.status = status;
     }
 
     public String getErr() {
