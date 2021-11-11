@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>org.swasth</groupId>
 	<artifactId>hcx</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0-SNAPSHOT</version>
 	<name>hcx</name>
 	<properties>
 		<java.version>11</java.version>
