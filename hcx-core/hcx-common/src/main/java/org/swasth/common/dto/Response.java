@@ -1,13 +1,16 @@
 package org.swasth.common.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.Map;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Response {
 
     private long timestamp;
-    private String correlation_id;
+    @JsonProperty("correlation_id")
+    private String correlationId;
     private ResponseError error;
     private Map<String, Object> result;
 
@@ -17,12 +20,12 @@ public class Response {
 
     public Response(String correlationId) {
         this.timestamp = System.currentTimeMillis();
-        this.correlation_id = correlationId;
+        this.correlationId = correlationId;
     }
 
     public Response(String correlationId, ResponseError error) {
         this.timestamp = System.currentTimeMillis();
-        this.correlation_id = correlationId;
+        this.correlationId = correlationId;
         this.error = error;
     }
 
@@ -35,11 +38,11 @@ public class Response {
     }
 
     public String getCorrelationId() {
-        return correlation_id;
+        return correlationId;
     }
 
-    public void setCorrelationId(String correlation_id) {
-        this.correlation_id = correlation_id;
+    public void setCorrelationId(String correlationId) {
+        this.correlationId = correlationId;
     }
 
     public ResponseError getError() {
