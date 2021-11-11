@@ -5,7 +5,6 @@ import org.apache.kafka.clients.admin.ListTopicsOptions;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.swasth.common.Platform;
 import org.swasth.common.exception.ClientException;
 
 import java.util.Map;
@@ -14,7 +13,11 @@ import java.util.concurrent.ExecutionException;
 
 public class KafkaClient {
 
-    private String kafkaServerUrl = Platform.getString("bootstrap-servers","localhost:9092");
+    private String kafkaServerUrl;
+
+    public void setKafkaServerUrl(String url){
+        this.kafkaServerUrl = url;
+    }
 
     public void send(String topic, String key, String message) throws ClientException {
         if (validate(topic)) {
