@@ -1,14 +1,13 @@
 package org.swasth.hcx.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
+import org.swasth.common.StringUtils;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ResponseCode;
 import org.swasth.hcx.helpers.KafkaEventGenerator;
-import org.swasth.common.StringUtils;
 import org.swasth.kafka.client.KafkaClient;
 
 import java.util.*;
@@ -59,17 +58,17 @@ public class BaseController {
     }
 
     public Map<String, Object> successResponse(String correlationId){
-        Map<String,Object> response = new LinkedHashMap<>();
+        Map<String,Object> response = new HashMap<>();
         response.put("timestamp", String.valueOf(System.currentTimeMillis()));
         response.put("correlation_id", correlationId);
         return response;
     }
 
     public Map<String, Object> errorResponse(String correlationId, ResponseCode code, Exception e){
-        Map<String,Object> response = new LinkedHashMap<>();
+        Map<String,Object> response = new HashMap<>();
         response.put("timestamp", String.valueOf(System.currentTimeMillis()));
         response.put("correlation_id", correlationId);
-        response.put("error", new LinkedHashMap() {{
+        response.put("error", new HashMap() {{
             put("code", code);
             put("message", e.getMessage());
             put("trace", e.getCause());

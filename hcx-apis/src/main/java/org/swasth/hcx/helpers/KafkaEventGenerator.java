@@ -16,7 +16,7 @@ public class KafkaEventGenerator {
     Environment env;
 
     public String generatePayloadEvent(String mid, Map<String, Object> requestBody) throws JsonProcessingException {
-        Map<String,Object> constructEvent = new LinkedHashMap<>();
+        Map<String,Object> constructEvent = new HashMap<>();
         constructEvent.put("mid", mid);
         constructEvent.put("payload", requestBody);
         String apiEvent = new ObjectMapper().writeValueAsString(constructEvent);
@@ -24,7 +24,7 @@ public class KafkaEventGenerator {
     }
 
     public String generateMetadataEvent(String mid, String apiAction, Map<String, Object> requestBody) throws JsonProcessingException {
-        Map<String,Object> constructEvent = new LinkedHashMap<>();
+        Map<String,Object> constructEvent = new HashMap<>();
         List<String> protocolHeaders = (List<String>) env.getProperty("protocol.mandatory.headers", List.class, new ArrayList<String>());
         protocolHeaders.addAll((List<String>) env.getProperty("protocol.optional.headers", List.class, new ArrayList<String>()));
         List<String> domainHeaders = (List<String>) env.getProperty("domain.headers", List.class, new ArrayList<String>());
