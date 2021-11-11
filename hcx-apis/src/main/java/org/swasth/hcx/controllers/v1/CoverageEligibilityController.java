@@ -21,7 +21,7 @@ public class CoverageEligibilityController extends BaseController {
 
     @RequestMapping(value = "/check", method = RequestMethod.POST)
     public ResponseEntity<Object> checkCoverageEligibility(@RequestBody Map<String, Object> requestBody) throws JsonProcessingException {
-        String correlationId = StringUtils.decodeBase64String((String) requestBody.get("protected")).get("x-hcx-correlation_id").toString();
+        String correlationId = StringUtils.decodeBase64String((String) requestBody.getOrDefault("protected","e30=")).getOrDefault("x-hcx-correlation_id","").toString();
         try {
             validateRequestBody(requestBody);
             processAndSendEvent(Constants.COVERAGE_ELIGIBILITY_CHECK, requestBody);
@@ -36,7 +36,7 @@ public class CoverageEligibilityController extends BaseController {
 
     @RequestMapping(value = "/on_check", method = RequestMethod.POST)
     public ResponseEntity<Object> onCheckCoverageEligibility(@RequestBody Map<String, Object> requestBody) throws JsonProcessingException {
-        String correlationId = StringUtils.decodeBase64String((String) requestBody.get("protected")).get("x-hcx-correlation_id").toString();
+        String correlationId = StringUtils.decodeBase64String((String) requestBody.getOrDefault("protected","e30=")).getOrDefault("x-hcx-correlation_id","").toString();
         try {
             validateRequestBody(requestBody);
             processAndSendEvent(Constants.COVERAGE_ELIGIBILITY_ONCHECK, requestBody);
