@@ -7,6 +7,8 @@ public class ResponseError {
     private String message;
     private Throwable trace;
 
+    public ResponseError() {}
+
     public ResponseError(ResponseCode code, String message, Throwable trace) {
         this.code = code;
         this.message = message;
