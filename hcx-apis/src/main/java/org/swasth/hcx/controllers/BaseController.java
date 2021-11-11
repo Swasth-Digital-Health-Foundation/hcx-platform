@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.swasth.common.StringUtils;
+import org.swasth.common.dto.Response;
+import org.swasth.common.dto.ResponseError;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ResponseCode;
 import org.swasth.hcx.helpers.KafkaEventGenerator;
@@ -57,22 +59,21 @@ public class BaseController {
         }
     }
 
-    public Map<String, Object> successResponse(String correlationId){
-        Map<String,Object> response = new HashMap<>();
-        response.put("timestamp", String.valueOf(System.currentTimeMillis()));
-        response.put("correlation_id", correlationId);
+    public Response getHealthResponse(){
+        Response response = new Response();
+        Map<String, Object> result = new HashMap<>();
+        response.setResult(result);
         return response;
     }
 
-    public Map<String, Object> errorResponse(String correlationId, ResponseCode code, Exception e){
-        Map<String,Object> response = new HashMap<>();
-        response.put("timestamp", String.valueOf(System.currentTimeMillis()));
-        response.put("correlation_id", correlationId);
-        response.put("error", new HashMap() {{
-            put("code", code);
-            put("message", e.getMessage());
-            put("trace", e.getCause());
-        }});
+    public Response getResponse(String correlationId){
+        Response response = new Response(correlationId);
+        return response;
+    }
+
+    public Response errorResponse(Response response, ResponseCode code, Exception e){
+        ResponseError error= new ResponseError(code, e.getMessage(), e.getCause());
+        response.setError(error);
         return response;
     }
 

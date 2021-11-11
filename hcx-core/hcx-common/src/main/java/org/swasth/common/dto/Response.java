@@ -1,30 +1,36 @@
 package org.swasth.common.dto;
 
-import org.swasth.common.exception.ResponseCode;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.Map;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Response {
-    private String timestamp;
+
+    private long timestamp;
     private String correlation_id;
-    private ResponseParams params;
+    private ResponseError error;
+    private Map<String, Object> result;
 
     public Response() {
-        this.timestamp = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date());
+        this.timestamp = System.currentTimeMillis();
     }
 
-    public Response(ResponseParams responseParams) {
-        this.timestamp = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date());
-        this.params = responseParams;
+    public Response(String correlationId) {
+        this.timestamp = System.currentTimeMillis();
+        this.correlation_id = correlationId;
     }
 
-    public String getTimestamp() {
+    public Response(String correlationId, ResponseError error) {
+        this.timestamp = System.currentTimeMillis();
+        this.correlation_id = correlationId;
+        this.error = error;
+    }
+
+    public Long getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(String timestamp) {
+    public void setTimestamp(Long timestamp) {
         this.timestamp = timestamp;
     }
 
@@ -36,12 +42,34 @@ public class Response {
         this.correlation_id = correlation_id;
     }
 
-    public ResponseParams getParams() {
-        return params;
+    public ResponseError getError() {
+        return error;
     }
 
-    public void setParams(ResponseParams params) {
-        this.params = params;
+    public void setError(ResponseError error) {
+        this.error = error;
+    }
+
+    public Map<String, Object> getResult() {
+        return result;
+    }
+
+    public void setResult(Map<String, Object> result) {
+        this.result = result;
+    }
+
+    public Object get(String key) {
+        return result.get(key);
+    }
+
+    public Response put(String key, Object vo) {
+        result.put(key, vo);
+        return this;
+    }
+
+    public Response putAll(Map<String, Object> resultMap) {
+        result.putAll(resultMap);
+        return this;
     }
 
 }

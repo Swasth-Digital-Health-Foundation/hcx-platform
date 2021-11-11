@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.swasth.common.dto.Response;
 
 import java.util.*;
 
@@ -13,16 +14,14 @@ public class HealthController extends BaseController {
 
     @RequestMapping(value = "/service/health", method = RequestMethod.GET)
     public ResponseEntity<Object> serviceHealth() {
-        Map<String,Object> response = new HashMap<>();
-        response.put("timestamp", String.valueOf(System.currentTimeMillis()));
-        response.put("healthy",true);
+        Response response = getHealthResponse();
+        response.put("healthy", true);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/health", method = RequestMethod.GET)
     public ResponseEntity<Object> health() {
-        Map<String,Object> response = new HashMap<>();
-        response.put("timestamp", String.valueOf(System.currentTimeMillis()));
+        Response response = getHealthResponse();
         List<Map<String,Object>> allChecks = new ArrayList<>();
         List<Boolean> getAllHealth = new ArrayList<>();
         allChecks.add(checkKafkaHealth());

@@ -9,9 +9,8 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>org.swasth</groupId>
-	<artifactId>hcx</artifactId>
+	<artifactId>hcx-apis</artifactId>
 	<version>1.0-SNAPSHOT</version>
-	<name>hcx</name>
 	<properties>
 		<java.version>11</java.version>
 		<spring.version>2.5.5</spring.version>
