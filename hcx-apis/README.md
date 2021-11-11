@@ -51,11 +51,10 @@ kafka-topics.sh --create --zookeeper zookeeper:2181 --replication-factor 1 --par
 ```
 
 ### Running protocol-service:
-1. Go to the path: `/hcx-platform/hcx-core` and run the below maven command to build the module.
+1. Go to the path: `/hcx-platform` and run the below maven command to build the application.
 ```shell
 mvn clean install -DskipTests
 ```
-Similarly, build `/hcx-platform/hcx-apis` module. 
 2. After build, go to the path: `/hcx-platform/hcx-apis` run the below maven command to start the tomcat server.
 ```shell
 mvn spring-boot:run
