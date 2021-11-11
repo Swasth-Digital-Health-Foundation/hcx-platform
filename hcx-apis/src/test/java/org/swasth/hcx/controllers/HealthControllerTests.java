@@ -41,7 +41,8 @@ public class HealthControllerTests extends BaseSpec {
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         JSONObject resp= new JSONObject(response.getContentAsString());
-        Boolean healthy = resp.getBoolean("healthy");
+        JSONObject result = resp.getJSONObject("result");
+        Boolean healthy = result.getBoolean("healthy");
         assertEquals(200, status);
         assertEquals(true, healthy);
     }
