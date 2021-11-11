@@ -29,7 +29,6 @@ public class CoverageEligibilityController extends BaseController {
         } catch (ClientException e) {
             return new ResponseEntity<>(errorResponse(correlationId, ResponseCode.CLIENT_ERROR, e), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            e.printStackTrace();
             return new ResponseEntity<>(errorResponse(correlationId, ResponseCode.SERVER_ERROR, e), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -44,7 +43,6 @@ public class CoverageEligibilityController extends BaseController {
         } catch (ClientException e) {
             return new ResponseEntity<>(errorResponse(correlationId, ResponseCode.CLIENT_ERROR, e), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            e.printStackTrace();
             return new ResponseEntity<>(errorResponse(correlationId, ResponseCode.SERVER_ERROR, e), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
