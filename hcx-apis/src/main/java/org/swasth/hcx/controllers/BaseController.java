@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public class BaseController {
 
     @Value("${bootstrap-servers}")
-    private String kafkaServerUrl;
+    String kafkaServerUrl;
 
     @Value("${kafka.denormaliser.topic}")
     private String topic;
