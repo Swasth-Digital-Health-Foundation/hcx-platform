@@ -17,9 +17,6 @@ import java.util.stream.Collectors;
 
 public class BaseController {
 
-    @Value("${bootstrap-servers}")
-    String kafkaServerUrl;
-
     @Value("${kafka.denormaliser.topic}")
     private String topic;
 
@@ -32,7 +29,8 @@ public class BaseController {
     @Autowired
     Environment env;
 
-    KafkaClient kafkaClient = new KafkaClient();
+    @Autowired
+    KafkaClient kafkaClient;
 
     private String getUUID() {
         UUID uid = UUID.randomUUID();
@@ -84,7 +82,6 @@ public class BaseController {
         String mid = getUUID();
         String payloadEvent = kafkaEventGenerator.generatePayloadEvent(mid, requestBody);
         String metadataEvent = kafkaEventGenerator.generateMetadataEvent(mid, apiAction, requestBody);
-        kafkaClient.setKafkaServerUrl(kafkaServerUrl);
         kafkaClient.send(topic, key, payloadEvent);
         kafkaClient.send(topic, key, metadataEvent);
     }

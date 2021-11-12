@@ -33,7 +33,6 @@ public class HealthController extends BaseController {
 
     public Map checkKafkaHealth(){
         String serviceName = "kafka";
-        kafkaClient.setKafkaServerUrl(kafkaServerUrl);
         if(kafkaClient.health()){
             return generateCheck(serviceName, true);
         } else {
