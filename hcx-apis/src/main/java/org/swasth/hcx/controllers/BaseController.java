@@ -17,11 +17,13 @@ import java.util.stream.Collectors;
 
 public class BaseController {
 
-    @Value("${kafka.denormaliser.topic}")
-    private String topic;
+    @Value("${kafka.topic.ingest}")
+    private String ingestTopic;
 
-    @Value("${kafka.denormaliser.key}")
-    private String key;
+    @Value("${kafka.topic.payload}")
+    private String payloadTopic;
+
+    private String key="";
 
     @Autowired
     KafkaEventGenerator kafkaEventGenerator;
@@ -82,7 +84,7 @@ public class BaseController {
         String mid = getUUID();
         String payloadEvent = kafkaEventGenerator.generatePayloadEvent(mid, requestBody);
         String metadataEvent = kafkaEventGenerator.generateMetadataEvent(mid, apiAction, requestBody);
-        kafkaClient.send(topic, key, payloadEvent);
-        kafkaClient.send(topic, key, metadataEvent);
+        kafkaClient.send(payloadTopic, "", payloadEvent);
+        kafkaClient.send(ingestTopic, "", metadataEvent);
     }
 }
