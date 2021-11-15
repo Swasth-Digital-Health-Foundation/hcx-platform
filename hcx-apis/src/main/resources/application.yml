@@ -2,9 +2,9 @@
 bootstrap-servers: ${bootstrap_servers:localhost:9092}
 
 kafka:
-  denormaliser:
-    topic: ${kafka_topic:test}
-    key: ${kafka_key:test}
+  topic:
+    payload: ${kafka_payload_topic:local.hcx.payload}
+    ingest: ${kafka_ingest_topic:local.hcx.ingest}
 
 #hcx headers
 protocol:
