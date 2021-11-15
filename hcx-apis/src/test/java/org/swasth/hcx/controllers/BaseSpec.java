@@ -28,7 +28,8 @@ public class BaseSpec {
     @Mock
     protected Environment mockEnv;
 
-    protected KafkaClient mockKafkaClient = Mockito.mock(KafkaClient.class);
+    @MockBean
+    protected KafkaClient mockKafkaClient;
 
     public String getRequestBody() throws JsonProcessingException, JSONException {
         JSONObject obj = new JSONObject();
