@@ -41,4 +41,14 @@ public class BaseSpec {
         obj.put("tag","Mz-VPPyU4RlcuYv1IwIvzw");
         return String.valueOf(obj);
     }
+
+    public String getBadRequestBody() throws JsonProcessingException, JSONException {
+        JSONObject obj = new JSONObject();
+        obj.put("protected","eyJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwKImFsZyI6IkEyNTZHQ00iLAoieC1oY3gtc2VuZGVyX2NvZGUiOiIxMjM0NSIsCiJ4LWhjeC1yZWNpcGllbnRfY29kZSI6IjY3ODkwIiwKIngtaGN4LXJlcXVlc3RfaWQiOiJyZXEtMTIzIiwKIngtaGN4LWNvcnJlbGF0aW9uX2lkIjoibXNnLTEyMyIsCiJ4LWhjeC10aW1lc3RhbXAiOiIyMDIxLTEwLTI3VDIwOjM1OjUyLjYzNiswNTMwIiwKIngtaGN4LXN0YXR1cyI6InJlcXVlc3QuaW5pdGlhdGUiLAoiandzX2hlYWRlciI6eyJ0eXAiOiJKV1QiLCAiYWxnIjoiUlMyNTYifSwKImp3ZV9oZWFkZXIiOnsiYWxnIjoiUlNBLU9BRVAiLCJlbmMiOiJBMjU2R0NNIn0sCiJ1c2VfY2FzZV9uYW1lIjoidGVzdCIsCiJwYXJhbWV0ZXJfbmFtZSI6InRlc3QiCn0=");
+        obj.put("encrypted_key","6KB707dM9YTIgHtLvtgWQ8mKwboJW3of9locizkDTHzBC2IlrT1oOQ");
+        obj.put("aad","eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ");
+        obj.put("iv","AxY8DCtDaGlsbGljb3RoZQ");
+        obj.put("ciphertext","KDlTtXchhZTGufMYmOYGS4HffxPSUrfmqCHXaI9wOGY");
+        return String.valueOf(obj);
+    }
 }
