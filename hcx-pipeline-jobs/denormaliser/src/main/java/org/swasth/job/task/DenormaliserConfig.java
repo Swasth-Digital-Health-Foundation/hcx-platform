@@ -14,4 +14,8 @@ public interface DenormaliserConfig {
     // Consumers
     String eventConsumer = "denormaliser-consumer";
     String denormaliserFunction = "denormaliser";
+
+    // Producers
+    String eventProducer= "denormaliser-producer";
+
 }

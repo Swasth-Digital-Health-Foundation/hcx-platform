@@ -16,7 +16,7 @@ public class FlinkKafkaConnector {
         KafkaSource<String> source = KafkaSource.<String>builder()
                 .setBootstrapServers(kafkaServerUrl)
                 .setTopics(kafkaTopic)
-                .setStartingOffsets(OffsetsInitializer.earliest())
+                .setStartingOffsets(OffsetsInitializer.latest())
                 .setValueOnlyDeserializer(new SimpleStringSchema())
                 .build();
         return source;
