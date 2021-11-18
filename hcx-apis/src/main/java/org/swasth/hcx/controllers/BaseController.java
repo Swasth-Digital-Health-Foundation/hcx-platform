@@ -52,9 +52,9 @@ public class BaseController {
             //validating protected headers
             Map<String, Object> protectedHeaders = StringUtils.decodeBase64String((String) requestBody.get("protected"));
             List<String> mandatoryHeaders = new ArrayList<>();
-            mandatoryHeaders.addAll((List<String>) env.getProperty("protocol.mandatory.headers", List.class, new ArrayList<String>()));
-            mandatoryHeaders.addAll((List<String>) env.getProperty("domain.headers", List.class, new ArrayList<String>()));
-            mandatoryHeaders.addAll((List<String>) env.getProperty("jose.headers", List.class, new ArrayList<String>()));
+            mandatoryHeaders.addAll((List<String>) env.getProperty("protocol.headers.mandatory", List.class, new ArrayList<String>()));
+            mandatoryHeaders.addAll((List<String>) env.getProperty("headers.domain", List.class, new ArrayList<String>()));
+            mandatoryHeaders.addAll((List<String>) env.getProperty("headers.jose", List.class, new ArrayList<String>()));
             List<String> missingHeaders = mandatoryHeaders.stream().filter(key -> !protectedHeaders.containsKey(key)).collect(Collectors.toList());
             if(!missingHeaders.isEmpty()) {
                 throw new ClientException("Mandatory headers are missing: " + missingHeaders);
