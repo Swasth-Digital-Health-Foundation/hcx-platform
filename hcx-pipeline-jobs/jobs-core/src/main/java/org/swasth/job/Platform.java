@@ -10,14 +10,8 @@ public class Platform {
     private static Config envConf = ConfigFactory.systemEnvironment();
     public static Config config = envConf.withFallback(defaultConf);
 
-    private static int requestTimeout = 30;
-
     public static void loadProperties(Config conf) {
         config = config.withFallback(conf);
-    }
-
-    public static int getTimeout() {
-        return requestTimeout;
     }
 
     public static String getString(String key) {
