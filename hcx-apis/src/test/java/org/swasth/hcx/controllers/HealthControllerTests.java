@@ -47,4 +47,17 @@ public class HealthControllerTests extends BaseSpec {
         assertEquals(true, healthy);
     }
 
+    @Test
+    public void testHealth_check() throws Exception {
+        when(mockKafkaClient.health()).thenReturn(false);
+        MvcResult mvcResult = mockMvc.perform(get("/health")).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        JSONObject resp= new JSONObject(response.getContentAsString());
+        JSONObject result = resp.getJSONObject("result");
+        Boolean healthy = result.getBoolean("healthy");
+        assertEquals(200, status);
+        assertEquals(false, healthy);
+    }
+
 }
