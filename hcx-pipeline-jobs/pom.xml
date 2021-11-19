@@ -14,9 +14,9 @@
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <flink.version>1.14.0</flink.version>
-        <scala.binary.version>2.12</scala.binary.version>
-        <log4j.version>2.14.1</log4j.version>
+        <flink.version>1.12.0</flink.version>
+        <scala.binary.version>2.11</scala.binary.version>
+        <log4j.version>2.12.1</log4j.version>
         <target.java.version>11</target.java.version>
         <maven.compiler.source>${target.java.version}</maven.compiler.source>
         <maven.compiler.target>${target.java.version}</maven.compiler.target>

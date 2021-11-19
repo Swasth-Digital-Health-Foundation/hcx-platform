@@ -15,7 +15,8 @@ public class DenormaliserStreamTask{
 	public static void main(String[] args) throws Exception {
 		// set up the streaming execution environment
 		StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-		DataStream<String> denormaliserStream = env.fromSource(FlinkKafkaConnector.kafkaStringSource(DenormaliserConfig.kafkaInputTopic), WatermarkStrategy.noWatermarks(), DenormaliserConfig.eventConsumer)
+		DataStream<String> denormaliserStream = env.addSource(FlinkKafkaConnector.kafkaStringSource(DenormaliserConfig.kafkaInputTopic))
+				.name(DenormaliserConfig.eventConsumer)
 				.uid(DenormaliserConfig.eventConsumer)
 				.setParallelism(DenormaliserConfig.kafkaConsumerParallelism)
 				.rebalance()
@@ -24,7 +25,7 @@ public class DenormaliserStreamTask{
 				.uid(DenormaliserConfig.denormaliserFunction)
 				.setParallelism(DenormaliserConfig.parallelism);
 
-		denormaliserStream.sinkTo(FlinkKafkaConnector.kafkaStringSink(DenormaliserConfig.kafkaOutputTopic))
+		denormaliserStream.addSink(FlinkKafkaConnector.kafkaStringSink(DenormaliserConfig.kafkaOutputTopic))
 				.name(DenormaliserConfig.eventProducer);
 		env.execute("Denormaliser Job");
 	}
