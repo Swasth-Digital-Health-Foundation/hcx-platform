@@ -1,11 +1,7 @@
 package org.swasth.job.task;
 
-import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.functions.ProcessFunction;
-import org.apache.flink.util.Collector;
-import org.swasth.job.Platform;
 import org.swasth.job.connector.FlinkKafkaConnector;
 import org.swasth.job.functions.DenormaliserFunction;
 

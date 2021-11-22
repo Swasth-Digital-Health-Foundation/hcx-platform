@@ -2,9 +2,9 @@ package org.swasth.job.functions;
 
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.util.Collector;
-import org.swasth.job.data.ParticipantDetails;
 import org.swasth.job.helpers.RegistryFetcher;
 import org.swasth.job.utils.JSONUtil;
+
 import java.util.Map;
 
 public class DenormaliserFunction extends ProcessFunction<String,String> implements RegistryFetcher {
