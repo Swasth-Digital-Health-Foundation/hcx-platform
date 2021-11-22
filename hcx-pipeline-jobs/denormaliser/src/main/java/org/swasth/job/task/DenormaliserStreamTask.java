@@ -13,9 +13,11 @@ import org.swasth.job.functions.DenormaliserFunction;
 public class DenormaliserStreamTask{
 
 	public static void main(String[] args) throws Exception {
+
+		FlinkKafkaConnector kafkaConnector = new FlinkKafkaConnector();
 		// set up the streaming execution environment
 		StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-		DataStream<String> denormaliserStream = env.addSource(FlinkKafkaConnector.kafkaStringSource(DenormaliserConfig.kafkaInputTopic))
+		DataStream<String> denormaliserStream = env.addSource(kafkaConnector.kafkaStringSource(DenormaliserConfig.kafkaInputTopic))
 				.name(DenormaliserConfig.eventConsumer)
 				.uid(DenormaliserConfig.eventConsumer)
 				.setParallelism(DenormaliserConfig.kafkaConsumerParallelism)
@@ -25,7 +27,7 @@ public class DenormaliserStreamTask{
 				.uid(DenormaliserConfig.denormaliserFunction)
 				.setParallelism(DenormaliserConfig.parallelism);
 
-		denormaliserStream.addSink(FlinkKafkaConnector.kafkaStringSink(DenormaliserConfig.kafkaOutputTopic))
+		denormaliserStream.addSink(kafkaConnector.kafkaStringSink(DenormaliserConfig.kafkaOutputTopic))
 				.name(DenormaliserConfig.eventProducer);
 		env.execute("Denormaliser Job");
 	}
