@@ -33,23 +33,27 @@ public class CoverageEligibilityTests extends BaseSpec {
          and for the mock service to be injected into the controller under test. */
         MockitoAnnotations.openMocks(this);
         this.mockMvc = MockMvcBuilders.standaloneSetup(coverageEligibilityController).build();
-        when(mockEnv.getProperty("protocol.headers.mandatory", List.class, new ArrayList<String>())).thenReturn(new ArrayList<>(Arrays.asList("x-hcx-sender_code", "x-hcx-recipient_code", "x-hcx-request_id", "x-hcx-correlation_id", "x-hcx-timestamp", "x-hcx-status")));
-        when(mockEnv.getProperty("headers.domain", List.class, new ArrayList<String>())).thenReturn(new ArrayList<>(Arrays.asList("use_case_name", "parameter_name")));
-        when(mockEnv.getProperty("headers.jose", List.class, new ArrayList<String>())).thenReturn(new ArrayList<>(Arrays.asList("alg", "enc")));
-        when(mockEnv.getProperty("payload.mandatory.properties", List.class, new ArrayList<String>())).thenReturn(new ArrayList<>(Arrays.asList("protected", "encrypted_key", "aad", "iv", "ciphertext", "tag")));
-        doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
-        String requestBody = getRequestBody();
-        MvcResult mvcResult = mockMvc.perform(post("/v1/coverageeligibility/check").content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
-        MockHttpServletResponse response = mvcResult.getResponse();
-        int status = response.getStatus();
-        assertEquals(202, status);
+    }
+
+    @Test
+    public void check_coverage_eligibility_success_scenario() throws Exception {
+      when(mockEnv.getProperty("protocol.headers.mandatory", List.class, new ArrayList<String>())).thenReturn(new ArrayList<>(Arrays.asList("x-hcx-sender_code", "x-hcx-recipient_code", "x-hcx-request_id", "x-hcx-correlation_id", "x-hcx-timestamp", "x-hcx-status")));
+      when(mockEnv.getProperty("headers.domain", List.class, new ArrayList<String>())).thenReturn(new ArrayList<>(Arrays.asList("use_case_name", "parameter_name")));
+      when(mockEnv.getProperty("headers.jose", List.class, new ArrayList<String>())).thenReturn(new ArrayList<>(Arrays.asList("alg", "enc")));
+      when(mockEnv.getProperty("payload.mandatory.properties", List.class, new ArrayList<String>())).thenReturn(new ArrayList<>(Arrays.asList("protected", "encrypted_key", "aad", "iv", "ciphertext", "tag")));
+      doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
+      String requestBody = getRequestBody();
+      MvcResult mvcResult = mockMvc.perform(post("/v1/coverageeligibility/check").content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+      MockHttpServletResponse response = mvcResult.getResponse();
+      int status = response.getStatus();
+      assertEquals(202, status);
     }
 
     @Test
     public void check_coverage_eligibility_headers_missing_scenario() throws Exception {
-        when(mockEnv.getProperty("protocol.mandatory.headers", List.class, new ArrayList<String>())).thenReturn(new ArrayList<>(Arrays.asList("x-hcx-sender_code", "x-hcx-recipient_code", "x-hcx-request_id", "x-hcx-correlation_id", "x-hcx-timestamp", "x-hcx-status")));
-        when(mockEnv.getProperty("domain.headers", List.class, new ArrayList<String>())).thenReturn(new ArrayList<>(Arrays.asList("use_case_name", "parameter_name")));
-        when(mockEnv.getProperty("jose.headers", List.class, new ArrayList<String>())).thenReturn(new ArrayList<>(Arrays.asList("alg", "enc")));
+        when(mockEnv.getProperty("protocol.headers.mandatory", List.class, new ArrayList<String>())).thenReturn(new ArrayList<>(Arrays.asList("x-hcx-sender_code", "x-hcx-recipient_code", "x-hcx-request_id", "x-hcx-correlation_id", "x-hcx-timestamp", "x-hcx-status")));
+        when(mockEnv.getProperty("headers.domain", List.class, new ArrayList<String>())).thenReturn(new ArrayList<>(Arrays.asList("use_case_name", "parameter_name")));
+        when(mockEnv.getProperty("headers.jose", List.class, new ArrayList<String>())).thenReturn(new ArrayList<>(Arrays.asList("alg", "enc")));
         when(mockEnv.getProperty("payload.mandatory.properties", List.class, new ArrayList<String>())).thenReturn(new ArrayList<>(Arrays.asList("protected", "encrypted_key", "aad", "iv", "ciphertext", "tag")));
         doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
         String requestBody = getHeadersMissingRequestBody();
@@ -88,9 +92,9 @@ public class CoverageEligibilityTests extends BaseSpec {
 
     @Test
     public void on_check_coverage_eligibility_success_scenario() throws Exception {
-        when(mockEnv.getProperty("protocol.mandatory.headers", List.class, new ArrayList<String>())).thenReturn(new ArrayList<>(Arrays.asList("x-hcx-sender_code", "x-hcx-recipient_code", "x-hcx-request_id", "x-hcx-correlation_id", "x-hcx-timestamp", "x-hcx-status")));
-        when(mockEnv.getProperty("domain.headers", List.class, new ArrayList<String>())).thenReturn(new ArrayList<>(Arrays.asList("use_case_name", "parameter_name")));
-        when(mockEnv.getProperty("jose.headers", List.class, new ArrayList<String>())).thenReturn(new ArrayList<>(Arrays.asList("alg", "enc")));
+        when(mockEnv.getProperty("protocol.headers.mandatory", List.class, new ArrayList<String>())).thenReturn(new ArrayList<>(Arrays.asList("x-hcx-sender_code", "x-hcx-recipient_code", "x-hcx-request_id", "x-hcx-correlation_id", "x-hcx-timestamp", "x-hcx-status")));
+        when(mockEnv.getProperty("headers.domain", List.class, new ArrayList<String>())).thenReturn(new ArrayList<>(Arrays.asList("use_case_name", "parameter_name")));
+        when(mockEnv.getProperty("headers.jose", List.class, new ArrayList<String>())).thenReturn(new ArrayList<>(Arrays.asList("alg", "enc")));
         when(mockEnv.getProperty("payload.mandatory.properties", List.class, new ArrayList<String>())).thenReturn(new ArrayList<>(Arrays.asList("protected", "encrypted_key", "aad", "iv", "ciphertext", "tag")));
         doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
         String requestBody = getRequestBody();
