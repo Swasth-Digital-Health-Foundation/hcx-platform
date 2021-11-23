@@ -48,7 +48,7 @@ public class HealthControllerTests extends BaseSpec {
     }
 
     @Test
-    public void testHealth_check() throws Exception {
+    public void testHealth_failure_scenario() throws Exception {
         when(mockKafkaClient.health()).thenReturn(false);
         MvcResult mvcResult = mockMvc.perform(get("/health")).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
