@@ -1,6 +1,8 @@
 package org.swasth.job.connector;
 
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
+import org.apache.flink.streaming.api.functions.sink.SinkFunction;
+import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import org.apache.flink.streaming.connectors.kafka.KafkaSerializationSchema;
@@ -12,11 +14,11 @@ public class FlinkKafkaConnector {
 
     private final String kafkaBrokerServers = Platform.getString("bootstrap-servers","localhost:9092");
 
-    public FlinkKafkaConsumer<String> kafkaStringSource(String kafkaTopic) {
+    public SourceFunction<String> kafkaStringSource(String kafkaTopic) {
         return new FlinkKafkaConsumer<String>(kafkaTopic, new SimpleStringSchema(), kafkaConsumerProperties());
     }
 
-    public FlinkKafkaProducer<String> kafkaStringSink(String kafkaTopic) {
+    public SinkFunction<String> kafkaStringSink(String kafkaTopic) {
         return new FlinkKafkaProducer<String>(kafkaTopic, new SimpleStringSchema(), kafkaProducerProperties());
     }
 
