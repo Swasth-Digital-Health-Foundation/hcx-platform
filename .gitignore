@@ -1,0 +1,4 @@
+**/target/**
+**/.idea/**
+**/*.iml
+hcx-pipeline-jobs/denormaliser/dependency-reduced-pom.xml
