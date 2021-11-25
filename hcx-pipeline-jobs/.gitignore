@@ -1,8 +1,6 @@
 HELP.md
-denormaliser/target/
 !.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+**/target/**
 .mvn
 
 ### STS ###
@@ -15,10 +13,10 @@ denormaliser/target/
 .sts4-cache
 
 ### IntelliJ IDEA ###
-.idea
 *.iws
-*.iml
 *.ipr
+**/.idea/**
+**/*.iml
 
 ### NetBeans ###
 /nbproject/private/
