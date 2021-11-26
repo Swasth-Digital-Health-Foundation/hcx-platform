@@ -19,8 +19,8 @@ public class KafkaEventGenerator {
         Map<String,Object> constructEvent = new HashMap<>();
         constructEvent.put("mid", mid);
         constructEvent.put("payload", requestBody);
-        String apiEvent = new ObjectMapper().writeValueAsString(constructEvent);
-        return apiEvent;
+        String payloadEvent = new ObjectMapper().writeValueAsString(constructEvent);
+        return payloadEvent;
     }
 
     public String generateMetadataEvent(String mid, String apiAction, Map<String, Object> requestBody) throws JsonProcessingException {

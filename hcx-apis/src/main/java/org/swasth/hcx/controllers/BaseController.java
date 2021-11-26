@@ -45,7 +45,7 @@ public class BaseController {
         } else {
             // validating payload properties
             List<String> mandatoryPayloadProps = (List<String>) env.getProperty("payload.mandatory.properties", List.class, new ArrayList<String>());
-            List<String> missingPayloadProps = mandatoryPayloadProps.stream().filter(key -> !requestBody.keySet().contains(key)).collect(Collectors.toList());
+            List<String> missingPayloadProps = mandatoryPayloadProps.stream().filter(key -> !requestBody.containsKey(key)).collect(Collectors.toList());
             if (!missingPayloadProps.isEmpty()) {
                 throw new ClientException("Payload mandatory properties are missing: " + missingPayloadProps);
             }
@@ -70,8 +70,7 @@ public class BaseController {
     }
 
     public Response getResponse(String correlationId){
-        Response response = new Response(correlationId);
-        return response;
+        return new Response(correlationId);
     }
 
     public Response errorResponse(Response response, ResponseCode code, Exception e){
