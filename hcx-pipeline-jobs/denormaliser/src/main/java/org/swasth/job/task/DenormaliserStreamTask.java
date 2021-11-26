@@ -28,7 +28,8 @@ public class DenormaliserStreamTask{
 
 		DataStream<String> invalidOutputStream = denormaliserStream.getSideOutput(DenormaliserConfig.invalidOutTag);
 		invalidOutputStream.addSink(kafkaConnector.kafkaStringSink(DenormaliserConfig.kafkaInvalidTopic));
-
+		DataStream<String> auditOutputStream = denormaliserStream.getSideOutput(DenormaliserConfig.auditOutTag);
+		auditOutputStream.addSink(kafkaConnector.kafkaStringSink(DenormaliserConfig.kafkaAuditTopic));
 		denormaliserStream.addSink(kafkaConnector.kafkaStringSink(DenormaliserConfig.kafkaOutputTopic))
 				.name(DenormaliserConfig.eventProducer);
 		env.execute("Denormaliser Job");
