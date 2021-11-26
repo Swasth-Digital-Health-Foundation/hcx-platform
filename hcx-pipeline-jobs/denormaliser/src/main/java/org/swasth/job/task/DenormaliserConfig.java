@@ -10,7 +10,6 @@ public interface DenormaliserConfig {
     String kafkaInputTopic = Platform.getString("kafka.topic.ingest");
     String kafkaOutputTopic = Platform.getString("kafka.topic.denorm");
     String kafkaInvalidTopic = Platform.getString("kafka.topic.invalid");
-    String kafkaAuditTopic = Platform.getString("kafka.topic.audit");
     Integer kafkaConsumerParallelism = Platform.getInteger("task.consumer.parallelism");
     Integer parallelism = Platform.getInteger("task.parallelism");
 
@@ -23,6 +22,5 @@ public interface DenormaliserConfig {
 
     //Tags
     OutputTag<String> invalidOutTag = new OutputTag<>("invalid-data") {};
-    OutputTag<String> auditOutTag = new OutputTag<>("audit-data") {};
 
 }
