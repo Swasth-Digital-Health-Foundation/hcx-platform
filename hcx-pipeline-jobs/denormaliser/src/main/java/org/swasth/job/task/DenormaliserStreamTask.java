@@ -26,8 +26,8 @@ public class DenormaliserStreamTask{
 				.setParallelism(DenormaliserConfig.parallelism);
 
 
-		DataStream<String> invalidOutputStream = denormaliserStream.getSideOutput(DenormaliserConfig.invalidOutTag);
-		invalidOutputStream.addSink(kafkaConnector.kafkaStringSink(DenormaliserConfig.kafkaInvalidTopic));
+		denormaliserStream.getSideOutput(DenormaliserConfig.invalidOutTag)
+				.addSink(kafkaConnector.kafkaStringSink(DenormaliserConfig.kafkaInvalidTopic));
 
 		denormaliserStream.addSink(kafkaConnector.kafkaStringSink(DenormaliserConfig.kafkaOutputTopic))
 				.name(DenormaliserConfig.eventProducer);
