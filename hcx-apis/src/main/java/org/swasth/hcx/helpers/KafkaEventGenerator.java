@@ -1,13 +1,15 @@
 package org.swasth.hcx.helpers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.swasth.common.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Component
 public class KafkaEventGenerator {
@@ -19,11 +21,10 @@ public class KafkaEventGenerator {
         Map<String,Object> constructEvent = new HashMap<>();
         constructEvent.put("mid", mid);
         constructEvent.put("payload", requestBody);
-        String payloadEvent = new ObjectMapper().writeValueAsString(constructEvent);
-        return payloadEvent;
+        return StringUtils.serialize(constructEvent);
     }
 
-    public String generateMetadataEvent(String mid, String apiAction, Map<String, Object> requestBody) throws JsonProcessingException {
+    public String generateMetadataEvent(String mid, String apiAction, Map<String, Object> requestBody) throws Exception {
         Map<String,Object> constructEvent = new HashMap<>();
         List<String> protocolHeaders = (List<String>) env.getProperty("protocol.headers.mandatory", List.class, new ArrayList<String>());
         protocolHeaders.addAll((List<String>) env.getProperty("protocol.headers.optional", List.class, new ArrayList<String>()));
@@ -52,7 +53,6 @@ public class KafkaEventGenerator {
         }});
         constructEvent.put("status", "New");
         constructEvent.put("log_details", "current status: info");
-        String metadataEvent = new ObjectMapper().writeValueAsString(constructEvent);
-        return metadataEvent;
+        return StringUtils.serialize(constructEvent);
     }
 }
