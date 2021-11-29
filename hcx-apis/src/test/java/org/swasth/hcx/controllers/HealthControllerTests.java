@@ -60,5 +60,4 @@ public class HealthControllerTests extends BaseSpec {
         assertEquals(200, status);
         assertEquals(false, healthy);
     }
-
 }
