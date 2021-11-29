@@ -50,5 +50,4 @@ public class CoverageEligibilityController extends BaseController {
             return new ResponseEntity<>(errorResponse(response, ErrorCodes.SERVER_ERROR, e), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
 }
