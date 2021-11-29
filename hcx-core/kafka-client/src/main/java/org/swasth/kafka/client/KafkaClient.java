@@ -6,6 +6,7 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.swasth.common.exception.ClientException;
+import org.swasth.common.exception.ErrorCodes;
 
 import java.util.Map;
 import java.util.Properties;
@@ -25,7 +26,7 @@ public class KafkaClient {
             producer.send(new ProducerRecord<>(topic, key, message));
         }
 		else {
-            throw new ClientException("Topic with name: " + topic + ", does not exists.");
+            throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_TOPIC, "Topic with name: " + topic + ", does not exists.");
         }
     }
 
