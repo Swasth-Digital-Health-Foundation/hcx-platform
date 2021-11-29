@@ -1,89 +1,78 @@
-package org.swasth.hcx.controllers;
+package org.swasth.kafka.client;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
-import org.swasth.common.StringUtils;
-import org.swasth.common.dto.Response;
-import org.swasth.common.dto.ResponseError;
+import org.apache.kafka.clients.admin.AdminClient;
+import org.apache.kafka.clients.admin.ListTopicsOptions;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
-import org.swasth.common.exception.ResponseCode;
-import org.swasth.hcx.helpers.KafkaEventGenerator;
-import org.swasth.kafka.client.KafkaClient;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.ExecutionException;
 
-public class BaseController {
+public class KafkaClient {
 
-    @Value("${kafka.topic.ingest}")
-    private String ingestTopic;
+    private String kafkaServerUrl;
 
-    @Value("${kafka.topic.payload}")
-    private String payloadTopic;
-
-    private String key="";
-
-    @Autowired
-    KafkaEventGenerator kafkaEventGenerator;
-
-    @Autowired
-    Environment env;
-
-    @Autowired
-    KafkaClient kafkaClient;
-
-    private String getUUID() {
-        UUID uid = UUID.randomUUID();
-        return uid.toString();
+    public void setKafkaServerUrl(String url){
+        this.kafkaServerUrl = url;
     }
 
-    public void validateRequestBody(Map<String, Object> requestBody) throws Exception {
-        if(requestBody.isEmpty()) {
-            throw new ClientException(ErrorCodes.CLIENT_ERR_EMPTY_REQ_BODY, "Request Body cannot be Empty.");
-        } else {
-            // validating payload properties
-            List<String> mandatoryPayloadProps = (List<String>) env.getProperty("payload.mandatory.properties", List.class, new ArrayList<String>());
-            List<String> missingPayloadProps = mandatoryPayloadProps.stream().filter(key -> !requestBody.containsKey(key)).collect(Collectors.toList());
-            if (!missingPayloadProps.isEmpty()) {
-                throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_PAYLOAD, "Payload mandatory properties are missing: " + missingPayloadProps);
-            }
-            //validating protected headers
-            Map<String, Object> protectedHeaders = StringUtils.decodeBase64String((String) requestBody.get("protected"));
-            List<String> mandatoryHeaders = new ArrayList<>();
-            mandatoryHeaders.addAll((List<String>) env.getProperty("protocol.headers.mandatory", List.class, new ArrayList<String>()));
-            mandatoryHeaders.addAll((List<String>) env.getProperty("headers.domain", List.class, new ArrayList<String>()));
-            mandatoryHeaders.addAll((List<String>) env.getProperty("headers.jose", List.class, new ArrayList<String>()));
-            List<String> missingHeaders = mandatoryHeaders.stream().filter(key -> !protectedHeaders.containsKey(key)).collect(Collectors.toList());
-            if(!missingHeaders.isEmpty()) {
-                throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_HEADER, "Mandatory headers are missing: " + missingHeaders);
-            }
+    public void send(String topic, String key, String message) throws ClientException {
+        if (validate(topic)) {
+            KafkaProducer producer = createProducer();
+            producer.send(new ProducerRecord<>(topic, key, message));
+        }
+		else {
+            throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_TOPIC, "Topic with name: " + topic + ", does not exists.");
         }
     }
 
-    public Response getHealthResponse(){
-        Response response = new Response();
-        Map<String, Object> result = new HashMap<>();
-        response.setResult(result);
-        return response;
+    public boolean validate(String topic) {
+        KafkaConsumer consumer = createConsumer();
+        Map topics = consumer.listTopics();
+        return topics.keySet().contains(topic);
     }
 
-    public Response getResponse(String correlationId){
-        return new Response(correlationId);
+    public KafkaProducer createProducer(){
+        Properties props = new Properties();
+        props.put("bootstrap.servers", kafkaServerUrl);
+        props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        KafkaProducer<String, String> producer = new KafkaProducer<>(props);
+        return  producer;
     }
 
-    public Response errorResponse(Response response, ErrorCodes code, Exception e){
-        ResponseError error= new ResponseError(code, e.getMessage(), e.getCause());
-        response.setError(error);
-        return response;
+    public KafkaConsumer createConsumer(){
+        Properties props = new Properties();
+        props.put("bootstrap.servers", kafkaServerUrl);
+        props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+        props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+        KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
+        return consumer;
     }
 
-    public void processAndSendEvent(String apiAction, Map<String, Object> requestBody) throws Exception {
-        String mid = getUUID();
-        String payloadEvent = kafkaEventGenerator.generatePayloadEvent(mid, requestBody);
-        String metadataEvent = kafkaEventGenerator.generateMetadataEvent(mid, apiAction, requestBody);
-        kafkaClient.send(payloadTopic, "", payloadEvent);
-        kafkaClient.send(ingestTopic, "", metadataEvent);
+    public AdminClient kafkaAdminClient() {
+        Properties properties = new Properties();
+        properties.put("bootstrap.servers", kafkaServerUrl);
+        properties.put("connections.max.idle.ms", 10000);
+        properties.put("request.timeout.ms", 5000);
+        return AdminClient.create(properties);
     }
+
+    public boolean health(){
+        AdminClient adminClient = kafkaAdminClient();
+        try
+        {
+            adminClient.listTopics(new ListTopicsOptions().timeoutMs(5000)).listings().get();
+            return true;
+        }
+        catch (InterruptedException | ExecutionException e)
+        {
+            return false;
+        }
+    }
+
 }
