@@ -9,6 +9,7 @@ This readme file contains the instruction to set up and run the denormaliser job
 * Maven
 * Docker
 * Kafka
+* Redis
 
 ### Running Denormaliser Job:
 1. Go to the path: `/hcx-pipeline-jobs` and run the below maven command to build the modules.
