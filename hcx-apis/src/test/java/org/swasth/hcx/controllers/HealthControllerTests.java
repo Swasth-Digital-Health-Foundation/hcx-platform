@@ -34,7 +34,6 @@ public class HealthControllerTests extends BaseSpec {
         assertEquals(200, status);
     }
 
-
     @Test
     public void testHealth() throws Exception {
         when(mockKafkaClient.health()).thenReturn(true);
