@@ -1,16 +1,15 @@
 package org.swasth.hcx.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.env.Environment;
 import org.springframework.test.web.servlet.MockMvc;
+import org.swasth.common.StringUtils;
 import org.swasth.hcx.helpers.KafkaEventGenerator;
 import org.swasth.kafka.client.KafkaClient;
 
@@ -41,7 +40,7 @@ public class BaseSpec {
         obj.put("iv","AxY8DCtDaGlsbGljb3RoZQ");
         obj.put("ciphertext","KDlTtXchhZTGufMYmOYGS4HffxPSUrfmqCHXaI9wOGY");
         obj.put("tag","Mz-VPPyU4RlcuYv1IwIvzw");
-        return new ObjectMapper().writeValueAsString(obj);
+        return StringUtils.serialize(obj);
     }
 
     public String getBadRequestBody() throws JsonProcessingException {
@@ -51,7 +50,7 @@ public class BaseSpec {
         obj.put("aad","eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ");
         obj.put("iv","AxY8DCtDaGlsbGljb3RoZQ");
         obj.put("ciphertext","KDlTtXchhZTGufMYmOYGS4HffxPSUrfmqCHXaI9wOGY");
-        return new ObjectMapper().writeValueAsString(obj);
+        return StringUtils.serialize(obj);
     }
 
     public String getHeadersMissingRequestBody() throws JsonProcessingException {
@@ -62,6 +61,6 @@ public class BaseSpec {
         obj.put("iv","AxY8DCtDaGlsbGljb3RoZQ");
         obj.put("ciphertext","KDlTtXchhZTGufMYmOYGS4HffxPSUrfmqCHXaI9wOGY");
         obj.put("tag","Mz-VPPyU4RlcuYv1IwIvzw");
-        return new ObjectMapper().writeValueAsString(obj);
+        return StringUtils.serialize(obj);
     }
 }

@@ -20,7 +20,7 @@ public class KafkaEventGeneratorTests {
     }
 
     @Test
-    public void check_generateMetadataEvent() throws JsonProcessingException {
+    public void check_generateMetadataEvent() throws Exception {
         String result = kafkaEventGenerator.generateMetadataEvent("test", "/test", getRequestBody());
         assert (!result.isEmpty());
     }
