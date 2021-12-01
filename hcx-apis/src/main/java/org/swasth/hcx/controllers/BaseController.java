@@ -24,7 +24,7 @@ public class BaseController {
     private String payloadTopic;
 
     @Value("${gateway.mode}")
-    private Boolean gatewayMode;
+    private Boolean serviceMode;
 
     private String key="";
 
@@ -86,7 +86,7 @@ public class BaseController {
         String mid = getUUID();
         String payloadEvent = kafkaEventGenerator.generatePayloadEvent(mid, requestBody);
         String metadataEvent = kafkaEventGenerator.generateMetadataEvent(mid, apiAction, requestBody);
-        if(gatewayMode) {
+        if(serviceMode.equals("gateway")) {
             kafkaClient.send(payloadTopic, "", payloadEvent);
             kafkaClient.send(ingestTopic, "", metadataEvent);
         }
