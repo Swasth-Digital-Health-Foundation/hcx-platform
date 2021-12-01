@@ -23,6 +23,9 @@ public class BaseController {
     @Value("${kafka.topic.payload}")
     private String payloadTopic;
 
+    @Value("${gateway.mode}")
+    private Boolean gatewayMode;
+
     private String key="";
 
     @Autowired
@@ -83,7 +86,9 @@ public class BaseController {
         String mid = getUUID();
         String payloadEvent = kafkaEventGenerator.generatePayloadEvent(mid, requestBody);
         String metadataEvent = kafkaEventGenerator.generateMetadataEvent(mid, apiAction, requestBody);
-        kafkaClient.send(payloadTopic, "", payloadEvent);
-        kafkaClient.send(ingestTopic, "", metadataEvent);
+        if(gatewayMode==true) {
+            kafkaClient.send(payloadTopic, "", payloadEvent);
+            kafkaClient.send(ingestTopic, "", metadataEvent);
+        }
     }
 }
