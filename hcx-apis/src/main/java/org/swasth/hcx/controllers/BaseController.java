@@ -23,9 +23,6 @@ public class BaseController {
     @Value("${kafka.topic.payload}")
     private String payloadTopic;
 
-    @Value("${gateway.mode}")
-    private Boolean serviceMode;
-
     private String key="";
 
     @Autowired
@@ -84,6 +81,7 @@ public class BaseController {
 
     public void processAndSendEvent(String apiAction, Map<String, Object> requestBody) throws Exception {
         String mid = getUUID();
+        String serviceMode = env.getProperty("service.mode");
         String payloadEvent = kafkaEventGenerator.generatePayloadEvent(mid, requestBody);
         String metadataEvent = kafkaEventGenerator.generateMetadataEvent(mid, apiAction, requestBody);
         if(serviceMode.equals("gateway")) {
