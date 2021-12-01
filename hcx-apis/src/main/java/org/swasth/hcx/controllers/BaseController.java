@@ -86,7 +86,7 @@ public class BaseController {
         String mid = getUUID();
         String payloadEvent = kafkaEventGenerator.generatePayloadEvent(mid, requestBody);
         String metadataEvent = kafkaEventGenerator.generateMetadataEvent(mid, apiAction, requestBody);
-        if(gatewayMode==true) {
+        if(gatewayMode) {
             kafkaClient.send(payloadTopic, "", payloadEvent);
             kafkaClient.send(ingestTopic, "", metadataEvent);
         }
