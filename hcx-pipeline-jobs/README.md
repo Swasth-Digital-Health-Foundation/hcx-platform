@@ -11,6 +11,16 @@ This readme file contains the instruction to set up and run the denormaliser job
 * Kafka
 * Redis
 
+### Redis database setup in docker:
+1. We need to create the redis instance, By using the below command we can create the same and run in a container.
+```shell
+docker run --name sunbird_redis -d -p 6379:6379 redis:latest
+```
+3. To SSH to redis docker container, run the below command
+```shell
+docker exec -it sunbird_redis bash
+```
+
 ### Running Denormaliser Job:
 1. Go to the path: `/hcx-pipeline-jobs` and run the below maven command to build the modules.
 ```shell
