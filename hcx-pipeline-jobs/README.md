@@ -14,7 +14,7 @@ This readme file contains the instruction to set up and run the denormaliser job
 ### Redis database setup in docker:
 1. We need to create the redis instance, By using the below command we can create the same and run in a container.
 ```shell
-docker run --name sunbird_redis -d -p 6379:6379 redis:latest
+docker run --name sunbird_redis -d -p 6379:6379 redis:6.2.6
 ```
 3. To SSH to redis docker container, run the below command
 ```shell
