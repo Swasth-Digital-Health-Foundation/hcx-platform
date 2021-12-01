@@ -6,6 +6,8 @@ kafka:
     payload: ${kafka_payload_topic:local.hcx.request.payload}
     ingest: ${kafka_ingest_topic:local.hcx.request.ingest}
 
+gateway:
+  mode: true
 #hcx headers
 protocol:
   headers:
