@@ -54,6 +54,6 @@ public interface Constants {
     String SERVICE_MODE = "service.mode";
     String GATEWAY = "gateway";
     String KAFKA_TOPIC_PAYLOAD = "kafka.topic.payload";
-    String KAFKA_TOPIC_ELIGIBILITY_CHECK = "kafka.topic.eligibilitycheck";
+    String KAFKA_TOPIC_COVERAGE_ELIGIBILITY = "kafka.topic.coverageeligibility";
 
 }

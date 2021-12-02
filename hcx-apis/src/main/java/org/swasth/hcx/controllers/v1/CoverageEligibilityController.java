@@ -14,13 +14,15 @@ import java.util.Map;
 @RequestMapping(value = "/v1/coverageeligibility")
 public class CoverageEligibilityController extends BaseController {
 
+    String kafkaTopic = env.getProperty(Constants.KAFKA_TOPIC_COVERAGE_ELIGIBILITY);
+
     @RequestMapping(value = "/check", method = RequestMethod.POST)
     public ResponseEntity<Object> checkCoverageEligibility(@RequestBody Map<String, Object> requestBody) throws Exception {
-        return validateReqAndPushToKafka(requestBody, Constants.COVERAGE_ELIGIBILITY_CHECK);
+        return validateReqAndPushToKafka(requestBody, Constants.COVERAGE_ELIGIBILITY_CHECK, kafkaTopic);
     }
 
     @RequestMapping(value = "/on_check", method = RequestMethod.POST)
     public ResponseEntity<Object> onCheckCoverageEligibility(@RequestBody Map<String, Object> requestBody) throws Exception {
-        return validateReqAndPushToKafka(requestBody, Constants.COVERAGE_ELIGIBILITY_ONCHECK);
+        return validateReqAndPushToKafka(requestBody, Constants.COVERAGE_ELIGIBILITY_ONCHECK, kafkaTopic);
     }
 }

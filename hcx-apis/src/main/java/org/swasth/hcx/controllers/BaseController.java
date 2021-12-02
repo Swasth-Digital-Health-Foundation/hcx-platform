@@ -22,13 +22,13 @@ import java.util.stream.Collectors;
 public class BaseController {
 
     @Autowired
-    EventGenerator eventGenerator;
+    protected EventGenerator eventGenerator;
 
     @Autowired
-    Environment env;
+    protected Environment env;
 
     @Autowired
-    KafkaClient kafkaClient;
+    protected KafkaClient kafkaClient;
 
     private String getUUID() {
         return UUID.randomUUID().toString();
@@ -60,33 +60,24 @@ public class BaseController {
         return response;
     }
 
-    private void processAndSendEvent(String apiAction, Map<String, Object> requestBody) throws Exception {
+    private void processAndSendEvent(String apiAction, String metadataTopic, Map<String, Object> requestBody) throws Exception {
         String mid = getUUID();
         String serviceMode = env.getProperty(Constants.SERVICE_MODE);
         String payloadTopic = env.getProperty(Constants.KAFKA_TOPIC_PAYLOAD);
-        String eligibilityCheckTopic = env.getProperty(Constants.KAFKA_TOPIC_ELIGIBILITY_CHECK);
-        String ingestTopic;
         String payloadEvent = eventGenerator.generatePayloadEvent(mid, requestBody);
         String metadataEvent = eventGenerator.generateMetadataEvent(mid, apiAction, requestBody);
         if(serviceMode.equals(Constants.GATEWAY)) {
             kafkaClient.send(payloadTopic, "", payloadEvent);
-            switch(apiAction){
-                case Constants.COVERAGE_ELIGIBILITY_CHECK:
-                case Constants.COVERAGE_ELIGIBILITY_ONCHECK:
-                    ingestTopic = eligibilityCheckTopic;
-                    break;
-                default: ingestTopic = "Invalid";
-            }
-            kafkaClient.send(ingestTopic, "", metadataEvent);
+            kafkaClient.send(metadataTopic, "", metadataEvent);
         }
     }
 
-    public ResponseEntity<Object> validateReqAndPushToKafka(Map<String, Object> requestBody, String apiAction) throws Exception {
+    public ResponseEntity<Object> validateReqAndPushToKafka(Map<String, Object> requestBody, String apiAction, String kafkaTopic) throws Exception {
         String correlationId = StringUtils.decodeBase64String((String) requestBody.get(Constants.PROTECTED)).get(Constants.HEADER_CORRELATION).toString();
         Response response = new Response(correlationId);
         try {
             validateRequestBody(requestBody);
-            processAndSendEvent(apiAction, requestBody);
+            processAndSendEvent(apiAction, kafkaTopic , requestBody);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (ClientException e) {
             return new ResponseEntity<>(errorResponse(response, e.getErrCode(), e), HttpStatus.BAD_REQUEST);

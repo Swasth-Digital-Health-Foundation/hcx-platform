@@ -4,7 +4,7 @@ bootstrap-servers: ${bootstrap_servers:localhost:9092}
 kafka:
   topic:
     payload: ${kafka_payload_topic:local.hcx.request.payload}
-    eligibilitycheck: ${kafka_eligibilitycheck_topic:hcx.request.eligibilitycheck}
+    coverageeligibility: ${kafka_coverageeligibility_topic:hcx.request.coverageeligibility}
     preauth: ${kafka_preauth_topic:hcx.request.preauth}
     claim: ${kafka_claim_topic:hcx.request.claim}
     payment: ${kafka_payment_topic:hcx.request.payment}
