@@ -10,19 +10,17 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Response {
 
-    private long timestamp;
+    private long timestamp = System.currentTimeMillis();
     @JsonProperty("correlation_id")
     private String correlationId;
     private ResponseError error;
     private Map<String, Object> result;
 
     public Response(String correlationId) {
-        this.timestamp = System.currentTimeMillis();
         this.correlationId = correlationId;
     }
 
     public Response(String key, Object val) {
-        this.timestamp = System.currentTimeMillis();
         this.result = new HashMap<>();
         this.put(key, val);
     }
