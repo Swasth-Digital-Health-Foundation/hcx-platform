@@ -65,9 +65,6 @@ public class BaseController {
         String serviceMode = env.getProperty("service.mode");
         String payloadTopic = env.getProperty("kafka.topic.payload");
         String eligibilityCheckTopic = env.getProperty("kafka.topic.eligibilitycheck");
-        String preAuthTopic = env.getProperty("kafka.topic.preauth");
-        String claimTopic =  env.getProperty("kafka.topic.claim");
-        String paymentTopic =  env.getProperty("kafka.topic.payment");
         String ingestTopic;
         String payloadEvent = eventGenerator.generatePayloadEvent(mid, requestBody);
         String metadataEvent = eventGenerator.generateMetadataEvent(mid, apiAction, requestBody);
@@ -78,7 +75,7 @@ public class BaseController {
                 case Constants.COVERAGE_ELIGIBILITY_ONCHECK:
                     ingestTopic = eligibilityCheckTopic;
                     break;
-                default: ingestTopic = "Default";
+                default: ingestTopic = "Invalid";
             }
             kafkaClient.send(ingestTopic, "", metadataEvent);
         }
