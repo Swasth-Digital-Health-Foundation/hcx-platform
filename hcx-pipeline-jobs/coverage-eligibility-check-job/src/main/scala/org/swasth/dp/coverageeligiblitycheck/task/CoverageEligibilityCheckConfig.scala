@@ -22,7 +22,7 @@ class CoverageEligibilityCheckConfig(override val config: Config) extends BaseJo
 
   val payloadTable = "payload"
 
-  val kafkaInputTopic = "hcx.request.eligibilitycheck"
+  val kafkaInputTopic = config.getString("kafka.input.topic")
 
   // Consumers
   val eligibilityCheckConsumer = "eligibility-check-consumer"

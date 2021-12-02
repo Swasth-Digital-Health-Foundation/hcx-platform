@@ -42,7 +42,7 @@
               </filters>
               <transformers>
                 <transformer>
-                  <mainClass>org.sunbird.dp.preprocessor.task.PipelinePreprocessorStreamTask</mainClass>
+                  <mainClass>org.swasth.dp.coverageeligiblitycheck.task.CoverageEligibilityCheckStreamTask</mainClass>
                 </transformer>
                 <transformer>
                   <resource>reference.conf</resource>
@@ -120,7 +120,7 @@
     <dependency>
       <groupId>org.apache.flink</groupId>
       <artifactId>flink-streaming-scala_2.12</artifactId>
-      <version>1.10.1</version>
+      <version>1.12.0</version>
       <scope>provided</scope>
       <exclusions>
         <exclusion>
@@ -175,7 +175,7 @@
     <dependency>
       <groupId>org.apache.flink</groupId>
       <artifactId>flink-test-utils_2.12</artifactId>
-      <version>1.10.1</version>
+      <version>1.12.0</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -207,7 +207,7 @@
     <dependency>
       <groupId>org.apache.flink</groupId>
       <artifactId>flink-runtime_2.12</artifactId>
-      <version>1.10.1</version>
+      <version>1.12.0</version>
       <classifier>tests</classifier>
       <scope>test</scope>
       <exclusions>
@@ -240,11 +240,11 @@
           <groupId>org.apache.flink</groupId>
         </exclusion>
         <exclusion>
-          <artifactId>flink-shaded-asm-7</artifactId>
+          <artifactId>flink-shaded-jackson</artifactId>
           <groupId>org.apache.flink</groupId>
         </exclusion>
         <exclusion>
-          <artifactId>flink-shaded-jackson</artifactId>
+          <artifactId>flink-shaded-zookeeper-3</artifactId>
           <groupId>org.apache.flink</groupId>
         </exclusion>
         <exclusion>
@@ -350,10 +350,14 @@
     <dependency>
       <groupId>org.apache.flink</groupId>
       <artifactId>flink-streaming-java_2.12</artifactId>
-      <version>1.10.1</version>
+      <version>1.12.0</version>
       <classifier>tests</classifier>
       <scope>test</scope>
       <exclusions>
+        <exclusion>
+          <artifactId>flink-file-sink-common</artifactId>
+          <groupId>org.apache.flink</groupId>
+        </exclusion>
         <exclusion>
           <artifactId>commons-math3</artifactId>
           <groupId>org.apache.commons</groupId>
@@ -367,7 +371,7 @@
           <groupId>org.apache.flink</groupId>
         </exclusion>
         <exclusion>
-          <artifactId>flink-clients_2.12</artifactId>
+          <artifactId>flink-java</artifactId>
           <groupId>org.apache.flink</groupId>
         </exclusion>
         <exclusion>

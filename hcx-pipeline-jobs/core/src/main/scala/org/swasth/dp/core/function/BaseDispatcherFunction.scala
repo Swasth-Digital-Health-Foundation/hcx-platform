@@ -49,8 +49,9 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
 
     val correlationId = getCorrelationId(event);
     val payloadRefId = event.get("mid").asInstanceOf[String]
-    val recipientCtx = event.get("ctx").asInstanceOf[util.Map[String, AnyRef]].get("recipient").asInstanceOf[util.Map[String, AnyRef]]
-    val senderCtx = event.get("ctx").asInstanceOf[util.Map[String, AnyRef]].get("sender").asInstanceOf[util.Map[String, AnyRef]]
+    // TODO change cdata to context after discussion.
+    val recipientCtx = event.get("cdata").asInstanceOf[util.Map[String, AnyRef]].get("recipient").asInstanceOf[util.Map[String, AnyRef]]
+    val senderCtx = event.get("cdata").asInstanceOf[util.Map[String, AnyRef]].get("sender").asInstanceOf[util.Map[String, AnyRef]]
 
     val validationResult = validate(event);
 
