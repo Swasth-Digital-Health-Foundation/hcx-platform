@@ -170,7 +170,7 @@
                             <transformers>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>org.sunbird.dp.preprocessor.task.PipelinePreprocessorStreamTask</mainClass>
+                                    <mainClass>org.swasth.dp.coverageeligiblitycheck.task.CoverageEligibilityCheckStreamTask</mainClass>
                                 </transformer>
                                 <!-- append default configs -->
                                 <transformer
