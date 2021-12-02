@@ -15,7 +15,7 @@ import java.util.Map;
 @RequestMapping(value = "/v1/coverageeligibility")
 public class CoverageEligibilityController extends BaseController {
 
-    @Value(Constants.KAFKA_TOPIC_COVERAGE_ELIGIBILITY)
+    @Value("${kafka.topic.coverageeligibility}")
     private String kafkaTopic;
 
     @RequestMapping(value = "/check", method = RequestMethod.POST)
