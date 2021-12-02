@@ -10,7 +10,7 @@ public class StringUtils {
 
     private static ObjectMapper mapper = new ObjectMapper();
 
-    public static HashMap decodeBase64String(String encodedString) throws Exception {
+    public static HashMap<String,Object> decodeBase64String(String encodedString) throws Exception {
         byte[] decodedBytes = Base64.getDecoder().decode(encodedString);
         String decodedString = new String(decodedBytes);
         return deserialize(decodedString, HashMap.class);

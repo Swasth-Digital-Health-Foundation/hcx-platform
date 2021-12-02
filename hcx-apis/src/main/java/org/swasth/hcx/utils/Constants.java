@@ -22,4 +22,34 @@ public interface Constants {
     String PAYMENT_NOTICE_SEARCH = "paymentnotice/search";
     String PAYMENT_NOTICE_ONSEARCH = "paymentnotice/onsearch";
 
+    String HEALTHY = "healthy";
+    String NAME = "name";
+    String KAFKA = "kafka";
+    String CHECKS = "checks";
+
+    //event generator props
+    String MID = "mid";
+    String PAYLOAD = "payload";
+    String ETS = "ets";
+    String ACTION = "action";
+    String HEADERS = "headers";
+    String JOSE="jose";
+    String PROTOCOL = "protocol";
+    String DOMAIN = "domain";
+    String LOG_DETAILS = "log_details";
+    String CODE = "code";
+    String MESSAGE = "message";
+    String TRACE = "trace";
+    String STATUS = "status";
+    String SUBMITTED = "submitted";
+
+    //Request props
+    String PAYLOAD_MANDATORY_PROPERTIES = "payload.mandatory.properties";
+    String PROTOCOL_HEADERS_MANDATORY = "protocol.headers.mandatory";
+    String PROTOCOL_HEADERS_OPTIONAL = "protocol.headers.optional";
+    String JOSE_HEADERS = "headers.jose";
+    String DOMAIN_HEADERS = "headers.domain";
+    String PROTECTED = "protected";
+    String HEADER_CORRELATION = "x-hcx-correlation_id";
+
 }

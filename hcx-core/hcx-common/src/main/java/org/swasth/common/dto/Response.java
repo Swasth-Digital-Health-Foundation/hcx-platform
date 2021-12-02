@@ -2,7 +2,9 @@ package org.swasth.common.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.swasth.common.exception.ErrorCodes;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -14,19 +16,15 @@ public class Response {
     private ResponseError error;
     private Map<String, Object> result;
 
-    public Response() {
-        this.timestamp = System.currentTimeMillis();
-    }
-
     public Response(String correlationId) {
         this.timestamp = System.currentTimeMillis();
         this.correlationId = correlationId;
     }
 
-    public Response(String correlationId, ResponseError error) {
+    public Response(String key, Object val) {
         this.timestamp = System.currentTimeMillis();
-        this.correlationId = correlationId;
-        this.error = error;
+        this.result = new HashMap<>();
+        this.put(key, val);
     }
 
     public Long getTimestamp() {

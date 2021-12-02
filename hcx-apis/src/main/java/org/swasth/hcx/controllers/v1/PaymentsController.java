@@ -1,24 +1,13 @@
 package org.swasth.hcx.controllers.v1;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.swasth.common.StringUtils;
-import org.swasth.common.dto.Response;
-import org.swasth.common.exception.ClientException;
-import org.swasth.common.exception.ErrorCodes;
-import org.swasth.common.exception.ResponseCode;
 import org.swasth.hcx.controllers.BaseController;
-import org.swasth.hcx.utils.Constants;
-
-import java.util.Map;
 
 @RestController()
 @RequestMapping(value = "/v1/paymentnotice")
 public class PaymentsController extends BaseController {
 
-    @RequestMapping(value = "/request", method = RequestMethod.POST)
+    /*@RequestMapping(value = "/request", method = RequestMethod.POST)
     public ResponseEntity<Object> paymentNoticeRequest(@RequestBody Map<String, Object> requestBody) throws Exception {
         String correlationId = StringUtils.decodeBase64String((String) requestBody.getOrDefault("protected","e30=")).getOrDefault("x-hcx-correlation_id","").toString();
         Response response = getResponse(correlationId);
@@ -76,5 +65,5 @@ public class PaymentsController extends BaseController {
         } catch (Exception e) {
             return new ResponseEntity<>(errorResponse(response, ErrorCodes.SERVER_ERROR, e), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-    }
+    }*/
 }

@@ -7,21 +7,21 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.HashMap;
 import java.util.Map;
 
-@SpringBootTest(classes = {KafkaEventGenerator.class})
+@SpringBootTest(classes = {EventGenerator.class})
 public class KafkaEventGeneratorTests {
 
     @Autowired
-    KafkaEventGenerator kafkaEventGenerator;
+    EventGenerator eventGenerator;
 
     @Test
     public void check_generatePayloadEvent() throws JsonProcessingException {
-        String result = kafkaEventGenerator.generatePayloadEvent("test_123", new HashMap<>());
+        String result = eventGenerator.generatePayloadEvent("test_123", new HashMap<>());
         assert (!result.isEmpty());
     }
 
     @Test
     public void check_generateMetadataEvent() throws Exception {
-        String result = kafkaEventGenerator.generateMetadataEvent("test", "/test", getRequestBody());
+        String result = eventGenerator.generateMetadataEvent("test", "/test", getRequestBody());
         assert (!result.isEmpty());
     }
 

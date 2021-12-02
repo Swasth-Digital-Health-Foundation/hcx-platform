@@ -12,9 +12,8 @@ public class KafkaConfig {
     private String kafkaServerUrl;
 
     @Bean
-    public KafkaClient kafkaClient(){
-        KafkaClient kafkaClient = new KafkaClient();
-        kafkaClient.setKafkaServerUrl(kafkaServerUrl);
-        return kafkaClient;
+    public KafkaClient kafkaClient() {
+        return new KafkaClient(kafkaServerUrl);
     }
+
 }

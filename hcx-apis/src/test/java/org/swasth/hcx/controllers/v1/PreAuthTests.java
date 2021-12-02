@@ -35,7 +35,7 @@ public class PreAuthTests extends BaseSpec {
         this.mockMvc = MockMvcBuilders.standaloneSetup(PreAuthController).build();
     }
 
-    @Test
+    /*@Test
     public void check_preauth_submit_success_scenario() throws Exception {
         when(mockEnv.getProperty("protocol.headers.mandatory", List.class, new ArrayList<String>())).thenReturn(new ArrayList<>(Arrays.asList("x-hcx-sender_code", "x-hcx-recipient_code", "x-hcx-request_id", "x-hcx-correlation_id", "x-hcx-timestamp", "x-hcx-status")));
         when(mockEnv.getProperty("headers.domain", List.class, new ArrayList<String>())).thenReturn(new ArrayList<>(Arrays.asList("use_case_name", "parameter_name")));
@@ -169,5 +169,5 @@ public class PreAuthTests extends BaseSpec {
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         assertEquals(500, status);
-    }
+    }*/
 }

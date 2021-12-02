@@ -10,7 +10,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.env.Environment;
 import org.springframework.test.web.servlet.MockMvc;
 import org.swasth.common.StringUtils;
-import org.swasth.hcx.helpers.KafkaEventGenerator;
+import org.swasth.hcx.helpers.EventGenerator;
 import org.swasth.kafka.client.KafkaClient;
 
 import java.util.HashMap;
@@ -24,7 +24,7 @@ public class BaseSpec {
     protected MockMvc mockMvc;
 
     @MockBean
-    protected KafkaEventGenerator mockKafkaEventGenerator;
+    protected EventGenerator mockEventGenerator;
 
     @Mock
     protected Environment mockEnv;
