@@ -1,5 +1,6 @@
 package org.swasth.hcx.controllers.v1;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,7 +15,8 @@ import java.util.Map;
 @RequestMapping(value = "/v1/coverageeligibility")
 public class CoverageEligibilityController extends BaseController {
 
-    String kafkaTopic = env.getProperty(Constants.KAFKA_TOPIC_COVERAGE_ELIGIBILITY);
+    @Value(Constants.KAFKA_TOPIC_COVERAGE_ELIGIBILITY)
+    private String kafkaTopic;
 
     @RequestMapping(value = "/check", method = RequestMethod.POST)
     public ResponseEntity<Object> checkCoverageEligibility(@RequestBody Map<String, Object> requestBody) throws Exception {
