@@ -41,7 +41,6 @@ public class CoverageEligibilityTests extends BaseSpec {
       when(mockEnv.getProperty("headers.domain", List.class, new ArrayList<String>())).thenReturn(new ArrayList<>(Arrays.asList("use_case_name", "parameter_name")));
       when(mockEnv.getProperty("headers.jose", List.class, new ArrayList<String>())).thenReturn(new ArrayList<>(Arrays.asList("alg", "enc")));
       when(mockEnv.getProperty("payload.mandatory.properties", List.class, new ArrayList<String>())).thenReturn(new ArrayList<>(Arrays.asList("protected", "encrypted_key", "aad", "iv", "ciphertext", "tag")));
-      when(mockEnv.getProperty("service.mode")).thenReturn("gateway");
       doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
       String requestBody = getRequestBody();
       MvcResult mvcResult = mockMvc.perform(post("/v1/coverageeligibility/check").content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
@@ -97,7 +96,6 @@ public class CoverageEligibilityTests extends BaseSpec {
         when(mockEnv.getProperty("headers.domain", List.class, new ArrayList<String>())).thenReturn(new ArrayList<>(Arrays.asList("use_case_name", "parameter_name")));
         when(mockEnv.getProperty("headers.jose", List.class, new ArrayList<String>())).thenReturn(new ArrayList<>(Arrays.asList("alg", "enc")));
         when(mockEnv.getProperty("payload.mandatory.properties", List.class, new ArrayList<String>())).thenReturn(new ArrayList<>(Arrays.asList("protected", "encrypted_key", "aad", "iv", "ciphertext", "tag")));
-        when(mockEnv.getProperty("service.mode")).thenReturn("gateway");
         doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
         String requestBody = getRequestBody();
         MvcResult mvcResult = mockMvc.perform(post("/v1/coverageeligibility/on_check").content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
