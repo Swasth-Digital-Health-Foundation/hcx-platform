@@ -68,7 +68,7 @@ public class BaseController {
         String ingestTopic;
         String payloadEvent = eventGenerator.generatePayloadEvent(mid, requestBody);
         String metadataEvent = eventGenerator.generateMetadataEvent(mid, apiAction, requestBody);
-        if(serviceMode.equals("gateway")) {
+        if(serviceMode.equals(Constants.GATEWAY)) {
             kafkaClient.send(payloadTopic, "", payloadEvent);
             switch(apiAction){
                 case Constants.COVERAGE_ELIGIBILITY_CHECK:
