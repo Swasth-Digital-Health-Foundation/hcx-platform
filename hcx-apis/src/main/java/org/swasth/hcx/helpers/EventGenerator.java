@@ -17,14 +17,14 @@ public class EventGenerator {
     Environment env;
 
     public String generatePayloadEvent(String mid, Map<String, Object> requestBody) throws JsonProcessingException {
-        Map<String,Object> constructEvent = new HashMap<>();
-        constructEvent.put(Constants.MID, mid);
-        constructEvent.put(Constants.PAYLOAD, requestBody);
-        return StringUtils.serialize(constructEvent);
+        Map<String,Object> event = new HashMap<>();
+        event.put(Constants.MID, mid);
+        event.put(Constants.PAYLOAD, requestBody);
+        return StringUtils.serialize(event);
     }
 
     public String generateMetadataEvent(String mid, String apiAction, Map<String, Object> requestBody) throws Exception {
-        Map<String,Object> constructEvent = new HashMap<>();
+        Map<String,Object> event = new HashMap<>();
         List<String> protocolHeaders = env.getProperty(Constants.PROTOCOL_HEADERS_MANDATORY, List.class);
         protocolHeaders.addAll(env.getProperty(Constants.PROTOCOL_HEADERS_OPTIONAL, List.class));
         List<String> domainHeaders = env.getProperty(Constants.DOMAIN_HEADERS, List.class);
@@ -45,20 +45,20 @@ public class EventGenerator {
             if (protectedHeaders.containsKey(key))
                 filterDomainHeaders.put(key, protectedHeaders.get(key));
         });
-        constructEvent.put(Constants.MID, mid);
-        constructEvent.put(Constants.ETS, System.currentTimeMillis());
-        constructEvent.put(Constants.ACTION, apiAction);
-        constructEvent.put(Constants.HEADERS, new HashMap<>(){{
+        event.put(Constants.MID, mid);
+        event.put(Constants.ETS, System.currentTimeMillis());
+        event.put(Constants.ACTION, apiAction);
+        event.put(Constants.HEADERS, new HashMap<>(){{
             put(Constants.JOSE, filterJoseHeaders);
             put(Constants.PROTOCOL, filterProtocolHeaders);
             put(Constants.DOMAIN, filterDomainHeaders);
         }});
-        constructEvent.put(Constants.LOG_DETAILS, new HashMap<>(){{
+        event.put(Constants.LOG_DETAILS, new HashMap<>(){{
             put(Constants.CODE, "");
             put(Constants.MESSAGE, "");
             put(Constants.TRACE, "");
         }});
-        constructEvent.put(Constants.STATUS, Constants.SUBMITTED);
-        return StringUtils.serialize(constructEvent);
+        event.put(Constants.STATUS, Constants.SUBMITTED);
+        return StringUtils.serialize(event);
     }
 }

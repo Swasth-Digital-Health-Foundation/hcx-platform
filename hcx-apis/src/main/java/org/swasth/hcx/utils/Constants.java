@@ -50,7 +50,8 @@ public  class Constants {
     public static final String JOSE_HEADERS = "headers.jose";
     public static final String DOMAIN_HEADERS = "headers.domain";
     public static final String PROTECTED = "protected";
-    public static final String HEADER_CORRELATION = "x-hcx-correlation_id";
+    public static final String SENDER_CODE = "x-hcx-sender_code";
+    public static final String CORRELATION_ID = "x-hcx-correlation_id";
     public static final String SERVICE_MODE = "service.mode";
     public static final String GATEWAY = "gateway";
     public static final String KAFKA_TOPIC_PAYLOAD = "kafka.topic.payload";

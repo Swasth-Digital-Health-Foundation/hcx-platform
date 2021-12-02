@@ -25,13 +25,21 @@ public class BaseController {
     protected EventGenerator eventGenerator;
 
     @Autowired
-    protected Environment env;
+    protected static Environment env;
 
     @Autowired
     protected KafkaClient kafkaClient;
 
     private String getUUID() {
         return UUID.randomUUID().toString();
+    }
+
+    private static List<String> getMandatoryHeaders() {
+        List<String> mandatoryHeaders = new ArrayList<>();
+        mandatoryHeaders.addAll(env.getProperty(Constants.PROTOCOL_HEADERS_MANDATORY, List.class));
+        mandatoryHeaders.addAll(env.getProperty(Constants.DOMAIN_HEADERS, List.class));
+        mandatoryHeaders.addAll(env.getProperty(Constants.JOSE_HEADERS, List.class));
+        return mandatoryHeaders;
     }
 
     private void validateRequestBody(Map<String, Object> requestBody) throws Exception {
@@ -43,11 +51,7 @@ public class BaseController {
         }
         //validating protected headers
         Map<String, Object> protectedHeaders = StringUtils.decodeBase64String((String) requestBody.get("protected"));
-        List<String> mandatoryHeaders = new ArrayList<>();
-        mandatoryHeaders.addAll(env.getProperty(Constants.PROTOCOL_HEADERS_MANDATORY, List.class));
-        mandatoryHeaders.addAll(env.getProperty(Constants.DOMAIN_HEADERS, List.class));
-        mandatoryHeaders.addAll(env.getProperty(Constants.JOSE_HEADERS, List.class));
-        List<String> missingHeaders = mandatoryHeaders.stream().filter(key -> !protectedHeaders.containsKey(key)).collect(Collectors.toList());
+        List<String> missingHeaders = getMandatoryHeaders().stream().filter(key -> !protectedHeaders.containsKey(key)).collect(Collectors.toList());
         if (!missingHeaders.isEmpty()) {
             throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_HEADER, "Mandatory headers are missing: " + missingHeaders);
         }
@@ -64,16 +68,17 @@ public class BaseController {
         String mid = getUUID();
         String serviceMode = env.getProperty(Constants.SERVICE_MODE);
         String payloadTopic = env.getProperty(Constants.KAFKA_TOPIC_PAYLOAD);
+        String key = StringUtils.decodeBase64String((String) requestBody.get(Constants.PROTECTED)).get(Constants.SENDER_CODE).toString();
         String payloadEvent = eventGenerator.generatePayloadEvent(mid, requestBody);
         String metadataEvent = eventGenerator.generateMetadataEvent(mid, apiAction, requestBody);
         if(serviceMode.equals(Constants.GATEWAY)) {
-            kafkaClient.send(payloadTopic, "", payloadEvent);
-            kafkaClient.send(metadataTopic, "", metadataEvent);
+            kafkaClient.send(payloadTopic, key, payloadEvent);
+            kafkaClient.send(metadataTopic, key, metadataEvent);
         }
     }
 
     public ResponseEntity<Object> validateReqAndPushToKafka(Map<String, Object> requestBody, String apiAction, String kafkaTopic) throws Exception {
-        String correlationId = StringUtils.decodeBase64String((String) requestBody.get(Constants.PROTECTED)).get(Constants.HEADER_CORRELATION).toString();
+        String correlationId = StringUtils.decodeBase64String((String) requestBody.get(Constants.PROTECTED)).get(Constants.CORRELATION_ID).toString();
         Response response = new Response(correlationId);
         try {
             validateRequestBody(requestBody);
