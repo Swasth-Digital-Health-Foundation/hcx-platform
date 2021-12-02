@@ -62,9 +62,9 @@ public class BaseController {
 
     private void processAndSendEvent(String apiAction, Map<String, Object> requestBody) throws Exception {
         String mid = getUUID();
-        String serviceMode = env.getProperty("service.mode");
-        String payloadTopic = env.getProperty("kafka.topic.payload");
-        String eligibilityCheckTopic = env.getProperty("kafka.topic.eligibilitycheck");
+        String serviceMode = env.getProperty(Constants.SERVICE_MODE);
+        String payloadTopic = env.getProperty(Constants.KAFKA_TOPIC_PAYLOAD);
+        String eligibilityCheckTopic = env.getProperty(Constants.KAFKA_TOPIC_ELIGIBILITY_CHECK);
         String ingestTopic;
         String payloadEvent = eventGenerator.generatePayloadEvent(mid, requestBody);
         String metadataEvent = eventGenerator.generateMetadataEvent(mid, apiAction, requestBody);

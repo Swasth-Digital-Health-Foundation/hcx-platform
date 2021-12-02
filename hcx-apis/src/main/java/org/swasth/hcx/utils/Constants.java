@@ -51,5 +51,8 @@ public interface Constants {
     String DOMAIN_HEADERS = "headers.domain";
     String PROTECTED = "protected";
     String HEADER_CORRELATION = "x-hcx-correlation_id";
+    String SERVICE_MODE = "service.mode";
+    String KAFKA_TOPIC_PAYLOAD = "kafka.topic.payload";
+    String KAFKA_TOPIC_ELIGIBILITY_CHECK = "kafka.topic.eligibilitycheck";
 
 }
