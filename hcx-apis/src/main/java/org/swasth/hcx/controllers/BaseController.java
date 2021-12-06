@@ -29,9 +29,6 @@ public class BaseController {
     @Autowired
     protected IEventService kafkaClient;
 
-    @Autowired
-    HealthCheckManager healthCheckManager;
-
     private String getUUID() {
         return UUID.randomUUID().toString();
     }

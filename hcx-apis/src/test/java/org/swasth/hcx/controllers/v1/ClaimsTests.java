@@ -9,7 +9,6 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.swasth.hcx.controllers.BaseSpec;
-import org.swasth.hcx.managers.HealthCheckManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;

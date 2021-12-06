@@ -1,5 +1,6 @@
 package org.swasth.hcx.controllers;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,6 +12,9 @@ import org.swasth.hcx.utils.Constants;
 
 @RestController
 public class HealthController extends BaseController {
+
+    @Autowired
+    private HealthCheckManager healthCheckManager;
 
     @RequestMapping(value = "/service/health", method = RequestMethod.GET)
     public ResponseEntity<Object> serviceHealth() {

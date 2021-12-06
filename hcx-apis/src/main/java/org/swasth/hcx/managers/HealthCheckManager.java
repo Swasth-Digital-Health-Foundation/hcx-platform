@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.swasth.common.dto.Response;
 import org.swasth.hcx.utils.Constants;
+import org.swasth.kafka.client.IEventService;
 import org.swasth.kafka.client.KafkaClient;
 
 import java.util.ArrayList;
@@ -18,7 +19,7 @@ import java.util.Map;
 public class HealthCheckManager {
 
     @Autowired
-    KafkaClient kafkaClient;
+    private IEventService kafkaClient;
 
     public static boolean allSystemHealthResult = true;
 
