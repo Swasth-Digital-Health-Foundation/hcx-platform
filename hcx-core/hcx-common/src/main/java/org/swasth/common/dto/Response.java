@@ -16,6 +16,8 @@ public class Response {
     private ResponseError error;
     private Map<String, Object> result;
 
+    public Response() {}
+
     public Response(String correlationId) {
         this.correlationId = correlationId;
     }
