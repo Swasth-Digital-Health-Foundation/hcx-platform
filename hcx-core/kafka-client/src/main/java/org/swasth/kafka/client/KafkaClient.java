@@ -16,7 +16,7 @@ public class KafkaClient implements IEventService {
     public KafkaClient(String url) {
         this.kafkaServerUrl = url;
         this.producer = createProducer();
-        adminClient = kafkaAdminClient();
+        this.adminClient = kafkaAdminClient();
     }
 
     public void send(String topic, String key, String message) {
