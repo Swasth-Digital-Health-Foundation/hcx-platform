@@ -10,7 +10,7 @@ class ContextEnrichmentFunction(config: BaseJobConfig) (implicit val stringTypeI
   extends BaseProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]](config) {
   override def processElement(event: util.Map[String, AnyRef], context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
     // TODO: Implement the enrichment function
-    val enrichedEvent = event;
+    val enrichedEvent = event
     context.output(config.enrichedOutputTag, enrichedEvent)
   }
 

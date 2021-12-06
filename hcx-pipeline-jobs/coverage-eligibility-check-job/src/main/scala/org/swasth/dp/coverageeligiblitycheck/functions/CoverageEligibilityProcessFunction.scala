@@ -60,7 +60,8 @@ class CoverageEligibilityProcessFunction(config: CoverageEligibilityCheckConfig,
   override def audit(event: util.Map[String, AnyRef], status: Boolean, context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
     // TODO: Implement audit here
     val audit = new util.HashMap[String, AnyRef]();
-    context.output(config.auditOutputTag, audit)
+    audit.put("audit", "yes")
+    context.output(config.auditOutputTag, JSONUtil.serialize(audit))
     metrics.incCounter(config.auditEventsCount)
   }
 }
