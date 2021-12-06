@@ -1,7 +1,8 @@
 package org.swasth.dp.core.function
 
+import org.apache.commons.collections.MapUtils
 import org.apache.flink.streaming.api.functions.ProcessFunction
-
+import org.slf4j.LoggerFactory
 import org.swasth.dp.core.job.{BaseJobConfig, BaseProcessFunction, Metrics}
 import org.swasth.dp.core.util.{DispatcherUtil, JSONUtil}
 
@@ -14,6 +15,8 @@ case class DispatcherResult(success: Boolean, statusCode: Int, error: Option[Err
 
 abstract class BaseDispatcherFunction (config: BaseJobConfig)
   extends BaseProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]](config) {
+
+  private[this] val logger = LoggerFactory.getLogger(classOf[BaseDispatcherFunction])
 
   def validate(event: util.Map[String, AnyRef]):ValidationResult
 
@@ -50,36 +53,45 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
     val correlationId = getCorrelationId(event);
     val payloadRefId = event.get("mid").asInstanceOf[String]
     // TODO change cdata to context after discussion.
-    val recipientCtx = event.get("cdata").asInstanceOf[util.Map[String, AnyRef]].get("recipient").asInstanceOf[util.Map[String, AnyRef]]
-    val senderCtx = event.get("cdata").asInstanceOf[util.Map[String, AnyRef]].get("sender").asInstanceOf[util.Map[String, AnyRef]]
+    val senderCtx = event.getOrDefault("cdata", new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]].getOrDefault("sender", new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]]
+    val recipientCtx = event.getOrDefault("cdata", new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]].getOrDefault("recipient", new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]]
 
-    val validationResult = validate(event);
-
-    if(!validationResult.status) {
-      metrics.incCounter(metric = config.dispatcherValidationFailedCount)
-      audit(event, validationResult.status, context, metrics);
-      dispatchErrorResponse(validationResult.error, correlationId, payloadRefId, senderCtx, context, metrics)
-    }
-
-    if(validationResult.status) {
-      metrics.incCounter(metric = config.dispatcherValidationSuccessCount)
-      val payload = getPayload(event);
-      val payloadJSON = JSONUtil.serialize(payload);
-      val result = DispatcherUtil.dispatch(recipientCtx, payloadJSON)
-      audit(event, result.success, context, metrics);
-      if(result.success) {
-        metrics.incCounter(metric = config.dispatcherSuccessCount)
+    if (MapUtils.isEmpty(senderCtx)) {
+      Console.println("sender context is empty: " + payloadRefId)
+      logger.warn("sender context is empty: " + payloadRefId)
+    } else if (MapUtils.isEmpty(recipientCtx)) {
+      Console.println("recipient context is empty: " + payloadRefId)
+      logger.warn("recipient context is empty: " + payloadRefId)
+    } else {
+      Console.println("sender and recipient available: " + payloadRefId)
+      logger.info("sender and recipient available: " + payloadRefId)
+      val validationResult = validate(event)
+      if(!validationResult.status) {
+        metrics.incCounter(metric = config.dispatcherValidationFailedCount)
+        audit(event, validationResult.status, context, metrics);
+        dispatchErrorResponse(validationResult.error, correlationId, payloadRefId, senderCtx, context, metrics)
       }
-      if(result.retry) {
-        metrics.incCounter(metric = config.dispatcherRetryCount)
-        val retryEvent = new util.HashMap[String, AnyRef]();
-        retryEvent.put("ctx", recipientCtx);
-        retryEvent.put("payloadRefId", event.get("mid"));
-        context.output(config.retryOutputTag, retryEvent)
-      }
-      if(!result.retry && !result.success) {
-        metrics.incCounter(metric = config.dispatcherFailedCount)
-        dispatchErrorResponse(result.error, correlationId, payloadRefId, senderCtx, context, metrics)
+
+      if(validationResult.status) {
+        metrics.incCounter(metric = config.dispatcherValidationSuccessCount)
+        val payload = getPayload(event);
+        val payloadJSON = JSONUtil.serialize(payload);
+        val result = DispatcherUtil.dispatch(recipientCtx, payloadJSON)
+        audit(event, result.success, context, metrics);
+        if(result.success) {
+          metrics.incCounter(metric = config.dispatcherSuccessCount)
+        }
+        if(result.retry) {
+          metrics.incCounter(metric = config.dispatcherRetryCount)
+          val retryEvent = new util.HashMap[String, AnyRef]();
+          retryEvent.put("ctx", recipientCtx);
+          retryEvent.put("payloadRefId", event.get("mid"));
+          context.output(config.retryOutputTag, retryEvent)
+        }
+        if(!result.retry && !result.success) {
+          metrics.incCounter(metric = config.dispatcherFailedCount)
+          dispatchErrorResponse(result.error, correlationId, payloadRefId, senderCtx, context, metrics)
+        }
       }
     }
   }
