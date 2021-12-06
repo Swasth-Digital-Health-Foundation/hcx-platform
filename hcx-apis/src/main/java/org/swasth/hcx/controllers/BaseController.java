@@ -70,7 +70,7 @@ public class BaseController {
         String key = StringUtils.decodeBase64String((String) requestBody.get(Constants.PROTECTED), HashMap.class).get(Constants.SENDER_CODE).toString();
         String payloadEvent = eventGenerator.generatePayloadEvent(mid, requestBody);
         String metadataEvent = eventGenerator.generateMetadataEvent(mid, apiAction, requestBody);
-        System.out.println("Event: " + metadataEvent);
+        System.out.println("Mode: " + serviceMode + " :: mid: " + mid + " :: Event: " + metadataEvent);
         if(serviceMode.equals(Constants.GATEWAY)) {
             kafkaClient.send(payloadTopic, key, payloadEvent);
             kafkaClient.send(metadataTopic, key, metadataEvent);
