@@ -47,6 +47,7 @@ public class PreAuthTests extends BaseSpec {
         MvcResult mvcResult = mockMvc.perform(post("/v1/preauth/submit").content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
+        assertEquals(202, status);
     }
 
     @Test
