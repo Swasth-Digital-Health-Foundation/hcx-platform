@@ -5,15 +5,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.Map;
 
 public class StringUtils {
 
     private static ObjectMapper mapper = new ObjectMapper();
 
-    public static HashMap<String,Object> decodeBase64String(String encodedString) throws Exception {
+    public static <T> T decodeBase64String(String encodedString, Class<T> clazz) throws Exception {
         byte[] decodedBytes = Base64.getDecoder().decode(encodedString);
         String decodedString = new String(decodedBytes);
-        return deserialize(decodedString, HashMap.class);
+        return deserialize(decodedString, clazz);
     }
 
     public static String serialize(Object obj) throws JsonProcessingException {

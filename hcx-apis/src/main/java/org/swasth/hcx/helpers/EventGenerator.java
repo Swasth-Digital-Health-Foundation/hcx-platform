@@ -29,7 +29,7 @@ public class EventGenerator {
         protocolHeaders.addAll(env.getProperty(Constants.PROTOCOL_HEADERS_OPTIONAL, List.class));
         List<String> domainHeaders = env.getProperty(Constants.DOMAIN_HEADERS, List.class);
         List<String> joseHeaders = env.getProperty(Constants.JOSE_HEADERS, List.class);
-        HashMap<String,Object> protectedHeaders = StringUtils.decodeBase64String((String) requestBody.get(Constants.PROTECTED));
+        HashMap<String,Object> protectedHeaders = StringUtils.decodeBase64String((String) requestBody.get(Constants.PROTECTED), HashMap.class);
         Map<String,Object> filterJoseHeaders = new HashMap<>();
         Map<String,Object> filterProtocolHeaders = new HashMap<>();
         Map<String,Object> filterDomainHeaders = new HashMap<>();

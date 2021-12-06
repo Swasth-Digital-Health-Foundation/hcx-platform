@@ -13,10 +13,7 @@ import org.swasth.hcx.helpers.EventGenerator;
 import org.swasth.hcx.utils.Constants;
 import org.swasth.kafka.client.IEventService;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class BaseController {
@@ -45,7 +42,7 @@ public class BaseController {
             throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_PAYLOAD, "Payload mandatory properties are missing: " + missingPayloadProps);
         }
         //validating protected headers
-        Map<String, Object> protectedHeaders = StringUtils.decodeBase64String((String) requestBody.get("protected"));
+        Map<String, Object> protectedHeaders = StringUtils.decodeBase64String((String) requestBody.get("protected"), HashMap.class);
         List<String> mandatoryHeaders = new ArrayList<>();
         mandatoryHeaders.addAll(env.getProperty(Constants.PROTOCOL_HEADERS_MANDATORY, List.class));
         mandatoryHeaders.addAll(env.getProperty(Constants.DOMAIN_HEADERS, List.class));
@@ -67,9 +64,10 @@ public class BaseController {
         String mid = getUUID();
         String serviceMode = env.getProperty(Constants.SERVICE_MODE);
         String payloadTopic = env.getProperty(Constants.KAFKA_TOPIC_PAYLOAD);
-        String key = StringUtils.decodeBase64String((String) requestBody.get(Constants.PROTECTED)).get(Constants.SENDER_CODE).toString();
+        String key = StringUtils.decodeBase64String((String) requestBody.get(Constants.PROTECTED), HashMap.class).get(Constants.SENDER_CODE).toString();
         String payloadEvent = eventGenerator.generatePayloadEvent(mid, requestBody);
         String metadataEvent = eventGenerator.generateMetadataEvent(mid, apiAction, requestBody);
+        System.out.println("Event: " + metadataEvent);
         if(serviceMode.equals(Constants.GATEWAY)) {
             kafkaClient.send(payloadTopic, key, payloadEvent);
             kafkaClient.send(metadataTopic, key, metadataEvent);
@@ -83,7 +81,7 @@ public class BaseController {
     }
 
     public ResponseEntity<Object> validateReqAndPushToKafka(Map<String, Object> requestBody, String apiAction, String kafkaTopic) throws Exception {
-        String correlationId = StringUtils.decodeBase64String((String) requestBody.get(Constants.PROTECTED)).get(Constants.CORRELATION_ID).toString();
+        String correlationId = StringUtils.decodeBase64String((String) requestBody.get(Constants.PROTECTED), HashMap.class).get(Constants.CORRELATION_ID).toString();
         Response response = new Response(correlationId);
         try {
             allServiceHealthCheck();
