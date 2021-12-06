@@ -11,10 +11,12 @@ public class KafkaClient implements IEventService {
 
     private String kafkaServerUrl;
     private KafkaProducer producer;
+    private AdminClient adminClient;
 
     public KafkaClient(String url) {
         this.kafkaServerUrl = url;
         this.producer = createProducer();
+        this.adminClient = kafkaAdminClient();
     }
 
     public void send(String topic, String key, String message) {
@@ -37,7 +39,6 @@ public class KafkaClient implements IEventService {
     }
 
     public boolean isHealthy(){
-        AdminClient adminClient = kafkaAdminClient();
         try
         {
             adminClient.listTopics(new ListTopicsOptions().timeoutMs(5000)).listings().get();

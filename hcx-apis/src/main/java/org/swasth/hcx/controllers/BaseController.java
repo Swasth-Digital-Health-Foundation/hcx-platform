@@ -9,7 +9,9 @@ import org.swasth.common.dto.Response;
 import org.swasth.common.dto.ResponseError;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
+import org.swasth.common.exception.ServiceUnavailbleException;
 import org.swasth.hcx.helpers.EventGenerator;
+import org.swasth.hcx.managers.HealthCheckManager;
 import org.swasth.hcx.utils.Constants;
 import org.swasth.kafka.client.IEventService;
 
@@ -26,9 +28,6 @@ public class BaseController {
 
     @Autowired
     protected IEventService kafkaClient;
-
-    @Autowired
-    HealthController healthController;
 
     private String getUUID() {
         return UUID.randomUUID().toString();
@@ -74,22 +73,19 @@ public class BaseController {
         }
     }
 
-    private void allServiceHealthCheck() throws Exception {
-        Response resp = (Response) healthController.health().getBody();
-        if (!resp.get(Constants.HEALTHY).equals(true))
-            throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_CONNECTION, "Invalid Connection" + resp.get(Constants.CHECKS));
-    }
-
     public ResponseEntity<Object> validateReqAndPushToKafka(Map<String, Object> requestBody, String apiAction, String kafkaTopic) throws Exception {
         String correlationId = StringUtils.decodeBase64String((String) requestBody.get(Constants.PROTECTED), HashMap.class).get(Constants.CORRELATION_ID).toString();
         Response response = new Response(correlationId);
         try {
-            allServiceHealthCheck();
+            if (!HealthCheckManager.allSystemHealthResult)
+                throw new ServiceUnavailbleException("Service is unavailable");
             validateRequestBody(requestBody);
             processAndSendEvent(apiAction, kafkaTopic , requestBody);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (ClientException e) {
             return new ResponseEntity<>(errorResponse(response, e.getErrCode(), e), HttpStatus.BAD_REQUEST);
+        } catch (ServiceUnavailbleException e) {
+            return new ResponseEntity<>(errorResponse(response, ErrorCodes.SERVICE_UNAVAILABLE , e), HttpStatus.SERVICE_UNAVAILABLE);
         } catch (Exception e) {
             return new ResponseEntity<>(errorResponse(response, ErrorCodes.SERVER_ERROR, e), HttpStatus.INTERNAL_SERVER_ERROR);
         }
