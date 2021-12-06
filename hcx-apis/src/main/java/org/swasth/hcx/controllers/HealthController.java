@@ -7,8 +7,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.swasth.common.dto.Response;
 import org.swasth.hcx.utils.Constants;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 public class HealthController extends BaseController {
@@ -23,7 +26,7 @@ public class HealthController extends BaseController {
     public ResponseEntity<Object> health() {
         List<Map<String,Object>> allChecks = new ArrayList<>();
         boolean allServiceHealthResult = true;
-        allChecks.add(generateCheck(Constants.KAFKA, kafkaClient.health()));
+        allChecks.add(generateCheck(Constants.KAFKA, kafkaClient.isHealthy()));
         for(Map<String,Object> check:allChecks) {
             if(!(boolean)check.get(Constants.HEALTHY))
                 allServiceHealthResult = false;

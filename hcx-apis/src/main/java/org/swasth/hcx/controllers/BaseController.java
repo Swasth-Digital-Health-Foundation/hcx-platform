@@ -11,7 +11,7 @@ import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
 import org.swasth.hcx.helpers.EventGenerator;
 import org.swasth.hcx.utils.Constants;
-import org.swasth.kafka.client.KafkaClient;
+import org.swasth.kafka.client.IEventService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +28,7 @@ public class BaseController {
     protected Environment env;
 
     @Autowired
-    protected KafkaClient kafkaClient;
+    protected IEventService kafkaClient;
 
     private String getUUID() {
         return UUID.randomUUID().toString();

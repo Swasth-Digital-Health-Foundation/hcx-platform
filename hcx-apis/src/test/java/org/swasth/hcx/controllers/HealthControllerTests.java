@@ -36,7 +36,7 @@ public class HealthControllerTests extends BaseSpec {
 
     @Test
     public void testHealth() throws Exception {
-        when(mockKafkaClient.health()).thenReturn(true);
+        when(mockKafkaClient.isHealthy()).thenReturn(true);
         MvcResult mvcResult = mockMvc.perform(get("/health")).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
@@ -49,7 +49,7 @@ public class HealthControllerTests extends BaseSpec {
 
     @Test
     public void testHealth_failure_scenario() throws Exception {
-        when(mockKafkaClient.health()).thenReturn(false);
+        when(mockKafkaClient.isHealthy()).thenReturn(false);
         MvcResult mvcResult = mockMvc.perform(get("/health")).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();

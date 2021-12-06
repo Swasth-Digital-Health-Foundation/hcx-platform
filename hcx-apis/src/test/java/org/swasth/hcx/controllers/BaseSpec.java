@@ -11,7 +11,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.test.web.servlet.MockMvc;
 import org.swasth.common.StringUtils;
 import org.swasth.hcx.helpers.EventGenerator;
-import org.swasth.kafka.client.KafkaClient;
+import org.swasth.kafka.client.IEventService;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,7 +30,7 @@ public class BaseSpec {
     protected Environment mockEnv;
 
     @MockBean
-    protected KafkaClient mockKafkaClient;
+    protected IEventService mockKafkaClient;
 
     public String getRequestBody() throws JsonProcessingException {
         Map<String,Object> obj = new HashMap<>();

@@ -7,7 +7,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 
-public class KafkaClient {
+public class KafkaClient implements IEventService {
 
     private String kafkaServerUrl;
     private KafkaProducer producer;
@@ -36,7 +36,7 @@ public class KafkaClient {
         return AdminClient.create(properties);
     }
 
-    public boolean health(){
+    public boolean isHealthy(){
         AdminClient adminClient = kafkaAdminClient();
         try
         {
