@@ -14,6 +14,7 @@ import org.swasth.hcx.helpers.EventGenerator;
 import org.swasth.hcx.managers.HealthCheckManager;
 import org.swasth.hcx.utils.Constants;
 import org.swasth.kafka.client.IEventService;
+import org.swasth.postgresql.IDatabaseService;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -21,13 +22,16 @@ import java.util.stream.Collectors;
 public class BaseController {
 
     @Autowired
-    protected EventGenerator eventGenerator;
+    private EventGenerator eventGenerator;
 
     @Autowired
     protected Environment env;
 
     @Autowired
-    protected IEventService kafkaClient;
+    private IEventService kafkaClient;
+
+    @Autowired
+    private IDatabaseService postgreSQLClient;
 
     private String getUUID() {
         return UUID.randomUUID().toString();
@@ -70,6 +74,7 @@ public class BaseController {
         if(serviceMode.equals(Constants.GATEWAY)) {
             kafkaClient.send(payloadTopic, key, payloadEvent);
             kafkaClient.send(metadataTopic, key, metadataEvent);
+            postgreSQLClient.insert(mid, payloadEvent);
         }
     }
 

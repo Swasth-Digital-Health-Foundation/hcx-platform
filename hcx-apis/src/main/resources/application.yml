@@ -12,6 +12,13 @@ kafka:
 service:
   mode: ${service_mode:gateway}
 
+#postgres configuration
+postgres:
+  url: ${postgres_url:jdbc:postgresql://localhost:5432/postgres}
+  user: ${postgres_user:postgres}
+  password: ${postgres_password:postgres}
+  tablename: ${postgres_tablename:payload}
+
 #hcx headers
 protocol:
   headers:

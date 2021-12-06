@@ -14,6 +14,7 @@ import org.swasth.common.dto.Response;
 import org.swasth.hcx.helpers.EventGenerator;
 import org.swasth.hcx.managers.HealthCheckManager;
 import org.swasth.kafka.client.IEventService;
+import org.swasth.postgresql.IDatabaseService;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,6 +34,9 @@ public class BaseSpec {
 
     @MockBean
     protected IEventService mockKafkaClient;
+
+    @MockBean
+    protected IDatabaseService postgreSQLClient;
 
     @MockBean
     protected HealthCheckManager healthCheckManager;
