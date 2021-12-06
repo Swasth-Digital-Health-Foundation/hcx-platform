@@ -22,9 +22,12 @@ public class HealthController extends BaseController {
     @RequestMapping(value = "/health", method = RequestMethod.GET)
     public ResponseEntity<Object> health() {
         List<Map<String,Object>> allChecks = new ArrayList<>();
-        AtomicBoolean allServiceHealthResult = new AtomicBoolean(true);
+        boolean allServiceHealthResult = true;
         allChecks.add(generateCheck(Constants.KAFKA, kafkaClient.health()));
-        allChecks.forEach(check -> { if(!(boolean)check.get(Constants.HEALTHY)) allServiceHealthResult.set(false); });
+        for(Map<String,Object> check:allChecks) {
+            if(!(boolean)check.get(Constants.HEALTHY))
+                allServiceHealthResult = false;
+        }
         Response response = new Response(Constants.CHECKS, allChecks);
         response.put(Constants.HEALTHY, allServiceHealthResult);
         return new ResponseEntity<>(response, HttpStatus.OK);
