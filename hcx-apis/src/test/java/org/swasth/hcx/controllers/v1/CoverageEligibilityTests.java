@@ -9,6 +9,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.swasth.hcx.controllers.BaseSpec;
+import org.swasth.hcx.managers.HealthCheckManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,7 +43,6 @@ public class CoverageEligibilityTests extends BaseSpec {
       when(mockEnv.getProperty("headers.jose", List.class)).thenReturn(new ArrayList<>(Arrays.asList("alg", "enc")));
       when(mockEnv.getProperty("payload.mandatory.properties", List.class)).thenReturn(new ArrayList<>(Arrays.asList("protected", "encrypted_key", "aad", "iv", "ciphertext", "tag")));
       when(mockEnv.getProperty("service.mode")).thenReturn("gateway");
-      when(healthCheckManager.checkAllSystemHealth()).thenReturn(validHealthResponse());
       doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
       String requestBody = getRequestBody();
       MvcResult mvcResult = mockMvc.perform(post("/v1/coverageeligibility/check").content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
@@ -57,7 +57,6 @@ public class CoverageEligibilityTests extends BaseSpec {
         when(mockEnv.getProperty("headers.domain", List.class)).thenReturn(new ArrayList<>(Arrays.asList("use_case_name", "parameter_name")));
         when(mockEnv.getProperty("headers.jose", List.class)).thenReturn(new ArrayList<>(Arrays.asList("alg", "enc")));
         when(mockEnv.getProperty("payload.mandatory.properties", List.class)).thenReturn(new ArrayList<>(Arrays.asList("protected", "encrypted_key", "aad", "iv", "ciphertext", "tag")));
-        when(healthCheckManager.checkAllSystemHealth()).thenReturn(validHealthResponse());
         doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
         String requestBody = getHeadersMissingRequestBody();
         MvcResult mvcResult = mockMvc.perform(post("/v1/coverageeligibility/check").content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
@@ -69,7 +68,6 @@ public class CoverageEligibilityTests extends BaseSpec {
 
     @Test
     public void check_coverage_eligibility_client_exception_scenario() throws Exception {
-        when(healthCheckManager.checkAllSystemHealth()).thenReturn(validHealthResponse());
         when(mockEnv.getProperty("payload.mandatory.properties", List.class)).thenReturn(new ArrayList<>(Arrays.asList("protected", "encrypted_key", "aad", "iv", "ciphertext", "tag")));
         String requestBody = getBadRequestBody();
         MvcResult mvcResult = mockMvc.perform(post("/v1/coverageeligibility/check").content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
@@ -94,7 +92,6 @@ public class CoverageEligibilityTests extends BaseSpec {
         when(mockEnv.getProperty("headers.jose", List.class)).thenReturn(new ArrayList<>(Arrays.asList("alg", "enc")));
         when(mockEnv.getProperty("payload.mandatory.properties", List.class)).thenReturn(new ArrayList<>(Arrays.asList("protected", "encrypted_key", "aad", "iv", "ciphertext", "tag")));
         when(mockEnv.getProperty("service.mode")).thenReturn("gateway");
-        when(healthCheckManager.checkAllSystemHealth()).thenReturn(validHealthResponse());
         doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
         String requestBody = getRequestBody();
         MvcResult mvcResult = mockMvc.perform(post("/v1/coverageeligibility/on_check").content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
@@ -104,7 +101,6 @@ public class CoverageEligibilityTests extends BaseSpec {
     }
     @Test
     public void on_check_coverage_eligibility_client_exception_scenario() throws Exception {
-        when(healthCheckManager.checkAllSystemHealth()).thenReturn(validHealthResponse());
         when(mockEnv.getProperty("payload.mandatory.properties", List.class)).thenReturn(new ArrayList<>(Arrays.asList("protected", "encrypted_key", "aad", "iv", "ciphertext", "tag")));
         String requestBody = getBadRequestBody();
         MvcResult mvcResult = mockMvc.perform(post("/v1/coverageeligibility/on_check").content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();

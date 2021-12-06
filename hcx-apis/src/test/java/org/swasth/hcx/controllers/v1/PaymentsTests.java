@@ -9,6 +9,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.swasth.hcx.controllers.BaseSpec;
+import org.swasth.hcx.managers.HealthCheckManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,7 +44,6 @@ public class PaymentsTests extends BaseSpec {
         when(mockEnv.getProperty("headers.jose", List.class)).thenReturn(new ArrayList<>(Arrays.asList("alg", "enc")));
         when(mockEnv.getProperty("payload.mandatory.properties", List.class)).thenReturn(new ArrayList<>(Arrays.asList("protected", "encrypted_key", "aad", "iv", "ciphertext", "tag")));
         when(mockEnv.getProperty("service.mode")).thenReturn("gateway");
-        when(healthCheckManager.checkAllSystemHealth()).thenReturn(validHealthResponse());
         doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
         String requestBody = getRequestBody();
         MvcResult mvcResult = mockMvc.perform(post("/v1/paymentnotice/request").content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
@@ -55,7 +55,6 @@ public class PaymentsTests extends BaseSpec {
     @Test
     public void check_payment_request_client_exception_scenario() throws Exception {
         when(mockEnv.getProperty("payload.mandatory.properties", List.class)).thenReturn(new ArrayList<>(Arrays.asList("protected", "encrypted_key", "aad", "iv", "ciphertext", "tag")));
-        when(healthCheckManager.checkAllSystemHealth()).thenReturn(validHealthResponse());
         String requestBody = getBadRequestBody();
         MvcResult mvcResult = mockMvc.perform(post("/v1/paymentnotice/request").content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -79,7 +78,6 @@ public class PaymentsTests extends BaseSpec {
         when(mockEnv.getProperty("headers.jose", List.class)).thenReturn(new ArrayList<>(Arrays.asList("alg", "enc")));
         when(mockEnv.getProperty("payload.mandatory.properties", List.class)).thenReturn(new ArrayList<>(Arrays.asList("protected", "encrypted_key", "aad", "iv", "ciphertext", "tag")));
         when(mockEnv.getProperty("service.mode")).thenReturn("gateway");
-        when(healthCheckManager.checkAllSystemHealth()).thenReturn(validHealthResponse());
         doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
         String requestBody = getRequestBody();
         MvcResult mvcResult = mockMvc.perform(post("/v1/paymentnotice/on_request").content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
@@ -91,7 +89,6 @@ public class PaymentsTests extends BaseSpec {
     @Test
     public void check_payment_on_request_client_exception_scenario() throws Exception {
         when(mockEnv.getProperty("payload.mandatory.properties", List.class)).thenReturn(new ArrayList<>(Arrays.asList("protected", "encrypted_key", "aad", "iv", "ciphertext", "tag")));
-        when(healthCheckManager.checkAllSystemHealth()).thenReturn(validHealthResponse());
         String requestBody = getBadRequestBody();
         MvcResult mvcResult = mockMvc.perform(post("/v1/paymentnotice/on_request").content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -115,7 +112,6 @@ public class PaymentsTests extends BaseSpec {
         when(mockEnv.getProperty("headers.jose", List.class)).thenReturn(new ArrayList<>(Arrays.asList("alg", "enc")));
         when(mockEnv.getProperty("payload.mandatory.properties", List.class)).thenReturn(new ArrayList<>(Arrays.asList("protected", "encrypted_key", "aad", "iv", "ciphertext", "tag")));
         when(mockEnv.getProperty("service.mode")).thenReturn("gateway");
-        when(healthCheckManager.checkAllSystemHealth()).thenReturn(validHealthResponse());
         doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
         String requestBody = getRequestBody();
         MvcResult mvcResult = mockMvc.perform(post("/v1/paymentnotice/search").content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
@@ -127,7 +123,6 @@ public class PaymentsTests extends BaseSpec {
     @Test
     public void check_payment_search_client_exception_scenario() throws Exception {
         when(mockEnv.getProperty("payload.mandatory.properties", List.class)).thenReturn(new ArrayList<>(Arrays.asList("protected", "encrypted_key", "aad", "iv", "ciphertext", "tag")));
-        when(healthCheckManager.checkAllSystemHealth()).thenReturn(validHealthResponse());
         String requestBody = getBadRequestBody();
         MvcResult mvcResult = mockMvc.perform(post("/v1/paymentnotice/search").content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -151,7 +146,6 @@ public class PaymentsTests extends BaseSpec {
         when(mockEnv.getProperty("headers.jose", List.class)).thenReturn(new ArrayList<>(Arrays.asList("alg", "enc")));
         when(mockEnv.getProperty("payload.mandatory.properties", List.class)).thenReturn(new ArrayList<>(Arrays.asList("protected", "encrypted_key", "aad", "iv", "ciphertext", "tag")));
         when(mockEnv.getProperty("service.mode")).thenReturn("gateway");
-        when(healthCheckManager.checkAllSystemHealth()).thenReturn(validHealthResponse());
         doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
         String requestBody = getRequestBody();
         MvcResult mvcResult = mockMvc.perform(post("/v1/paymentnotice/on_search").content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
@@ -163,7 +157,6 @@ public class PaymentsTests extends BaseSpec {
     @Test
     public void check_payment_on_search_client_exception_scenario() throws Exception {
         when(mockEnv.getProperty("payload.mandatory.properties", List.class)).thenReturn(new ArrayList<>(Arrays.asList("protected", "encrypted_key", "aad", "iv", "ciphertext", "tag")));
-        when(healthCheckManager.checkAllSystemHealth()).thenReturn(validHealthResponse());
         String requestBody = getBadRequestBody();
         MvcResult mvcResult = mockMvc.perform(post("/v1/paymentnotice/on_search").content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();

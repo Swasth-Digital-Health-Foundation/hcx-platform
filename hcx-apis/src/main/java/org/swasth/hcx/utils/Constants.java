@@ -2,25 +2,27 @@ package org.swasth.hcx.utils;
 
 public  class Constants {
 
+    public static final String VERSION_PREFIX = "/v1";
+
     // Coverage Eligibility APIs
-    public static final String COVERAGE_ELIGIBILITY_CHECK = "/v1/coverageeligibility/check";
-    public static final String COVERAGE_ELIGIBILITY_ONCHECK = "/v1/coverageeligibility/oncheck";
+    public static final String COVERAGE_ELIGIBILITY_CHECK = VERSION_PREFIX + "/coverageeligibility/check";
+    public static final String COVERAGE_ELIGIBILITY_ONCHECK = VERSION_PREFIX + "/coverageeligibility/oncheck";
 
     // Claims APIs
-    public static final String PRE_AUTH_SUBMIT = "/v1/preauth/submit";
-    public static final String PRE_AUTH_ONSUBMIT = "/v1/preauth/onsubmit";
-    public static final String PRE_AUTH_SEARCH = "/v1/preauth/search";
-    public static final String PRE_AUTH_ONSEARCH = "/v1/preauth/onsearch";
-    public static final String CLAIM_SUBMIT = "/v1/claim/submit";
-    public static final String CLAIM_ONSUBMIT = "/v1/claim/onsubmit";
-    public static final String CLAIM_SEARCH = "/v1/claim/search";
-    public static final String CLAIM_ONSEARCH = "/v1/claim/onsearch";
+    public static final String PRE_AUTH_SUBMIT = VERSION_PREFIX + "/preauth/submit";
+    public static final String PRE_AUTH_ONSUBMIT = VERSION_PREFIX + "/preauth/onsubmit";
+    public static final String PRE_AUTH_SEARCH = VERSION_PREFIX + "/preauth/search";
+    public static final String PRE_AUTH_ONSEARCH = VERSION_PREFIX + "/preauth/onsearch";
+    public static final String CLAIM_SUBMIT = VERSION_PREFIX + "/claim/submit";
+    public static final String CLAIM_ONSUBMIT = VERSION_PREFIX + "/claim/onsubmit";
+    public static final String CLAIM_SEARCH = VERSION_PREFIX + "/claim/search";
+    public static final String CLAIM_ONSEARCH = VERSION_PREFIX + "/claim/onsearch";
 
     //Payment Notice APIs
-    public static final String PAYMENT_NOTICE_REQUEST = "/v1/paymentnotice/request";
-    public static final String PAYMENT_NOTICE_ONREQUEST = "/v1/paymentnotice/onrequest";
-    public static final String PAYMENT_NOTICE_SEARCH = "/v1/paymentnotice/search";
-    public static final String PAYMENT_NOTICE_ONSEARCH = "/v1/paymentnotice/onsearch";
+    public static final String PAYMENT_NOTICE_REQUEST = VERSION_PREFIX + "/paymentnotice/request";
+    public static final String PAYMENT_NOTICE_ONREQUEST = VERSION_PREFIX + "/paymentnotice/onrequest";
+    public static final String PAYMENT_NOTICE_SEARCH = VERSION_PREFIX + "/paymentnotice/search";
+    public static final String PAYMENT_NOTICE_ONSEARCH = VERSION_PREFIX + "/paymentnotice/onsearch";
 
     public static final String HEALTHY = "healthy";
     public static final String NAME = "name";

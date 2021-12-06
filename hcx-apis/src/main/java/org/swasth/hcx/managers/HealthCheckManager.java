@@ -20,13 +20,15 @@ public class HealthCheckManager {
     @Autowired
     KafkaClient kafkaClient;
 
+    public static boolean allSystemHealthResult = true;
+
     public Response checkAllSystemHealth(){
         List<Map<String,Object>> allChecks = new ArrayList<>();
-        boolean allSystemHealthResult = true;
         allChecks.add(generateCheck(Constants.KAFKA, kafkaClient.isHealthy()));
         for(Map<String,Object> check:allChecks) {
             if(!(boolean)check.get(Constants.HEALTHY))
                 allSystemHealthResult = false;
+            else allSystemHealthResult = true;
         }
         Response response = new Response(Constants.CHECKS, allChecks);
         response.put(Constants.HEALTHY, allSystemHealthResult);

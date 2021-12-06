@@ -76,18 +76,12 @@ public class BaseController {
         }
     }
 
-    private void isAllSystemHealthy() throws Exception {
-        Response resp = healthCheckManager.checkAllSystemHealth();
-        if (!resp.get(Constants.HEALTHY).equals(true)) {
-            throw new ServiceUnavailbleException("Application service is unavailable: " + resp.get(Constants.CHECKS));
-        }
-    }
-
     public ResponseEntity<Object> validateReqAndPushToKafka(Map<String, Object> requestBody, String apiAction, String kafkaTopic) throws Exception {
         String correlationId = StringUtils.decodeBase64String((String) requestBody.get(Constants.PROTECTED), HashMap.class).get(Constants.CORRELATION_ID).toString();
         Response response = new Response(correlationId);
         try {
-            isAllSystemHealthy();
+            if (!HealthCheckManager.allSystemHealthResult)
+                throw new ServiceUnavailbleException("Service is unavailable");
             validateRequestBody(requestBody);
             processAndSendEvent(apiAction, kafkaTopic , requestBody);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
@@ -96,6 +90,7 @@ public class BaseController {
         } catch (ServiceUnavailbleException e) {
             return new ResponseEntity<>(errorResponse(response, ErrorCodes.SERVICE_UNAVAILABLE , e), HttpStatus.SERVICE_UNAVAILABLE);
         } catch (Exception e) {
+            e.printStackTrace();
             return new ResponseEntity<>(errorResponse(response, ErrorCodes.SERVER_ERROR, e), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
