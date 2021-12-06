@@ -52,7 +52,7 @@ class BaseJobConfig(val config: Config, val jobName: String) extends Serializabl
   val retryOutputTag: OutputTag[util.Map[String, AnyRef]] = OutputTag[util.Map[String, AnyRef]]("retry-events")
   val retryTopic = config.getString("kafka.retry.topic")
 
-  val auditOutputTag: OutputTag[util.Map[String, AnyRef]] = OutputTag[util.Map[String, AnyRef]]("audit-events")
+  val auditOutputTag: OutputTag[String] = OutputTag[String]("audit-events")
   val auditTopic = config.getString("kafka.audit.topic")
 
   // Producers
