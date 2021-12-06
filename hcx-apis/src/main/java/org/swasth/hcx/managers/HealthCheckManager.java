@@ -26,9 +26,10 @@ public class HealthCheckManager {
         List<Map<String,Object>> allChecks = new ArrayList<>();
         allChecks.add(generateCheck(Constants.KAFKA, kafkaClient.isHealthy()));
         for(Map<String,Object> check:allChecks) {
-            if(!(boolean)check.get(Constants.HEALTHY))
+            if((boolean)check.get(Constants.HEALTHY))
+                allSystemHealthResult = true;
+            else
                 allSystemHealthResult = false;
-            else allSystemHealthResult = true;
         }
         Response response = new Response(Constants.CHECKS, allChecks);
         response.put(Constants.HEALTHY, allSystemHealthResult);
