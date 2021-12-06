@@ -6,44 +6,40 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.swasth.common.dto.Response;
+import org.swasth.hcx.utils.Constants;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 public class HealthController extends BaseController {
 
     @RequestMapping(value = "/service/health", method = RequestMethod.GET)
     public ResponseEntity<Object> serviceHealth() {
-        Response response = getHealthResponse();
-        response.put("healthy", true);
+        Response response = new Response(Constants.HEALTHY, true);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/health", method = RequestMethod.GET)
     public ResponseEntity<Object> health() {
-        Response response = getHealthResponse();
         List<Map<String,Object>> allChecks = new ArrayList<>();
-        List<Boolean> getAllHealth = new ArrayList<>();
-        allChecks.add(checkKafkaHealth());
-        allChecks.forEach(check -> getAllHealth.add((Boolean) check.get("healthy")));
-        response.put("checks", allChecks);
-        response.put("healthy", !getAllHealth.contains(false));
+        boolean allServiceHealthResult = true;
+        allChecks.add(generateCheck(Constants.KAFKA, kafkaClient.isHealthy()));
+        for(Map<String,Object> check:allChecks) {
+            if(!(boolean)check.get(Constants.HEALTHY))
+                allServiceHealthResult = false;
+        }
+        Response response = new Response(Constants.CHECKS, allChecks);
+        response.put(Constants.HEALTHY, allServiceHealthResult);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    public Map checkKafkaHealth(){
-        String serviceName = "kafka";
-        if(kafkaClient.health()){
-            return generateCheck(serviceName, true);
-        } else {
-            return generateCheck(serviceName, false);
-        }
-    }
-
-    public Map generateCheck(String serviceName, Boolean health){
-        return new LinkedHashMap(){{
-           put("name", serviceName);
-           put("healthy", health);
+    private Map<String,Object> generateCheck(String serviceName, boolean health){
+        return new HashMap<>() {{
+            put(Constants.NAME, serviceName);
+            put(Constants.HEALTHY, health);
         }};
     }
 

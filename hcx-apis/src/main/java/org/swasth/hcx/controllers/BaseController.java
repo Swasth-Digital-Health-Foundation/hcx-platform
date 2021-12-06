@@ -1,94 +1,97 @@
 package org.swasth.hcx.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.swasth.common.StringUtils;
 import org.swasth.common.dto.Response;
 import org.swasth.common.dto.ResponseError;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
-import org.swasth.common.exception.ResponseCode;
-import org.swasth.hcx.helpers.KafkaEventGenerator;
-import org.swasth.kafka.client.KafkaClient;
+import org.swasth.hcx.helpers.EventGenerator;
+import org.swasth.hcx.utils.Constants;
+import org.swasth.kafka.client.IEventService;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class BaseController {
 
-    @Value("${kafka.topic.ingest}")
-    private String ingestTopic;
-
-    @Value("${kafka.topic.payload}")
-    private String payloadTopic;
-
-    @Value("${gateway.mode}")
-    private Boolean serviceMode;
-
-    private String key="";
+    @Autowired
+    protected EventGenerator eventGenerator;
 
     @Autowired
-    KafkaEventGenerator kafkaEventGenerator;
+    protected Environment env;
 
     @Autowired
-    Environment env;
+    protected IEventService kafkaClient;
 
     @Autowired
-    KafkaClient kafkaClient;
+    HealthController healthController;
 
     private String getUUID() {
-        UUID uid = UUID.randomUUID();
-        return uid.toString();
+        return UUID.randomUUID().toString();
     }
 
-    public void validateRequestBody(Map<String, Object> requestBody) throws Exception {
-        if(requestBody.isEmpty()) {
-            throw new ClientException(ErrorCodes.CLIENT_ERR_EMPTY_REQ_BODY, "Request Body cannot be Empty.");
-        } else {
-            // validating payload properties
-            List<String> mandatoryPayloadProps = (List<String>) env.getProperty("payload.mandatory.properties", List.class, new ArrayList<String>());
-            List<String> missingPayloadProps = mandatoryPayloadProps.stream().filter(key -> !requestBody.containsKey(key)).collect(Collectors.toList());
-            if (!missingPayloadProps.isEmpty()) {
-                throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_PAYLOAD, "Payload mandatory properties are missing: " + missingPayloadProps);
-            }
-            //validating protected headers
-            Map<String, Object> protectedHeaders = StringUtils.decodeBase64String((String) requestBody.get("protected"));
-            List<String> mandatoryHeaders = new ArrayList<>();
-            mandatoryHeaders.addAll((List<String>) env.getProperty("protocol.headers.mandatory", List.class, new ArrayList<String>()));
-            mandatoryHeaders.addAll((List<String>) env.getProperty("headers.domain", List.class, new ArrayList<String>()));
-            mandatoryHeaders.addAll((List<String>) env.getProperty("headers.jose", List.class, new ArrayList<String>()));
-            List<String> missingHeaders = mandatoryHeaders.stream().filter(key -> !protectedHeaders.containsKey(key)).collect(Collectors.toList());
-            if(!missingHeaders.isEmpty()) {
-                throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_HEADER, "Mandatory headers are missing: " + missingHeaders);
-            }
+    private void validateRequestBody(Map<String, Object> requestBody) throws Exception {
+        // validating payload properties
+        List<String> mandatoryPayloadProps = env.getProperty(Constants.PAYLOAD_MANDATORY_PROPERTIES, List.class);
+        List<String> missingPayloadProps = mandatoryPayloadProps.stream().filter(key -> !requestBody.containsKey(key)).collect(Collectors.toList());
+        if (!missingPayloadProps.isEmpty()) {
+            throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_PAYLOAD, "Payload mandatory properties are missing: " + missingPayloadProps);
         }
+        //validating protected headers
+        Map<String, Object> protectedHeaders = StringUtils.decodeBase64String((String) requestBody.get("protected"), HashMap.class);
+        List<String> mandatoryHeaders = new ArrayList<>();
+        mandatoryHeaders.addAll(env.getProperty(Constants.PROTOCOL_HEADERS_MANDATORY, List.class));
+        mandatoryHeaders.addAll(env.getProperty(Constants.DOMAIN_HEADERS, List.class));
+        mandatoryHeaders.addAll(env.getProperty(Constants.JOSE_HEADERS, List.class));
+        List<String> missingHeaders = mandatoryHeaders.stream().filter(key -> !protectedHeaders.containsKey(key)).collect(Collectors.toList());
+        if (!missingHeaders.isEmpty()) {
+            throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_HEADER, "Mandatory headers are missing: " + missingHeaders);
+        }
+
     }
 
-    public Response getHealthResponse(){
-        Response response = new Response();
-        Map<String, Object> result = new HashMap<>();
-        response.setResult(result);
-        return response;
-    }
-
-    public Response getResponse(String correlationId){
-        return new Response(correlationId);
-    }
-
-    public Response errorResponse(Response response, ErrorCodes code, Exception e){
+    private Response errorResponse(Response response, ErrorCodes code, Exception e){
         ResponseError error= new ResponseError(code, e.getMessage(), e.getCause());
         response.setError(error);
         return response;
     }
 
-    public void processAndSendEvent(String apiAction, Map<String, Object> requestBody) throws Exception {
+    private void processAndSendEvent(String apiAction, String metadataTopic, Map<String, Object> requestBody) throws Exception {
         String mid = getUUID();
-        String payloadEvent = kafkaEventGenerator.generatePayloadEvent(mid, requestBody);
-        String metadataEvent = kafkaEventGenerator.generateMetadataEvent(mid, apiAction, requestBody);
-        if(serviceMode.equals("gateway")) {
-            kafkaClient.send(payloadTopic, "", payloadEvent);
-            kafkaClient.send(ingestTopic, "", metadataEvent);
+        String serviceMode = env.getProperty(Constants.SERVICE_MODE);
+        String payloadTopic = env.getProperty(Constants.KAFKA_TOPIC_PAYLOAD);
+        String key = StringUtils.decodeBase64String((String) requestBody.get(Constants.PROTECTED), HashMap.class).get(Constants.SENDER_CODE).toString();
+        String payloadEvent = eventGenerator.generatePayloadEvent(mid, requestBody);
+        String metadataEvent = eventGenerator.generateMetadataEvent(mid, apiAction, requestBody);
+        System.out.println("Event: " + metadataEvent);
+        if(serviceMode.equals(Constants.GATEWAY)) {
+            kafkaClient.send(payloadTopic, key, payloadEvent);
+            kafkaClient.send(metadataTopic, key, metadataEvent);
+        }
+    }
+
+    private void allServiceHealthCheck() throws Exception {
+        Response resp = (Response) healthController.health().getBody();
+        if (!resp.get(Constants.HEALTHY).equals(true))
+            throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_CONNECTION, "Invalid Connection" + resp.get(Constants.CHECKS));
+    }
+
+    public ResponseEntity<Object> validateReqAndPushToKafka(Map<String, Object> requestBody, String apiAction, String kafkaTopic) throws Exception {
+        String correlationId = StringUtils.decodeBase64String((String) requestBody.get(Constants.PROTECTED), HashMap.class).get(Constants.CORRELATION_ID).toString();
+        Response response = new Response(correlationId);
+        try {
+            allServiceHealthCheck();
+            validateRequestBody(requestBody);
+            processAndSendEvent(apiAction, kafkaTopic , requestBody);
+            return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
+        } catch (ClientException e) {
+            return new ResponseEntity<>(errorResponse(response, e.getErrCode(), e), HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            return new ResponseEntity<>(errorResponse(response, ErrorCodes.SERVER_ERROR, e), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
