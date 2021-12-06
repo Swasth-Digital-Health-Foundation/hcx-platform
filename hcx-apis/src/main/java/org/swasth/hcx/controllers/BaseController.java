@@ -90,7 +90,6 @@ public class BaseController {
         } catch (ServiceUnavailbleException e) {
             return new ResponseEntity<>(errorResponse(response, ErrorCodes.SERVICE_UNAVAILABLE , e), HttpStatus.SERVICE_UNAVAILABLE);
         } catch (Exception e) {
-            e.printStackTrace();
             return new ResponseEntity<>(errorResponse(response, ErrorCodes.SERVER_ERROR, e), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
