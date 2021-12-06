@@ -42,7 +42,7 @@ public class PreAuthTests extends BaseSpec {
         when(mockEnv.getProperty("headers.jose", List.class)).thenReturn(new ArrayList<>(Arrays.asList("alg", "enc")));
         when(mockEnv.getProperty("payload.mandatory.properties", List.class)).thenReturn(new ArrayList<>(Arrays.asList("protected", "encrypted_key", "aad", "iv", "ciphertext", "tag")));
         when(mockEnv.getProperty("service.mode")).thenReturn("gateway");
-        when(mockHealthController.health()).thenReturn(validHealthResponse());
+        when(healthCheckManager.checkAllSystemHealth()).thenReturn(validHealthResponse());
         doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
         String requestBody = getRequestBody();
         MvcResult mvcResult = mockMvc.perform(post("/v1/preauth/submit").content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
@@ -54,7 +54,7 @@ public class PreAuthTests extends BaseSpec {
     @Test
     public void check_preauth_submit_client_exception_scenario() throws Exception {
         when(mockEnv.getProperty("payload.mandatory.properties", List.class)).thenReturn(new ArrayList<>(Arrays.asList("protected", "encrypted_key", "aad", "iv", "ciphertext", "tag")));
-        when(mockHealthController.health()).thenReturn(validHealthResponse());
+        when(healthCheckManager.checkAllSystemHealth()).thenReturn(validHealthResponse());
         String requestBody = getBadRequestBody();
         MvcResult mvcResult = mockMvc.perform(post("/v1/preauth/submit").content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -78,7 +78,7 @@ public class PreAuthTests extends BaseSpec {
         when(mockEnv.getProperty("headers.jose", List.class)).thenReturn(new ArrayList<>(Arrays.asList("alg", "enc")));
         when(mockEnv.getProperty("payload.mandatory.properties", List.class)).thenReturn(new ArrayList<>(Arrays.asList("protected", "encrypted_key", "aad", "iv", "ciphertext", "tag")));
         when(mockEnv.getProperty("service.mode")).thenReturn("gateway");
-        when(mockHealthController.health()).thenReturn(validHealthResponse());
+        when(healthCheckManager.checkAllSystemHealth()).thenReturn(validHealthResponse());
         doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
         String requestBody = getRequestBody();
         MvcResult mvcResult = mockMvc.perform(post("/v1/preauth/on_submit").content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
@@ -90,7 +90,7 @@ public class PreAuthTests extends BaseSpec {
     @Test
     public void check_preauth_on_submit_client_exception_scenario() throws Exception {
         when(mockEnv.getProperty("payload.mandatory.properties", List.class)).thenReturn(new ArrayList<>(Arrays.asList("protected", "encrypted_key", "aad", "iv", "ciphertext", "tag")));
-        when(mockHealthController.health()).thenReturn(validHealthResponse());
+        when(healthCheckManager.checkAllSystemHealth()).thenReturn(validHealthResponse());
         String requestBody = getBadRequestBody();
         MvcResult mvcResult = mockMvc.perform(post("/v1/preauth/on_submit").content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -114,7 +114,7 @@ public class PreAuthTests extends BaseSpec {
         when(mockEnv.getProperty("headers.jose", List.class)).thenReturn(new ArrayList<>(Arrays.asList("alg", "enc")));
         when(mockEnv.getProperty("payload.mandatory.properties", List.class)).thenReturn(new ArrayList<>(Arrays.asList("protected", "encrypted_key", "aad", "iv", "ciphertext", "tag")));
         when(mockEnv.getProperty("service.mode")).thenReturn("gateway");
-        when(mockHealthController.health()).thenReturn(validHealthResponse());
+        when(healthCheckManager.checkAllSystemHealth()).thenReturn(validHealthResponse());
         doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
         String requestBody = getRequestBody();
         MvcResult mvcResult = mockMvc.perform(post("/v1/preauth/search").content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
@@ -126,7 +126,7 @@ public class PreAuthTests extends BaseSpec {
     @Test
     public void check_preauth_search_client_exception_scenario() throws Exception {
         when(mockEnv.getProperty("payload.mandatory.properties", List.class)).thenReturn(new ArrayList<>(Arrays.asList("protected", "encrypted_key", "aad", "iv", "ciphertext", "tag")));
-        when(mockHealthController.health()).thenReturn(validHealthResponse());
+        when(healthCheckManager.checkAllSystemHealth()).thenReturn(validHealthResponse());
         String requestBody = getBadRequestBody();
         MvcResult mvcResult = mockMvc.perform(post("/v1/preauth/search").content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -150,7 +150,7 @@ public class PreAuthTests extends BaseSpec {
         when(mockEnv.getProperty("headers.jose", List.class)).thenReturn(new ArrayList<>(Arrays.asList("alg", "enc")));
         when(mockEnv.getProperty("payload.mandatory.properties", List.class)).thenReturn(new ArrayList<>(Arrays.asList("protected", "encrypted_key", "aad", "iv", "ciphertext", "tag")));
         when(mockEnv.getProperty("service.mode")).thenReturn("gateway");
-        when(mockHealthController.health()).thenReturn(validHealthResponse());
+        when(healthCheckManager.checkAllSystemHealth()).thenReturn(validHealthResponse());
         doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
         String requestBody = getRequestBody();
         MvcResult mvcResult = mockMvc.perform(post("/v1/preauth/on_search").content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
@@ -162,7 +162,7 @@ public class PreAuthTests extends BaseSpec {
     @Test
     public void check_preauth_on_search_client_exception_scenario() throws Exception {
         when(mockEnv.getProperty("payload.mandatory.properties", List.class)).thenReturn(new ArrayList<>(Arrays.asList("protected", "encrypted_key", "aad", "iv", "ciphertext", "tag")));
-        when(mockHealthController.health()).thenReturn(validHealthResponse());
+        when(healthCheckManager.checkAllSystemHealth()).thenReturn(validHealthResponse());
         String requestBody = getBadRequestBody();
         MvcResult mvcResult = mockMvc.perform(post("/v1/preauth/on_search").content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();

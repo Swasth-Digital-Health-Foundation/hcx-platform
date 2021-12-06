@@ -8,12 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.env.Environment;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
 import org.swasth.common.StringUtils;
 import org.swasth.common.dto.Response;
 import org.swasth.hcx.helpers.EventGenerator;
+import org.swasth.hcx.managers.HealthCheckManager;
 import org.swasth.kafka.client.IEventService;
 
 import java.util.HashMap;
@@ -36,7 +35,7 @@ public class BaseSpec {
     protected IEventService mockKafkaClient;
 
     @MockBean
-    protected HealthController mockHealthController;
+    protected HealthCheckManager healthCheckManager;
 
     public String getRequestBody() throws JsonProcessingException {
         Map<String,Object> obj = new HashMap<>();
@@ -70,7 +69,7 @@ public class BaseSpec {
         return StringUtils.serialize(obj);
     }
 
-    public ResponseEntity<Object> validHealthResponse() {
-        return new ResponseEntity<>(new Response("healthy",true), HttpStatus.OK);
+    public Response validHealthResponse() {
+        return new Response("healthy",true);
     }
 }
