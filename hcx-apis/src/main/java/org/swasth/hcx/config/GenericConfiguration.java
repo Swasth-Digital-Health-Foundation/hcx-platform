@@ -3,6 +3,7 @@ package org.swasth.hcx.config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.swasth.common.exception.ClientException;
 import org.swasth.kafka.client.IEventService;
 import org.swasth.kafka.client.KafkaClient;
 import org.swasth.postgresql.IDatabaseService;
@@ -35,7 +36,7 @@ public class GenericConfiguration {
     }
 
     @Bean
-    public IDatabaseService postgreSQLClient(){
+    public IDatabaseService postgreSQLClient() throws ClientException {
        IDatabaseService postgreSQLClient = new PostgreSQLClient(postgresUrl, postgresUser, postgresPassword, postgresTableName);
        return postgreSQLClient;
     }

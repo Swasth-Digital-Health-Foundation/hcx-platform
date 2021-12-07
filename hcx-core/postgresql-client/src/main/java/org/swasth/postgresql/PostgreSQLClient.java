@@ -13,12 +13,14 @@ public class PostgreSQLClient implements IDatabaseService {
     private String user;
     private String password;
     private String tableName;
+    private Connection connection;
 
-    public PostgreSQLClient(String url, String user, String password, String tableName){
+    public PostgreSQLClient(String url, String user, String password, String tableName) throws ClientException {
         this.url = url;
         this.user = user;
         this.password = password;
         this.tableName = tableName;
+        this.connection = getConnection();
     }
 
     private Connection getConnection() throws ClientException {
@@ -34,14 +36,13 @@ public class PostgreSQLClient implements IDatabaseService {
 
     public void insert(String mid, String payload) throws ClientException {
         try {
-            Connection connection = getConnection();
             connection.setAutoCommit(false);
             Statement stmt = connection.createStatement();
             String query = "INSERT INTO " + tableName + " VALUES " + "(" + "'" + mid + "'" + "," + "'" + payload + "'" + ");" ;
             stmt.executeUpdate(query);
+            System.out.println("Insert operation completed successfully.");
             stmt.close();
             connection.commit();
-            connection.close();
         } catch (Exception e) {
             throw new ClientException("Error while performing insert operation: " + e.getMessage());
         }
