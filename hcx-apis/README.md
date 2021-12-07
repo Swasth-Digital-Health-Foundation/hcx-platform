@@ -61,7 +61,7 @@ kafka-topics.sh --create --zookeeper zookeeper:2181 --replication-factor 1 --par
 ```
 2. To SSH to postgres docker container, run the below command.
 ```shell
-docker exec -it local-postgres bash
+docker exec -it local-postgres sh
 ```
 3. To start psql client, run the below command.
 ```shell
