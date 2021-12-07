@@ -67,7 +67,7 @@ docker exec -it local-postgres bash
 ```shell
 psql -U postgres
 ```
-4. Create the payload table using the below query.
+4. Create the `payload` table using the below query.
 ```roomsql
 CREATE TABLE IF NOT EXISTS public.payload
 (
