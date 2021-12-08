@@ -30,7 +30,7 @@ public class PostgreSQLClient implements IDatabaseService {
             conn = DriverManager.getConnection(url, user, password);
             health = true;
             System.out.println("Connected to the PostgreSQL server successfully.");
-        } catch (SQLException e) {
+        } catch (Exception e) {
             throw new ClientException("Error connecting to the PostgreSQL server: " + e.getMessage());
         }
         return conn;
