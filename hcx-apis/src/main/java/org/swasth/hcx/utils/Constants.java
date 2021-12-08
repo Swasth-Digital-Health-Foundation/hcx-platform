@@ -27,7 +27,7 @@ public  class Constants {
     public static final String HEALTHY = "healthy";
     public static final String NAME = "name";
     public static final String KAFKA = "kafka";
-    public static final String PostgreSQL = "PostgreSQL";
+    public static final String POSTGRESQL = "PostgreSQL";
     public static final String CHECKS = "checks";
 
     //event generator props

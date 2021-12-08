@@ -30,7 +30,7 @@ public class HealthCheckManager {
     public Response checkAllSystemHealth(){
         List<Map<String,Object>> allChecks = new ArrayList<>();
         allChecks.add(generateCheck(Constants.KAFKA, kafkaClient.isHealthy()));
-        allChecks.add(generateCheck(Constants.PostgreSQL, PostgreSQLClient.isHealthy()));
+        allChecks.add(generateCheck(Constants.POSTGRESQL, PostgreSQLClient.isHealthy()));
         for(Map<String,Object> check:allChecks) {
             if((boolean)check.get(Constants.HEALTHY))
                 allSystemHealthResult = true;
