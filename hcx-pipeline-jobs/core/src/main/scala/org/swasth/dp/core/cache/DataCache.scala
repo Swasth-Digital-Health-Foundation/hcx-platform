@@ -127,6 +127,19 @@ class DataCache(val config: BaseJobConfig, val redisConnect: RedisConnect, val d
     }
   }
 
+  def hmSet(key: String, value: String): Unit = {
+    try {
+      redisConnection.setnx(key, value)
+    } catch {
+      case ex: JedisException => {
+        logger.error("Exception when inserting data to redis cache", ex)
+        this.redisConnection.close()
+        this.redisConnection = redisConnect.getConnection(dbIndex)
+        this.redisConnection.setnx(key, value)
+      }
+    }
+  }
+
   def setWithRetry(key: String, value: String): Unit = {
     try {
       set(key, value);

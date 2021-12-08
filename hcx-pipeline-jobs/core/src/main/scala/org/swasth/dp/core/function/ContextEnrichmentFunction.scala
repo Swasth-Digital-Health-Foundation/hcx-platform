@@ -67,6 +67,7 @@ class ContextEnrichmentFunction(config: BaseJobConfig) (implicit val stringTypeI
     val senderCode:String = getCode(event,"x-hcx-sender_code")
     val recipientCode:String = getCode(event,"x-hcx-recipient_code")
     val actionStr: String = event.get("action").asInstanceOf[String]
+    Console.println(s"Sender: $senderCode : Recipient: $recipientCode : Action: $actionStr")
 
     // Fetch the sender and receiver details from registry or cache
     val receiverMap = fetchReceiverDetails(recipientCode)
@@ -93,7 +94,7 @@ class ContextEnrichmentFunction(config: BaseJobConfig) (implicit val stringTypeI
       Console.println("Could not find the sender/receiver details in cache for code:" + code)
       logger.info("Could not find the sender/receiver details in cache for code:" + code)
       val collectionMap = createSenderMap()
-      registryDataCache.hmSet(code,JSONUtil.serialize(collectionMap))
+      registryDataCache.hmSet(code, JSONUtil.serialize(collectionMap))
       collectionMap
     }
   }
