@@ -1,0 +1,12 @@
+rbac:
+  - role: ANONYMOUS
+    paths:
+      - /geta
+    regexPaths:
+      - /hello/*
+  - role: AUTHENTICATED
+    paths:
+      - /anythinga
+  - role: TESTER
+    paths:
+      - /anything
