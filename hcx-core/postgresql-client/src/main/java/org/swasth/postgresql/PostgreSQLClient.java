@@ -2,10 +2,7 @@ package org.swasth.postgresql;
 
 import org.swasth.common.exception.ClientException;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 
 public class PostgreSQLClient implements IDatabaseService {
 
@@ -13,22 +10,18 @@ public class PostgreSQLClient implements IDatabaseService {
     private String user;
     private String password;
     private String tableName;
-    private Connection connection;
-    private boolean health=false;
 
-    public PostgreSQLClient(String url, String user, String password, String tableName) throws ClientException {
+    public PostgreSQLClient(String url, String user, String password, String tableName) {
         this.url = url;
         this.user = user;
         this.password = password;
         this.tableName = tableName;
-        this.connection = getConnection();
     }
 
     private Connection getConnection() throws ClientException {
         Connection conn;
         try {
             conn = DriverManager.getConnection(url, user, password);
-            health = true;
             System.out.println("Connected to the PostgreSQL server successfully.");
         } catch (Exception e) {
             throw new ClientException("Error connecting to the PostgreSQL server: " + e.getMessage());
@@ -36,22 +29,32 @@ public class PostgreSQLClient implements IDatabaseService {
         return conn;
     }
 
-    public void insert(String mid, String payload) throws ClientException {
+    public void insert(String mid, String payload) throws ClientException, SQLException {
+        Connection connection = getConnection();
         try {
             connection.setAutoCommit(false);
-            Statement stmt = connection.createStatement();
-            String query = "INSERT INTO " + tableName + " VALUES " + "(" + "'" + mid + "'" + "," + "'" + payload + "'" + ");" ;
-            stmt.executeUpdate(query);
+            String query = "INSERT INTO " + tableName +" VALUES (?,?);";
+            PreparedStatement pstmt = connection.prepareStatement(query);
+            pstmt.setString(1, mid);
+            pstmt.setString(2, payload);
+            pstmt.executeUpdate();
             System.out.println("Insert operation completed successfully.");
-            stmt.close();
             connection.commit();
         } catch (Exception e) {
             throw new ClientException("Error while performing insert operation: " + e.getMessage());
+        } finally {
+            connection.close();
         }
     }
 
-    public boolean isHealthy(){
-      return health;
+    public boolean isHealthy() {
+        try {
+            Connection conn = getConnection();
+            conn.close();
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
 }
