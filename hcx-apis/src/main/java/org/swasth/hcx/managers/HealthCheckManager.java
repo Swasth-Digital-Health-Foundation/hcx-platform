@@ -23,14 +23,14 @@ public class HealthCheckManager {
     @Autowired
     private IEventService kafkaClient;
     @Autowired
-    private IDatabaseService PostgreSQLClient;
+    private IDatabaseService postgreSQLClient;
 
     public static boolean allSystemHealthResult = true;
 
     public Response checkAllSystemHealth(){
         List<Map<String,Object>> allChecks = new ArrayList<>();
         allChecks.add(generateCheck(Constants.KAFKA, kafkaClient.isHealthy()));
-        allChecks.add(generateCheck(Constants.POSTGRESQL, PostgreSQLClient.isHealthy()));
+        allChecks.add(generateCheck(Constants.POSTGRESQL, postgreSQLClient.isHealthy()));
         for(Map<String,Object> check:allChecks) {
             if((boolean)check.get(Constants.HEALTHY))
                 allSystemHealthResult = true;
