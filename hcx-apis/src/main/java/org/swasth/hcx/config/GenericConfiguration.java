@@ -36,7 +36,7 @@ public class GenericConfiguration {
     }
 
     @Bean
-    public IDatabaseService postgreSQLClient() throws ClientException {
+    public IDatabaseService postgreSQLClient() {
        IDatabaseService postgreSQLClient = new PostgreSQLClient(postgresUrl, postgresUser, postgresPassword, postgresTableName);
        return postgreSQLClient;
     }
