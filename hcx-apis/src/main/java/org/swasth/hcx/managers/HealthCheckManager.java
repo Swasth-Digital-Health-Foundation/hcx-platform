@@ -9,6 +9,8 @@ import org.swasth.common.dto.Response;
 import org.swasth.hcx.utils.Constants;
 import org.swasth.kafka.client.IEventService;
 import org.swasth.kafka.client.KafkaClient;
+import org.swasth.postgresql.IDatabaseService;
+import org.swasth.postgresql.PostgreSQLClient;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,12 +22,15 @@ public class HealthCheckManager {
 
     @Autowired
     private IEventService kafkaClient;
+    @Autowired
+    private IDatabaseService PostgreSQLClient;
 
     public static boolean allSystemHealthResult = true;
 
     public Response checkAllSystemHealth(){
         List<Map<String,Object>> allChecks = new ArrayList<>();
         allChecks.add(generateCheck(Constants.KAFKA, kafkaClient.isHealthy()));
+        allChecks.add(generateCheck(Constants.PostgreSQL, PostgreSQLClient.isHealthy()));
         for(Map<String,Object> check:allChecks) {
             if((boolean)check.get(Constants.HEALTHY))
                 allSystemHealthResult = true;

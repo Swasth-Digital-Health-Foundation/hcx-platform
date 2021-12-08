@@ -14,6 +14,7 @@ public class PostgreSQLClient implements IDatabaseService {
     private String password;
     private String tableName;
     private Connection connection;
+    private boolean health=false;
 
     public PostgreSQLClient(String url, String user, String password, String tableName) throws ClientException {
         this.url = url;
@@ -27,6 +28,7 @@ public class PostgreSQLClient implements IDatabaseService {
         Connection conn;
         try {
             conn = DriverManager.getConnection(url, user, password);
+            health = true;
             System.out.println("Connected to the PostgreSQL server successfully.");
         } catch (SQLException e) {
             throw new ClientException("Error connecting to the PostgreSQL server: " + e.getMessage());
@@ -46,6 +48,10 @@ public class PostgreSQLClient implements IDatabaseService {
         } catch (Exception e) {
             throw new ClientException("Error while performing insert operation: " + e.getMessage());
         }
+    }
+
+    public boolean isHealthy(){
+      return health;
     }
 
 }

@@ -5,4 +5,5 @@ import org.swasth.common.exception.ClientException;
 public interface IDatabaseService {
 
     void insert(String mid, String payload) throws ClientException;
+    boolean isHealthy();
 }
