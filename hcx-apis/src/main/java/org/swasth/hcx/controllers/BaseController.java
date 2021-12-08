@@ -74,7 +74,7 @@ public class BaseController {
         if(serviceMode.equals(Constants.GATEWAY)) {
             kafkaClient.send(payloadTopic, key, payloadEvent);
             kafkaClient.send(metadataTopic, key, metadataEvent);
-            postgreSQLClient.insert(mid, payloadEvent);
+            postgreSQLClient.insert(mid, StringUtils.serialize(requestBody));
         }
     }
 

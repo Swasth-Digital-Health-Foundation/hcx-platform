@@ -52,6 +52,8 @@ class CoverageEligibilityProcessFunction(config: CoverageEligibilityCheckConfig,
       val resultSet = preparedStatement.executeQuery()
       if(resultSet.next()) {
         val payload = resultSet.getString(1)
+        Console.println(s"Data from postgres: $payload")
+        logger.info(s"Data from postgres: $payload")
         JSONUtil.deserialize[util.Map[String, AnyRef]](payload)
       } else {
         throw new Exception("Payload not found for the given reference id: " + payloadRefId)
