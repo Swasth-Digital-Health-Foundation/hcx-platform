@@ -77,7 +77,7 @@ public class BaseController {
             if (StringUtils.isEmpty((String) protectedHeaders.get(Constants.DEBUG_FLAG))) {
                 throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_DEBUG_ID, "Debug flag cannot be null, empty or other than Error, Info and Debug");
             } else if (!Constants.DEBUG_FLAG_VALUES.contains((String) protectedHeaders.get(Constants.DEBUG_FLAG))) {
-                throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_DEBUG_ID, "Debug flag cannot be other than Error, Info or Debug");
+                throw new ClientException(ErrorCodes.CLIENT_ERR_DEBUG_ID_OUTOFRANGE, "Debug flag cannot be other than Error, Info or Debug");
             }
         }
         else if (StringUtils.isEmpty((String) protectedHeaders.get(Constants.STATUS))) {
