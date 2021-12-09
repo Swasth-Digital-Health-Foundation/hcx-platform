@@ -73,8 +73,12 @@ public class BaseController {
         else if (StringUtils.isEmpty((String) protectedHeaders.get(Constants.TIMESTAMP))) {
             throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_TIMESTAMP, "Timestamp cannot be null or empty!");
         }
-        else if (protectedHeaders.containsKey(Constants.DEBUG_FLAG) && (StringUtils.isEmpty((String) protectedHeaders.get(Constants.DEBUG_FLAG)) || !Constants.DEBUG_FLAG_VALUES.contains((String) protectedHeaders.get(Constants.DEBUG_FLAG)))) {
-            throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_DEBUG_ID, "Debug flag cannot be null, empty or other than Error, Info and Debug");
+        else if (protectedHeaders.containsKey(Constants.DEBUG_FLAG)) {
+            if (StringUtils.isEmpty((String) protectedHeaders.get(Constants.DEBUG_FLAG))) {
+                throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_DEBUG_ID, "Debug flag cannot be null, empty or other than Error, Info and Debug");
+            } else if (!Constants.DEBUG_FLAG_VALUES.contains((String) protectedHeaders.get(Constants.DEBUG_FLAG))) {
+                throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_DEBUG_ID, "Debug flag cannot be other than Error, Info or Debug");
+            }
         }
         else if (StringUtils.isEmpty((String) protectedHeaders.get(Constants.STATUS))) {
             throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_STATUS, "Status cannot be null or empty!");
