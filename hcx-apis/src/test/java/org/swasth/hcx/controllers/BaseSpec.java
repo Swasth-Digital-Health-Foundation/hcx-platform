@@ -9,7 +9,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.env.Environment;
 import org.springframework.test.web.servlet.MockMvc;
-import org.swasth.common.StringUtils;
+import org.swasth.common.JsonUtils;
 import org.swasth.common.dto.Response;
 import org.swasth.hcx.helpers.EventGenerator;
 import org.swasth.hcx.managers.HealthCheckManager;
@@ -49,7 +49,7 @@ public class BaseSpec {
         obj.put("iv","AxY8DCtDaGlsbGljb3RoZQ");
         obj.put("ciphertext","KDlTtXchhZTGufMYmOYGS4HffxPSUrfmqCHXaI9wOGY");
         obj.put("tag","Mz-VPPyU4RlcuYv1IwIvzw");
-        return StringUtils.serialize(obj);
+        return JsonUtils.serialize(obj);
     }
 
     public String getBadRequestBody() throws JsonProcessingException {
@@ -59,7 +59,7 @@ public class BaseSpec {
         obj.put("aad","eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ");
         obj.put("iv","AxY8DCtDaGlsbGljb3RoZQ");
         obj.put("ciphertext","KDlTtXchhZTGufMYmOYGS4HffxPSUrfmqCHXaI9wOGY");
-        return StringUtils.serialize(obj);
+        return JsonUtils.serialize(obj);
     }
 
     public String getHeadersMissingRequestBody() throws JsonProcessingException {
@@ -70,7 +70,7 @@ public class BaseSpec {
         obj.put("iv","AxY8DCtDaGlsbGljb3RoZQ");
         obj.put("ciphertext","KDlTtXchhZTGufMYmOYGS4HffxPSUrfmqCHXaI9wOGY");
         obj.put("tag","Mz-VPPyU4RlcuYv1IwIvzw");
-        return StringUtils.serialize(obj);
+        return JsonUtils.serialize(obj);
     }
 
     public Response validHealthResponse() {

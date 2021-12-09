@@ -1,5 +1,8 @@
 package org.swasth.hcx.utils;
 
+import java.util.Arrays;
+import java.util.List;
+
 public  class Constants {
 
     public static final String VERSION_PREFIX = "/v1";
@@ -43,7 +46,6 @@ public  class Constants {
     public static final String CODE = "code";
     public static final String MESSAGE = "message";
     public static final String TRACE = "trace";
-    public static final String STATUS = "status";
     public static final String SUBMITTED = "submitted";
 
     //Request props
@@ -54,7 +56,16 @@ public  class Constants {
     public static final String DOMAIN_HEADERS = "headers.domain";
     public static final String PROTECTED = "protected";
     public static final String SENDER_CODE = "x-hcx-sender_code";
+    public static final String RECIPIENT_CODE = "x-hcx-recipient_code";
+    public static final String REQUEST_ID = "x-hcx-request_id";
     public static final String CORRELATION_ID = "x-hcx-correlation_id";
+    public static final String WORKFLOW_ID = "x-hcx-workflow_id";
+    public static final String TIMESTAMP = "x-hcx-timestamp";
+    public static final String DEBUG_FLAG = "x-hcx-debug_flag";
+    public static final List<String> DEBUG_FLAG_VALUES = Arrays.asList("Error","Info","Debug");
+    public static final String STATUS = "x-hcx-status";
+    public static final String ERROR_DETAILS = "x-hcx-error_details";
+    public static final String DEBUG_DETAILS = "x-hcx-debug_details";
     public static final String SERVICE_MODE = "service.mode";
     public static final String GATEWAY = "gateway";
     public static final String KAFKA_TOPIC_PAYLOAD = "kafka.topic.payload";
