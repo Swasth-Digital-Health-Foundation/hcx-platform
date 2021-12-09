@@ -6,23 +6,23 @@ public  class Constants {
 
     // Coverage Eligibility APIs
     public static final String COVERAGE_ELIGIBILITY_CHECK = VERSION_PREFIX + "/coverageeligibility/check";
-    public static final String COVERAGE_ELIGIBILITY_ONCHECK = VERSION_PREFIX + "/coverageeligibility/oncheck";
+    public static final String COVERAGE_ELIGIBILITY_ONCHECK = VERSION_PREFIX + "/coverageeligibility/on_check";
 
     // Claims APIs
     public static final String PRE_AUTH_SUBMIT = VERSION_PREFIX + "/preauth/submit";
-    public static final String PRE_AUTH_ONSUBMIT = VERSION_PREFIX + "/preauth/onsubmit";
+    public static final String PRE_AUTH_ONSUBMIT = VERSION_PREFIX + "/preauth/on_submit";
     public static final String PRE_AUTH_SEARCH = VERSION_PREFIX + "/preauth/search";
-    public static final String PRE_AUTH_ONSEARCH = VERSION_PREFIX + "/preauth/onsearch";
+    public static final String PRE_AUTH_ONSEARCH = VERSION_PREFIX + "/preauth/on_search";
     public static final String CLAIM_SUBMIT = VERSION_PREFIX + "/claim/submit";
-    public static final String CLAIM_ONSUBMIT = VERSION_PREFIX + "/claim/onsubmit";
+    public static final String CLAIM_ONSUBMIT = VERSION_PREFIX + "/claim/on_submit";
     public static final String CLAIM_SEARCH = VERSION_PREFIX + "/claim/search";
-    public static final String CLAIM_ONSEARCH = VERSION_PREFIX + "/claim/onsearch";
+    public static final String CLAIM_ONSEARCH = VERSION_PREFIX + "/claim/on_search";
 
     //Payment Notice APIs
     public static final String PAYMENT_NOTICE_REQUEST = VERSION_PREFIX + "/paymentnotice/request";
-    public static final String PAYMENT_NOTICE_ONREQUEST = VERSION_PREFIX + "/paymentnotice/onrequest";
+    public static final String PAYMENT_NOTICE_ONREQUEST = VERSION_PREFIX + "/paymentnotice/on_request";
     public static final String PAYMENT_NOTICE_SEARCH = VERSION_PREFIX + "/paymentnotice/search";
-    public static final String PAYMENT_NOTICE_ONSEARCH = VERSION_PREFIX + "/paymentnotice/onsearch";
+    public static final String PAYMENT_NOTICE_ONSEARCH = VERSION_PREFIX + "/paymentnotice/on_search";
 
     public static final String HEALTHY = "healthy";
     public static final String NAME = "name";
