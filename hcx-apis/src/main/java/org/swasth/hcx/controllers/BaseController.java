@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.CollectionUtils;
 import org.swasth.common.JsonUtils;
 import org.swasth.common.dto.Response;
 import org.swasth.common.dto.ResponseError;
@@ -58,36 +59,45 @@ public class BaseController {
         if (StringUtils.isEmpty((String) protectedHeaders.get(Constants.SENDER_CODE))) {
             throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_SENDER, "Sender code cannot be null or empty!");
         }
-        else if (StringUtils.isEmpty((String) protectedHeaders.get(Constants.RECIPIENT_CODE))) {
-            throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_RECIPIENT, "Recipent code cannot be null or empty!");
+        if (StringUtils.isEmpty((String) protectedHeaders.get(Constants.RECIPIENT_CODE))) {
+            throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_RECIPIENT, "Recipient code cannot be null or empty!");
         }
-        else if (StringUtils.isEmpty((String) protectedHeaders.get(Constants.REQUEST_ID))) {
+        if (StringUtils.isEmpty((String) protectedHeaders.get(Constants.REQUEST_ID))) {
             throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_REQ_ID, "Request id cannot be null or empty!");
         }
-        else if (StringUtils.isEmpty((String) protectedHeaders.get(Constants.CORRELATION_ID))) {
+        if (StringUtils.isEmpty((String) protectedHeaders.get(Constants.CORRELATION_ID))) {
             throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_CORREL_ID, "Correlation id cannot be null or empty!");
         }
-        else if (protectedHeaders.containsKey(Constants.WORKFLOW_ID) && StringUtils.isEmpty((String) protectedHeaders.get(Constants.WORKFLOW_ID))) {
+        if (protectedHeaders.containsKey(Constants.WORKFLOW_ID) && StringUtils.isEmpty((String) protectedHeaders.get(Constants.WORKFLOW_ID))) {
+
             throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_WORKFLOW_ID, "Workflow id cannot be null or empty!");
         }
-        else if (StringUtils.isEmpty((String) protectedHeaders.get(Constants.TIMESTAMP))) {
+        if (StringUtils.isEmpty((String) protectedHeaders.get(Constants.TIMESTAMP))) {
             throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_TIMESTAMP, "Timestamp cannot be null or empty!");
         }
-        else if (protectedHeaders.containsKey(Constants.DEBUG_FLAG)) {
+        if (protectedHeaders.containsKey(Constants.DEBUG_FLAG)) {
             if (StringUtils.isEmpty((String) protectedHeaders.get(Constants.DEBUG_FLAG))) {
                 throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_DEBUG_ID, "Debug flag cannot be null, empty or other than Error, Info and Debug");
             } else if (!Constants.DEBUG_FLAG_VALUES.contains((String) protectedHeaders.get(Constants.DEBUG_FLAG))) {
                 throw new ClientException(ErrorCodes.CLIENT_ERR_DEBUG_ID_OUTOFRANGE, "Debug flag cannot be other than Error, Info or Debug");
             }
         }
-        else if (StringUtils.isEmpty((String) protectedHeaders.get(Constants.STATUS))) {
+        if (StringUtils.isEmpty((String) protectedHeaders.get(Constants.STATUS))) {
             throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_STATUS, "Status cannot be null or empty!");
         }
-        else if (protectedHeaders.containsKey(Constants.ERROR_DETAILS) && StringUtils.isEmpty((String) protectedHeaders.get(Constants.ERROR_DETAILS))) {
-            throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_ERROR_DETAILS, "Error details cannot be null or empty!");
+        if (protectedHeaders.containsKey(Constants.ERROR_DETAILS)){
+            if (((Map<String,Object>) protectedHeaders.get(Constants.ERROR_DETAILS)).isEmpty()) {
+                throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_ERROR_DETAILS, "Error details cannot be null or empty!");
+            } else if (!((Map<String,Object>) protectedHeaders.get(Constants.ERROR_DETAILS)).keySet().containsAll(Constants.ERROR_DETAILS_VALUES)){
+                throw new ClientException(ErrorCodes.CLIENT_ERR_ERROR_DETAILS_OUTOFRANGE, "Invalid error details!");
+            }
         }
-        else if (protectedHeaders.containsKey(Constants.DEBUG_DETAILS) && StringUtils.isEmpty((String) protectedHeaders.get(Constants.DEBUG_DETAILS))) {
-            throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_DEBUG_DETAILS, "Debug details cannot be null or empty!");
+        if (protectedHeaders.containsKey(Constants.DEBUG_DETAILS)){
+            if (((Map<String,Object>) protectedHeaders.get(Constants.DEBUG_DETAILS)).isEmpty()) {
+                throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_DEBUG_DETAILS, "Debug details cannot be null or empty!");
+            } else if (!((Map<String,Object>) protectedHeaders.get(Constants.DEBUG_DETAILS)).keySet().containsAll(Constants.ERROR_DETAILS_VALUES)){
+                throw new ClientException(ErrorCodes.CLIENT_ERR_DEBUG_DETAILS_OUTOFRANGE, "Invalid debug details!");
+            }
         }
     }
 
