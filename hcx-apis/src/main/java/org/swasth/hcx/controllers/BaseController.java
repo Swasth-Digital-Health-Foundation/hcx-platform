@@ -33,10 +33,6 @@ public class BaseController {
     @Autowired
     private IDatabaseService postgreSQLClient;
 
-    private String getUUID() {
-        return UUID.randomUUID().toString();
-    }
-
     private void validateRequestBody(Map<String, Object> requestBody) throws Exception {
         // validating payload properties
         List<String> mandatoryPayloadProps = env.getProperty(Constants.PAYLOAD_MANDATORY_PROPERTIES, List.class);
@@ -63,7 +59,7 @@ public class BaseController {
     }
 
     private void processAndSendEvent(String apiAction, String metadataTopic, Map<String, Object> requestBody) throws Exception {
-        String mid = getUUID();
+        String mid = UUID.randomUUID().toString();
         String serviceMode = env.getProperty(Constants.SERVICE_MODE);
         String payloadTopic = env.getProperty(Constants.KAFKA_TOPIC_PAYLOAD);
         String key = StringUtils.decodeBase64String((String) requestBody.get(Constants.PROTECTED), HashMap.class).get(Constants.SENDER_CODE).toString();
