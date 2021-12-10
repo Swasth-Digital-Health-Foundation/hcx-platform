@@ -81,19 +81,21 @@ public class BaseController {
         }
         if (StringUtils.isEmpty((String) protectedHeaders.get(Constants.STATUS))) {
             throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_STATUS, "Status cannot be null or empty!");
+        } else if (!Constants.STATUS_VALUES.contains((String) protectedHeaders.get(Constants.STATUS))){
+            throw new ClientException(ErrorCodes.CLIENT_ERR_STATUS_OUTOFRANGE, "Status value can be only: " + Constants.STATUS_VALUES );
         }
         if (protectedHeaders.containsKey(Constants.ERROR_DETAILS)){
             if (((Map<String,Object>) protectedHeaders.get(Constants.ERROR_DETAILS)).isEmpty()) {
                 throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_ERROR_DETAILS, "Error details cannot be null or empty!");
             } else if (!((Map<String,Object>) protectedHeaders.get(Constants.ERROR_DETAILS)).keySet().containsAll(Constants.ERROR_DETAILS_VALUES)){
-                throw new ClientException(ErrorCodes.CLIENT_ERR_ERROR_DETAILS_OUTOFRANGE, "Invalid error details!");
+                throw new ClientException(ErrorCodes.CLIENT_ERR_ERROR_DETAILS_OUTOFRANGE, "Error details should contain only: " + Constants.ERROR_DETAILS_VALUES);
             }
         }
         if (protectedHeaders.containsKey(Constants.DEBUG_DETAILS)){
             if (((Map<String,Object>) protectedHeaders.get(Constants.DEBUG_DETAILS)).isEmpty()) {
                 throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_DEBUG_DETAILS, "Debug details cannot be null or empty!");
             } else if (!((Map<String,Object>) protectedHeaders.get(Constants.DEBUG_DETAILS)).keySet().containsAll(Constants.ERROR_DETAILS_VALUES)){
-                throw new ClientException(ErrorCodes.CLIENT_ERR_DEBUG_DETAILS_OUTOFRANGE, "Invalid debug details!");
+                throw new ClientException(ErrorCodes.CLIENT_ERR_DEBUG_DETAILS_OUTOFRANGE, "Debug details should contain only: " + Constants.ERROR_DETAILS_VALUES);
             }
         }
     }
