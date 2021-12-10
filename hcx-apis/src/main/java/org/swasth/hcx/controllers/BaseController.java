@@ -50,7 +50,7 @@ public class BaseController {
         mandatoryHeaders.addAll(env.getProperty(Constants.JOSE_HEADERS, List.class));
         List<String> missingHeaders = mandatoryHeaders.stream().filter(key -> !protectedHeaders.containsKey(key)).collect(Collectors.toList());
         if (!missingHeaders.isEmpty()) {
-            throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_REQ_PROTECTED, "Mandatory headers are missing: " + missingHeaders);
+            throw new ClientException(ErrorCodes.CLIENT_ERR_MANDATORY_HEADERFIELD_MISSING, "Mandatory headers are missing: " + missingHeaders);
         }
         validateProtocolHeadersFormat(protectedHeaders);
     }
