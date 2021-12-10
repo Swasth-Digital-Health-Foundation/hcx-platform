@@ -21,11 +21,13 @@ object DispatcherUtil {
   val requestConfig = RequestConfig.custom()
     .setCookieSpec(CookieSpecs.STANDARD)
     .setConnectTimeout(5 * 1000) // TODO: load from config
+    .setConnectionRequestTimeout(5 * 1000) // TODO: load from config
     .setSocketTimeout(60 * 1000) // TODO: load from config
     .build()
 
   val retryHandler = new HttpRequestRetryHandler {
     override def retryRequest(exception: IOException, executionCount: Int, httpContext: HttpContext): Boolean = {
+      Console.println("HTTP retry request execution count", executionCount)
       if (executionCount > 3) { // TODO: load from config
         return false
       } else {
@@ -46,7 +48,7 @@ object DispatcherUtil {
   def dispatch(ctx: util.Map[String, AnyRef], payload: String): DispatcherResult = {
     val url = ctx.get("endpoint_url").asInstanceOf[String]
     val headers = ctx.getOrDefault("headers", Map[String, String]()).asInstanceOf[Map[String, String]]
-
+    Console.println("URL", url)
     val httpPost = new HttpPost(url);
     headers.map(f => httpPost.addHeader(f._1, f._2));
     httpPost.setEntity(new StringEntity(payload))
@@ -56,6 +58,7 @@ object DispatcherUtil {
       val response = httpClient.execute(httpPost);
       val statusCode = response.getStatusLine().getStatusCode();
       Console.println("statusCode", statusCode);
+      response.close()
       if(successCodes.contains(statusCode)) {
         DispatcherResult(true, statusCode, None, false)
       } else if(errorCodes.contains(statusCode)) {
