@@ -1,11 +1,11 @@
 package org.swasth.hcx.controllers;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.CollectionUtils;
 import org.swasth.common.JsonUtils;
 import org.swasth.common.dto.Response;
 import org.swasth.common.dto.ResponseError;
@@ -65,9 +65,6 @@ public class BaseController {
         if (StringUtils.isEmpty((String) protectedHeaders.get(Constants.REQUEST_ID))) {
             throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_REQ_ID, "Request id cannot be null or empty!");
         }
-        if (StringUtils.isEmpty((String) protectedHeaders.get(Constants.CORRELATION_ID))) {
-            throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_CORREL_ID, "Correlation id cannot be null or empty!");
-        }
         if (protectedHeaders.containsKey(Constants.WORKFLOW_ID) && StringUtils.isEmpty((String) protectedHeaders.get(Constants.WORKFLOW_ID))) {
 
             throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_WORKFLOW_ID, "Workflow id cannot be null or empty!");
@@ -115,19 +112,32 @@ public class BaseController {
         String payloadEvent = eventGenerator.generatePayloadEvent(mid, requestBody);
         String metadataEvent = eventGenerator.generateMetadataEvent(mid, apiAction, requestBody);
         System.out.println("Mode: " + serviceMode + " :: mid: " + mid + " :: Event: " + metadataEvent);
-        if(serviceMode.equals(Constants.GATEWAY)) {
+        if(StringUtils.equalsIgnoreCase(serviceMode, Constants.GATEWAY)) {
             kafkaClient.send(payloadTopic, key, payloadEvent);
             kafkaClient.send(metadataTopic, key, metadataEvent);
             postgreSQLClient.insert(mid, JsonUtils.serialize(requestBody));
         }
     }
 
-    public ResponseEntity<Object> validateReqAndPushToKafka(Map<String, Object> requestBody, String apiAction, String kafkaTopic) throws Exception {
-        String correlationId = JsonUtils.decodeBase64String((String) requestBody.get(Constants.PROTECTED), HashMap.class).get(Constants.CORRELATION_ID).toString();
-        Response response = new Response(correlationId);
+    private String getCorrelationId(Map<String, Object> requestBody) throws Exception {
+        try {
+            Map protectedMap = JsonUtils.decodeBase64String((String) requestBody.get(Constants.PROTECTED), HashMap.class);
+            if (!protectedMap.containsKey(Constants.CORRELATION_ID) || ((String) protectedMap.get(Constants.CORRELATION_ID)).isEmpty()) {
+                throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_CORREL_ID, "Correlation id is missing or empty.");
+            }
+            return protectedMap.get(Constants.CORRELATION_ID).toString();
+        } catch (JsonParseException e) {
+            throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_REQ_PROTECTED, "Error while parsing protected headers");
+        }
+    }
+
+    public ResponseEntity<Object> validateReqAndPushToKafka(Map<String, Object> requestBody, String apiAction, String kafkaTopic) {
+        Response response = new Response();
         try {
             if (!HealthCheckManager.allSystemHealthResult)
                 throw new ServiceUnavailbleException("Service is unavailable");
+            String correlationId = getCorrelationId(requestBody);
+            response.setCorrelationId(correlationId);
             validateRequestBody(requestBody);
             processAndSendEvent(apiAction, kafkaTopic , requestBody);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
