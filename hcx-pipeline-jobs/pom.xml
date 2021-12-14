@@ -22,6 +22,10 @@
 	<modules>
 		<module>core</module>
 		<module>coverage-eligibility-check-job</module>
+		<module>preauth-job</module>
+		<module>claims-job</module>
+		<module>payments-job</module>
+		<module>jobs-distribution</module>
 	</modules>
 
 	<properties>
