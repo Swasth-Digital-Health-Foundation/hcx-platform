@@ -54,7 +54,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
     private final Acl authenticatedAllowedPaths;
 
     public JwtAuthenticationFilter(@Qualifier("jwk") JWTVerifier jwtVerifier, JwtConfigs jwtConfigs,
-                                   @Qualifier("addverbAuthorization") AuthorizationService authorizationService,
+                                   AuthorizationService authorizationService,
                                    Map<String, Acl> aclMap) {
         this.jwtVerifier = jwtVerifier;
         this.jwtConfigs = jwtConfigs;
