@@ -32,6 +32,20 @@ class ContextEnrichmentFunction(config: BaseJobConfig) (implicit val stringTypeI
     protocolMap.get(key).asInstanceOf[String]
   }
 
+  def getReplacedAction(actionStr: String): String = {
+    var replacedAction = actionStr
+    if(actionStr.endsWith("check")){
+      replacedAction = actionStr.replace("check", "on_check")
+    }else if(actionStr.endsWith("submit")) {
+      replacedAction = actionStr.replace("submit", "on_submit")
+    }else if(actionStr.endsWith("search")) {
+      replacedAction = actionStr.replace("search", "on_search")
+    }else if(actionStr.endsWith("request")) {
+      replacedAction = actionStr.replace("request", "on_request")
+    }
+    replacedAction
+  }
+
   def createSenderReceiverMap(senderMap: util.Map[String, AnyRef], receiverMap: util.Map[String, AnyRef], actionStr: String): util.Map[String, AnyRef] = {
     val resultMap: util.Map[String, AnyRef] = new util.HashMap[String,AnyRef]()
     //Receiver Details
@@ -48,12 +62,10 @@ class ContextEnrichmentFunction(config: BaseJobConfig) (implicit val stringTypeI
     if(senderEndPointUrl.endsWith("/"))
       senderEndPointUrl = senderEndPointUrl.substring(0,senderEndPointUrl.length-1)
 
-    //TODO write method to determine the on_ for the sender action
-    if(actionStr.endsWith("check")) {
-      val replacedActionStr = actionStr.replace("check", "on_check")
-      val appendedSenderUrl = senderEndPointUrl.concat(replacedActionStr)
-      senderMap.put("endpoint_url", appendedSenderUrl)
-    }
+    // write method to determine the on_ for the sender action
+    val replacedAction: String = getReplacedAction(actionStr)
+    val appendedSenderUrl = senderEndPointUrl.concat(replacedAction)
+    senderMap.put("endpoint_url", appendedSenderUrl)
 
     resultMap.put("recipient",receiverMap)
     resultMap.put("sender",senderMap)
