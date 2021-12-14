@@ -8,8 +8,6 @@ jwt:
   jwkUrl: "http://localhost:8080/auth/realms/sunbird-rc/protocol/openid-connect/certs"
   claimsNamespacePath: "$.realm_access.roles"
 
-addverbAuthorizationUrl: "http://localhost:7081/wes/group/get-all-user-group?instanceCode={instanceCode}"
-
 spring:
   main:
     web-application-type: reactive
