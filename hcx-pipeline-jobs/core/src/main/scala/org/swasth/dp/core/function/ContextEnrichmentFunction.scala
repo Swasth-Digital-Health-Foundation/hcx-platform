@@ -35,6 +35,7 @@ class ContextEnrichmentFunction(config: BaseJobConfig) (implicit val stringTypeI
   def getReplacedAction(actionStr: String): String = {
     var replacedAction = actionStr
     val lastVal = actionStr.split("/").last
+    if(!lastVal.startsWith("on_"))
     replacedAction = actionStr.replace(lastVal,"on_"+lastVal)
     replacedAction
   }
