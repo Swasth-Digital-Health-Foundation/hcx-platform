@@ -34,15 +34,8 @@ class ContextEnrichmentFunction(config: BaseJobConfig) (implicit val stringTypeI
 
   def getReplacedAction(actionStr: String): String = {
     var replacedAction = actionStr
-    if(actionStr.endsWith("check")){
-      replacedAction = actionStr.replace("check", "on_check")
-    }else if(actionStr.endsWith("submit")) {
-      replacedAction = actionStr.replace("submit", "on_submit")
-    }else if(actionStr.endsWith("search")) {
-      replacedAction = actionStr.replace("search", "on_search")
-    }else if(actionStr.endsWith("request")) {
-      replacedAction = actionStr.replace("request", "on_request")
-    }
+    val lastVal = actionStr.split("/").last
+    replacedAction = actionStr.replace(lastVal,"on_"+lastVal)
     replacedAction
   }
 
