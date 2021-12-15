@@ -19,7 +19,7 @@ node('java11') {
             }
           }
       stage("Building container") {
-            container(name: 'kaniko', shell: '/busybox/sh') {
+            container('kaniko') {
               // Building and pushing the container
               sh """
                 pwd
