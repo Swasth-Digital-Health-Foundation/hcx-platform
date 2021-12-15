@@ -15,17 +15,12 @@ spring:
   cloud:
     gateway:
       routes:
-        - id: http_bin_anything_route
-          uri: http://httpbin.org
+        - id: protocol-service-route
+          uri: http://a54c5bc648f1a41b8871b77ac01060ed-1840123973.ap-south-1.elb.amazonaws.com:8080
           filters:
             - name: RequestRateLimiter
               args:
                 redis-rate-limiter.replenishRate: 10
                 redis-rate-limiter.burstCapacity: 20
-            - name: AddRequestHeader
-              args:
-                name: X-Request-Foo
-                value: Value!
           predicates:
-            - After=2017-01-20T17:42:47.789-07:00[America/Denver]
-            - Path=/anything
+            - Path=/v1/coverageeligibility/**, /v1/preauth/**, /v1/claims/**, /v1/paymentnotice/**, /health, /service/health
