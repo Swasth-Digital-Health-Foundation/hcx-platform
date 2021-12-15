@@ -15,6 +15,7 @@ node('java11') {
                 java --version
                 pwd
                 mvn clean install
+                ls
               """
             }
           }
@@ -22,7 +23,6 @@ node('java11') {
             container('kaniko') {
               // Building and pushing the container
               sh """
-                ls
                 /kaniko/executor --dockerfile Dockerfile --context `pwd` --destination ${env.DOCKER_HUB_URL}/api-gateway:${build_tag}
                 echo {\\"image_name\\" : \\"api-gateway\\", \\"image_tag\\" : \\"${build_tag}\\"} > ${env.WORKSPACE}/metadata.json
               """
