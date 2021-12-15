@@ -15,7 +15,6 @@ node('java11') {
                 java --version
                 pwd
                 mvn clean install
-                ls
               """
             }
           }
