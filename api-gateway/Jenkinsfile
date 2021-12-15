@@ -11,6 +11,7 @@ node('java11') {
               build_tag = commit_hash + "_" + env.BUILD_NUMBER
               // Building jar
               sh """
+                cd ${env.WORKSPACE}/api-gateway
                 java --version
                 pwd
                 mvn clean install
