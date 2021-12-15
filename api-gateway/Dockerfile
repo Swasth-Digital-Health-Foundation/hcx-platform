@@ -1,6 +1,4 @@
-FROM openjdk:8-jre-slim
-WORKDIR /app
+FROM sunbird/openjdk-java11-alpine:latest
 ARG JAR_FILE=target/*.jar
-COPY ${JAR_FILE} /app/
-COPY start.sh /app/
-CMD ["/app/start.sh"]
+COPY ${JAR_FILE} app.jar
+ENTRYPOINT ["java","-jar","/app.jar"]
