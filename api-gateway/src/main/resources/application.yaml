@@ -1,12 +1,12 @@
 server:
-  port: 8095
+  port: ${server_port:8095}
 
 jwt:
-  enabled: false
-  issuer: ""
-  audience: ""
-  jwkUrl: "http://localhost:8080/auth/realms/sunbird-rc/protocol/openid-connect/certs"
-  claimsNamespacePath: "$.realm_access.roles"
+  enabled: ${jwt_enabled:false}
+  issuer: ${jwt_issuer:}
+  audience: ${jwt_audience:}
+  jwkUrl: ${jwt_jwkUrl:http://localhost:8080/auth/realms/sunbird-rc/protocol/openid-connect/certs}
+  claimsNamespacePath: ${jwt_nsPath:"$.realm_access.roles"}
 
 spring:
   main:
@@ -16,7 +16,7 @@ spring:
     gateway:
       routes:
         - id: protocol-service-route
-          uri: http://a54c5bc648f1a41b8871b77ac01060ed-1840123973.ap-south-1.elb.amazonaws.com:8080
+          uri: ${hcx_api_basePath:localhost:8080}
           filters:
             - name: RequestRateLimiter
               args:
