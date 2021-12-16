@@ -108,8 +108,8 @@ public class BaseController {
 
     private void processAndSendEvent(String apiAction, String metadataTopic, Map<String, Object> requestBody) throws Exception {
         String mid = UUID.randomUUID().toString();
-        String serviceMode = env.getProperty("service.mode");
-        String payloadTopic = env.getProperty("kafka.topic.payload");
+        String serviceMode = env.getProperty(Constants.SERVICE_MODE);
+        String payloadTopic = env.getProperty(Constants.KAFKA_TOPIC_PAYLOAD);
         String key = JsonUtils.decodeBase64String((String) requestBody.get(Constants.PROTECTED), HashMap.class).get(Constants.SENDER_CODE).toString();
         String payloadEvent = eventGenerator.generatePayloadEvent(mid, requestBody);
         String metadataEvent = eventGenerator.generateMetadataEvent(mid, apiAction, requestBody);

@@ -68,6 +68,8 @@ public  class Constants {
     public static final String ERROR_DETAILS = "x-hcx-error_details";
     public static final List<String> ERROR_DETAILS_VALUES = Arrays.asList("error.code","error.message","trace");
     public static final String DEBUG_DETAILS = "x-hcx-debug_details";
+    public static final String SERVICE_MODE = "service.mode";
     public static final String GATEWAY = "gateway";
+    public static final String KAFKA_TOPIC_PAYLOAD = "kafka.topic.payload";
 
 }
