@@ -15,7 +15,7 @@ spring:
   cloud:
     gateway:
       routes:
-        - id: protocol-service-route
+        - id: hcx-api-route
           uri: ${HCX_API_BASEPATH:localhost:8080}
           filters:
             - name: RequestRateLimiter
