@@ -32,10 +32,12 @@ public class HealthCheckManager {
         allChecks.add(generateCheck(Constants.KAFKA, kafkaClient.isHealthy()));
         allChecks.add(generateCheck(Constants.POSTGRESQL, postgreSQLClient.isHealthy()));
         for(Map<String,Object> check:allChecks) {
-            if((boolean)check.get(Constants.HEALTHY))
+            if((boolean)check.get(Constants.HEALTHY)) {
                 allSystemHealthResult = true;
-            else
+            } else {
                 allSystemHealthResult = false;
+                break;
+            }
         }
         Response response = new Response(Constants.CHECKS, allChecks);
         response.put(Constants.HEALTHY, allSystemHealthResult);
