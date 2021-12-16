@@ -1,12 +1,12 @@
 server:
-  port: 8095
+  port: ${SERVER_PORT:8095}
 
 jwt:
-  enabled: true
-  issuer: ""
-  audience: ""
-  jwkUrl: "http://localhost:8080/auth/realms/sunbird-rc/protocol/openid-connect/certs"
-  claimsNamespacePath: "$.realm_access.roles"
+  enabled: ${JWT_ENABLED:false}
+  issuer: ${JWT_ISSUER:}
+  audience: ${JWT_AUDIENCE:}
+  jwkUrl: ${JWT_JWK_URL:http://localhost:8080/auth/realms/sunbird-rc/protocol/openid-connect/certs}
+  claimsNamespacePath: ${JWT_NS_PATH:"$.realm_access.roles"}
 
 spring:
   main:
@@ -15,17 +15,12 @@ spring:
   cloud:
     gateway:
       routes:
-        - id: http_bin_anything_route
-          uri: http://httpbin.org
+        - id: hcx-api-route
+          uri: ${HCX_API_BASEPATH:localhost:8080}
           filters:
             - name: RequestRateLimiter
               args:
                 redis-rate-limiter.replenishRate: 10
                 redis-rate-limiter.burstCapacity: 20
-            - name: AddRequestHeader
-              args:
-                name: X-Request-Foo
-                value: Value!
           predicates:
-            - After=2017-01-20T17:42:47.789-07:00[America/Denver]
-            - Path=/anything
+            - Path=/v1/coverageeligibility/**, /v1/preauth/**, /v1/claims/**, /v1/paymentnotice/**, /health, /service/health
