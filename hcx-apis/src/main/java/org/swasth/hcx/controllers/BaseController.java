@@ -48,7 +48,7 @@ public class BaseController {
         Map<String, Object> protectedHeaders = StringUtils.decodeBase64String((String) requestBody.get("protected"), HashMap.class);
         List<String> mandatoryHeaders = new ArrayList<>();
         mandatoryHeaders.addAll(env.getProperty(Constants.PROTOCOL_HEADERS_MANDATORY, List.class));
-        mandatoryHeaders.addAll(env.getProperty(Constants.DOMAIN_HEADERS, List.class));
+//        mandatoryHeaders.addAll(env.getProperty(Constants.DOMAIN_HEADERS, List.class));
         mandatoryHeaders.addAll(env.getProperty(Constants.JOSE_HEADERS, List.class));
         List<String> missingHeaders = mandatoryHeaders.stream().filter(key -> !protectedHeaders.containsKey(key)).collect(Collectors.toList());
         if (!missingHeaders.isEmpty()) {
