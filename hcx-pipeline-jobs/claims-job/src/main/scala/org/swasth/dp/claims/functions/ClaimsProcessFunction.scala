@@ -67,10 +67,7 @@ class ClaimsProcessFunction(config: ClaimsConfig, @transient var postgresConnect
   }
 
   override def audit(event: util.Map[String, AnyRef], status: Boolean, context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
-    // TODO: Implement audit here
-    val audit = new util.HashMap[String, AnyRef]();
-    audit.put("audit", "yes")
-    audit.put("status", status.toString)
+    val audit = createAuditRecord(event,"AUDIT")
     context.output(config.auditOutputTag, JSONUtil.serialize(audit))
     metrics.incCounter(config.auditEventsCount)
   }
