@@ -20,11 +20,10 @@ public class KafkaEventGeneratorTests {
     }
 
     @Test
-    // public void check_generateMetadataEvent() throws Exception {
-    // String result = eventGenerator.generateMetadataEvent("test", "/test",
-    // getRequestBody());
-    // assert (!result.isEmpty());
-    // }
+    public void check_generateMetadataEvent() throws Exception {
+    String result = eventGenerator.generateMetadataEvent("test", "/test", getRequestBody());
+    assert (!result.isEmpty());
+    }
 
     public Map<String, Object> getRequestBody() throws JsonProcessingException {
     Map<String, Object> obj = new HashMap<>();
