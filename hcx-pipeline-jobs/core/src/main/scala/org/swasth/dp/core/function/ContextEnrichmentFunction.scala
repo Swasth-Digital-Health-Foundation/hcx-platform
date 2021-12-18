@@ -6,10 +6,10 @@ import org.apache.flink.streaming.api.functions.ProcessFunction
 import org.slf4j.LoggerFactory
 import org.swasth.dp.core.cache.{DataCache, RedisConnect}
 import org.swasth.dp.core.job.{BaseJobConfig, BaseProcessFunction, Metrics}
-import org.swasth.dp.core.util.JSONUtil
-import scala.collection.JavaConverters._
+import org.swasth.dp.core.util.{DispatcherUtil, JSONUtil}
 
 import java.util
+import scala.collection.JavaConverters._
 
 class ContextEnrichmentFunction(config: BaseJobConfig) (implicit val stringTypeInfo: TypeInformation[String])
   extends BaseProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]](config) {
@@ -35,15 +35,15 @@ class ContextEnrichmentFunction(config: BaseJobConfig) (implicit val stringTypeI
   def getReplacedAction(actionStr: String): String = {
     var replacedAction = actionStr
     val lastVal = actionStr.split("/").last
-    if(!lastVal.startsWith("on_"))
-    replacedAction = actionStr.replace(lastVal,"on_"+lastVal)
+    if (!lastVal.startsWith("on_"))
+      replacedAction = actionStr.replace(lastVal,"on_"+lastVal)
     replacedAction
   }
 
   def createSenderReceiverMap(senderMap: util.Map[String, AnyRef], receiverMap: util.Map[String, AnyRef], actionStr: String): util.Map[String, AnyRef] = {
     val resultMap: util.Map[String, AnyRef] = new util.HashMap[String,AnyRef]()
     //Receiver Details
-    var receiverEndPointUrl = receiverMap.get("endpoint_url").asInstanceOf[String]
+    var receiverEndPointUrl = receiverMap.get("endpointUrl").asInstanceOf[String]
     //If endPointUrl comes with /, remove it as action starts with /
     if(receiverEndPointUrl.endsWith("/"))
       receiverEndPointUrl = receiverEndPointUrl.substring(0,receiverEndPointUrl.length-1)
@@ -51,12 +51,12 @@ class ContextEnrichmentFunction(config: BaseJobConfig) (implicit val stringTypeI
     receiverMap.put("endpoint_url", appendedReceiverUrl)
 
     //Sender Details
-    var senderEndPointUrl = senderMap.get("endpoint_url").asInstanceOf[String]
+    var senderEndPointUrl = senderMap.get("endpointUrl").asInstanceOf[String]
     //If endPointUrl comes with /, remove it as action starts with /
     if(senderEndPointUrl.endsWith("/"))
       senderEndPointUrl = senderEndPointUrl.substring(0,senderEndPointUrl.length-1)
 
-    // write method to determine the on_ for the sender action
+    // fetch on_ action for the sender
     val replacedAction: String = getReplacedAction(actionStr)
     val appendedSenderUrl = senderEndPointUrl.concat(replacedAction)
     senderMap.put("endpoint_url", appendedSenderUrl)
@@ -68,7 +68,6 @@ class ContextEnrichmentFunction(config: BaseJobConfig) (implicit val stringTypeI
   }
 
   override def processElement(event: util.Map[String, AnyRef], context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
-    // TODO: Implement the enrichment function
     val enrichedEvent = event
     val senderCode:String = getCode(event,"x-hcx-sender_code")
     val recipientCode:String = getCode(event,"x-hcx-recipient_code")
@@ -76,8 +75,8 @@ class ContextEnrichmentFunction(config: BaseJobConfig) (implicit val stringTypeI
     Console.println(s"Sender: $senderCode : Recipient: $recipientCode : Action: $actionStr")
 
     // Fetch the sender and receiver details from registry or cache
-    val receiverMap = fetchReceiverDetails(recipientCode)
-    val senderMap = fetchSenderDetails(senderCode)
+    val receiverMap = fetchDetails(recipientCode)
+    val senderMap = fetchDetails(senderCode)
 
     val resultMap: util.Map[String, AnyRef] = createSenderReceiverMap(senderMap,receiverMap,actionStr)
     //Add the cdata to the incoming data with the sender and receiver details after appending endPointUrl and action
@@ -89,60 +88,29 @@ class ContextEnrichmentFunction(config: BaseJobConfig) (implicit val stringTypeI
     List()
   }
 
-  def fetchSenderDetails(code: String): util.Map[String, AnyRef] = {
+  def fetchDetails(code: String): util.Map[String, AnyRef] = {
     if (registryDataCache.isExists(code)) {
-      logger.info("Getting details from cache for :" + code)
-      Console.println("Getting details from cache for :" + code)
+      logger.info("Getting details from cache for :"+ code)
+      Console.println("Getting details from cache for :"+ code)
       val mutableMap = registryDataCache.getWithRetry(code)
       mutableMap.asJava
     } else {
-      //TODO Need to fetch the details from API call
-      Console.println("Could not find the sender/receiver details in cache for code:" + code)
-      logger.info("Could not find the sender/receiver details in cache for code:" + code)
-      val collectionMap = createSenderMap()
-      registryDataCache.hmSet(code, JSONUtil.serialize(collectionMap))
+      //Fetch the details from API call
+      Console.println("Could not find the details in cache for code:"+ code)
+      logger.info("Could not find the details in cache for code:"+ code)
+      val collectionMap = getDetails(code)
+      registryDataCache.hmSet(code,JSONUtil.serialize(collectionMap))
       collectionMap
     }
   }
-    def fetchReceiverDetails(code: String): util.Map[String, AnyRef] = {
-      if (registryDataCache.isExists(code)) {
-        logger.info("Getting details from cache for :"+ code)
-        Console.println("Getting details from cache for :"+ code)
-        val mutableMap = registryDataCache.getWithRetry(code)
-        mutableMap.asJava
-      } else {
-        //TODO Need to fetch the details from API call
-        Console.println("Could not find the sender/receiver details in cache for code:"+ code)
-        logger.info("Could not find the sender/receiver details in cache for code:"+ code)
-        val collectionMap = createReceiverMap()
-        registryDataCache.hmSet(code,JSONUtil.serialize(collectionMap))
-        collectionMap
-      }
-    }
 
-  def createSenderMap(): util.Map[String, AnyRef] = {
-    val collectionMap = new util.HashMap[String, AnyRef]()
-    collectionMap.put("participant_code", "12345")
-    collectionMap.put("signing_cert_path", "")
-    collectionMap.put("roles", "admin")
-    collectionMap.put("encryption_cert", "")
-    collectionMap.put("endpoint_url", "http://a4a175528daf949a2af3cd141af93de2-1466580421.ap-south-1.elb.amazonaws.com:8080")
-    collectionMap.put("participant_name", "Test Provider")
-    collectionMap.put("hfr_code", "0001")
-    collectionMap.put("status", "Created")
+  def getDetails(code: String): util.Map[String, AnyRef] = {
+    val responseBody: String = DispatcherUtil.post(config.registryUrl,code)
+    Console.println("registryResponse", responseBody)
+    logger.info("Response from registry", responseBody)
+    val responseArr = JSONUtil.deserialize[util.ArrayList[util.HashMap[String, AnyRef]]](responseBody)
+    val collectionMap = responseArr.get(0)
     collectionMap
   }
 
-  def createReceiverMap(): util.Map[String,AnyRef] = {
-    val collectionMap = new util.HashMap[String, AnyRef]()
-    collectionMap.put("participant_code", "67890")
-    collectionMap.put("signing_cert_path", "urn:isbn:0-476-27557-4")
-    collectionMap.put("roles", "admin")
-    collectionMap.put("encryption_cert", "urn:isbn:0-4234")
-    collectionMap.put("endpoint_url", "http://a07c089412c1b46f2b49946c59267d03-2070772031.ap-south-1.elb.amazonaws.com:8080")
-    collectionMap.put("participant_name", "Test Provider")
-    collectionMap.put("hfr_code", "0001")
-    collectionMap.put("status", "Created")
-    collectionMap
-  }
 }
