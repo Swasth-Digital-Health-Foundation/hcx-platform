@@ -6,12 +6,13 @@ import org.apache.http.client.methods.HttpPost
 import org.apache.http.entity.StringEntity
 import org.apache.http.impl.client.HttpClientBuilder
 import org.apache.http.protocol.HttpContext
-import org.swasth.dp.core.function.{DispatcherResult, Response}
 import org.apache.http.util.EntityUtils
-import java.nio.charset.StandardCharsets
+import org.swasth.dp.core.function.{DispatcherResult, Response}
 
 import java.io.IOException
+import java.nio.charset.StandardCharsets
 import java.util
+import scala.io.Source
 
 object DispatcherUtil {
 
@@ -73,6 +74,33 @@ object DispatcherUtil {
       case ex:Exception => {
         ex.printStackTrace()
         DispatcherResult(false, 0, None, true)
+      }
+    }
+  }
+
+  def post(url: String, code: String): String= {
+    // payload for registry search
+    val payload = s"""{"entityType":["Organisation"],"filters":{"osid":{"eq":"$code"}}}"""
+    Console.println("registry payload",payload)
+    Console.println("Registry URL", url)
+    val httpPost = new HttpPost(url);
+    httpPost.setEntity(new StringEntity(payload))
+    httpPost.setHeader("Accept", "application/json")
+    httpPost.setHeader("Content-type", "application/json")
+    try {
+      val response = httpClient.execute(httpPost);
+      val statusCode = response.getStatusLine().getStatusCode();
+      Console.println("registryAPI statusCode", statusCode);
+      val entity = response.getEntity
+      val inputStream = entity.getContent
+      val content = Source.fromInputStream(inputStream, "UTF-8").getLines.mkString
+      inputStream.close()
+      response.close()
+      content
+    } catch {
+      case ex:Exception => {
+        ex.printStackTrace()
+        "[{}]"
       }
     }
   }
