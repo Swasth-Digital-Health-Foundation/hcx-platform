@@ -67,7 +67,7 @@ class PreauthProcessFunction(config: PreauthConfig, @transient var postgresConne
   }
 
   override def audit(event: util.Map[String, AnyRef], status: Boolean, context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
-    val audit = createAuditRecord(event,"PREAUTH_AUDIT")
+    val audit = createAuditRecord(event,"AUDIT")
     context.output(config.auditOutputTag, JSONUtil.serialize(audit))
     metrics.incCounter(config.auditEventsCount)
   }
