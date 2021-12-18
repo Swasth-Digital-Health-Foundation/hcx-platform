@@ -67,7 +67,7 @@ class PaymentsProcessFunction(config: PaymentsConfig, @transient var postgresCon
   }
 
   override def audit(event: util.Map[String, AnyRef], status: Boolean, context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
-    val audit = createAuditRecord(event,"PAYMENTS_AUDIT")
+    val audit = createAuditRecord(event,"AUDIT")
     context.output(config.auditOutputTag, JSONUtil.serialize(audit))
     metrics.incCounter(config.auditEventsCount)
   }
