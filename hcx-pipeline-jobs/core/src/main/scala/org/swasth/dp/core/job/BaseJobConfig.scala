@@ -36,7 +36,7 @@ class BaseJobConfig(val config: Config, val jobName: String) extends Serializabl
   val redisPort: Int = Option(config.getInt("redis.port")).getOrElse(6379)
   val redisConnectionTimeout: Int = Option(config.getInt("redisdb.connection.timeout")).getOrElse(30000)
   val redisAssetStore: Int = Option(config.getInt("redisdb.assetstore.id")).getOrElse(1)
-  val senderReceiverFields = List("participant_code", "signing_cert_path", "roles", "encryption_cert", "endpoint_url", "participant_name","hfr_code","status")
+  val senderReceiverFields = List("participantCode", "signingCertPath", "mobile", "email","encryptionCert", "endpointUrl", "participantName","hfrCode","status")
 
   val metaRedisHost: String = Option(config.getString("redis-meta.host")).getOrElse("localhost")
   val metaRedisPort: Int = Option(config.getInt("redis-meta.port")).getOrElse(6379)
@@ -87,4 +87,7 @@ class BaseJobConfig(val config: Config, val jobName: String) extends Serializabl
     properties.put(ProducerConfig.MAX_REQUEST_SIZE_CONFIG, new Integer(kafkaProducerMaxRequestSize))
     properties
   }
+
+  //Registry Url
+  val registryUrl = config.getString("registry.endPointUrl")
 }
