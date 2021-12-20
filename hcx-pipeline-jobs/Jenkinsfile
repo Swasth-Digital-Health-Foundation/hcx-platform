@@ -11,6 +11,7 @@ node('java8') {
               build_tag = commit_hash + "_" + env.BUILD_NUMBER
               // Building jar
               sh """
+                cd hcx-pipeline-jobs
                 java --version
                 pwd
                 mvn clean install -DskipTests
