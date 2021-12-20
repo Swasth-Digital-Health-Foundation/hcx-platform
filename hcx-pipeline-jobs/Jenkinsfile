@@ -12,7 +12,7 @@ node('java8') {
               // Building jar
               sh """
                 cd hcx-pipeline-jobs
-                java --version
+                java -version
                 pwd
                 mvn clean install -DskipTests
               """
@@ -22,7 +22,7 @@ node('java8') {
             container('kaniko') {
               // Building and pushing the container
               sh """
-                cd ${env.WORKSPACE}/jobs-distribution
+                cd ${env.WORKSPACE}/hcx-pipeline-jobs/jobs-distribution
                 pwd
                 /kaniko/executor --dockerfile Dockerfile --context `pwd` --destination ${env.DOCKER_HUB_URL}/hcx-pipeline-jobs:${build_tag}
                 echo {\\"image_name\\" : \\"hcx-pipeline-jobs\\", \\"image_tag\\" : \\"${build_tag}\\"} > ${env.WORKSPACE}/metadata.json
