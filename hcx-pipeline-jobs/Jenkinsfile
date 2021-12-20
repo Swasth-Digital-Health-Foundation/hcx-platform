@@ -3,7 +3,7 @@
 node('java11') {
     ansiColor('xterm') {
       stage("Building app") {
-            container('java11') {
+            container('java8') {
               // Checkout repo
               checkout scm
               // Generating build info
