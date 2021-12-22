@@ -135,10 +135,10 @@ public class BaseController {
     }
 
 
-    public ResponseEntity<Object> validateReqAndPushToKafka(Map<String, Object> reqBody, String apiAction, String kafkaTopic) {
-        Map<String, Object> requestBody = formatsRequestBody(reqBody);
+    public ResponseEntity<Object> validateReqAndPushToKafka(Map<String, Object> reqBody, String apiAction, String kafkaTopic) throws ClientException {
         Response response = new Response();
         try {
+            Map<String, Object> requestBody = formatRequestBody(reqBody);
             if (!HealthCheckManager.allSystemHealthResult)
                 throw new ServiceUnavailbleException("Service is unavailable");
             String correlationId = getCorrelationId(requestBody);
@@ -157,7 +157,7 @@ public class BaseController {
         }
     }
 
-    public Map<String, Object> formatsRequestBody(Map<String, Object> requestBody) throws ClientException {
+    public Map<String, Object> formatRequestBody(Map<String, Object> requestBody) throws ClientException {
         Map<String, Object> event = new HashMap<>();
         try {
             String str = (String) requestBody.get("payload");
