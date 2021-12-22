@@ -159,23 +159,20 @@ public class BaseController {
 
     public Map<String, Object> formatRequestBody(Map<String, Object> requestBody) throws ClientException {
         Map<String, Object> event = new HashMap<>();
-        try {
-            String str = (String) requestBody.get("payload");
+        String str = (String) requestBody.get("payload");
 
-            String[] strArray = str.split("\\.");
-            System.out.println("test"+strArray.length);
-            if (strArray.length > 0 && strArray.length == Constants.PAYLOAD_LENGTH) {
-                event.put("protected", strArray[0] );
-                event.put("encrypted_key", strArray[1]);
-                event.put("aad", strArray[2]);
-                event.put("iv", strArray[3]);
-                event.put("ciphertext", strArray[4]);
-                event.put("tag", strArray[5]);
-            }
-
-        }catch (Exception e){
+        String[] strArray = str.split("\\.");
+        if (strArray.length > 0 && strArray.length == Constants.PAYLOAD_LENGTH) {
+            event.put("protected", strArray[0] );
+            event.put("encrypted_key", strArray[1]);
+            event.put("aad", strArray[2]);
+            event.put("iv", strArray[3]);
+            event.put("ciphertext", strArray[4]);
+            event.put("tag", strArray[5]);
+        } else {
             throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_PAYLOAD, "invalid payload");
         }
+
         return event;
     }
 }

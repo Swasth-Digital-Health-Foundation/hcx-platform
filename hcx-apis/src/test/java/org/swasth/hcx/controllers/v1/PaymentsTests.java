@@ -52,7 +52,6 @@ public class PaymentsTests extends BaseSpec {
 
     @Test
     public void check_payment_request_client_exception_scenario() throws Exception {
-        when(mockEnv.getProperty("payload.mandatory.properties", List.class)).thenReturn(new ArrayList<>(Arrays.asList("protected", "encrypted_key", "aad", "iv", "ciphertext", "tag")));
         String requestBody = getBadRequestBody();
         MvcResult mvcResult = mockMvc.perform(post("/v1/paymentnotice/request").content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -85,7 +84,6 @@ public class PaymentsTests extends BaseSpec {
 
     @Test
     public void check_payment_on_request_client_exception_scenario() throws Exception {
-        when(mockEnv.getProperty("payload.mandatory.properties", List.class)).thenReturn(new ArrayList<>(Arrays.asList("protected", "encrypted_key", "aad", "iv", "ciphertext", "tag")));
         String requestBody = getBadRequestBody();
         MvcResult mvcResult = mockMvc.perform(post("/v1/paymentnotice/on_request").content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -118,7 +116,6 @@ public class PaymentsTests extends BaseSpec {
 
     @Test
     public void check_payment_search_client_exception_scenario() throws Exception {
-        when(mockEnv.getProperty("payload.mandatory.properties", List.class)).thenReturn(new ArrayList<>(Arrays.asList("protected", "encrypted_key", "aad", "iv", "ciphertext", "tag")));
         String requestBody = getBadRequestBody();
         MvcResult mvcResult = mockMvc.perform(post("/v1/paymentnotice/search").content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -151,7 +148,6 @@ public class PaymentsTests extends BaseSpec {
 
     @Test
     public void check_payment_on_search_client_exception_scenario() throws Exception {
-        when(mockEnv.getProperty("payload.mandatory.properties", List.class)).thenReturn(new ArrayList<>(Arrays.asList("protected", "encrypted_key", "aad", "iv", "ciphertext", "tag")));
         String requestBody = getBadRequestBody();
         MvcResult mvcResult = mockMvc.perform(post("/v1/paymentnotice/on_search").content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
