@@ -18,6 +18,7 @@ import org.swasth.postgresql.IDatabaseService;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.HashMap;
 
 public class BaseController {
 
@@ -77,7 +78,9 @@ public class BaseController {
         }
     }
 
-    public ResponseEntity<Object> validateReqAndPushToKafka(Map<String, Object> requestBody, String apiAction, String kafkaTopic) throws Exception {
+    public ResponseEntity<Object> validateReqAndPushToKafka(Map<String, Object> reqBody, String apiAction,
+        String kafkaTopic) throws Exception {
+      Map<String, Object> requestBody = formatsRequestBody(reqBody);
         String correlationId = StringUtils.decodeBase64String((String) requestBody.get(Constants.PROTECTED), HashMap.class).get(Constants.CORRELATION_ID).toString();
         Response response = new Response(correlationId);
         try {
@@ -93,5 +96,27 @@ public class BaseController {
         } catch (Exception e) {
             return new ResponseEntity<>(errorResponse(response, ErrorCodes.SERVER_ERROR, e), HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    public Map<String, Object> formatsRequestBody(Map<String, Object> requestBody) throws ClientException {
+        Map<String, Object> event = new HashMap<>();
+        try {
+            String str = (String) requestBody.get("payload");
+
+            String[] strArray = str.split("\\.");
+            System.out.println("test"+strArray.length);
+            if (strArray.length > 0 && strArray.length == Constants.PAYLOAD_LENGTH) {
+                event.put("protected", strArray[0] );
+                event.put("encrypted_key", strArray[1]);
+                event.put("aad", strArray[2]);
+                event.put("iv", strArray[3]);
+                event.put("ciphertext", strArray[4]);
+                event.put("tag", strArray[5]);
+            }
+
+        }catch (Exception e){
+            throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_PAYLOAD, "invalid payload");
+        }
+        return event;
     }
 }
