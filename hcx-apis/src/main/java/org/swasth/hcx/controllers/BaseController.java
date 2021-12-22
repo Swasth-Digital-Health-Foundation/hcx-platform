@@ -98,20 +98,24 @@ public class BaseController {
         }
     }
 
-    public Map<String, Object> formatsRequestBody(Map<String, Object> requestBody) {
+    public Map<String, Object> formatsRequestBody(Map<String, Object> requestBody) throws ClientException {
         Map<String, Object> event = new HashMap<>();
         try {
             String str = (String) requestBody.get("payload");
 
             String[] strArray = str.split("\\.");
-            event.put("protected", strArray[0].isEmpty() ? " " : strArray[0] );
-            event.put("encrypted_key", strArray[1].isEmpty() ? " " : strArray[1]);
-            event.put("aad", strArray[2].isEmpty() ? " " : strArray[2]);
-            event.put("iv", strArray[3].isEmpty() ? " " : strArray[3]);
-            event.put("ciphertext", strArray[4].isEmpty() ? " " : strArray[4]);
-            event.put("tag", strArray[5].isEmpty() ? " " : strArray[5]);
-        }catch (Exception e){
+            System.out.println("test"+strArray.length);
+            if (strArray.length > 0 && strArray.length == Constants.PAYLOAD_LENGTH) {
+                event.put("protected", strArray[0] );
+                event.put("encrypted_key", strArray[1]);
+                event.put("aad", strArray[2]);
+                event.put("iv", strArray[3]);
+                event.put("ciphertext", strArray[4]);
+                event.put("tag", strArray[5]);
+            }
 
+        }catch (Exception e){
+            throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_PAYLOAD, "invalid payload");
         }
         return event;
     }

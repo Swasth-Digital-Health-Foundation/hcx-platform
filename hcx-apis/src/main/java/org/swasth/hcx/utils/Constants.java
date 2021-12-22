@@ -3,6 +3,7 @@ package org.swasth.hcx.utils;
 public  class Constants {
 
     public static final String VERSION_PREFIX = "/v1";
+    public static final int PAYLOAD_LENGTH = 6;
 
     // Coverage Eligibility APIs
     public static final String COVERAGE_ELIGIBILITY_CHECK = VERSION_PREFIX + "/coverageeligibility/check";
