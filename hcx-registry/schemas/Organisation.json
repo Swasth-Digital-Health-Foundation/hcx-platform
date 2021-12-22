@@ -19,7 +19,7 @@
             "participantCode",
             "participantName",
             "roles",
-            "mobile",
+            "primaryMobile",
             "status",
             "encryptionCert",
             "endpointUrl"
@@ -40,13 +40,17 @@
             "address":{
                "$ref":"#/definitions/Address"
             },
-            "email":{
+            "primaryEmail":{
+               "type":"string",
+               "format":"email"
+            },
+            "additionalEmail":{
                "type":"array",
                "items":{
                   "type":"string",
                   "format":"email"
                },
-               "maxItems":3
+               "maxItems":2
             },
             "phone":{
                "type":"array",
@@ -55,13 +59,15 @@
                },
                "maxItems":3
             },
-            "mobile":{
+            "primaryMobile":{
+               "type":"string"
+            },
+            "additionalMobile":{
                "type":"array",
                "items":{
                   "type":"string"
                },
-               "minItems":1,
-               "maxItems":3
+               "maxItems":2
             },
             "status":{
                "type":"string",
@@ -157,8 +163,8 @@
    "_osConfig":{
       "ownershipAttributes": [
          {
-            "email": "/participantName",
-            "mobile": "/participantName",
+            "email": "/primaryEmail",
+            "mobile": "/primaryMobile",
             "userId": "/participantCode"
          }
       ],

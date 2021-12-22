@@ -1,9 +1,9 @@
 // vim: ft=groovy et ts=2 sw=2:
 
-node('java8') {
+node('java11') {
     ansiColor('xterm') {
       stage("Building app") {
-            container('java8') {
+            container('java11') {
               // Checkout repo
               checkout scm
               // Generating build info
@@ -11,10 +11,10 @@ node('java8') {
               build_tag = commit_hash + "_" + env.BUILD_NUMBER
               // Building jar
               sh """
-                cd hcx-pipeline-jobs
-                java -version
+                cd ${env.WORKSPACE}/api-gateway
+                java --version
                 pwd
-                mvn clean install -DskipTests
+                mvn clean install
               """
             }
           }
@@ -22,10 +22,10 @@ node('java8') {
             container('kaniko') {
               // Building and pushing the container
               sh """
-                cd ${env.WORKSPACE}/hcx-pipeline-jobs/jobs-distribution
+                cd ${env.WORKSPACE}/api-gateway
                 pwd
-                /kaniko/executor --dockerfile Dockerfile --context `pwd` --destination ${env.DOCKER_HUB_URL}/hcx-pipeline-jobs:${build_tag}
-                echo {\\"image_name\\" : \\"hcx-pipeline-jobs\\", \\"image_tag\\" : \\"${build_tag}\\"} > ${env.WORKSPACE}/metadata.json
+                /kaniko/executor --dockerfile Dockerfile --context `pwd` --destination ${env.DOCKER_HUB_URL}/api-gateway:${build_tag}
+                echo {\\"image_name\\" : \\"api-gateway\\", \\"image_tag\\" : \\"${build_tag}\\"} > ${env.WORKSPACE}/metadata.json
               """
               archiveArtifacts "metadata.json"
             }
