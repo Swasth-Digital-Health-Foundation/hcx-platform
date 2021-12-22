@@ -1,14 +1,14 @@
 package org.swasth.common.exception;
 
-public class ClientException extends Exception {
+public class ServerException extends Exception{
 
     private ErrorCodes errCode;
 
-    public ClientException(String message) {
+    public ServerException(String message) {
         super(message);
     }
 
-    public ClientException(ErrorCodes errCode, String message) {
+    public ServerException(ErrorCodes errCode, String message) {
         super(message);
         this.errCode = errCode;
     }
@@ -16,5 +16,4 @@ public class ClientException extends Exception {
     public ErrorCodes getErrCode() {
         return errCode;
     }
-
 }

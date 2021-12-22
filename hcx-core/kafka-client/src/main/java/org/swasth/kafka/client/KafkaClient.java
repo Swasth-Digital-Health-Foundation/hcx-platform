@@ -4,6 +4,10 @@ import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.ListTopicsOptions;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.errors.TimeoutException;
+import org.swasth.common.exception.ErrorCodes;
+import org.swasth.common.exception.ServerException;
+
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 
@@ -19,8 +23,14 @@ public class KafkaClient implements IEventService {
         this.adminClient = kafkaAdminClient();
     }
 
-    public void send(String topic, String key, String message) {
-        producer.send(new ProducerRecord<>(topic, key, message));
+    public void send(String topic, String key, String message) throws Exception {
+        try {
+            producer.send(new ProducerRecord<>(topic, key, message));
+        } catch (TimeoutException e){
+            throw new ServerException(ErrorCodes.SERVER_ERR_GATEWAY_TIMEOUT, "Timeout error in pushing event to kafka: " + e.getMessage());
+        } catch (Exception e){
+            throw new ServerException(ErrorCodes.INTERNAL_SERVER_ERROR, "Error in pushing event to kafka : " + e.getMessage());
+        }
     }
 
     private KafkaProducer<String,String> createProducer(){

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
-import org.swasth.common.StringUtils;
+import org.swasth.common.JsonUtils;
 import org.swasth.hcx.utils.Constants;
 import java.util.HashMap;
 import java.util.List;
@@ -20,7 +20,7 @@ public class EventGenerator {
         Map<String,Object> event = new HashMap<>();
         event.put(Constants.MID, mid);
         event.put(Constants.PAYLOAD, requestBody);
-        return StringUtils.serialize(event);
+        return JsonUtils.serialize(event);
     }
 
     public String generateMetadataEvent(String mid, String apiAction, Map<String, Object> requestBody) throws Exception {
@@ -28,7 +28,7 @@ public class EventGenerator {
         List<String> protocolHeaders = env.getProperty(Constants.PROTOCOL_HEADERS_MANDATORY, List.class);
         protocolHeaders.addAll(env.getProperty(Constants.PROTOCOL_HEADERS_OPTIONAL, List.class));
         List<String> joseHeaders = env.getProperty(Constants.JOSE_HEADERS, List.class);
-        HashMap<String,Object> protectedHeaders = StringUtils.decodeBase64String((String) requestBody.get(Constants.PROTECTED), HashMap.class);
+        HashMap<String,Object> protectedHeaders = JsonUtils.decodeBase64String((String) requestBody.get(Constants.PROTECTED), HashMap.class);
         Map<String,Object> filterJoseHeaders = new HashMap<>();
         Map<String,Object> filterProtocolHeaders = new HashMap<>();
         joseHeaders.forEach(key -> {
@@ -51,7 +51,7 @@ public class EventGenerator {
             put(Constants.MESSAGE, "");
             put(Constants.TRACE, "");
         }});
-        event.put(Constants.STATUS, Constants.SUBMITTED);
-        return StringUtils.serialize(event);
+        event.put("status", Constants.SUBMITTED);
+        return JsonUtils.serialize(event);
     }
 }

@@ -8,8 +8,6 @@ import org.swasth.kafka.client.KafkaClient;
 import org.swasth.postgresql.IDatabaseService;
 import org.swasth.postgresql.PostgreSQLClient;
 
-import java.security.PrivateKey;
-
 @Configuration
 public class GenericConfiguration {
 
