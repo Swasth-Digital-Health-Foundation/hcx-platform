@@ -66,7 +66,7 @@ public class BaseController {
         if (!(protectedHeaders.get(Constants.REQUEST_ID) instanceof String) || StringUtils.isEmpty((String) protectedHeaders.get(Constants.REQUEST_ID))) {
             throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_REQ_ID, "Request id cannot be null, empty and other than 'String'");
         }
-        if (protectedHeaders.containsKey(Constants.WORKFLOW_ID) && (!(protectedHeaders.get(Constants.WORKFLOW_ID) instanceof String) || StringUtils.isEmpty((String) protectedHeaders.get(Constants.WORKFLOW_ID)))) {
+        if (!(protectedHeaders.get(Constants.WORKFLOW_ID) instanceof String) || StringUtils.isEmpty((String) protectedHeaders.get(Constants.WORKFLOW_ID))) {
 
             throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_WORKFLOW_ID, "Workflow id cannot be null, empty and other than 'String'");
         }
