@@ -6,14 +6,14 @@ jwt:
   issuer: ${JWT_ISSUER:}
   audience: ${JWT_AUDIENCE:}
   jwkUrl: ${JWT_JWK_URL:http://localhost:8080/auth/realms/sunbird-rc/protocol/openid-connect/certs}
-  claimsNamespacePath: ${JWT_NS_PATH:"$.realm_access.roles"}
+  claimsNamespacePath: ${JWT_NS_PATH:$.realm_access.roles}
 
 redis:
   host: ${REDIS_HOST:localhost}
   port: ${REDIS_PORT:6379}
 
 registry:
-  basePath: ${REGISTRY_BASE_PATH:http://a19f1af8cb7fb4156886aeb2d1cf24ab-1465968857.ap-south-1.elb.amazonaws.com:8081}
+  basePath: ${REGISTRY_BASE_PATH:http://localhost:8081}
 
 spring:
   main:
@@ -23,13 +23,13 @@ spring:
     gateway:
       routes:
         - id: hcx-api-route
-          uri: ${HCX_API_BASEPATH:http://a54c5bc648f1a41b8871b77ac01060ed-1840123973.ap-south-1.elb.amazonaws.com:8080}
+          uri: ${HCX_API_BASEPATH:http://localhost:8080}
           filters:
             - name: RequestRateLimiter
               args:
                 redis-rate-limiter.replenishRate: 10
                 redis-rate-limiter.burstCapacity: 20
-            - CachingRequestBodyFilter
-            - RegistryValidationFilter
+            - name: CachingRequestBodyFilter
+            - name: RegistryValidationFilter
           predicates:
             - Path=/v1/coverageeligibility/**, /v1/preauth/**, /v1/claims/**, /v1/paymentnotice/**, /health, /service/health
