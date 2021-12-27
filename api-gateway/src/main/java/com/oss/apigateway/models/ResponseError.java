@@ -1,7 +1,9 @@
 package com.oss.apigateway.models;
 
 import com.oss.apigateway.exception.ErrorCodes;
+import lombok.Data;
 
+@Data
 public class ResponseError {
     private ErrorCodes code;
     private String message;

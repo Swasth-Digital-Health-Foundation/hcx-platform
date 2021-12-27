@@ -1,7 +1,9 @@
 package com.oss.apigateway.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
+@Data
 public class Response {
 
     private long timestamp = System.currentTimeMillis();
