@@ -9,6 +9,7 @@ import com.oss.apigateway.cache.RedisCache;
 import com.oss.apigateway.constants.Constants;
 import com.oss.apigateway.exception.ClientException;
 import com.oss.apigateway.exception.ErrorCodes;
+import com.oss.apigateway.exception.ServerException;
 import com.oss.apigateway.models.Response;
 import com.oss.apigateway.models.ResponseError;
 import com.oss.apigateway.utils.HttpUtils;
@@ -32,6 +33,7 @@ import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+import redis.clients.jedis.exceptions.JedisException;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -61,7 +63,8 @@ public class RegistryValidationFilter extends AbstractGatewayFilterFactory<Regis
     @Override
     public GatewayFilter apply(Config config) {
         return (exchange, chain) -> {
-            String corrId = null;
+            String workflowId = null;
+            String requestId = null;
             try {
                 StringBuilder cachedBody = new StringBuilder(StandardCharsets.UTF_8.decode(((DataBuffer) exchange.getAttribute(CACHED_REQUEST_BODY_ATTR)).asByteBuffer()));
                 String[] requestBody = formatRequestBody(JSONUtils.deserialize(cachedBody.toString(), HashMap.class));
@@ -71,10 +74,14 @@ public class RegistryValidationFilter extends AbstractGatewayFilterFactory<Regis
                 } catch (JsonParseException e) {
                     throw new ClientException(ErrorCodes.CLIENT_ERR_WRONG_ENCODED_PROTECTED, "Error while parsing protected headers");
                 }
-                if (!protectedMap.containsKey(Constants.CORRELATION_ID) || !(protectedMap.get(Constants.CORRELATION_ID) instanceof String) || ((String) protectedMap.get(Constants.CORRELATION_ID)).isEmpty()) {
-                    throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_CORREL_ID, "Correlation id cannot be null, empty and other than 'String'");
+                if (!protectedMap.containsKey(Constants.WORKFLOW_ID) || !(protectedMap.get(Constants.WORKFLOW_ID) instanceof String) || ((String) protectedMap.get(Constants.WORKFLOW_ID)).isEmpty()) {
+                    throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_WORKFLOW_ID, "Workflow id cannot be null, empty and other than 'String'");
                 }
-                corrId = (String) protectedMap.get(Constants.CORRELATION_ID);
+                if (!protectedMap.containsKey(Constants.REQUEST_ID) || !(protectedMap.get(Constants.REQUEST_ID) instanceof String) || ((String) protectedMap.get(Constants.REQUEST_ID)).isEmpty()) {
+                    throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_REQ_ID, "Request id cannot be null, empty and other than 'String'");
+                }
+                workflowId = (String) protectedMap.get(Constants.WORKFLOW_ID);
+                requestId = (String) protectedMap.get(Constants.REQUEST_ID);
                 Object senderCode = protectedMap.get(Constants.SENDER_CODE);
                 Object recipientCode = protectedMap.get(Constants.RECIPIENT_CODE);
                 if (!(senderCode instanceof String) || ((String) senderCode).isEmpty()) {
@@ -83,11 +90,11 @@ public class RegistryValidationFilter extends AbstractGatewayFilterFactory<Regis
                 if (!(recipientCode instanceof String) || ((String) recipientCode).isEmpty()) {
                     throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_RECIPIENT, "Recipient code cannot be null, empty and other than 'String'");
                 }
-                Map<String,Object> senderDetails = getDetails(senderCode.toString());
-                Map<String,Object> recipientDetails = getDetails(recipientCode.toString());
                 if (senderCode.equals(recipientCode)) {
                     throw new ClientException("sender and recipient code cannot be the same");
                 }
+                Map<String,Object> senderDetails = fetchDetails(senderCode.toString());
+                Map<String,Object> recipientDetails = fetchDetails(recipientCode.toString());
                 if (senderDetails.isEmpty()) {
                     throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_SENDER, "Sender is not exist in registry");
                 }
@@ -97,10 +104,10 @@ public class RegistryValidationFilter extends AbstractGatewayFilterFactory<Regis
                 validateCallerId(exchange, senderDetails);
             } catch (ClientException e) {
                 logger.error(e.toString());
-                return this.onError(exchange, HttpStatus.BAD_REQUEST, corrId, e.getErrCode(), e);
+                return this.onError(exchange, HttpStatus.BAD_REQUEST, workflowId, requestId, e.getErrCode(), e);
             } catch (Exception e) {
                 logger.error(e.toString());
-                return this.onError(exchange, HttpStatus.INTERNAL_SERVER_ERROR, corrId, null, e);
+                return this.onError(exchange, HttpStatus.INTERNAL_SERVER_ERROR, workflowId, requestId, null, e);
             }
             return chain.filter(exchange);
         };
@@ -125,30 +132,42 @@ public class RegistryValidationFilter extends AbstractGatewayFilterFactory<Regis
         }
     }
 
-    private Map<String,Object> getDetails(String code) throws Exception {
-        String details = redisCache.get(code);
-        if(details == null || details.isEmpty()) {
-            String url = registryUrl + "/api/v1/Organisation/search";
-            String requestBody = "{\"entityType\":[\"Organisation\"],\"filters\":{\"osid\":{\"eq\":\"" + code + "\"}}}";
-            HttpResponse response = HttpUtils.post(url, requestBody);
-            if (response != null && response.getStatus() == 200) {
-                ArrayList result = JSONUtils.deserialize((String) response.getBody(), ArrayList.class);
-                if (!result.isEmpty()){
-                    details = JSONUtils.serialize(result.get(0));
-                    redisCache.set(code, details);
-                }
+    private Map<String,Object> fetchDetails(String code) throws Exception {
+        try {
+            Map<String,Object> details;
+            if(redisCache.isExists(code) == true) {
+                details = JSONUtils.deserialize(redisCache.get(code), HashMap.class);
+            } else {
+                details = getDetails(code);
+                redisCache.set(code, JSONUtils.serialize(details));
             }
-            else {
-                throw new Exception("Error in fetching the participant details " + response.getStatus());
-            }
+            return details;
+        } catch (ServerException e) {
+            return getDetails(code);
         }
-        return JSONUtils.deserialize(details, HashMap.class);
     }
 
-    private Mono<Void> onError(ServerWebExchange exchange, HttpStatus status, String corrId, ErrorCodes code, Exception e) {
+    private Map<String,Object> getDetails(String code) throws Exception {
+        String url = registryUrl + "/api/v1/Organisation/search";
+        String requestBody = "{\"entityType\":[\"Organisation\"],\"filters\":{\"osid\":{\"eq\":\"" + code + "\"}}}";
+        HttpResponse response = HttpUtils.post(url, requestBody);
+        Map<String,Object> details = new HashMap<>();
+        if (response != null && response.getStatus() == 200) {
+            ArrayList result = JSONUtils.deserialize((String) response.getBody(), ArrayList.class);
+            if (!result.isEmpty()) {
+                details = (Map<String, Object>) result.get(0);
+            }
+        } else {
+            throw new Exception("Error in fetching the participant details " + response.getStatus());
+        }
+        return details;
+    }
+
+
+    private Mono<Void> onError(ServerWebExchange exchange, HttpStatus status, String workflowId, String requestId, ErrorCodes code, Exception e) {
         ServerHttpResponse response = exchange.getResponse();
         DataBufferFactory dataBufferFactory = response.bufferFactory();
-        Response resp = new Response(corrId, new ResponseError(code, e.getMessage(), e.getCause()));
+        Response resp = new Response(workflowId, requestId, new ResponseError(code, e.getMessage(), e.getCause()));
         try {
             byte[] obj = JSONUtils.convertToByte(resp);
             response.setStatusCode(status);

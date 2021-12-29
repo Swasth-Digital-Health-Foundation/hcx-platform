@@ -1,24 +1,21 @@
 package com.oss.apigateway.models;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Response {
 
     private long timestamp = System.currentTimeMillis();
-    @JsonProperty("correlation_id")
-    private String correlationId;
+    @JsonProperty("workflow_id")
+    private String workflowId;
+    @JsonProperty("request_id")
+    private String requestId;
     private ResponseError error;
 
-    public Response(String correlationId) {
-        this.correlationId = correlationId;
-    }
-
-    public Response(String correlationId, ResponseError error) {
-        this.correlationId = correlationId;
+    public Response(String workflowId, String requestId, ResponseError error) {
+        this.workflowId = workflowId;
+        this.requestId = requestId;
         this.error = error;
     }
 

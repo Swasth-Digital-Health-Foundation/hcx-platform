@@ -1,5 +1,6 @@
 package com.oss.apigateway.cache;
 
+import com.oss.apigateway.exception.ServerException;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.Jedis;
 
@@ -11,7 +12,7 @@ public class RedisCache extends RedisConnector {
         try{
             jedis.set(key,value);
         } catch (Exception e) {
-            throw new Exception("Exception Occurred While Saving Data to Redis Cache for Key : " + key + "| Exception is:", e);
+            throw new ServerException("Exception Occurred While Saving Data to Redis Cache for Key : " + key + "| Exception is:" + e);
         }
         finally {
             jedis.close();
@@ -23,7 +24,19 @@ public class RedisCache extends RedisConnector {
         try{
             return jedis.get(key);
         } catch (Exception e) {
-            throw new Exception("Exception Occurred While Fetching Data from Redis Cache for Key : " + key + "| Exception is:", e);
+            throw new ServerException("Exception Occurred While Fetching Data from Redis Cache for Key : " + key + "| Exception is:" + e);
+        }
+        finally {
+            jedis.close();
+        }
+    }
+
+    public boolean isExists(String key) throws Exception {
+        Jedis jedis = getConnection();
+        try{
+            return jedis.exists(key);
+        } catch (Exception e) {
+            throw new ServerException("Exception occurred while checking key exist or not in Redis Cache: " + key + "| Exception is:" + e);
         }
         finally {
             jedis.close();
