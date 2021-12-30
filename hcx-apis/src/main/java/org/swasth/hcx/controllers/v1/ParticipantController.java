@@ -34,14 +34,10 @@ public class ParticipantController  extends BaseController {
             ParticipantResponse resp = new ParticipantResponse(participantCode);
             return new ResponseEntity<>(resp, HttpStatus.OK);
         } else if(response.getStatus() == 400) {
-            Map<String, Object> result = JsonUtils.deserialize((String) response.getBody(), HashMap.class);
-            String message = (String) ((Map<String, Object>) result.get("params")).get("errmsg");
-            return new ResponseEntity<>(errorResponse(null,message,null), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorResponse(response), HttpStatus.BAD_REQUEST);
         }
         else {
-            Map<String, Object> result = JsonUtils.deserialize((String) response.getBody(), HashMap.class);
-            String message = (String) ((Map<String, Object>) result.get("params")).get("errmsg");
-            return new ResponseEntity<>(errorResponse(null,message,null), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(errorResponse(response), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -54,7 +50,7 @@ public class ParticipantController  extends BaseController {
         ArrayList<Object> result = JsonUtils.deserialize((String) response.getBody(), ArrayList.class);
         ParticipantResponse resp = new ParticipantResponse();
         if(result.isEmpty()) {
-            return new ResponseEntity<>(errorResponse(null,"Resource Not Found",null), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(errorResponse(response), HttpStatus.NOT_FOUND);
         }
         resp.setParticipants(result);
         return new ResponseEntity<>(resp, HttpStatus.OK);
@@ -70,24 +66,20 @@ public class ParticipantController  extends BaseController {
             return new ResponseEntity<>(HttpStatus.OK);
         }
         else if(response.getStatus() == 401){
-            Map<String, Object> result = JsonUtils.deserialize((String) response.getBody(), HashMap.class);
-            String message = (String) ((Map<String, Object>) result.get("params")).get("errmsg");
-            return new ResponseEntity<>(errorResponse(null,message,null), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(errorResponse(response), HttpStatus.UNAUTHORIZED);
         }
         else if(response.getStatus() == 404){
-            Map<String, Object> result = JsonUtils.deserialize((String) response.getBody(), HashMap.class);
-            String message = (String) ((Map<String, Object>) result.get("params")).get("errmsg");
-            return new ResponseEntity<>(errorResponse(null,message,null), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(errorResponse(response), HttpStatus.NOT_FOUND);
         }
         else {
-            Map<String, Object> result = JsonUtils.deserialize((String) response.getBody(), HashMap.class);
-            String message = (String) ((Map<String, Object>) result.get("params")).get("errmsg");
-            return new ResponseEntity<>(errorResponse(null,message,null), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(errorResponse(response), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    public ParticipantResponse errorResponse(ErrorCodes code, String message, Throwable trace){
-        ResponseError error = new ResponseError(code,message,trace);
+    public ParticipantResponse errorResponse(HttpResponse response) throws Exception {
+        Map<String, Object> result = JsonUtils.deserialize((String) response.getBody(), HashMap.class);
+        String message = (String) ((Map<String, Object>) result.get("params")).get("errmsg");
+        ResponseError error = new ResponseError(null,message,null);
         ParticipantResponse resp = new ParticipantResponse(error);
         return resp;
     }
