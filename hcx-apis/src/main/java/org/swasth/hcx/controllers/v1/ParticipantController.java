@@ -50,7 +50,9 @@ public class ParticipantController  extends BaseController {
         ArrayList<Object> result = JsonUtils.deserialize((String) response.getBody(), ArrayList.class);
         ParticipantResponse resp = new ParticipantResponse();
         if(result.isEmpty()) {
-            return new ResponseEntity<>(errorResponse(response), HttpStatus.NOT_FOUND);
+            ResponseError error = new ResponseError(null,"Resource Not Found",null);
+            resp.setError(error);
+            return new ResponseEntity<>(resp, HttpStatus.NOT_FOUND);
         }
         resp.setParticipants(result);
         return new ResponseEntity<>(resp, HttpStatus.OK);
