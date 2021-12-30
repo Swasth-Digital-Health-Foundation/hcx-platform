@@ -12,6 +12,9 @@ kafka:
 service:
   mode: ${service_mode:gateway}
 
+registry:
+  basePath: ${registry_basePath:http://localhost:8081}
+
 #postgres configuration
 postgres:
   url: ${postgres_url:jdbc:postgresql://localhost:5432/postgres}

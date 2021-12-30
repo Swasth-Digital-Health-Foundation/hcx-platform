@@ -17,6 +17,11 @@
             <artifactId>jackson-databind</artifactId>
             <version>2.12.5</version>
         </dependency>
+        <dependency>
+            <groupId>com.konghq</groupId>
+            <artifactId>unirest-java</artifactId>
+            <version>3.10.00</version>
+        </dependency>
     </dependencies>
 
     <build>
