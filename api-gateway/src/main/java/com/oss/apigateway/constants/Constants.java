@@ -10,6 +10,8 @@ public class Constants {
     public static final String PAYLOAD = "payload";
     public static final String SENDER_CODE = "x-hcx-sender_code";
     public static final String RECIPIENT_CODE = "x-hcx-recipient_code";
+    public static final String STATUS = "status";
+    public static final String BLOCKED = "Blocked";
     public static final String OS_OWNER = "osOwner";
 
 }
