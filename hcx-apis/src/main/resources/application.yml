@@ -13,7 +13,7 @@ service:
   mode: ${service_mode:gateway}
 
 registry:
-  basePath: ${registry_basePath:http://a19f1af8cb7fb4156886aeb2d1cf24ab-1465968857.ap-south-1.elb.amazonaws.com:8081}
+  basePath: ${registry_basePath:http://localhost:8081}
 
 #postgres configuration
 postgres:

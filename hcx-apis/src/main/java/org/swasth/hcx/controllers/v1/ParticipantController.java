@@ -48,9 +48,11 @@ public class ParticipantController  extends BaseController {
     }
 
     @RequestMapping(value = "/search", method = RequestMethod.POST)
-    public ResponseEntity<Object> participantSearch(@RequestBody Map<String, Object> requestBody) throws Exception {
+    public ResponseEntity<Object> participantSearch(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) throws Exception {
         String url =  registryUrl + "/api/v1/Organisation/search";
-        HttpResponse response = HttpUtils.post(url, JsonUtils.serialize(requestBody));
+        Map<String, String> headersMap = new HashMap<>();
+        headersMap.put("Authorization",header.get("Authorization").get(0));
+        HttpResponse response = HttpUtils.post(url, JsonUtils.serialize(requestBody), headersMap);
         ArrayList<Object> result = JsonUtils.deserialize((String) response.getBody(), ArrayList.class);
         ParticipantResponse resp = new ParticipantResponse();
         if(result.isEmpty()) {
