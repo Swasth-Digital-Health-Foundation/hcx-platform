@@ -24,10 +24,9 @@ public class ParticipantController  extends BaseController {
     private String registryUrl;
 
     @RequestMapping(value = "/create", method = RequestMethod.POST)
-    public ResponseEntity<Object> participantCreate(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) throws Exception {
+    public ResponseEntity<Object> participantCreate(@RequestBody Map<String, Object> requestBody) throws Exception {
         String url =  registryUrl + "/api/v1/Organisation/invite";
-        Map<String, String> headersMap = new HashMap<>();
-        HttpResponse response = HttpUtils.post(url, JsonUtils.serialize(requestBody),headersMap);
+        HttpResponse response = HttpUtils.post(url, JsonUtils.serialize(requestBody),new HashMap<>());
         if (response != null && response.getStatus() == 200) {
             Map<String, Object> result = JsonUtils.deserialize((String) response.getBody(), HashMap.class);
             String participantCode = (String) ((Map<String, Object>) ((Map<String, Object>) result.get("result")).get("Organisation")).get("osid");
@@ -42,20 +41,19 @@ public class ParticipantController  extends BaseController {
     }
 
     @RequestMapping(value = "/search", method = RequestMethod.POST)
-    public ResponseEntity<Object> participantSearch(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) throws Exception {
+    public ResponseEntity<Object> participantSearch(@RequestBody Map<String, Object> requestBody) throws Exception {
         String url =  registryUrl + "/api/v1/Organisation/search";
-        Map<String, String> headersMap = new HashMap<>();
-        headersMap.put("Authorization",header.get("Authorization").get(0));
-        HttpResponse response = HttpUtils.post(url, JsonUtils.serialize(requestBody), headersMap);
+        HttpResponse response = HttpUtils.post(url, JsonUtils.serialize(requestBody), new HashMap<>());
         ArrayList<Object> result = JsonUtils.deserialize((String) response.getBody(), ArrayList.class);
         ParticipantResponse resp = new ParticipantResponse();
         if(result.isEmpty()) {
             ResponseError error = new ResponseError(null,"Resource Not Found",null);
             resp.setError(error);
             return new ResponseEntity<>(resp, HttpStatus.NOT_FOUND);
+        } else{
+            resp.setParticipants(result);
+            return new ResponseEntity<>(resp, HttpStatus.OK);
         }
-        resp.setParticipants(result);
-        return new ResponseEntity<>(resp, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/update", method = RequestMethod.POST)
