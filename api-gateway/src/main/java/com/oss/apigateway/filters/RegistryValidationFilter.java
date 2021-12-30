@@ -102,6 +102,12 @@ public class RegistryValidationFilter extends AbstractGatewayFilterFactory<Regis
                     throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_RECIPIENT, "Recipient is not exist in registry");
                 }
                 validateCallerId(exchange, senderDetails);
+                if(StringUtils.equals((String) senderDetails.get(Constants.STATUS),Constants.BLOCKED)){
+                    throw new ClientException(ErrorCodes.CLIENT_ERR_SENDER_BLOCKED, "Sender is blocked as per the registry");
+                }
+                if(StringUtils.equals((String) recipientDetails.get(Constants.STATUS),Constants.BLOCKED)){
+                    throw new ClientException(ErrorCodes.CLIENT_ERR_RECIPIENT_BLOCKED, "Recipient is blocked as per the registry");
+                }
             } catch (ClientException e) {
                 logger.error(e.toString());
                 return this.onError(exchange, HttpStatus.BAD_REQUEST, workflowId, requestId, e.getErrCode(), e);
