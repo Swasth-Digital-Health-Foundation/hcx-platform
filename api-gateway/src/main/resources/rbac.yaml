@@ -53,7 +53,7 @@ rbac:
       - /v1/claim/on_search
       - /v1/paymentnotice/request
       - /v1/paymentnotice/on_search
-  - role: hio.hcx
+  - role: HIE/HIO.HCX
     regexPaths:
       - /v1/**
 
