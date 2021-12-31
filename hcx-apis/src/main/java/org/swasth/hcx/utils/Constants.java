@@ -72,5 +72,6 @@ public  class Constants {
     public static final String SERVICE_MODE = "service.mode";
     public static final String GATEWAY = "gateway";
     public static final String KAFKA_TOPIC_PAYLOAD = "kafka.topic.payload";
+    public static final String HEADER_AUDIT = "headeraudit";
 
 }

@@ -34,3 +34,7 @@ headers:
 payload:
   mandatory:
     properties: ${payload_mandatory_properties:protected, encrypted_key, aad, iv, ciphertext, tag}
+    
+    
+elasticsearch:
+  url: ${elasticsearch_url:localhost:9200}
