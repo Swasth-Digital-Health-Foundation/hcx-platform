@@ -29,7 +29,7 @@ public class ParticipantController  extends BaseController {
         HttpResponse response = HttpUtils.post(url, JsonUtils.serialize(requestBody),new HashMap<>());
         if (response != null && response.getStatus() == 200) {
             Map<String, Object> result = JsonUtils.deserialize((String) response.getBody(), HashMap.class);
-            String participantCode = (String) ((Map<String, Object>) ((Map<String, Object>) result.get("result")).get("Organisation")).get("osid");
+            String participantCode = (String) ((Map<String, Object>) ((Map<String, Object>) result.get("result")).get("Organisation")).get("participant_code");
             ParticipantResponse resp = new ParticipantResponse(participantCode);
             return new ResponseEntity<>(resp, HttpStatus.OK);
         } else if(response.getStatus() == 400) {
@@ -58,7 +58,7 @@ public class ParticipantController  extends BaseController {
 
     @RequestMapping(value = "/update", method = RequestMethod.POST)
     public ResponseEntity<Object> participantUpdate(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) throws Exception {
-        String url =  registryUrl + "/api/v1/Organisation/"+requestBody.get("osid");
+        String url =  registryUrl + "/api/v1/Organisation/"+requestBody.get("participant_code");
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization",header.get("Authorization").get(0));
         HttpResponse response = HttpUtils.put(url, JsonUtils.serialize(requestBody), headersMap);
