@@ -149,6 +149,7 @@ public class RegistryValidationFilter extends AbstractGatewayFilterFactory<Regis
             }
             return details;
         } catch (ServerException e) {
+            logger.info("Redis cache is down, fetching participant details from the registry.");
             return getDetails(code);
         }
     }
