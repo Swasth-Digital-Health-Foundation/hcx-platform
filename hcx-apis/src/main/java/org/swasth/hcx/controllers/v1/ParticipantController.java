@@ -58,6 +58,7 @@ public class ParticipantController  extends BaseController {
     @RequestMapping(value = "/update", method = RequestMethod.POST)
     public ResponseEntity<Object> participantUpdate(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) throws Exception {
         String url =  registryUrl + "/api/v1/Organisation/"+requestBody.get("participant_code");
+        requestBody.remove("participant_code");
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization",header.get("Authorization").get(0));
         HttpResponse response = HttpUtils.put(url, JsonUtils.serialize(requestBody), headersMap);
