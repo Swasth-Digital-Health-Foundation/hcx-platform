@@ -3,27 +3,30 @@ package org.swasth.common.dto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Response {
 
-    private long timestamp = System.currentTimeMillis();
+    private long timestamp;
     @JsonProperty("correlation_id")
     private String correlationId;
     private ResponseError error;
     private Map<String, Object> result;
 
-    public Response() {}
+    public Response() {
+        this.timestamp = System.currentTimeMillis();
+    }
 
     public Response(String correlationId) {
+        this.timestamp = System.currentTimeMillis();
         this.correlationId = correlationId;
     }
 
-    public Response(String key, Object val) {
-        this.result = new HashMap<>();
-        this.put(key, val);
+    public Response(String correlationId, ResponseError error) {
+        this.timestamp = System.currentTimeMillis();
+        this.correlationId = correlationId;
+        this.error = error;
     }
 
     public Long getTimestamp() {

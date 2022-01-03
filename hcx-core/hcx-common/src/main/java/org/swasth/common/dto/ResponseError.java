@@ -1,25 +1,25 @@
 package org.swasth.common.dto;
 
-import org.swasth.common.exception.ErrorCodes;
+import org.swasth.common.exception.ResponseCode;
 
 public class ResponseError {
-    private ErrorCodes code;
+    private ResponseCode code;
     private String message;
     private Throwable trace;
 
     public ResponseError() {}
 
-    public ResponseError(ErrorCodes code, String message, Throwable trace) {
+    public ResponseError(ResponseCode code, String message, Throwable trace) {
         this.code = code;
         this.message = message;
         this.trace = trace;
     }
 
-    public ErrorCodes getCode() {
+    public ResponseCode getCode() {
         return code;
     }
 
-    public void setCode(ErrorCodes code) {
+    public void setCode(ResponseCode code) {
         this.code = code;
     }
 
