@@ -8,7 +8,6 @@ import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.swasth.common.dto.Response;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
@@ -37,7 +36,7 @@ public class HealthControllerTests extends BaseSpec {
 
     @Test
     public void testHealth() throws Exception {
-        when(healthCheckManager.checkAllSystemHealth()).thenReturn(validHealthResponse());
+        when(mockKafkaClient.health()).thenReturn(true);
         MvcResult mvcResult = mockMvc.perform(get("/health")).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
@@ -50,7 +49,7 @@ public class HealthControllerTests extends BaseSpec {
 
     @Test
     public void testHealth_failure_scenario() throws Exception {
-        when(healthCheckManager.checkAllSystemHealth()).thenReturn(new Response("healthy",false));
+        when(mockKafkaClient.health()).thenReturn(false);
         MvcResult mvcResult = mockMvc.perform(get("/health")).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
