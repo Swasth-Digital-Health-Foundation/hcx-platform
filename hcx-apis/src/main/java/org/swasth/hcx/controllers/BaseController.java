@@ -73,6 +73,11 @@ public class BaseController {
         if (!(protectedHeaders.get(Constants.TIMESTAMP) instanceof String) || StringUtils.isEmpty((String) protectedHeaders.get(Constants.TIMESTAMP))) {
             throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_TIMESTAMP, "Invalid timestamp");
         }
+        if (protectedHeaders.containsKey(Constants.CORRELATION_ID)) {
+            if (!(protectedHeaders.get(Constants.CORRELATION_ID) instanceof String) || ((String) protectedHeaders.get(Constants.CORRELATION_ID)).isEmpty()) {
+                throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_CORREL_ID, "Correlation id cannot be null, empty and other than 'String'");
+            }
+        }
         if (protectedHeaders.containsKey(Constants.DEBUG_FLAG)) {
             if (!(protectedHeaders.get(Constants.DEBUG_FLAG) instanceof String) || StringUtils.isEmpty((String) protectedHeaders.get(Constants.DEBUG_FLAG))) {
                 throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_DEBUG_ID, "Debug flag cannot be null, empty and other than 'String'");
@@ -122,13 +127,17 @@ public class BaseController {
         }
     }
 
-    private String getCorrelationId(Map<String, Object> requestBody) throws Exception {
+    private void setResponseParams(Response response, Map<String, Object> requestBody) throws Exception {
         try {
             Map protectedMap = JsonUtils.decodeBase64String((String) requestBody.get(Constants.PROTECTED), HashMap.class);
-            if (!protectedMap.containsKey(Constants.CORRELATION_ID) || !(protectedMap.get(Constants.CORRELATION_ID) instanceof String) || ((String) protectedMap.get(Constants.CORRELATION_ID)).isEmpty()) {
-                throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_CORREL_ID, "Correlation id cannot be null, empty and other than 'String'");
+            if (!protectedMap.containsKey(Constants.WORKFLOW_ID) || !(protectedMap.get(Constants.WORKFLOW_ID) instanceof String) || ((String) protectedMap.get(Constants.WORKFLOW_ID)).isEmpty()) {
+                throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_WORKFLOW_ID, "Workflow id cannot be null, empty and other than 'String'");
             }
-            return protectedMap.get(Constants.CORRELATION_ID).toString();
+            response.setWorkflowId(protectedMap.get(Constants.WORKFLOW_ID).toString());
+            if (!protectedMap.containsKey(Constants.REQUEST_ID) || !(protectedMap.get(Constants.REQUEST_ID) instanceof String) || ((String) protectedMap.get(Constants.REQUEST_ID)).isEmpty()) {
+                throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_REQ_ID, "Request id cannot be null, empty and other than 'String'");
+            }
+            response.setRequestId(protectedMap.get(Constants.REQUEST_ID).toString());
         } catch (JsonParseException e) {
             throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_REQ_PROTECTED, "Error while parsing protected headers");
         }
@@ -141,8 +150,7 @@ public class BaseController {
             Map<String, Object> requestBody = formatRequestBody(reqBody);
             if (!HealthCheckManager.allSystemHealthResult)
                 throw new ServiceUnavailbleException("Service is unavailable");
-            String correlationId = getCorrelationId(requestBody);
-            response.setCorrelationId(correlationId);
+            setResponseParams(response, requestBody);
             validateRequestBody(requestBody);
             processAndSendEvent(apiAction, kafkaTopic , requestBody);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);

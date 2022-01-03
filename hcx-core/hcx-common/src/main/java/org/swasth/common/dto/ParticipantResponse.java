@@ -7,9 +7,8 @@ import java.util.ArrayList;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ParticipantResponse {
-    private long timestamp;
+    private Long timestamp;
     private ResponseError error;
-
     @JsonProperty("participant_code")
     private String participantCode;
     private ArrayList<Object> participants;
