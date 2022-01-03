@@ -1,0 +1,26 @@
+server:
+  port: ${SERVER_PORT:8095}
+
+jwt:
+  enabled: ${JWT_ENABLED:false}
+  issuer: ${JWT_ISSUER:}
+  audience: ${JWT_AUDIENCE:}
+  jwkUrl: ${JWT_JWK_URL:http://localhost:8080/auth/realms/sunbird-rc/protocol/openid-connect/certs}
+  claimsNamespacePath: ${JWT_NS_PATH:"$.realm_access.roles"}
+
+spring:
+  main:
+    web-application-type: reactive
+    allow-bean-definition-overriding: true
+  cloud:
+    gateway:
+      routes:
+        - id: hcx-api-route
+          uri: ${HCX_API_BASEPATH:localhost:8080}
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
+          predicates:
+            - Path=/v1/coverageeligibility/**, /v1/preauth/**, /v1/claim/**, /v1/paymentnotice/**, /health, /service/health
