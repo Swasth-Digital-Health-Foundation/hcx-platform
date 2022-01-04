@@ -11,6 +11,10 @@ import org.springframework.core.env.Environment;
 import org.springframework.test.web.servlet.MockMvc;
 import org.swasth.common.JsonUtils;
 import org.swasth.common.dto.Response;
+import org.swasth.hcx.controllers.v1.ClaimsController;
+import org.swasth.hcx.controllers.v1.CoverageEligibilityController;
+import org.swasth.hcx.controllers.v1.PaymentsController;
+import org.swasth.hcx.controllers.v1.PreAuthController;
 import org.swasth.hcx.helpers.EventGenerator;
 import org.swasth.hcx.managers.HealthCheckManager;
 import org.swasth.kafka.client.IEventService;
@@ -19,7 +23,7 @@ import org.swasth.postgresql.IDatabaseService;
 import java.util.HashMap;
 import java.util.Map;
 
-@WebMvcTest()
+@WebMvcTest({CoverageEligibilityController.class, PreAuthController.class, ClaimsController.class, PaymentsController.class})
 @ExtendWith(MockitoExtension.class)
 public class BaseSpec {
 
