@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @SpringBootTest(classes = {EventGenerator.class})
-public class KafkaEventGeneratorTests {
+public class EventGeneratorTests {
 
     @Autowired
     EventGenerator eventGenerator;

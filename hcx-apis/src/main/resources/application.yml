@@ -12,6 +12,9 @@ kafka:
 service:
   mode: ${service_mode:gateway}
 
+registry:
+  basePath: ${registry_basePath:http://localhost:8081}
+
 #postgres configuration
 postgres:
   url: ${postgres_url:jdbc:postgresql://localhost:5432/postgres}
@@ -22,8 +25,8 @@ postgres:
 #hcx headers
 protocol:
   headers:
-    mandatory: ${protocol_mandatory_headers:x-hcx-sender_code, x-hcx-recipient_code, x-hcx-request_id, x-hcx-correlation_id, x-hcx-timestamp, x-hcx-status, jws_header, jwe_header}
-    optional: ${protocol_optional_headers:x-hcx-workflow_id, x-hcx-debug_flag, x-hcx-error_details, x-hcx-debug_details}
+    mandatory: ${protocol_mandatory_headers:x-hcx-sender_code, x-hcx-recipient_code, x-hcx-request_id, x-hcx-timestamp, x-hcx-status, x-hcx-workflow_id, jws_header, jwe_header}
+    optional: ${protocol_optional_headers:x-hcx-correlation_id, x-hcx-debug_flag, x-hcx-error_details, x-hcx-debug_details, x-hcx-case_id}
 headers:
   jose: ${jose_headers:alg, enc}
 
@@ -31,3 +34,7 @@ headers:
 payload:
   mandatory:
     properties: ${payload_mandatory_properties:protected, encrypted_key, aad, iv, ciphertext, tag}
+    
+    
+elasticsearch:
+  url: ${elasticsearch_url:localhost:9200}

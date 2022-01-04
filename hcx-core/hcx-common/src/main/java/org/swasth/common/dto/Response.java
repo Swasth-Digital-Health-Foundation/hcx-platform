@@ -2,24 +2,26 @@ package org.swasth.common.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.swasth.common.exception.ErrorCodes;
-
 import java.util.HashMap;
 import java.util.Map;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Response {
 
     private long timestamp = System.currentTimeMillis();
-    @JsonProperty("correlation_id")
-    private String correlationId;
+    @JsonProperty("workflow_id")
+    private String workflowId;
+    @JsonProperty("request_id")
+    private String requestId;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private ResponseError error;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Map<String, Object> result;
 
     public Response() {}
 
-    public Response(String correlationId) {
-        this.correlationId = correlationId;
+    public Response(String workflowId, String requestId) {
+        this.workflowId = workflowId;
+        this.requestId = requestId;
     }
 
     public Response(String key, Object val) {
@@ -35,12 +37,20 @@ public class Response {
         this.timestamp = timestamp;
     }
 
-    public String getCorrelationId() {
-        return correlationId;
+    public String getWorkflowId() {
+        return workflowId;
     }
 
-    public void setCorrelationId(String correlationId) {
-        this.correlationId = correlationId;
+    public void setWorkflowId(String workflowId) {
+        this.workflowId = workflowId;
+    }
+
+    public String getRequestId() {
+        return requestId;
+    }
+
+    public void setRequestId(String requestId) {
+        this.requestId = requestId;
     }
 
     public ResponseError getError() {

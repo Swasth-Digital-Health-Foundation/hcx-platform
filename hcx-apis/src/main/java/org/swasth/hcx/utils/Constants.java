@@ -1,8 +1,12 @@
 package org.swasth.hcx.utils;
 
+import java.util.Arrays;
+import java.util.List;
+
 public  class Constants {
 
     public static final String VERSION_PREFIX = "/v1";
+    public static final int PAYLOAD_LENGTH = 6;
 
     // Coverage Eligibility APIs
     public static final String COVERAGE_ELIGIBILITY_CHECK = VERSION_PREFIX + "/coverageeligibility/check";
@@ -27,6 +31,7 @@ public  class Constants {
     public static final String HEALTHY = "healthy";
     public static final String NAME = "name";
     public static final String KAFKA = "kafka";
+    public static final String POSTGRESQL = "postgreSQL";
     public static final String CHECKS = "checks";
 
     //event generator props
@@ -42,7 +47,6 @@ public  class Constants {
     public static final String CODE = "code";
     public static final String MESSAGE = "message";
     public static final String TRACE = "trace";
-    public static final String STATUS = "status";
     public static final String SUBMITTED = "submitted";
 
     //Request props
@@ -53,9 +57,28 @@ public  class Constants {
     public static final String DOMAIN_HEADERS = "headers.domain";
     public static final String PROTECTED = "protected";
     public static final String SENDER_CODE = "x-hcx-sender_code";
+    public static final String RECIPIENT_CODE = "x-hcx-recipient_code";
+    public static final String REQUEST_ID = "x-hcx-request_id";
     public static final String CORRELATION_ID = "x-hcx-correlation_id";
+    public static final String CASE_ID = "x-hcx-case_id";
+    public static final String WORKFLOW_ID = "x-hcx-workflow_id";
+    public static final String TIMESTAMP = "x-hcx-timestamp";
+    public static final String DEBUG_FLAG = "x-hcx-debug_flag";
+    public static final List<String> DEBUG_FLAG_VALUES = Arrays.asList("Error","Info","Debug");
+    public static final String STATUS = "x-hcx-status";
+    public static final List<String> STATUS_VALUES = Arrays.asList("request.initiate", "request.retry",
+        "response.success", "response.failure", "forward.request.initiate", "forward.response.success",
+        "forward.response.fail", "response.redirect", "request.redirect", "response.partial");
+    public static final String ERROR_DETAILS = "x-hcx-error_details";
+    public static final List<String> ERROR_DETAILS_VALUES = Arrays.asList("error.code","error.message","trace");
+    public static final String DEBUG_DETAILS = "x-hcx-debug_details";
     public static final String SERVICE_MODE = "service.mode";
     public static final String GATEWAY = "gateway";
     public static final String KAFKA_TOPIC_PAYLOAD = "kafka.topic.payload";
 
+    public static final String HEADER_AUDIT = "headeraudit";
+    public static final String PAYOR = "payor";
+    public static final String PROVIDER = "provider";
+    public static final String ROLES = "roles";
+    public static final String SCHEME_CODE = "scheme_code";
 }

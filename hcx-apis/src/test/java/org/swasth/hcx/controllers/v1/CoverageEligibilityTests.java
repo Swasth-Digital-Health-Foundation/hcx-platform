@@ -37,8 +37,7 @@ public class CoverageEligibilityTests extends BaseSpec {
 
     @Test
     public void check_coverage_eligibility_success_scenario() throws Exception {
-      when(mockEnv.getProperty("protocol.headers.mandatory", List.class)).thenReturn(new ArrayList<>(Arrays.asList("x-hcx-sender_code", "x-hcx-recipient_code", "x-hcx-request_id", "x-hcx-correlation_id", "x-hcx-timestamp", "x-hcx-status")));
-
+      when(mockEnv.getProperty("protocol.headers.mandatory", List.class)).thenReturn(new ArrayList<>(Arrays.asList("x-hcx-sender_code", "x-hcx-recipient_code", "x-hcx-request_id", "x-hcx-correlation_id", "x-hcx-timestamp", "x-hcx-status", "x-hcx-workflow_id")));
       when(mockEnv.getProperty("headers.jose", List.class)).thenReturn(new ArrayList<>(Arrays.asList("alg", "enc")));
       when(mockEnv.getProperty("payload.mandatory.properties", List.class)).thenReturn(new ArrayList<>(Arrays.asList("protected", "encrypted_key", "aad", "iv", "ciphertext", "tag")));
       when(mockEnv.getProperty("service.mode")).thenReturn("gateway");
@@ -52,10 +51,6 @@ public class CoverageEligibilityTests extends BaseSpec {
 
     @Test
     public void check_coverage_eligibility_headers_missing_scenario() throws Exception {
-        when(mockEnv.getProperty("protocol.headers.mandatory", List.class)).thenReturn(new ArrayList<>(Arrays.asList("x-hcx-sender_code", "x-hcx-recipient_code", "x-hcx-request_id", "x-hcx-correlation_id", "x-hcx-timestamp", "x-hcx-status")));
-
-        when(mockEnv.getProperty("headers.jose", List.class)).thenReturn(new ArrayList<>(Arrays.asList("alg", "enc")));
-        when(mockEnv.getProperty("payload.mandatory.properties", List.class)).thenReturn(new ArrayList<>(Arrays.asList("protected", "encrypted_key", "aad", "iv", "ciphertext", "tag")));
         doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
         String requestBody = getHeadersMissingRequestBody();
         MvcResult mvcResult = mockMvc.perform(post("/v1/coverageeligibility/check").content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
@@ -67,7 +62,6 @@ public class CoverageEligibilityTests extends BaseSpec {
 
     @Test
     public void check_coverage_eligibility_client_exception_scenario() throws Exception {
-        when(mockEnv.getProperty("payload.mandatory.properties", List.class)).thenReturn(new ArrayList<>(Arrays.asList("protected", "encrypted_key", "aad", "iv", "ciphertext", "tag")));
         String requestBody = getBadRequestBody();
         MvcResult mvcResult = mockMvc.perform(post("/v1/coverageeligibility/check").content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -86,8 +80,7 @@ public class CoverageEligibilityTests extends BaseSpec {
 
     @Test
     public void on_check_coverage_eligibility_success_scenario() throws Exception {
-        when(mockEnv.getProperty("protocol.headers.mandatory", List.class)).thenReturn(new ArrayList<>(Arrays.asList("x-hcx-sender_code", "x-hcx-recipient_code", "x-hcx-request_id", "x-hcx-correlation_id", "x-hcx-timestamp", "x-hcx-status")));
-
+        when(mockEnv.getProperty("protocol.headers.mandatory", List.class)).thenReturn(new ArrayList<>(Arrays.asList("x-hcx-sender_code", "x-hcx-recipient_code", "x-hcx-request_id", "x-hcx-correlation_id", "x-hcx-timestamp", "x-hcx-status", "x-hcx-workflow_id")));
         when(mockEnv.getProperty("headers.jose", List.class)).thenReturn(new ArrayList<>(Arrays.asList("alg", "enc")));
         when(mockEnv.getProperty("payload.mandatory.properties", List.class)).thenReturn(new ArrayList<>(Arrays.asList("protected", "encrypted_key", "aad", "iv", "ciphertext", "tag")));
         when(mockEnv.getProperty("service.mode")).thenReturn("gateway");
@@ -100,7 +93,6 @@ public class CoverageEligibilityTests extends BaseSpec {
     }
     @Test
     public void on_check_coverage_eligibility_client_exception_scenario() throws Exception {
-        when(mockEnv.getProperty("payload.mandatory.properties", List.class)).thenReturn(new ArrayList<>(Arrays.asList("protected", "encrypted_key", "aad", "iv", "ciphertext", "tag")));
         String requestBody = getBadRequestBody();
         MvcResult mvcResult = mockMvc.perform(post("/v1/coverageeligibility/on_check").content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
