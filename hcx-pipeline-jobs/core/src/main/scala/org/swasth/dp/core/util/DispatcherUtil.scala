@@ -86,7 +86,7 @@ object DispatcherUtil {
 
   def post(url: String, code: String): String= {
     // payload for registry search
-    val payload = s"""{"entityType":["Organisation"],"filters":{"osid":{"eq":"$code"}}}"""
+    val payload = s"""{"entityType":["Organisation"],"filters":{"participant_code":{"eq":"$code"}}}"""
     Console.println("registry payload", payload)
     Console.println("Registry URL", url)
     val httpPost = new HttpPost(url);
