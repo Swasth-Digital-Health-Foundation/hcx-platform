@@ -1,4 +1,5 @@
 package org.swasth.hcx.controllers.v1;
+import java.util.HashMap;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,13 +31,15 @@ public class AuditController {
 		service.index(headeraudit);
 	}
 	
-	@GetMapping("/{id}")
-	public HeaderAudit findById(@PathVariable final String id) {
-		return service.getById(id);
+	@PostMapping("/search/{id}")
+	public List<HeaderAudit> findById(@PathVariable final String id, @RequestBody final SearchRequestDTO dto) {
+		final HashMap<String, String> dto_with_sendor_code =dto.getFilters();
+		dto_with_sendor_code.put("sender_code", id);
+		dto.setFilters(dto_with_sendor_code);
+        return service.search(dto);
 		
 	}
 	
-
     @PostMapping("/search")
     public List<HeaderAudit> search(@RequestBody final SearchRequestDTO dto) {
         return service.search(dto);

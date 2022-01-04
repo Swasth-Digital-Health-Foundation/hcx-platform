@@ -44,47 +44,7 @@ public final class SearchUtil {
         }
     }
 
-    public static SearchRequest buildSearchRequest(final String indexName,
-                                                   final String field,
-                                                   final Date date) {
-        try {
-            final SearchSourceBuilder builder = new SearchSourceBuilder()
-                    .postFilter(getQueryBuilder(field, date));
 
-            final SearchRequest request = new SearchRequest(indexName);
-            request.source(builder);
-
-            return request;
-        } catch (final Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    public static SearchRequest buildSearchRequest(final String indexName,
-                                                   final SearchRequestDTO dto,
-                                                   final Date date) {
-        try {
-            final QueryBuilder searchQuery = getQueryBuilder(dto);
-            final QueryBuilder dateQuery = getQueryBuilder("created", date);
-
-            final BoolQueryBuilder boolQuery = QueryBuilders.boolQuery()
-                    .mustNot(searchQuery)
-                    .must(dateQuery);
-
-            SearchSourceBuilder builder = new SearchSourceBuilder()
-                    .postFilter(boolQuery);
-
-
-            final SearchRequest request = new SearchRequest(indexName);
-            request.source(builder);
-
-            return request;
-        } catch (final Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
 
     private static QueryBuilder getQueryBuilder(final SearchRequestDTO dto) throws ParseException {
         if (dto == null) {
@@ -112,9 +72,5 @@ public final class SearchUtil {
             return queryBuilder;
         }
         return null;
-    }
-
-    private static QueryBuilder getQueryBuilder(final String field, final Date date) {
-        return QueryBuilders.rangeQuery(field).gte(date);
     }
 }
