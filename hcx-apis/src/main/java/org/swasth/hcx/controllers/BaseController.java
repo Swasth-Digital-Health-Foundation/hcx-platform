@@ -78,6 +78,13 @@ public class BaseController {
                 throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_CORREL_ID, "Correlation id cannot be null, empty and other than 'String'");
             }
         }
+        if (protectedHeaders.containsKey(Constants.CASE_ID)) {
+          if (!(protectedHeaders.get(Constants.CASE_ID) instanceof String)
+              || ((String) protectedHeaders.get(Constants.CASE_ID)).isEmpty()) {
+            throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_CASE_ID,
+                "Case id cannot be null, empty and other than 'String'");
+          }
+        }
         if (protectedHeaders.containsKey(Constants.DEBUG_FLAG)) {
             if (!(protectedHeaders.get(Constants.DEBUG_FLAG) instanceof String) || StringUtils.isEmpty((String) protectedHeaders.get(Constants.DEBUG_FLAG))) {
                 throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_DEBUG_ID, "Debug flag cannot be null, empty and other than 'String'");
