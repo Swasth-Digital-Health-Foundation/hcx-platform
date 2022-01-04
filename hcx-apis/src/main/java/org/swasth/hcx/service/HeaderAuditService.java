@@ -54,31 +54,6 @@ public class HeaderAuditService {
         return searchInternal(request);
     }
 
-    /**
-     * Used to get all vehicles that have been created since forwarded date.
-     *
-     * @param date Date that is forwarded to the search.
-     * @return Returns all vehicles created since forwarded date.
-     */
-    public List<HeaderAudit> getAllVehiclesCreatedSince(final Date date) {
-        final SearchRequest request = SearchUtil.buildSearchRequest(
-        		Constants.HEADER_AUDIT,
-                "created",
-                date
-        );
-
-        return searchInternal(request);
-    }
-
-    public List<HeaderAudit> searchCreatedSince(final SearchRequestDTO dto, final Date date) {
-        final SearchRequest request = SearchUtil.buildSearchRequest(
-                Constants.HEADER_AUDIT,
-                dto,
-                date
-        );
-
-        return searchInternal(request);
-    }
 
     private List<HeaderAudit> searchInternal(final SearchRequest request) {
         if (request == null) {
@@ -118,23 +93,6 @@ public class HeaderAuditService {
         } catch (final Exception e) {
             LOG.error(e.getMessage(), e);
             return false;
-        }
-    }
-
-    public HeaderAudit getById(final String id) {
-        try {
-            final GetResponse documentFields = client.get(
-                    new GetRequest(Constants.HEADER_AUDIT, id),
-                    RequestOptions.DEFAULT
-            );
-            if (documentFields == null || documentFields.isSourceEmpty()) {
-                return null;
-            }
-
-            return MAPPER.readValue(documentFields.getSourceAsString(), HeaderAudit.class);
-        } catch (final Exception e) {
-            LOG.error(e.getMessage(), e);
-            return null;
         }
     }
 }
