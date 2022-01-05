@@ -156,7 +156,7 @@ public class RegistryValidationFilter extends AbstractGatewayFilterFactory<Regis
 
     private Map<String,Object> getDetails(String code) throws Exception {
         String url = registryUrl + "/api/v1/Organisation/search";
-        String requestBody = "{\"filters\":{\"participant_code\":{\"eq\":\"" + code + "\"}}}";
+        String requestBody = "{\"filters\":{\"osid\":{\"eq\":\"" + code + "\"}}}";
         HttpResponse response = HttpUtils.post(url, requestBody);
         Map<String,Object> details = new HashMap<>();
         if (response != null && response.getStatus() == 200) {
