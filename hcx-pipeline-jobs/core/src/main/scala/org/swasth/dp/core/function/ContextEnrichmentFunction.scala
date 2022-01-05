@@ -1,5 +1,7 @@
 package org.swasth.dp.core.function
 
+import org.apache.commons.collections.MapUtils
+import org.apache.commons.lang3.StringUtils
 import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.configuration.Configuration
 import org.apache.flink.streaming.api.functions.ProcessFunction
@@ -40,52 +42,62 @@ class ContextEnrichmentFunction(config: BaseJobConfig) (implicit val stringTypeI
     replacedAction
   }
 
-  def createSenderContext(senderMap: util.Map[String, AnyRef],actionStr: String): Unit = {
+  def createSenderContext(sender: util.Map[String, AnyRef],actionStr: String): util.Map[String, AnyRef] = {
     //Sender Details
-    var senderEndPointUrl = senderMap.get("endpointUrl").asInstanceOf[String]
-    //If endPointUrl comes with /, remove it as action starts with /
-    if (senderEndPointUrl.endsWith("/"))
-      senderEndPointUrl = senderEndPointUrl.substring(0, senderEndPointUrl.length - 1)
+    var endpointUrl = sender.getOrDefault("endpointUrl", "").asInstanceOf[String]
+    if (!StringUtils.isEmpty(endpointUrl)) {
+      //If endPointUrl comes with /, remove it as action starts with /
+      if (endpointUrl.endsWith("/"))
+        endpointUrl = endpointUrl.substring(0, endpointUrl.length - 1)
 
-    // fetch on_ action for the sender
-    val replacedAction: String = getReplacedAction(actionStr)
-    val appendedSenderUrl = senderEndPointUrl.concat(replacedAction)
-    senderMap.put("endpoint_url", appendedSenderUrl)
+      // fetch on_ action for the sender
+      val replacedAction: String = getReplacedAction(actionStr)
+      val appendedSenderUrl = endpointUrl.concat(replacedAction)
+      sender.put("endpoint_url", appendedSenderUrl)
+      sender
+    } else new util.HashMap[String, AnyRef]()
+
   }
 
-  def createRecipientContext(receiverMap: util.Map[String, AnyRef],actionStr: String): Unit = {
+  def createRecipientContext(receiver: util.Map[String, AnyRef],actionStr: String): util.Map[String, AnyRef] = {
     //Receiver Details
-    var receiverEndPointUrl = receiverMap.get("endpointUrl").asInstanceOf[String]
-    //If endPointUrl comes with /, remove it as action starts with /
-    if (receiverEndPointUrl.endsWith("/"))
-      receiverEndPointUrl = receiverEndPointUrl.substring(0, receiverEndPointUrl.length - 1)
-    val appendedReceiverUrl = receiverEndPointUrl.concat(actionStr)
-    receiverMap.put("endpoint_url", appendedReceiverUrl)
+    var endpointUrl = receiver.get("endpointUrl").asInstanceOf[String]
+    if (StringUtils.isEmpty(endpointUrl)) {
+      //If endPointUrl comes with /, remove it as action starts with /
+      if (endpointUrl.endsWith("/"))
+        endpointUrl = endpointUrl.substring(0, endpointUrl.length - 1)
+      val appendedReceiverUrl = endpointUrl.concat(actionStr)
+      receiver.put("endpoint_url", appendedReceiverUrl)
+      receiver
+    } else new util.HashMap[String, AnyRef]()
+
   }
 
   override def processElement(event: util.Map[String, AnyRef], context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
-    val enrichedEvent = event
     val senderCode: String = getCode(event, "x-hcx-sender_code")
     val recipientCode: String = getCode(event, "x-hcx-recipient_code")
-    val actionStr: String = event.get("action").asInstanceOf[String]
-    Console.println(s"Sender: $senderCode : Recipient: $recipientCode : Action: $actionStr")
+    val action: String = event.get("action").asInstanceOf[String]
+    Console.println(s"Sender: $senderCode : Recipient: $recipientCode : Action: $action")
+
+    val result: util.Map[String, AnyRef] = new util.HashMap[String, AnyRef]()
 
     // Fetch the sender and receiver details from registry or cache
-    val recipientMap = fetchDetails(recipientCode)
-    val senderMap = fetchDetails(senderCode)
+    val sender = fetchDetails(senderCode)
+    if (!sender.isEmpty) {
+      val enrichedSender = createSenderContext(sender, action)
+      if (MapUtils.isNotEmpty(enrichedSender))
+        result.put("sender", enrichedSender)
+    }
 
-    val resultMap: util.Map[String, AnyRef] = new util.HashMap[String, AnyRef]()
-    //Check whether receiver and sender data were not empty
-    if (!senderMap.isEmpty)
-      createSenderContext(senderMap, actionStr)
-    resultMap.put("sender", senderMap)
+    val recipient = fetchDetails(recipientCode)
+    if (!recipient.isEmpty) {
+      val enrichedRecipient = createRecipientContext(recipient, action)
+      if (MapUtils.isNotEmpty(enrichedRecipient))
+        result.put("recipient", enrichedRecipient)
+    }
 
-    if (!recipientMap.isEmpty)
-      createRecipientContext(recipientMap, actionStr)
-    resultMap.put("recipient", recipientMap)
-
-    enrichedEvent.put("cdata", resultMap)
-    context.output(config.enrichedOutputTag, enrichedEvent)
+    if (MapUtils.isNotEmpty(result)) event.put("cdata", result)
+    context.output(config.enrichedOutputTag, event)
   }
 
   override def metricsList(): List[String] = {
