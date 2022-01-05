@@ -62,7 +62,7 @@ class ContextEnrichmentFunction(config: BaseJobConfig) (implicit val stringTypeI
   def createRecipientContext(receiver: util.Map[String, AnyRef],actionStr: String): util.Map[String, AnyRef] = {
     //Receiver Details
     var endpointUrl = receiver.get("endpoint_url").asInstanceOf[String]
-    if (StringUtils.isEmpty(endpointUrl)) {
+    if (!StringUtils.isEmpty(endpointUrl)) {
       //If endPointUrl comes with /, remove it as action starts with /
       if (endpointUrl.endsWith("/"))
         endpointUrl = endpointUrl.substring(0, endpointUrl.length - 1)
