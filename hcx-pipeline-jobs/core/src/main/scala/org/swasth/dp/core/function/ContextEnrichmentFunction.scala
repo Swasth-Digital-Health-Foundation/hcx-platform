@@ -44,7 +44,7 @@ class ContextEnrichmentFunction(config: BaseJobConfig) (implicit val stringTypeI
 
   def createSenderContext(sender: util.Map[String, AnyRef],actionStr: String): util.Map[String, AnyRef] = {
     //Sender Details
-    var endpointUrl = sender.getOrDefault("endpointUrl", "").asInstanceOf[String]
+    var endpointUrl = sender.getOrDefault("endpoint_url", "").asInstanceOf[String]
     if (!StringUtils.isEmpty(endpointUrl)) {
       //If endPointUrl comes with /, remove it as action starts with /
       if (endpointUrl.endsWith("/"))
@@ -61,7 +61,7 @@ class ContextEnrichmentFunction(config: BaseJobConfig) (implicit val stringTypeI
 
   def createRecipientContext(receiver: util.Map[String, AnyRef],actionStr: String): util.Map[String, AnyRef] = {
     //Receiver Details
-    var endpointUrl = receiver.get("endpointUrl").asInstanceOf[String]
+    var endpointUrl = receiver.get("endpoint_url").asInstanceOf[String]
     if (StringUtils.isEmpty(endpointUrl)) {
       //If endPointUrl comes with /, remove it as action starts with /
       if (endpointUrl.endsWith("/"))
