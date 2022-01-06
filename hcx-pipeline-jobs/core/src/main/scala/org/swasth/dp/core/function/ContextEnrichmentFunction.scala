@@ -129,8 +129,6 @@ class ContextEnrichmentFunction(config: BaseJobConfig) (implicit val stringTypeI
 
   def getDetails(code: String): util.Map[String, AnyRef] = {
     val responseBody: String = DispatcherUtil.post(config.registryUrl, code)
-    Console.println("registryResponse", responseBody)
-    logger.info("Response from registry:", code)
     val responseArr = JSONUtil.deserialize[util.ArrayList[util.HashMap[String, AnyRef]]](responseBody)
     if (!responseArr.isEmpty) {
       val collectionMap = responseArr.get(0)

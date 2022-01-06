@@ -37,8 +37,6 @@ class ClaimsProcessFunction(config: ClaimsConfig, @transient var postgresConnect
 
   override def validate(event: util.Map[String, AnyRef]): ValidationResult = {
     // TODO: Add domain specific validations
-    Console.println("Triggered validation for event: " + event)
-    logger.info("Triggered validation for event: " + event)
     ValidationResult(true, None)
   }
 
@@ -52,8 +50,6 @@ class ClaimsProcessFunction(config: ClaimsConfig, @transient var postgresConnect
       val resultSet = preparedStatement.executeQuery()
       if(resultSet.next()) {
         val payload = resultSet.getString(1)
-        Console.println(s"Data from postgres: $payload")
-        logger.info(s"Data from postgres: $payload")
         JSONUtil.deserialize[util.Map[String, AnyRef]](payload)
       } else {
         throw new Exception("Payload not found for the given reference id: " + payloadRefId)
