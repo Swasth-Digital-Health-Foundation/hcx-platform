@@ -55,6 +55,7 @@ object DispatcherUtil {
     httpPost.setEntity(new StringEntity(payload))
     httpPost.setHeader("Accept", "application/json")
     httpPost.setHeader("Content-type", "application/json")
+    httpPost.setHeader("Authorization", "Bearer "+ KeycloakUtil.getToken())
     var response: CloseableHttpResponse = null
     try {
       response = httpClient.execute(httpPost);

@@ -135,6 +135,11 @@
             <version>3.1.1.0</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-admin-client</artifactId>
+            <version>14.0.0</version>
+        </dependency>
     </dependencies>
 
     <build>
