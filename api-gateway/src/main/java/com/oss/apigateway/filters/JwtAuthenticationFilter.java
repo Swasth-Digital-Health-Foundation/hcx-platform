@@ -1,9 +1,16 @@
 package com.oss.apigateway.filters;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.oss.apigateway.constants.FilterOrder;
+import com.oss.apigateway.exception.ClientException;
+import com.oss.apigateway.exception.ErrorCodes;
+import com.oss.apigateway.exception.ServerException;
 import com.oss.apigateway.models.Acl;
+import com.oss.apigateway.models.Response;
+import com.oss.apigateway.models.ResponseError;
 import com.oss.apigateway.security.JwtConfigs;
 import com.oss.apigateway.service.AuthorizationService;
+import com.oss.apigateway.utils.JSONUtils;
 import com.oss.apigateway.utils.Utils;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.exceptions.JWTVerificationException;
@@ -17,6 +24,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
+import org.springframework.core.io.buffer.DataBufferFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
@@ -97,16 +105,15 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
 //                JSONArray tempClaims = JsonPath.read(temp, "$.instances");
 
                     if (!authorizationService.isAuthorized(exchange, claims)) {
-                        throw new JWTVerificationException("Access denied");
+                        throw new ClientException(ErrorCodes.CLIENT_ERR_ACCESS_DENIED, "Access denied");
                     }
                 }
 
                 return chain.filter(exchange.mutate().request(request).build());
 
-            } catch (JWTVerificationException ex) {
-
-                logger.error(ex.toString());
-                return this.onError(exchange, ex.getMessage());
+            } catch (ClientException e) {
+                logger.error(e.toString());
+                return this.onError(exchange, HttpStatus.UNAUTHORIZED, e.getErrCode(), e);
             }
         } else {
             return chain.filter(exchange);
@@ -118,42 +125,43 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         return FilterOrder.AUTH_FILTER.getOrder();
     }
 
-
-    private Mono<Void> onError(ServerWebExchange exchange, String err) {
+    private Mono<Void> onError(ServerWebExchange exchange, HttpStatus status, ErrorCodes code, Exception e) {
         ServerHttpResponse response = exchange.getResponse();
-        response.setStatusCode(HttpStatus.UNAUTHORIZED);
-        response.getHeaders().add(WWW_AUTH_HEADER, this.formatErrorMsg(err));
-
+        DataBufferFactory dataBufferFactory = response.bufferFactory();
+        Response resp = new Response(new ResponseError(code, e.getMessage(), e.getCause()));
+        try {
+            byte[] obj = JSONUtils.convertToByte(resp);
+            response.setStatusCode(status);
+            response.getHeaders().add("Content-Type", "application/json");
+            return response.writeWith(Mono.just(obj).map(r -> dataBufferFactory.wrap(r)));
+        } catch (JsonProcessingException ex) {
+            logger.error(ex.toString());
+        }
         return response.setComplete();
     }
 
-    private String extractJWTToken(ServerHttpRequest request) {
+    private String extractJWTToken(ServerHttpRequest request) throws ClientException {
         if (!request.getHeaders().containsKey("Authorization")) {
-            throw new JWTVerificationException("Authorization header is missing");
+            throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_AUTH_TOKEN, "Authorization header is missing");
         }
 
         List<String> headers = request.getHeaders().get("Authorization");
         if (headers == null || headers.isEmpty()) {
-            throw new JWTVerificationException("Authorization header is empty");
+            throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_AUTH_TOKEN, "Authorization header is empty");
         }
 
         String credential = headers.get(0).trim();
         String[] components = credential.split("\\s");
 
         if (components.length != 2) {
-            throw new JWTVerificationException("Malformat Authorization content");
+            throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_AUTH_TOKEN, "Malformat Authorization content");
         }
 
         if (!components[0].equals("Bearer")) {
-            throw new JWTVerificationException("Bearer is needed");
+            throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_AUTH_TOKEN, "Bearer is needed");
         }
 
         return components[1].trim();
     }
 
-    private String formatErrorMsg(String msg) {
-        return String.format("Bearer realm=\"acm.com\", " +
-                "error=\"https://tools.ietf.org/html/rfc7519\", " +
-                "error_description=\"%s\" ", msg);
-    }
 }
