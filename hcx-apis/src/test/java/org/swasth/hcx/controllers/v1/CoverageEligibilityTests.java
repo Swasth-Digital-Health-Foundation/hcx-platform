@@ -9,6 +9,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.swasth.hcx.controllers.BaseSpec;
+import org.swasth.hcx.utils.Constants;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,6 +52,7 @@ public class CoverageEligibilityTests extends BaseSpec {
 
     @Test
     public void check_coverage_eligibility_headers_missing_scenario() throws Exception {
+        when(mockEnv.getProperty(Constants.PAYLOAD_MANDATORY_PROPERTIES, List.class)).thenReturn(new ArrayList<>(Arrays.asList("x-hcx-sender_code", "x-hcx-recipient_code", "x-hcx-request_id", "x-hcx-correlation_id", "x-hcx-timestamp", "x-hcx-status", "x-hcx-workflow_id")));
         doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
         String requestBody = getHeadersMissingRequestBody();
         MvcResult mvcResult = mockMvc.perform(post("/v1/coverageeligibility/check").content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();

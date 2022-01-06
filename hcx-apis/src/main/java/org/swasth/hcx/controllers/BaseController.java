@@ -1,18 +1,18 @@
 package org.swasth.hcx.controllers;
 
-import com.fasterxml.jackson.core.JsonParseException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.swasth.common.JsonUtils;
 import org.swasth.common.dto.Response;
 import org.swasth.common.dto.ResponseError;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
 import org.swasth.common.exception.ServerException;
 import org.swasth.common.exception.ServiceUnavailbleException;
+import org.swasth.common.utils.JSONUtils;
+import org.swasth.common.utils.Utils;
 import org.swasth.hcx.helpers.EventGenerator;
 import org.swasth.hcx.managers.HealthCheckManager;
 import org.swasth.hcx.utils.Constants;
@@ -21,7 +21,6 @@ import org.swasth.postgresql.IDatabaseService;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.HashMap;
 
 public class BaseController {
 
@@ -45,7 +44,7 @@ public class BaseController {
             throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_PAYLOAD, "Payload mandatory properties are missing: " + missingPayloadProps);
         }
         //validating protected headers
-        Map<String, Object> protectedHeaders = JsonUtils.decodeBase64String((String) requestBody.get("protected"), HashMap.class);
+        Map<String, Object> protectedHeaders = JSONUtils.decodeBase64String((String) requestBody.get("protected"), HashMap.class);
         List<String> mandatoryHeaders = new ArrayList<>();
         mandatoryHeaders.addAll(env.getProperty(Constants.PROTOCOL_HEADERS_MANDATORY, List.class));
         mandatoryHeaders.addAll(env.getProperty(Constants.JOSE_HEADERS, List.class));
@@ -57,25 +56,12 @@ public class BaseController {
     }
 
     private void validateProtocolHeadersFormat(Map<String, Object> protectedHeaders) throws ClientException {
-        if (!(protectedHeaders.get(Constants.SENDER_CODE) instanceof String) || StringUtils.isEmpty((String) protectedHeaders.get(Constants.SENDER_CODE))) {
-            throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_SENDER, "Sender code cannot be null, empty and other than 'String'");
-        }
-        if (!(protectedHeaders.get(Constants.RECIPIENT_CODE) instanceof String) || StringUtils.isEmpty((String) protectedHeaders.get(Constants.RECIPIENT_CODE))) {
-            throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_RECIPIENT, "Recipient code cannot be null, empty and other than 'String'");
-        }
-        if (!(protectedHeaders.get(Constants.REQUEST_ID) instanceof String) || StringUtils.isEmpty((String) protectedHeaders.get(Constants.REQUEST_ID))) {
-            throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_REQ_ID, "Request id cannot be null, empty and other than 'String'");
-        }
-        if (!(protectedHeaders.get(Constants.WORKFLOW_ID) instanceof String) || StringUtils.isEmpty((String) protectedHeaders.get(Constants.WORKFLOW_ID))) {
-
-            throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_WORKFLOW_ID, "Workflow id cannot be null, empty and other than 'String'");
-        }
         if (!(protectedHeaders.get(Constants.TIMESTAMP) instanceof String) || StringUtils.isEmpty((String) protectedHeaders.get(Constants.TIMESTAMP))) {
             throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_TIMESTAMP, "Invalid timestamp");
         }
         if (protectedHeaders.containsKey(Constants.CORRELATION_ID)) {
-            if (!(protectedHeaders.get(Constants.CORRELATION_ID) instanceof String) || ((String) protectedHeaders.get(Constants.CORRELATION_ID)).isEmpty()) {
-                throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_CORREL_ID, "Correlation id cannot be null, empty and other than 'String'");
+            if (!(protectedHeaders.get(Constants.CORRELATION_ID) instanceof String) || ((String) protectedHeaders.get(Constants.CORRELATION_ID)).isEmpty() || !Utils.isUUID((String) protectedHeaders.get(Constants.CORRELATION_ID))) {
+                throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_CORREL_ID, "Correlation id should be a valid UUID");
             }
         }
         if (protectedHeaders.containsKey(Constants.CASE_ID)) {
@@ -123,40 +109,29 @@ public class BaseController {
         String mid = UUID.randomUUID().toString();
         String serviceMode = env.getProperty(Constants.SERVICE_MODE);
         String payloadTopic = env.getProperty(Constants.KAFKA_TOPIC_PAYLOAD);
-        String key = JsonUtils.decodeBase64String((String) requestBody.get(Constants.PROTECTED), HashMap.class).get(Constants.SENDER_CODE).toString();
+        String key = JSONUtils.decodeBase64String((String) requestBody.get(Constants.PROTECTED), HashMap.class).get(Constants.SENDER_CODE).toString();
         String payloadEvent = eventGenerator.generatePayloadEvent(mid, requestBody);
         String metadataEvent = eventGenerator.generateMetadataEvent(mid, apiAction, requestBody);
         System.out.println("Mode: " + serviceMode + " :: mid: " + mid + " :: Event: " + metadataEvent);
         if(StringUtils.equalsIgnoreCase(serviceMode, Constants.GATEWAY)) {
             kafkaClient.send(payloadTopic, key, payloadEvent);
             kafkaClient.send(metadataTopic, key, metadataEvent);
-            postgreSQLClient.insert(mid, JsonUtils.serialize(requestBody));
+            postgreSQLClient.insert(mid, JSONUtils.serialize(requestBody));
         }
     }
 
     private void setResponseParams(Response response, Map<String, Object> requestBody) throws Exception {
-        try {
-            Map protectedMap = JsonUtils.decodeBase64String((String) requestBody.get(Constants.PROTECTED), HashMap.class);
-            if (!protectedMap.containsKey(Constants.WORKFLOW_ID) || !(protectedMap.get(Constants.WORKFLOW_ID) instanceof String) || ((String) protectedMap.get(Constants.WORKFLOW_ID)).isEmpty()) {
-                throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_WORKFLOW_ID, "Workflow id cannot be null, empty and other than 'String'");
-            }
-            response.setWorkflowId(protectedMap.get(Constants.WORKFLOW_ID).toString());
-            if (!protectedMap.containsKey(Constants.REQUEST_ID) || !(protectedMap.get(Constants.REQUEST_ID) instanceof String) || ((String) protectedMap.get(Constants.REQUEST_ID)).isEmpty()) {
-                throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_REQ_ID, "Request id cannot be null, empty and other than 'String'");
-            }
-            response.setRequestId(protectedMap.get(Constants.REQUEST_ID).toString());
-        } catch (JsonParseException e) {
-            throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_REQ_PROTECTED, "Error while parsing protected headers");
-        }
+        Map protectedMap = JSONUtils.decodeBase64String((String) requestBody.get(Constants.PROTECTED), HashMap.class);
+        response.setWorkflowId(protectedMap.get(Constants.WORKFLOW_ID).toString());
+        response.setRequestId(protectedMap.get(Constants.REQUEST_ID).toString());
     }
-
 
     public ResponseEntity<Object> validateReqAndPushToKafka(Map<String, Object> reqBody, String apiAction, String kafkaTopic) throws ClientException {
         Response response = new Response();
         try {
             Map<String, Object> requestBody = formatRequestBody(reqBody);
             if (!HealthCheckManager.allSystemHealthResult)
-                throw new ServiceUnavailbleException("Service is unavailable");
+                throw new ServiceUnavailbleException(ErrorCodes.SERVICE_UNAVAILABLE, "Service is unavailable");
             setResponseParams(response, requestBody);
             validateRequestBody(requestBody);
             processAndSendEvent(apiAction, kafkaTopic , requestBody);
@@ -164,7 +139,7 @@ public class BaseController {
         } catch (ClientException e) {
             return new ResponseEntity<>(errorResponse(response, e.getErrCode(), e), HttpStatus.BAD_REQUEST);
         } catch (ServiceUnavailbleException e) {
-            return new ResponseEntity<>(errorResponse(response, ErrorCodes.SERVICE_UNAVAILABLE , e), HttpStatus.SERVICE_UNAVAILABLE);
+            return new ResponseEntity<>(errorResponse(response, e.getErrCode(), e), HttpStatus.SERVICE_UNAVAILABLE);
         } catch (ServerException e) {
             return new ResponseEntity<>(errorResponse(response, e.getErrCode(), e), HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (Exception e) {
@@ -172,7 +147,7 @@ public class BaseController {
         }
     }
 
-    public Map<String, Object> formatRequestBody(Map<String, Object> requestBody) throws ClientException {
+    private Map<String, Object> formatRequestBody(Map<String, Object> requestBody) throws ClientException {
         Map<String, Object> event = new HashMap<>();
         String str = (String) requestBody.get("payload");
 

@@ -1,10 +1,9 @@
-package org.swasth.common;
+package org.swasth.common.utils;
+
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
 
-import java.net.http.HttpHeaders;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 public class HttpUtils {
