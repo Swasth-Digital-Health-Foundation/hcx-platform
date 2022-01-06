@@ -13,6 +13,10 @@ public class Response {
     private String requestId;
     private ResponseError error;
 
+    public Response(ResponseError error) {
+        this.error = error;
+    }
+
     public Response(String workflowId, String requestId, ResponseError error) {
         this.workflowId = workflowId;
         this.requestId = requestId;

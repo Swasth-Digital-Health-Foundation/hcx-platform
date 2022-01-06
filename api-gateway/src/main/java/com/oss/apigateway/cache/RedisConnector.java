@@ -1,5 +1,6 @@
 package com.oss.apigateway.cache;
 
+import com.oss.apigateway.exception.ErrorCodes;
 import com.oss.apigateway.exception.ServerException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -17,7 +18,7 @@ public class RedisConnector {
         try{
             return new Jedis(redisHost,redisPort);
         } catch (Exception e) {
-            throw new ServerException("Error connecting to redis server " + e);
+            throw new ServerException(ErrorCodes.INTERNAL_SERVER_ERROR, "Error connecting to redis server " + e);
         }
     }
 

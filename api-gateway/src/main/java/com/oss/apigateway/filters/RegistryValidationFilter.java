@@ -14,10 +14,13 @@ import com.oss.apigateway.models.Response;
 import com.oss.apigateway.models.ResponseError;
 import com.oss.apigateway.utils.HttpUtils;
 import com.oss.apigateway.utils.JSONUtils;
+import com.oss.apigateway.utils.Utils;
 import kong.unirest.HttpResponse;
+import kong.unirest.UnirestException;
 import kong.unirest.json.JSONString;
 import net.minidev.json.JSONArray;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.conn.HttpHostConnectException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,21 +77,21 @@ public class RegistryValidationFilter extends AbstractGatewayFilterFactory<Regis
                 } catch (JsonParseException e) {
                     throw new ClientException(ErrorCodes.CLIENT_ERR_WRONG_ENCODED_PROTECTED, "Error while parsing protected headers");
                 }
-                if (!protectedMap.containsKey(Constants.WORKFLOW_ID) || !(protectedMap.get(Constants.WORKFLOW_ID) instanceof String) || ((String) protectedMap.get(Constants.WORKFLOW_ID)).isEmpty()) {
-                    throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_WORKFLOW_ID, "Workflow id cannot be null, empty and other than 'String'");
+                if (!protectedMap.containsKey(Constants.WORKFLOW_ID) || !(protectedMap.get(Constants.WORKFLOW_ID) instanceof String) || ((String) protectedMap.get(Constants.WORKFLOW_ID)).isEmpty() || !Utils.isUUID((String) protectedMap.get(Constants.WORKFLOW_ID))) {
+                    throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_WORKFLOW_ID, "Workflow id should be a valid UUID");
                 }
-                if (!protectedMap.containsKey(Constants.REQUEST_ID) || !(protectedMap.get(Constants.REQUEST_ID) instanceof String) || ((String) protectedMap.get(Constants.REQUEST_ID)).isEmpty()) {
-                    throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_REQ_ID, "Request id cannot be null, empty and other than 'String'");
+                if (!protectedMap.containsKey(Constants.REQUEST_ID) || !(protectedMap.get(Constants.REQUEST_ID) instanceof String) || ((String) protectedMap.get(Constants.REQUEST_ID)).isEmpty() || !Utils.isUUID((String) protectedMap.get(Constants.REQUEST_ID))) {
+                    throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_REQ_ID, "Request id should be a valid UUID");
                 }
                 workflowId = (String) protectedMap.get(Constants.WORKFLOW_ID);
                 requestId = (String) protectedMap.get(Constants.REQUEST_ID);
                 Object senderCode = protectedMap.get(Constants.SENDER_CODE);
                 Object recipientCode = protectedMap.get(Constants.RECIPIENT_CODE);
                 if (!(senderCode instanceof String) || ((String) senderCode).isEmpty()) {
-                    throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_SENDER, "Sender code cannot be null, empty and other than 'String'");
+                    throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_SENDER, "Invalid sender code");
                 }
                 if (!(recipientCode instanceof String) || ((String) recipientCode).isEmpty()) {
-                    throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_RECIPIENT, "Recipient code cannot be null, empty and other than 'String'");
+                    throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_RECIPIENT, "Invalid recipient code");
                 }
                 if (senderCode.equals(recipientCode)) {
                     throw new ClientException("sender and recipient code cannot be the same");
@@ -98,12 +101,12 @@ public class RegistryValidationFilter extends AbstractGatewayFilterFactory<Regis
                 if (senderDetails.isEmpty()) {
                     throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_SENDER, "Sender is not exist in registry");
                 }
-                if (recipientDetails.isEmpty()) {
-                    throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_RECIPIENT, "Recipient is not exist in registry");
-                }
-                validateCallerId(exchange, senderDetails);
                 if(StringUtils.equals((String) senderDetails.get(Constants.STATUS),Constants.BLOCKED)){
                     throw new ClientException(ErrorCodes.CLIENT_ERR_SENDER_BLOCKED, "Sender is blocked as per the registry");
+                }
+                validateCallerId(exchange, senderDetails);
+                if (recipientDetails.isEmpty()) {
+                    throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_RECIPIENT, "Recipient is not exist in registry");
                 }
                 if(StringUtils.equals((String) recipientDetails.get(Constants.STATUS),Constants.BLOCKED)){
                     throw new ClientException(ErrorCodes.CLIENT_ERR_RECIPIENT_BLOCKED, "Recipient is blocked as per the registry");
@@ -111,6 +114,9 @@ public class RegistryValidationFilter extends AbstractGatewayFilterFactory<Regis
             } catch (ClientException e) {
                 logger.error(e.toString());
                 return this.onError(exchange, HttpStatus.BAD_REQUEST, workflowId, requestId, e.getErrCode(), e);
+            } catch (ServerException e) {
+                logger.error(e.toString());
+                return this.onError(exchange, HttpStatus.INTERNAL_SERVER_ERROR, workflowId, requestId, e.getErrCode(), e);
             } catch (Exception e) {
                 logger.error(e.toString());
                 return this.onError(exchange, HttpStatus.INTERNAL_SERVER_ERROR, workflowId, requestId, null, e);
@@ -157,7 +163,12 @@ public class RegistryValidationFilter extends AbstractGatewayFilterFactory<Regis
     private Map<String,Object> getDetails(String code) throws Exception {
         String url = registryUrl + "/api/v1/Organisation/search";
         String requestBody = "{\"filters\":{\"osid\":{\"eq\":\"" + code + "\"}}}";
-        HttpResponse response = HttpUtils.post(url, requestBody);
+        HttpResponse response = null;
+        try {
+           response = HttpUtils.post(url, requestBody);
+        } catch (UnirestException e) {
+           throw new ServerException(ErrorCodes.SERVICE_UNAVAILABLE, "Error connecting to registry service: " + e.getMessage());
+        }
         Map<String,Object> details = new HashMap<>();
         if (response != null && response.getStatus() == 200) {
             ArrayList result = JSONUtils.deserialize((String) response.getBody(), ArrayList.class);
@@ -165,7 +176,7 @@ public class RegistryValidationFilter extends AbstractGatewayFilterFactory<Regis
                 details = (Map<String, Object>) result.get(0);
             }
         } else {
-            throw new Exception("Error in fetching the participant details " + response.getStatus());
+            throw new Exception("Error in fetching the participant details" + response.getStatus());
         }
         return details;
     }
