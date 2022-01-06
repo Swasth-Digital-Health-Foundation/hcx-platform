@@ -15,7 +15,6 @@ object KeycloakUtil {
       val instance = Keycloak.getInstance(baseConfig.keycloakUrl, baseConfig.keycloakRealm, baseConfig.keycloakUsername, baseConfig.keycloakPassword, baseConfig.keycloakClientId)
       val manager = instance.tokenManager
       accessToken = manager.getAccessTokenString
-      Console.println("access token", accessToken)
     } catch {
       case ex: Exception =>
         ex.printStackTrace()
