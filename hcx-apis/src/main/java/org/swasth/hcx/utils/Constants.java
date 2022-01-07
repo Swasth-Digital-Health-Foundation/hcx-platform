@@ -28,6 +28,10 @@ public  class Constants {
     public static final String PAYMENT_NOTICE_SEARCH = VERSION_PREFIX + "/paymentnotice/search";
     public static final String PAYMENT_NOTICE_ONSEARCH = VERSION_PREFIX + "/paymentnotice/on_search";
 
+    // Search APIs
+    public static final String HCX_SEARCH = VERSION_PREFIX + "/hcx/search";
+    public static final String HCX_ON_SEARCH = VERSION_PREFIX + "/hcx/on_search";
+
     public static final String HEALTHY = "healthy";
     public static final String NAME = "name";
     public static final String KAFKA = "kafka";
