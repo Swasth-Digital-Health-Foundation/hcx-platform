@@ -2,6 +2,7 @@ package org.swasth.hcx.controllers;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +12,7 @@ import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
 import org.swasth.common.exception.ServerException;
 import org.swasth.common.exception.ServiceUnavailbleException;
+import org.swasth.common.utils.DateTimeUtils;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.utils.Utils;
 import org.swasth.hcx.helpers.EventGenerator;
@@ -36,6 +38,9 @@ public class BaseController {
     @Autowired
     private IDatabaseService postgreSQLClient;
 
+    @Value("${timestamp.range}")
+    private int timestampRange;
+
     private void validateRequestBody(Map<String, Object> requestBody) throws Exception {
         // validating payload properties
         List<String> mandatoryPayloadProps = env.getProperty(Constants.PAYLOAD_MANDATORY_PROPERTIES, List.class);
@@ -56,19 +61,20 @@ public class BaseController {
     }
 
     private void validateProtocolHeadersFormat(Map<String, Object> protectedHeaders) throws ClientException {
-        if (!(protectedHeaders.get(Constants.TIMESTAMP) instanceof String) || StringUtils.isEmpty((String) protectedHeaders.get(Constants.TIMESTAMP))) {
-            throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_TIMESTAMP, "Invalid timestamp");
+        if (!(protectedHeaders.get(Constants.TIMESTAMP) instanceof String) || StringUtils.isEmpty((String) protectedHeaders.get(Constants.TIMESTAMP)) ) {
+            throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_TIMESTAMP, "Timestamp cannot be null or empty");
+        } else if (!DateTimeUtils.validTimestamp(timestampRange, (String) protectedHeaders.get(Constants.TIMESTAMP))) {
+            throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_TIMESTAMP, "Timestamp cannot be more than " + timestampRange + " hours in the past or future time");
         }
+
         if (protectedHeaders.containsKey(Constants.CORRELATION_ID)) {
             if (!(protectedHeaders.get(Constants.CORRELATION_ID) instanceof String) || ((String) protectedHeaders.get(Constants.CORRELATION_ID)).isEmpty() || !Utils.isUUID((String) protectedHeaders.get(Constants.CORRELATION_ID))) {
                 throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_CORREL_ID, "Correlation id should be a valid UUID");
             }
         }
         if (protectedHeaders.containsKey(Constants.CASE_ID)) {
-          if (!(protectedHeaders.get(Constants.CASE_ID) instanceof String)
-              || ((String) protectedHeaders.get(Constants.CASE_ID)).isEmpty()) {
-            throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_CASE_ID,
-                "Case id cannot be null, empty and other than 'String'");
+          if (!(protectedHeaders.get(Constants.CASE_ID) instanceof String) || ((String) protectedHeaders.get(Constants.CASE_ID)).isEmpty()) {
+            throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_CASE_ID, "Case id cannot be null, empty and other than 'String'");
           }
         }
         if (protectedHeaders.containsKey(Constants.DEBUG_FLAG)) {
@@ -143,7 +149,7 @@ public class BaseController {
         } catch (ServerException e) {
             return new ResponseEntity<>(errorResponse(response, e.getErrCode(), e), HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (Exception e) {
-            return new ResponseEntity<>(errorResponse(response, ErrorCodes.SERVER_ERROR, e), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(errorResponse(response, ErrorCodes.INTERNAL_SERVER_ERROR, e), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
