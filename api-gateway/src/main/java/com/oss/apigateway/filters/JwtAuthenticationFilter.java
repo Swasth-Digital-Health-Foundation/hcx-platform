@@ -84,7 +84,6 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
                         header(X_JWT_SUB_HEADER, decodedJWT.getSubject()).
                         build();
 
-
                 if (!authenticatedAllowedPaths.getPaths().contains(path) && !Utils.containsRegexPath(authenticatedAllowedPaths.getRegexPaths(),
                         path)) {
 

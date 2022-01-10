@@ -2,10 +2,10 @@ server:
   port: ${SERVER_PORT:8095}
 
 jwt:
-  enabled: ${JWT_ENABLED:false}
+  enabled: ${JWT_ENABLED:true}
   issuer: ${JWT_ISSUER:}
   audience: ${JWT_AUDIENCE:}
-  jwkUrl: ${JWT_JWK_URL:http://localhost:8080/auth/realms/sunbird-rc/protocol/openid-connect/certs}
+  jwkUrl: ${JWT_JWK_URL:http://aef8101c432d04a659e6317b3e5031cf-1674586068.ap-south-1.elb.amazonaws.com:8080/auth/realms/sunbird-rc/protocol/openid-connect/certs}
   claimsNamespacePath: ${JWT_NS_PATH:$.realm_access.roles}
 
 redis:
@@ -13,7 +13,7 @@ redis:
   port: ${REDIS_PORT:6379}
 
 registry:
-  basePath: ${REGISTRY_BASE_PATH:http://localhost:8081}
+  basePath: ${REGISTRY_BASE_PATH:http://a0b2bab079318431d8ca99f1efb1c25c-874274596.ap-south-1.elb.amazonaws.com:8081}
 
 spring:
   main:
@@ -23,13 +23,25 @@ spring:
     gateway:
       routes:
         - id: hcx-api-route
-          uri: ${HCX_API_BASEPATH:http://localhost:8080}
+          uri: ${HCX_API_BASEPATH:http://a54c5bc648f1a41b8871b77ac01060ed-1840123973.ap-south-1.elb.amazonaws.com:8080}
           filters:
             - name: RequestRateLimiter
               args:
                 redis-rate-limiter.replenishRate: 10
                 redis-rate-limiter.burstCapacity: 20
-            - name: CachingRequestBodyFilter
-            - name: RegistryValidationFilter
+            - CachingRequestBodyFilter
+            - RegistryValidationFilter
           predicates:
             - Path=/v1/coverageeligibility/**, /v1/preauth/**, /v1/claim/**, /v1/paymentnotice/**, /health, /service/health
+
+        - id: hcx-api-route-audit
+          uri: ${HCX_API_BASEPATH:http://a54c5bc648f1a41b8871b77ac01060ed-1840123973.ap-south-1.elb.amazonaws.com:8080}
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
+            - CachingRequestBodyFilter
+            - AuditValidationFilter
+          predicates:
+            - Path=/v1/audit/search

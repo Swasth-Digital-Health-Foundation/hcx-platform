@@ -13,6 +13,7 @@ rbac:
       - /v1/claim/search
       - /v1/paymentnotice/on_request
       - /v1/paymentnotice/search
+      - /v1/audit/search
   - role: payor
     paths:
       - /v1/coverageeligibility/on_check
@@ -22,6 +23,7 @@ rbac:
       - /v1/claim/on_search
       - /v1/paymentnotice/request
       - /v1/paymentnotice/on_search
+      - /v1/audit/search
   - role: agency.tpa
     paths:
       - /v1/coverageeligibility/on_check
@@ -31,19 +33,23 @@ rbac:
       - /v1/claim/on_search
       - /v1/paymentnotice/request
       - /v1/paymentnotice/on_search
+      - /v1/audit/search
   - role: agency.regulator
     pahts:
       - /v1/claim/search
+      - /v1/audit/search
   - role: research
     paths:
       - /v1/coverageeligibility/on_check
       - /v1/preauth/on_search
       - /v1/claim/on_search
+      - /v1/audit/search
   - role: member.isnp
     paths:
       - /v1/coverageeligibility/on_check
       - /v1/preauth/on_search
       - /v1/claim/on_search
+      - /v1/audit/search
   - role: agency.sponsor
     paths:
       - /v1/coverageeligibility/on_check
@@ -53,6 +59,7 @@ rbac:
       - /v1/claim/on_search
       - /v1/paymentnotice/request
       - /v1/paymentnotice/on_search
+      - /v1/audit/search
   - role: HIE/HIO.HCX
     regexPaths:
       - /v1/**

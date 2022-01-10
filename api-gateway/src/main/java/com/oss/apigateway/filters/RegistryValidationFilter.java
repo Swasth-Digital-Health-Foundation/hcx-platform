@@ -68,12 +68,18 @@ public class RegistryValidationFilter extends AbstractGatewayFilterFactory<Regis
         return (exchange, chain) -> {
             String workflowId = null;
             String requestId = null;
+            System.out.println("exchange body");
+            System.out.println(exchange);
             try {
                 StringBuilder cachedBody = new StringBuilder(StandardCharsets.UTF_8.decode(((DataBuffer) exchange.getAttribute(CACHED_REQUEST_BODY_ATTR)).asByteBuffer()));
                 String[] requestBody = formatRequestBody(JSONUtils.deserialize(cachedBody.toString(), HashMap.class));
+                System.out.println("request body");
+                System.out.println(requestBody);
+
                 Map protectedMap;
                 try {
                     protectedMap = JSONUtils.decodeBase64String(requestBody[0], HashMap.class);
+                    System.out.println(protectedMap);
                 } catch (JsonParseException e) {
                     throw new ClientException(ErrorCodes.CLIENT_ERR_WRONG_ENCODED_PROTECTED, "Error while parsing protected headers");
                 }
