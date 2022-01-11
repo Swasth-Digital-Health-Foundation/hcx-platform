@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.HashMap;
 import java.util.Map;
 
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Response {
 
     private long timestamp = System.currentTimeMillis();
@@ -12,9 +14,7 @@ public class Response {
     private String workflowId;
     @JsonProperty("request_id")
     private String requestId;
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     private ResponseError error;
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Map<String, Object> result;
 
     public Response() {}

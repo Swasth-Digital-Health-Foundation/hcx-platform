@@ -8,6 +8,7 @@ kafka:
     preauth: ${kafka_preauth_topic:hcx.request.preauth}
     claim: ${kafka_claim_topic:hcx.request.claim}
     payment: ${kafka_payment_topic:hcx.request.payment}
+    status: ${kafka_status_topic:hcx.request.status}
 
 service:
   mode: ${service_mode:gateway}

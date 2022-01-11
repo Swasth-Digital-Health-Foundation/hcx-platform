@@ -25,13 +25,4 @@ public class ClaimsController extends BaseController {
         return validateReqAndPushToKafka(requestBody, Constants.CLAIM_ONSUBMIT, kafkaTopic);
     }
 
-    @RequestMapping(value = "/search", method = RequestMethod.POST)
-    public ResponseEntity<Object> claimSearch(@RequestBody Map<String, Object> requestBody) throws Exception {
-        return validateReqAndPushToKafka(requestBody, Constants.CLAIM_SEARCH, kafkaTopic);
-    }
-
-    @RequestMapping(value = "/on_search", method = RequestMethod.POST)
-    public ResponseEntity<Object> claimOnSearch(@RequestBody Map<String, Object> requestBody) throws Exception {
-        return validateReqAndPushToKafka(requestBody, Constants.CLAIM_ONSEARCH, kafkaTopic);
-    }
 }

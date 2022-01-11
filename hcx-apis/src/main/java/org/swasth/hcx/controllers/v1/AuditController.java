@@ -18,7 +18,6 @@ import org.swasth.hcx.service.HeaderAuditService;
 @RequestMapping("/v1/audit")
 public class AuditController {
 
-	
 	private final HeaderAuditService service;
 	
 	@Autowired

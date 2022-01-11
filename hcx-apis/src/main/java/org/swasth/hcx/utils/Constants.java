@@ -15,18 +15,16 @@ public  class Constants {
     // Claims APIs
     public static final String PRE_AUTH_SUBMIT = VERSION_PREFIX + "/preauth/submit";
     public static final String PRE_AUTH_ONSUBMIT = VERSION_PREFIX + "/preauth/on_submit";
-    public static final String PRE_AUTH_SEARCH = VERSION_PREFIX + "/preauth/search";
-    public static final String PRE_AUTH_ONSEARCH = VERSION_PREFIX + "/preauth/on_search";
     public static final String CLAIM_SUBMIT = VERSION_PREFIX + "/claim/submit";
     public static final String CLAIM_ONSUBMIT = VERSION_PREFIX + "/claim/on_submit";
-    public static final String CLAIM_SEARCH = VERSION_PREFIX + "/claim/search";
-    public static final String CLAIM_ONSEARCH = VERSION_PREFIX + "/claim/on_search";
 
     //Payment Notice APIs
     public static final String PAYMENT_NOTICE_REQUEST = VERSION_PREFIX + "/paymentnotice/request";
     public static final String PAYMENT_NOTICE_ONREQUEST = VERSION_PREFIX + "/paymentnotice/on_request";
-    public static final String PAYMENT_NOTICE_SEARCH = VERSION_PREFIX + "/paymentnotice/search";
-    public static final String PAYMENT_NOTICE_ONSEARCH = VERSION_PREFIX + "/paymentnotice/on_search";
+
+    //Status Search APIs
+    public static final String HCX_STATUS = VERSION_PREFIX + "/hcx/status";
+    public static final String HCX_ONSTATUS = VERSION_PREFIX + "/hcx/on_status";
 
     public static final String HEALTHY = "healthy";
     public static final String NAME = "name";
@@ -72,6 +70,8 @@ public  class Constants {
     public static final String ERROR_DETAILS = "x-hcx-error_details";
     public static final List<String> ERROR_DETAILS_VALUES = Arrays.asList("error.code","error.message","trace");
     public static final String DEBUG_DETAILS = "x-hcx-debug_details";
+    public static final String STATUS_FILTERS = "x-hcx-status_filters";
+    public static final List<String> STATUS_SEARCH_ALLOWED_ENTITIES = Arrays.asList("coverageeligibility", "preauth", "claim");
     public static final String SERVICE_MODE = "service.mode";
     public static final String GATEWAY = "gateway";
     public static final String KAFKA_TOPIC_PAYLOAD = "kafka.topic.payload";

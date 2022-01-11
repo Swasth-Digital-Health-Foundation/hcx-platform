@@ -17,6 +17,7 @@ import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.utils.Utils;
 import org.swasth.hcx.helpers.EventGenerator;
 import org.swasth.hcx.managers.HealthCheckManager;
+import org.swasth.hcx.service.HeaderAuditService;
 import org.swasth.hcx.utils.Constants;
 import org.swasth.kafka.client.IEventService;
 import org.swasth.postgresql.IDatabaseService;
@@ -40,6 +41,9 @@ public class BaseController {
 
     @Value("${timestamp.range}")
     private int timestampRange;
+
+    @Autowired
+    protected HeaderAuditService auditService;
 
     private void validateRequestBody(Map<String, Object> requestBody) throws Exception {
         //validating protected headers
@@ -99,13 +103,13 @@ public class BaseController {
         }
     }
 
-    private Response errorResponse(Response response, ErrorCodes code, java.lang.Exception e){
+    protected Response errorResponse(Response response, ErrorCodes code, java.lang.Exception e){
         ResponseError error= new ResponseError(code, e.getMessage(), e.getCause());
         response.setError(error);
         return response;
     }
 
-    private void processAndSendEvent(String apiAction, String metadataTopic, Map<String, Object> requestBody) throws Exception {
+    protected void processAndSendEvent(String apiAction, String metadataTopic, Map<String, Object> requestBody) throws Exception {
         String mid = UUID.randomUUID().toString();
         String serviceMode = env.getProperty(Constants.SERVICE_MODE);
         String payloadTopic = env.getProperty(Constants.KAFKA_TOPIC_PAYLOAD);

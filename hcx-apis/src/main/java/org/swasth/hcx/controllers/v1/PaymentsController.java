@@ -25,13 +25,4 @@ public class PaymentsController extends BaseController {
         return validateReqAndPushToKafka(requestBody, Constants.PAYMENT_NOTICE_ONREQUEST, kafkaTopic);
     }
 
-    @RequestMapping(value = "/search", method = RequestMethod.POST)
-    public ResponseEntity<Object> paymentNoticeSearch(@RequestBody Map<String, Object> requestBody) throws Exception {
-        return validateReqAndPushToKafka(requestBody, Constants.PAYMENT_NOTICE_SEARCH, kafkaTopic);
-    }
-
-    @RequestMapping(value = "/on_search", method = RequestMethod.POST)
-    public ResponseEntity<Object> paymentNoticeOnSearch(@RequestBody Map<String, Object> requestBody) throws Exception {
-        return validateReqAndPushToKafka(requestBody, Constants.PAYMENT_NOTICE_ONSEARCH, kafkaTopic);
-    }
 }
