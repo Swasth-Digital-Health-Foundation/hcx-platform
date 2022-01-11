@@ -21,7 +21,7 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.swasth.common.JSONUtils;
+import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.dto.SearchRequestDTO;
 import org.swasth.hcx.controllers.BaseSpec;
 
