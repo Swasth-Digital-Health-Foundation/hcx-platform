@@ -7,13 +7,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.swasth.hcx.controllers.BaseController;
+import org.swasth.hcx.controllers.BaseSearchController;
 import org.swasth.hcx.utils.Constants;
 
 import java.util.Map;
 
 @RestController
 @RequestMapping(value = "/v1/hcx")
-public class SearchController extends BaseController {
+public class SearchController extends BaseSearchController {
 
     @Value("${kafka.topic.search}")
     private String topic;
