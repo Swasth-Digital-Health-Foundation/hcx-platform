@@ -20,11 +20,8 @@ import org.swasth.hcx.controllers.BaseController;
 import org.swasth.hcx.managers.HealthCheckManager;
 import org.swasth.hcx.utils.Constants;
 
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 import static org.swasth.hcx.utils.Constants.*;
 
@@ -46,6 +43,9 @@ public class SearchController extends BaseController {
             validateRequestBody(requestBody);
             if (protectedMap.containsKey(STATUS_FILTERS)){
                 HeaderAudit result = auditService.search(new SearchRequestDTO((HashMap<String, String>) protectedMap.get(STATUS_FILTERS))).get(0);
+                if (!protectedMap.get(SENDER_CODE).equals(result.getSender_code())) {
+                    throw new ClientException("Request_id does not belongs to sender");
+                }
                 String entityType = result.getAction().split("/")[2];
                 if(!STATUS_SEARCH_ALLOWED_ENTITIES.contains(entityType)) {
                     throw new ClientException("Invalid entity, status search allowed only for entities: " + STATUS_SEARCH_ALLOWED_ENTITIES);
