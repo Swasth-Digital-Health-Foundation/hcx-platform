@@ -77,6 +77,8 @@ rbac:
   - role: HIE/HIO.HCX
     paths:
       - /participant/create
+      - /participant/search
+      - /participant/update
     regexPaths:
       - /v1/**
 
