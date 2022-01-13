@@ -1,4 +1,4 @@
-#kafka configuration
+#kafka config
 bootstrap-servers: ${bootstrap_servers:localhost:9092}
 
 kafka:
@@ -15,7 +15,7 @@ service:
 registry:
   basePath: ${registry_basePath:http://localhost:8081}
 
-#postgres configuration
+#postgres config
 postgres:
   url: ${postgres_url:jdbc:postgresql://localhost:5432/postgres}
   user: ${postgres_user:postgres}
@@ -34,7 +34,10 @@ headers:
 payload:
   mandatory:
     properties: ${payload_mandatory_properties:protected, encrypted_key, aad, iv, ciphertext, tag}
-    
-    
+
+#elasticsearch config
 elasticsearch:
   url: ${elasticsearch_url:localhost:9200}
+
+timestamp:
+  range: ${timestamp_range:10000}

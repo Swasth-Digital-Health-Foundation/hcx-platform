@@ -1,4 +1,4 @@
-package org.swasth.common;
+package org.swasth.common.utils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -7,7 +7,7 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
-public class JsonUtils {
+public class JSONUtils {
 
     private static ObjectMapper mapper = new ObjectMapper();
 

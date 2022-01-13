@@ -6,8 +6,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.swasth.common.HttpUtils;
-import org.swasth.common.JsonUtils;
+import org.swasth.common.utils.HttpUtils;
+import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.dto.ParticipantResponse;
 import org.swasth.common.dto.ResponseError;
 import org.swasth.common.exception.ErrorCodes;
@@ -38,9 +38,9 @@ public class ParticipantController  extends BaseController {
         String url =  registryUrl + "/api/v1/Organisation/invite";
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", header.get("Authorization").get(0));
-        HttpResponse response = HttpUtils.post(url, JsonUtils.serialize(requestBody), headersMap);
+        HttpResponse response = HttpUtils.post(url, JSONUtils.serialize(requestBody), headersMap);
         if (response != null && response.getStatus() == 200) {
-            Map<String, Object> result = JsonUtils.deserialize((String) response.getBody(), HashMap.class);
+            Map<String, Object> result = JSONUtils.deserialize((String) response.getBody(), HashMap.class);
             String participantCode = (String) ((Map<String, Object>) ((Map<String, Object>) result.get("result"))
                 .get("Organisation")).get("osid");
             ParticipantResponse resp = new ParticipantResponse(participantCode);
@@ -61,8 +61,8 @@ public class ParticipantController  extends BaseController {
               ((Map<String, Object>) requestBody.get("filters")).get("osid"));
           ((Map<String, Object>) requestBody.get("filters")).remove("osid");
         }
-        HttpResponse response = HttpUtils.post(url, JsonUtils.serialize(requestBody), new HashMap<>());
-        ArrayList<Object> result = JsonUtils.deserialize((String) response.getBody(), ArrayList.class);
+        HttpResponse response = HttpUtils.post(url, JSONUtils.serialize(requestBody), new HashMap<>());
+        ArrayList<Object> result = JSONUtils.deserialize((String) response.getBody(), ArrayList.class);
         if(result.isEmpty()) {
             return new ResponseEntity<>(errorResponse(null,"Resource Not Found",null), HttpStatus.NOT_FOUND);
           } else {
@@ -80,7 +80,7 @@ public class ParticipantController  extends BaseController {
       requestBody.remove("participant_code");
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization",header.get("Authorization").get(0));
-        HttpResponse response = HttpUtils.put(url, JsonUtils.serialize(requestBody), headersMap);
+        HttpResponse response = HttpUtils.put(url, JSONUtils.serialize(requestBody), headersMap);
         if (response.getStatus() == 200) {
             return new ResponseEntity<>(HttpStatus.OK);
         }
@@ -96,7 +96,7 @@ public class ParticipantController  extends BaseController {
     }
 
     private ParticipantResponse getError(HttpResponse response) throws Exception {
-        Map<String, Object> result = JsonUtils.deserialize((String) response.getBody(), HashMap.class);
+        Map<String, Object> result = JSONUtils.deserialize((String) response.getBody(), HashMap.class);
         String message = (String) ((Map<String, Object>) result.get("params")).get("errmsg");
         return errorResponse(null, message, null);
     }
