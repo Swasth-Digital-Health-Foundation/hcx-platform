@@ -14,7 +14,7 @@ public class CompositeSearchConfig extends BaseJobConfig {
 
     private Config searchConfig = null;
 
-    public CompositeSearchConfig(Config config,String jobName) {
+    public CompositeSearchConfig(Config config, String jobName) {
         super(config, jobName);
         this.searchConfig = config;
     }

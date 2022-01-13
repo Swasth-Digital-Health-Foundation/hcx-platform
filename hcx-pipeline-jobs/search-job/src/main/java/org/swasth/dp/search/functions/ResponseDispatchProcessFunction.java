@@ -3,24 +3,17 @@ package org.swasth.dp.search.functions;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.swasth.dp.core.function.BaseDispatcherFunction;
-import org.swasth.dp.core.function.ContextEnrichmentFunction;
 import org.swasth.dp.core.function.DispatcherResult;
 import org.swasth.dp.core.function.ValidationResult;
-import org.swasth.dp.core.job.BaseJobConfig;
 import org.swasth.dp.core.job.Metrics;
 import org.swasth.dp.core.util.DispatcherUtil;
 import org.swasth.dp.core.util.JSONUtil;
 import org.swasth.dp.search.beans.CompositeSearch;
-import org.swasth.dp.search.beans.SearchRequest;
-import org.swasth.dp.search.beans.SearchResponse;
+import org.swasth.dp.search.beans.SearchEvent;
 import org.swasth.dp.search.db.PostgresClient;
 import org.swasth.dp.search.task.CompositeSearchConfig;
 import org.swasth.dp.search.utils.*;
-import scala.collection.immutable.Stream;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 public class ResponseDispatchProcessFunction extends BaseDispatcherFunction {
@@ -81,7 +74,7 @@ public class ResponseDispatchProcessFunction extends BaseDispatcherFunction {
         // fetch the payload from postgres based on mid and replace the protocol headers with the new sender and recipient details
         CompositeSearch baseRecord = null;
         //Populate the bean with the data from the incoming event
-        SearchRequest searchRequest = new SearchRequest(searchEvent,searchConfig);
+        SearchEvent searchRequest = new SearchEvent(searchEvent,searchConfig);
         try {
             //Response from the recipient/payor
             Map<String,Object> searchResponse = searchRequest.getSearchResponse();
@@ -123,7 +116,7 @@ public class ResponseDispatchProcessFunction extends BaseDispatcherFunction {
         audit(searchEvent,true,context,metrics);
     }
 
-    private void failureProcess(Map<String, Object> searchEvent, Context context, SearchRequest searchRequest) {
+    private void failureProcess(Map<String, Object> searchEvent, Context context, SearchEvent searchRequest) {
         //Add the event to the retry topic and update the counts and status as RETRY for child record
         try {
             postgresClient.updateChildRecord(searchRequest.getWorkFlowId(), searchRequest.getRequestId(), ResponseStatus.RETRY.toString(), searchRequest.getSearchResponse());
@@ -134,7 +127,7 @@ public class ResponseDispatchProcessFunction extends BaseDispatcherFunction {
     }
 
 
-    private DispatcherResult dispatchRecipient(SearchRequest searchRequest, String baseSenderCode, String baseRequestId, boolean isFinalDispatch) throws PipelineException {
+    private DispatcherResult dispatchRecipient(SearchEvent searchRequest, String baseSenderCode, String baseRequestId, boolean isFinalDispatch) throws PipelineException {
         DispatcherResult result = null;
         try {
             //Recipient details from cache or registry
