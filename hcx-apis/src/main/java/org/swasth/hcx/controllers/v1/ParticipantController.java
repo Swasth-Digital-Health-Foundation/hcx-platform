@@ -24,12 +24,21 @@ public class ParticipantController  extends BaseController {
     private String registryUrl;
 
     @RequestMapping(value = "/create", method = RequestMethod.POST)
-    public ResponseEntity<Object> participantCreate(@RequestBody Map<String, Object> requestBody) throws Exception {
+    public ResponseEntity<Object> participantCreate(@RequestHeader HttpHeaders header,
+        @RequestBody Map<String, Object> requestBody) throws Exception {
         if(((ArrayList) requestBody.get(ROLES)).contains(PAYOR) && !requestBody.containsKey(SCHEME_CODE)) {
             return new ResponseEntity<>(errorResponse(ErrorCodes.CLIENT_ERR_INVALID_PARTICIPANT_DETAILS, "scheme_code is missing", null), HttpStatus.BAD_REQUEST);
         }
+        if (!((ArrayList) requestBody.get(ROLES)).contains(PAYOR) && requestBody.containsKey(SCHEME_CODE)) {
+          return new ResponseEntity<>(
+              errorResponse(ErrorCodes.CLIENT_ERR_INVALID_PARTICIPANT_DETAILS,
+                  "unknown property scheme_code please remove", null),
+              HttpStatus.BAD_REQUEST);
+        }
         String url =  registryUrl + "/api/v1/Organisation/invite";
-        HttpResponse response = HttpUtils.post(url, JsonUtils.serialize(requestBody),new HashMap<>());
+        Map<String, String> headersMap = new HashMap<>();
+        headersMap.put("Authorization", header.get("Authorization").get(0));
+        HttpResponse response = HttpUtils.post(url, JsonUtils.serialize(requestBody), headersMap);
         if (response != null && response.getStatus() == 200) {
             Map<String, Object> result = JsonUtils.deserialize((String) response.getBody(), HashMap.class);
             String participantCode = (String) ((Map<String, Object>) ((Map<String, Object>) result.get("result"))
@@ -47,19 +56,28 @@ public class ParticipantController  extends BaseController {
     @RequestMapping(value = "/search", method = RequestMethod.POST)
     public ResponseEntity<Object> participantSearch(@RequestBody Map<String, Object> requestBody) throws Exception {
         String url =  registryUrl + "/api/v1/Organisation/search";
+        if (((Map<String, Object>) requestBody.get("filters")).containsKey("osid")) {
+          ((Map<String, Object>) requestBody.get("filters")).put("participant_code",
+              ((Map<String, Object>) requestBody.get("filters")).get("osid"));
+          ((Map<String, Object>) requestBody.get("filters")).remove("osid");
+        }
         HttpResponse response = HttpUtils.post(url, JsonUtils.serialize(requestBody), new HashMap<>());
         ArrayList<Object> result = JsonUtils.deserialize((String) response.getBody(), ArrayList.class);
         if(result.isEmpty()) {
             return new ResponseEntity<>(errorResponse(null,"Resource Not Found",null), HttpStatus.NOT_FOUND);
-        } else{
+          } else {
+            for (Object obj : result) {
+              ((Map<String, Object>) obj).put("participant_code", ((Map<String, Object>) obj).get("osid"));
+              ((Map<String, Object>) obj).remove("osid");
+            }
             return new ResponseEntity<>(new ParticipantResponse(result), HttpStatus.OK);
         }
     }
 
     @RequestMapping(value = "/update", method = RequestMethod.POST)
     public ResponseEntity<Object> participantUpdate(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) throws Exception {
-      String url = registryUrl + "/api/v1/Organisation/" + requestBody.get("osid");
-      requestBody.remove("osid");
+      String url = registryUrl + "/api/v1/Organisation/" + requestBody.get("participant_code");
+      requestBody.remove("participant_code");
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization",header.get("Authorization").get(0));
         HttpResponse response = HttpUtils.put(url, JsonUtils.serialize(requestBody), headersMap);
