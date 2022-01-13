@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class SearchRequest implements Serializable {
+public class SearchEvent implements Serializable {
     private Map<String,Object> eventMap;
     private CompositeSearchConfig searchConfig;
     private List<String> senderCodes;
@@ -31,7 +31,7 @@ public class SearchRequest implements Serializable {
     private String requestId;
 
 
-    public SearchRequest(Map<String,Object> eventMap, CompositeSearchConfig searchConfig){
+    public SearchEvent(Map<String,Object> eventMap, CompositeSearchConfig searchConfig){
         this.eventMap = eventMap;
         this.searchConfig = searchConfig;
         populateSearchParams();

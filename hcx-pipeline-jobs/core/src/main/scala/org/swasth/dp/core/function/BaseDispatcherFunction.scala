@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory
 import org.swasth.dp.core.job.{BaseJobConfig, BaseProcessFunction, Metrics}
 import org.swasth.dp.core.util.{DispatcherUtil, JSONUtil}
 
+import java.lang.Exception
 import java.util
 import java.util.Calendar
 
@@ -21,6 +22,7 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
 
   def validate(event: util.Map[String, AnyRef]):ValidationResult
 
+  @throws[Exception]
   def getPayload(event: util.Map[String, AnyRef]): util.Map[String, AnyRef]
 
   def audit(event: util.Map[String, AnyRef], status: Boolean, context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics);

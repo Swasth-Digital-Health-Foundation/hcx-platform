@@ -1,17 +1,14 @@
 package org.swasth.dp.search.utils;
 
-import org.swasth.dp.search.beans.SearchRequest;
+import org.swasth.dp.search.beans.SearchEvent;
 import org.swasth.dp.search.beans.SearchResponse;
-import scala.xml.dtd.REQUIRED;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class EventUtils {
 
-    public static void replaceSenderAndRecipientCodes(SearchRequest request,String recipientCode,boolean isRequest) {
+    public static void replaceSenderAndRecipientCodes(SearchEvent request, String recipientCode, boolean isRequest) {
         // implement the method properly
         Map<String, Object> protocol = request.getProtocolHeaders();
         // keep hcx registry code as sender here
