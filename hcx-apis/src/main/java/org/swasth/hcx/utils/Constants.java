@@ -1,5 +1,7 @@
 package org.swasth.hcx.utils;
 
+import org.apache.kafka.common.protocol.types.Field;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -79,10 +81,26 @@ public  class Constants {
     public static final String SERVICE_MODE = "service.mode";
     public static final String GATEWAY = "gateway";
     public static final String KAFKA_TOPIC_PAYLOAD = "kafka.topic.payload";
+    public static final String SEARCH_REQ ="x-hcx-search";
+    public static final String SEARCH_RESP = "x-hcx-search_response";
+    public static final List<String> SEARCH_REQ_KEYS = Arrays.asList("filters","time_period");
+    public static final String SEARCH_FILTERS = "filters";
+    public static final List<String>  SEARCH_FILTER_KEYS = Arrays.asList("senders","receivers","entity_types","workflow_ids","case_ids","entity_status");
+    public static final String SEARCH_FILTERS_RECEIVER = "receivers";
+    public static final List<String> SEARCH_RES_KEYS = Arrays.asList("count","entity_counts");
+
+    public static final String HCX_REGISTRY_CODE = "hcx-registry-code";
+
+    public static final String ENCRYPTED_KEY = "encrypted_key";
+    public static final String AAD = "aad";
+    public static final String IV = "iv";
+    public static final String CIPHERTEXT = "ciphertext";
+    public static final String TAG = "tag";
 
     public static final String HEADER_AUDIT = "headeraudit";
     public static final String PAYOR = "payor";
     public static final String PROVIDER = "provider";
     public static final String ROLES = "roles";
     public static final String SCHEME_CODE = "scheme_code";
+
 }

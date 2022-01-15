@@ -68,7 +68,12 @@
 			<version>2.7.7</version>
 			<scope>test</scope>
 		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
+            <version>3.2</version>
+        </dependency>
+    </dependencies>
 
 	<build>
 		<plugins>
