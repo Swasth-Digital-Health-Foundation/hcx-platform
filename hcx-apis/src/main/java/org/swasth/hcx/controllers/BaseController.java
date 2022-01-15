@@ -45,7 +45,7 @@ public class BaseController {
     @Autowired
     protected HeaderAuditService auditService;
 
-    private void validateRequestBody(Map<String, Object> requestBody) throws Exception {
+    protected void validateRequestBody(Map<String, Object> requestBody) throws Exception {
         //validating protected headers
         Map<String, Object> protectedHeaders = JSONUtils.decodeBase64String(((String) requestBody.get(Constants.PAYLOAD)).split("\\.")[0], HashMap.class);
         List<String> mandatoryHeaders = new ArrayList<>();
