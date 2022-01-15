@@ -42,14 +42,8 @@ public class BaseController {
     private int timestampRange;
 
     private void validateRequestBody(Map<String, Object> requestBody) throws Exception {
-        // validating payload properties
-        List<String> mandatoryPayloadProps = env.getProperty(Constants.PAYLOAD_MANDATORY_PROPERTIES, List.class);
-        List<String> missingPayloadProps = mandatoryPayloadProps.stream().filter(key -> !requestBody.containsKey(key)).collect(Collectors.toList());
-        if (!missingPayloadProps.isEmpty()) {
-            throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_PAYLOAD, "Payload mandatory properties are missing: " + missingPayloadProps);
-        }
         //validating protected headers
-        Map<String, Object> protectedHeaders = JSONUtils.decodeBase64String((String) requestBody.get("protected"), HashMap.class);
+        Map<String, Object> protectedHeaders = JSONUtils.decodeBase64String(((String) requestBody.get(Constants.PAYLOAD)).split("\\.")[0], HashMap.class);
         List<String> mandatoryHeaders = new ArrayList<>();
         mandatoryHeaders.addAll(env.getProperty(Constants.PROTOCOL_HEADERS_MANDATORY, List.class));
         mandatoryHeaders.addAll(env.getProperty(Constants.JOSE_HEADERS, List.class));
@@ -115,7 +109,7 @@ public class BaseController {
         String mid = UUID.randomUUID().toString();
         String serviceMode = env.getProperty(Constants.SERVICE_MODE);
         String payloadTopic = env.getProperty(Constants.KAFKA_TOPIC_PAYLOAD);
-        String key = JSONUtils.decodeBase64String((String) requestBody.get(Constants.PROTECTED), HashMap.class).get(Constants.SENDER_CODE).toString();
+        String key = JSONUtils.decodeBase64String(((String) requestBody.get(Constants.PAYLOAD)).split("\\.")[0], HashMap.class).get(Constants.SENDER_CODE).toString();
         String payloadEvent = eventGenerator.generatePayloadEvent(mid, requestBody);
         String metadataEvent = eventGenerator.generateMetadataEvent(mid, apiAction, requestBody);
         System.out.println("Mode: " + serviceMode + " :: mid: " + mid + " :: Event: " + metadataEvent);
@@ -127,20 +121,19 @@ public class BaseController {
     }
 
     private void setResponseParams(Response response, Map<String, Object> requestBody) throws Exception {
-        Map protectedMap = JSONUtils.decodeBase64String((String) requestBody.get(Constants.PROTECTED), HashMap.class);
+        Map protectedMap = JSONUtils.decodeBase64String(((String) requestBody.get(Constants.PAYLOAD)).split("\\.")[0], HashMap.class);
         response.setWorkflowId(protectedMap.get(Constants.WORKFLOW_ID).toString());
         response.setRequestId(protectedMap.get(Constants.REQUEST_ID).toString());
     }
 
-    public ResponseEntity<Object> validateReqAndPushToKafka(Map<String, Object> reqBody, String apiAction, String kafkaTopic) throws ClientException {
+    public ResponseEntity<Object> validateReqAndPushToKafka(Map<String, Object> requestBody, String apiAction, String kafkaTopic) throws ClientException {
         Response response = new Response();
         try {
-            Map<String, Object> requestBody = formatRequestBody(reqBody);
             if (!HealthCheckManager.allSystemHealthResult)
                 throw new ServiceUnavailbleException(ErrorCodes.SERVICE_UNAVAILABLE, "Service is unavailable");
             setResponseParams(response, requestBody);
             validateRequestBody(requestBody);
-            processAndSendEvent(apiAction, kafkaTopic , requestBody);
+            processAndSendEvent(apiAction, kafkaTopic, requestBody);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (ClientException e) {
             return new ResponseEntity<>(errorResponse(response, e.getErrCode(), e), HttpStatus.BAD_REQUEST);
@@ -153,22 +146,4 @@ public class BaseController {
         }
     }
 
-    private Map<String, Object> formatRequestBody(Map<String, Object> requestBody) throws ClientException {
-        Map<String, Object> event = new HashMap<>();
-        String str = (String) requestBody.get("payload");
-
-        String[] strArray = str.split("\\.");
-        if (strArray.length > 0 && strArray.length == Constants.PAYLOAD_LENGTH) {
-            event.put("protected", strArray[0] );
-            event.put("encrypted_key", strArray[1]);
-            event.put("aad", strArray[2]);
-            event.put("iv", strArray[3]);
-            event.put("ciphertext", strArray[4]);
-            event.put("tag", strArray[5]);
-        } else {
-            throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_PAYLOAD, "invalid payload");
-        }
-
-        return event;
-    }
 }

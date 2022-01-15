@@ -28,7 +28,7 @@ public class EventGenerator {
         List<String> protocolHeaders = env.getProperty(Constants.PROTOCOL_HEADERS_MANDATORY, List.class);
         protocolHeaders.addAll(env.getProperty(Constants.PROTOCOL_HEADERS_OPTIONAL, List.class));
         List<String> joseHeaders = env.getProperty(Constants.JOSE_HEADERS, List.class);
-        HashMap<String,Object> protectedHeaders = JSONUtils.decodeBase64String((String) requestBody.get(Constants.PROTECTED), HashMap.class);
+        HashMap<String,Object> protectedHeaders = JSONUtils.decodeBase64String(((String) requestBody.get(Constants.PAYLOAD)).split("\\.")[0], HashMap.class);
         Map<String,Object> filterJoseHeaders = new HashMap<>();
         Map<String,Object> filterProtocolHeaders = new HashMap<>();
         joseHeaders.forEach(key -> {
