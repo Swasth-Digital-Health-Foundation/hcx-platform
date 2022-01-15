@@ -50,7 +50,7 @@ public class SearchRequestBody extends RequestBody {
     }
 
     private void validateSearch(Map<String, Object> requestMap, String s, List<String> searchReqKeys, String s2) throws ClientException {
-        if (requestMap == null || MapUtils.isEmpty(requestMap)) {
+        if (MapUtils.isEmpty(requestMap)) {
             throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_SEARCH, s);
         } else if (requestMap.keySet().stream().noneMatch(key -> searchReqKeys.contains(key))) {
             throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_SEARCH, s2 + searchReqKeys);
@@ -62,7 +62,7 @@ public class SearchRequestBody extends RequestBody {
     //TODO We can remove this check for phase 2
     private void validateSearchFilters() throws ClientException {
         Map<String, Object> searchFiltersMap = getSearchFilters();
-        if (searchFiltersMap != null && MapUtils.isNotEmpty(searchFiltersMap)) {
+        if (MapUtils.isNotEmpty(searchFiltersMap)) {
             if (!searchFiltersMap.containsKey(Constants.SEARCH_FILTERS_RECEIVER)
                     || searchFiltersMap.keySet().stream().noneMatch(key -> Constants.SEARCH_FILTER_KEYS.contains(key)))
                 throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_SEARCH, "Search Filters should contain only: " + Constants.SEARCH_FILTER_KEYS);

@@ -55,7 +55,7 @@ public class RequestBody {
     }
 
     private void validateDetails(Map<String, Object> inputMap, ErrorCodes errorCode, String msg, ErrorCodes rangeCode, String rangeMsg) throws ClientException {
-            if (inputMap == null || MapUtils.isEmpty(inputMap)) {
+            if (MapUtils.isEmpty(inputMap)) {
                 throw new ClientException(errorCode, msg);
             } else if (!inputMap.keySet().containsAll(Constants.ERROR_DETAILS_VALUES)) {
                 throw new ClientException(rangeCode, rangeMsg + Constants.ERROR_DETAILS_VALUES);
@@ -63,7 +63,7 @@ public class RequestBody {
     }
 
     private void validateValues(String inputStr, ErrorCodes errorCode, String msg, List<String> statusValues, ErrorCodes rangeCode, String rangeMsg) throws ClientException {
-        if ( inputStr == null || StringUtils.isEmpty(inputStr)) {
+        if (StringUtils.isEmpty(inputStr)) {
             throw new ClientException(errorCode, msg);
         } else if (!statusValues.contains(inputStr)) {
             throw new ClientException(rangeCode, rangeMsg);

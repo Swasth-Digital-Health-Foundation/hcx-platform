@@ -178,7 +178,7 @@ public class BaseController {
 
         String[] strArray = str.split("\\.");
         if (strArray.length > 0 && strArray.length == Constants.PAYLOAD_LENGTH) {
-            event.put("protected", strArray[0] );
+            event.put("protected", strArray[0]);
             event.put("encrypted_key", strArray[1]);
             event.put("aad", strArray[2]);
             event.put("iv", strArray[3]);
