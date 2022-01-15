@@ -60,21 +60,29 @@ public class StatusController extends BaseController {
                 processAndSendEvent(HCX_STATUS, topic, requestBody);
             }
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
-        } catch (ClientException e) {
-            return new ResponseEntity<>(errorResponse(response, e.getErrCode(), e), HttpStatus.BAD_REQUEST);
-        } catch (ServiceUnavailbleException e) {
-            return new ResponseEntity<>(errorResponse(response, e.getErrCode(), e), HttpStatus.SERVICE_UNAVAILABLE);
-        } catch (ServerException e) {
-            return new ResponseEntity<>(errorResponse(response, e.getErrCode(), e), HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity<>(errorResponse(response, ErrorCodes.INTERNAL_SERVER_ERROR, e), HttpStatus.INTERNAL_SERVER_ERROR);
+            setResponseParams(response, requestBody);
+            return exceptionHandler(response, e);
         }
     }
 
     @RequestMapping(value = "/on_status", method = RequestMethod.POST)
     public ResponseEntity<Object> onStatus(@RequestBody Map<String, Object> requestBody) throws Exception {
-        return validateReqAndPushToKafka(requestBody, HCX_ONSTATUS, topic);
+        Response response = new Response();
+        try {
+            if (!HealthCheckManager.allSystemHealthResult)
+                throw new ServiceUnavailbleException(ErrorCodes.SERVICE_UNAVAILABLE, "Service is unavailable");
+            Map<String, Object> protectedMap = JSONUtils.decodeBase64String(((String) requestBody.get(Constants.PAYLOAD)).split("\\.")[0], HashMap.class);
+            validateRequestBody(requestBody);
+            if(protectedMap.containsKey(STATUS_RESPONSE) || ((Map<String, Object>) protectedMap.get(STATUS_RESPONSE)).isEmpty()) {
+                throw new ClientException("Invalid request, status response is missing or empty.");
+            }
+            processAndSendEvent(HCX_ONSTATUS, topic, requestBody);
+            return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
+        } catch (Exception e) {
+            setResponseParams(response, requestBody);
+            return exceptionHandler(response, e);
+        }
     }
 
 

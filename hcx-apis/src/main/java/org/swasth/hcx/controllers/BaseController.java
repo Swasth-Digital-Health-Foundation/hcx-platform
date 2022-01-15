@@ -124,13 +124,13 @@ public class BaseController {
         }
     }
 
-    private void setResponseParams(Response response, Map<String, Object> requestBody) throws Exception {
+    protected void setResponseParams(Response response, Map<String, Object> requestBody) throws Exception {
         Map protectedMap = JSONUtils.decodeBase64String(((String) requestBody.get(Constants.PAYLOAD)).split("\\.")[0], HashMap.class);
         response.setWorkflowId(protectedMap.get(Constants.WORKFLOW_ID).toString());
         response.setRequestId(protectedMap.get(Constants.REQUEST_ID).toString());
     }
 
-    public ResponseEntity<Object> validateReqAndPushToKafka(Map<String, Object> requestBody, String apiAction, String kafkaTopic) throws ClientException {
+    public ResponseEntity<Object> validateReqAndPushToKafka(Map<String, Object> requestBody, String apiAction, String kafkaTopic) {
         Response response = new Response();
         try {
             if (!HealthCheckManager.allSystemHealthResult)
@@ -139,13 +139,19 @@ public class BaseController {
             validateRequestBody(requestBody);
             processAndSendEvent(apiAction, kafkaTopic, requestBody);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
-        } catch (ClientException e) {
-            return new ResponseEntity<>(errorResponse(response, e.getErrCode(), e), HttpStatus.BAD_REQUEST);
-        } catch (ServiceUnavailbleException e) {
-            return new ResponseEntity<>(errorResponse(response, e.getErrCode(), e), HttpStatus.SERVICE_UNAVAILABLE);
-        } catch (ServerException e) {
-            return new ResponseEntity<>(errorResponse(response, e.getErrCode(), e), HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (Exception e) {
+            return exceptionHandler(response, e);
+        }
+    }
+
+    protected ResponseEntity<Object> exceptionHandler(Response response, Exception e){
+        if (e instanceof ClientException) {
+            return new ResponseEntity<>(errorResponse(response, ((ClientException) e).getErrCode(), e), HttpStatus.BAD_REQUEST);
+        } else if (e instanceof ServiceUnavailbleException) {
+            return new ResponseEntity<>(errorResponse(response, ((ServiceUnavailbleException) e).getErrCode(), e), HttpStatus.SERVICE_UNAVAILABLE);
+        } else if (e instanceof ServerException) {
+            return new ResponseEntity<>(errorResponse(response, ((ServerException) e).getErrCode(), e), HttpStatus.INTERNAL_SERVER_ERROR);
+        } else {
             return new ResponseEntity<>(errorResponse(response, ErrorCodes.INTERNAL_SERVER_ERROR, e), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
