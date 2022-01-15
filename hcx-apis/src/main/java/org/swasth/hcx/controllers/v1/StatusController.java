@@ -33,30 +33,31 @@ public class StatusController extends BaseController {
     private String topic;
 
     @RequestMapping(value = "/status", method = RequestMethod.POST)
-    public ResponseEntity<Object> status(@RequestBody Map<String, Object> reqBody) throws Exception {
+    public ResponseEntity<Object> status(@RequestBody Map<String, Object> requestBody) throws Exception {
         Response response = new Response();
         try {
             if (!HealthCheckManager.allSystemHealthResult)
                 throw new ServiceUnavailbleException(ErrorCodes.SERVICE_UNAVAILABLE, "Service is unavailable");
-            Map<String, Object> requestBody = formatRequestBody(reqBody);
-            Map<String, Object> protectedMap = JSONUtils.decodeBase64String((String) requestBody.get(Constants.PROTECTED), HashMap.class);
+            Map<String, Object> protectedMap = JSONUtils.decodeBase64String(((String) requestBody.get(Constants.PAYLOAD)).split("\\.")[0], HashMap.class);
             validateRequestBody(requestBody);
-            if (protectedMap.containsKey(STATUS_FILTERS)){
-                HeaderAudit result = auditService.search(new SearchRequestDTO((HashMap<String, String>) protectedMap.get(STATUS_FILTERS))).get(0);
-                if (!protectedMap.get(SENDER_CODE).equals(result.getSender_code())) {
-                    throw new ClientException("Request_id does not belongs to sender");
-                }
-                String entityType = result.getAction().split("/")[2];
-                if(!STATUS_SEARCH_ALLOWED_ENTITIES.contains(entityType)) {
-                    throw new ClientException("Invalid entity, status search allowed only for entities: " + STATUS_SEARCH_ALLOWED_ENTITIES);
-                }
-                StatusResponse statusResponse = new StatusResponse(result.getRequest_id(), result.getCorrelation_id(), result.getWorkflow_id(), entityType, result.getSender_code(), result.getRecipient_code(), (String) result.getStatus());
-                if(result.getStatus().equals("request.queued")) {
-                    response.setResult(JSONUtils.convert(statusResponse, HashMap.class));
-                } else if (result.getStatus().equals("request.dispatched")) {
-                    response.setResult(JSONUtils.convert(statusResponse, HashMap.class));
-                    processAndSendEvent(HCX_STATUS, topic, requestBody);
-                }
+            if (!protectedMap.containsKey(STATUS_FILTERS) || ((Map<String, Object>) protectedMap.get(STATUS_FILTERS)).isEmpty()) {
+                throw new ClientException("Invalid request, status filters is missing or empty.");
+            }
+            HeaderAudit result = auditService.search(new SearchRequestDTO((HashMap<String, String>) protectedMap.get(STATUS_FILTERS))).get(0);
+            if (!protectedMap.get(SENDER_CODE).equals(result.getSender_code())) {
+                throw new ClientException("Request_id does not belongs to sender");
+            }
+            String entityType = result.getAction().split("/")[2];
+            if (!STATUS_SEARCH_ALLOWED_ENTITIES.contains(entityType)) {
+                throw new ClientException("Invalid entity, status search allowed only for entities: " + STATUS_SEARCH_ALLOWED_ENTITIES);
+            }
+            StatusResponse statusResponse = new StatusResponse(result.getRequest_id(), result.getCorrelation_id(), result.getWorkflow_id(), entityType, result.getSender_code(), result.getRecipient_code(), (String) result.getStatus());
+            Map<String,Object> statusResponseMap = JSONUtils.convert(statusResponse, HashMap.class);
+            if (result.getStatus().equals("request.queued")) {
+                response.setResult(statusResponseMap);
+            } else if (result.getStatus().equals("request.dispatched")) {
+                response.setResult(statusResponseMap);
+                processAndSendEvent(HCX_STATUS, topic, requestBody);
             }
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (ClientException e) {
