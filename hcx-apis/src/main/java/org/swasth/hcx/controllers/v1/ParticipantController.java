@@ -13,6 +13,7 @@ import org.swasth.common.dto.ResponseError;
 import org.swasth.common.exception.ErrorCodes;
 import org.swasth.hcx.controllers.BaseController;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import static org.swasth.hcx.utils.Constants.*;
@@ -30,10 +31,7 @@ public class ParticipantController  extends BaseController {
             return new ResponseEntity<>(errorResponse(ErrorCodes.CLIENT_ERR_INVALID_PARTICIPANT_DETAILS, "scheme_code is missing", null), HttpStatus.BAD_REQUEST);
         }
         if (!((ArrayList) requestBody.get(ROLES)).contains(PAYOR) && requestBody.containsKey(SCHEME_CODE)) {
-          return new ResponseEntity<>(
-              errorResponse(ErrorCodes.CLIENT_ERR_INVALID_PARTICIPANT_DETAILS,
-                  "unknown property scheme_code please remove", null),
-              HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorResponse(ErrorCodes.CLIENT_ERR_INVALID_PARTICIPANT_DETAILS, "unknown property, 'scheme_code' is not allowed", null), HttpStatus.BAD_REQUEST);
         }
         String url =  registryUrl + "/api/v1/Organisation/invite";
         Map<String, String> headersMap = new HashMap<>();
@@ -56,19 +54,21 @@ public class ParticipantController  extends BaseController {
     @RequestMapping(value = "/search", method = RequestMethod.POST)
     public ResponseEntity<Object> participantSearch(@RequestBody Map<String, Object> requestBody) throws Exception {
         String url =  registryUrl + "/api/v1/Organisation/search";
-        if (((Map<String, Object>) requestBody.get("filters")).containsKey("osid")) {
-          ((Map<String, Object>) requestBody.get("filters")).put("participant_code",
-              ((Map<String, Object>) requestBody.get("filters")).get("osid"));
-          ((Map<String, Object>) requestBody.get("filters")).remove("osid");
+        Map<String,Object> filters = (Map<String, Object>) requestBody.get("filters");
+        if (filters.containsKey("osid")) {
+          filters.put("participant_code", filters.get("osid"));
+          filters.remove("osid");
         }
-        HttpResponse response = HttpUtils.post(url, JSONUtils.serialize(requestBody), new HashMap<>());
+        Map<String,Object> updatedRequestBody = new HashMap<>(Collections.singletonMap("filters", filters));
+        HttpResponse response = HttpUtils.post(url, JSONUtils.serialize(updatedRequestBody), new HashMap<>());
         ArrayList<Object> result = JSONUtils.deserialize((String) response.getBody(), ArrayList.class);
         if(result.isEmpty()) {
             return new ResponseEntity<>(errorResponse(null,"Resource Not Found",null), HttpStatus.NOT_FOUND);
           } else {
-            for (Object obj : result) {
-              ((Map<String, Object>) obj).put("participant_code", ((Map<String, Object>) obj).get("osid"));
-              ((Map<String, Object>) obj).remove("osid");
+            for (Object obj: result) {
+                Map<String, Object> objMap = (Map<String, Object>) obj;
+                objMap.put("participant_code", objMap.get("osid"));
+                objMap.remove("osid");
             }
             return new ResponseEntity<>(new ParticipantResponse(result), HttpStatus.OK);
         }
