@@ -1,4 +1,4 @@
-package org.swasth.hcx.controllers.v1;
+package org.swasth.hcx.controllers;
 
 import kong.unirest.HttpResponse;
 import org.springframework.beans.factory.annotation.Value;
@@ -6,21 +6,23 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.swasth.common.utils.HttpUtils;
-import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.dto.ParticipantResponse;
 import org.swasth.common.dto.ResponseError;
 import org.swasth.common.exception.ErrorCodes;
-import org.swasth.hcx.controllers.BaseController;
+import org.swasth.common.utils.HttpUtils;
+import org.swasth.common.utils.JSONUtils;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
 import static org.swasth.hcx.utils.Constants.*;
 
 @RestController()
 @RequestMapping(value = "/participant")
 public class ParticipantController  extends BaseController {
+
     @Value("${registry.basePath}")
     private String registryUrl;
 
@@ -35,12 +37,12 @@ public class ParticipantController  extends BaseController {
         }
         String url =  registryUrl + "/api/v1/Organisation/invite";
         Map<String, String> headersMap = new HashMap<>();
-        headersMap.put("Authorization", header.get("Authorization").get(0));
+        headersMap.put(AUTHORIZATION, header.get(AUTHORIZATION).get(0));
         HttpResponse response = HttpUtils.post(url, JSONUtils.serialize(requestBody), headersMap);
         if (response != null && response.getStatus() == 200) {
             Map<String, Object> result = JSONUtils.deserialize((String) response.getBody(), HashMap.class);
             String participantCode = (String) ((Map<String, Object>) ((Map<String, Object>) result.get("result"))
-                .get("Organisation")).get("osid");
+                .get("Organisation")).get(OSID);
             ParticipantResponse resp = new ParticipantResponse(participantCode);
             return new ResponseEntity<>(resp, HttpStatus.OK);
         } else if(response.getStatus() == 400) {
@@ -54,12 +56,12 @@ public class ParticipantController  extends BaseController {
     @RequestMapping(value = "/search", method = RequestMethod.POST)
     public ResponseEntity<Object> participantSearch(@RequestBody Map<String, Object> requestBody) throws Exception {
         String url =  registryUrl + "/api/v1/Organisation/search";
-        Map<String,Object> filters = (Map<String, Object>) requestBody.get("filters");
-        if (filters.containsKey("osid")) {
-          filters.put("participant_code", filters.get("osid"));
-          filters.remove("osid");
+        Map<String,Object> filters = (Map<String, Object>) requestBody.get(FILTERS);
+        if (filters.containsKey(OSID)) {
+          filters.put(PARTICIPANT_CODE, filters.get(OSID));
+          filters.remove(OSID);
         }
-        Map<String,Object> updatedRequestBody = new HashMap<>(Collections.singletonMap("filters", filters));
+        Map<String,Object> updatedRequestBody = new HashMap<>(Collections.singletonMap(FILTERS, filters));
         HttpResponse response = HttpUtils.post(url, JSONUtils.serialize(updatedRequestBody), new HashMap<>());
         ArrayList<Object> result = JSONUtils.deserialize((String) response.getBody(), ArrayList.class);
         if(result.isEmpty()) {
@@ -67,8 +69,8 @@ public class ParticipantController  extends BaseController {
           } else {
             for (Object obj: result) {
                 Map<String, Object> objMap = (Map<String, Object>) obj;
-                objMap.put("participant_code", objMap.get("osid"));
-                objMap.remove("osid");
+                objMap.put(PARTICIPANT_CODE, objMap.get(OSID));
+                objMap.remove(OSID);
             }
             return new ResponseEntity<>(new ParticipantResponse(result), HttpStatus.OK);
         }
@@ -76,10 +78,10 @@ public class ParticipantController  extends BaseController {
 
     @RequestMapping(value = "/update", method = RequestMethod.POST)
     public ResponseEntity<Object> participantUpdate(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) throws Exception {
-      String url = registryUrl + "/api/v1/Organisation/" + requestBody.get("participant_code");
-      requestBody.remove("participant_code");
+      String url = registryUrl + "/api/v1/Organisation/" + requestBody.get(PARTICIPANT_CODE);
+      requestBody.remove(PARTICIPANT_CODE);
         Map<String, String> headersMap = new HashMap<>();
-        headersMap.put("Authorization",header.get("Authorization").get(0));
+        headersMap.put(AUTHORIZATION,header.get(AUTHORIZATION).get(0));
         HttpResponse response = HttpUtils.put(url, JSONUtils.serialize(requestBody), headersMap);
         if (response.getStatus() == 200) {
             return new ResponseEntity<>(HttpStatus.OK);

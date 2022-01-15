@@ -81,4 +81,9 @@ public  class Constants {
     public static final String PROVIDER = "provider";
     public static final String ROLES = "roles";
     public static final String SCHEME_CODE = "scheme_code";
+    public static final String PARTICIPANT_CODE = "participant_code";
+    public static final String OSID = "osid";
+    public static final String AUTHORIZATION = "Authorization";
+    public static final String FILTERS = "filters";
+
 }
