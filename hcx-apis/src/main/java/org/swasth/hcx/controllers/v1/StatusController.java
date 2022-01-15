@@ -27,7 +27,7 @@ import static org.swasth.hcx.utils.Constants.*;
 
 @RestController()
 @RequestMapping(value = "/v1/hcx")
-public class SearchController extends BaseController {
+public class StatusController extends BaseController {
 
     @Value("${kafka.topic.status}")
     private String topic;
