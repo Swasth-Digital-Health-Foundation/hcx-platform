@@ -21,9 +21,11 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
 
   def validate(event: util.Map[String, AnyRef]):ValidationResult
 
+  @throws(classOf[Exception])
   def getPayload(event: util.Map[String, AnyRef]): util.Map[String, AnyRef]
 
-  def audit(event: util.Map[String, AnyRef], status: Boolean, context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics);
+  @throws(classOf[Exception])
+  def audit(event: util.Map[String, AnyRef], status: Boolean, context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit
 
   def getCorrelationId(event: util.Map[String, AnyRef]): String = {
     event.get("headers").asInstanceOf[util.Map[String, AnyRef]]
