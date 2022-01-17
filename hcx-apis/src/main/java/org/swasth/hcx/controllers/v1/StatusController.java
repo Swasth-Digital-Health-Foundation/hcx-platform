@@ -13,7 +13,6 @@ import org.swasth.common.dto.SearchRequestDTO;
 import org.swasth.common.dto.StatusResponse;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
-import org.swasth.common.exception.ServerException;
 import org.swasth.common.exception.ServiceUnavailbleException;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.hcx.controllers.BaseController;
@@ -40,9 +39,11 @@ public class StatusController extends BaseController {
                 throw new ServiceUnavailbleException(ErrorCodes.SERVICE_UNAVAILABLE, "Service is unavailable");
             Map<String, Object> protectedMap = JSONUtils.decodeBase64String(((String) requestBody.get(Constants.PAYLOAD)).split("\\.")[0], HashMap.class);
             validateRequestBody(requestBody);
+            // TODO: filter properties validation
             if (!protectedMap.containsKey(STATUS_FILTERS) || ((Map<String, Object>) protectedMap.get(STATUS_FILTERS)).isEmpty()) {
                 throw new ClientException("Invalid request, status filters is missing or empty.");
             }
+            // Assuming a single result will be fetched for given request_id
             HeaderAudit result = auditService.search(new SearchRequestDTO((HashMap<String, String>) protectedMap.get(STATUS_FILTERS))).get(0);
             if (!protectedMap.get(SENDER_CODE).equals(result.getSender_code())) {
                 throw new ClientException("Request_id does not belongs to sender");
@@ -58,6 +59,9 @@ public class StatusController extends BaseController {
             } else if (result.getStatus().equals("request.dispatched")) {
                 response.setResult(statusResponseMap);
                 processAndSendEvent(HCX_STATUS, topic, requestBody);
+            } else {
+                // TODO: handle for other status
+                System.out.println("TODO for status " + result.getStatus());
             }
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
