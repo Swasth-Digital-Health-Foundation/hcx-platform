@@ -124,7 +124,7 @@ public class BaseController {
         }
     }
 
-    protected void setResponseParams(Response response, Map<String, Object> requestBody) throws Exception {
+    private void setResponseParams(Response response, Map<String, Object> requestBody) throws Exception {
         Map protectedMap = JSONUtils.decodeBase64String(((String) requestBody.get(Constants.PAYLOAD)).split("\\.")[0], HashMap.class);
         response.setWorkflowId(protectedMap.get(Constants.WORKFLOW_ID).toString());
         response.setRequestId(protectedMap.get(Constants.REQUEST_ID).toString());

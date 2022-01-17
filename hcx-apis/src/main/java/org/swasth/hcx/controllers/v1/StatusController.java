@@ -61,7 +61,6 @@ public class StatusController extends BaseController {
             }
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
-            setResponseParams(response, requestBody);
             return exceptionHandler(response, e);
         }
     }
@@ -80,7 +79,6 @@ public class StatusController extends BaseController {
             processAndSendEvent(HCX_ONSTATUS, topic, requestBody);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
-            setResponseParams(response, requestBody);
             return exceptionHandler(response, e);
         }
     }
