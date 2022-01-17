@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.swasth.hcx.controllers.BaseController;
-import org.swasth.hcx.utils.Constants;
+import org.swasth.common.utils.Constants;
 
 import java.util.Map;
 

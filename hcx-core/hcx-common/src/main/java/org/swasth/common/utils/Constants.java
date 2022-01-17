@@ -1,4 +1,4 @@
-package org.swasth.hcx.utils;
+package org.swasth.common.utils;
 
 import java.util.Arrays;
 import java.util.List;

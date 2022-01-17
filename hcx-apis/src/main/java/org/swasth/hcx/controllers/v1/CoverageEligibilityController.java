@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.swasth.hcx.controllers.BaseController;
-import org.swasth.hcx.utils.Constants;
+import org.swasth.common.utils.Constants;
 
 import java.util.Map;
 

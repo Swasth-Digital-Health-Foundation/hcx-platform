@@ -17,7 +17,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.swasth.hcx.utils.Constants.*;
+import static org.swasth.common.utils.Constants.*;
 
 @RestController()
 @RequestMapping(value = "/participant")
