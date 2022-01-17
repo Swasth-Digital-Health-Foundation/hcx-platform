@@ -1,6 +1,7 @@
 package org.swasth.hcx.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -20,15 +21,17 @@ import org.swasth.hcx.controllers.v1.ClaimsController;
 import org.swasth.hcx.controllers.v1.CoverageEligibilityController;
 import org.swasth.hcx.controllers.v1.PaymentsController;
 import org.swasth.hcx.controllers.v1.PreAuthController;
+import org.swasth.hcx.controllers.v1.AuditController;
 import org.swasth.hcx.helpers.EventGenerator;
 import org.swasth.hcx.managers.HealthCheckManager;
+import org.swasth.hcx.service.HeaderAuditService;
 import org.swasth.kafka.client.IEventService;
 import org.swasth.postgresql.IDatabaseService;
 
 import java.util.HashMap;
 import java.util.Map;
 
-@WebMvcTest({CoverageEligibilityController.class, PreAuthController.class, ClaimsController.class, PaymentsController.class})
+@WebMvcTest({CoverageEligibilityController.class, PreAuthController.class, ClaimsController.class, PaymentsController.class, AuditController.class})
 @ExtendWith(MockitoExtension.class)
 @ActiveProfiles("test")
 public class BaseSpec {
@@ -52,6 +55,9 @@ public class BaseSpec {
 
     @MockBean
     protected HealthCheckManager healthCheckManager;
+
+    @MockBean
+    protected HeaderAuditService headerAuditService;
 
     @BeforeEach
     public void setup() {

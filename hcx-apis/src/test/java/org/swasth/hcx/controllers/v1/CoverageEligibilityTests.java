@@ -16,6 +16,7 @@ public class CoverageEligibilityTests extends BaseSpec {
 
 
 
+
     @Test
     public void check_coverage_eligibility_success_scenario() throws Exception {
       doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
