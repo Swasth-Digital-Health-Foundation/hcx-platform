@@ -73,7 +73,7 @@ public class StatusController extends BaseController {
                 throw new ServiceUnavailbleException(ErrorCodes.SERVICE_UNAVAILABLE, "Service is unavailable");
             Map<String, Object> protectedMap = JSONUtils.decodeBase64String(((String) requestBody.get(Constants.PAYLOAD)).split("\\.")[0], HashMap.class);
             validateRequestBody(requestBody);
-            if(protectedMap.containsKey(STATUS_RESPONSE) || ((Map<String, Object>) protectedMap.get(STATUS_RESPONSE)).isEmpty()) {
+            if(!protectedMap.containsKey(STATUS_RESPONSE) || ((Map<String, Object>) protectedMap.get(STATUS_RESPONSE)).isEmpty()) {
                 throw new ClientException("Invalid request, status response is missing or empty.");
             }
             processAndSendEvent(HCX_ONSTATUS, topic, requestBody);
