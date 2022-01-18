@@ -34,6 +34,7 @@ public class StatusController extends BaseController {
             if (!HealthCheckManager.allSystemHealthResult)
                 throw new ServiceUnavailbleException(ErrorCodes.SERVICE_UNAVAILABLE, "Service is unavailable");
             Request request = new Request(requestBody);
+            setResponseParams(request, response);
             Map<String, Object> hcxHeaders = request.getHcxHeaders();
             // TODO: filter properties validation
             if (!hcxHeaders.containsKey(STATUS_FILTERS) || ((Map<String, Object>) hcxHeaders.get(STATUS_FILTERS)).isEmpty()) {
@@ -42,13 +43,13 @@ public class StatusController extends BaseController {
             // Assuming a single result will be fetched for given request_id
             HeaderAudit result = auditService.search(new SearchRequestDTO((Map<String, String>) hcxHeaders.get(STATUS_FILTERS))).get(0);
             if (!hcxHeaders.get(SENDER_CODE).equals(result.getSender_code())) {
-                throw new ClientException("Request_id does not belongs to sender");
+                throw new ClientException("Request does not belongs to sender");
             }
             String entityType = result.getAction().split("/")[2];
             if (!STATUS_SEARCH_ALLOWED_ENTITIES.contains(entityType)) {
                 throw new ClientException("Invalid entity, status search allowed only for entities: " + STATUS_SEARCH_ALLOWED_ENTITIES);
             }
-            StatusResponse statusResponse = new StatusResponse(result.getRequest_id(), result.getCorrelation_id(), result.getWorkflow_id(), entityType, result.getSender_code(), result.getRecipient_code(), (String) result.getStatus());
+            StatusResponse statusResponse = new StatusResponse(entityType, result.getSender_code(), result.getRecipient_code(), (String) result.getStatus());
             Map<String,Object> statusResponseMap = JSONUtils.convert(statusResponse, HashMap.class);
             if (result.getStatus().equals("request.queued")) {
                 response.setResult(statusResponseMap);
@@ -72,6 +73,7 @@ public class StatusController extends BaseController {
             if (!HealthCheckManager.allSystemHealthResult)
                 throw new ServiceUnavailbleException(ErrorCodes.SERVICE_UNAVAILABLE, "Service is unavailable");
             Request request = new Request(requestBody);
+            setResponseParams(request, response);
             Map<String, Object> hcxHeaders = request.getHcxHeaders();
             if(!hcxHeaders.containsKey(STATUS_RESPONSE) || ((Map<String, Object>) hcxHeaders.get(STATUS_RESPONSE)).isEmpty()) {
                 throw new ClientException("Invalid request, status response is missing or empty.");
