@@ -47,6 +47,7 @@ abstract class BaseProcessFunction[T, R](config: BaseJobConfig) extends ProcessF
     registryDataCache.init()
   }
 
+  @throws[Exception]
   def processElement(event: T, context: ProcessFunction[T, R]#Context, metrics: Metrics): Unit
   def metricsList(): List[String]
 

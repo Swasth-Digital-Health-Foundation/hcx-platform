@@ -29,22 +29,19 @@ public class EventUtils {
     }
 
     public static Map<String, Object> parsePayload(String encodedPayload) throws Exception {
-        Map<String, Object> event = new HashMap<>();
-        Map<String, Object> payLoadMap = BaseUtils.decodeBase64String(encodedPayload,Map.class);
-        String payloadStr = (String) payLoadMap.get("payload");
-
-        String[] strArray = payloadStr.split("\\.");
+        String[] strArray = encodedPayload.split("\\.");
         if (strArray.length > 0 && strArray.length == 6) {
-            event.put(Constants.PROTECTED, strArray[0] );
-            event.put(Constants.ENCRYPTED_KEY, strArray[1]);
-            event.put(Constants.AAD, strArray[2]);
-            event.put(Constants.IV, strArray[3]);
-            event.put(Constants.CIPHERTEXT, strArray[4]);
-            event.put(Constants.TAG, strArray[5]);
+            Map<String, Object> event = new HashMap<>();
+            event.put(Constants.PROTECTED, BaseUtils.decodeBase64String(strArray[0],Map.class));
+            event.put(Constants.ENCRYPTED_KEY, BaseUtils.decodeBase64String(strArray[1],Map.class));
+            event.put(Constants.AAD, BaseUtils.decodeBase64String(strArray[2],Map.class));
+            event.put(Constants.IV, BaseUtils.decodeBase64String(strArray[3],Map.class));
+            event.put(Constants.CIPHERTEXT, BaseUtils.decodeBase64String(strArray[4],Map.class));
+            event.put(Constants.TAG, BaseUtils.decodeBase64String(strArray[5],Map.class));
+            return event;
         } else {
             throw new PipelineException("payload is not complete");
         }
-        return event;
     }
 
     public static String encodePayload(Map<String,Object> payload){

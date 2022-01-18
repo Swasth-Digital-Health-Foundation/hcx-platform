@@ -11,9 +11,7 @@ import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.swasth.dp.core.job.BaseJobConfig;
 import org.swasth.dp.core.job.FlinkKafkaConnector;
 import org.swasth.dp.core.util.FlinkUtil;
-import org.swasth.dp.search.functions.CompositeSearchProcessFunction;
-import org.swasth.dp.search.functions.ResponseDispatchProcessFunction;
-import org.swasth.dp.search.functions.SearchDispatchProcessFunction;
+import org.swasth.dp.search.functions.*;
 import scala.Option;
 import scala.Some;
 
@@ -30,7 +28,7 @@ public class CompositeSearchTask {
         this.kafkaConnector = kafkaConnector;
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         Option<String> configFilePath = new Some<String>(ParameterTool.fromArgs(args).get("config.file.path"));
         Config config = configFilePath.map(path -> ConfigFactory.parseFile(new File(path)).resolve())
                 .getOrElse(() -> ConfigFactory.load("search.conf").withFallback(ConfigFactory.systemEnvironment()));
@@ -41,8 +39,7 @@ public class CompositeSearchTask {
         try {
             searchTask.process(searchConfig);
         } catch (Exception e) {
-            //TODO Add loggers
-            e.printStackTrace();
+            throw e;
         }
     }
 
@@ -51,22 +48,33 @@ public class CompositeSearchTask {
     private void process(BaseJobConfig baseJobConfig) throws Exception {
         StreamExecutionEnvironment env = FlinkUtil.getExecutionContext(baseJobConfig);
 
-        SourceFunction<Map<String,Object>> kafkaConsumer = kafkaConnector.kafkaMapSource(searchConfig.kafkaInputTopic);
+        SourceFunction<Map<String,Object>> kafkaConsumer = kafkaConnector.kafkaMapSource(searchConfig.getKafkaInputTopic());
+        System.out.println("Input topic is:"+searchConfig.getKafkaInputTopic());
 
-       SingleOutputStreamOperator<Map<String,Object>> dataStream = env.addSource(kafkaConsumer, searchConfig.searchConsumer)
-                .uid(searchConfig.searchConsumer).setParallelism(searchConfig.consumerParallelism)
+       SingleOutputStreamOperator<Map<String,Object>> dataStream = env.addSource(kafkaConsumer, searchConfig.getSearchConsumer())
+                .uid(searchConfig.getSearchConsumer()).setParallelism(searchConfig.getConsumerParallelism())
                 .rebalance()
-                .process(new CompositeSearchProcessFunction(searchConfig)).setParallelism(searchConfig.downstreamOperatorsParallelism);
+                .process(new EventRouterFunction(searchConfig)).setParallelism(searchConfig.getDownstreamOperatorsParallelism());
 
-        dataStream.getSideOutput(searchConfig.auditOutputTag()).addSink(kafkaConnector.kafkaStringSink(searchConfig.auditTopic())).name(searchConfig.auditProducer()).uid(searchConfig.auditProducer()).setParallelism(searchConfig.downstreamOperatorsParallelism);
+        /** Sink for EventRouterFunction audit events */
+        dataStream.getSideOutput(searchConfig.auditOutputTag()).addSink(kafkaConnector.kafkaStringSink(searchConfig.getKafkaAuditTopic())).name(searchConfig.auditSearch).uid(searchConfig.auditSearch).setParallelism(searchConfig.getDownstreamOperatorsParallelism());
 
-        SingleOutputStreamOperator<Map<String,Object>> dispatchStream = dataStream.getSideOutput(searchConfig.searchOutputTag)
-                .process(new SearchDispatchProcessFunction(searchConfig)).setParallelism(searchConfig.downstreamOperatorsParallelism);
-        /** Sink for audit events */
-        dispatchStream.getSideOutput(searchConfig.auditOutputTag()).addSink(kafkaConnector.kafkaStringSink(searchConfig.auditTopic())).name(searchConfig.auditProducer()).uid(searchConfig.auditProducer()).setParallelism(searchConfig.downstreamOperatorsParallelism);
+        SingleOutputStreamOperator<Map<String,Object>> requestDispatchStream = dataStream.getSideOutput(searchConfig.searchRequestOutputTag)
+                .process(new SearchRequestDispatchFunction(searchConfig)).setParallelism(searchConfig.getDownstreamOperatorsParallelism());
+        /** Sink for SearchRequestDispatchFunction audit events */
+        //requestDispatchStream.getSideOutput(searchConfig.auditOutputTag()).addSink(kafkaConnector.kafkaStringSink(searchConfig.auditTopic())).name(searchConfig.auditProducer()).uid(searchConfig.auditProducer()).setParallelism(searchConfig.getDownstreamOperatorsParallelism());
 
-        SingleOutputStreamOperator<Map<String,Object>> responseStream = dataStream.getSideOutput(searchConfig.searchResponseOutputTag).process(new ResponseDispatchProcessFunction(searchConfig)).setParallelism(searchConfig.downstreamOperatorsParallelism);
-        responseStream.getSideOutput(searchConfig.auditOutputTag()).addSink(kafkaConnector.kafkaStringSink(searchConfig.auditTopic())).name(searchConfig.auditProducer()).uid(searchConfig.auditProducer()).setParallelism(searchConfig.downstreamOperatorsParallelism);
+
+        SingleOutputStreamOperator<Map<String,Object>> responseDispatchStream = dataStream.getSideOutput(searchConfig.searchResponseOutputTag)
+               .process(new SearchResponseDispatchFunction(searchConfig)).setParallelism(searchConfig.getDownstreamOperatorsParallelism());
+        /** Sink for SearchResponseDispatchFunction audit events */
+        //responseDispatchStream.getSideOutput(searchConfig.auditOutputTag()).addSink(kafkaConnector.kafkaStringSink(searchConfig.auditTopic())).name(searchConfig.auditProducer()).uid(searchConfig.auditProducer()).setParallelism(searchConfig.getDownstreamOperatorsParallelism());
+
+
+      SingleOutputStreamOperator<Map<String,Object>> completeResponseStream = responseDispatchStream.getSideOutput(searchConfig.searchCompleteResponseOutputTag)
+              .process(new SearchCompletionDispatchFunction(searchConfig)).setParallelism(searchConfig.getDownstreamOperatorsParallelism());
+        /** Sink for SearchCompletionDispatchFunction audit events */
+        //completeResponseStream.getSideOutput(searchConfig.auditOutputTag()).addSink(kafkaConnector.kafkaStringSink(searchConfig.auditTopic())).name(searchConfig.auditProducer()).uid(searchConfig.auditProducer()).setParallelism(searchConfig.getDownstreamOperatorsParallelism());
 
         System.out.println(searchConfig.jobName() + " is processing");
         env.execute(searchConfig.jobName());

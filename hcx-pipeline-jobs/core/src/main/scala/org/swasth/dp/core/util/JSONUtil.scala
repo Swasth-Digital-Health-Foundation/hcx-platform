@@ -1,12 +1,13 @@
 package org.swasth.dp.core.util
 
-import java.lang.reflect.{ParameterizedType, Type}
-
 import com.fasterxml.jackson.annotation.JsonInclude.Include
 import com.fasterxml.jackson.core.JsonGenerator.Feature
-import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper, SerializationFeature}
-
 import com.fasterxml.jackson.core.`type`.TypeReference
+import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper, SerializationFeature}
+import scala.collection.JavaConverters._
+import java.lang.reflect.{ParameterizedType, Type}
+import java.util
+import java.util.Base64
 
 object JSONUtil {
 
@@ -41,6 +42,49 @@ object JSONUtil {
       def getActualTypeArguments = m.typeArguments.map(typeFromManifest).toArray
       def getOwnerType = null
     }
+  }
+
+  @throws[Exception]
+  def encodeBase64String(decodedObj: AnyRef): String = {
+    val encodedString = Base64.getEncoder.encodeToString(serialize(decodedObj).getBytes)
+    encodedString
+  }
+
+  @throws[Exception]
+  def decodeBase64String[T](encodedString: String, clazz: Class[T]): T = {
+    val decodedBytes = Base64.getDecoder.decode(encodedString)
+    val decodedString = new String(decodedBytes)
+    deserialize(decodedString,clazz)
+  }
+
+  def deserialize[T](json: String,clazz: Class[T]): T = {
+    mapper.readValue(json, clazz);
+  }
+
+  @throws[Exception]
+  def parsePayload(encodedPayload: String): util.HashMap[String, AnyRef] = {
+    val strArray = encodedPayload.split("\\.")
+    if (strArray.length > 0 && strArray.length == 6) {
+      val event = new util.HashMap[String, AnyRef]
+      event.put("protected", strArray(0))
+      event.put("encrypted_key", strArray(1))
+      event.put("aad", strArray(2))
+      event.put("iv", strArray(3))
+      event.put("ciphertext", strArray(4))
+      event.put("tag", strArray(5))
+      event
+    }
+    else throw new Exception("payload is not complete")
+  }
+
+  def createPayloadByValues(payload: util.Map[String, AnyRef]): String = {
+    var encodedString = ""
+    for (objValue <- payload.asScala.values) {
+      encodedString = encodedString + objValue + "."
+    }
+    //Remove the last . after adding all the values
+    encodedString = encodedString.substring(0, encodedString.length - 1)
+    encodedString
   }
 
 }

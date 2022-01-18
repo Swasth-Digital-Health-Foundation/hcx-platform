@@ -12,6 +12,14 @@ public class CompositeSearch implements Serializable {
     private Timestamp requestTime;
     private SearchResponse searchResponse;
 
+    public SearchResponse getSearchResponse() {
+        return searchResponse;
+    }
+
+    public void setSearchResponse(SearchResponse searchResponse) {
+        this.searchResponse = searchResponse;
+    }
+
     public String getWorkFlowId() {
         return workFlowId;
     }

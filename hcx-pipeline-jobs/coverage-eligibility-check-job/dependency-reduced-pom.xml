@@ -53,35 +53,8 @@
         </executions>
       </plugin>
       <plugin>
-        <groupId>net.alchim31.maven</groupId>
-        <artifactId>scala-maven-plugin</artifactId>
-        <version>3.2.2</version>
-        <executions>
-          <execution>
-            <id>scala-compile-first</id>
-            <phase>process-resources</phase>
-            <goals>
-              <goal>add-source</goal>
-              <goal>compile</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>scala-test-compile</id>
-            <phase>process-test-resources</phase>
-            <goals>
-              <goal>testCompile</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <source>${java.target.runtime}</source>
-          <target>${java.target.runtime}</target>
-          <checkMultipleScalaVersions>false</checkMultipleScalaVersions>
-        </configuration>
-      </plugin>
-      <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.22.2</version>
+        <version>3.0.0-M5</version>
         <configuration>
           <skipTests>true</skipTests>
         </configuration>
@@ -131,18 +104,6 @@
           <artifactId>flink-scala_2.12</artifactId>
           <groupId>org.apache.flink</groupId>
         </exclusion>
-        <exclusion>
-          <artifactId>scala-reflect</artifactId>
-          <groupId>org.scala-lang</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>scala-library</artifactId>
-          <groupId>org.scala-lang</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>scala-compiler</artifactId>
-          <groupId>org.scala-lang</groupId>
-        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
@@ -187,14 +148,6 @@
           <groupId>org.apache.flink</groupId>
         </exclusion>
         <exclusion>
-          <artifactId>flink-clients_2.12</artifactId>
-          <groupId>org.apache.flink</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>junit</artifactId>
-          <groupId>junit</groupId>
-        </exclusion>
-        <exclusion>
           <artifactId>curator-test</artifactId>
           <groupId>org.apache.curator</groupId>
         </exclusion>
@@ -226,10 +179,6 @@
         <exclusion>
           <artifactId>flink-hadoop-fs</artifactId>
           <groupId>org.apache.flink</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>commons-io</artifactId>
-          <groupId>commons-io</groupId>
         </exclusion>
         <exclusion>
           <artifactId>flink-shaded-netty</artifactId>
@@ -283,10 +232,6 @@
           <artifactId>chill_2.12</artifactId>
           <groupId>com.twitter</groupId>
         </exclusion>
-        <exclusion>
-          <artifactId>scala-library</artifactId>
-          <groupId>org.scala-lang</groupId>
-        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
@@ -294,12 +239,6 @@
       <artifactId>embedded-redis</artifactId>
       <version>0.7.1</version>
       <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>commons-io</artifactId>
-          <groupId>commons-io</groupId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>io.zonky.test</groupId>
@@ -324,20 +263,8 @@
           <groupId>io.zonky.test.postgres</groupId>
         </exclusion>
         <exclusion>
-          <artifactId>commons-compress</artifactId>
-          <groupId>org.apache.commons</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>xz</artifactId>
-          <groupId>org.tukaani</groupId>
-        </exclusion>
-        <exclusion>
           <artifactId>postgresql</artifactId>
           <groupId>org.postgresql</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>commons-io</artifactId>
-          <groupId>commons-io</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -390,18 +317,6 @@
           <artifactId>scalactic_2.12</artifactId>
           <groupId>org.scalactic</groupId>
         </exclusion>
-        <exclusion>
-          <artifactId>scala-xml_2.12</artifactId>
-          <groupId>org.scala-lang.modules</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>scala-reflect</artifactId>
-          <groupId>org.scala-lang</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>scala-library</artifactId>
-          <groupId>org.scala-lang</groupId>
-        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
@@ -409,6 +324,38 @@
       <artifactId>mock-jedis</artifactId>
       <version>0.4.0</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.flink</groupId>
+      <artifactId>flink-clients_2.12</artifactId>
+      <version>1.12.0</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>flink-optimizer_2.12</artifactId>
+          <groupId>org.apache.flink</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>commons-cli</artifactId>
+          <groupId>commons-cli</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>flink-core</artifactId>
+          <groupId>org.apache.flink</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>flink-runtime_2.12</artifactId>
+          <groupId>org.apache.flink</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>flink-java</artifactId>
+          <groupId>org.apache.flink</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>flink-streaming-java_2.12</artifactId>
+          <groupId>org.apache.flink</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
   </dependencies>
   <dependencyManagement>
