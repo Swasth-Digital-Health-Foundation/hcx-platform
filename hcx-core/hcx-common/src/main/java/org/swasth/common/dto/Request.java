@@ -95,8 +95,12 @@ public class Request{
         return getHeader(WORKFLOW_ID);
     }
 
-    public String getRequestId() {
-        return getHeader(REQUEST_ID);
+    public String getApiCallId() {
+        return getHeader(API_CALL_ID);
+    }
+
+    public String getCorrelationId() {
+        return getHeader(CORRELATION_ID);
     }
 
     public String getSenderCode() {

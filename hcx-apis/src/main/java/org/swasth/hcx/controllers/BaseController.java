@@ -81,8 +81,8 @@ public class BaseController {
             if (!HealthCheckManager.allSystemHealthResult)
                 throw new ServiceUnavailbleException(ErrorCodes.SERVICE_UNAVAILABLE, "Service is unavailable");
             Request request = new Request(requestBody);
-            response.setWorkflowId(request.getWorkflowId());
-            response.setRequestId(request.getRequestId());
+            response.setCorrelationId(request.getCorrelationId());
+            response.setApiCallId(request.getApiCallId());
             request.validate(getMandatoryHeaders(), timestampRange);
             processAndSendEvent(apiAction, kafkaTopic, request);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);

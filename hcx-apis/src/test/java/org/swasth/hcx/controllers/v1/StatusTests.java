@@ -25,7 +25,7 @@ public class StatusTests extends BaseSpec {
     @Test
     public void status_success_scenario() throws Exception {
         doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
-        when(auditService.search(any())).thenReturn(Arrays.asList(new HeaderAudit("26b1060c", "12345", "5e934f90", "b016", "2022-01-06T20:35:52.636+0530", "93f908ba", "59cefda2-a4cc-4795-95f3-fb9e82e21cef", "/v1/coverageeligibility/check", new Object(), new Object(), "request.dispatched")));
+        when(headerAuditService.search(any())).thenReturn(Arrays.asList(new HeaderAudit("26b1060c", "12345", "5e934f90", "b016", "2022-01-06T20:35:52.636+0530", "93f908ba", "59cefda2-a4cc-4795-95f3-fb9e82e21cef", "/v1/coverageeligibility/check", new Object(), new Object(), "request.dispatched")));
         String requestBody = getStatusRequestBody();
         MvcResult mvcResult = mockMvc.perform(post("/v1/hcx/status").content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
