@@ -7,19 +7,19 @@ import lombok.Data;
 public class Response {
 
     private long timestamp = System.currentTimeMillis();
-    @JsonProperty("workflow_id")
-    private String workflowId;
-    @JsonProperty("request_id")
-    private String requestId;
+    @JsonProperty("correlation_id")
+    private String correlationId;
+    @JsonProperty("api_call_id")
+    private String apiCallId;
     private ResponseError error;
 
     public Response(ResponseError error) {
         this.error = error;
     }
 
-    public Response(String workflowId, String requestId, ResponseError error) {
-        this.workflowId = workflowId;
-        this.requestId = requestId;
+    public Response(String correlationId, String apiCallId, ResponseError error) {
+        this.correlationId = correlationId;
+        this.apiCallId = apiCallId;
         this.error = error;
     }
 
