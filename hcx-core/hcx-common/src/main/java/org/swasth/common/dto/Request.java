@@ -31,7 +31,7 @@ public class Request{
         if (!missingHeaders.isEmpty()) {
             throw new ClientException(ErrorCodes.CLIENT_ERR_MANDATORY_HEADERFIELD_MISSING, "Mandatory headers are missing: " + missingHeaders);
         }
-        for (Map.Entry<String, ClientException> entry : getClientErrors().entrySet()) {
+        for (Map.Entry<String, ClientException> entry : getClientErrors(hcxHeaders).entrySet()) {
             validateHeader(hcxHeaders, entry.getKey(), entry.getValue());
         }
 
@@ -79,10 +79,12 @@ public class Request{
         } else throw ex;
     }
 
-    private Map<String, ClientException> getClientErrors(){
+    private Map<String, ClientException> getClientErrors(Map<String, Object> hcxHeaders){
         Map<String, ClientException> clientErrors = new HashMap<>();
         clientErrors.put(TIMESTAMP, new ClientException(ErrorCodes.CLIENT_ERR_INVALID_TIMESTAMP, "Invalid timestamp"));
-        //clientErrors.put(WORKFLOW_ID, new ClientException(ErrorCodes.CLIENT_ERR_INVALID_WORKFLOW_ID, "Workflow id cannot be null, empty and other than 'String'"));
+        if(hcxHeaders.containsKey(WORKFLOW_ID)) {
+            clientErrors.put(WORKFLOW_ID, new ClientException(ErrorCodes.CLIENT_ERR_INVALID_WORKFLOW_ID, "Workflow id cannot be null, empty and other than 'String'"));
+        }
         return clientErrors;
     }
 
