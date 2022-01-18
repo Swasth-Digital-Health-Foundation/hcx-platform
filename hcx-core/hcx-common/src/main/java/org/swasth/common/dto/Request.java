@@ -82,7 +82,7 @@ public class Request{
     private Map<String, ClientException> getClientErrors(){
         Map<String, ClientException> clientErrors = new HashMap<>();
         clientErrors.put(TIMESTAMP, new ClientException(ErrorCodes.CLIENT_ERR_INVALID_TIMESTAMP, "Invalid timestamp"));
-        //clientErrors.put(CASE_ID, new ClientException(ErrorCodes.CLIENT_ERR_INVALID_CASE_ID, "Case id cannot be null, empty and other than 'String'"));
+        //clientErrors.put(WORKFLOW_ID, new ClientException(ErrorCodes.CLIENT_ERR_INVALID_WORKFLOW_ID, "Workflow id cannot be null, empty and other than 'String'"));
         return clientErrors;
     }
 
