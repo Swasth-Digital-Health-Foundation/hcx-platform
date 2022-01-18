@@ -1,8 +1,6 @@
 package org.swasth.hcx.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.elasticsearch.action.get.GetRequest;
-import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchRequest;
@@ -18,13 +16,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.swasth.common.dto.HeaderAudit;
-import org.swasth.hcx.utils.*;
+import org.swasth.common.utils.Constants;
 import org.swasth.common.dto.SearchRequestDTO;
 import org.swasth.hcx.utils.SearchUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 @Service

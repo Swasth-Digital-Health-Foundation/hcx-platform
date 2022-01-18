@@ -1,16 +1,11 @@
 package org.swasth.hcx.managers;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 import org.swasth.common.dto.Response;
-import org.swasth.hcx.utils.Constants;
+import org.swasth.common.utils.Constants;
 import org.swasth.kafka.client.IEventService;
-import org.swasth.kafka.client.KafkaClient;
 import org.swasth.postgresql.IDatabaseService;
-import org.swasth.postgresql.PostgreSQLClient;
 
 import java.util.ArrayList;
 import java.util.HashMap;

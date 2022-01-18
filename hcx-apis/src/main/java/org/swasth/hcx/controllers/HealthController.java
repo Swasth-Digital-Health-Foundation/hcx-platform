@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.swasth.common.dto.Response;
 import org.swasth.hcx.managers.HealthCheckManager;
-import org.swasth.hcx.utils.Constants;
+import org.swasth.common.utils.Constants;
 
 @RestController
 public class HealthController extends BaseController {

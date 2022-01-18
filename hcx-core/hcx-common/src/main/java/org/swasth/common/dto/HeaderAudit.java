@@ -14,6 +14,19 @@ public class HeaderAudit {
 	private Object jose;
 	private Object status;
 
+	public HeaderAudit(String request_id, String recipient_code, String correlation_id, String workflow_id, String timestamp, String sender_code, String mid, String action, Object log_details, Object jose, Object status) {
+		this.request_id = request_id;
+		this.recipient_code = recipient_code;
+		this.correlation_id = correlation_id;
+		this.workflow_id = workflow_id;
+		this.timestamp = timestamp;
+		this.sender_code = sender_code;
+		this.mid = mid;
+		this.action = action;
+		this.log_details = log_details;
+		this.jose = jose;
+		this.status = status;
+	}
 	
 	public Object getStatus() {
 		return status;
