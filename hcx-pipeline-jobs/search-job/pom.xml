@@ -7,8 +7,9 @@
 		<version>1.0</version>
 	</parent>
 	<artifactId>search-job</artifactId>
-	<version>1.0-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<packaging>jar</packaging>
+	<name>SearchJob</name>
 
 	<repositories>
 		<repository>
@@ -45,21 +46,12 @@
 			<groupId>org.apache.flink</groupId>
 			<artifactId>flink-java</artifactId>
 			<version>${flink.version}</version>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.flink</groupId>
 			<artifactId>flink-streaming-java_${scala.version}</artifactId>
 			<version>${flink.version}</version>
-			<scope>provided</scope>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.flink</groupId>
-			<artifactId>flink-clients_${scala.version}</artifactId>
-			<version>${flink.version}</version>
-			<scope>provided</scope>
-		</dependency>
-
 		<!-- Add connector dependencies here. They must be in the default scope (compile). -->
 		<dependency>
 			<groupId>org.apache.flink</groupId>
@@ -70,6 +62,12 @@
 			<groupId>org.apache.flink</groupId>
 			<artifactId>flink-connector-kafka_${scala.version}</artifactId>
 			<version>${flink.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.typesafe</groupId>
+			<artifactId>config</artifactId>
+			<version>1.3.3</version>
+			<scope>compile</scope>
 		</dependency>
 		<!-- Add logging framework, to produce console output when running in the IDE. -->
 		<!-- These dependencies are excluded from the application JAR by default. -->
@@ -100,30 +98,52 @@
 			<version>4.0.0</version>
 			<scope>test</scope>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/junit/junit -->
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>RELEASE</version>
+			<version>4.13.2</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.flink</groupId>
-			<artifactId>flink-streaming-scala_2.12</artifactId>
-			<version>1.12.0</version>
-			<scope>compile</scope>
+			<groupId>org.swasth</groupId>
+			<artifactId>core</artifactId>
+			<version>1.0.0</version>
+			<type>test-jar</type>
+			<scope>test</scope>
 		</dependency>
-        <dependency>
-            <groupId>org.scala-lang</groupId>
-            <artifactId>scala-library</artifactId>
-            <version>2.13.3</version>
-            <scope>compile</scope>
-        </dependency>
 		<dependency>
-			<groupId>org.scala-lang</groupId>
-			<artifactId>scala-library</artifactId>
-			<version>2.12.7</version>
-			<scope>compile</scope>
+			<groupId>net.alchim31.maven</groupId>
+			<artifactId>scala-maven-plugin</artifactId>
+			<version>4.3.1</version>
+			<type>maven-plugin</type>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.flink</groupId>
+			<artifactId>flink-clients_${scala.version}</artifactId>
+			<version>${flink.version}</version>
+		</dependency>
+<!--		&lt;!&ndash; https://mvnrepository.com/artifact/org.apache.flink/flink-test-utils &ndash;&gt;-->
+<!--		<dependency>-->
+<!--			<groupId>org.apache.flink</groupId>-->
+<!--			<artifactId>flink-test-utils_${scala.version}</artifactId>-->
+<!--			<version>${flink.version}</version>-->
+<!--			<scope>test</scope>-->
+<!--		</dependency>-->
+<!--		&lt;!&ndash; https://mvnrepository.com/artifact/org.apache.flink/flink-runtime &ndash;&gt;-->
+<!--		<dependency>-->
+<!--			<groupId>org.apache.flink</groupId>-->
+<!--			<artifactId>flink-runtime_${scala.version}</artifactId>-->
+<!--			<version>${flink.version}</version>-->
+<!--			<scope>test</scope>-->
+<!--		</dependency>-->
+
+<!--		<dependency>-->
+<!--			<groupId>org.apache.flink</groupId>-->
+<!--			<artifactId>flink-streaming-java_2.12</artifactId>-->
+<!--			<version>1.12.0</version>-->
+<!--			<scope>test</scope>-->
+<!--		</dependency>-->
 
 	</dependencies>
 
@@ -183,6 +203,33 @@
 					</execution>
 				</executions>
 			</plugin>
+			<!--            <plugin>-->
+			<!--                <groupId>net.alchim31.maven</groupId>-->
+			<!--                <artifactId>scala-maven-plugin</artifactId>-->
+			<!--                <version>3.2.2</version>-->
+			<!--                <configuration>-->
+			<!--                    <source>${java.target.runtime}</source>-->
+			<!--                    <target>${java.target.runtime}</target>-->
+			<!--                    <checkMultipleScalaVersions>false</checkMultipleScalaVersions>-->
+			<!--                </configuration>-->
+			<!--                <executions>-->
+			<!--                    <execution>-->
+			<!--                        <id>scala-compile-first</id>-->
+			<!--                        <phase>process-resources</phase>-->
+			<!--                        <goals>-->
+			<!--                            <goal>add-source</goal>-->
+			<!--                            <goal>compile</goal>-->
+			<!--                        </goals>-->
+			<!--                    </execution>-->
+			<!--                    <execution>-->
+			<!--                        <id>scala-test-compile</id>-->
+			<!--                        <phase>process-test-resources</phase>-->
+			<!--                        <goals>-->
+			<!--                            <goal>testCompile</goal>-->
+			<!--                        </goals>-->
+			<!--                    </execution>-->
+			<!--                </executions>-->
+			<!--            </plugin>-->
 		</plugins>
 	</build>
 </project>

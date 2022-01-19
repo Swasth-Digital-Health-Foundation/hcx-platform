@@ -50,12 +50,13 @@ object DispatcherUtil {
     val url = ctx.get("endpoint_url").asInstanceOf[String]
     val headers = ctx.getOrDefault("headers", Map[String, String]()).asInstanceOf[Map[String, String]]
     Console.println("URL", url)
+    //TODO Need to add payload into a map and send across the encoded payload {"payload:".separated encoded string"}
     val httpPost = new HttpPost(url);
     headers.map(f => httpPost.addHeader(f._1, f._2));
     httpPost.setEntity(new StringEntity(payload))
     httpPost.setHeader("Accept", "application/json")
     httpPost.setHeader("Content-type", "application/json")
-    httpPost.setHeader("Authorization", "Bearer "+ KeycloakUtil.getToken())
+    //httpPost.setHeader("Authorization", "Bearer "+ KeycloakUtil.getToken())
     var response: CloseableHttpResponse = null
     try {
       response = httpClient.execute(httpPost);
@@ -65,11 +66,7 @@ object DispatcherUtil {
         DispatcherResult(true, statusCode, None, false)
       } else if (errorCodes.contains(statusCode)) {
         val responseBody = EntityUtils.toString(response.getEntity, StandardCharsets.UTF_8);
-        val responseJSON = JSONUtil.deserialize[util.Map[String, AnyRef]](responseBody)
-        //TODO we need to revisit this logic again
-        //val responseJSON: Response = JSONUtil.deserialize[Response](responseBody);
-        Console.println("responseJSON", responseJSON);
-        val errorResponse = ErrorResponse(Option(responseJSON.get("status").asInstanceOf[Integer].toString), Option(responseJSON.get("error").asInstanceOf[String]), Option(responseJSON.get("path").asInstanceOf[String]))
+        val errorResponse = ErrorResponse(Option("Error"), Option("CLIENT_ERR_RECIPIENT_ENDPOINT_NOT_AVAILABLE"), Option(responseBody))
         DispatcherResult(false, statusCode, Option(errorResponse), false)
       } else {
         DispatcherResult(false, statusCode, None, true)

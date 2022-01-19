@@ -26,6 +26,8 @@
 		<module>claims-job</module>
 		<module>payments-job</module>
 		<module>jobs-distribution</module>
+		<module>composite-search-job</module>
+		<module>search-response-job</module>
 	</modules>
 
 	<properties>

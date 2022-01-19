@@ -15,6 +15,11 @@ public class BaseUtils {
         return deserialize(decodedString, clazz);
     }
 
+    public static String encodeBase64String(Object decodedObj) throws Exception {
+        String encodedString = Base64.getEncoder().encodeToString(serialize(decodedObj).getBytes());
+        return encodedString;
+    }
+
     public static String serialize(Object obj) throws JsonProcessingException {
         return mapper.writeValueAsString(obj);
     }
@@ -23,10 +28,7 @@ public class BaseUtils {
         return mapper.readValue(value, clazz);
     }
 
-    public static String encodeBase64String(Object decodedObj) throws Exception {
-        String encodedString = Base64.getEncoder().encodeToString(serialize(decodedObj).getBytes());
-        return encodedString;
-    }
+
 
 
 }

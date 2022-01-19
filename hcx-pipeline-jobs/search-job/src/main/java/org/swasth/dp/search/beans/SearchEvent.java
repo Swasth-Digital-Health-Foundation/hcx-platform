@@ -29,6 +29,7 @@ public class SearchEvent implements Serializable {
     private String action;
     private String workFlowId;
     private String requestId;
+    private Map<String,Object> searchFilters;
 
 
     public SearchEvent(Map<String,Object> eventMap, CompositeSearchConfig searchConfig){
@@ -42,20 +43,28 @@ public class SearchEvent implements Serializable {
         setMid((String) eventMap.get(Constants.MID));
         setAction((String) eventMap.get(Constants.ACTION));
         setProtocolHeaders((Map<String, Object>) headers.get(Constants.PROTOCOL));
-        setSenderCode((String) getProtocolHeaders().get(Constants.SENDER_CODE));
-        setRecipientCode((String) getProtocolHeaders().get(Constants.RECIPIENT_CODE));
-        setWorkFlowId((String) getProtocolHeaders().get(Constants.WORKFLOW_ID));
-        setRequestId((String) getProtocolHeaders().get(Constants.REQUEST_ID));
-        setSearchRequest((Map<String, Object>) getProtocolHeaders().getOrDefault(Constants.SEARCH_REQUEST, new HashMap<String,Object>()));
-        setTimePeriod ((Integer)getSearchRequest().getOrDefault(Constants.TIME_PERIOD, searchConfig.timePeriod));
-        Map<String, Object> searchFilters = (Map<String, Object>) getSearchRequest().get(Constants.FILTERS);
+        setSenderCode((String) protocolHeaders.get(Constants.SENDER_CODE));
+        setRecipientCode((String) protocolHeaders.get(Constants.RECIPIENT_CODE));
+        setWorkFlowId((String) protocolHeaders.get(Constants.WORKFLOW_ID));
+        setRequestId((String) protocolHeaders.get(Constants.REQUEST_ID));
+        setSearchRequest((Map<String, Object>) protocolHeaders.getOrDefault(Constants.SEARCH_REQUEST, new HashMap<String,Object>()));
+        setTimePeriod ((Integer)getSearchRequest().getOrDefault(Constants.TIME_PERIOD, searchConfig.getTimePeriod()));
+        setSearchFilters((Map<String, Object>) getSearchRequest().get(Constants.FILTERS));
         setSenderCodes((List<String>) searchFilters.getOrDefault(Constants.SENDERS, new ArrayList<String>()));
         setRecipientCodes((List<String>) searchFilters.getOrDefault(Constants.RECIPIENTS, new ArrayList<String>()));
-        setEntityTypes((List<String>) searchFilters.getOrDefault(Constants.ENTITY_TYPES, searchConfig.entityTypes));
+        setEntityTypes((List<String>) searchFilters.getOrDefault(Constants.ENTITY_TYPES, searchConfig.getEntityTypes()));
         setWorkFlowIds((List<String>) searchFilters.getOrDefault(Constants.WORKFLOW_IDS, new ArrayList<String>()));
         setCaseIds((List<String>) searchFilters.getOrDefault(Constants.CASE_IDS, new ArrayList<String>()));
-        setEntityStatus((List<String>) searchFilters.getOrDefault(Constants.ENTITY_STATUS, searchConfig.entityTypes));
-        setSearchResponse((Map<String, Object>) getProtocolHeaders().getOrDefault(Constants.SEARCH_RESPONSE, new HashMap<String,Object>()));
+        setEntityStatus((List<String>) searchFilters.getOrDefault(Constants.ENTITY_STATUS, searchConfig.getEntityTypes()));
+        setSearchResponse((Map<String, Object>) protocolHeaders.getOrDefault(Constants.SEARCH_RESPONSE, new HashMap<String,Object>()));
+    }
+
+    public Map<String, Object> getSearchFilters() {
+        return searchFilters;
+    }
+
+    public void setSearchFilters(Map<String, Object> searchFilters) {
+        this.searchFilters = searchFilters;
     }
 
     public String getMid() {

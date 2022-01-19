@@ -51,7 +51,9 @@ class BaseJobConfig(val config: Config, val jobName: String) extends Serializabl
   // Default output configurations
   val enrichedOutputTag: OutputTag[util.Map[String, AnyRef]] = OutputTag[util.Map[String, AnyRef]]("enriched-events")
 
-  val retryOutputTag: OutputTag[util.Map[String, AnyRef]] = OutputTag[util.Map[String, AnyRef]]("retry-events")
+  //val retryOutputTag: OutputTag[util.Map[String, AnyRef]] = OutputTag[util.Map[String, AnyRef]]("retry-events")
+  val retryOutputTag: OutputTag[String] = OutputTag[String]("retry-events")
+
   val retryTopic = config.getString("kafka.retry.topic")
 
   val auditOutputTag: OutputTag[String] = OutputTag[String]("audit-events")
@@ -83,7 +85,7 @@ class BaseJobConfig(val config: Config, val jobName: String) extends Serializabl
     properties.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBrokerServers)
     properties.put(ProducerConfig.LINGER_MS_CONFIG, new Integer(kafkaProducerLingerMs))
     properties.put(ProducerConfig.BATCH_SIZE_CONFIG, new Integer(kafkaProducerBatchSize))
-    properties.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "snappy")
+    //properties.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "snappy")
     properties.put(ProducerConfig.MAX_REQUEST_SIZE_CONFIG, new Integer(kafkaProducerMaxRequestSize))
     properties
   }

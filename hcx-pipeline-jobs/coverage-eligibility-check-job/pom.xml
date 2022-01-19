@@ -118,6 +118,18 @@
             <version>0.4.0</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-clients_${scala.version}</artifactId>
+            <version>${flink.version}</version>
+            <scope>test</scope>
+        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>net.alchim31.maven</groupId>-->
+<!--            <artifactId>scala-maven-plugin</artifactId>-->
+<!--            <version>4.3.1</version>-->
+<!--            <type>maven-plugin</type>-->
+<!--        </dependency>-->
     </dependencies>
 
     <dependencyManagement>
@@ -213,7 +225,7 @@
 
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.22.2</version>
+                <version>3.0.0-M5</version>
                 <configuration>
                     <skipTests>true</skipTests>
                 </configuration>

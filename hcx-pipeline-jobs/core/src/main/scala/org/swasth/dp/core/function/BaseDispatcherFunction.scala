@@ -6,9 +6,9 @@ import org.slf4j.LoggerFactory
 import org.swasth.dp.core.job.{BaseJobConfig, BaseProcessFunction, Metrics}
 import org.swasth.dp.core.util.{DispatcherUtil, JSONUtil}
 
-import java.lang.Exception
 import java.util
 import java.util.Calendar
+import scala.collection.JavaConverters._
 
 case class Response(timestamp: Long, correlation_id: String, error: Option[ErrorResponse])
 case class ErrorResponse(code: Option[String], message: Option[String], trace: Option[String]);
@@ -25,6 +25,7 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
   @throws[Exception]
   def getPayload(event: util.Map[String, AnyRef]): util.Map[String, AnyRef]
 
+  @throws[Exception]
   def audit(event: util.Map[String, AnyRef], status: Boolean, context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics);
 
   def getCorrelationId(event: util.Map[String, AnyRef]): String = {
@@ -40,6 +41,8 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
   def dispatchErrorResponse(error: Option[ErrorResponse], correlationId: String, payloadRefId: String, senderCtx: util.Map[String, AnyRef], context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
     val response = Response(System.currentTimeMillis(), correlationId, error)
     val responseJSON = JSONUtil.serialize(response);
+    //TODO getPayload based on mid and dispatch
+    //TODO Decode the payload, add error response to the payload, encode the updated payload
     val result = DispatcherUtil.dispatch(senderCtx, responseJSON)
     if(result.retry) {
       metrics.incCounter(metric = config.dispatcherRetryCount)
@@ -47,10 +50,11 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
       retryEvent.put("ctx", senderCtx);
       retryEvent.put("payloadRefId", payloadRefId);
       retryEvent.put("payloadData", responseJSON);
-      context.output(config.retryOutputTag, retryEvent)
+      context.output(config.retryOutputTag, JSONUtil.serialize(retryEvent))
     }
   }
 
+  @throws[Exception]
   override def processElement(event: util.Map[String, AnyRef], context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
 
     val correlationId = getCorrelationId(event);
@@ -93,10 +97,11 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
         }
         if(result.retry) {
           metrics.incCounter(metric = config.dispatcherRetryCount)
-          val retryEvent = new util.HashMap[String, AnyRef]();
-          retryEvent.put("ctx", recipientCtx);
-          retryEvent.put("payloadRefId", event.get("mid"));
-          context.output(config.retryOutputTag, retryEvent)
+          //For retry place the incoming event into retry topic
+          //val retryEvent = new util.HashMap[String, AnyRef]();
+          //retryEvent.put("ctx", recipientCtx);
+          //retryEvent.put("payloadRefId", event.get("mid"));
+          context.output(config.retryOutputTag, JSONUtil.serialize(event))
         }
         if(!result.retry && !result.success) {
           metrics.incCounter(metric = config.dispatcherFailedCount)
@@ -161,21 +166,18 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
   def createAuditRecord(event: util.Map[String, AnyRef], auditName: String): util.Map[String, AnyRef] = {
     val audit = new util.HashMap[String, AnyRef]();
     audit.put("eid", auditName)
-    audit.put("x-hcx-recipient_code",getRecipientCode(event))
-    audit.put("x-hcx-sender_code",getSenderCode(event))
-    audit.put("x-hcx-request_id",getRequestId(event))
-    audit.put("x-hcx-correlation_id",getCorrelationId(event))
-    audit.put("x-hcx-workflow_id",getWorkflowId(event))
-    audit.put("x-hcx-timestamp",getHcxTimestamp(event))
-    audit.put("mid",getPayloadRefId(event))
-    audit.put("action",getAction(event))
-    audit.put("log_details",getLogDetails(event))
-    audit.put("jose",getJose(event))
-    audit.put("status",getStatus(event))
-    audit.put("requestTimeStamp",event.getOrDefault("requestTimeStamp", Calendar.getInstance().getTime()))
-    audit.put("updatedTimestamp",event.getOrDefault("updatedTimestamp", Calendar.getInstance().getTime()))
+    event.forEach((k,v) => audit.put(k, v))
     audit.put("auditTimeStamp", Calendar.getInstance().getTime())
     audit
   }
+
+  def dispatchRecipient(baseSenderCode: String, action: String, parsedPayload: util.Map[String, AnyRef]) = {
+    val recipientDetails = fetchDetails(baseSenderCode)
+    val recipientContext = createRecipientContext(recipientDetails, action)
+    val updatedPayload = new util.HashMap[String,AnyRef]()
+    updatedPayload.put("payload",JSONUtil.createPayloadByValues(parsedPayload));
+    DispatcherUtil.dispatch(recipientContext, JSONUtil.serialize(updatedPayload))
+  }
+
 
 }

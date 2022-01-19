@@ -22,7 +22,6 @@
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-streaming-scala_${scala.version}</artifactId>
             <version>${flink.version}</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.flink</groupId>
@@ -140,6 +139,18 @@
             <artifactId>keycloak-admin-client</artifactId>
             <version>14.0.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-clients_${scala.version}</artifactId>
+            <version>${flink.version}</version>
+            <scope>test</scope>
+        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>net.alchim31.maven</groupId>-->
+<!--            <artifactId>scala-maven-plugin</artifactId>-->
+<!--            <version>4.3.1</version>-->
+<!--            <type>maven-plugin</type>-->
+<!--        </dependency>-->
     </dependencies>
 
     <build>
@@ -149,7 +160,7 @@
         <plugins>
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.20</version>
+                <version>3.0.0-M5</version>
                 <configuration>
                     <skipTests>true</skipTests>
                 </configuration>
@@ -201,7 +212,7 @@
             <plugin>
                 <groupId>net.alchim31.maven</groupId>
                 <artifactId>scala-maven-plugin</artifactId>
-                <version>3.2.2</version>
+                <version>4.3.1</version>
                 <configuration>
                     <source>${java.target.runtime}</source>
                     <target>${java.target.runtime}</target>

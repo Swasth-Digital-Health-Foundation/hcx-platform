@@ -7,7 +7,7 @@ public interface Constants {
     String TIME_PERIOD = "time_period";
     String FILTERS = "filters";
     String SENDERS = "senders";
-    String RECIPIENTS = "recipients";
+    String RECIPIENTS = "receivers";
     String ENTITY_TYPES = "entity_types";
     String WORKFLOW_IDS = "workflow_ids";
     String CASE_IDS = "case_ids";
@@ -44,4 +44,8 @@ public interface Constants {
     String PREDETERMINE = "predetermination";
     String PREAUTH = "preauth";
     String CLAIM = "claim";
+
+    String END_POINT = "endpoint_url";
+    String SEARCH_EVENT = "search_event";
+    String BASE_RECORD = "base_record";
 }

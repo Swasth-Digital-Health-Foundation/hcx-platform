@@ -1,5 +1,8 @@
 package org.swasth.dp.search.beans;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import org.swasth.dp.search.utils.BaseUtils;
+
 import java.io.Serializable;
 import java.util.Map;
 
@@ -22,4 +25,5 @@ public class SearchResponse implements Serializable {
     public void setEntity_counts(Map<String, Object> entity_counts) {
         this.entity_counts = entity_counts;
     }
+
 }
