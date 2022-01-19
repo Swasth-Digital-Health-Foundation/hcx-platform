@@ -26,6 +26,10 @@ public  class Constants {
     public static final String HCX_STATUS = VERSION_PREFIX + "/hcx/status";
     public static final String HCX_ONSTATUS = VERSION_PREFIX + "/hcx/on_status";
 
+    // Search APIs
+    public static final String HCX_SEARCH = VERSION_PREFIX + "/hcx/search";
+    public static final String HCX_ON_SEARCH = VERSION_PREFIX + "/hcx/on_search";
+
     public static final String HEALTHY = "healthy";
     public static final String NAME = "name";
     public static final String KAFKA = "kafka";
@@ -84,5 +88,15 @@ public  class Constants {
     public static final String OSID = "osid";
     public static final String AUTHORIZATION = "Authorization";
     public static final String FILTERS = "filters";
+
+    public static final String SEARCH_REQ ="x-hcx-search";
+    public static final String SEARCH_RESP = "x-hcx-search_response";
+    public static final List<String> SEARCH_REQ_KEYS = Arrays.asList("filters","time_period");
+    public static final String SEARCH_FILTERS = "filters";
+    public static final List<String>  SEARCH_FILTER_KEYS = Arrays.asList("senders","receivers","entity_types","workflow_ids","case_ids","entity_status");
+    public static final String SEARCH_FILTERS_RECEIVER = "receivers";
+    public static final List<String> SEARCH_RES_KEYS = Arrays.asList("count","entity_counts");
+    public static final String HCX_REGISTRY_CODE = "hcx-registry-code";
+
 
 }

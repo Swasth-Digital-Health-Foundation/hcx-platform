@@ -9,6 +9,8 @@ kafka:
     claim: ${kafka_claim_topic:hcx.request.claim}
     payment: ${kafka_payment_topic:hcx.request.payment}
     status: ${kafka_status_topic:hcx.request.status.search}
+    search: ${kafka_search_topic:hcx.request.search}
+    searchresponse: ${kafka_search_response_topic:hcx.response.search}
 
 service:
   mode: ${service_mode:gateway}
