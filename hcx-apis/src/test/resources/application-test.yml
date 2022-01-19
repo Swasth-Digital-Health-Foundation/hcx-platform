@@ -27,8 +27,8 @@ postgres:
 #hcx headers
 protocol:
   headers:
-    mandatory: ${protocol_mandatory_headers:x-hcx-sender_code, x-hcx-recipient_code, x-hcx-request_id, x-hcx-timestamp, x-hcx-status, x-hcx-workflow_id, jws_header, jwe_header}
-    optional: ${protocol_optional_headers:x-hcx-correlation_id, x-hcx-debug_flag, x-hcx-error_details, x-hcx-debug_details, x-hcx-case_id}
+    mandatory: ${protocol_mandatory_headers:x-hcx-sender_code, x-hcx-recipient_code, x-hcx-api_call_id, x-hcx-timestamp, x-hcx-status, x-hcx-correlation_id, jws_header, jwe_header}
+    optional: ${protocol_optional_headers:x-hcx-workflow_id, x-hcx-debug_flag, x-hcx-error_details, x-hcx-debug_details}
 headers:
   jose: ${jose_headers:alg, enc}
 
