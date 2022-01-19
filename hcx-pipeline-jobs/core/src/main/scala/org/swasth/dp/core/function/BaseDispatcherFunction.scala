@@ -41,6 +41,8 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
   def dispatchErrorResponse(error: Option[ErrorResponse], correlationId: String, payloadRefId: String, senderCtx: util.Map[String, AnyRef], context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
     val response = Response(System.currentTimeMillis(), correlationId, error)
     val responseJSON = JSONUtil.serialize(response);
+    //TODO getPayload based on mid and dispatch
+    //TODO Decode the payload, add error response to the payload, encode the updated payload
     val result = DispatcherUtil.dispatch(senderCtx, responseJSON)
     if(result.retry) {
       metrics.incCounter(metric = config.dispatcherRetryCount)
@@ -95,10 +97,11 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
         }
         if(result.retry) {
           metrics.incCounter(metric = config.dispatcherRetryCount)
-          val retryEvent = new util.HashMap[String, AnyRef]();
-          retryEvent.put("ctx", recipientCtx);
-          retryEvent.put("payloadRefId", event.get("mid"));
-          context.output(config.retryOutputTag, JSONUtil.serialize(retryEvent))
+          //For retry place the incoming event into retry topic
+          //val retryEvent = new util.HashMap[String, AnyRef]();
+          //retryEvent.put("ctx", recipientCtx);
+          //retryEvent.put("payloadRefId", event.get("mid"));
+          context.output(config.retryOutputTag, JSONUtil.serialize(event))
         }
         if(!result.retry && !result.success) {
           metrics.incCounter(metric = config.dispatcherFailedCount)
