@@ -36,6 +36,7 @@ class PreauthStreamTask(config: PreauthConfig, kafkaConnector: FlinkKafkaConnect
     /** Sink for audit events */
     eventStream.getSideOutput(config.auditOutputTag).addSink(kafkaConnector.kafkaStringSink(config.auditTopic)).name(config.auditProducer).uid(config.auditProducer).setParallelism(config.downstreamOperatorsParallelism)
 
+    Console.println(config.jobName +" is processing")
     env.execute(config.jobName)
   }
 }

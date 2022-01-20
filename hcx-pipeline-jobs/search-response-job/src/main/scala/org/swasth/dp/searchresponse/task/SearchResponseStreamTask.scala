@@ -32,6 +32,7 @@ class SearchResponseStreamTask(config: SearchResponseConfig, kafkaConnector: Fli
     /** Sink for audit events */
     searchStream.getSideOutput(config.auditOutputTag).addSink(kafkaConnector.kafkaStringSink(config.auditTopic)).name(config.auditProducer).uid(config.auditProducer).setParallelism(config.downstreamOperatorsParallelism)
 
+    Console.println(config.jobName +" is processing")
     env.execute(config.jobName)
   }
 }
