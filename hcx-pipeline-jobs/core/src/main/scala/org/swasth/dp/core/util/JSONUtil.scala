@@ -52,15 +52,15 @@ object JSONUtil {
   }
 
   @throws[Exception]
-  def decodeBase64String[T](encodedString: String): T = {
+  def decodeBase64String[T](encodedString: String,clazz: Class[T]): T = {
     val decodedBytes = Base64.getDecoder.decode(encodedString)
     val decodedString = new String(decodedBytes)
-    deserialize[T](decodedString)
+    deserialize(decodedString,clazz)
   }
 
-//  def deserialize[T](json: String,clazz: Class[T]): T = {
-//    mapper.readValue(json, clazz);
-//  }
+  def deserialize[T](json: String,clazz: Class[T]): T = {
+    mapper.readValue(json, clazz);
+  }
 
   @throws[Exception]
   def parsePayload(encodedPayload: String): util.HashMap[String, AnyRef] = {
