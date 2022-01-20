@@ -56,7 +56,7 @@ public class StatusSearchStreamTask {
 				.process(new StatusSearchProcessFunction(config)).setParallelism(config.downstreamOperatorsParallelism);
 
 		/** Sink for retry events */
-		eventStream.getSideOutput(config.retryOutputTag()).addSink(kafkaConnector.kafkaMapSink(config.retryTopic())).name(config.retryProducer()).uid(config.retryProducer()).setParallelism(config.downstreamOperatorsParallelism);
+		eventStream.getSideOutput(config.retryOutputTag()).addSink(kafkaConnector.kafkaStringSink(config.retryTopic())).name(config.retryProducer()).uid(config.retryProducer()).setParallelism(config.downstreamOperatorsParallelism);
 
 		/** Sink for audit events */
 		eventStream.getSideOutput(config.auditOutputTag()).addSink(kafkaConnector.kafkaStringSink(config.auditTopic())).name(config.auditProducer()).uid(config.auditProducer()).setParallelism(config.downstreamOperatorsParallelism);
