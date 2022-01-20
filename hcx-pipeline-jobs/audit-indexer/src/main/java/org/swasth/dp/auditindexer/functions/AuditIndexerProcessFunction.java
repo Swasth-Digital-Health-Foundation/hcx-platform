@@ -30,7 +30,7 @@ public class AuditIndexerProcessFunction extends ProcessFunction<Map<String,Obje
     @Override
     public void open(Configuration parameters) throws Exception {
         super.open(parameters);
-        esUtil = new ElasticSearchUtil(config.esUrl, config.auditIndex, config.auditIndexType, config.batchSize);
+        esUtil = new ElasticSearchUtil(config.esUrl, config.auditIndex, config.batchSize);
     }
 
     @Override
@@ -40,13 +40,14 @@ public class AuditIndexerProcessFunction extends ProcessFunction<Map<String,Obje
     }
 
     @Override
-    public void processElement(Map<String, Object> event, ProcessFunction<Map<String, Object>, Metrics>.Context context, Collector<Metrics> collector) throws Exception {
+    public void processElement(Map<String, Object> event, ProcessFunction<Map<String, Object>, Metrics>.Context context, Collector<Metrics> collector) {
         try {
             String indexName = getIndexName((Long) event.get("auditTimeStamp"));
             String apiCallId = (String) event.get("api_call_id");
             createIndex(indexName);
             esUtil.addDocumentWithIndex(JSONUtil.serialize(event), indexName, apiCallId);
             logger.info("Audit record created for " + apiCallId);
+            //TODO: add metrics
         }
         catch (IOException e) {
             logger.error("Error while indexing message :: " + event + " :: " + e.getMessage());
@@ -65,11 +66,11 @@ public class AuditIndexerProcessFunction extends ProcessFunction<Map<String,Obje
     }
 
     private void createIndex(String indexName){
-        String settings = Util.loadAsString("C:\\Users\\ASUS\\Documents\\GitHub\\HCX\\hcx-platform\\hcx-pipeline-jobs\\audit-indexer\\src\\main\\resources\\static\\es-settings.json");
+        String settings = Util.loadAsString("hcx-pipeline-jobs\\audit-indexer\\src\\main\\resources\\static\\es-settings.json");
         if (settings == null) {
             logger.error("Failed to load index settings");
         }
-        String mappings = Util.loadAsString("C:\\Users\\ASUS\\Documents\\GitHub\\HCX\\hcx-platform\\hcx-pipeline-jobs\\audit-indexer\\src\\main\\resources\\static\\mappings\\hcx_audit.json");
+        String mappings = Util.loadAsString("hcx-pipeline-jobs\\audit-indexer\\src\\main\\resources\\static\\mappings\\hcx_audit.json");
         if (mappings == null) {
             logger.error("Failed to load mappings for index with name '{}'", config.auditAlias);
         }

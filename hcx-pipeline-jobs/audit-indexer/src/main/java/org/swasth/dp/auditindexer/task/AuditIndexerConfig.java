@@ -19,14 +19,8 @@ public class AuditIndexerConfig extends BaseJobConfig {
     public String esUrl;
     public String timeZone;
     public String auditIndex = "hcx_audit";
-    public String auditIndexType = "hcx_audit";
     public String auditAlias = "hcx_audit";
     public int batchSize = 1000;
-
-    // Metric List
-    public String successEventCount = "success-events-count";
-    public String failedEventCount = "failed-events-count";
-    public String esFailedEventCount = "elasticsearch-error-events-count";
 
     public AuditIndexerConfig(Config config, String jobName) {
         super(config, jobName);

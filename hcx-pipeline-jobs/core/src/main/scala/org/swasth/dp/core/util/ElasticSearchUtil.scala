@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.util
 
-class ElasticSearchUtil(connectionInfo: String, indexName: String, indexType: String, batchSize: Int = 1000) extends Serializable {
+class ElasticSearchUtil(connectionInfo: String, indexName: String, batchSize: Int = 1000) extends Serializable {
 
   private val resultLimit = 100
   private val esClient: RestHighLevelClient = createClient(connectionInfo)
@@ -45,11 +45,9 @@ class ElasticSearchUtil(connectionInfo: String, indexName: String, indexType: St
   def addDocumentWithIndex(document: String, indexName: String, identifier: String): Unit = {
     try {
       val doc = mapper.readValue(document, new TypeReference[util.Map[String, AnyRef]]() {})
-      println("executed started")
       val indexRequest = new IndexRequest(indexName)
       indexRequest.id(identifier)
       val response = esClient.index(indexRequest.source(doc), RequestOptions.DEFAULT)
-      println("pushed data")
       logger.info(s"Added ${response.getId} to index ${response.getIndex}")
     } catch {
       case e: IOException =>
@@ -66,7 +64,7 @@ class ElasticSearchUtil(connectionInfo: String, indexName: String, indexType: St
           val createRequest = new CreateIndexRequest(indexName)
           if (StringUtils.isNotBlank(alias)) createRequest.alias(new Alias(alias))
           if (StringUtils.isNotBlank(settings)) createRequest.settings(Settings.builder.loadFromSource(settings, XContentType.JSON))
-          if (StringUtils.isNotBlank(indexType) && StringUtils.isNotBlank(mappings)) createRequest.mapping(mappings, XContentType.JSON)
+          if (StringUtils.isNotBlank(mappings)) createRequest.mapping(mappings, XContentType.JSON)
           client.indices().create(createRequest, RequestOptions.DEFAULT)
         }
     } catch {
