@@ -14,6 +14,8 @@ public class HeaderAudit {
 	private Object jose;
 	private Object status;
 
+	public HeaderAudit() {}
+
 	public HeaderAudit(String api_call_id, String recipient_code, String correlation_id, String workflow_id, String timestamp, String sender_code, String mid, String action, Object log_details, Object jose, Object status) {
 		this.api_call_id = api_call_id;
 		this.recipient_code = recipient_code;

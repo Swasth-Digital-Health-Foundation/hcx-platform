@@ -81,7 +81,7 @@ public class BaseController {
             else
                 request = new Request(requestBody);
             setResponseParams(request, response);
-            request.validate(getMandatoryHeaders(), getAuditData(request), apiAction, timestampRange);
+            request.validate(getMandatoryHeaders(), getAuditData(request, apiAction), apiAction, timestampRange);
             processAndSendEvent(apiAction, kafkaTopic, request);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
@@ -89,8 +89,12 @@ public class BaseController {
         }
     }
 
-    private HeaderAudit getAuditData(Request request) {
-       return auditService.search(new SearchRequestDTO(new HashMap<>(Collections.singletonMap("api_call_id", request.getApiCallId())))).get(0);
+    private HeaderAudit getAuditData(Request request, String apiAction) {
+        HeaderAudit audit = new HeaderAudit();
+        if (ON_ACTION_APIS.contains(apiAction)) {
+            audit = auditService.search(new SearchRequestDTO(new HashMap<>(Collections.singletonMap("api_call_id", request.getApiCallId())))).get(0);
+        }
+        return audit;
     }
 
     protected void setResponseParams(Request request, Response response){
