@@ -5,23 +5,23 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.HashMap;
 import java.util.Map;
 
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Response {
 
     private long timestamp = System.currentTimeMillis();
-    @JsonProperty("workflow_id")
-    private String workflowId;
-    @JsonProperty("request_id")
-    private String requestId;
-    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonProperty("correlation_id")
+    private String correlationId;
+    @JsonProperty("api_call_id")
+    private String apiCallId;
     private ResponseError error;
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Map<String, Object> result;
 
     public Response() {}
 
-    public Response(String workflowId, String requestId) {
-        this.workflowId = workflowId;
-        this.requestId = requestId;
+    public Response(String correlationId, String apiCallId) {
+        this.correlationId = correlationId;
+        this.apiCallId = apiCallId;
     }
 
     public Response(String key, Object val) {
@@ -37,20 +37,20 @@ public class Response {
         this.timestamp = timestamp;
     }
 
-    public String getWorkflowId() {
-        return workflowId;
+    public String getCorrelationId() {
+        return correlationId;
     }
 
-    public void setWorkflowId(String workflowId) {
-        this.workflowId = workflowId;
+    public void setCorrelationId(String correlationId) {
+        this.correlationId = correlationId;
     }
 
-    public String getRequestId() {
-        return requestId;
+    public String getApiCallId() {
+        return apiCallId;
     }
 
-    public void setRequestId(String requestId) {
-        this.requestId = requestId;
+    public void setApiCallId(String apiCallId) {
+        this.apiCallId = apiCallId;
     }
 
     public ResponseError getError() {

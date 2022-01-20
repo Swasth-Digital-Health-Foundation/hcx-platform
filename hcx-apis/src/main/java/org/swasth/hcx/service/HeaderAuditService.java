@@ -1,8 +1,6 @@
 package org.swasth.hcx.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.elasticsearch.action.get.GetRequest;
-import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchRequest;
@@ -15,15 +13,15 @@ import org.elasticsearch.search.SearchHit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.swasth.common.dto.HeaderAudit;
-import org.swasth.hcx.utils.*;
+import org.swasth.common.utils.Constants;
 import org.swasth.common.dto.SearchRequestDTO;
 import org.swasth.hcx.utils.SearchUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 @Service
@@ -32,7 +30,6 @@ public class HeaderAuditService {
     private static final Logger LOG = LoggerFactory.getLogger(HeaderAuditService.class);
 
     private final RestHighLevelClient client;
-
     @Autowired
     public HeaderAuditService(RestHighLevelClient client) {
         this.client = client;
@@ -63,7 +60,6 @@ public class HeaderAuditService {
 
         try {
             final SearchResponse response = client.search(request, RequestOptions.DEFAULT);
-
             final SearchHit[] searchHits = response.getHits().getHits();
             final List<HeaderAudit> headeraudit = new ArrayList<>(searchHits.length);
             for (SearchHit hit : searchHits) {
@@ -76,23 +72,6 @@ public class HeaderAuditService {
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             return Collections.emptyList();
-        }
-    }
-
-    public Boolean index(final HeaderAudit headeraudit) {
-        try {
-            final String headerAuditAsString = MAPPER.writeValueAsString(headeraudit);
-
-            final IndexRequest request = new IndexRequest(Constants.HEADER_AUDIT);
-            request.id(headeraudit.getRequest_id());
-            request.source(headerAuditAsString, XContentType.JSON);
-
-            final IndexResponse response = client.index(request, RequestOptions.DEFAULT);
-
-            return response != null && response.status().equals(RestStatus.OK);
-        } catch (final Exception e) {
-            LOG.error(e.getMessage(), e);
-            return false;
         }
     }
 }

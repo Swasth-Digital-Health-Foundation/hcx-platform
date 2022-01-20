@@ -17,7 +17,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.swasth.hcx.utils.Constants.*;
+import static org.swasth.common.utils.Constants.*;
 
 @RestController()
 @RequestMapping(value = "/participant")
@@ -57,9 +57,9 @@ public class ParticipantController  extends BaseController {
     public ResponseEntity<Object> participantSearch(@RequestBody Map<String, Object> requestBody) throws Exception {
         String url =  registryUrl + "/api/v1/Organisation/search";
         Map<String,Object> filters = (Map<String, Object>) requestBody.get(FILTERS);
-        if (filters.containsKey(OSID)) {
-          filters.put(PARTICIPANT_CODE, filters.get(OSID));
-          filters.remove(OSID);
+        if (filters.containsKey(PARTICIPANT_CODE)) {
+          filters.put(OSID, filters.get(PARTICIPANT_CODE));
+          filters.remove(PARTICIPANT_CODE);
         }
         Map<String,Object> updatedRequestBody = new HashMap<>(Collections.singletonMap(FILTERS, filters));
         HttpResponse response = HttpUtils.post(url, JSONUtils.serialize(updatedRequestBody), new HashMap<>());
