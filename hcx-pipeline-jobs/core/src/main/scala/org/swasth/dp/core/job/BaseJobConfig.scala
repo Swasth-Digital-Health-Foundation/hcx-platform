@@ -52,10 +52,10 @@ class BaseJobConfig(val config: Config, val jobName: String) extends Serializabl
   val enrichedOutputTag: OutputTag[util.Map[String, AnyRef]] = OutputTag[util.Map[String, AnyRef]]("enriched-events")
 
   val retryOutputTag: OutputTag[util.Map[String, AnyRef]] = OutputTag[util.Map[String, AnyRef]]("retry-events")
-  val retryTopic = config.getString("kafka.retry.topic")
+  val retryTopic = if (config.hasPath("kafka.retry.topic")) Option(config.getString("kafka.retry.topic")) else None
 
   val auditOutputTag: OutputTag[String] = OutputTag[String]("audit-events")
-  val auditTopic = config.getString("kafka.audit.topic")
+  val auditTopic = if (config.hasPath("kafka.audit.topic")) Option(config.getString("kafka.audit.topic")) else None
 
   // Producers
   val retryProducer = "retry-events-sink"
