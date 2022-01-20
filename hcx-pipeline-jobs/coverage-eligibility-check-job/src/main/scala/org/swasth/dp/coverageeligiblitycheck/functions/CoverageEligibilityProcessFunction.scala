@@ -41,7 +41,7 @@ class CoverageEligibilityProcessFunction(config: CoverageEligibilityCheckConfig,
   }
 
   override def getPayload(event: util.Map[String, AnyRef]): util.Map[String, AnyRef] = {
-    val payloadRefId = getPayloadRefId(event)
+    val payloadRefId = getMid(event)
     Console.println("Fetching payload from postgres for mid: " + payloadRefId)
     logger.info("Fetching payload from postgres for mid: " + payloadRefId)
     val postgresQuery = String.format("SELECT data FROM %s WHERE mid = '%s'", config.payloadTable, payloadRefId);

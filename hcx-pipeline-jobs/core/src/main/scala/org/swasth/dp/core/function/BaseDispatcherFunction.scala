@@ -4,7 +4,7 @@ import org.apache.commons.collections.MapUtils
 import org.apache.flink.streaming.api.functions.ProcessFunction
 import org.slf4j.LoggerFactory
 import org.swasth.dp.core.job.{BaseJobConfig, BaseProcessFunction, Metrics}
-import org.swasth.dp.core.util.{DispatcherUtil, JSONUtil}
+import org.swasth.dp.core.util.{DispatcherUtil, JSONUtil, Constants}
 
 import java.util
 import java.util.Calendar
@@ -27,37 +27,39 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
   @throws(classOf[Exception])
   def audit(event: util.Map[String, AnyRef], status: Boolean, context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit
 
-  def getCorrelationId(event: util.Map[String, AnyRef]): String = {
-    event.get("headers").asInstanceOf[util.Map[String, AnyRef]]
-      .get("protocol").asInstanceOf[util.Map[String, AnyRef]]
-      .get("x-hcx-correlation_id").asInstanceOf[String]
+  def getWorkflowId(event: util.Map[String, AnyRef]): String = {
+    event.get(Constants.HEADERS).asInstanceOf[util.Map[String, AnyRef]]
+      .get(Constants.PROTOCOL).asInstanceOf[util.Map[String, AnyRef]]
+      .get(Constants.WORKFLOW_ID).asInstanceOf[String]
   }
 
-  def getPayloadRefId(event: util.Map[String, AnyRef]): String = {
-    event.get("mid").asInstanceOf[String]
+  def getMid(event: util.Map[String, AnyRef]): String = {
+    event.get(Constants.MID).asInstanceOf[String]
   }
 
   def dispatchErrorResponse(error: Option[ErrorResponse], correlationId: String, payloadRefId: String, senderCtx: util.Map[String, AnyRef], context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
     val response = Response(System.currentTimeMillis(), correlationId, error)
+    //TODO May have to use GSON instead of JSONUtil
     val responseJSON = JSONUtil.serialize(response);
+    //TODO getPayload based on mid and dispatch
+    //TODO Decode the payload, add error response to the payload, encode the updated payload
     val result = DispatcherUtil.dispatch(senderCtx, responseJSON)
     if(result.retry) {
       metrics.incCounter(metric = config.dispatcherRetryCount)
       val retryEvent = new util.HashMap[String, AnyRef]();
-      retryEvent.put("ctx", senderCtx);
-      retryEvent.put("payloadRefId", payloadRefId);
-      retryEvent.put("payloadData", responseJSON);
-      context.output(config.retryOutputTag, retryEvent)
+      //TODO place the encoded payload here
+      retryEvent.put(Constants.PAYLOAD, responseJSON);
+      context.output(config.retryOutputTag, JSONUtil.serialize(retryEvent))
     }
   }
 
   override def processElement(event: util.Map[String, AnyRef], context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
 
     val correlationId = getCorrelationId(event);
-    val payloadRefId = event.get("mid").asInstanceOf[String]
+    val payloadRefId = getMid(event)
     // TODO change cdata to context after discussion.
-    val senderCtx = event.getOrDefault("cdata", new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]].getOrDefault("sender", new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]]
-    val recipientCtx = event.getOrDefault("cdata", new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]].getOrDefault("recipient", new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]]
+    val senderCtx = event.getOrDefault(Constants.CDATA, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]].getOrDefault(Constants.SENDER, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]]
+    val recipientCtx = event.getOrDefault(Constants.CDATA, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]].getOrDefault(Constants.RECIPIENT, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]]
     //Adding requestTimestamp for auditing
     event.put("requestTimeStamp", Calendar.getInstance().getTime())
     if (MapUtils.isEmpty(senderCtx)) {
@@ -69,7 +71,8 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
       Console.println("recipient context is empty: " + payloadRefId)
       logger.warn("recipient context is empty: " + payloadRefId)
       //Send on_action request back to sender when recipient context is missing
-      dispatchErrorResponse(ValidationResult(true, None).error, correlationId, payloadRefId, senderCtx, context, metrics)
+      val errorResponse = ErrorResponse(Option("Error"), Option("CLIENT_ERR_RECIPIENT_ENDPOINT_NOT_AVAILABLE"), Option("Please provide correct recipient details"))
+      dispatchErrorResponse(ValidationResult(true, Option(errorResponse)).error, correlationId, payloadRefId, senderCtx, context, metrics)
     } else {
       Console.println("sender and recipient available: " + payloadRefId)
       logger.info("sender and recipient available: " + payloadRefId)
@@ -86,7 +89,6 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
         val payloadJSON = JSONUtil.serialize(payload);
         val result = DispatcherUtil.dispatch(recipientCtx, payloadJSON)
         //Adding updatedTimestamp for auditing
-        event.put("updatedTimestamp", Calendar.getInstance().getTime())
         audit(event, result.success, context, metrics);
         if(result.success) {
           metrics.incCounter(metric = config.dispatcherSuccessCount)
@@ -111,59 +113,45 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
     List(config.dispatcherSuccessCount, config.dispatcherFailedCount, config.dispatcherRetryCount, config.dispatcherValidationFailedCount, config.dispatcherValidationSuccessCount, config.auditEventsCount)
   }
 
-  // Audit related functions
   def getRecipientCode(event: util.Map[String, AnyRef]): String = {
-    event.get("headers").asInstanceOf[util.Map[String, AnyRef]]
-      .get("protocol").asInstanceOf[util.Map[String, AnyRef]]
-      .get("x-hcx-recipient_code").asInstanceOf[String]
+    event.get(Constants.HEADERS).asInstanceOf[util.Map[String, AnyRef]]
+      .get(Constants.PROTOCOL).asInstanceOf[util.Map[String, AnyRef]]
+      .get(Constants.RECIPIENT_CODE).asInstanceOf[String]
   }
 
   def getSenderCode(event: util.Map[String, AnyRef]): String = {
-    event.get("headers").asInstanceOf[util.Map[String, AnyRef]]
-      .get("protocol").asInstanceOf[util.Map[String, AnyRef]]
-      .get("x-hcx-sender_code").asInstanceOf[String]
+    event.get(Constants.HEADERS).asInstanceOf[util.Map[String, AnyRef]]
+      .get(Constants.PROTOCOL).asInstanceOf[util.Map[String, AnyRef]]
+      .get(Constants.SENDER_CODE).asInstanceOf[String]
   }
 
-  def getRequestId(event: util.Map[String, AnyRef]): String = {
-    event.get("headers").asInstanceOf[util.Map[String, AnyRef]]
-      .get("protocol").asInstanceOf[util.Map[String, AnyRef]]
-      .get("x-hcx-request_id").asInstanceOf[String]
+  def getApiCallId(event: util.Map[String, AnyRef]): String = {
+    event.get(Constants.HEADERS).asInstanceOf[util.Map[String, AnyRef]]
+      .get(Constants.PROTOCOL).asInstanceOf[util.Map[String, AnyRef]]
+      .get(Constants.API_CALL_ID).asInstanceOf[String]
   }
 
   def getHcxTimestamp(event: util.Map[String, AnyRef]): String = {
-    event.get("headers").asInstanceOf[util.Map[String, AnyRef]]
-      .get("protocol").asInstanceOf[util.Map[String, AnyRef]]
-      .get("x-hcx-timestamp").asInstanceOf[String]
+    event.get(Constants.HEADERS).asInstanceOf[util.Map[String, AnyRef]]
+      .get(Constants.PROTOCOL).asInstanceOf[util.Map[String, AnyRef]]
+      .get(Constants.TIMESTAMP).asInstanceOf[String]
   }
 
-  def getWorkflowId(event: util.Map[String, AnyRef]): String = {
-    event.get("headers").asInstanceOf[util.Map[String, AnyRef]]
-      .get("protocol").asInstanceOf[util.Map[String, AnyRef]]
-      .get("x-hcx-workflow_id").asInstanceOf[String]
+  def getCorrelationId(event: util.Map[String, AnyRef]): String = {
+    event.get(Constants.HEADERS).asInstanceOf[util.Map[String, AnyRef]]
+      .get(Constants.PROTOCOL).asInstanceOf[util.Map[String, AnyRef]]
+      .get(Constants.CORRELATION_ID).asInstanceOf[String]
   }
 
   def getAction(event: util.Map[String, AnyRef]): String = {
-    event.get("action").asInstanceOf[String]
-  }
-
-  def getLogDetails(event: util.Map[String, AnyRef]): util.Map[String, AnyRef] = {
-    event.get("log_details").asInstanceOf[util.Map[String, AnyRef]]
-  }
-
-  def getJose(event: util.Map[String, AnyRef]): util.Map[String, AnyRef] = {
-    event.get("headers").asInstanceOf[util.Map[String, AnyRef]]
-      .get("jose").asInstanceOf[util.Map[String, AnyRef]]
-  }
-
-  def getStatus(event: util.Map[String, AnyRef]): String = {
-    event.get("status").asInstanceOf[String]
+    event.get(Constants.ACTION).asInstanceOf[String]
   }
 
   def createAuditRecord(event: util.Map[String, AnyRef], auditName: String): util.Map[String, AnyRef] = {
     val audit = new util.HashMap[String, AnyRef]();
-    audit.put("eid", auditName)
+    audit.put(Constants.AUDIT_ID, auditName)
     event.forEach((k,v) => audit.put(k, v))
-    audit.put("auditTimeStamp", Calendar.getInstance().getTime())
+    audit.put(Constants.AUDIT_TIMESTAMP, Calendar.getInstance().getTime())
     audit
   }
 
@@ -171,7 +159,7 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
     val recipientDetails = fetchDetails(baseSenderCode)
     val recipientContext = createRecipientContext(recipientDetails, action)
     val updatedPayload = new util.HashMap[String,AnyRef]()
-    updatedPayload.put("payload",JSONUtil.createPayloadByValues(parsedPayload));
+    updatedPayload.put(Constants.PAYLOAD,JSONUtil.createPayloadByValues(parsedPayload));
     DispatcherUtil.dispatch(recipientContext, JSONUtil.serialize(updatedPayload))
   }
 

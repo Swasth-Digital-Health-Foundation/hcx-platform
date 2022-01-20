@@ -52,20 +52,20 @@ object JSONUtil {
   }
 
   @throws[Exception]
-  def decodeBase64String[T](encodedString: String, clazz: Class[T]): T = {
+  def decodeBase64String[T](encodedString: String): T = {
     val decodedBytes = Base64.getDecoder.decode(encodedString)
     val decodedString = new String(decodedBytes)
-    deserialize(decodedString,clazz)
+    deserialize[T](decodedString)
   }
 
-  def deserialize[T](json: String,clazz: Class[T]): T = {
-    mapper.readValue(json, clazz);
-  }
+//  def deserialize[T](json: String,clazz: Class[T]): T = {
+//    mapper.readValue(json, clazz);
+//  }
 
   @throws[Exception]
   def parsePayload(encodedPayload: String): util.HashMap[String, AnyRef] = {
     val strArray = encodedPayload.split("\\.")
-    if (strArray.length > 0 && strArray.length == 6) {
+    if (strArray.length > 0 && strArray.length == Constants.PAYLOAD_LENGTH) {
       val event = new util.HashMap[String, AnyRef]
       event.put("protected", strArray(0))
       event.put("encrypted_key", strArray(1))
