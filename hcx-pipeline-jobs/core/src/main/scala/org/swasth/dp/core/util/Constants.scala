@@ -22,6 +22,7 @@ object Constants {
   val SUBMITTED = "submitted"
   val AUDIT_TIMESTAMP = "auditTimeStamp"
   val AUDIT_ID = "eid"
+  val END_POINT = "endpoint_url"
 
   //Event Fields
   val SENDER_CODE = "x-hcx-sender_code"

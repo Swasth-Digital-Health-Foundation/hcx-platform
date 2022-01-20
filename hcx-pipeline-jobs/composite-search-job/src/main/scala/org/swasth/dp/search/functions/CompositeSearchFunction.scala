@@ -45,8 +45,7 @@ class CompositeSearchFunction(config: SearchConfig, @transient var postgresConne
     ValidationResult(status = true, None)
   }
 
-  override def getPayload(event: util.Map[String, AnyRef]): util.Map[String, AnyRef] = {
-    val payloadRefId = getMid(event)
+  override def getPayload(payloadRefId: String): util.Map[String, AnyRef] = {
     Console.println("Fetching payload from postgres for mid: " + payloadRefId)
     logger.info("Fetching payload from postgres for mid: " + payloadRefId)
     val postgresQuery = String.format("SELECT data FROM %s WHERE mid = '%s'", config.payloadTable, payloadRefId)
@@ -85,7 +84,8 @@ class CompositeSearchFunction(config: SearchConfig, @transient var postgresConne
      *             b. In case of dispatch failure to the recipient, Insert child record with status as Fail
      */
     //Pay load from database
-    val payloadMap = getPayload(event)
+    val payloadRefId = event.get(Constants.MID).asInstanceOf[String]
+    val payloadMap = getPayload(payloadRefId)
     val encodedPayload = payloadMap.get(Constants.PAYLOAD).asInstanceOf[String]
     //Place the updated protected header values into this map and encode the values
     val parsedPayload = JSONUtil.parsePayload(encodedPayload)
@@ -102,10 +102,10 @@ class CompositeSearchFunction(config: SearchConfig, @transient var postgresConne
       get(Constants.SEARCH_FILTERS).asInstanceOf[util.Map[String, AnyRef]].
       get(Constants.SEARCH_FILTERS_RECEIVER).asInstanceOf[util.List[String]]
 
-    val correlationId = getCorrelationId(event)
-    val originalApiCallId = getApiCallId(event)
-    val senderCode = getSenderCode(event)
-    val action = getAction(event)
+    val correlationId = getProtocolHeaderValue(event,Constants.CORRELATION_ID)
+    val originalApiCallId = getProtocolHeaderValue(event,Constants.API_CALL_ID)
+    val senderCode = getProtocolHeaderValue(event,Constants.SENDER_CODE)
+    val action = event.get(Constants.ACTION).asInstanceOf[String]
     //Insert base record
     insertSearchRecord(correlationId, originalApiCallId, senderCode, null, Constants.OPEN_STATUS, "{}")
     mutableMap.asJava.put(Constants.SENDER_CODE, config.hcxRegistryCode)
@@ -157,7 +157,7 @@ class CompositeSearchFunction(config: SearchConfig, @transient var postgresConne
       val apicallTime: Timestamp = new Timestamp(System.currentTimeMillis)
       preStatement.setTimestamp(7, apicallTime)
       preStatement.executeUpdate
-      System.out.println("Insert completed successfully for correlationId:" + correlationId + " and apiCallId" + apiCallId)
+      System.out.println("Insert completed successfully for correlationId:" + correlationId + " and apiCallId:" + apiCallId)
       postgresConnect.connection.commit()
     } catch {
       case e: Exception =>

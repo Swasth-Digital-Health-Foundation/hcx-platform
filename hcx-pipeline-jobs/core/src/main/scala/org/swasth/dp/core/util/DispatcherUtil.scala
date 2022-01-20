@@ -1,5 +1,6 @@
 package org.swasth.dp.core.util
 
+import org.apache.commons.lang3.StringUtils
 import org.apache.http.client.HttpRequestRetryHandler
 import org.apache.http.client.config.{CookieSpecs, RequestConfig}
 import org.apache.http.client.methods.{CloseableHttpResponse, HttpPost}
@@ -50,27 +51,29 @@ object DispatcherUtil {
     val url = ctx.get("endpoint_url").asInstanceOf[String]
     val headers = ctx.getOrDefault("headers", Map[String, String]()).asInstanceOf[Map[String, String]]
     Console.println("URL", url)
-    //TODO Need to add payload into a map and send across the encoded payload {"payload:".separated encoded string"}
-    val httpPost = new HttpPost(url);
-    headers.map(f => httpPost.addHeader(f._1, f._2));
-    httpPost.setEntity(new StringEntity(payload))
-    httpPost.setHeader("Accept", "application/json")
-    httpPost.setHeader("Content-type", "application/json")
-    httpPost.setHeader("Authorization", "Bearer "+ KeycloakUtil.getToken())
     var response: CloseableHttpResponse = null
     try {
-      response = httpClient.execute(httpPost);
-      val statusCode = response.getStatusLine().getStatusCode();
-      Console.println("statusCode", statusCode);
-      if (successCodes.contains(statusCode)) {
-        DispatcherResult(true, statusCode, None, false)
-      } else if (errorCodes.contains(statusCode)) {
-        val responseBody = EntityUtils.toString(response.getEntity, StandardCharsets.UTF_8)
-        val errorResponse = ErrorResponse(Option("Error"), Option("CLIENT_ERR_RECIPIENT_ENDPOINT_NOT_AVAILABLE"), Option(responseBody))
-        DispatcherResult(false, statusCode, Option(errorResponse), false)
-      } else {
-        DispatcherResult(false, statusCode, None, true)
-      }
+      if (StringUtils.isEmpty(url)) {
+        val httpPost = new HttpPost(url);
+        headers.map(f => httpPost.addHeader(f._1, f._2));
+        httpPost.setEntity(new StringEntity(payload))
+        httpPost.setHeader("Accept", "application/json")
+        httpPost.setHeader("Content-type", "application/json")
+        //httpPost.setHeader("Authorization", "Bearer "+ KeycloakUtil.getToken())
+        response = httpClient.execute(httpPost);
+        val statusCode = response.getStatusLine().getStatusCode();
+        Console.println("statusCode", statusCode);
+        if (successCodes.contains(statusCode)) {
+          DispatcherResult(true, statusCode, None, false)
+        } else if (errorCodes.contains(statusCode)) {
+          val responseBody = EntityUtils.toString(response.getEntity, StandardCharsets.UTF_8)
+          val errorResponse = ErrorResponse(Option("Error"), Option("CLIENT_ERR_RECIPIENT_ENDPOINT_NOT_AVAILABLE"), Option(responseBody))
+          DispatcherResult(false, statusCode, Option(errorResponse), false)
+        } else {
+          DispatcherResult(false, statusCode, None, true)
+        }
+      } else //As url is null, no need to retry
+        DispatcherResult(false, 0, None, false)
     } catch {
       case ex: Exception => {
         DispatcherResult(false, 0, None, true)
