@@ -18,7 +18,7 @@
     "recipient_code": {
       "type": "keyword"
     },
-    "api_call_id": {
+    "request_id": {
       "type": "keyword"
     },
     "sender_code": {
