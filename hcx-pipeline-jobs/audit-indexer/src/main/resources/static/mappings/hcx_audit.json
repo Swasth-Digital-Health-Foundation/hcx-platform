@@ -1,38 +1,44 @@
 {
-  "properties" : {
-    "action": {
-      "type": "keyword"
-    },
-    "correlation_id": {
-      "type": "keyword"
-    },
-    "jose": {
-      "type": "object"
-    },
-    "log_details": {
-      "type": "object"
+  "properties": {
+    "headers": {
+      "type": "nested",
+      "properties": {
+        "protocol": {
+          "type": "nested",
+          "properties": {
+            "x-hcx-sender_code": {
+              "type": "keyword"
+            },
+            "x-hcx-recipient_code": {
+              "type": "keyword"
+            },
+            "x-hcx-api_call_id": {
+              "type": "keyword"
+            },
+            "x-hcx-correlation_id": {
+              "type": "keyword"
+            },
+            "x-hcx-workflow_id": {
+              "type": "keyword"
+            },
+            "x-hcx-status": {
+              "type": "keyword"
+            }
+          }
+        }
+      }
     },
     "mid": {
       "type": "keyword"
     },
-    "recipient_code": {
-      "type": "keyword"
-    },
-    "request_id": {
-      "type": "keyword"
-    },
-    "sender_code": {
+    "action": {
       "type": "keyword"
     },
     "status": {
       "type": "keyword"
     },
-    "timestamp": {
-      "type": "date",
-      "format":"date_time"
-    },
-    "workflow_id": {
-      "type": "keyword"
+    "auditTimeStamp": {
+      "type": "long"
     }
   }
 }
