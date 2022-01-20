@@ -104,8 +104,8 @@ class SearchResponseFunction(config: SearchResponseConfig, @transient var postgr
       val parsedPayload = JSONUtil.parsePayload(encodedPayload)
       val protectString = parsedPayload.get(Constants.PROTECTED).asInstanceOf[String]
       //Decode protected String
-      val protectedMap = JSONUtil.decodeBase64String[util.HashMap[String, AnyRef]](protectString)
-      val mutableMap: mutable.Map[String, Object] = new mutable.HashMap[String, Object]
+      val protectedMap = JSONUtil.decodeBase64String(protectString,classOf[util.HashMap[String, AnyRef]])
+      val mutableMap: mutable.Map[String, AnyRef] = new mutable.HashMap[String, AnyRef]
       //Add protected payload values to mutable map
       protectedMap.forEach((k, v) => mutableMap.put(k, v))
 
@@ -116,6 +116,7 @@ class SearchResponseFunction(config: SearchResponseConfig, @transient var postgr
 
       val searchResponse = event.get(Constants.HEADERS).asInstanceOf[util.Map[String, AnyRef]]
         .get(Constants.PROTOCOL).asInstanceOf[util.Map[String, AnyRef]].get(Constants.SEARCH_RESPONSE).asInstanceOf[util.Map[String, AnyRef]]
+      Console.println("Search Response:"+ JSONUtil.serialize(searchResponse))
       //As we got response back from recipient, update the status as close irrespective of dispatch status
       updateSearchRecord(correlationId, apiCallId, Constants.CLOSE_STATUS, searchResponse)
 

@@ -91,9 +91,9 @@ class CompositeSearchFunction(config: SearchConfig, @transient var postgresConne
     val parsedPayload = JSONUtil.parsePayload(encodedPayload)
     val protectString = parsedPayload.get(Constants.PROTECTED).asInstanceOf[String]
     //Decode protected String
-    val protectedMap = JSONUtil.decodeBase64String[util.HashMap[String, AnyRef]](protectString)
+    val protectedMap = JSONUtil.decodeBase64String(protectString,classOf[util.HashMap[String, AnyRef]])
     //Creating mutable map to update the protected headers
-    val mutableMap: mutable.Map[String, Object] = new mutable.HashMap[String, Object]
+    val mutableMap: mutable.Map[String, AnyRef] = new mutable.HashMap[String, AnyRef]
     //Add protected map values to mutable map
     protectedMap.forEach((k, v) => mutableMap.put(k, v))
 
@@ -107,7 +107,7 @@ class CompositeSearchFunction(config: SearchConfig, @transient var postgresConne
     val senderCode = getSenderCode(event)
     val action = getAction(event)
     //Insert base record
-    insertSearchRecord(correlationId, originalApiCallId, senderCode, null, "OPEN", "{}")
+    insertSearchRecord(correlationId, originalApiCallId, senderCode, null, Constants.OPEN_STATUS, "{}")
     mutableMap.asJava.put(Constants.SENDER_CODE, config.hcxRegistryCode)
     //Iterate through all the recipients and dispatch apicalls with updated payload
     for (recipientCode <- recipientList.asScala) {
