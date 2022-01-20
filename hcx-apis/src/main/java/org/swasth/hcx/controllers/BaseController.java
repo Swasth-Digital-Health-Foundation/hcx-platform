@@ -6,10 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.swasth.common.dto.Request;
-import org.swasth.common.dto.Response;
-import org.swasth.common.dto.ResponseError;
-import org.swasth.common.dto.SearchRequest;
+import org.swasth.common.dto.*;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
 import org.swasth.common.exception.ServerException;
@@ -21,10 +18,7 @@ import org.swasth.hcx.service.HeaderAuditService;
 import org.swasth.kafka.client.IEventService;
 import org.swasth.postgresql.IDatabaseService;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static org.swasth.common.utils.Constants.*;
 
@@ -87,12 +81,16 @@ public class BaseController {
             else
                 request = new Request(requestBody);
             setResponseParams(request, response);
-            request.validate(getMandatoryHeaders(), timestampRange);
+            request.validate(getMandatoryHeaders(), getAuditData(request), apiAction, timestampRange);
             processAndSendEvent(apiAction, kafkaTopic, request);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
             return exceptionHandler(response, e);
         }
+    }
+
+    private HeaderAudit getAuditData(Request request) {
+       return auditService.search(new SearchRequestDTO(new HashMap<>(Collections.singletonMap("api_call_id", request.getApiCallId())))).get(0);
     }
 
     protected void setResponseParams(Request request, Response response){

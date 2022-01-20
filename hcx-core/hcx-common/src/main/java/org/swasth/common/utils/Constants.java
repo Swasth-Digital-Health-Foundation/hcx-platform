@@ -30,6 +30,8 @@ public  class Constants {
     public static final String HCX_SEARCH = VERSION_PREFIX + "/hcx/search";
     public static final String HCX_ON_SEARCH = VERSION_PREFIX + "/hcx/on_search";
 
+    public static final List<String> ON_ACTION_APIS = Arrays.asList(COVERAGE_ELIGIBILITY_ONCHECK, PRE_AUTH_ONSUBMIT, CLAIM_ONSUBMIT, PAYMENT_NOTICE_ONREQUEST, HCX_ONSTATUS, HCX_ON_SEARCH);
+
     public static final String HEALTHY = "healthy";
     public static final String NAME = "name";
     public static final String KAFKA = "kafka";

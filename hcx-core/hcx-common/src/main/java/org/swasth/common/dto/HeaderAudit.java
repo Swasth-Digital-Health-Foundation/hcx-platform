@@ -2,7 +2,7 @@ package org.swasth.common.dto;
 
 public class HeaderAudit {
 	
-	private String request_id;
+	private String api_call_id;
 	private String recipient_code;
 	private String correlation_id;
 	private String workflow_id;
@@ -14,8 +14,8 @@ public class HeaderAudit {
 	private Object jose;
 	private Object status;
 
-	public HeaderAudit(String request_id, String recipient_code, String correlation_id, String workflow_id, String timestamp, String sender_code, String mid, String action, Object log_details, Object jose, Object status) {
-		this.request_id = request_id;
+	public HeaderAudit(String api_call_id, String recipient_code, String correlation_id, String workflow_id, String timestamp, String sender_code, String mid, String action, Object log_details, Object jose, Object status) {
+		this.api_call_id = api_call_id;
 		this.recipient_code = recipient_code;
 		this.correlation_id = correlation_id;
 		this.workflow_id = workflow_id;
@@ -34,11 +34,11 @@ public class HeaderAudit {
 	public void setStatus(Object status) {
 		this.status = status;
 	}
-	public String getRequest_id() {
-		return request_id;
+	public String getApi_call_id() {
+		return api_call_id;
 	}
-	public void setRequest_id(String request_id) {
-		this.request_id = request_id;
+	public void setApi_call_id(String request_id) {
+		this.api_call_id = api_call_id;
 	}
 	public String getRecipient_code() {
 		return recipient_code;
