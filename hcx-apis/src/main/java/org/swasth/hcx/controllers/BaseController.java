@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.swasth.common.dto.Request;
 import org.swasth.common.dto.Response;
 import org.swasth.common.dto.ResponseError;
+import org.swasth.common.dto.SearchRequest;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
 import org.swasth.common.exception.ServerException;
@@ -80,13 +81,16 @@ public class BaseController {
         try {
             if (!HealthCheckManager.allSystemHealthResult)
                 throw new ServiceUnavailbleException(ErrorCodes.SERVICE_UNAVAILABLE, "Service is unavailable");
-            Request request = new Request(requestBody);
+            Request request = null;
+            if (HCX_SEARCH.equalsIgnoreCase(apiAction) || HCX_ON_SEARCH.equalsIgnoreCase(apiAction))
+                request = new SearchRequest(requestBody);
+            else
+                request = new Request(requestBody);
             setResponseParams(request, response);
             request.validate(getMandatoryHeaders(), timestampRange);
             processAndSendEvent(apiAction, kafkaTopic, request);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
-            e.printStackTrace();
             return exceptionHandler(response, e);
         }
     }

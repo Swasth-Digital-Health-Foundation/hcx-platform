@@ -56,7 +56,7 @@ public class StatusSearchProcessFunction extends BaseDispatcherFunction {
 
     @Override
     public Map<String, Object> getPayload(Map<String, Object> event) throws Exception {
-        String payloadRefId = getPayloadRefId(event);
+        String payloadRefId = getMid(event);
         System.out.println("Fetching payload from postgres for mid: " + payloadRefId);
         String postgresQuery = String.format("SELECT data FROM %s WHERE mid = '%s'", config.postgresTable, payloadRefId);
         PreparedStatement preparedStatement = postgresConnect.getConnection().prepareStatement(postgresQuery);

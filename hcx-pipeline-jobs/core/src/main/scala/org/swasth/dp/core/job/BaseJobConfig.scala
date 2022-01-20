@@ -51,7 +51,7 @@ class BaseJobConfig(val config: Config, val jobName: String) extends Serializabl
   // Default output configurations
   val enrichedOutputTag: OutputTag[util.Map[String, AnyRef]] = OutputTag[util.Map[String, AnyRef]]("enriched-events")
 
-  val retryOutputTag: OutputTag[util.Map[String, AnyRef]] = OutputTag[util.Map[String, AnyRef]]("retry-events")
+  val retryOutputTag: OutputTag[String] = OutputTag[String]("retry-events")
   val retryTopic = config.getString("kafka.retry.topic")
 
   val auditOutputTag: OutputTag[String] = OutputTag[String]("audit-events")
