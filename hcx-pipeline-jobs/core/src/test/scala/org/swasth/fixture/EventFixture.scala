@@ -94,35 +94,35 @@ object EventFixture {
 
   val SAMPLE_EVENT: String =
     """{"ets":1637320447257,"headers":{"jose":{"alg":"RSA-OAEP","enc":"A256GCM"},
-      |"protocol":{"x-hcx-recipient_code":"c4f5d97d-fe55-4322-aefe-69345268e4eb","x-hcx-request_id":"26b1060c-1e83-4600-9612-ea31e0ca5091",
+      |"protocol":{"x-hcx-recipient_code":"c4f5d97d-fe55-4322-aefe-69345268e4eb","x-hcx-api_call_id":"26b1060c-1e83-4600-9612-ea31e0ca5091",
       |"x-hcx-timestamp":"2021-10-27T20:35:52.636+0530","x-hcx-sender_code":"4193d6c2-5af9-4868-bf47-4356ca6d785b","x-hcx-correlation_id":"5e934f90-111d-4f0b-b016-c22d820674e1",
       |"x-hcx-status":"request.initiate"},"domain":{"request_amount":120000}},"mid":"761dfc11-1870-4981-b33d-16254a104a9d",
       |"action":"/v1/coverageeligibility/check","status":"Submitted"}""".stripMargin
 
   val SAMPLE_WRONG_EVENT: String =
     """{"ets":1637320447257,"headers":{"jose":{"alg":"RSA-OAEP","enc":"A256GCM"},
-      |"protocol":{"x-hcx-recipient_code":"12345","x-hcx-request_id":"26b1060c-1e83-4600-9612-ea31e0ca5091",
+      |"protocol":{"x-hcx-recipient_code":"12345","x-hcx-api_call_id":"26b1060c-1e83-4600-9612-ea31e0ca5091",
       |"x-hcx-timestamp":"2021-10-27T20:35:52.636+0530","x-hcx-sender_code":"67890","x-hcx-correlation_id":"5e934f90-111d-4f0b-b016-c22d820674e1",
       |"x-hcx-status":"request.initiate"},"domain":{"request_amount":120000}},"mid":"761dfc11-1870-4981-b33d-16254a104a9d",
       |"action":"/v1/coverageeligibility/check","status":"Submitted"}""".stripMargin
 
   val SAMPLE_WRONG_SENDER_EVENT: String =
     """{"ets":1637320447257,"headers":{"jose":{"alg":"RSA-OAEP","enc":"A256GCM"},
-      |"protocol":{"x-hcx-recipient_code":"c4f5d97d-fe55-4322-aefe-69345268e4eb","x-hcx-request_id":"26b1060c-1e83-4600-9612-ea31e0ca5091",
+      |"protocol":{"x-hcx-recipient_code":"c4f5d97d-fe55-4322-aefe-69345268e4eb","x-hcx-api_call_id":"26b1060c-1e83-4600-9612-ea31e0ca5091",
       |"x-hcx-timestamp":"2021-10-27T20:35:52.636+0530","x-hcx-sender_code":"67890","x-hcx-correlation_id":"5e934f90-111d-4f0b-b016-c22d820674e1",
       |"x-hcx-status":"request.initiate"},"domain":{"request_amount":120000}},"mid":"761dfc11-1870-4981-b33d-16254a104a9d",
       |"action":"/v1/coverageeligibility/check","status":"Submitted"}""".stripMargin
 
   val SAMPLE_WRONG_RECIPIENT_EVENT: String =
     """{"ets":1637320447257,"headers":{"jose":{"alg":"RSA-OAEP","enc":"A256GCM"},
-      |"protocol":{"x-hcx-recipient_code":"12345","x-hcx-request_id":"26b1060c-1e83-4600-9612-ea31e0ca5091",
+      |"protocol":{"x-hcx-recipient_code":"12345","x-hcx-api_call_id":"26b1060c-1e83-4600-9612-ea31e0ca5091",
       |"x-hcx-timestamp":"2021-10-27T20:35:52.636+0530","x-hcx-sender_code":"4193d6c2-5af9-4868-bf47-4356ca6d785b","x-hcx-correlation_id":"5e934f90-111d-4f0b-b016-c22d820674e1",
       |"x-hcx-status":"request.initiate"},"domain":{"request_amount":120000}},"mid":"761dfc11-1870-4981-b33d-16254a104a9d",
       |"action":"/v1/coverageeligibility/check","status":"Submitted"}""".stripMargin
 
   val SAMPLE_INVALID_ACTION_EVENT: String =
     """{"ets":1637320447257,"headers":{"jose":{"alg":"RSA-OAEP","enc":"A256GCM"},
-      |"protocol":{"x-hcx-recipient_code":"c4f5d97d-fe55-4322-aefe-69345268e4eb","x-hcx-request_id":"26b1060c-1e83-4600-9612-ea31e0ca5091",
+      |"protocol":{"x-hcx-recipient_code":"c4f5d97d-fe55-4322-aefe-69345268e4eb","x-hcx-api_call_id":"26b1060c-1e83-4600-9612-ea31e0ca5091",
       |"x-hcx-timestamp":"2021-10-27T20:35:52.636+0530","x-hcx-sender_code":"4193d6c2-5af9-4868-bf47-4356ca6d785b","x-hcx-correlation_id":"5e934f90-111d-4f0b-b016-c22d820674e1",
       |"x-hcx-status":"request.initiate"},"domain":{"request_amount":120000}},"mid":"761dfc11-1870-4981-b33d-16254a104a9d",
       |"action":"/v1/coverageeligibility.check","status":"Submitted",
@@ -135,21 +135,21 @@ object EventFixture {
 
   val SAMPLE_PREAUTH_SUBMIT_EVENT: String =
     """{"ets":1637320447257,"headers":{"jose":{"alg":"RSA-OAEP","enc":"A256GCM"},
-      |"protocol":{"x-hcx-recipient_code":"c4f5d97d-fe55-4322-aefe-69345268e4eb","x-hcx-request_id":"26b1060c-1e83-4600-9612-ea31e0ca5091",
+      |"protocol":{"x-hcx-recipient_code":"c4f5d97d-fe55-4322-aefe-69345268e4eb","x-hcx-api_call_id":"26b1060c-1e83-4600-9612-ea31e0ca5091",
       |"x-hcx-timestamp":"2021-10-27T20:35:52.636+0530","x-hcx-sender_code":"4193d6c2-5af9-4868-bf47-4356ca6d785b","x-hcx-correlation_id":"5e934f90-111d-4f0b-b016-c22d820674e1",
       |"x-hcx-status":"request.initiate"},"domain":{"request_amount":120000}},"mid":"761dfc11-1870-4981-b33d-16254a104a9d",
       |"action":"/v1/preauth/submit","status":"Submitted"}""".stripMargin
 
   val SAMPLE_PREAUTH_SEARCH_EVENT: String =
     """{"ets":1637320447257,"headers":{"jose":{"alg":"RSA-OAEP","enc":"A256GCM"},
-      |"protocol":{"x-hcx-recipient_code":"c4f5d97d-fe55-4322-aefe-69345268e4eb","x-hcx-request_id":"26b1060c-1e83-4600-9612-ea31e0ca5091",
+      |"protocol":{"x-hcx-recipient_code":"c4f5d97d-fe55-4322-aefe-69345268e4eb","x-hcx-api_call_id":"26b1060c-1e83-4600-9612-ea31e0ca5091",
       |"x-hcx-timestamp":"2021-10-27T20:35:52.636+0530","x-hcx-sender_code":"4193d6c2-5af9-4868-bf47-4356ca6d785b","x-hcx-correlation_id":"5e934f90-111d-4f0b-b016-c22d820674e1",
       |"x-hcx-status":"request.initiate"},"domain":{"request_amount":120000}},"mid":"761dfc11-1870-4981-b33d-16254a104a9d",
       |"action":"/v1/preauth/search","status":"Submitted"}""".stripMargin
 
   val SAMPLE_VALID_PREAUTH_SUBMIT_ACTION_EVENT: String =
     """{"ets":1637320447257,"headers":{"jose":{"alg":"RSA-OAEP","enc":"A256GCM"},
-      |"protocol":{"x-hcx-recipient_code":"c4f5d97d-fe55-4322-aefe-69345268e4eb","x-hcx-request_id":"26b1060c-1e83-4600-9612-ea31e0ca5091",
+      |"protocol":{"x-hcx-recipient_code":"c4f5d97d-fe55-4322-aefe-69345268e4eb","x-hcx-api_call_id":"26b1060c-1e83-4600-9612-ea31e0ca5091",
       |"x-hcx-timestamp":"2021-10-27T20:35:52.636+0530","x-hcx-sender_code":"4193d6c2-5af9-4868-bf47-4356ca6d785b","x-hcx-correlation_id":"5e934f90-111d-4f0b-b016-c22d820674e1",
       |"x-hcx-status":"request.initiate"},"domain":{"request_amount":120000}},"mid":"761dfc11-1870-4981-b33d-16254a104a9d",
       |"action":"/v1/preauth/submit","status":"Submitted",
@@ -162,7 +162,7 @@ object EventFixture {
 
   val SAMPLE_INVALID_PREAUTH_SUBMIT_ACTION_EVENT: String =
     """{"ets":1637320447257,"headers":{"jose":{"alg":"RSA-OAEP","enc":"A256GCM"},
-      |"protocol":{"x-hcx-recipient_code":"c4f5d97d-fe55-4322-aefe-69345268e4eb","x-hcx-request_id":"26b1060c-1e83-4600-9612-ea31e0ca5091",
+      |"protocol":{"x-hcx-recipient_code":"c4f5d97d-fe55-4322-aefe-69345268e4eb","x-hcx-api_call_id":"26b1060c-1e83-4600-9612-ea31e0ca5091",
       |"x-hcx-timestamp":"2021-10-27T20:35:52.636+0530","x-hcx-sender_code":"4193d6c2-5af9-4868-bf47-4356ca6d785b","x-hcx-correlation_id":"5e934f90-111d-4f0b-b016-c22d820674e1",
       |"x-hcx-status":"request.initiate"},"domain":{"request_amount":120000}},"mid":"761dfc11-1870-4981-b33d-16254a104a9d",
       |"action":"/v1/preauth.submit","status":"Submitted",
@@ -175,7 +175,7 @@ object EventFixture {
 
   val SAMPLE_VALID_PREAUTH_SEARCH_ACTION_EVENT: String =
     """{"ets":1637320447257,"headers":{"jose":{"alg":"RSA-OAEP","enc":"A256GCM"},
-      |"protocol":{"x-hcx-recipient_code":"c4f5d97d-fe55-4322-aefe-69345268e4eb","x-hcx-request_id":"26b1060c-1e83-4600-9612-ea31e0ca5091",
+      |"protocol":{"x-hcx-recipient_code":"c4f5d97d-fe55-4322-aefe-69345268e4eb","x-hcx-api_call_id":"26b1060c-1e83-4600-9612-ea31e0ca5091",
       |"x-hcx-timestamp":"2021-10-27T20:35:52.636+0530","x-hcx-sender_code":"4193d6c2-5af9-4868-bf47-4356ca6d785b","x-hcx-correlation_id":"5e934f90-111d-4f0b-b016-c22d820674e1",
       |"x-hcx-status":"request.initiate"},"domain":{"request_amount":120000}},"mid":"761dfc11-1870-4981-b33d-16254a104a9d",
       |"action":"/v1/preauth/search","status":"Submitted",
@@ -188,7 +188,7 @@ object EventFixture {
 
   val SAMPLE_INVALID_PREAUTH_SEARCH_ACTION_EVENT: String =
     """{"ets":1637320447257,"headers":{"jose":{"alg":"RSA-OAEP","enc":"A256GCM"},
-      |"protocol":{"x-hcx-recipient_code":"c4f5d97d-fe55-4322-aefe-69345268e4eb","x-hcx-request_id":"26b1060c-1e83-4600-9612-ea31e0ca5091",
+      |"protocol":{"x-hcx-recipient_code":"c4f5d97d-fe55-4322-aefe-69345268e4eb","x-hcx-api_call_id":"26b1060c-1e83-4600-9612-ea31e0ca5091",
       |"x-hcx-timestamp":"2021-10-27T20:35:52.636+0530","x-hcx-sender_code":"4193d6c2-5af9-4868-bf47-4356ca6d785b","x-hcx-correlation_id":"5e934f90-111d-4f0b-b016-c22d820674e1",
       |"x-hcx-status":"request.initiate"},"domain":{"request_amount":120000}},"mid":"761dfc11-1870-4981-b33d-16254a104a9d",
       |"action":"/v1/preauth.search","status":"Submitted",
@@ -201,21 +201,21 @@ object EventFixture {
 
   val SAMPLE_PAYMENTS_REQUEST_EVENT: String =
     """{"ets":1637320447257,"headers":{"jose":{"alg":"RSA-OAEP","enc":"A256GCM"},
-      |"protocol":{"x-hcx-recipient_code":"c4f5d97d-fe55-4322-aefe-69345268e4eb","x-hcx-request_id":"26b1060c-1e83-4600-9612-ea31e0ca5091",
+      |"protocol":{"x-hcx-recipient_code":"c4f5d97d-fe55-4322-aefe-69345268e4eb","x-hcx-api_call_id":"26b1060c-1e83-4600-9612-ea31e0ca5091",
       |"x-hcx-timestamp":"2021-10-27T20:35:52.636+0530","x-hcx-sender_code":"4193d6c2-5af9-4868-bf47-4356ca6d785b","x-hcx-correlation_id":"5e934f90-111d-4f0b-b016-c22d820674e1",
       |"x-hcx-status":"request.initiate"},"domain":{"request_amount":120000}},"mid":"761dfc11-1870-4981-b33d-16254a104a9d",
       |"action":"/v1/paymentnotice/request","status":"Submitted"}""".stripMargin
 
   val SAMPLE_PAYMENTS_SEARCH_EVENT: String =
     """{"ets":1637320447257,"headers":{"jose":{"alg":"RSA-OAEP","enc":"A256GCM"},
-      |"protocol":{"x-hcx-recipient_code":"c4f5d97d-fe55-4322-aefe-69345268e4eb","x-hcx-request_id":"26b1060c-1e83-4600-9612-ea31e0ca5091",
+      |"protocol":{"x-hcx-recipient_code":"c4f5d97d-fe55-4322-aefe-69345268e4eb","x-hcx-api_call_id":"26b1060c-1e83-4600-9612-ea31e0ca5091",
       |"x-hcx-timestamp":"2021-10-27T20:35:52.636+0530","x-hcx-sender_code":"4193d6c2-5af9-4868-bf47-4356ca6d785b","x-hcx-correlation_id":"5e934f90-111d-4f0b-b016-c22d820674e1",
       |"x-hcx-status":"request.initiate"},"domain":{"request_amount":120000}},"mid":"761dfc11-1870-4981-b33d-16254a104a9d",
       |"action":"/v1/paymentnotice/search","status":"Submitted"}""".stripMargin
 
   val SAMPLE_VALID_PAYMENTS_REQUEST_ACTION_EVENT: String =
     """{"ets":1637320447257,"headers":{"jose":{"alg":"RSA-OAEP","enc":"A256GCM"},
-      |"protocol":{"x-hcx-recipient_code":"c4f5d97d-fe55-4322-aefe-69345268e4eb","x-hcx-request_id":"26b1060c-1e83-4600-9612-ea31e0ca5091",
+      |"protocol":{"x-hcx-recipient_code":"c4f5d97d-fe55-4322-aefe-69345268e4eb","x-hcx-api_call_id":"26b1060c-1e83-4600-9612-ea31e0ca5091",
       |"x-hcx-timestamp":"2021-10-27T20:35:52.636+0530","x-hcx-sender_code":"4193d6c2-5af9-4868-bf47-4356ca6d785b","x-hcx-correlation_id":"5e934f90-111d-4f0b-b016-c22d820674e1",
       |"x-hcx-status":"request.initiate"},"domain":{"request_amount":120000}},"mid":"761dfc11-1870-4981-b33d-16254a104a9d",
       |"action":"/v1/paymentnotice/request","status":"Submitted",
@@ -228,7 +228,7 @@ object EventFixture {
 
   val SAMPLE_INVALID_PAYMENTS_REQUEST_ACTION_EVENT: String =
     """{"ets":1637320447257,"headers":{"jose":{"alg":"RSA-OAEP","enc":"A256GCM"},
-      |"protocol":{"x-hcx-recipient_code":"c4f5d97d-fe55-4322-aefe-69345268e4eb","x-hcx-request_id":"26b1060c-1e83-4600-9612-ea31e0ca5091",
+      |"protocol":{"x-hcx-recipient_code":"c4f5d97d-fe55-4322-aefe-69345268e4eb","x-hcx-api_call_id":"26b1060c-1e83-4600-9612-ea31e0ca5091",
       |"x-hcx-timestamp":"2021-10-27T20:35:52.636+0530","x-hcx-sender_code":"4193d6c2-5af9-4868-bf47-4356ca6d785b","x-hcx-correlation_id":"5e934f90-111d-4f0b-b016-c22d820674e1",
       |"x-hcx-status":"request.initiate"},"domain":{"request_amount":120000}},"mid":"761dfc11-1870-4981-b33d-16254a104a9d",
       |"action":"/v1/paymentnotice.request","status":"Submitted",
@@ -241,7 +241,7 @@ object EventFixture {
 
   val SAMPLE_VALID_PAYMENTS_SEARCH_ACTION_EVENT: String =
     """{"ets":1637320447257,"headers":{"jose":{"alg":"RSA-OAEP","enc":"A256GCM"},
-      |"protocol":{"x-hcx-recipient_code":"c4f5d97d-fe55-4322-aefe-69345268e4eb","x-hcx-request_id":"26b1060c-1e83-4600-9612-ea31e0ca5091",
+      |"protocol":{"x-hcx-recipient_code":"c4f5d97d-fe55-4322-aefe-69345268e4eb","x-hcx-api_call_id":"26b1060c-1e83-4600-9612-ea31e0ca5091",
       |"x-hcx-timestamp":"2021-10-27T20:35:52.636+0530","x-hcx-sender_code":"4193d6c2-5af9-4868-bf47-4356ca6d785b","x-hcx-correlation_id":"5e934f90-111d-4f0b-b016-c22d820674e1",
       |"x-hcx-status":"request.initiate"},"domain":{"request_amount":120000}},"mid":"761dfc11-1870-4981-b33d-16254a104a9d",
       |"action":"/v1/paymentnotice/search","status":"Submitted",
@@ -254,7 +254,7 @@ object EventFixture {
 
   val SAMPLE_INVALID_PAYMENTS_SEARCH_ACTION_EVENT: String =
     """{"ets":1637320447257,"headers":{"jose":{"alg":"RSA-OAEP","enc":"A256GCM"},
-      |"protocol":{"x-hcx-recipient_code":"c4f5d97d-fe55-4322-aefe-69345268e4eb","x-hcx-request_id":"26b1060c-1e83-4600-9612-ea31e0ca5091",
+      |"protocol":{"x-hcx-recipient_code":"c4f5d97d-fe55-4322-aefe-69345268e4eb","x-hcx-api_call_id":"26b1060c-1e83-4600-9612-ea31e0ca5091",
       |"x-hcx-timestamp":"2021-10-27T20:35:52.636+0530","x-hcx-sender_code":"4193d6c2-5af9-4868-bf47-4356ca6d785b","x-hcx-correlation_id":"5e934f90-111d-4f0b-b016-c22d820674e1",
       |"x-hcx-status":"request.initiate"},"domain":{"request_amount":120000}},"mid":"761dfc11-1870-4981-b33d-16254a104a9d",
       |"action":"/v1/paymentnotice.search","status":"Submitted",
@@ -267,21 +267,21 @@ object EventFixture {
 
   val SAMPLE_CLAIMS_SUBMIT_EVENT: String =
     """{"ets":1637320447257,"headers":{"jose":{"alg":"RSA-OAEP","enc":"A256GCM"},
-      |"protocol":{"x-hcx-recipient_code":"c4f5d97d-fe55-4322-aefe-69345268e4eb","x-hcx-request_id":"26b1060c-1e83-4600-9612-ea31e0ca5091",
+      |"protocol":{"x-hcx-recipient_code":"c4f5d97d-fe55-4322-aefe-69345268e4eb","x-hcx-api_call_id":"26b1060c-1e83-4600-9612-ea31e0ca5091",
       |"x-hcx-timestamp":"2021-10-27T20:35:52.636+0530","x-hcx-sender_code":"4193d6c2-5af9-4868-bf47-4356ca6d785b","x-hcx-correlation_id":"5e934f90-111d-4f0b-b016-c22d820674e1",
       |"x-hcx-status":"request.initiate"},"domain":{"request_amount":120000}},"mid":"761dfc11-1870-4981-b33d-16254a104a9d",
       |"action":"/v1/claim/submit","status":"Submitted"}""".stripMargin
 
   val SAMPLE_CLAIMS_SEARCH_EVENT: String =
     """{"ets":1637320447257,"headers":{"jose":{"alg":"RSA-OAEP","enc":"A256GCM"},
-      |"protocol":{"x-hcx-recipient_code":"c4f5d97d-fe55-4322-aefe-69345268e4eb","x-hcx-request_id":"26b1060c-1e83-4600-9612-ea31e0ca5091",
+      |"protocol":{"x-hcx-recipient_code":"c4f5d97d-fe55-4322-aefe-69345268e4eb","x-hcx-api_call_id":"26b1060c-1e83-4600-9612-ea31e0ca5091",
       |"x-hcx-timestamp":"2021-10-27T20:35:52.636+0530","x-hcx-sender_code":"4193d6c2-5af9-4868-bf47-4356ca6d785b","x-hcx-correlation_id":"5e934f90-111d-4f0b-b016-c22d820674e1",
       |"x-hcx-status":"request.initiate"},"domain":{"request_amount":120000}},"mid":"761dfc11-1870-4981-b33d-16254a104a9d",
       |"action":"/v1/claim/search","status":"Submitted"}""".stripMargin
 
   val SAMPLE_VALID_CLAIMS_SUBMIT_ACTION_EVENT: String =
     """{"ets":1637320447257,"headers":{"jose":{"alg":"RSA-OAEP","enc":"A256GCM"},
-      |"protocol":{"x-hcx-recipient_code":"c4f5d97d-fe55-4322-aefe-69345268e4eb","x-hcx-request_id":"26b1060c-1e83-4600-9612-ea31e0ca5091",
+      |"protocol":{"x-hcx-recipient_code":"c4f5d97d-fe55-4322-aefe-69345268e4eb","x-hcx-api_call_id":"26b1060c-1e83-4600-9612-ea31e0ca5091",
       |"x-hcx-timestamp":"2021-10-27T20:35:52.636+0530","x-hcx-sender_code":"4193d6c2-5af9-4868-bf47-4356ca6d785b","x-hcx-correlation_id":"5e934f90-111d-4f0b-b016-c22d820674e1",
       |"x-hcx-status":"request.initiate"},"domain":{"request_amount":120000}},"mid":"761dfc11-1870-4981-b33d-16254a104a9d",
       |"action":"/v1/claim/submit","status":"Submitted",
@@ -294,7 +294,7 @@ object EventFixture {
 
   val SAMPLE_INVALID_CLAIMS_SUBMIT_ACTION_EVENT: String =
     """{"ets":1637320447257,"headers":{"jose":{"alg":"RSA-OAEP","enc":"A256GCM"},
-      |"protocol":{"x-hcx-recipient_code":"c4f5d97d-fe55-4322-aefe-69345268e4eb","x-hcx-request_id":"26b1060c-1e83-4600-9612-ea31e0ca5091",
+      |"protocol":{"x-hcx-recipient_code":"c4f5d97d-fe55-4322-aefe-69345268e4eb","x-hcx-api_call_id":"26b1060c-1e83-4600-9612-ea31e0ca5091",
       |"x-hcx-timestamp":"2021-10-27T20:35:52.636+0530","x-hcx-sender_code":"4193d6c2-5af9-4868-bf47-4356ca6d785b","x-hcx-correlation_id":"5e934f90-111d-4f0b-b016-c22d820674e1",
       |"x-hcx-status":"request.initiate"},"domain":{"request_amount":120000}},"mid":"761dfc11-1870-4981-b33d-16254a104a9d",
       |"action":"/v1/claim.submit","status":"Submitted",
@@ -307,7 +307,7 @@ object EventFixture {
 
   val SAMPLE_VALID_CLAIMS_SEARCH_ACTION_EVENT: String =
     """{"ets":1637320447257,"headers":{"jose":{"alg":"RSA-OAEP","enc":"A256GCM"},
-      |"protocol":{"x-hcx-recipient_code":"c4f5d97d-fe55-4322-aefe-69345268e4eb","x-hcx-request_id":"26b1060c-1e83-4600-9612-ea31e0ca5091",
+      |"protocol":{"x-hcx-recipient_code":"c4f5d97d-fe55-4322-aefe-69345268e4eb","x-hcx-api_call_id":"26b1060c-1e83-4600-9612-ea31e0ca5091",
       |"x-hcx-timestamp":"2021-10-27T20:35:52.636+0530","x-hcx-sender_code":"4193d6c2-5af9-4868-bf47-4356ca6d785b","x-hcx-correlation_id":"5e934f90-111d-4f0b-b016-c22d820674e1",
       |"x-hcx-status":"request.initiate"},"domain":{"request_amount":120000}},"mid":"761dfc11-1870-4981-b33d-16254a104a9d",
       |"action":"/v1/claim/search","status":"Submitted",
@@ -320,7 +320,7 @@ object EventFixture {
 
   val SAMPLE_INVALID_CLAIMS_SEARCH_ACTION_EVENT: String =
     """{"ets":1637320447257,"headers":{"jose":{"alg":"RSA-OAEP","enc":"A256GCM"},
-      |"protocol":{"x-hcx-recipient_code":"c4f5d97d-fe55-4322-aefe-69345268e4eb","x-hcx-request_id":"26b1060c-1e83-4600-9612-ea31e0ca5091",
+      |"protocol":{"x-hcx-recipient_code":"c4f5d97d-fe55-4322-aefe-69345268e4eb","x-hcx-api_call_id":"26b1060c-1e83-4600-9612-ea31e0ca5091",
       |"x-hcx-timestamp":"2021-10-27T20:35:52.636+0530","x-hcx-sender_code":"4193d6c2-5af9-4868-bf47-4356ca6d785b","x-hcx-correlation_id":"5e934f90-111d-4f0b-b016-c22d820674e1",
       |"x-hcx-status":"request.initiate"},"domain":{"request_amount":120000}},"mid":"761dfc11-1870-4981-b33d-16254a104a9d",
       |"action":"/v1/claim.search","status":"Submitted",
@@ -330,4 +330,8 @@ object EventFixture {
       |"recipient":{"participant_code":"67890","signing_cert_path":"urn:isbn:0-476-27557-4","roles":"admin","encryption_cert":"urn:isbn:0-4234",
       |"endpoint_url":"http://a07c089412c1b46f2b49946c59267d03-2070772031.ap-south-1.elb.amazonaws.com:8080/v1.claim/search",
       |"participant_name":"Test Provider","hfr_code":"0001","status":"Created"}}}""".stripMargin
+
+  val SEARCH_EVENT_VALID: String = """{"headers":{"protocol":{"enc":"A256GCM","alg":"RSA-OAEP","x-hcx-sender_code":"1-4dc3e088-a313-44ab-afa1-0222959cb75b","x-hcx-recipient_code":"hcx-gateway-code","x-hcx-correlation_id":"1e83-460a-4f0b-b016-c22d820674e1","x-hcx-api_call_id":"26b1060c-1e83-4600-9612-ea31e0ca5091","x-hcx-timestamp":"2022-01-16T09:50:23+00","x-hcx-status":"request.initiate","x-hcx-debug_flag":"Info","x-hcx-error_details":{"error.code":"bad.input","error.message":"Provider code not found","trace":""},"x-hcx-debug_details":{"error.code":"bad.input","error.message":"Provider code not found","trace":""},"x-hcx-search":{"filters":{"senders":["1-80500cdd-2dec-4d60-bd1b-8f9d83f497ff"],"receivers":["1-93f908ba-b579-453e-8b2a-56022afad275"],"entity_types":["preauth","claim"],"workflow_ids":[],"case_ids":[],"entity_status":["claims.completed","claims.rejected"]},"time_period":24},"jws_header":{"typ":"JWT","alg":"RS256"},"jwe_header":{"alg":"RSA-OAEP","enc":"A256GCM"}}},"ets":1640587993601,"mid":"200c6dac-b259-4d35-b176-370fb092d7b0","action":"/v1/hcx/search","status":"submitted"}""".stripMargin
+
+  val ON_SEARCH_EVENT_VALID: String = """{"headers":{"protocol":{"enc":"A256GCM","alg":"RSA-OAEP","x-hcx-sender_code":"1-93f908ba-b579-453e-8b2a-56022afad275","x-hcx-recipient_code":"hcx-gateway-code","x-hcx-correlation_id":"1e83-460a-4f0b-b016-c22d820674e1","x-hcx-api_call_id":"d2d9c669-5c2e-4143-bf3d-9393a0471e74","x-hcx-timestamp":"2022-01-16T09:50:23+00","x-hcx-status":"response.initiate","x-hcx-debug_flag":"Info","x-hcx-error_details":{"error.code":"bad.input","error.message":"Provider code not found","trace":""},"x-hcx-debug_details":{"error.code":"bad.input","error.message":"Provider code not found","trace":""},"x-hcx-search_response":{"count":6,"entity_counts":{"claim":1,"preauth":2,"predetermination":3}},"jws_header":{"typ":"JWT","alg":"RS256"},"jwe_header":{"alg":"RSA-OAEP","enc":"A256GCM"}}},"ets":1640587993601,"mid":"300c6dac-b259-4d35-b176-370fb092d7b0","action":"/v1/hcx/on_search","status":"submitted"}""".stripMargin
 }

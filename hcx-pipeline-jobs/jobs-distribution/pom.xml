@@ -46,6 +46,24 @@
         </dependency>
         <dependency>
             <groupId>org.swasth</groupId>
+            <artifactId>status-job</artifactId>
+            <version>1.0.0</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.swasth</groupId>
+            <artifactId>composite-search-job</artifactId>
+            <version>1.0.0</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.swasth</groupId>
+            <artifactId>search-response-job</artifactId>
+            <version>1.0.0</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.swasth</groupId>
             <artifactId>audit-indexer</artifactId>
             <version>1.0.0</version>
             <type>jar</type>

@@ -24,4 +24,8 @@ public class JSONUtils {
     public static <T> T deserialize(String value, Class<T> clazz) throws Exception {
         return mapper.readValue(value, clazz);
     }
+
+    public static <T> T convert(Object obj, Class<T> clazz) {
+        return mapper.convertValue(obj, clazz);
+    }
 }
