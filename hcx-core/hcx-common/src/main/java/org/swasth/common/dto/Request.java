@@ -36,7 +36,6 @@ public class Request{
         }
 
         if(ON_ACTION_APIS.contains(apiAction)) {
-            validateCondition(!getApiCallId().equals(auditData.getApi_call_id()), ErrorCodes.CLIENT_ERR_MISSING_API_CALL_ID, "Response contains invalid api call id" );
             validateCondition(!getCorrelationId().equals(auditData.getCorrelation_id()), ErrorCodes.CLIENT_ERR_MISSING_CORRELATION_ID_RES, "Response contains invalid correlation id");
             if(!auditData.getWorkflow_id().isEmpty()) {
                 validateCondition(!getWorkflowId().equals(auditData.getWorkflow_id()), ErrorCodes.CLIENT_ERR_MISSING_WORKFLOW_ID_RES, "Response contains invalid correlation id");

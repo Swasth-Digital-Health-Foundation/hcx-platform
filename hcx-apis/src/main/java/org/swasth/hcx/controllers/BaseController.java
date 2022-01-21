@@ -92,7 +92,7 @@ public class BaseController {
     private HeaderAudit getAuditData(Request request, String apiAction) {
         HeaderAudit audit = new HeaderAudit();
         if (ON_ACTION_APIS.contains(apiAction)) {
-            audit = auditService.search(new SearchRequestDTO(new HashMap<>(Collections.singletonMap("api_call_id", request.getApiCallId())))).get(0);
+            audit = auditService.search(new SearchRequestDTO(new HashMap<>(Collections.singletonMap("correlation_id", request.getCorrelationId())))).get(0);
         }
         return audit;
     }
