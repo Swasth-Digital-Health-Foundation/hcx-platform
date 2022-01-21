@@ -55,7 +55,7 @@ abstract class BaseProcessFunction[T, R](config: BaseJobConfig) extends ProcessF
   }
 
   def getProtocolHeaderValue(event: util.Map[String, AnyRef], key: String): String = {
-    event.get(Constants.HEADERS).asInstanceOf[util.Map[String, AnyRef]].get(Constants.PROTOCOL).asInstanceOf[util.Map[String, AnyRef]].get(key).asInstanceOf[String]
+    event.get(Constants.HEADERS).asInstanceOf[util.Map[String, AnyRef]].get(Constants.PROTOCOL).asInstanceOf[util.Map[String, AnyRef]].getOrDefault(key,"").asInstanceOf[String]
   }
 
   def getReplacedAction(actionStr: String): String = {
