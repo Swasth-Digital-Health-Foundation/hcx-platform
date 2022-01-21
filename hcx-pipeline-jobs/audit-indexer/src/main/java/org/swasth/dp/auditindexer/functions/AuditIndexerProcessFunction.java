@@ -40,7 +40,7 @@ public class AuditIndexerProcessFunction extends ProcessFunction<Map<String,Obje
     }
 
     @Override
-    public void processElement(Map<String, Object> event, ProcessFunction<Map<String, Object>, Metrics>.Context context, Collector<Metrics> collector) {
+    public void processElement(Map<String, Object> event, ProcessFunction<Map<String, Object>, Metrics>.Context context, Collector<Metrics> collector) throws Exception {
         try {
             String indexName = getIndexName((Long) event.get("auditTimeStamp"));
             String apiCallId = (String) event.get("api_call_id");
@@ -51,11 +51,11 @@ public class AuditIndexerProcessFunction extends ProcessFunction<Map<String,Obje
         }
         catch (IOException e) {
             logger.error("Error while indexing message :: " + event + " :: " + e.getMessage());
-            e.printStackTrace();
+            throw e;
         }
         catch (Exception e) {
-            e.printStackTrace();
             logger.error("Error while processing message :: " + event + " :: " + e.getMessage());
+            throw e;
         }
     }
 
