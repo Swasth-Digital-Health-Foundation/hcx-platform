@@ -35,12 +35,13 @@ public class StatusController extends BaseController {
                 throw new ServiceUnavailbleException(ErrorCodes.SERVICE_UNAVAILABLE, "Service is unavailable");
             Request request = new Request(requestBody);
             setResponseParams(request, response);
+            request.validate(getMandatoryHeaders(), getAuditData(request, HCX_STATUS), HCX_STATUS, timestampRange);
             Map<String, Object> hcxHeaders = request.getHcxHeaders();
             // TODO: filter properties validation
             if (!hcxHeaders.containsKey(STATUS_FILTERS) || ((Map<String, Object>) hcxHeaders.get(STATUS_FILTERS)).isEmpty()) {
                 throw new ClientException("Invalid request, status filters is missing or empty.");
             }
-            // Assuming a single result will be fetched for given request_id
+            // Assuming a single result will be fetched for given api_call_id
             HeaderAudit result = auditService.search(new SearchRequestDTO((Map<String, String>) hcxHeaders.get(STATUS_FILTERS))).get(0);
             if (!hcxHeaders.get(SENDER_CODE).equals(result.getSender_code())) {
                 throw new ClientException("Request does not belongs to sender");
@@ -74,6 +75,7 @@ public class StatusController extends BaseController {
                 throw new ServiceUnavailbleException(ErrorCodes.SERVICE_UNAVAILABLE, "Service is unavailable");
             Request request = new Request(requestBody);
             setResponseParams(request, response);
+            request.validate(getMandatoryHeaders(), getAuditData(request, HCX_ONSTATUS), HCX_ONSTATUS, timestampRange);
             Map<String, Object> hcxHeaders = request.getHcxHeaders();
             if(!hcxHeaders.containsKey(STATUS_RESPONSE) || ((Map<String, Object>) hcxHeaders.get(STATUS_RESPONSE)).isEmpty()) {
                 throw new ClientException("Invalid request, status response is missing or empty.");

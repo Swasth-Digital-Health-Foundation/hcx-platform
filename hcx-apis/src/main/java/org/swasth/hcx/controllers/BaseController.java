@@ -37,12 +37,12 @@ public class BaseController {
     private IDatabaseService postgreSQLClient;
 
     @Value("${timestamp.range}")
-    private int timestampRange;
+    protected int timestampRange;
 
     @Autowired
     protected HeaderAuditService auditService;
 
-    private List<String> getMandatoryHeaders() {
+    protected List<String> getMandatoryHeaders() {
         List<String> mandatoryHeaders = new ArrayList<>();
         mandatoryHeaders.addAll(env.getProperty(PROTOCOL_HEADERS_MANDATORY, List.class));
         mandatoryHeaders.addAll(env.getProperty(JOSE_HEADERS, List.class));
@@ -89,7 +89,7 @@ public class BaseController {
         }
     }
 
-    private HeaderAudit getAuditData(Request request, String apiAction) {
+    protected HeaderAudit getAuditData(Request request, String apiAction) {
         HeaderAudit audit = new HeaderAudit();
         if (ON_ACTION_APIS.contains(apiAction)) {
             audit = auditService.search(new SearchRequestDTO(new HashMap<>(Collections.singletonMap("correlation_id", request.getCorrelationId())))).get(0);
