@@ -76,7 +76,7 @@ public class RegistryValidationFilter extends AbstractGatewayFilterFactory<Regis
                     throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_CORREL_ID, "Correlation id should be a valid UUID");
                 }
                 if (!protectedMap.containsKey(API_CALL_ID) || !(protectedMap.get(API_CALL_ID) instanceof String) || ((String) protectedMap.get(API_CALL_ID)).isEmpty() || !Utils.isUUID((String) protectedMap.get(API_CALL_ID))) {
-                    throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_API_CALL_ID, "API call id should be a valid UUID");
+                    throw new ClientException(ErrorCodes.CLIENT_ERR_MISSING_API_CALL_ID, "API call id should be a valid UUID");
                 }
                 correlationId = (String) protectedMap.get(CORRELATION_ID);
                 apiCallId = (String) protectedMap.get(API_CALL_ID);
