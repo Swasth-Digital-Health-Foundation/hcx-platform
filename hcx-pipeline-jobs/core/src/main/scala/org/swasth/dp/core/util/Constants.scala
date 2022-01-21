@@ -16,6 +16,8 @@ object Constants {
   val PROTOCOL = "protocol"
   val DOMAIN = "domain"
   val LOG_DETAILS = "log_details"
+  val ERROR_DETAILS = "x-hcx-error_details"
+  val DEBUG_DETAILS = "x-hcx-debug_details"
   val CODE = "code"
   val MESSAGE = "message"
   val TRACE = "trace"

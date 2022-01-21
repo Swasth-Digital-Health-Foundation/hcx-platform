@@ -21,8 +21,8 @@ class ContextEnrichmentFunction(config: BaseJobConfig) (implicit val stringTypeI
   }
 
   override def processElement(event: util.Map[String, AnyRef], context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
-    val senderCode: String = getProtocolHeaderValue(event, Constants.SENDER_CODE)
-    val recipientCode: String = getProtocolHeaderValue(event, Constants.RECIPIENT_CODE)
+    val senderCode: String = getProtocolStringValue(event, Constants.SENDER_CODE)
+    val recipientCode: String = getProtocolStringValue(event, Constants.RECIPIENT_CODE)
     val action: String =  event.get(Constants.ACTION).asInstanceOf[String]
     Console.println(s"Sender: $senderCode : Recipient: $recipientCode : Action: $action")
 

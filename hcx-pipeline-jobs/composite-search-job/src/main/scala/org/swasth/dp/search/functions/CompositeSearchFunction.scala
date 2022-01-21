@@ -83,8 +83,6 @@ class CompositeSearchFunction(config: SearchConfig, @transient var postgresConne
      *          a. Successful Dispatch, Insert child record with status as Open
      *             b. In case of dispatch failure to the recipient, Insert child record with status as Fail
      */
-    //Add request time stamp for audit log
-    event.put(Constants.REQUESTED_TIME, Calendar.getInstance().getTime())
     //Pay load from database
     val payloadRefId = event.get(Constants.MID).asInstanceOf[String]
     val payloadMap = getPayload(payloadRefId)
@@ -104,9 +102,9 @@ class CompositeSearchFunction(config: SearchConfig, @transient var postgresConne
       get(Constants.SEARCH_FILTERS).asInstanceOf[util.Map[String, AnyRef]].
       get(Constants.SEARCH_FILTERS_RECEIVER).asInstanceOf[util.List[String]]
 
-    val correlationId = getProtocolHeaderValue(event,Constants.CORRELATION_ID)
-    val originalApiCallId = getProtocolHeaderValue(event,Constants.API_CALL_ID)
-    val senderCode = getProtocolHeaderValue(event,Constants.SENDER_CODE)
+    val correlationId = getProtocolStringValue(event,Constants.CORRELATION_ID)
+    val originalApiCallId = getProtocolStringValue(event,Constants.API_CALL_ID)
+    val senderCode = getProtocolStringValue(event,Constants.SENDER_CODE)
     val action = event.get(Constants.ACTION).asInstanceOf[String]
     //Insert base record
     insertSearchRecord(correlationId, originalApiCallId, senderCode, null, Constants.OPEN_STATUS, "{}")

@@ -94,11 +94,11 @@ class SearchResponseFunction(config: SearchResponseConfig, @transient var postgr
      */
     //Add request time stamp for audit log
     event.put(Constants.REQUESTED_TIME, Calendar.getInstance().getTime())
-    val correlationId = getProtocolHeaderValue(event,Constants.CORRELATION_ID)
+    val correlationId = getProtocolStringValue(event,Constants.CORRELATION_ID)
     val action = event.get(Constants.ACTION).asInstanceOf[String]
-    val apiCallId = getProtocolHeaderValue(event,Constants.API_CALL_ID)
+    val apiCallId = getProtocolStringValue(event,Constants.API_CALL_ID)
     val baseRecord = getBaseRecord(correlationId)
-    val senderCode = getProtocolHeaderValue(event,Constants.SENDER_CODE) //1-93f908ba-b579-453e-8b2a-56022afad275
+    val senderCode = getProtocolStringValue(event,Constants.SENDER_CODE) //1-93f908ba-b579-453e-8b2a-56022afad275
     if (!Constants.CLOSE_STATUS.equalsIgnoreCase(baseRecord.responseStatus)) {
       val payloadRefId = event.get(Constants.MID).asInstanceOf[String]
       val payloadMap = getPayload(payloadRefId)
