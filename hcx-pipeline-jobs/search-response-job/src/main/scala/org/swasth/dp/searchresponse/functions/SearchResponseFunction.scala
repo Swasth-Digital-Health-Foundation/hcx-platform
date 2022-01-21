@@ -44,8 +44,7 @@ class SearchResponseFunction(config: SearchResponseConfig, @transient var postgr
     ValidationResult(status = true, None)
   }
 
-  override def getPayload(event: util.Map[String, AnyRef]): util.Map[String, AnyRef] = {
-    val payloadRefId = getMid(event)
+  override def getPayload(payloadRefId: String): util.Map[String, AnyRef] = {
     Console.println("Fetching payload from postgres for mid: " + payloadRefId)
     logger.info("Fetching payload from postgres for mid: " + payloadRefId)
     val postgresQuery = String.format("SELECT data FROM %s WHERE mid = '%s'", config.payloadTable, payloadRefId)
@@ -92,13 +91,14 @@ class SearchResponseFunction(config: SearchResponseConfig, @transient var postgr
      *     Update base record with status as PARTIAL
      *     FAIL: Update the child record, with status as RETRY and response_data with the search response from the event
      */
-    val correlationId = getCorrelationId(event)
-    val action = getAction(event)
-    val apiCallId = getApiCallId(event)
+    val correlationId = getProtocolHeaderValue(event,Constants.CORRELATION_ID)
+    val action = event.get(Constants.ACTION).asInstanceOf[String]
+    val apiCallId = getProtocolHeaderValue(event,Constants.API_CALL_ID)
     val baseRecord = getBaseRecord(correlationId)
-    val senderCode = getSenderCode(event)
+    val senderCode = getProtocolHeaderValue(event,Constants.SENDER_CODE) //1-93f908ba-b579-453e-8b2a-56022afad275
     if (!Constants.CLOSE_STATUS.equalsIgnoreCase(baseRecord.responseStatus)) {
-      val payloadMap = getPayload(event)
+      val payloadRefId = event.get(Constants.MID).asInstanceOf[String]
+      val payloadMap = getPayload(payloadRefId)
       val encodedPayload = payloadMap.get(Constants.PAYLOAD).asInstanceOf[String]
       //Place the updated protected header values into this map and encode the values
       val parsedPayload = JSONUtil.parsePayload(encodedPayload)
@@ -156,7 +156,7 @@ class SearchResponseFunction(config: SearchResponseConfig, @transient var postgr
         }
       }
       if (!hasNoPendingRecords && searchList.size() > 0) {
-        Console.println("Processing consolidated response")
+        Console.println("Processing consolidated response for correlationId:"+correlationId)
         val consolidatedResponse = createConsolidatedResponse(baseRecord, searchList)
         val gson = new Gson
         mutableMap.asJava.put(Constants.SEARCH_RESPONSE, gson.toJson(consolidatedResponse))

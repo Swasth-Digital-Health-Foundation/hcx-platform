@@ -6,7 +6,7 @@ import org.apache.flink.configuration.Configuration
 import org.apache.flink.streaming.api.functions.ProcessFunction
 import org.apache.flink.util.Collector
 import org.swasth.dp.core.cache.{DataCache, RedisConnect}
-import org.swasth.dp.core.util.{DispatcherUtil, JSONUtil}
+import org.swasth.dp.core.util.{Constants, DispatcherUtil, JSONUtil}
 
 import java.util
 import java.util.concurrent.ConcurrentHashMap
@@ -54,9 +54,8 @@ abstract class BaseProcessFunction[T, R](config: BaseJobConfig) extends ProcessF
     processElement(event, context, metrics)
   }
 
-  def getCode(event: util.Map[String, AnyRef], key: String): String = {
-    val protocolMap = event.get("headers").asInstanceOf[util.Map[String, AnyRef]].get("protocol").asInstanceOf[util.Map[String, AnyRef]]
-    protocolMap.get(key).asInstanceOf[String]
+  def getProtocolHeaderValue(event: util.Map[String, AnyRef], key: String): String = {
+    event.get(Constants.HEADERS).asInstanceOf[util.Map[String, AnyRef]].get(Constants.PROTOCOL).asInstanceOf[util.Map[String, AnyRef]].get(key).asInstanceOf[String]
   }
 
   def getReplacedAction(actionStr: String): String = {
@@ -69,7 +68,7 @@ abstract class BaseProcessFunction[T, R](config: BaseJobConfig) extends ProcessF
 
   def createSenderContext(sender: util.Map[String, AnyRef],actionStr: String): util.Map[String, AnyRef] = {
     //Sender Details
-    var endpointUrl = sender.getOrDefault("endpoint_url", "").asInstanceOf[String]
+    var endpointUrl = sender.getOrDefault(Constants.END_POINT, "").asInstanceOf[String]
     if (!StringUtils.isEmpty(endpointUrl)) {
       //If endPointUrl comes with /, remove it as action starts with /
       if (endpointUrl.endsWith("/"))
@@ -78,7 +77,7 @@ abstract class BaseProcessFunction[T, R](config: BaseJobConfig) extends ProcessF
       // fetch on_ action for the sender
       val replacedAction: String = getReplacedAction(actionStr)
       val appendedSenderUrl = endpointUrl.concat(replacedAction)
-      sender.put("endpoint_url", appendedSenderUrl)
+      sender.put(Constants.END_POINT, appendedSenderUrl)
       sender
     } else new util.HashMap[String, AnyRef]()
 
@@ -86,13 +85,13 @@ abstract class BaseProcessFunction[T, R](config: BaseJobConfig) extends ProcessF
 
   def createRecipientContext(receiver: util.Map[String, AnyRef],actionStr: String): util.Map[String, AnyRef] = {
     //Receiver Details
-    var endpointUrl = receiver.get("endpoint_url").asInstanceOf[String]
+    var endpointUrl = receiver.get(Constants.END_POINT).asInstanceOf[String]
     if (!StringUtils.isEmpty(endpointUrl)) {
       //If endPointUrl comes with /, remove it as action starts with /
       if (endpointUrl.endsWith("/"))
         endpointUrl = endpointUrl.substring(0, endpointUrl.length - 1)
       val appendedReceiverUrl = endpointUrl.concat(actionStr)
-      receiver.put("endpoint_url", appendedReceiverUrl)
+      receiver.put(Constants.END_POINT, appendedReceiverUrl)
       receiver
     } else new util.HashMap[String, AnyRef]()
 
