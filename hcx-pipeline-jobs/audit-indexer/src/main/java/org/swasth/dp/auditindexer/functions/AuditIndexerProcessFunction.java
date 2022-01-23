@@ -67,6 +67,7 @@ public class AuditIndexerProcessFunction extends ProcessFunction<Map<String,Obje
     }
 
     private void createIndex(String indexName){
+        // TODO: load settings and mappings from file
         String settings = "{ \"index\": { } }";
         if (settings == null) {
             logger.error("Failed to load index settings");
