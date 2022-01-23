@@ -5,9 +5,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MvcResult;
+import org.swasth.common.dto.HeaderAudit;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.hcx.controllers.BaseSpec;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,6 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.swasth.common.utils.Constants.HCX_ON_SEARCH;
 import static org.swasth.common.utils.Constants.HCX_SEARCH;
@@ -55,6 +58,7 @@ public class SearchControllerTest extends BaseSpec {
 
     @Test
     public void onSearchBadRequest() throws Exception {
+        when(headerAuditService.search(any())).thenReturn(Arrays.asList(new HeaderAudit("AUDIT", new Object(), new Object(), "1-2799b6a4-cf2d-45fe-a5e1-5f1c82979e0d", "93f908ba", "ff84928c-a077-4565-8fb1-731b1b6466a0", "", "1e83-460a-4f0b-b016-c22d820674e1", "2022-01-06T09:50:23+00", new Long("1642781095099"), new Long("1642781095099"), new Long("1642781095099"), "/v1/hcx/search", "59cefda2-a4cc-4795-95f3-fb9e82e21cef", "request.queued")));
         doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
         String requestBody = getOnSearchBadRequest();
         MvcResult mvcResult = mockMvc.perform(post(HCX_ON_SEARCH).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
@@ -71,6 +75,7 @@ public class SearchControllerTest extends BaseSpec {
 
     @Test
     public void onSearchSuccess() throws Exception {
+        when(headerAuditService.search(any())).thenReturn(Arrays.asList(new HeaderAudit("AUDIT", new Object(), new Object(), "1-2799b6a4-cf2d-45fe-a5e1-5f1c82979e0d", "93f908ba", "ff84928c-a077-4565-8fb1-731b1b6466a0", "", "1e83-460a-4f0b-b016-c22d820674e1", "2022-01-06T09:50:23+00", new Long("1642781095099"), new Long("1642781095099"), new Long("1642781095099"), "/v1/hcx/search", "59cefda2-a4cc-4795-95f3-fb9e82e21cef", "request.queued")));
         doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
         String requestBody = getOnSearchRequest();
         MvcResult mvcResult = mockMvc.perform(post(HCX_ON_SEARCH).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();

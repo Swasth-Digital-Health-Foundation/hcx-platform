@@ -1,44 +1,67 @@
 package org.swasth.common.dto;
 
-public class HeaderAudit {
-	
-	private String request_id;
-	private String recipient_code;
-	private String correlation_id;
-	private String workflow_id;
-	private String timestamp;
-	private String sender_code;
-	private String mid;
-	private String action;
-	private Object log_details;
-	private Object jose;
-	private Object status;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-	public HeaderAudit(String request_id, String recipient_code, String correlation_id, String workflow_id, String timestamp, String sender_code, String mid, String action, Object log_details, Object jose, Object status) {
-		this.request_id = request_id;
+public class HeaderAudit {
+
+	private String eid;
+	private Object error_details;
+	private Object debug_details;
+	@JsonProperty("x-hcx-recipient_code")
+	private String recipient_code;
+	@JsonProperty("x-hcx-sender_code")
+	private String sender_code;
+	@JsonProperty("x-hcx-api_call_id")
+	private String api_call_id;
+	@JsonProperty("x-hcx-workflow_id")
+	private String workflow_id;
+	@JsonProperty("x-hcx-correlation_id")
+	private String correlation_id;
+	@JsonProperty("x-hcx-timestamp")
+	private String timestamp;
+	private long requestTimeStamp;
+	private long auditTimestamp;
+	private long updatedTimestamp;
+	private String action;
+	private String mid;
+	private String status;
+
+	public HeaderAudit() {}
+
+	public HeaderAudit(String eid, Object error_details, Object debug_details, String recipient_code, String sender_code, String api_call_id, String workflow_id, String correlation_id, String timestamp, long requestTimeStamp, long auditTimestamp, long updatedTimestamp, String action, String mid, String status) {
+		this.eid = eid;
+		this.error_details = error_details;
+		this.debug_details = debug_details;
 		this.recipient_code = recipient_code;
-		this.correlation_id = correlation_id;
-		this.workflow_id = workflow_id;
-		this.timestamp = timestamp;
 		this.sender_code = sender_code;
-		this.mid = mid;
+		this.api_call_id = api_call_id;
+		this.workflow_id = workflow_id;
+		this.correlation_id = correlation_id;
+		this.timestamp = timestamp;
+		this.requestTimeStamp = requestTimeStamp;
+		this.auditTimestamp = auditTimestamp;
+		this.updatedTimestamp = updatedTimestamp;
 		this.action = action;
-		this.log_details = log_details;
-		this.jose = jose;
+		this.mid = mid;
 		this.status = status;
 	}
-	
-	public Object getStatus() {
-		return status;
+	public String getEid() {
+		return eid;
 	}
-	public void setStatus(Object status) {
-		this.status = status;
+	public void setEid(String eid) {
+		this.eid = eid;
 	}
-	public String getRequest_id() {
-		return request_id;
+	public Object getError_details() {
+		return error_details;
 	}
-	public void setRequest_id(String request_id) {
-		this.request_id = request_id;
+	public void setError_details(Object error_details) {
+		this.error_details = error_details;
+	}
+	public Object getDebug_details() {
+		return debug_details;
+	}
+	public void setDebug_details(Object debug_details) {
+		this.debug_details = debug_details;
 	}
 	public String getRecipient_code() {
 		return recipient_code;
@@ -46,11 +69,17 @@ public class HeaderAudit {
 	public void setRecipient_code(String recipient_code) {
 		this.recipient_code = recipient_code;
 	}
-	public String getCorrelation_id() {
-		return correlation_id;
+	public String getSender_code() {
+		return sender_code;
 	}
-	public void setCorrelation_id(String correlation_id) {
-		this.correlation_id = correlation_id;
+	public void setSender_code(String sender_code) {
+		this.sender_code = sender_code;
+	}
+	public String getApi_call_id() {
+		return api_call_id;
+	}
+	public void setApi_call_id(String api_call_id) {
+		this.api_call_id = api_call_id;
 	}
 	public String getWorkflow_id() {
 		return workflow_id;
@@ -58,23 +87,35 @@ public class HeaderAudit {
 	public void setWorkflow_id(String workflow_id) {
 		this.workflow_id = workflow_id;
 	}
+	public String getCorrelation_id() {
+		return correlation_id;
+	}
+	public void setCorrelation_id(String correlation_id) {
+		this.correlation_id = correlation_id;
+	}
 	public String getTimestamp() {
 		return timestamp;
 	}
 	public void setTimestamp(String timestamp) {
 		this.timestamp = timestamp;
 	}
-	public String getSender_code() {
-		return sender_code;
+	public long getRequestTimeStamp() {
+		return requestTimeStamp;
 	}
-	public void setSender_code(String sender_code) {
-		this.sender_code = sender_code;
+	public void setRequestTimeStamp(long requestTimeStamp) {
+		this.requestTimeStamp = requestTimeStamp;
 	}
-	public String getMid() {
-		return mid;
+	public long getAuditTimestamp() {
+		return auditTimestamp;
 	}
-	public void setMid(String mid) {
-		this.mid = mid;
+	public void setAuditTimestamp(long auditTimestamp) {
+		this.auditTimestamp = auditTimestamp;
+	}
+	public long getUpdatedTimestamp() {
+		return updatedTimestamp;
+	}
+	public void setUpdatedTimestamp(long updatedTimestamp) {
+		this.updatedTimestamp = updatedTimestamp;
 	}
 	public String getAction() {
 		return action;
@@ -82,16 +123,16 @@ public class HeaderAudit {
 	public void setAction(String action) {
 		this.action = action;
 	}
-	public Object getLog_details() {
-		return log_details;
+	public String getMid() {
+		return mid;
 	}
-	public void setLog_details(Object log_details) {
-		this.log_details = log_details;
+	public void setMid(String mid) {
+		this.mid = mid;
 	}
-	public Object getJose() {
-		return jose;
+	public String getStatus() {
+		return status;
 	}
-	public void setJose(Object jose) {
-		this.jose = jose;
+	public void setStatus(String status) {
+		this.status = status;
 	}
 }

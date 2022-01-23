@@ -6,10 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.swasth.common.dto.Request;
-import org.swasth.common.dto.Response;
-import org.swasth.common.dto.ResponseError;
-import org.swasth.common.dto.SearchRequest;
+import org.swasth.common.dto.*;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
 import org.swasth.common.exception.ServerException;
@@ -21,10 +18,7 @@ import org.swasth.hcx.service.HeaderAuditService;
 import org.swasth.kafka.client.IEventService;
 import org.swasth.postgresql.IDatabaseService;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static org.swasth.common.utils.Constants.*;
 
@@ -43,12 +37,12 @@ public class BaseController {
     private IDatabaseService postgreSQLClient;
 
     @Value("${timestamp.range}")
-    private int timestampRange;
+    protected int timestampRange;
 
     @Autowired
     protected HeaderAuditService auditService;
 
-    private List<String> getMandatoryHeaders() {
+    protected List<String> getMandatoryHeaders() {
         List<String> mandatoryHeaders = new ArrayList<>();
         mandatoryHeaders.addAll(env.getProperty(PROTOCOL_HEADERS_MANDATORY, List.class));
         mandatoryHeaders.addAll(env.getProperty(JOSE_HEADERS, List.class));
@@ -87,12 +81,20 @@ public class BaseController {
             else
                 request = new Request(requestBody);
             setResponseParams(request, response);
-            request.validate(getMandatoryHeaders(), timestampRange);
+            request.validate(getMandatoryHeaders(), getAuditData(request, apiAction), apiAction, timestampRange);
             processAndSendEvent(apiAction, kafkaTopic, request);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
             return exceptionHandler(response, e);
         }
+    }
+
+    protected HeaderAudit getAuditData(Request request, String apiAction) {
+        HeaderAudit audit = new HeaderAudit();
+        if (ON_ACTION_APIS.contains(apiAction)) {
+            audit = auditService.search(new SearchRequestDTO(new HashMap<>(Collections.singletonMap(CORRELATION_ID, request.getCorrelationId())))).get(0);
+        }
+        return audit;
     }
 
     protected void setResponseParams(Request request, Response response){

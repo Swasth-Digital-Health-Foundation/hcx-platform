@@ -27,8 +27,8 @@ public class SearchRequest extends Request {
     }
 
     @Override
-    public void validate(List<String> mandatoryHeaders, int timestampRange) throws ClientException {
-        super.validate(mandatoryHeaders,timestampRange);
+    public void validate(List<String> mandatoryHeaders, HeaderAudit auditData, String apiAction, int timestampRange) throws ClientException {
+        super.validate(mandatoryHeaders, auditData, apiAction, timestampRange);
 
         if(Constants.HCX_REGISTRY_CODE.equals(getRecipientCode())){
             throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_SEARCH, "Search recipient code must be hcx registry code");

@@ -25,7 +25,7 @@ public class Request{
         this.hcxHeaders = JSONUtils.decodeBase64String(((String) body.get(Constants.PAYLOAD)).split("\\.")[0], Map.class);
     }
 
-    public void validate(List<String> mandatoryHeaders, int timestampRange) throws ClientException {
+    public void validate(List<String> mandatoryHeaders, HeaderAudit auditData, String apiAction, int timestampRange) throws ClientException {
 
         List<String> missingHeaders = mandatoryHeaders.stream().filter(key -> !hcxHeaders.containsKey(key)).collect(Collectors.toList());
         if (!missingHeaders.isEmpty()) {
@@ -35,14 +35,17 @@ public class Request{
             validateHeader(hcxHeaders, entry.getKey(), entry.getValue());
         }
 
-        if (!DateTimeUtils.validTimestamp(timestampRange, getTimestamp())) {
-            throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_TIMESTAMP, "Timestamp cannot be more than " + timestampRange + " hours in the past or future time");
+        if(ON_ACTION_APIS.contains(apiAction)) {
+            validateCondition(!getCorrelationId().equals(auditData.getCorrelation_id()), ErrorCodes.CLIENT_ERR_MISSING_CORRELATION_ID_RES, "Response contains invalid correlation id");
+            if(!auditData.getWorkflow_id().isEmpty()) {
+                validateCondition(!getWorkflowId().equals(auditData.getWorkflow_id()), ErrorCodes.CLIENT_ERR_MISSING_WORKFLOW_ID_RES, "Response contains invalid correlation id");
+            }
         }
+        validateCondition(!DateTimeUtils.validTimestamp(timestampRange, getTimestamp()), ErrorCodes.CLIENT_ERR_INVALID_TIMESTAMP, "Timestamp cannot be more than " + timestampRange + " hours in the past or future time");
 
         if (hcxHeaders.containsKey(DEBUG_FLAG)) {
             validateValues(getDebugFlag(), ErrorCodes.CLIENT_ERR_INVALID_DEBUG_ID, "Debug flag cannot be null, empty and other than 'String'", DEBUG_FLAG_VALUES, ErrorCodes.CLIENT_ERR_DEBUG_ID_OUTOFRANGE, "Debug flag cannot be other than Error, Info or Debug");
         }
-
         validateValues(getStatus(), ErrorCodes.CLIENT_ERR_INVALID_STATUS, "Status cannot be null, empty and other than 'String'", STATUS_VALUES, ErrorCodes.CLIENT_ERR_STATUS_OUTOFRANGE, "Status value can be only: " + STATUS_VALUES);
 
         if (hcxHeaders.containsKey(ERROR_DETAILS)) {
@@ -53,6 +56,12 @@ public class Request{
             validateDetails(getDebugDetails(), ErrorCodes.CLIENT_ERR_INVALID_DEBUG_DETAILS, "Debug details cannot be null, empty and other than 'JSON Object'", ErrorCodes.CLIENT_ERR_DEBUG_DETAILS_OUTOFRANGE, "Debug details should contain only: ");
         }
 
+    }
+
+    private void validateCondition(Boolean condition, ErrorCodes errorcode, String msg) throws ClientException {
+        if(condition){
+            throw new ClientException(errorcode, msg);
+        }
     }
 
     private void validateDetails(Map<String, Object> inputMap, ErrorCodes errorCode, String msg, ErrorCodes rangeCode, String rangeMsg) throws ClientException {
