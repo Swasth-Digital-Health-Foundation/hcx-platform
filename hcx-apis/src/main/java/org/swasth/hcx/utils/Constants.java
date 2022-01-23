@@ -76,7 +76,7 @@ public  class Constants {
     public static final String GATEWAY = "gateway";
     public static final String KAFKA_TOPIC_PAYLOAD = "kafka.topic.payload";
 
-    public static final String HEADER_AUDIT = "headeraudit";
+    public static final String HEADER_AUDIT = "hcx_audit";
     public static final String PAYOR = "payor";
     public static final String PROVIDER = "provider";
     public static final String ROLES = "roles";
