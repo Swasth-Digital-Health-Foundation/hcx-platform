@@ -43,7 +43,7 @@ public class AuditIndexerProcessFunction extends ProcessFunction<Map<String,Obje
     public void processElement(Map<String, Object> event, ProcessFunction<Map<String, Object>, Metrics>.Context context, Collector<Metrics> collector) throws Exception {
         try {
             String indexName = getIndexName((Long) event.get("auditTimeStamp"));
-            String apiCallId = (String) event.get("api_call_id");
+            String apiCallId = (String) event.get("x-hcx-api_call_id");
             createIndex(indexName);
             esUtil.addDocumentWithIndex(JSONUtil.serialize(event), indexName, apiCallId);
             logger.info("Audit record created for " + apiCallId);

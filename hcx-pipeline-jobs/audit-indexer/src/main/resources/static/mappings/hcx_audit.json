@@ -1,32 +1,22 @@
 {
   "properties": {
-    "headers": {
-      "type": "nested",
-      "properties": {
-        "protocol": {
-          "type": "nested",
-          "properties": {
-            "x-hcx-sender_code": {
-              "type": "keyword"
-            },
-            "x-hcx-recipient_code": {
-              "type": "keyword"
-            },
-            "x-hcx-api_call_id": {
-              "type": "keyword"
-            },
-            "x-hcx-correlation_id": {
-              "type": "keyword"
-            },
-            "x-hcx-workflow_id": {
-              "type": "keyword"
-            },
-            "x-hcx-status": {
-              "type": "keyword"
-            }
-          }
-        }
-      }
+    "x-hcx-sender_code": {
+      "type": "keyword"
+    },
+    "x-hcx-recipient_code": {
+      "type": "keyword"
+    },
+    "x-hcx-api_call_id": {
+      "type": "keyword"
+    },
+    "x-hcx-correlation_id": {
+      "type": "keyword"
+    },
+    "x-hcx-workflow_id": {
+      "type": "keyword"
+    },
+    "x-hcx-timestamp": {
+      "type": "keyword"
     },
     "mid": {
       "type": "keyword"
@@ -38,7 +28,19 @@
       "type": "keyword"
     },
     "auditTimeStamp": {
-      "type": "long"
+      "type": "keyword"
+    },
+    "requestTimeStamp": {
+      "type": "keyword"
+    },
+    "updatedTimestamp": {
+      "type": "keyword"
+    },
+    "error_details": {
+      "type": "object"
+    },
+    "debug_details": {
+      "type": "object"
     }
   }
 }
