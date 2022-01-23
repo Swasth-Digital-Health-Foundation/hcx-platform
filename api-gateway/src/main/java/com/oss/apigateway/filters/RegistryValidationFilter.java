@@ -4,9 +4,7 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.jayway.jsonpath.JsonPath;
 import com.oss.apigateway.cache.RedisCache;
-import com.oss.apigateway.constants.Constants;
 import com.oss.apigateway.exception.ClientException;
 import com.oss.apigateway.exception.ErrorCodes;
 import com.oss.apigateway.exception.ServerException;
@@ -17,10 +15,7 @@ import com.oss.apigateway.utils.JSONUtils;
 import com.oss.apigateway.utils.Utils;
 import kong.unirest.HttpResponse;
 import kong.unirest.UnirestException;
-import kong.unirest.json.JSONString;
-import net.minidev.json.JSONArray;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.conn.HttpHostConnectException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,14 +31,13 @@ import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
-import redis.clients.jedis.exceptions.JedisException;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.oss.apigateway.constants.Constants.*;
 import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.CACHED_REQUEST_BODY_ATTR;
 
 @Component
@@ -66,8 +60,8 @@ public class RegistryValidationFilter extends AbstractGatewayFilterFactory<Regis
     @Override
     public GatewayFilter apply(Config config) {
         return (exchange, chain) -> {
-            String workflowId = null;
-            String requestId = null;
+            String correlationId = null;
+            String apiCallId = null;
             try {
                 StringBuilder cachedBody = new StringBuilder(StandardCharsets.UTF_8.decode(((DataBuffer) exchange.getAttribute(CACHED_REQUEST_BODY_ATTR)).asByteBuffer()));
                 String[] requestBody = formatRequestBody(JSONUtils.deserialize(cachedBody.toString(), HashMap.class));
@@ -78,16 +72,16 @@ public class RegistryValidationFilter extends AbstractGatewayFilterFactory<Regis
                 } catch (JsonParseException e) {
                     throw new ClientException(ErrorCodes.CLIENT_ERR_WRONG_ENCODED_PROTECTED, "Error while parsing protected headers");
                 }
-                if (!protectedMap.containsKey(Constants.WORKFLOW_ID) || !(protectedMap.get(Constants.WORKFLOW_ID) instanceof String) || ((String) protectedMap.get(Constants.WORKFLOW_ID)).isEmpty() || !Utils.isUUID((String) protectedMap.get(Constants.WORKFLOW_ID))) {
-                    throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_WORKFLOW_ID, "Workflow id should be a valid UUID");
+                if (!protectedMap.containsKey(CORRELATION_ID) || !(protectedMap.get(CORRELATION_ID) instanceof String) || ((String) protectedMap.get(CORRELATION_ID)).isEmpty() || !Utils.isUUID((String) protectedMap.get(CORRELATION_ID))) {
+                    throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_CORREL_ID, "Correlation id should be a valid UUID");
                 }
-                if (!protectedMap.containsKey(Constants.REQUEST_ID) || !(protectedMap.get(Constants.REQUEST_ID) instanceof String) || ((String) protectedMap.get(Constants.REQUEST_ID)).isEmpty() || !Utils.isUUID((String) protectedMap.get(Constants.REQUEST_ID))) {
-                    throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_REQ_ID, "Request id should be a valid UUID");
+                if (!protectedMap.containsKey(API_CALL_ID) || !(protectedMap.get(API_CALL_ID) instanceof String) || ((String) protectedMap.get(API_CALL_ID)).isEmpty() || !Utils.isUUID((String) protectedMap.get(API_CALL_ID))) {
+                    throw new ClientException(ErrorCodes.CLIENT_ERR_MISSING_API_CALL_ID, "API call id should be a valid UUID");
                 }
-                workflowId = (String) protectedMap.get(Constants.WORKFLOW_ID);
-                requestId = (String) protectedMap.get(Constants.REQUEST_ID);
-                Object senderCode = protectedMap.get(Constants.SENDER_CODE);
-                Object recipientCode = protectedMap.get(Constants.RECIPIENT_CODE);
+                correlationId = (String) protectedMap.get(CORRELATION_ID);
+                apiCallId = (String) protectedMap.get(API_CALL_ID);
+                Object senderCode = protectedMap.get(SENDER_CODE);
+                Object recipientCode = protectedMap.get(RECIPIENT_CODE);
                 if (!(senderCode instanceof String) || ((String) senderCode).isEmpty()) {
                     throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_SENDER, "Invalid sender code");
                 }
@@ -102,25 +96,25 @@ public class RegistryValidationFilter extends AbstractGatewayFilterFactory<Regis
                 if (senderDetails.isEmpty()) {
                     throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_SENDER, "Sender is not exist in registry");
                 }
-                if(StringUtils.equals((String) senderDetails.get(Constants.STATUS),Constants.BLOCKED)){
+                if(StringUtils.equals((String) senderDetails.get(STATUS),BLOCKED)){
                     throw new ClientException(ErrorCodes.CLIENT_ERR_SENDER_BLOCKED, "Sender is blocked as per the registry");
                 }
                 validateCallerId(exchange, senderDetails);
                 if (recipientDetails.isEmpty()) {
                     throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_RECIPIENT, "Recipient is not exist in registry");
                 }
-                if(StringUtils.equals((String) recipientDetails.get(Constants.STATUS),Constants.BLOCKED)){
+                if(StringUtils.equals((String) recipientDetails.get(STATUS),BLOCKED)){
                     throw new ClientException(ErrorCodes.CLIENT_ERR_RECIPIENT_BLOCKED, "Recipient is blocked as per the registry");
                 }
             } catch (ClientException e) {
                 logger.error(e.toString());
-                return this.onError(exchange, HttpStatus.BAD_REQUEST, workflowId, requestId, e.getErrCode(), e);
+                return this.onError(exchange, HttpStatus.BAD_REQUEST, correlationId, apiCallId, e.getErrCode(), e);
             } catch (ServerException e) {
                 logger.error(e.toString());
-                return this.onError(exchange, HttpStatus.INTERNAL_SERVER_ERROR, workflowId, requestId, e.getErrCode(), e);
+                return this.onError(exchange, HttpStatus.INTERNAL_SERVER_ERROR, correlationId, apiCallId, e.getErrCode(), e);
             } catch (Exception e) {
                 logger.error(e.toString());
-                return this.onError(exchange, HttpStatus.INTERNAL_SERVER_ERROR, workflowId, requestId, null, e);
+                return this.onError(exchange, HttpStatus.INTERNAL_SERVER_ERROR, correlationId, apiCallId, null, e);
             }
             return chain.filter(exchange);
         };
@@ -128,17 +122,17 @@ public class RegistryValidationFilter extends AbstractGatewayFilterFactory<Regis
 
     private void validateCallerId(ServerWebExchange exchange, Map<String,Object> senderDetails) throws ClientException {
         ServerHttpRequest request = exchange.getRequest();
-        String token = request.getHeaders().get(Constants.AUTHORIZATION).get(0).trim().split("\\s")[1].trim();
+        String token = request.getHeaders().get(AUTHORIZATION).get(0).trim().split("\\s")[1].trim();
         DecodedJWT decodedJWT = this.jwtVerifier.verify(token);
         String subject = decodedJWT.getSubject();
-        if(!StringUtils.equals(((ArrayList) senderDetails.get(Constants.OS_OWNER)).get(0).toString(),subject)){
+        if(!StringUtils.equals(((ArrayList) senderDetails.get(OS_OWNER)).get(0).toString(),subject)){
             throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_CALLER_ID, "Caller id is mismatched");
         }
     }
 
     private String[] formatRequestBody(Map<String, Object> requestBody) throws Exception {
         try {
-            String str = (String) requestBody.get(Constants.PAYLOAD);
+            String str = (String) requestBody.get(PAYLOAD);
             return str.split("\\.");
         } catch (Exception e) {
             throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_PAYLOAD, "invalid payload");
@@ -183,10 +177,10 @@ public class RegistryValidationFilter extends AbstractGatewayFilterFactory<Regis
     }
 
 
-    private Mono<Void> onError(ServerWebExchange exchange, HttpStatus status, String workflowId, String requestId, ErrorCodes code, Exception e) {
+    private Mono<Void> onError(ServerWebExchange exchange, HttpStatus status, String correlationId, String apiCallId, ErrorCodes code, Exception e) {
         ServerHttpResponse response = exchange.getResponse();
         DataBufferFactory dataBufferFactory = response.bufferFactory();
-        Response resp = new Response(workflowId, requestId, new ResponseError(code, e.getMessage(), e.getCause()));
+        Response resp = new Response(correlationId, apiCallId, new ResponseError(code, e.getMessage(), e.getCause()));
         try {
             byte[] obj = JSONUtils.convertToByte(resp);
             response.setStatusCode(status);

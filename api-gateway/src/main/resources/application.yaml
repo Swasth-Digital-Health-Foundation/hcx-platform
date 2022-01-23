@@ -32,7 +32,7 @@ spring:
             - CachingRequestBodyFilter
             - RegistryValidationFilter
           predicates:
-            - Path=/v1/coverageeligibility/**, /v1/preauth/**, /v1/claim/**, /v1/paymentnotice/**, /health, /service/health
+            - Path=/v1/coverageeligibility/**, /v1/preauth/**, /v1/claim/**, /v1/paymentnotice/**
 
         - id: hcx-api-route-audit
           uri: ${HCX_API_BASEPATH:http://localhost:8080}
@@ -54,4 +54,4 @@ spring:
                 redis-rate-limiter.replenishRate: 10
                 redis-rate-limiter.burstCapacity: 20
           predicates:
-            - Path=/participant/**
+            - Path=/participant/**, /health, /service/health

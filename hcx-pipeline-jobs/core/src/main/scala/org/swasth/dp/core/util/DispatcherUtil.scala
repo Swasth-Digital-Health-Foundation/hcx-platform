@@ -1,5 +1,6 @@
 package org.swasth.dp.core.util
 
+import org.apache.commons.lang3.StringUtils
 import org.apache.http.client.HttpRequestRetryHandler
 import org.apache.http.client.config.{CookieSpecs, RequestConfig}
 import org.apache.http.client.methods.{CloseableHttpResponse, HttpPost}
@@ -50,33 +51,31 @@ object DispatcherUtil {
     val url = ctx.get("endpoint_url").asInstanceOf[String]
     val headers = ctx.getOrDefault("headers", Map[String, String]()).asInstanceOf[Map[String, String]]
     Console.println("URL", url)
-    val httpPost = new HttpPost(url);
-    headers.map(f => httpPost.addHeader(f._1, f._2));
-    httpPost.setEntity(new StringEntity(payload))
-    httpPost.setHeader("Accept", "application/json")
-    httpPost.setHeader("Content-type", "application/json")
-    httpPost.setHeader("Authorization", "Bearer "+ KeycloakUtil.getToken())
     var response: CloseableHttpResponse = null
     try {
-      response = httpClient.execute(httpPost);
-      val statusCode = response.getStatusLine().getStatusCode();
-      Console.println("statusCode", statusCode);
-      if (successCodes.contains(statusCode)) {
-        DispatcherResult(true, statusCode, None, false)
-      } else if (errorCodes.contains(statusCode)) {
-        val responseBody = EntityUtils.toString(response.getEntity, StandardCharsets.UTF_8);
-        val responseJSON = JSONUtil.deserialize[util.Map[String, AnyRef]](responseBody)
-        //TODO we need to revisit this logic again
-        //val responseJSON: Response = JSONUtil.deserialize[Response](responseBody);
-        Console.println("responseJSON", responseJSON);
-        val errorResponse = ErrorResponse(Option(responseJSON.get("status").asInstanceOf[Integer].toString), Option(responseJSON.get("error").asInstanceOf[String]), Option(responseJSON.get("path").asInstanceOf[String]))
-        DispatcherResult(false, statusCode, Option(errorResponse), false)
-      } else {
-        DispatcherResult(false, statusCode, None, true)
-      }
+      if (StringUtils.isEmpty(url)) {
+        val httpPost = new HttpPost(url);
+        headers.map(f => httpPost.addHeader(f._1, f._2));
+        httpPost.setEntity(new StringEntity(payload))
+        httpPost.setHeader("Accept", "application/json")
+        httpPost.setHeader("Content-type", "application/json")
+        //httpPost.setHeader("Authorization", "Bearer "+ KeycloakUtil.getToken())
+        response = httpClient.execute(httpPost);
+        val statusCode = response.getStatusLine().getStatusCode();
+        Console.println("statusCode", statusCode);
+        if (successCodes.contains(statusCode)) {
+          DispatcherResult(true, statusCode, None, false)
+        } else if (errorCodes.contains(statusCode)) {
+          val responseBody = EntityUtils.toString(response.getEntity, StandardCharsets.UTF_8)
+          val errorResponse = ErrorResponse(Option("Error"), Option("CLIENT_ERR_RECIPIENT_ENDPOINT_NOT_AVAILABLE"), Option(responseBody))
+          DispatcherResult(false, statusCode, Option(errorResponse), false)
+        } else {
+          DispatcherResult(false, statusCode, None, true)
+        }
+      } else //As url is null, no need to retry
+        DispatcherResult(false, 0, None, false)
     } catch {
       case ex: Exception => {
-        ex.printStackTrace()
         DispatcherResult(false, 0, None, true)
       }
     } finally {

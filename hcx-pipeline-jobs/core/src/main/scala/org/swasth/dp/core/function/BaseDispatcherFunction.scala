@@ -4,7 +4,7 @@ import org.apache.commons.collections.MapUtils
 import org.apache.flink.streaming.api.functions.ProcessFunction
 import org.slf4j.LoggerFactory
 import org.swasth.dp.core.job.{BaseJobConfig, BaseProcessFunction, Metrics}
-import org.swasth.dp.core.util.{DispatcherUtil, JSONUtil}
+import org.swasth.dp.core.util.{DispatcherUtil, JSONUtil, Constants}
 
 import java.util
 import java.util.Calendar
@@ -21,43 +21,34 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
 
   def validate(event: util.Map[String, AnyRef]):ValidationResult
 
-  def getPayload(event: util.Map[String, AnyRef]): util.Map[String, AnyRef]
+  @throws(classOf[Exception])
+  def getPayload(payloadRefId: String): util.Map[String, AnyRef]
 
-  def audit(event: util.Map[String, AnyRef], status: Boolean, context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics);
+  @throws(classOf[Exception])
+  def audit(event: util.Map[String, AnyRef], status: Boolean, context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit
 
-  def getCorrelationId(event: util.Map[String, AnyRef]): String = {
-    event.get("headers").asInstanceOf[util.Map[String, AnyRef]]
-      .get("protocol").asInstanceOf[util.Map[String, AnyRef]]
-      .get("x-hcx-correlation_id").asInstanceOf[String]
-  }
-
-  def getPayloadRefId(event: util.Map[String, AnyRef]): String = {
-    event.get("mid").asInstanceOf[String]
-  }
-
-  def dispatchErrorResponse(error: Option[ErrorResponse], correlationId: String, payloadRefId: String, senderCtx: util.Map[String, AnyRef], context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
+  def dispatchErrorResponse(event: util.Map[String, AnyRef],error: Option[ErrorResponse], correlationId: String, payloadRefId: String, senderCtx: util.Map[String, AnyRef], context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
     val response = Response(System.currentTimeMillis(), correlationId, error)
     val responseJSON = JSONUtil.serialize(response);
-    val result = DispatcherUtil.dispatch(senderCtx, responseJSON)
+    Console.println("Error message dispatch:"+responseJSON)
+    val payload = getPayload(payloadRefId);
+    val payloadJSON = JSONUtil.serialize(payload);
+    //TODO Decode the payload, add error response to the payload, encode the updated payload
+    //TODO As of now sending the same payload sent by the recipient incase of failure
+    val result = DispatcherUtil.dispatch(senderCtx, payloadJSON)
     if(result.retry) {
       metrics.incCounter(metric = config.dispatcherRetryCount)
-      val retryEvent = new util.HashMap[String, AnyRef]();
-      retryEvent.put("ctx", senderCtx);
-      retryEvent.put("payloadRefId", payloadRefId);
-      retryEvent.put("payloadData", responseJSON);
-      context.output(config.retryOutputTag, retryEvent)
+      context.output(config.retryOutputTag, JSONUtil.serialize(event))
     }
   }
 
   override def processElement(event: util.Map[String, AnyRef], context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
 
-    val correlationId = getCorrelationId(event);
-    val payloadRefId = event.get("mid").asInstanceOf[String]
+    val correlationId = getProtocolStringValue(event,Constants.CORRELATION_ID)
+    val payloadRefId = event.get(Constants.MID).asInstanceOf[String]
     // TODO change cdata to context after discussion.
-    val senderCtx = event.getOrDefault("cdata", new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]].getOrDefault("sender", new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]]
-    val recipientCtx = event.getOrDefault("cdata", new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]].getOrDefault("recipient", new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]]
-    //Adding requestTimestamp for auditing
-    event.put("requestTimeStamp", Calendar.getInstance().getTime())
+    val senderCtx = event.getOrDefault(Constants.CDATA, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]].getOrDefault(Constants.SENDER, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]]
+    val recipientCtx = event.getOrDefault(Constants.CDATA, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]].getOrDefault(Constants.RECIPIENT, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]]
     if (MapUtils.isEmpty(senderCtx)) {
       Console.println("sender context is empty: " + payloadRefId)
       logger.warn("sender context is empty: " + payloadRefId)
@@ -67,7 +58,8 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
       Console.println("recipient context is empty: " + payloadRefId)
       logger.warn("recipient context is empty: " + payloadRefId)
       //Send on_action request back to sender when recipient context is missing
-      dispatchErrorResponse(ValidationResult(true, None).error, correlationId, payloadRefId, senderCtx, context, metrics)
+      val errorResponse = ErrorResponse(Option("Error"), Option("CLIENT_ERR_RECIPIENT_ENDPOINT_NOT_AVAILABLE"), Option("Please provide correct recipient details"))
+      dispatchErrorResponse(event,ValidationResult(true, Option(errorResponse)).error, correlationId, payloadRefId, senderCtx, context, metrics)
     } else {
       Console.println("sender and recipient available: " + payloadRefId)
       logger.info("sender and recipient available: " + payloadRefId)
@@ -75,30 +67,28 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
       if(!validationResult.status) {
         metrics.incCounter(metric = config.dispatcherValidationFailedCount)
         audit(event, validationResult.status, context, metrics);
-        dispatchErrorResponse(validationResult.error, correlationId, payloadRefId, senderCtx, context, metrics)
+        dispatchErrorResponse(event,validationResult.error, correlationId, payloadRefId, senderCtx, context, metrics)
       }
 
       if(validationResult.status) {
         metrics.incCounter(metric = config.dispatcherValidationSuccessCount)
-        val payload = getPayload(event);
+        val payload = getPayload(payloadRefId);
         val payloadJSON = JSONUtil.serialize(payload);
         val result = DispatcherUtil.dispatch(recipientCtx, payloadJSON)
         //Adding updatedTimestamp for auditing
-        event.put("updatedTimestamp", Calendar.getInstance().getTime())
+        event.put(Constants.UPDATED_TIME, Calendar.getInstance().getTime())
         audit(event, result.success, context, metrics);
         if(result.success) {
           metrics.incCounter(metric = config.dispatcherSuccessCount)
         }
         if(result.retry) {
           metrics.incCounter(metric = config.dispatcherRetryCount)
-          val retryEvent = new util.HashMap[String, AnyRef]();
-          retryEvent.put("ctx", recipientCtx);
-          retryEvent.put("payloadRefId", event.get("mid"));
-          context.output(config.retryOutputTag, retryEvent)
+          //For retry place the incoming event into retry topic
+          context.output(config.retryOutputTag, JSONUtil.serialize(event))
         }
         if(!result.retry && !result.success) {
           metrics.incCounter(metric = config.dispatcherFailedCount)
-          dispatchErrorResponse(result.error, correlationId, payloadRefId, senderCtx, context, metrics)
+          dispatchErrorResponse(event,result.error, correlationId, payloadRefId, senderCtx, context, metrics)
         }
       }
     }
@@ -108,72 +98,32 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
     List(config.dispatcherSuccessCount, config.dispatcherFailedCount, config.dispatcherRetryCount, config.dispatcherValidationFailedCount, config.dispatcherValidationSuccessCount, config.auditEventsCount)
   }
 
-  // Audit related functions
-  def getRecipientCode(event: util.Map[String, AnyRef]): String = {
-    event.get("headers").asInstanceOf[util.Map[String, AnyRef]]
-      .get("protocol").asInstanceOf[util.Map[String, AnyRef]]
-      .get("x-hcx-recipient_code").asInstanceOf[String]
-  }
-
-  def getSenderCode(event: util.Map[String, AnyRef]): String = {
-    event.get("headers").asInstanceOf[util.Map[String, AnyRef]]
-      .get("protocol").asInstanceOf[util.Map[String, AnyRef]]
-      .get("x-hcx-sender_code").asInstanceOf[String]
-  }
-
-  def getRequestId(event: util.Map[String, AnyRef]): String = {
-    event.get("headers").asInstanceOf[util.Map[String, AnyRef]]
-      .get("protocol").asInstanceOf[util.Map[String, AnyRef]]
-      .get("x-hcx-request_id").asInstanceOf[String]
-  }
-
-  def getHcxTimestamp(event: util.Map[String, AnyRef]): String = {
-    event.get("headers").asInstanceOf[util.Map[String, AnyRef]]
-      .get("protocol").asInstanceOf[util.Map[String, AnyRef]]
-      .get("x-hcx-timestamp").asInstanceOf[String]
-  }
-
-  def getWorkflowId(event: util.Map[String, AnyRef]): String = {
-    event.get("headers").asInstanceOf[util.Map[String, AnyRef]]
-      .get("protocol").asInstanceOf[util.Map[String, AnyRef]]
-      .get("x-hcx-workflow_id").asInstanceOf[String]
-  }
-
-  def getAction(event: util.Map[String, AnyRef]): String = {
-    event.get("action").asInstanceOf[String]
-  }
-
-  def getLogDetails(event: util.Map[String, AnyRef]): util.Map[String, AnyRef] = {
-    event.get("log_details").asInstanceOf[util.Map[String, AnyRef]]
-  }
-
-  def getJose(event: util.Map[String, AnyRef]): util.Map[String, AnyRef] = {
-    event.get("headers").asInstanceOf[util.Map[String, AnyRef]]
-      .get("jose").asInstanceOf[util.Map[String, AnyRef]]
-  }
-
-  def getStatus(event: util.Map[String, AnyRef]): String = {
-    event.get("status").asInstanceOf[String]
-  }
-
   def createAuditRecord(event: util.Map[String, AnyRef], auditName: String): util.Map[String, AnyRef] = {
     val audit = new util.HashMap[String, AnyRef]();
-    audit.put("eid", auditName)
-    audit.put("x-hcx-recipient_code",getRecipientCode(event))
-    audit.put("x-hcx-sender_code",getSenderCode(event))
-    audit.put("x-hcx-request_id",getRequestId(event))
-    audit.put("x-hcx-correlation_id",getCorrelationId(event))
-    audit.put("x-hcx-workflow_id",getWorkflowId(event))
-    audit.put("x-hcx-timestamp",getHcxTimestamp(event))
-    audit.put("mid",getPayloadRefId(event))
-    audit.put("action",getAction(event))
-    audit.put("log_details",getLogDetails(event))
-    audit.put("jose",getJose(event))
-    audit.put("status",getStatus(event))
-    audit.put("requestTimeStamp",event.getOrDefault("requestTimeStamp", Calendar.getInstance().getTime()))
-    audit.put("updatedTimestamp",event.getOrDefault("updatedTimestamp", Calendar.getInstance().getTime()))
-    audit.put("auditTimeStamp", Calendar.getInstance().getTime())
+    audit.put(Constants.AUDIT_ID, auditName)
+    audit.put(Constants.RECIPIENT_CODE,getProtocolStringValue(event,Constants.RECIPIENT_CODE))
+    audit.put(Constants.SENDER_CODE,getProtocolStringValue(event,Constants.SENDER_CODE))
+    audit.put(Constants.API_CALL_ID,getProtocolStringValue(event,Constants.API_CALL_ID))
+    audit.put(Constants.CORRELATION_ID,getProtocolStringValue(event,Constants.CORRELATION_ID))
+    audit.put(Constants.WORKFLOW_ID,getProtocolStringValue(event,Constants.WORKFLOW_ID))
+    audit.put(Constants.TIMESTAMP,getProtocolStringValue(event,Constants.TIMESTAMP))
+    audit.put(Constants.ERROR_DETAILS,getProtocolMapValue(event,Constants.ERROR_DETAILS))
+    audit.put(Constants.DEBUG_DETAILS,getProtocolMapValue(event,Constants.DEBUG_DETAILS))
+    audit.put(Constants.MID,event.get(Constants.MID).asInstanceOf[String])
+    audit.put(Constants.ACTION,event.get(Constants.ACTION).asInstanceOf[String])
+    audit.put(Constants.STATUS,event.get(Constants.STATUS).asInstanceOf[String])
+    audit.put(Constants.REQUESTED_TIME,event.get(Constants.ETS))
+    audit.put(Constants.UPDATED_TIME,event.getOrDefault(Constants.UPDATED_TIME, Calendar.getInstance().getTime()))
+    audit.put(Constants.AUDIT_TIMESTAMP, Calendar.getInstance().getTime())
     audit
+  }
+
+  def dispatchRecipient(baseSenderCode: String, action: String, parsedPayload: util.Map[String, AnyRef]) = {
+    val recipientDetails = fetchDetails(baseSenderCode)
+    val recipientContext = createRecipientContext(recipientDetails, action)
+    val updatedPayload = new util.HashMap[String,AnyRef]()
+    updatedPayload.put(Constants.PAYLOAD,JSONUtil.createPayloadByValues(parsedPayload));
+    DispatcherUtil.dispatch(recipientContext, JSONUtil.serialize(updatedPayload))
   }
 
 }
