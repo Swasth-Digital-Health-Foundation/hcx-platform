@@ -1,6 +1,5 @@
 package org.swasth.dp.auditindexer.task;
 
-import com.esotericsoftware.minlog.Log;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.apache.flink.api.java.utils.ParameterTool;

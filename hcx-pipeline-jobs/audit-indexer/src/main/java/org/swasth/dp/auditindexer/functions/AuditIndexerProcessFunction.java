@@ -66,11 +66,11 @@ public class AuditIndexerProcessFunction extends ProcessFunction<Map<String,Obje
     }
 
     private void createIndex(String indexName){
-        String settings = Util.loadAsString("hcx-pipeline-jobs\\audit-indexer\\src\\main\\resources\\static\\es-settings.json");
+        String settings = Util.loadAsString("static/es-settings.json");
         if (settings == null) {
             logger.error("Failed to load index settings");
         }
-        String mappings = Util.loadAsString("hcx-pipeline-jobs\\audit-indexer\\src\\main\\resources\\static\\mappings\\hcx_audit.json");
+        String mappings = Util.loadAsString("static/mappings/hcx_audit.json");
         if (mappings == null) {
             logger.error("Failed to load mappings for index with name '{}'", config.auditAlias);
         }
