@@ -46,6 +46,7 @@ public class AuditIndexerProcessFunction extends ProcessFunction<Map<String,Obje
             String apiCallId = (String) event.get("x-hcx-api_call_id");
             createIndex(indexName);
             esUtil.addDocumentWithIndex(JSONUtil.serialize(event), indexName, apiCallId);
+            System.out.println("Audit record created for " + apiCallId);
             logger.info("Audit record created for " + apiCallId);
             //TODO: add metrics
         }
