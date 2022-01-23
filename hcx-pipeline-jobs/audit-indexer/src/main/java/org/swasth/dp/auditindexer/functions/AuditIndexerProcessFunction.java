@@ -66,11 +66,11 @@ public class AuditIndexerProcessFunction extends ProcessFunction<Map<String,Obje
     }
 
     private void createIndex(String indexName){
-        String settings = Util.loadAsString("static/es-settings.json");
+        String settings = "{ \"index\": { } }";
         if (settings == null) {
             logger.error("Failed to load index settings");
         }
-        String mappings = Util.loadAsString("static/mappings/hcx_audit.json");
+        String mappings = "{ \"properties\": { \"x-hcx-sender_code\": { \"type\": \"keyword\" }, \"x-hcx-recipient_code\": { \"type\": \"keyword\" }, \"x-hcx-api_call_id\": { \"type\": \"keyword\" }, \"x-hcx-correlation_id\": { \"type\": \"keyword\" }, \"x-hcx-workflow_id\": { \"type\": \"keyword\" }, \"x-hcx-timestamp\": { \"type\": \"keyword\" }, \"mid\": { \"type\": \"keyword\" }, \"action\": { \"type\": \"keyword\" }, \"status\": { \"type\": \"keyword\" }, \"auditTimeStamp\": { \"type\": \"keyword\" }, \"requestTimeStamp\": { \"type\": \"keyword\" }, \"updatedTimestamp\": { \"type\": \"keyword\" }, \"error_details\": { \"type\": \"object\" }, \"debug_details\": { \"type\": \"object\" } } }";
         if (mappings == null) {
             logger.error("Failed to load mappings for index with name '{}'", config.auditAlias);
         }
