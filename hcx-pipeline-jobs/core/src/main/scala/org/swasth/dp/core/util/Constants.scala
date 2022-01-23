@@ -16,6 +16,8 @@ object Constants {
   val PROTOCOL = "protocol"
   val DOMAIN = "domain"
   val LOG_DETAILS = "log_details"
+  val ERROR_DETAILS = "x-hcx-error_details"
+  val DEBUG_DETAILS = "x-hcx-debug_details"
   val CODE = "code"
   val MESSAGE = "message"
   val TRACE = "trace"
@@ -23,6 +25,9 @@ object Constants {
   val AUDIT_TIMESTAMP = "auditTimeStamp"
   val AUDIT_ID = "eid"
   val END_POINT = "endpoint_url"
+  val STATUS = "status"
+  val REQUESTED_TIME = "requestTimeStamp"
+  val UPDATED_TIME = "updatedTimestamp"
 
   //Event Fields
   val SENDER_CODE = "x-hcx-sender_code"

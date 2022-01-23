@@ -12,7 +12,7 @@ import org.swasth.dp.search.task.SearchConfig
 
 import java.sql.Timestamp
 import java.util
-import java.util.UUID
+import java.util.{Calendar, UUID}
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 
@@ -102,9 +102,9 @@ class CompositeSearchFunction(config: SearchConfig, @transient var postgresConne
       get(Constants.SEARCH_FILTERS).asInstanceOf[util.Map[String, AnyRef]].
       get(Constants.SEARCH_FILTERS_RECEIVER).asInstanceOf[util.List[String]]
 
-    val correlationId = getProtocolHeaderValue(event,Constants.CORRELATION_ID)
-    val originalApiCallId = getProtocolHeaderValue(event,Constants.API_CALL_ID)
-    val senderCode = getProtocolHeaderValue(event,Constants.SENDER_CODE)
+    val correlationId = getProtocolStringValue(event,Constants.CORRELATION_ID)
+    val originalApiCallId = getProtocolStringValue(event,Constants.API_CALL_ID)
+    val senderCode = getProtocolStringValue(event,Constants.SENDER_CODE)
     val action = event.get(Constants.ACTION).asInstanceOf[String]
     //Insert base record
     insertSearchRecord(correlationId, originalApiCallId, senderCode, null, Constants.OPEN_STATUS, "{}")
@@ -131,10 +131,12 @@ class CompositeSearchFunction(config: SearchConfig, @transient var postgresConne
         insertSearchRecord(correlationId, apiCallId, config.hcxRegistryCode, recipientCode, Constants.OPEN_STATUS, "{}")
       //Audit the each child record after dispatching the api_call with the updated protected headers
       Console.println("Writing audit log for child record with apiCallId:" + apiCallId)
+      event.put(Constants.UPDATED_TIME, Calendar.getInstance().getTime())
       audit(event, status = true, context, metrics)
     }
     Console.println("Writing into audit log for base record with correlationId:" + correlationId)
     //Audit the incoming event
+    event.put(Constants.UPDATED_TIME, Calendar.getInstance().getTime())
     audit(event, status = true, context, metrics)
   }
 

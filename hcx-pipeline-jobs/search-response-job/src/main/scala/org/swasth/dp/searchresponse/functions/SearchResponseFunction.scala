@@ -11,6 +11,7 @@ import org.swasth.dp.core.util.{Constants, JSONUtil, PostgresConnect, PostgresCo
 import org.swasth.dp.searchresponse.task.SearchResponseConfig
 
 import java.util
+import java.util.Calendar
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.util.control.Breaks.{break, breakable}
@@ -91,11 +92,13 @@ class SearchResponseFunction(config: SearchResponseConfig, @transient var postgr
      *     Update base record with status as PARTIAL
      *     FAIL: Update the child record, with status as RETRY and response_data with the search response from the event
      */
-    val correlationId = getProtocolHeaderValue(event,Constants.CORRELATION_ID)
+    //Add request time stamp for audit log
+    event.put(Constants.REQUESTED_TIME, Calendar.getInstance().getTime())
+    val correlationId = getProtocolStringValue(event,Constants.CORRELATION_ID)
     val action = event.get(Constants.ACTION).asInstanceOf[String]
-    val apiCallId = getProtocolHeaderValue(event,Constants.API_CALL_ID)
+    val apiCallId = getProtocolStringValue(event,Constants.API_CALL_ID)
     val baseRecord = getBaseRecord(correlationId)
-    val senderCode = getProtocolHeaderValue(event,Constants.SENDER_CODE) //1-93f908ba-b579-453e-8b2a-56022afad275
+    val senderCode = getProtocolStringValue(event,Constants.SENDER_CODE) //1-93f908ba-b579-453e-8b2a-56022afad275
     if (!Constants.CLOSE_STATUS.equalsIgnoreCase(baseRecord.responseStatus)) {
       val payloadRefId = event.get(Constants.MID).asInstanceOf[String]
       val payloadMap = getPayload(payloadRefId)
@@ -134,6 +137,7 @@ class SearchResponseFunction(config: SearchResponseConfig, @transient var postgr
       }
 
       Console.println("Writing recipient response to audit log with correlationId:" + correlationId)
+      event.put(Constants.UPDATED_TIME, Calendar.getInstance().getTime())
       audit(event, status = true, context, metrics)
       /**
        * 6. Check whether all the child record status were in CLOSE/FAIL, then mark it as last recipient response received
@@ -176,6 +180,7 @@ class SearchResponseFunction(config: SearchResponseConfig, @transient var postgr
         Console.println("Writing consolidated response to audit log for correlationId:" + correlationId)
         //Update the protocol headers in the event
         event.get(Constants.HEADERS).asInstanceOf[util.Map[String, AnyRef]].put(Constants.PROTOCOL, mutableMap.asJava)
+        event.put(Constants.UPDATED_TIME, Calendar.getInstance().getTime())
         audit(event, status = true, context, metrics)
       } else {
         Console.println("Pending records, waiting for responses from recipients for correlationId:" + correlationId)

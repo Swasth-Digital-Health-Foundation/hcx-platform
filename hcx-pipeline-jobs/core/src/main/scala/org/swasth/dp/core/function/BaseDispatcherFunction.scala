@@ -44,13 +44,11 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
 
   override def processElement(event: util.Map[String, AnyRef], context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
 
-    val correlationId = getProtocolHeaderValue(event,Constants.CORRELATION_ID)
+    val correlationId = getProtocolStringValue(event,Constants.CORRELATION_ID)
     val payloadRefId = event.get(Constants.MID).asInstanceOf[String]
     // TODO change cdata to context after discussion.
     val senderCtx = event.getOrDefault(Constants.CDATA, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]].getOrDefault(Constants.SENDER, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]]
     val recipientCtx = event.getOrDefault(Constants.CDATA, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]].getOrDefault(Constants.RECIPIENT, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]]
-    //Adding requestTimestamp for auditing
-    event.put("requestTimeStamp", Calendar.getInstance().getTime())
     if (MapUtils.isEmpty(senderCtx)) {
       Console.println("sender context is empty: " + payloadRefId)
       logger.warn("sender context is empty: " + payloadRefId)
@@ -78,6 +76,7 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
         val payloadJSON = JSONUtil.serialize(payload);
         val result = DispatcherUtil.dispatch(recipientCtx, payloadJSON)
         //Adding updatedTimestamp for auditing
+        event.put(Constants.UPDATED_TIME, Calendar.getInstance().getTime())
         audit(event, result.success, context, metrics);
         if(result.success) {
           metrics.incCounter(metric = config.dispatcherSuccessCount)
@@ -102,7 +101,19 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
   def createAuditRecord(event: util.Map[String, AnyRef], auditName: String): util.Map[String, AnyRef] = {
     val audit = new util.HashMap[String, AnyRef]();
     audit.put(Constants.AUDIT_ID, auditName)
-    event.forEach((k,v) => audit.put(k, v))
+    audit.put(Constants.RECIPIENT_CODE,getProtocolStringValue(event,Constants.RECIPIENT_CODE))
+    audit.put(Constants.SENDER_CODE,getProtocolStringValue(event,Constants.SENDER_CODE))
+    audit.put(Constants.API_CALL_ID,getProtocolStringValue(event,Constants.API_CALL_ID))
+    audit.put(Constants.CORRELATION_ID,getProtocolStringValue(event,Constants.CORRELATION_ID))
+    audit.put(Constants.WORKFLOW_ID,getProtocolStringValue(event,Constants.WORKFLOW_ID))
+    audit.put(Constants.TIMESTAMP,getProtocolStringValue(event,Constants.TIMESTAMP))
+    audit.put(Constants.ERROR_DETAILS,getProtocolMapValue(event,Constants.ERROR_DETAILS))
+    audit.put(Constants.DEBUG_DETAILS,getProtocolMapValue(event,Constants.DEBUG_DETAILS))
+    audit.put(Constants.MID,event.get(Constants.MID).asInstanceOf[String])
+    audit.put(Constants.ACTION,event.get(Constants.ACTION).asInstanceOf[String])
+    audit.put(Constants.STATUS,event.get(Constants.STATUS).asInstanceOf[String])
+    audit.put(Constants.REQUESTED_TIME,event.get(Constants.ETS))
+    audit.put(Constants.UPDATED_TIME,event.getOrDefault(Constants.UPDATED_TIME, Calendar.getInstance().getTime()))
     audit.put(Constants.AUDIT_TIMESTAMP, Calendar.getInstance().getTime())
     audit
   }
