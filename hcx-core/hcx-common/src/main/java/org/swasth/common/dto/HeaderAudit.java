@@ -20,7 +20,7 @@ public class HeaderAudit {
 	@JsonProperty("x-hcx-timestamp")
 	private String timestamp;
 	private long requestTimeStamp;
-	private long auditTimestamp;
+	private long auditTimeStamp;
 	private long updatedTimestamp;
 	private String action;
 	private String mid;
@@ -28,7 +28,7 @@ public class HeaderAudit {
 
 	public HeaderAudit() {}
 
-	public HeaderAudit(String eid, Object error_details, Object debug_details, String recipient_code, String sender_code, String api_call_id, String workflow_id, String correlation_id, String timestamp, long requestTimeStamp, long auditTimestamp, long updatedTimestamp, String action, String mid, String status) {
+	public HeaderAudit(String eid, Object error_details, Object debug_details, String recipient_code, String sender_code, String api_call_id, String workflow_id, String correlation_id, String timestamp, long requestTimeStamp, long auditTimeStamp, long updatedTimestamp, String action, String mid, String status) {
 		this.eid = eid;
 		this.error_details = error_details;
 		this.debug_details = debug_details;
@@ -39,7 +39,7 @@ public class HeaderAudit {
 		this.correlation_id = correlation_id;
 		this.timestamp = timestamp;
 		this.requestTimeStamp = requestTimeStamp;
-		this.auditTimestamp = auditTimestamp;
+		this.auditTimeStamp = auditTimeStamp;
 		this.updatedTimestamp = updatedTimestamp;
 		this.action = action;
 		this.mid = mid;
@@ -105,11 +105,11 @@ public class HeaderAudit {
 	public void setRequestTimeStamp(long requestTimeStamp) {
 		this.requestTimeStamp = requestTimeStamp;
 	}
-	public long getAuditTimestamp() {
-		return auditTimestamp;
+	public long getAuditTimeStamp() {
+		return auditTimeStamp;
 	}
-	public void setAuditTimestamp(long auditTimestamp) {
-		this.auditTimestamp = auditTimestamp;
+	public void setAuditTimeStamp(long auditTimestamp) {
+		this.auditTimeStamp = auditTimeStamp;
 	}
 	public long getUpdatedTimestamp() {
 		return updatedTimestamp;
