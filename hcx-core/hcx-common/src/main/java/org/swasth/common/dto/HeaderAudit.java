@@ -5,7 +5,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class HeaderAudit {
 
 	private String eid;
+	@JsonProperty("x-hcx-error_details")
 	private Object error_details;
+	@JsonProperty("x-hcx-debug_details")
 	private Object debug_details;
 	@JsonProperty("x-hcx-recipient_code")
 	private String recipient_code;
