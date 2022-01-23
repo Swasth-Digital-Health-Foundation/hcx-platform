@@ -16,6 +16,7 @@ import org.swasth.hcx.controllers.BaseController;
 import org.swasth.hcx.managers.HealthCheckManager;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.swasth.common.utils.Constants.*;
@@ -41,25 +42,29 @@ public class StatusController extends BaseController {
             if (!hcxHeaders.containsKey(STATUS_FILTERS) || ((Map<String, Object>) hcxHeaders.get(STATUS_FILTERS)).isEmpty()) {
                 throw new ClientException("Invalid request, status filters is missing or empty.");
             }
+            List<HeaderAudit> auditResponse = auditService.search(new SearchRequestDTO((Map<String, String>) hcxHeaders.get(STATUS_FILTERS)));
+            if(auditResponse.isEmpty()){
+                throw new ClientException("Invalid api call id is passed in status filters, details not found");
+            }
             // Assuming a single result will be fetched for given api_call_id
-            HeaderAudit result = auditService.search(new SearchRequestDTO((Map<String, String>) hcxHeaders.get(STATUS_FILTERS))).get(0);
-            if (!hcxHeaders.get(SENDER_CODE).equals(result.getSender_code())) {
+            HeaderAudit auditData = auditResponse.get(0);
+            if (!hcxHeaders.get(SENDER_CODE).equals(auditData.getSender_code())) {
                 throw new ClientException("Request does not belongs to sender");
             }
-            String entityType = result.getAction().split("/")[2];
+            String entityType = auditData.getAction().split("/")[2];
             if (!STATUS_SEARCH_ALLOWED_ENTITIES.contains(entityType)) {
                 throw new ClientException("Invalid entity, status search allowed only for entities: " + STATUS_SEARCH_ALLOWED_ENTITIES);
             }
-            StatusResponse statusResponse = new StatusResponse(entityType, result.getSender_code(), result.getRecipient_code(), (String) result.getStatus());
+            StatusResponse statusResponse = new StatusResponse(entityType, auditData.getSender_code(), auditData.getRecipient_code(), (String) auditData.getStatus());
             Map<String,Object> statusResponseMap = JSONUtils.convert(statusResponse, HashMap.class);
-            if (result.getStatus().equals("request.queued")) {
+            if (auditData.getStatus().equals("request.queued")) {
                 response.setResult(statusResponseMap);
-            } else if (result.getStatus().equals("request.dispatched")) {
+            } else if (auditData.getStatus().equals("request.dispatched")) {
                 response.setResult(statusResponseMap);
                 processAndSendEvent(HCX_STATUS, topic, request);
             } else {
                 // TODO: handle for other status
-                System.out.println("TODO for status " + result.getStatus());
+                System.out.println("TODO for status " + auditData.getStatus());
             }
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {

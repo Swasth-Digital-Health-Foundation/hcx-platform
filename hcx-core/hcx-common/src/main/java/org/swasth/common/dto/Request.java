@@ -1,5 +1,6 @@
 package org.swasth.common.dto;
 
+import kong.unirest.Header;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.swasth.common.exception.ClientException;
@@ -25,7 +26,7 @@ public class Request{
         this.hcxHeaders = JSONUtils.decodeBase64String(((String) body.get(Constants.PAYLOAD)).split("\\.")[0], Map.class);
     }
 
-    public void validate(List<String> mandatoryHeaders, HeaderAudit auditData, String apiAction, int timestampRange) throws ClientException {
+    public void validate(List<String> mandatoryHeaders, List<HeaderAudit> auditResponse, String apiAction, int timestampRange) throws ClientException {
 
         List<String> missingHeaders = mandatoryHeaders.stream().filter(key -> !hcxHeaders.containsKey(key)).collect(Collectors.toList());
         if (!missingHeaders.isEmpty()) {
@@ -36,7 +37,8 @@ public class Request{
         }
 
         if(ON_ACTION_APIS.contains(apiAction)) {
-            validateCondition(!getCorrelationId().equals(auditData.getCorrelation_id()), ErrorCodes.CLIENT_ERR_MISSING_CORRELATION_ID_RES, "Response contains invalid correlation id");
+            validateCondition(auditResponse.isEmpty(), ErrorCodes.CLIENT_ERR_MISSING_CORRELATION_ID_RES, "Response contains invalid correlation id");
+            HeaderAudit auditData = auditResponse.get(0);
             if(!auditData.getWorkflow_id().isEmpty()) {
                 validateCondition(!getWorkflowId().equals(auditData.getWorkflow_id()), ErrorCodes.CLIENT_ERR_MISSING_WORKFLOW_ID_RES, "Response contains invalid correlation id");
             }
