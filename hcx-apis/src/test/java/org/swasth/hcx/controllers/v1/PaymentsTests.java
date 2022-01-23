@@ -49,7 +49,7 @@ public class PaymentsTests extends BaseSpec {
 
     @Test
     public void check_payment_on_request_success_scenario() throws Exception {
-        when(headerAuditService.search(any())).thenReturn(Arrays.asList(new HeaderAudit("26b1060c-1e83-4600-9612-ea31e0ca5091", "1-2799b6a4-cf2d-45fe-a5e1-5f1c82979e0d", "5e934f90-111d-4f0b-b016-c22d820674e1", "1e83-460a-4f0b-b016-c22d820674e1", "2022-01-06T20:35:52.636+0530", "93f908ba", "59cefda2-a4cc-4795-95f3-fb9e82e21cef", "/v1/paymentnotice/request", new Object(), new Object(), "request.dispatched")));
+        when(headerAuditService.search(any())).thenReturn(Arrays.asList(new HeaderAudit("AUDIT", new Object(), new Object(), "1-2799b6a4-cf2d-45fe-a5e1-5f1c82979e0d", "93f908ba", "26b1060c-1e83-4600-9612-ea31e0ca5091", "1e83-460a-4f0b-b016-c22d820674e1", "5e934f90-111d-4f0b-b016-c22d820674e1", "2022-01-06T09:50:23+00", new Long("1642781095099"), new Long("1642781095099"), new Long("1642781095099"), "/v1/paymentnotice/request", "59cefda2-a4cc-4795-95f3-fb9e82e21cef", "request.queued")));
         doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
         String requestBody = getRequestBody();
         MvcResult mvcResult = mockMvc.perform(post("/v1/paymentnotice/on_request").content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
@@ -60,7 +60,7 @@ public class PaymentsTests extends BaseSpec {
 
     @Test
     public void check_payment_on_request_client_exception_scenario() throws Exception {
-        when(headerAuditService.search(any())).thenReturn(Arrays.asList(new HeaderAudit("26b1060c-1e83-4600-9612-ea31e0ca5091", "1-2799b6a4-cf2d-45fe-a5e1-5f1c82979e0d", "5e934f90-111d-4f0b-b016-c22d820674e1", "1e83-460a-4f0b-b016-c22d820674e1", "2022-01-06T20:35:52.636+0530", "93f908ba", "59cefda2-a4cc-4795-95f3-fb9e82e21cef", "/v1/paymentnotice/request", new Object(), new Object(), "request.dispatched")));
+        when(headerAuditService.search(any())).thenReturn(Arrays.asList(new HeaderAudit("AUDIT", new Object(), new Object(), "1-2799b6a4-cf2d-45fe-a5e1-5f1c82979e0d", "93f908ba", "26b1060c-1e83-4600-9612-ea31e0ca5091", "1e83-460a-4f0b-b016-c22d820674e1", "5e934f90-111d-4f0b-b016-c22d820674e1", "2022-01-06T09:50:23+00", new Long("1642781095099"), new Long("1642781095099"), new Long("1642781095099"), "/v1/paymentnotice/request", "59cefda2-a4cc-4795-95f3-fb9e82e21cef", "request.queued")));
         String requestBody = getBadRequestBody();
         MvcResult mvcResult = mockMvc.perform(post("/v1/paymentnotice/on_request").content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
