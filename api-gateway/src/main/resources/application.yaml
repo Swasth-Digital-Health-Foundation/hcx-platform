@@ -32,7 +32,7 @@ spring:
             - CachingRequestBodyFilter
             - RegistryValidationFilter
           predicates:
-            - Path=/v1/coverageeligibility/**, /v1/preauth/**, /v1/claim/**, /v1/paymentnotice/**
+            - Path=/v1/coverageeligibility/**, /v1/preauth/**, /v1/claim/**, /v1/paymentnotice/**, /v1/hcx/**
 
         - id: hcx-api-route-audit
           uri: ${HCX_API_BASEPATH:http://localhost:8080}

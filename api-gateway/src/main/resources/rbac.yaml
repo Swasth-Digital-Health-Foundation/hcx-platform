@@ -8,11 +8,9 @@ rbac:
     paths:
       - /v1/coverageeligibility/check
       - /v1/preauth/submit
-      - /v1/preauth/search
       - /v1/claim/submit
-      - /v1/claim/search
       - /v1/paymentnotice/on_request
-      - /v1/paymentnotice/search
+      - /v1/hcx/status
       - /v1/audit/search
       - /participant/search
       - /participant/update
@@ -20,11 +18,9 @@ rbac:
     paths:
       - /v1/coverageeligibility/on_check
       - /v1/preauth/on_submit
-      - /v1/preauth/on_search
       - /v1/claim/on_submit
-      - /v1/claim/on_search
       - /v1/paymentnotice/request
-      - /v1/paymentnotice/on_search
+      - /v1/hcx/on_status
       - /v1/audit/search
       - /participant/search
       - /participant/update
@@ -32,33 +28,29 @@ rbac:
     paths:
       - /v1/coverageeligibility/on_check
       - /v1/preauth/on_submit
-      - /v1/preauth/on_search
       - /v1/claim/on_submit
-      - /v1/claim/on_search
       - /v1/paymentnotice/request
-      - /v1/paymentnotice/on_search
+      - /v1/hcx/on_status
       - /v1/audit/search
       - /participant/search
       - /participant/update
   - role: agency.regulator
     pahts:
-      - /v1/claim/search
+      - /v1/hcx/status
       - /v1/audit/search
       - /participant/search
       - /participant/update
   - role: research
     paths:
       - /v1/coverageeligibility/on_check
-      - /v1/preauth/on_search
-      - /v1/claim/on_search
+      - /v1/hcx/status
       - /v1/audit/search
       - /participant/search
       - /participant/update
   - role: member.isnp
     paths:
       - /v1/coverageeligibility/on_check
-      - /v1/preauth/on_search
-      - /v1/claim/on_search
+      - /v1/hcx/status
       - /v1/audit/search
       - /participant/search
       - /participant/update
@@ -66,11 +58,9 @@ rbac:
     paths:
       - /v1/coverageeligibility/on_check
       - /v1/preauth/on_submit
-      - /v1/preauth/on_search
       - /v1/claim/on_submit
-      - /v1/claim/on_search
       - /v1/paymentnotice/request
-      - /v1/paymentnotice/on_search
+      - /v1/hcx/on_status
       - /v1/audit/search
       - /participant/search
       - /participant/update
