@@ -36,18 +36,8 @@ public class BaseController {
     @Autowired
     private IDatabaseService postgreSQLClient;
 
-    @Value("${timestamp.range}")
-    protected int timestampRange;
-
     @Autowired
     protected HeaderAuditService auditService;
-
-    protected List<String> getMandatoryHeaders() {
-        List<String> mandatoryHeaders = new ArrayList<>();
-        mandatoryHeaders.addAll(env.getProperty(PROTOCOL_HEADERS_MANDATORY, List.class));
-        mandatoryHeaders.addAll(env.getProperty(JOSE_HEADERS, List.class));
-        return mandatoryHeaders;
-    }
 
     protected Response errorResponse(Response response, ErrorCodes code, java.lang.Exception e){
         ResponseError error= new ResponseError(code, e.getMessage(), e.getCause());
@@ -81,7 +71,7 @@ public class BaseController {
             else
                 request = new Request(requestBody);
             setResponseParams(request, response);
-            request.validate(getMandatoryHeaders(), getAuditData(request, apiAction), apiAction, timestampRange);
+            request.validate(getAuditData(request, apiAction), apiAction);
             processAndSendEvent(apiAction, kafkaTopic, request);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {

@@ -36,6 +36,3 @@ headers:
 #elasticsearch config
 elasticsearch:
   url: ${elasticsearch_url:localhost:9200}
-
-timestamp:
-  range: ${timestamp_range:10000}
