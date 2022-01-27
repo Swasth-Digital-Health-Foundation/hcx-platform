@@ -6,7 +6,6 @@ import org.apache.flink.util.Collector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.swasth.dp.auditindexer.task.AuditIndexerConfig;
-import org.swasth.dp.auditindexer.utils.Util;
 import org.swasth.dp.core.job.Metrics;
 import org.swasth.dp.core.util.ElasticSearchUtil;
 import org.swasth.dp.core.util.JSONUtil;
@@ -67,7 +66,6 @@ public class AuditIndexerProcessFunction extends ProcessFunction<Map<String,Obje
     }
 
     private void createIndex(String indexName){
-        // TODO: load settings and mappings from file
         String settings = "{ \"index\": { } }";
         if (settings == null) {
             logger.error("Failed to load index settings");
