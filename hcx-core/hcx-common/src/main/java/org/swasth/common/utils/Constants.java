@@ -50,7 +50,6 @@ public  class Constants {
     public static final String CODE = "code";
     public static final String MESSAGE = "message";
     public static final String TRACE = "trace";
-    public static final String SUBMITTED = "submitted";
 
     //Request props
     public static final String PROTOCOL_HEADERS_MANDATORY = "protocol.headers.mandatory";

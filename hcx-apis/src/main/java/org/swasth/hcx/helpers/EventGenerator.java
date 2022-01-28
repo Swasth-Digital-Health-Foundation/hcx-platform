@@ -54,7 +54,7 @@ public class EventGenerator {
             put(MESSAGE, "");
             put(TRACE, "");
         }});
-        event.put("status", SUBMITTED);
+        event.put("status", "request.queued");
         return JSONUtils.serialize(event);
     }
 }

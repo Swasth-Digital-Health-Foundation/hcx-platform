@@ -19,9 +19,7 @@ public class Constants {
     public static final String DEBUG_FLAG = "x-hcx-debug_flag";
     public static final List<String> DEBUG_FLAG_VALUES = Arrays.asList("Error","Info","Debug");
     public static final String STATUS = "x-hcx-status";
-    public static final List<String> STATUS_VALUES = Arrays.asList("request.initiate", "request.retry",
-            "response.success", "response.failure", "forward.request.initiate", "forward.response.success",
-            "forward.response.fail", "response.redirect", "request.redirect", "response.partial");
+    public static final List<String> STATUS_VALUES = Arrays.asList("request.queued", "request.dispatched", "response.complete", "response.partial", "response.error", "response.redirect");
     public static final String ERROR_DETAILS = "x-hcx-error_details";
     public static final List<String> ERROR_DETAILS_VALUES = Arrays.asList("error.code","error.message","trace");
     public static final String DEBUG_DETAILS = "x-hcx-debug_details";

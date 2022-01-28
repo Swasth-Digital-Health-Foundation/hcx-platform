@@ -22,10 +22,10 @@ public class Request {
 
     public void validate(List<HeaderAudit> auditResponse, String apiAction) throws ClientException {
         if(ON_ACTION_APIS.contains(apiAction)) {
-            validateCondition(auditResponse.isEmpty(), ErrorCodes.CLIENT_ERR_MISSING_CORRELATION_ID_RES, "Response contains invalid correlation id");
+            validateCondition(auditResponse.isEmpty(), ErrorCodes.CLIENT_ERR_INVALID_CORRELATION_ID, "Response contains invalid correlation id");
             HeaderAudit auditData = auditResponse.get(0);
             if(!auditData.getWorkflow_id().isEmpty()) {
-                validateCondition(!getWorkflowId().equals(auditData.getWorkflow_id()), ErrorCodes.CLIENT_ERR_MISSING_WORKFLOW_ID_RES, "Response contains invalid correlation id");
+                validateCondition(!getWorkflowId().equals(auditData.getWorkflow_id()), ErrorCodes.CLIENT_ERR_INVALID_WORKFLOW_ID, "Response contains invalid workflow id");
             }
         }
     }
