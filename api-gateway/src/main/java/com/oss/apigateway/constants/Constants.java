@@ -5,7 +5,7 @@ import java.util.List;
 
 public class Constants {
 
-    public static final int PAYLOAD_LENGTH = 6;
+    public static final int PAYLOAD_LENGTH = 5;
     public static final String AUTH_REQUIRED = "AUTH_REQUIRED";
     public static final String X_JWT_SUB_HEADER = "X-jwt-sub";
     public static final String CORRELATION_ID = "x-hcx-correlation_id";
