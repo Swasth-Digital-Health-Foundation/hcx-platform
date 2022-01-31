@@ -1,8 +1,8 @@
-package org.swasth.common.utils;
+package com.oss.apigateway.utils;
 
+import com.oss.apigateway.exception.ClientException;
+import com.oss.apigateway.exception.ErrorCodes;
 import org.joda.time.DateTime;
-import org.swasth.common.exception.ClientException;
-import org.swasth.common.exception.ErrorCodes;
 
 public class DateTimeUtils {
 

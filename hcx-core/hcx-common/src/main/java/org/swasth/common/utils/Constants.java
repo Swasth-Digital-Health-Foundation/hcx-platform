@@ -6,7 +6,6 @@ import java.util.List;
 public  class Constants {
 
     public static final String VERSION_PREFIX = "/v1";
-    public static final int PAYLOAD_LENGTH = 6;
 
     // Coverage Eligibility APIs
     public static final String COVERAGE_ELIGIBILITY_CHECK = VERSION_PREFIX + "/coverageeligibility/check";
@@ -51,7 +50,6 @@ public  class Constants {
     public static final String CODE = "code";
     public static final String MESSAGE = "message";
     public static final String TRACE = "trace";
-    public static final String SUBMITTED = "submitted";
 
     //Request props
     public static final String PROTOCOL_HEADERS_MANDATORY = "protocol.headers.mandatory";
@@ -62,17 +60,11 @@ public  class Constants {
     public static final String RECIPIENT_CODE = "x-hcx-recipient_code";
     public static final String API_CALL_ID = "x-hcx-api_call_id";
     public static final String CORRELATION_ID = "x-hcx-correlation_id";
-    public static final String CASE_ID = "x-hcx-case_id";
     public static final String WORKFLOW_ID = "x-hcx-workflow_id";
     public static final String TIMESTAMP = "x-hcx-timestamp";
     public static final String DEBUG_FLAG = "x-hcx-debug_flag";
-    public static final List<String> DEBUG_FLAG_VALUES = Arrays.asList("Error","Info","Debug");
     public static final String STATUS = "x-hcx-status";
-    public static final List<String> STATUS_VALUES = Arrays.asList("request.initiate", "request.retry",
-        "response.success", "response.failure", "forward.request.initiate", "forward.response.success",
-        "forward.response.fail", "response.redirect", "request.redirect", "response.partial");
     public static final String ERROR_DETAILS = "x-hcx-error_details";
-    public static final List<String> ERROR_DETAILS_VALUES = Arrays.asList("error.code","error.message","trace");
     public static final String DEBUG_DETAILS = "x-hcx-debug_details";
     public static final String STATUS_FILTERS = "x-hcx-status_filters";
     public static final String STATUS_RESPONSE = "x-hcx-status_response";

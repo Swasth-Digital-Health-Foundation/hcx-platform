@@ -27,8 +27,8 @@ public class SearchRequest extends Request {
     }
 
     @Override
-    public void validate(List<String> mandatoryHeaders, List<HeaderAudit> auditResponse, String apiAction, int timestampRange) throws ClientException {
-        super.validate(mandatoryHeaders, auditResponse, apiAction, timestampRange);
+    public void validate(List<HeaderAudit> auditResponse, String apiAction) throws ClientException {
+        super.validate(auditResponse, apiAction);
 
         if(Constants.HCX_REGISTRY_CODE.equals(getRecipientCode())){
             throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_SEARCH, "Search recipient code must be hcx registry code");
@@ -40,7 +40,6 @@ public class SearchRequest extends Request {
             if(requestMap.containsKey(Constants.SEARCH_FILTERS)){
                 validateSearchFilters();
             }
-
         }
 
         if (hcxHeaders.containsKey(Constants.SEARCH_RESP)) {
@@ -56,8 +55,6 @@ public class SearchRequest extends Request {
             throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_SEARCH, s2 + searchReqKeys);
         }
     }
-
-
 
     //TODO We can remove this check for phase 2
     private void validateSearchFilters() throws ClientException {

@@ -1,6 +1,17 @@
 server:
   port: ${SERVER_PORT:8095}
 
+#hcx headers
+protocol:
+  headers:
+    mandatory: ${protocol_mandatory_headers:x-hcx-sender_code, x-hcx-recipient_code, x-hcx-api_call_id, x-hcx-timestamp, x-hcx-status, x-hcx-correlation_id}
+    optional: ${protocol_optional_headers:x-hcx-workflow_id, x-hcx-debug_flag, x-hcx-error_details, x-hcx-debug_details}
+headers:
+  jose: ${jose_headers:alg, enc}
+
+timestamp:
+  range: ${timestamp_range:10000}
+
 jwt:
   enabled: ${JWT_ENABLED:true}
   issuer: ${JWT_ISSUER:}
@@ -30,7 +41,7 @@ spring:
                 redis-rate-limiter.replenishRate: 10
                 redis-rate-limiter.burstCapacity: 20
             - CachingRequestBodyFilter
-            - RegistryValidationFilter
+            - HCXValidationFilter
           predicates:
             - Path=/v1/coverageeligibility/**, /v1/preauth/**, /v1/claim/**, /v1/paymentnotice/**, /v1/hcx/**
 
