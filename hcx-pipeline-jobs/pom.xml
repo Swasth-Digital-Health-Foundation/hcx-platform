@@ -29,6 +29,7 @@
     <module>composite-search-job</module>
     <module>search-response-job</module>
     <module>jobs-distribution</module>
+    <module>audit-indexer</module>
   </modules>
 
   <properties>
