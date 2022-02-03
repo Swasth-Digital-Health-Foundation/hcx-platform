@@ -72,11 +72,7 @@ class SearchResponseFunction(config: SearchResponseConfig, @transient var postgr
     metrics.incCounter(config.auditEventsCount)
   }
 
-  def getEmptyCipherText: String = {
-    //TODO write logic here for fetching ciphertext value, as of now sending base 64 encoded string of an empty string
-    val emptyCiphertext: String = "IiI="
-    emptyCiphertext
-  }
+
 
   override def processElement(event: util.Map[String, AnyRef], context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
     /**

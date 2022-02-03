@@ -67,12 +67,11 @@ object JSONUtil {
     val strArray = encodedPayload.split("\\.")
     if (strArray.length > 0 && strArray.length == Constants.PAYLOAD_LENGTH) {
       val event = new util.HashMap[String, AnyRef]
-      event.put("protected", strArray(0))
-      event.put("encrypted_key", strArray(1))
-      event.put("aad", strArray(2))
-      event.put("iv", strArray(3))
-      event.put("ciphertext", strArray(4))
-      event.put("tag", strArray(5))
+      event.put(Constants.PROTECTED, strArray(0))
+      event.put(Constants.ENCRYPTED_KEY, strArray(1))
+      event.put(Constants.IV, strArray(2))
+      event.put(Constants.CIPHERTEXT, strArray(3))
+      event.put(Constants.TAG, strArray(4))
       event
     }
     else throw new Exception("payload is not complete")

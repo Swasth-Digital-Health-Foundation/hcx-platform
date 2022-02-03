@@ -90,6 +90,7 @@ class BaseJobConfig(val config: Config, val jobName: String) extends Serializabl
 
   //Registry Url
   val registryUrl = config.getString("registry.endPointUrl")
+  val hcxRegistryCode: String = config.getString("registry.hcx.code")
 
   //Keycloak
   val keycloakUrl = config.getString("keycloak.url")
