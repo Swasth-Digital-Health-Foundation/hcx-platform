@@ -86,7 +86,7 @@ public class Request{
         if (MapUtils.isEmpty(inputMap)) {
             throw new ClientException(errorCode, msg);
         } else if (!inputMap.containsKey("code") || !inputMap.containsKey("message")) {
-            throw new ClientException(errorCode, "Mandatory fields are missing");
+            throw new ClientException(errorCode, "Mandatory fields code or message is missing");
         }
         for(String key: inputMap.keySet()){
             if(!rangeValues.contains(key)){
