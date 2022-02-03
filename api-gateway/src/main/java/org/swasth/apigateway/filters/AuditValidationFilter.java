@@ -50,19 +50,15 @@ public class AuditValidationFilter extends AbstractGatewayFilterFactory<AuditVal
                 String sub = exchange.getRequest().getHeaders().getFirst("X-jwt-sub");
                 StringBuilder cachedBody = new StringBuilder(StandardCharsets.UTF_8.decode(((DataBuffer) exchange.getAttribute(CACHED_REQUEST_BODY_ATTR)).asByteBuffer()));
                 filterMap = JSONUtils.deserialize(cachedBody.toString(), HashMap.class);
-                System.out.println("request body");
-                System.out.println(filterMap);
                 Map<String, Object> participant = registryService.getDetails("osOwner", sub);
-                System.out.println("participant id" + participant);
                 if (!participant.isEmpty()) {
                     ArrayList<String> roles = (ArrayList<String>) participant.get("roles");
                     String code = (String) participant.get("osid");
                     Map<String, String> filters = (Map<String, String>) filterMap.get("filters");
                     if(roles.contains("payor") || roles.contains("provider")) {
                         filters.put("sender_code", code);
-                        System.out.println("filters updated" + filters + "  " + roles);
                         filterMap.put("filters", filters);
-                        System.out.println("protectedmap updated" + filterMap);
+                        System.out.println("updated filters" + filterMap);
                     }
                 } else {
                     throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_SENDER, "Sender is not exist in registry");
