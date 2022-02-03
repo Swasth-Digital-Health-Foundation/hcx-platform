@@ -24,6 +24,7 @@ public class Constants {
     public static final List<String> ERROR_DETAILS_VALUES = Arrays.asList("code","message","trace");
     public static final String DEBUG_DETAILS = "x-hcx-debug_details";
     public static final String BLOCKED = "Blocked";
+    public static final String INACTIVE = "Inactive";
     public static final String OS_OWNER = "osOwner";
 
 }

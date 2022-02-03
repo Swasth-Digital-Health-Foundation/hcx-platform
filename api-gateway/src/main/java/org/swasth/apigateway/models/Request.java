@@ -77,8 +77,8 @@ public class Request{
     private void validateParticipant(Map<String,Object> details, ErrorCodes code, String participant) throws ClientException {
         if(details.isEmpty()){
             throw new ClientException(code, participant + " is not exist in registry");
-        } else if(StringUtils.equals((String) details.get("status"), BLOCKED)){
-            throw new ClientException(code, participant + "  is blocked as per the registry");
+        } else if(StringUtils.equals((String) details.get("status"), BLOCKED) || StringUtils.equals((String) details.get("status"), INACTIVE)){
+            throw new ClientException(code, participant + "  is blocked or inactive as per the registry");
         }
     }
 
