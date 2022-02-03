@@ -21,9 +21,10 @@ public class Constants {
     public static final String STATUS = "x-hcx-status";
     public static final List<String> STATUS_VALUES = Arrays.asList("request.queued", "request.dispatched", "response.complete", "response.partial", "response.error", "response.redirect");
     public static final String ERROR_DETAILS = "x-hcx-error_details";
-    public static final List<String> ERROR_DETAILS_VALUES = Arrays.asList("error.code","error.message","trace");
+    public static final List<String> ERROR_DETAILS_VALUES = Arrays.asList("code","message","trace");
     public static final String DEBUG_DETAILS = "x-hcx-debug_details";
     public static final String BLOCKED = "Blocked";
+    public static final String INACTIVE = "Inactive";
     public static final String OS_OWNER = "osOwner";
 
 }

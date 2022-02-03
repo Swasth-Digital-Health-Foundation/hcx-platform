@@ -33,7 +33,7 @@ public class ExceptionHandler {
         } else if (e instanceof JWTVerificationException) {
             return this.onError(exchange, HttpStatus.UNAUTHORIZED, correlationId, apiCallId, ((JWTVerificationException) e).getErrCode(), e);
         } else if (e instanceof TokenExpiredException) {
-            return this.onError(exchange, HttpStatus.UNAUTHORIZED, correlationId, apiCallId, ErrorCodes.CLIENT_ERR_ACCESS_DENIED, e);
+            return this.onError(exchange, HttpStatus.UNAUTHORIZED, correlationId, apiCallId, ErrorCodes.ERR_ACCESS_DENIED, e);
         } else {
             return this.onError(exchange, HttpStatus.INTERNAL_SERVER_ERROR, correlationId, apiCallId, null, e);
         }

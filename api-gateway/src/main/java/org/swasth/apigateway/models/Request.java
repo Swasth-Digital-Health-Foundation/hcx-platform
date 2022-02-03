@@ -27,43 +27,43 @@ public class Request{
     public Request(Map<String, Object> body) throws Exception {
         this.payload = body;
         try {
-            this.hcxHeaders =JSONUtils.decodeBase64String(formatRequestBody(payload)[0], Map.class);
+            this.hcxHeaders =JSONUtils.decodeBase64String(validateRequestBody(payload)[0], Map.class);
             for (Map.Entry<String, ClientException> entry : getResponseParamErrors().entrySet()) {
                 validateHeader(hcxHeaders, entry.getKey(), entry.getValue());
             }
-            validateCondition(!Utils.isUUID(getApiCallId()), ErrorCodes.CLIENT_ERR_INVALID_API_CALL_ID, "API call id should be a valid UUID");
-            validateCondition(!Utils.isUUID(getCorrelationId()), ErrorCodes.CLIENT_ERR_INVALID_CORREL_ID, "Correlation id should be a valid UUID");
+            validateCondition(!Utils.isUUID(getApiCallId()), ErrorCodes.ERR_INVALID_API_CALL_ID, "API call id should be a valid UUID");
+            validateCondition(!Utils.isUUID(getCorrelationId()), ErrorCodes.ERR_INVALID_CORRELATION_ID, "Correlation id should be a valid UUID");
         } catch (JsonParseException e) {
-            throw new ClientException(ErrorCodes.CLIENT_ERR_WRONG_ENCODED_PROTECTED, "Error while parsing protected headers");
+            throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, "Error while parsing protected headers");
         }
     }
 
     public void validate(List<String> mandatoryHeaders, Map<String, Object> senderDetails, Map<String, Object> recipientDetails, String subject, int timestampRange) throws ClientException {
         List<String> missingHeaders = mandatoryHeaders.stream().filter(key -> !hcxHeaders.containsKey(key)).collect(Collectors.toList());
         if (!missingHeaders.isEmpty()) {
-            throw new ClientException(ErrorCodes.CLIENT_ERR_MANDATORY_HEADERFIELD_MISSING, "Mandatory headers are missing: " + missingHeaders);
+            throw new ClientException(ErrorCodes.ERR_MANDATORY_HEADERFIELD_MISSING, "Mandatory headers are missing: " + missingHeaders);
         }
         for (Map.Entry<String, ClientException> entry : getClientErrors(hcxHeaders).entrySet()) {
             validateHeader(hcxHeaders, entry.getKey(), entry.getValue());
         }
 
-        validateCondition(!DateTimeUtils.validTimestamp(timestampRange, getTimestamp()), ErrorCodes.CLIENT_ERR_INVALID_TIMESTAMP, "Timestamp cannot be more than " + timestampRange + " hours in the past or future time");
-        validateCondition(hcxHeaders.containsKey(WORKFLOW_ID) && !Utils.isUUID(getWorkflowId()), ErrorCodes.CLIENT_ERR_INVALID_WORKFLOW_ID, "Workflow id should be a valid UUID");
+        validateCondition(!DateTimeUtils.validTimestamp(timestampRange, getTimestamp()), ErrorCodes.ERR_INVALID_TIMESTAMP, "Timestamp cannot be more than " + timestampRange + " hours in the past or future time");
+        validateCondition(hcxHeaders.containsKey(WORKFLOW_ID) && !Utils.isUUID(getWorkflowId()), ErrorCodes.ERR_INVALID_WORKFLOW_ID, "Workflow id should be a valid UUID");
         validateCondition(StringUtils.equals(getSenderCode(), getRecipientCode()), null, "sender and recipient code cannot be the same");
-        validateParticipant(senderDetails, ErrorCodes.CLIENT_ERR_INVALID_SENDER, "sender");
-        validateParticipant(recipientDetails, ErrorCodes.CLIENT_ERR_INVALID_RECIPIENT, "recipient");
-        validateCondition(!StringUtils.equals(((ArrayList) senderDetails.get(OS_OWNER)).get(0).toString(), subject), ErrorCodes.CLIENT_ERR_ACCESS_DENIED, "Caller id and sender code is not matched");
+        validateParticipant(senderDetails, ErrorCodes.ERR_INVALID_SENDER, "sender");
+        validateParticipant(recipientDetails, ErrorCodes.ERR_INVALID_RECIPIENT, "recipient");
+        validateCondition(!StringUtils.equals(((ArrayList) senderDetails.get(OS_OWNER)).get(0).toString(), subject), ErrorCodes.ERR_ACCESS_DENIED, "Caller id and sender code is not matched");
 
         if (hcxHeaders.containsKey(DEBUG_FLAG)) {
-            validateValues(getDebugFlag(), ErrorCodes.CLIENT_ERR_INVALID_DEBUG_ID, "Debug flag cannot be null, empty and other than 'String'", DEBUG_FLAG_VALUES, ErrorCodes.CLIENT_ERR_DEBUG_ID_OUTOFRANGE, "Debug flag cannot be other than Error, Info or Debug");
+            validateValues(getDebugFlag(), ErrorCodes.ERR_INVALID_DEBUG_FLAG, "Debug flag cannot be null, empty and other than 'String'", DEBUG_FLAG_VALUES, "Debug flag cannot be other than Error, Info or Debug");
         }
-        validateValues(getStatus(), ErrorCodes.CLIENT_ERR_INVALID_STATUS, "Status cannot be null, empty and other than 'String'", STATUS_VALUES, ErrorCodes.CLIENT_ERR_STATUS_OUTOFRANGE, "Status value can be only: " + STATUS_VALUES);
+        validateValues(getStatus(), ErrorCodes.ERR_INVALID_STATUS, "Status cannot be null, empty and other than 'String'", STATUS_VALUES, "Status value can be only: ");
 
         if (hcxHeaders.containsKey(ERROR_DETAILS)) {
-            validateDetails(getErrorDetails(), ErrorCodes.CLIENT_ERR_INVALID_ERROR_DETAILS, "Error details cannot be null, empty and other than 'JSON Object'", ErrorCodes.CLIENT_ERR_ERROR_DETAILS_OUTOFRANGE, "Error details should contain only: ");
+            validateDetails(getErrorDetails(), ErrorCodes.ERR_INVALID_ERROR_DETAILS, "Error details cannot be null, empty and other than 'JSON Object'", ERROR_DETAILS_VALUES, "Error details should contain only: ");
         }
         if (hcxHeaders.containsKey(DEBUG_DETAILS)) {
-            validateDetails(getDebugDetails(), ErrorCodes.CLIENT_ERR_INVALID_DEBUG_DETAILS, "Debug details cannot be null, empty and other than 'JSON Object'", ErrorCodes.CLIENT_ERR_DEBUG_DETAILS_OUTOFRANGE, "Debug details should contain only: ");
+            validateDetails(getDebugDetails(), ErrorCodes.ERR_INVALID_DEBUG_DETAILS, "Debug details cannot be null, empty and other than 'JSON Object'", ERROR_DETAILS_VALUES, "Debug details should contain only: ");
         }
 
     }
@@ -77,24 +77,29 @@ public class Request{
     private void validateParticipant(Map<String,Object> details, ErrorCodes code, String participant) throws ClientException {
         if(details.isEmpty()){
             throw new ClientException(code, participant + " is not exist in registry");
-        } else if(StringUtils.equals((String) details.get("status"), BLOCKED)){
-            throw new ClientException(code, participant + "  is blocked as per the registry");
+        } else if(StringUtils.equals((String) details.get("status"), BLOCKED) || StringUtils.equals((String) details.get("status"), INACTIVE)){
+            throw new ClientException(code, participant + "  is blocked or inactive as per the registry");
         }
     }
 
-    private void validateDetails(Map<String, Object> inputMap, ErrorCodes errorCode, String msg, ErrorCodes rangeCode, String rangeMsg) throws ClientException {
+    private void validateDetails(Map<String, Object> inputMap, ErrorCodes errorCode, String msg,List<String> rangeValues, String rangeMsg) throws ClientException {
         if (MapUtils.isEmpty(inputMap)) {
             throw new ClientException(errorCode, msg);
-        } else if (!inputMap.keySet().containsAll(ERROR_DETAILS_VALUES)) {
-            throw new ClientException(rangeCode, rangeMsg + ERROR_DETAILS_VALUES);
+        } else if (!inputMap.containsKey("code") || !inputMap.containsKey("message")) {
+            throw new ClientException(errorCode, "Mandatory fields code or message is missing");
+        }
+        for(String key: inputMap.keySet()){
+            if(!rangeValues.contains(key)){
+                throw new ClientException(errorCode, rangeMsg + rangeValues);
+            }
         }
     }
 
-    private void validateValues(String inputStr, ErrorCodes errorCode, String msg, List<String> statusValues, ErrorCodes rangeCode, String rangeMsg) throws ClientException {
+    private void validateValues(String inputStr, ErrorCodes errorCode, String msg, List<String> statusValues, String rangeMsg) throws ClientException {
         if (StringUtils.isEmpty(inputStr)) {
             throw new ClientException(errorCode, msg);
         } else if (!statusValues.contains(inputStr)) {
-            throw new ClientException(rangeCode, rangeMsg);
+            throw new ClientException(errorCode, rangeMsg + statusValues);
         }
     }
 
@@ -108,28 +113,34 @@ public class Request{
 
     private Map<String, ClientException> getClientErrors(Map<String, Object> hcxHeaders){
         Map<String, ClientException> clientErrors = new HashMap<>();
-        clientErrors.put(SENDER_CODE, new ClientException(ErrorCodes.CLIENT_ERR_INVALID_SENDER, "Sender code cannot be null, empty and other than 'String'"));
-        clientErrors.put(RECIPIENT_CODE, new ClientException(ErrorCodes.CLIENT_ERR_INVALID_RECIPIENT, "Recipient code cannot be null, empty and other than 'String'"));
-        clientErrors.put(TIMESTAMP, new ClientException(ErrorCodes.CLIENT_ERR_INVALID_TIMESTAMP, "Invalid timestamp"));
+        clientErrors.put(SENDER_CODE, new ClientException(ErrorCodes.ERR_INVALID_SENDER, "Sender code cannot be null, empty and other than 'String'"));
+        clientErrors.put(RECIPIENT_CODE, new ClientException(ErrorCodes.ERR_INVALID_RECIPIENT, "Recipient code cannot be null, empty and other than 'String'"));
+        clientErrors.put(TIMESTAMP, new ClientException(ErrorCodes.ERR_INVALID_TIMESTAMP, "Invalid timestamp"));
         if(hcxHeaders.containsKey(WORKFLOW_ID)) {
-            clientErrors.put(WORKFLOW_ID, new ClientException(ErrorCodes.CLIENT_ERR_INVALID_WORKFLOW_ID, "Workflow id cannot be null, empty and other than 'String'"));
+            clientErrors.put(WORKFLOW_ID, new ClientException(ErrorCodes.ERR_INVALID_WORKFLOW_ID, "Workflow id cannot be null, empty and other than 'String'"));
         }
         return clientErrors;
     }
 
     private Map<String, ClientException> getResponseParamErrors(){
         Map<String, ClientException> errors = new HashMap<>();
-        errors.put(CORRELATION_ID, new ClientException(ErrorCodes.CLIENT_ERR_INVALID_CORREL_ID, "Correlation id cannot be null, empty and other than 'String'"));
-        errors.put(API_CALL_ID, new ClientException(ErrorCodes.CLIENT_ERR_INVALID_API_CALL_ID, "Api call id cannot be null, empty and other than 'String'"));
+        errors.put(CORRELATION_ID, new ClientException(ErrorCodes.ERR_INVALID_CORRELATION_ID, "Correlation id cannot be null, empty and other than 'String'"));
+        errors.put(API_CALL_ID, new ClientException(ErrorCodes.ERR_INVALID_API_CALL_ID, "Api call id cannot be null, empty and other than 'String'"));
         return errors;
     }
 
-    private String[] formatRequestBody(Map<String, Object> requestBody) throws Exception {
+    private String[] validateRequestBody(Map<String, Object> requestBody) throws Exception {
         try {
-            String str = (String) requestBody.get(PAYLOAD);
-            return str.split("\\.");
+            String[] payloadValues = ((String) requestBody.get(PAYLOAD)).split("\\.");
+            if(payloadValues.length != PAYLOAD_LENGTH)
+                throw new Exception();
+            for(String value: payloadValues){
+                if(value == null || value.isEmpty())
+                    throw new Exception();
+            }
+            return payloadValues;
         } catch (Exception e) {
-            throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_PAYLOAD, "invalid payload");
+            throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, "Invalid payload");
         }
     }
 

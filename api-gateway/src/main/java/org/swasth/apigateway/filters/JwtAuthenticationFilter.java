@@ -83,7 +83,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
                     String payload = new String(Base64.getDecoder().decode(decodedJWT.getPayload()));
                     JSONArray claims = JsonPath.read(payload, jwtConfigs.getClaimsNamespacePath());
                     if (!authorizationService.isAuthorized(exchange, claims)) {
-                        throw new JWTVerificationException(ErrorCodes.CLIENT_ERR_ACCESS_DENIED, "Access denied");
+                        throw new JWTVerificationException(ErrorCodes.ERR_ACCESS_DENIED, "Does not have access to the called API");
                     }
                 }
 
@@ -104,23 +104,23 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
 
     private String extractJWTToken(ServerHttpRequest request) throws JWTVerificationException {
         if (!request.getHeaders().containsKey("Authorization")) {
-            throw new JWTVerificationException(ErrorCodes.CLIENT_ERR_INVALID_AUTH_TOKEN, "Authorization header is missing");
+            throw new JWTVerificationException(ErrorCodes.ERR_ACCESS_DENIED, "Authorization header is missing");
         }
 
         List<String> headers = request.getHeaders().get("Authorization");
         if (headers == null || headers.isEmpty()) {
-            throw new JWTVerificationException(ErrorCodes.CLIENT_ERR_INVALID_AUTH_TOKEN, "Authorization header is empty");
+            throw new JWTVerificationException(ErrorCodes.ERR_ACCESS_DENIED, "Authorization header is empty");
         }
 
         String credential = headers.get(0).trim();
         String[] components = credential.split("\\s");
 
         if (components.length != 2) {
-            throw new JWTVerificationException(ErrorCodes.CLIENT_ERR_INVALID_AUTH_TOKEN, "Malformat Authorization content");
+            throw new JWTVerificationException(ErrorCodes.ERR_ACCESS_DENIED, "Malformat Authorization content");
         }
 
         if (!components[0].equals("Bearer")) {
-            throw new JWTVerificationException(ErrorCodes.CLIENT_ERR_INVALID_AUTH_TOKEN, "Bearer is needed");
+            throw new JWTVerificationException(ErrorCodes.ERR_ACCESS_DENIED, "Bearer is needed");
         }
 
         return components[1].trim();
