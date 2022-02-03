@@ -65,7 +65,7 @@ public class AuditValidationFilter extends AbstractGatewayFilterFactory<AuditVal
                         System.out.println("protectedmap updated" + filterMap);
                     }
                 } else {
-                    throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_SENDER, "Sender is not exist in registry");
+                    throw new ClientException(ErrorCodes.ERR_INVALID_SENDER, "Sender is not exist in registry");
                 }
             } catch (Exception e) {
                 return exceptionHandler.errorResponse(e, exchange, null, null);

@@ -31,7 +31,7 @@ public class SearchRequest extends Request {
         super.validate(auditResponse, apiAction);
 
         if(Constants.HCX_REGISTRY_CODE.equals(getRecipientCode())){
-            throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_SEARCH, "Search recipient code must be hcx registry code");
+            throw new ClientException(ErrorCodes.ERR_INVALID_SEARCH, "Search recipient code must be hcx registry code");
         }
 
         if (hcxHeaders.containsKey(Constants.SEARCH_REQ)) {
@@ -50,9 +50,9 @@ public class SearchRequest extends Request {
 
     private void validateSearch(Map<String, Object> requestMap, String s, List<String> searchReqKeys, String s2) throws ClientException {
         if (MapUtils.isEmpty(requestMap)) {
-            throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_SEARCH, s);
+            throw new ClientException(ErrorCodes.ERR_INVALID_SEARCH, s);
         } else if (requestMap.keySet().stream().noneMatch(key -> searchReqKeys.contains(key))) {
-            throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_SEARCH, s2 + searchReqKeys);
+            throw new ClientException(ErrorCodes.ERR_INVALID_SEARCH, s2 + searchReqKeys);
         }
     }
 
@@ -62,8 +62,8 @@ public class SearchRequest extends Request {
         if (MapUtils.isNotEmpty(searchFiltersMap)) {
             if (!searchFiltersMap.containsKey(Constants.SEARCH_FILTERS_RECEIVER)
                     || searchFiltersMap.keySet().stream().noneMatch(key -> Constants.SEARCH_FILTER_KEYS.contains(key)))
-                throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_SEARCH, "Search Filters should contain only: " + Constants.SEARCH_FILTER_KEYS);
+                throw new ClientException(ErrorCodes.ERR_INVALID_SEARCH, "Search Filters should contain only: " + Constants.SEARCH_FILTER_KEYS);
         } else
-            throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_SEARCH, "Search filters cannot be null and should be 'JSON Object'");
+            throw new ClientException(ErrorCodes.ERR_INVALID_SEARCH, "Search filters cannot be null and should be 'JSON Object'");
     }
 }

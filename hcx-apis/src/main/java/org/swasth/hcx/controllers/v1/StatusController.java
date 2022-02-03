@@ -33,10 +33,10 @@ public class StatusController extends BaseController {
         Response response = new Response();
         try {
             if (!HealthCheckManager.allSystemHealthResult)
-                throw new ServiceUnavailbleException(ErrorCodes.SERVICE_UNAVAILABLE, "Service is unavailable");
+                throw new ServiceUnavailbleException(ErrorCodes.ERR_SERVICE_UNAVAILABLE, "Service is unavailable");
             Request request = new Request(requestBody);
             setResponseParams(request, response);
-            request.validate(getAuditData(request, HCX_STATUS), HCX_STATUS);
+            request.validate(getAuditData(request), HCX_STATUS);
             Map<String, Object> hcxHeaders = request.getHcxHeaders();
             // TODO: filter properties validation
             if (!hcxHeaders.containsKey(STATUS_FILTERS) || ((Map<String, Object>) hcxHeaders.get(STATUS_FILTERS)).isEmpty()) {
@@ -77,10 +77,10 @@ public class StatusController extends BaseController {
         Response response = new Response();
         try {
             if (!HealthCheckManager.allSystemHealthResult)
-                throw new ServiceUnavailbleException(ErrorCodes.SERVICE_UNAVAILABLE, "Service is unavailable");
+                throw new ServiceUnavailbleException(ErrorCodes.ERR_SERVICE_UNAVAILABLE, "Service is unavailable");
             Request request = new Request(requestBody);
             setResponseParams(request, response);
-            request.validate(getAuditData(request, HCX_ONSTATUS), HCX_ONSTATUS);
+            request.validate(getAuditData(request), HCX_ONSTATUS);
             Map<String, Object> hcxHeaders = request.getHcxHeaders();
             if(!hcxHeaders.containsKey(STATUS_RESPONSE) || ((Map<String, Object>) hcxHeaders.get(STATUS_RESPONSE)).isEmpty()) {
                 throw new ClientException("Invalid request, status response is missing or empty.");

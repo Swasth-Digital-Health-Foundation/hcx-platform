@@ -30,10 +30,10 @@ public class ParticipantController  extends BaseController {
     public ResponseEntity<Object> participantCreate(@RequestHeader HttpHeaders header,
         @RequestBody Map<String, Object> requestBody) throws Exception {
         if(((ArrayList) requestBody.get(ROLES)).contains(PAYOR) && !requestBody.containsKey(SCHEME_CODE)) {
-            return new ResponseEntity<>(errorResponse(ErrorCodes.CLIENT_ERR_INVALID_PARTICIPANT_DETAILS, "scheme_code is missing", null), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorResponse(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, "scheme_code is missing", null), HttpStatus.BAD_REQUEST);
         }
         if (!((ArrayList) requestBody.get(ROLES)).contains(PAYOR) && requestBody.containsKey(SCHEME_CODE)) {
-            return new ResponseEntity<>(errorResponse(ErrorCodes.CLIENT_ERR_INVALID_PARTICIPANT_DETAILS, "unknown property, 'scheme_code' is not allowed", null), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorResponse(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, "unknown property, 'scheme_code' is not allowed", null), HttpStatus.BAD_REQUEST);
         }
         String url =  registryUrl + "/api/v1/Organisation/invite";
         Map<String, String> headersMap = new HashMap<>();

@@ -12,7 +12,7 @@ public class DateTimeUtils {
             DateTime currentTime = DateTime.now();
             return (!requestTime.isBefore(currentTime.minusHours(range)) && !requestTime.isAfter(currentTime));
         } catch (Exception e) {
-            throw new ClientException(ErrorCodes.CLIENT_ERR_INVALID_TIMESTAMP, "Timestamp should be a valid ISO-8061 format, " + "Exception msg: " + e.getMessage());
+            throw new ClientException(ErrorCodes.ERR_INVALID_TIMESTAMP, "Timestamp should be a valid ISO-8061 format, " + "Exception msg: " + e.getMessage());
         }
     }
 
