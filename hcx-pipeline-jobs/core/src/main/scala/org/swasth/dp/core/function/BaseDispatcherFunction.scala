@@ -54,6 +54,7 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
     parsedPayload.put(Constants.PROTECTED, JSONUtil.encodeBase64Object(protectedMap))
     //TODO use the helper classes to generate empty cipher text and replace the below code
     parsedPayload.put(Constants.CIPHERTEXT, getEmptyCipherText)
+    Console.println("Payload: " + parsedPayload)
     val result = DispatcherUtil.dispatch(senderCtx, JSONUtil.serialize(parsedPayload))
     if(result.retry) {
       metrics.incCounter(metric = config.dispatcherRetryCount)
