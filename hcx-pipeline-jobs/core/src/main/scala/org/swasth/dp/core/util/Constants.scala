@@ -6,7 +6,11 @@ object Constants {
   val SENDER = "sender"
   val RECIPIENT = "recipient"
   val PROTECTED = "protected"
-  val PAYLOAD_LENGTH = 6
+  val ENCRYPTED_KEY = "encrypted_key"
+  val IV = "iv"
+  val CIPHERTEXT = "ciphertext"
+  val TAG = "tag"
+  val PAYLOAD_LENGTH = 5
   val MID = "mid"
   val PAYLOAD = "payload"
   val ETS = "ets"
@@ -41,15 +45,15 @@ object Constants {
   val HCX_STATUS = "x-hcx-status"
 
   //Search Fields
-  val SEARCH_REQUEST: String = "x-hcx-search"
-  val SEARCH_RESPONSE: String = "x-hcx-search_response"
+  val SEARCH_REQUEST = "x-hcx-search"
+  val SEARCH_RESPONSE = "x-hcx-search_response"
   val SEARCH_FILTERS = "filters"
-  val SEARCH_FILTERS_RECEIVER: String = "receivers"
-  val SEARCH_COUNT: String = "count"
-  val SEARCH_ENTITY_COUNT: String = "entity_counts"
-  val PARTIAL_RESPONSE: String = "response.partial"
-  val COMPLETE_RESPONSE: String = "response.complete"
-  val CIPHERTEXT: String = "ciphertext"
+  val SEARCH_FILTERS_RECEIVER = "receivers"
+  val SEARCH_COUNT = "count"
+  val SEARCH_ENTITY_COUNT = "entity_counts"
+  val PARTIAL_RESPONSE = "response.partial"
+  val COMPLETE_RESPONSE = "response.complete"
+
 
   val OPEN_STATUS = "OPEN"
   val RETRY_STATUS = "RETRY"
@@ -57,5 +61,8 @@ object Constants {
   val PARTIAL_STATUS = "PARTIAL"
   val FAIL_STATUS = "FAIL"
 
+  val RECIPIENT_ERROR_CODE = "ERR_RECIPIENT_NOT_AVAILABLE"
+  val RECIPIENT_ERROR_MESSAGE = "Please provide correct recipient code"
+  val RECIPIENT_ERROR_LOG = "Recipient endpoint url is empty"
 
 }

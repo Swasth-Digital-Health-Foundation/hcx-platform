@@ -27,15 +27,34 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
   @throws(classOf[Exception])
   def audit(event: util.Map[String, AnyRef], status: Boolean, context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit
 
-  def dispatchErrorResponse(event: util.Map[String, AnyRef],error: Option[ErrorResponse], correlationId: String, payloadRefId: String, senderCtx: util.Map[String, AnyRef], context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
-    val response = Response(System.currentTimeMillis(), correlationId, error)
-    val responseJSON = JSONUtil.serialize(response);
-    Console.println("Error message dispatch:"+responseJSON)
-    val payload = getPayload(payloadRefId);
-    val payloadJSON = JSONUtil.serialize(payload);
-    //TODO Decode the payload, add error response to the payload, encode the updated payload
-    //TODO As of now sending the same payload sent by the recipient incase of failure
-    val result = DispatcherUtil.dispatch(senderCtx, payloadJSON)
+  def createErrorMap(error: Option[ErrorResponse]):util.Map[String, AnyRef] = {
+    val errorMap:util.Map[String, AnyRef] = new util.HashMap[String, AnyRef]
+    errorMap.put("error.code",error.get.code)
+    errorMap.put("error.message",error.get.message)
+    errorMap.put("trace",error.get.trace)
+    errorMap
+  }
+
+  def dispatchErrorResponse(event: util.Map[String, AnyRef], error: Option[ErrorResponse], correlationId: String, payloadRefId: String, senderCtx: util.Map[String, AnyRef], context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
+    // Decode the payload, add error response to the payload, encode the updated payload
+    val payloadMap = getPayload(payloadRefId)
+    val encodedPayload = payloadMap.get(Constants.PAYLOAD).asInstanceOf[String]
+    //Place the updated protected header values into this map and encode the values
+    val parsedPayload = JSONUtil.parsePayload(encodedPayload)
+    val protectString = parsedPayload.get(Constants.PROTECTED).asInstanceOf[String]
+    //Decode protected String
+    val protectedMap = JSONUtil.decodeBase64String(protectString, classOf[util.HashMap[String, AnyRef]])
+    //Update sender code
+    protectedMap.put(Constants.SENDER_CODE, config.hcxRegistryCode)
+    //Update recipient code
+    protectedMap.put(Constants.RECIPIENT_CODE, getProtocolStringValue(event,Constants.SENDER_CODE))
+    //Update error details
+    protectedMap.put(Constants.ERROR_DETAILS,createErrorMap(error))
+    //Updating protected map with the latest encoded values
+    parsedPayload.put(Constants.PROTECTED, JSONUtil.encodeBase64Object(protectedMap))
+    //TODO use the helper classes to generate empty cipher text and replace the below code
+    parsedPayload.put(Constants.CIPHERTEXT, getEmptyCipherText)
+    val result = DispatcherUtil.dispatch(senderCtx, JSONUtil.serialize(parsedPayload))
     if(result.retry) {
       metrics.incCounter(metric = config.dispatcherRetryCount)
       context.output(config.retryOutputTag, JSONUtil.serialize(event))
@@ -58,7 +77,7 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
       Console.println("recipient context is empty: " + payloadRefId)
       logger.warn("recipient context is empty: " + payloadRefId)
       //Send on_action request back to sender when recipient context is missing
-      val errorResponse = ErrorResponse(Option("Error"), Option("CLIENT_ERR_RECIPIENT_ENDPOINT_NOT_AVAILABLE"), Option("Please provide correct recipient details"))
+      val errorResponse = ErrorResponse(Option(Constants.RECIPIENT_ERROR_CODE), Option(Constants.RECIPIENT_ERROR_MESSAGE), Option(Constants.RECIPIENT_ERROR_LOG))
       dispatchErrorResponse(event,ValidationResult(true, Option(errorResponse)).error, correlationId, payloadRefId, senderCtx, context, metrics)
     } else {
       Console.println("sender and recipient available: " + payloadRefId)
@@ -122,8 +141,15 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
     val recipientDetails = fetchDetails(baseSenderCode)
     val recipientContext = createRecipientContext(recipientDetails, action)
     val updatedPayload = new util.HashMap[String,AnyRef]()
+    //TODO Remove this and use the utility for modifying the ciphertext
     updatedPayload.put(Constants.PAYLOAD,JSONUtil.createPayloadByValues(parsedPayload));
     DispatcherUtil.dispatch(recipientContext, JSONUtil.serialize(updatedPayload))
+  }
+
+  def getEmptyCipherText: String = {
+    //TODO write logic here for fetching ciphertext value, as of now sending base 64 encoded string of an empty string
+    val emptyCiphertext: String = "IiI="
+    emptyCiphertext
   }
 
 }

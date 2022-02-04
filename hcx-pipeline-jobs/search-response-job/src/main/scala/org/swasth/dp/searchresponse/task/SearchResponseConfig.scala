@@ -30,7 +30,6 @@ class SearchResponseConfig(override val config: Config) extends BaseJobConfig(co
   val searchMaxTime: Int = config.getInt("search.time.maxperiod")
   val entityList: util.List[String] = config.getStringList("search.entity.types")
   val expiryTime: Long = config.getLong("search.expiry.time")
-  val hcxRegistryCode: String = config.getString("registry.hcx.code")
 
   val searchTable: String = config.getString("postgres.search")
 

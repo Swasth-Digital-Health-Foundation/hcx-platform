@@ -67,7 +67,7 @@ object DispatcherUtil {
           DispatcherResult(true, statusCode, None, false)
         } else if (errorCodes.contains(statusCode)) {
           val responseBody = EntityUtils.toString(response.getEntity, StandardCharsets.UTF_8)
-          val errorResponse = ErrorResponse(Option("Error"), Option("CLIENT_ERR_RECIPIENT_ENDPOINT_NOT_AVAILABLE"), Option(responseBody))
+          val errorResponse = ErrorResponse(Option(Constants.RECIPIENT_ERROR_CODE), Option(Constants.RECIPIENT_ERROR_MESSAGE), Option(responseBody))
           DispatcherResult(false, statusCode, Option(errorResponse), false)
         } else {
           DispatcherResult(false, statusCode, None, true)
