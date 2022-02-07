@@ -66,13 +66,13 @@ object DispatcherUtil {
         if (successCodes.contains(statusCode)) {
           DispatcherResult(true, statusCode, None, false)
         } else if (errorCodes.contains(statusCode)) {
-          val responseBody = EntityUtils.toString(response.getEntity, StandardCharsets.UTF_8)
-          val errorResponse = ErrorResponse(Option(Constants.RECIPIENT_ERROR_CODE), Option(Constants.RECIPIENT_ERROR_MESSAGE), Option(responseBody))
+          val errorResponse: ErrorResponse = errorMessageProcess(response)
           DispatcherResult(false, statusCode, Option(errorResponse), false)
         } else {
-          DispatcherResult(false, statusCode, None, true)
+          val errorResponse: ErrorResponse = errorMessageProcess(response)
+          DispatcherResult(false, statusCode, Option(errorResponse), true)
         }
-      } else //As url is null, no need to retry
+      } else  //As url is null, no need to retry
         DispatcherResult(false, 0, None, false)
     } catch {
       case ex: Exception => {
@@ -82,6 +82,12 @@ object DispatcherUtil {
       if (response != null)
         response.close()
     }
+  }
+
+  private def errorMessageProcess(response: CloseableHttpResponse) = {
+    val responseBody = EntityUtils.toString(response.getEntity, StandardCharsets.UTF_8)
+    val errorResponse = ErrorResponse(Option(Constants.RECIPIENT_ERROR_CODE), Option(Constants.RECIPIENT_ERROR_MESSAGE), Option(responseBody))
+    errorResponse
   }
 
   def post(url: String, code: String): String= {

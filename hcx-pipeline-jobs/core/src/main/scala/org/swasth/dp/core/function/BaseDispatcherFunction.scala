@@ -29,9 +29,9 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
 
   def createErrorMap(error: Option[ErrorResponse]):util.Map[String, AnyRef] = {
     val errorMap:util.Map[String, AnyRef] = new util.HashMap[String, AnyRef]
-    errorMap.put("code",error.get.code)
-    errorMap.put("message",error.get.message)
-    errorMap.put("trace",error.get.trace)
+    errorMap.put("code",error.get.code.get)
+    errorMap.put("message",error.get.message.get)
+    errorMap.put("trace",error.get.trace.get)
     errorMap
   }
 
@@ -52,8 +52,8 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
     protectedMap.put(Constants.ERROR_DETAILS,createErrorMap(error))
     //Updating protected map with the latest encoded values
     parsedPayload.put(Constants.PROTECTED, JSONUtil.encodeBase64Object(protectedMap))
-    //TODO use the helper classes to generate empty cipher text and replace the below code
-    parsedPayload.put(Constants.CIPHERTEXT, getEmptyCipherText)
+    //TODO use the helper classes to generate empty cipher text and replace the below code, as of now sending the same cipher text
+    //parsedPayload.put(Constants.CIPHERTEXT, getEmptyCipherText)
     Console.println("Payload: " + parsedPayload)
     val result = DispatcherUtil.dispatch(senderCtx, JSONUtil.serialize(parsedPayload))
     if(result.retry) {
@@ -70,19 +70,19 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
     val senderCtx = event.getOrDefault(Constants.CDATA, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]].getOrDefault(Constants.SENDER, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]]
     val recipientCtx = event.getOrDefault(Constants.CDATA, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]].getOrDefault(Constants.RECIPIENT, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]]
     if (MapUtils.isEmpty(senderCtx)) {
-      Console.println("sender context is empty: " + payloadRefId)
-      logger.warn("sender context is empty: " + payloadRefId)
+      Console.println("sender context is empty for mid: " + payloadRefId)
+      logger.warn("sender context is empty for mid: " + payloadRefId)
       //Audit the record if sender context is empty
       audit(event,true,context,metrics)
     } else if (MapUtils.isEmpty(recipientCtx)) {
-      Console.println("recipient context is empty: " + payloadRefId)
-      logger.warn("recipient context is empty: " + payloadRefId)
+      Console.println("recipient context is empty for mid: " + payloadRefId)
+      logger.warn("recipient context is empty for mid: " + payloadRefId)
       //Send on_action request back to sender when recipient context is missing
       val errorResponse = ErrorResponse(Option(Constants.RECIPIENT_ERROR_CODE), Option(Constants.RECIPIENT_ERROR_MESSAGE), Option(Constants.RECIPIENT_ERROR_LOG))
       dispatchErrorResponse(event,ValidationResult(true, Option(errorResponse)).error, correlationId, payloadRefId, senderCtx, context, metrics)
     } else {
-      Console.println("sender and recipient available: " + payloadRefId)
-      logger.info("sender and recipient available: " + payloadRefId)
+      Console.println("sender and recipient available for mid: " + payloadRefId)
+      logger.info("sender and recipient available for mid: " + payloadRefId)
       val validationResult = validate(event)
       if(!validationResult.status) {
         metrics.incCounter(metric = config.dispatcherValidationFailedCount)
