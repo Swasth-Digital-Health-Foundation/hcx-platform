@@ -23,6 +23,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.swasth.apigateway.constants.Constants.AUTHORIZATION;
 import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.CACHED_REQUEST_BODY_ATTR;
@@ -60,7 +61,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                 Request request = new Request(JSONUtils.deserialize(cachedBody.toString(), HashMap.class));
                 correlationId = request.getCorrelationId();
                 apiCallId = request.getApiCallId();
-                request.validate(getMandatoryHeaders(), registryService.fetchDetails("osid", request.getSenderCode()), registryService.fetchDetails("osid", request.getRecipientCode()), getSubject(exchange), timestampRange);
+                request.validate(getMandatoryHeaders(), getDetails(request.getSenderCode()), getDetails(request.getRecipientCode()), getSubject(exchange), timestampRange);
             } catch (Exception e) {
                 return exceptionHandler.errorResponse(e, exchange, correlationId, apiCallId);
             }
@@ -80,6 +81,10 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
         String token = request.getHeaders().get(AUTHORIZATION).get(0).trim().split("\\s")[1].trim();
         DecodedJWT decodedJWT = this.jwtVerifier.verify(token);
         return decodedJWT.getSubject();
+    }
+
+    private Map<String,Object> getDetails(String code) throws Exception {
+        return registryService.fetchDetails("osid", code);
     }
 
     public static class Config {
