@@ -3,7 +3,7 @@ package org.swasth.common.utils;
 import java.util.Arrays;
 import java.util.List;
 
-public  class Constants {
+public class Constants {
 
     public static final String VERSION_PREFIX = "/v1";
 
