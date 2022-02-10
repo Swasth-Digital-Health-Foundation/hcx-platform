@@ -50,6 +50,8 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
     protectedMap.put(Constants.RECIPIENT_CODE, getProtocolStringValue(event,Constants.SENDER_CODE))
     //Update error details
     protectedMap.put(Constants.ERROR_DETAILS,createErrorMap(error))
+    //Update status
+    protectedMap.put(Constants.HCX_STATUS,Constants.HCX_ERROR_STATUS)
     //Updating protected map with the latest encoded values
     parsedPayload.put(Constants.PROTECTED, JSONUtil.encodeBase64Object(protectedMap))
     //TODO use the helper classes to generate empty cipher text and replace the below code, as of now sending the same cipher text
@@ -97,12 +99,14 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
         val result = DispatcherUtil.dispatch(recipientCtx, payloadJSON)
         //Adding updatedTimestamp for auditing
         event.put(Constants.UPDATED_TIME, Calendar.getInstance().getTime())
-        audit(event, result.success, context, metrics);
         if(result.success) {
+          event.get(Constants.HEADERS).asInstanceOf[util.Map[String, AnyRef]].get(Constants.PROTOCOL).asInstanceOf[util.Map[String, AnyRef]].put(Constants.HCX_STATUS, Constants.HCX_DISPATCH_STATUS)
+          audit(event, result.success, context, metrics);
           metrics.incCounter(metric = config.dispatcherSuccessCount)
         }
         if(result.retry) {
           metrics.incCounter(metric = config.dispatcherRetryCount)
+          audit(event, result.success, context, metrics);
           //For retry place the incoming event into retry topic
           context.output(config.retryOutputTag, JSONUtil.serialize(event))
         }
@@ -131,7 +135,7 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
     audit.put(Constants.DEBUG_DETAILS,getProtocolMapValue(event,Constants.DEBUG_DETAILS))
     audit.put(Constants.MID,event.get(Constants.MID).asInstanceOf[String])
     audit.put(Constants.ACTION,event.get(Constants.ACTION).asInstanceOf[String])
-    audit.put(Constants.STATUS,event.get(Constants.STATUS).asInstanceOf[String])
+    audit.put(Constants.HCX_STATUS,getProtocolStringValue(event,Constants.HCX_STATUS))
     audit.put(Constants.REQUESTED_TIME,event.get(Constants.ETS))
     audit.put(Constants.UPDATED_TIME,event.getOrDefault(Constants.UPDATED_TIME, Calendar.getInstance().getTime()))
     audit.put(Constants.AUDIT_TIMESTAMP, Calendar.getInstance().getTime())
