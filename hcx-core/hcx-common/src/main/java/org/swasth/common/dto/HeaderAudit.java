@@ -26,6 +26,7 @@ public class HeaderAudit {
 	private long updatedTimestamp;
 	private String action;
 	private String mid;
+	@JsonProperty("x-hcx-status")
 	private String status;
 
 	public HeaderAudit() {}
