@@ -25,6 +25,8 @@ postgres:
   password: ${postgres_password:postgres}
   tablename: ${postgres_tablename:payload}
 
+#todo - add error headers
+
 #hcx headers
 protocol:
   headers:

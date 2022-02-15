@@ -27,6 +27,7 @@ public class EventGenerator {
     }
 
     public String generateMetadataEvent(String mid, String apiAction, Request request) throws Exception {
+        //TODO - Need modifications for error headers
         Map<String,Object> event = new HashMap<>();
         List<String> protocolHeaders = env.getProperty(PROTOCOL_HEADERS_MANDATORY, List.class);
         protocolHeaders.addAll(env.getProperty(PROTOCOL_HEADERS_OPTIONAL, List.class));
