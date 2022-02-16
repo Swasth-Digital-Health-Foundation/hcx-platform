@@ -38,7 +38,7 @@ public class Request{
         }
     }
 
-    public void validate(List<String> mandatoryHeaders, Map<String, Object> senderDetails, Map<String, Object> recipientDetails, List<Object> auditData, String apiAction, String subject, int timestampRange) throws ClientException {
+    public void validate(List<String> mandatoryHeaders, Map<String, Object> senderDetails, Map<String, Object> recipientDetails, String subject, int timestampRange) throws ClientException {
 
         List<String> missingHeaders = mandatoryHeaders.stream().filter(key -> !hcxHeaders.containsKey(key)).collect(Collectors.toList());
         if (!missingHeaders.isEmpty()) {
@@ -67,18 +67,9 @@ public class Request{
             validateDetails(getDebugDetails(), ErrorCodes.ERR_INVALID_DEBUG_DETAILS, "Debug details cannot be null, empty and other than 'JSON Object'", ERROR_DETAILS_VALUES, "Debug details should contain only: ");
         }
 
-        if(ON_ACTION_APIS.contains(apiAction)) {
-            validateCondition(auditData.isEmpty(), ErrorCodes.ERR_INVALID_CORRELATION_ID, "The on_action request should contain the same correlation id as in corresponding action request");
-            Map<String,Object> auditEvent = (Map<String, Object>) auditData.get(0);
-            if(auditEvent.containsKey(WORKFLOW_ID)) {
-                validateCondition(!getWorkflowId().equals(auditEvent.get(WORKFLOW_ID)), ErrorCodes.ERR_INVALID_WORKFLOW_ID, "he on_action request should contain the same workflow id as in corresponding action request");
-            }
-        } else {
-            validateCondition(!auditData.isEmpty(), ErrorCodes.ERR_INVALID_CORRELATION_ID, "Request already exist with same correlation id");
-        }
     }
 
-    private void validateCondition(Boolean condition, ErrorCodes errorcode, String msg) throws ClientException {
+    public void validateCondition(Boolean condition, ErrorCodes errorcode, String msg) throws ClientException {
         if(condition){
             throw new ClientException(errorcode, msg);
         }
