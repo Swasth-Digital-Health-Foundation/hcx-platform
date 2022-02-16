@@ -28,8 +28,16 @@ public class Constants {
     // Search APIs
     public static final String HCX_SEARCH = VERSION_PREFIX + "/hcx/search";
     public static final String HCX_ON_SEARCH = VERSION_PREFIX + "/hcx/on_search";
+    
+    //Communication APIs
+    public static final String COMMUNICATION_REQUEST = VERSION_PREFIX + "/communication/request";
+    public static final String COMMUNICATION_ONREQUEST = VERSION_PREFIX + "/communication/on_request";
 
-    public static final List<String> ON_ACTION_APIS = Arrays.asList(COVERAGE_ELIGIBILITY_ONCHECK, PRE_AUTH_ONSUBMIT, CLAIM_ONSUBMIT, PAYMENT_NOTICE_ONREQUEST, HCX_ONSTATUS, HCX_ON_SEARCH);
+    //Predetermination APIs
+    public static final String PREDETERMINATION_SUBMIT = VERSION_PREFIX + "/predetermination/submit";
+    public static final String PREDETERMINATION_ONSUBMIT = VERSION_PREFIX + "/predetermination/on_submit";
+
+    public static final List<String> ON_ACTION_APIS = Arrays.asList(COVERAGE_ELIGIBILITY_ONCHECK, PRE_AUTH_ONSUBMIT, CLAIM_ONSUBMIT, PAYMENT_NOTICE_ONREQUEST, HCX_ONSTATUS, HCX_ON_SEARCH, COMMUNICATION_ONREQUEST, PREDETERMINATION_ONSUBMIT);
 
     public static final String HEALTHY = "healthy";
     public static final String NAME = "name";
