@@ -5,6 +5,32 @@ import java.util.List;
 
 public class Constants {
 
+    public static final String VERSION_PREFIX = "/v1";
+
+    // Coverage Eligibility APIs
+    public static final String COVERAGE_ELIGIBILITY_CHECK = VERSION_PREFIX + "/coverageeligibility/check";
+    public static final String COVERAGE_ELIGIBILITY_ONCHECK = VERSION_PREFIX + "/coverageeligibility/on_check";
+
+    // Claims APIs
+    public static final String PRE_AUTH_SUBMIT = VERSION_PREFIX + "/preauth/submit";
+    public static final String PRE_AUTH_ONSUBMIT = VERSION_PREFIX + "/preauth/on_submit";
+    public static final String CLAIM_SUBMIT = VERSION_PREFIX + "/claim/submit";
+    public static final String CLAIM_ONSUBMIT = VERSION_PREFIX + "/claim/on_submit";
+
+    //Payment Notice APIs
+    public static final String PAYMENT_NOTICE_REQUEST = VERSION_PREFIX + "/paymentnotice/request";
+    public static final String PAYMENT_NOTICE_ONREQUEST = VERSION_PREFIX + "/paymentnotice/on_request";
+
+    //Status Search APIs
+    public static final String HCX_STATUS = VERSION_PREFIX + "/hcx/status";
+    public static final String HCX_ONSTATUS = VERSION_PREFIX + "/hcx/on_status";
+
+    // Search APIs
+    public static final String HCX_SEARCH = VERSION_PREFIX + "/hcx/search";
+    public static final String HCX_ON_SEARCH = VERSION_PREFIX + "/hcx/on_search";
+
+    public static final List<String> ON_ACTION_APIS = Arrays.asList(COVERAGE_ELIGIBILITY_ONCHECK, PRE_AUTH_ONSUBMIT, CLAIM_ONSUBMIT, PAYMENT_NOTICE_ONREQUEST, HCX_ONSTATUS, HCX_ON_SEARCH);
+
     public static final int PAYLOAD_LENGTH = 5;
     public static final String AUTH_REQUIRED = "AUTH_REQUIRED";
     public static final String X_JWT_SUB_HEADER = "X-jwt-sub";

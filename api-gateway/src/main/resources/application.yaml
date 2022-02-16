@@ -26,6 +26,9 @@ redis:
 registry:
   basePath: ${REGISTRY_BASE_PATH:http://localhost:8081}
 
+hcx-api:
+  basePath: ${HCX_API_BASEPATH:http://localhost:8080}
+
 spring:
   main:
     web-application-type: reactive
