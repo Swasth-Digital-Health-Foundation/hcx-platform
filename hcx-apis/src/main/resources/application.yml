@@ -11,8 +11,6 @@ kafka:
     status: ${kafka_status_topic:hcx.request.status.search}
     search: ${kafka_search_topic:hcx.request.search}
     searchresponse: ${kafka_search_response_topic:hcx.response.search}
-    communication: ${kafka_communication_topic:hcx.request.communication}
-    predetermination: ${kafka_predetermination_topic:hcx.request.predetermination}
 
 service:
   mode: ${service_mode:gateway}

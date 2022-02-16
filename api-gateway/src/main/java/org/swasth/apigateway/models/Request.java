@@ -58,9 +58,8 @@ public class Request{
         if (hcxHeaders.containsKey(DEBUG_FLAG)) {
             validateValues(getDebugFlag(), ErrorCodes.ERR_INVALID_DEBUG_FLAG, "Debug flag cannot be null, empty and other than 'String'", DEBUG_FLAG_VALUES, "Debug flag cannot be other than Error, Info or Debug");
         }
-        if (hcxHeaders.containsKey(STATUS)) {
-            validateValues(getStatus(), ErrorCodes.ERR_INVALID_STATUS, "Status cannot be null, empty and other than 'String'", STATUS_VALUES, "Status value can be only: ");
-        }
+        validateValues(getStatus(), ErrorCodes.ERR_INVALID_STATUS, "Status cannot be null, empty and other than 'String'", STATUS_VALUES, "Status value can be only: ");
+
         if (hcxHeaders.containsKey(ERROR_DETAILS)) {
             validateDetails(getErrorDetails(), ErrorCodes.ERR_INVALID_ERROR_DETAILS, "Error details cannot be null, empty and other than 'JSON Object'", ERROR_DETAILS_VALUES, "Error details should contain only: ");
         }

@@ -7,7 +7,6 @@ rbac:
   - role: provider
     paths:
       - /v1/coverageeligibility/check
-      - /v1/predetermination/submit
       - /v1/preauth/submit
       - /v1/claim/submit
       - /v1/paymentnotice/on_request
@@ -18,7 +17,6 @@ rbac:
   - role: payor
     paths:
       - /v1/coverageeligibility/on_check
-      - /v1/predetermination/on_submit
       - /v1/preauth/on_submit
       - /v1/claim/on_submit
       - /v1/paymentnotice/request
@@ -29,7 +27,6 @@ rbac:
   - role: agency.tpa
     paths:
       - /v1/coverageeligibility/on_check
-      - /v1/predetermination/on_submit
       - /v1/preauth/on_submit
       - /v1/claim/on_submit
       - /v1/paymentnotice/request
@@ -46,7 +43,6 @@ rbac:
   - role: research
     paths:
       - /v1/coverageeligibility/on_check
-      - /v1/predetermination/on_submit
       - /v1/hcx/status
       - /v1/audit/search
       - /participant/search
@@ -54,7 +50,6 @@ rbac:
   - role: member.isnp
     paths:
       - /v1/coverageeligibility/on_check
-      - /v1/predetermination/on_submit
       - /v1/hcx/status
       - /v1/audit/search
       - /participant/search
@@ -62,7 +57,6 @@ rbac:
   - role: agency.sponsor
     paths:
       - /v1/coverageeligibility/on_check
-      - /v1/predetermination/on_submit
       - /v1/preauth/on_submit
       - /v1/claim/on_submit
       - /v1/paymentnotice/request
