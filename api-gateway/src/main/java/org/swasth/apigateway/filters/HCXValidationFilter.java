@@ -2,6 +2,7 @@ package org.swasth.apigateway.filters;
 
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import org.swasth.apigateway.exception.ErrorCodes;
 import org.swasth.apigateway.helpers.ExceptionHandler;
 import org.swasth.apigateway.models.Request;
 import org.swasth.apigateway.service.AuditService;
@@ -23,9 +24,8 @@ import org.springframework.web.server.ServerWebExchange;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-import static org.swasth.apigateway.constants.Constants.AUTHORIZATION;
 import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.CACHED_REQUEST_BODY_ATTR;
-import static org.swasth.apigateway.constants.Constants.CORRELATION_ID;
+import static org.swasth.apigateway.constants.Constants.*;
 
 @Component
 public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidationFilter.Config> {
@@ -64,12 +64,26 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                 Request request = new Request(JSONUtils.deserialize(cachedBody.toString(), HashMap.class));
                 correlationId = request.getCorrelationId();
                 apiCallId = request.getApiCallId();
-                request.validate(getMandatoryHeaders(), getDetails(request.getSenderCode()), getDetails(request.getRecipientCode()), getAuditData(Collections.singletonMap(CORRELATION_ID, request.getCorrelationId())), path, getSubject(exchange), timestampRange);
+                request.validate(getMandatoryHeaders(), getDetails(request.getSenderCode()), getDetails(request.getRecipientCode()), getSubject(exchange), timestampRange);
+                validateUsingAuditData(path, request);
             } catch (Exception e) {
                 return exceptionHandler.errorResponse(e, exchange, correlationId, apiCallId);
             }
             return chain.filter(exchange);
         };
+    }
+
+    private void validateUsingAuditData(String apiAction, Request request) throws Exception {
+        List<Object> auditData = getAuditData(Collections.singletonMap(CORRELATION_ID, request.getCorrelationId()));
+        if(ON_ACTION_APIS.contains(apiAction)) {
+            request.validateCondition(auditData.isEmpty(), ErrorCodes.ERR_INVALID_CORRELATION_ID, "The on_action request should contain the same correlation id as in corresponding action request");
+            Map<String,Object> auditEvent = (Map<String, Object>) auditData.get(0);
+            if(auditEvent.containsKey(WORKFLOW_ID)) {
+                request.validateCondition(!request.getWorkflowId().equals(auditEvent.get(WORKFLOW_ID)), ErrorCodes.ERR_INVALID_WORKFLOW_ID, "he on_action request should contain the same workflow id as in corresponding action request");
+            }
+        } else {
+            request.validateCondition(!auditData.isEmpty(), ErrorCodes.ERR_INVALID_CORRELATION_ID, "Request already exist with same correlation id");
+        }
     }
 
     private List<String> getMandatoryHeaders() {
