@@ -39,6 +39,7 @@ public class Request{
     }
 
     public void validate(List<String> mandatoryHeaders, Map<String, Object> senderDetails, Map<String, Object> recipientDetails, String subject, int timestampRange) throws ClientException {
+
         List<String> missingHeaders = mandatoryHeaders.stream().filter(key -> !hcxHeaders.containsKey(key)).collect(Collectors.toList());
         if (!missingHeaders.isEmpty()) {
             throw new ClientException(ErrorCodes.ERR_MANDATORY_HEADERFIELD_MISSING, "Mandatory headers are missing: " + missingHeaders);
@@ -69,7 +70,7 @@ public class Request{
 
     }
 
-    private void validateCondition(Boolean condition, ErrorCodes errorcode, String msg) throws ClientException {
+    public void validateCondition(Boolean condition, ErrorCodes errorcode, String msg) throws ClientException {
         if(condition){
             throw new ClientException(errorcode, msg);
         }

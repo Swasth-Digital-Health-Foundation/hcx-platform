@@ -1,10 +1,7 @@
 package org.swasth.common.dto;
 
-import org.swasth.common.exception.ClientException;
-import org.swasth.common.exception.ErrorCodes;
 import org.swasth.common.utils.JSONUtils;
 
-import java.util.List;
 import java.util.Map;
 
 import static org.swasth.common.utils.Constants.*;
@@ -17,24 +14,6 @@ public class Request {
     public Request(Map<String, Object> body) throws Exception {
         this.payload = body;
         this.hcxHeaders = JSONUtils.decodeBase64String(((String) body.get(PAYLOAD)).split("\\.")[0], Map.class);
-    }
-
-    public void validate(List<HeaderAudit> auditResponse, String apiAction) throws ClientException {
-        if(ON_ACTION_APIS.contains(apiAction)) {
-            validateCondition(auditResponse.isEmpty(), ErrorCodes.ERR_INVALID_CORRELATION_ID, "The on_action request should contain the same correlation id as in corresponding action request");
-            HeaderAudit auditData = auditResponse.get(0);
-            if(!auditData.getWorkflow_id().isEmpty()) {
-                validateCondition(!getWorkflowId().equals(auditData.getWorkflow_id()), ErrorCodes.ERR_INVALID_WORKFLOW_ID, "he on_action request should contain the same workflow id as in corresponding action request");
-            }
-        } else {
-            validateCondition(!auditResponse.isEmpty(), ErrorCodes.ERR_INVALID_CORRELATION_ID, "Request already exist with same correlation id");
-        }
-    }
-
-    private void validateCondition(Boolean condition, ErrorCodes errorcode, String msg) throws ClientException {
-        if(condition){
-            throw new ClientException(errorcode, msg);
-        }
     }
 
     // TODO remove this method. We should restrict accessing it to have a clean code.
