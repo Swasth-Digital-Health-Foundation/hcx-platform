@@ -29,7 +29,15 @@ public interface Constants {
     String HCX_SEARCH = VERSION_PREFIX + "/hcx/search";
     String HCX_ON_SEARCH = VERSION_PREFIX + "/hcx/on_search";
 
-    List<String> ON_ACTION_APIS = Arrays.asList(COVERAGE_ELIGIBILITY_ONCHECK, PRE_AUTH_ONSUBMIT, CLAIM_ONSUBMIT, PAYMENT_NOTICE_ONREQUEST, HCX_ONSTATUS, HCX_ON_SEARCH);
+    //Communication APIs
+    String COMMUNICATION_REQUEST = VERSION_PREFIX + "/communication/request";
+    String COMMUNICATION_ONREQUEST = VERSION_PREFIX + "/communication/on_request";
+
+    //Predetermination APIs
+    String PREDETERMINATION_SUBMIT = VERSION_PREFIX + "/predetermination/submit";
+    String PREDETERMINATION_ONSUBMIT = VERSION_PREFIX + "/predetermination/on_submit";
+
+    List<String> ON_ACTION_APIS = Arrays.asList(COVERAGE_ELIGIBILITY_ONCHECK, PRE_AUTH_ONSUBMIT, CLAIM_ONSUBMIT, PAYMENT_NOTICE_ONREQUEST, HCX_ONSTATUS, HCX_ON_SEARCH, COMMUNICATION_ONREQUEST, PREDETERMINATION_ONSUBMIT);
 
     String HEALTHY = "healthy";
     String NAME = "name";
