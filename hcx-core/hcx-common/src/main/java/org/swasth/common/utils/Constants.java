@@ -37,8 +37,6 @@ public class Constants {
     public static final String PREDETERMINATION_SUBMIT = VERSION_PREFIX + "/predetermination/submit";
     public static final String PREDETERMINATION_ONSUBMIT = VERSION_PREFIX + "/predetermination/on_submit";
 
-    public static final List<String> ON_ACTION_APIS = Arrays.asList(COVERAGE_ELIGIBILITY_ONCHECK, PRE_AUTH_ONSUBMIT, CLAIM_ONSUBMIT, PAYMENT_NOTICE_ONREQUEST, HCX_ONSTATUS, HCX_ON_SEARCH, COMMUNICATION_ONREQUEST, PREDETERMINATION_ONSUBMIT);
-
     public static final String HEALTHY = "healthy";
     public static final String NAME = "name";
     public static final String KAFKA = "kafka";
