@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.swasth.common.dto.Request;
+import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
 
 import java.util.HashMap;
@@ -27,35 +28,52 @@ public class EventGenerator {
     }
 
     public String generateMetadataEvent(String mid, String apiAction, Request request) throws Exception {
-        //TODO - Need modifications for error headers
         Map<String,Object> event = new HashMap<>();
-        List<String> protocolHeaders = env.getProperty(PROTOCOL_HEADERS_MANDATORY, List.class);
-        protocolHeaders.addAll(env.getProperty(PROTOCOL_HEADERS_OPTIONAL, List.class));
-        List<String> joseHeaders = env.getProperty(JOSE_HEADERS, List.class);
-        Map<String,Object> protectedHeaders = request.getHcxHeaders();
-        Map<String,Object> filterJoseHeaders = new HashMap<>();
-        Map<String,Object> filterProtocolHeaders = new HashMap<>();
-        joseHeaders.forEach(key -> {
-            if (protectedHeaders.containsKey(key))
-                filterJoseHeaders.put(key, protectedHeaders.get(key));
-        });
-        protocolHeaders.forEach(key -> {
-            if (protectedHeaders.containsKey(key))
-                filterProtocolHeaders.put(key, protectedHeaders.get(key));
-        });
-        event.put(MID, mid);
-        event.put(ETS, System.currentTimeMillis());
-        event.put(ACTION, apiAction);
-        event.put(HEADERS, new HashMap<>(){{
-            put(JOSE, filterJoseHeaders);
-            put(PROTOCOL, filterProtocolHeaders);
-        }});
-        event.put(LOG_DETAILS, new HashMap<>(){{
-            put(CODE, "");
-            put(MESSAGE, "");
-            put(TRACE, "");
-        }});
-        event.put("status", "request.queued");
+        if(request.getPayload().containsKey(PAYLOAD)) {
+            List<String> protocolHeaders = env.getProperty(PROTOCOL_HEADERS_MANDATORY, List.class);
+            protocolHeaders.addAll(env.getProperty(PROTOCOL_HEADERS_OPTIONAL, List.class));
+            List<String> joseHeaders = env.getProperty(JOSE_HEADERS, List.class);
+            Map<String,Object> protectedHeaders = request.getHcxHeaders();
+            Map<String,Object> filterJoseHeaders = new HashMap<>();
+            Map<String,Object> filterProtocolHeaders = new HashMap<>();
+            joseHeaders.forEach(key -> {
+                if (protectedHeaders.containsKey(key))
+                    filterJoseHeaders.put(key, protectedHeaders.get(key));
+            });
+            protocolHeaders.forEach(key -> {
+                if (protectedHeaders.containsKey(key))
+                    filterProtocolHeaders.put(key, protectedHeaders.get(key));
+            });
+            event.put(MID, mid);
+            event.put(ETS, System.currentTimeMillis());
+            event.put(ACTION, apiAction);
+            event.put(HEADERS, new HashMap<>(){{
+                put(JOSE, filterJoseHeaders);
+                put(PROTOCOL, filterProtocolHeaders);
+            }});
+            event.put(LOG_DETAILS, new HashMap<>(){{
+                put(CODE, "");
+                put(MESSAGE, "");
+                put(TRACE, "");
+            }});
+            event.put("status", "request.queued");
+        } else {
+            List<String> protocolHeaders = env.getProperty(ERROR_HEADERS_MANDATORY, List.class);
+            protocolHeaders.addAll(env.getProperty(ERROR_HEADERS_OPTIONAL, List.class));
+            Map<String, Object> protectedHeaders = request.getHcxHeaders();
+            Map<String, Object> filterProtocolHeaders = new HashMap<>();
+            protocolHeaders.forEach(key -> {
+                if (protectedHeaders.containsKey(key))
+                    filterProtocolHeaders.put(key, protectedHeaders.get(key));
+            });
+            event.put(MID, mid);
+            event.put(ETS, System.currentTimeMillis());
+            event.put(ACTION, apiAction);
+            event.put(HEADERS, new HashMap<>() {{
+                put(PROTOCOL, filterProtocolHeaders);
+            }});
+            event.put("status", "request.queued");
+        }
         return JSONUtils.serialize(event);
     }
 }

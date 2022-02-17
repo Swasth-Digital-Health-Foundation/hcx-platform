@@ -2,6 +2,7 @@ package org.swasth.common.dto;
 
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
+import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
 
 import java.util.List;
@@ -16,7 +17,11 @@ public class Request {
 
     public Request(Map<String, Object> body) throws Exception {
         this.payload = body;
-        this.hcxHeaders = JSONUtils.decodeBase64String(((String) body.get(PAYLOAD)).split("\\.")[0], Map.class);
+        if(!((String) body.get(PAYLOAD)).isEmpty()) {
+            this.hcxHeaders = JSONUtils.decodeBase64String(((String) body.get(PAYLOAD)).split("\\.")[0], Map.class);
+        } else {
+            this.hcxHeaders = body;
+        }
     }
 
     public void validate(List<HeaderAudit> auditResponse, String apiAction) throws ClientException {

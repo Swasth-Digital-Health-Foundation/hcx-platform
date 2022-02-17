@@ -53,6 +53,8 @@ public class Constants {
 
     //Request props
     public static final String PROTOCOL_HEADERS_MANDATORY = "protocol.headers.mandatory";
+    public static final String ERROR_HEADERS_MANDATORY = "error.headers.mandatory";
+    public static final String ERROR_HEADERS_OPTIONAL = "error.headers.optional";
     public static final String PROTOCOL_HEADERS_OPTIONAL = "protocol.headers.optional";
     public static final String JOSE_HEADERS = "headers.jose";
     public static final String DOMAIN_HEADERS = "headers.domain";

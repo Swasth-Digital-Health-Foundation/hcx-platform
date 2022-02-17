@@ -2,7 +2,9 @@ package org.swasth.apigateway.filters;
 
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import org.swasth.apigateway.constants.Constants;
 import org.swasth.apigateway.helpers.ExceptionHandler;
+import org.swasth.apigateway.models.ErrorRequest;
 import org.swasth.apigateway.models.Request;
 import org.swasth.apigateway.service.RegistryService;
 import org.swasth.apigateway.utils.JSONUtils;
@@ -58,10 +60,16 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
             String apiCallId = null;
             try {
                 StringBuilder cachedBody = new StringBuilder(StandardCharsets.UTF_8.decode(((DataBuffer) exchange.getAttribute(CACHED_REQUEST_BODY_ATTR)).asByteBuffer()));
-                Request request = new Request(JSONUtils.deserialize(cachedBody.toString(), HashMap.class));
-                correlationId = request.getCorrelationId();
-                apiCallId = request.getApiCallId();
-                request.validate(getMandatoryHeaders(), getDetails(request.getSenderCode()), getDetails(request.getRecipientCode()), getSubject(exchange), timestampRange);
+                Map<String,Object> requestBody = JSONUtils.deserialize(cachedBody.toString(), HashMap.class);
+                if(requestBody.containsKey(Constants.PAYLOAD)) {
+                    Request request = new Request(requestBody);
+                    correlationId = request.getCorrelationId();
+                    apiCallId = request.getApiCallId();
+                    request.validate(getMandatoryHeaders(), getDetails(request.getSenderCode()), getDetails(request.getRecipientCode()), getSubject(exchange), timestampRange);
+                } else {
+                    ErrorRequest request = new ErrorRequest(requestBody);
+                    request.validate(getDetails((String) requestBody.get(Constants.SENDER_CODE)),getDetails((String) requestBody.get(Constants.RECIPIENT_CODE)));
+                }
             } catch (Exception e) {
                 return exceptionHandler.errorResponse(e, exchange, correlationId, apiCallId);
             }

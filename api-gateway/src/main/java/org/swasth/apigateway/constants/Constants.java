@@ -26,5 +26,6 @@ public class Constants {
     public static final String BLOCKED = "Blocked";
     public static final String INACTIVE = "Inactive";
     public static final String OS_OWNER = "osOwner";
+    public static final String ERROR_RESPONSE = "response.error";
 
 }
