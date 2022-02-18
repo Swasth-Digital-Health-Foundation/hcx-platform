@@ -12,6 +12,9 @@ headers:
 timestamp:
   range: ${timestamp_range:10000}
 
+allowedEntitiesForForward: ${allowedEntitiesForForward:coverageeligibility}
+allowedRolesForForward: ${allowedRolesForForward:payor, agency.tpa}
+
 jwt:
   enabled: ${JWT_ENABLED:true}
   issuer: ${JWT_ISSUER:}

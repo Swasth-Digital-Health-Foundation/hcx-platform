@@ -2,6 +2,7 @@ package org.swasth.apigateway.filters;
 
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import org.swasth.apigateway.exception.ClientException;
 import org.swasth.apigateway.exception.ErrorCodes;
 import org.swasth.apigateway.helpers.ExceptionHandler;
 import org.swasth.apigateway.models.Request;
@@ -43,10 +44,16 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
     ExceptionHandler exceptionHandler;
 
     @Autowired
-    protected Environment env;
+    private Environment env;
 
     @Value("${timestamp.range}")
-    protected int timestampRange;
+    private int timestampRange;
+
+    @Value("${allowedEntitiesForForward}")
+    private List<String> allowedEntitiesForForward;
+
+    @Value("${allowedRolesForForward}")
+    private List<String> allowedRolesForForward;
 
     public HCXValidationFilter(@Qualifier("jwk") JWTVerifier jwtVerifier) {
         super(Config.class);
@@ -64,8 +71,10 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                 Request request = new Request(JSONUtils.deserialize(cachedBody.toString(), HashMap.class));
                 correlationId = request.getCorrelationId();
                 apiCallId = request.getApiCallId();
-                request.validate(getMandatoryHeaders(), getDetails(request.getSenderCode()), getDetails(request.getRecipientCode()), getSubject(exchange), timestampRange);
-                validateUsingAuditData(path, request);
+                Map<String,Object> senderDetails = getDetails(request.getSenderCode());
+                Map<String,Object> recipientDetails = getDetails(request.getRecipientCode());
+                request.validate(getMandatoryHeaders(), senderDetails, recipientDetails, getSubject(exchange), timestampRange);
+                validateUsingAuditData(request, senderDetails, recipientDetails, path);
             } catch (Exception e) {
                 return exceptionHandler.errorResponse(e, exchange, correlationId, apiCallId);
             }
@@ -73,16 +82,40 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
         };
     }
 
-    private void validateUsingAuditData(String apiAction, Request request) throws Exception {
-        List<Object> auditData = getAuditData(Collections.singletonMap(CORRELATION_ID, request.getCorrelationId()));
-        if(ON_ACTION_APIS.contains(apiAction)) {
-            request.validateCondition(auditData.isEmpty(), ErrorCodes.ERR_INVALID_CORRELATION_ID, "The on_action request should contain the same correlation id as in corresponding action request");
-            Map<String,Object> auditEvent = (Map<String, Object>) auditData.get(0);
-            if(auditEvent.containsKey(WORKFLOW_ID)) {
-                request.validateCondition(!request.getWorkflowId().equals(auditEvent.get(WORKFLOW_ID)), ErrorCodes.ERR_INVALID_WORKFLOW_ID, "he on_action request should contain the same workflow id as in corresponding action request");
+    private void validateUsingAuditData(Request request, Map<String,Object> senderDetails, Map<String,Object> recipientDetails, String path) throws Exception {
+        if(!getAuditData(Collections.singletonMap(API_CALL_ID, request.getApiCallId())).isEmpty()){
+            throw new ClientException(ErrorCodes.ERR_INVALID_API_CALL_ID, "Request exist with same api call id");
+        }
+        List<Map<String,Object>> auditData = getAuditData(Collections.singletonMap(CORRELATION_ID, request.getCorrelationId()));
+        // validate request cycle is not closed
+        for(Map<String,Object> audit: auditData){
+            String action = (String) audit.get(ACTION);
+            String entity = getEntity(action);
+            if(!OPERATIONAL_ENTITIES.contains(entity) && action.contains("on_") && ((List<String>) audit.get(RECIPIENT_ROLE)).contains(PROVIDER) && audit.get(STATUS).equals(STATUS_COMPLETE)){
+                throw new ClientException("Invalid request, cycle is closed for correlation id");
             }
-        } else {
-            request.validateCondition(!auditData.isEmpty(), ErrorCodes.ERR_INVALID_CORRELATION_ID, "Request already exist with same correlation id");
+        }
+        if(path.contains("on_")) {
+            Map<String,String> filters = new HashMap<>();
+            filters.put(SENDER_CODE, request.getRecipientCode());
+            filters.put(RECIPIENT_CODE, request.getSenderCode());
+            filters.put(CORRELATION_ID, request.getCorrelationId());
+            List<Map<String,Object>> onActionAuditData = getAuditData(filters);
+            validateCorrelationId(onActionAuditData, "Invalid on_action request, corresponding action request does not exist");
+            validateWorkflowId(request, onActionAuditData.get(0));
+        }
+        // forward flow validations
+        if(isForwardRequest((List<String>) senderDetails.get(ROLES), (List<String>) recipientDetails.get(ROLES))){
+            if(!allowedEntitiesForForward.contains(getEntity(path))){
+                throw new ClientException("Entity is not allowed for forwarding");
+            }
+            validateCorrelationId(auditData, "The request contains invalid correlation id");
+            validateWorkflowId(request, auditData.get(0));
+            for(Map<String,Object> audit: auditData){
+                if(!request.getRecipientCode().equals(audit.get(SENDER_CODE))){
+                    throw new ClientException("Invalid forward request, cannot forward the request to the forward initiators");
+                }
+            }
         }
     }
 
@@ -104,8 +137,45 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
         return registryService.fetchDetails("osid", code);
     }
 
-    private List<Object> getAuditData(Map<String,Object> filters) throws Exception {
+    private List<Map<String, Object>> getAuditData(Map<String,String> filters) throws Exception {
         return auditService.getAuditLogs(filters);
+    }
+
+    private void validateCorrelationId(List<Map<String,Object>> auditData, String errMsg) throws ClientException {
+        if (auditData.isEmpty()) {
+            throw new ClientException(ErrorCodes.ERR_INVALID_CORRELATION_ID, errMsg);
+        }
+    }
+
+    private void validateWorkflowId(Request request, Map<String, Object> auditEvent) throws ClientException {
+        if (auditEvent.containsKey(WORKFLOW_ID)) {
+            if (!request.getHcxHeaders().containsKey(WORKFLOW_ID) && !request.getWorkflowId().equals(auditEvent.get(WORKFLOW_ID))) {
+                throw new ClientException(ErrorCodes.ERR_INVALID_WORKFLOW_ID, "The request contains invalid workflow id");
+            }
+        }
+    }
+
+    private boolean isForwardRequest(List<String> senderRoles, List<String> recipientRoles){
+        for(String senderRole: senderRoles){
+            if (allowedRolesForForward.contains(senderRole)) {
+                for (String recipientRole : recipientRoles) {
+                    if (allowedRolesForForward.contains(recipientRole))
+                        return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public String getEntity(String path){
+        if (path.contains("status")) {
+            return "status";
+        } else if (path.contains("search")) {
+            return "search";
+        } else {
+            String[] str = path.split("/");
+            return str[str.length-2];
+        }
     }
 
     public static class Config {

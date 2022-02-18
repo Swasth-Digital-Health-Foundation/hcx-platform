@@ -17,6 +17,7 @@ rbac:
       - /participant/update
   - role: payor
     paths:
+      - /v1/coverageeligibility/check
       - /v1/coverageeligibility/on_check
       - /v1/predetermination/on_submit
       - /v1/preauth/on_submit
@@ -28,6 +29,7 @@ rbac:
       - /participant/update
   - role: agency.tpa
     paths:
+      - /v1/coverageeligibility/check
       - /v1/coverageeligibility/on_check
       - /v1/predetermination/on_submit
       - /v1/preauth/on_submit
