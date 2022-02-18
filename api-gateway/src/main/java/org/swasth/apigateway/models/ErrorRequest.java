@@ -21,6 +21,7 @@ public class ErrorRequest {
 
     public ErrorRequest(Map<String, Object> body) throws ClientException {
         try {
+            System.out.println("Coming Error Request-----1");
             this.errorRequest = body;
         } catch (Exception e) {
             throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, "Invalid payload");
@@ -28,6 +29,8 @@ public class ErrorRequest {
     }
 
     public void validate(List<String> mandatoryHeaders,Map<String, Object> senderDetails, Map<String, Object> recipientDetails, String subject) throws ClientException {
+        System.out.println("Coming Error Request-----2");
+
         List<String> missingHeaders = mandatoryHeaders.stream().filter(key -> !errorRequest.containsKey(key)).collect(Collectors.toList());
         if (!missingHeaders.isEmpty()) {
             throw new ClientException(ErrorCodes.ERR_MANDATORY_HEADERFIELD_MISSING, "Mandatory headers are missing: " + missingHeaders);
