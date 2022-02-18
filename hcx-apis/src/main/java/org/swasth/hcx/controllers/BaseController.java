@@ -75,6 +75,7 @@ public class BaseController {
             processAndSendEvent(apiAction, kafkaTopic, request);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
+            System.out.println("Exception_________"+e);
             return exceptionHandler(response, e);
         }
     }
