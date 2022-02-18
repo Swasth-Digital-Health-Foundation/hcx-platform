@@ -17,7 +17,7 @@ public class Request {
 
     public Request(Map<String, Object> body) throws Exception {
         this.payload = body;
-        if(!((String) body.get(PAYLOAD)).isEmpty()) {
+        if(body.containsKey(PAYLOAD)) {
             this.hcxHeaders = JSONUtils.decodeBase64String(((String) body.get(PAYLOAD)).split("\\.")[0], Map.class);
         } else {
             this.hcxHeaders = body;
