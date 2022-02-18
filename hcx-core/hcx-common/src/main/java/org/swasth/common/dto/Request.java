@@ -17,16 +17,11 @@ public class Request {
 
     public Request(Map<String, Object> body) throws Exception {
         this.payload = body;
-        try{
-            if(body.containsKey(PAYLOAD)) {
-                this.hcxHeaders = JSONUtils.decodeBase64String(((String) body.get(PAYLOAD)).split("\\.")[0], Map.class);
-            } else {
-                this.hcxHeaders = body;
-            }
-        } catch (ClientException e) {
-            throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, "Invalid payload");
+        if(body.containsKey(PAYLOAD)) {
+            this.hcxHeaders = JSONUtils.decodeBase64String(((String) body.get(PAYLOAD)).split("\\.")[0], Map.class);
+        } else {
+            this.hcxHeaders = body;
         }
-
     }
 
     public void validate(List<HeaderAudit> auditResponse, String apiAction) throws ClientException {

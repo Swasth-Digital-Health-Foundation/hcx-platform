@@ -21,43 +21,31 @@ public class ErrorRequest {
 
     public ErrorRequest(Map<String, Object> body) throws ClientException {
         try {
-            System.out.println("Coming Error Request-----1");
             this.errorRequest = body;
-            System.out.println("this.errorRequest-----"+errorRequest);
         } catch (Exception e) {
             throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, "Invalid payload");
         }
     }
 
     public void validate(List<String> mandatoryHeaders,Map<String, Object> senderDetails, Map<String, Object> recipientDetails, String subject) throws ClientException {
-        System.out.println("Coming Error Request-----2");
-
         List<String> missingHeaders = mandatoryHeaders.stream().filter(key -> !errorRequest.containsKey(key)).collect(Collectors.toList());
         if (!missingHeaders.isEmpty()) {
             throw new ClientException(ErrorCodes.ERR_MANDATORY_HEADERFIELD_MISSING, "Mandatory headers are missing: " + missingHeaders);
         }
-        System.out.println("Coming Error Request-----3");
 
 
         String correlationId = (String) errorRequest.get(Constants.CORRELATION_ID);
         validateCondition(!Utils.isUUID(correlationId), ErrorCodes.ERR_INVALID_CORRELATION_ID, "Correlation id should be a valid UUID");
 
-        System.out.println("Coming Error Request-----4");
-
         String status = (String) errorRequest.get(Constants.STATUS);
         validateCondition(!status.equals(Constants.ERROR_RESPONSE), ErrorCodes.ERR_INVALID_STATUS, "Invalid Status");
 
-        System.out.println("Coming Error Request-----5");
-
         Map<String, Object> errorDetails = (Map) errorRequest.get(Constants.ERROR_DETAILS);
-        System.out.println("Coming Error Request-----6");
-
 
         validateDetails(errorDetails, ErrorCodes.ERR_INVALID_ERROR_DETAILS, "Error details cannot be null, empty and other than 'JSON Object'", ERROR_DETAILS_VALUES, "Error details should contain only: ");
         validateParticipant(senderDetails, ErrorCodes.ERR_INVALID_SENDER, "sender");
         validateParticipant(recipientDetails, ErrorCodes.ERR_INVALID_RECIPIENT, "recipient");
         validateCondition(!StringUtils.equals(((ArrayList) senderDetails.get(OS_OWNER)).get(0).toString(), subject), ErrorCodes.ERR_ACCESS_DENIED, "Caller id and sender code is not matched");
-        System.out.println("Coming Error Request-----7");
     }
 
     private void validateCondition(Boolean condition, ErrorCodes errorcode, String msg) throws ClientException {
