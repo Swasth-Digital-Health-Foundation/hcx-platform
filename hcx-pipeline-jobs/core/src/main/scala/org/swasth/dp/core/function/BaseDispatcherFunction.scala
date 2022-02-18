@@ -96,6 +96,7 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
         Console.println("result::"+result)
         //Adding updatedTimestamp for auditing
         event.put(Constants.UPDATED_TIME, Calendar.getInstance().getTime())
+        Console.println("event::"+event)
         audit(event, result.success, context, metrics);
         if(result.success) {
           metrics.incCounter(metric = config.dispatcherSuccessCount)
