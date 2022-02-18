@@ -20,12 +20,12 @@ import java.util.stream.Collectors;
 import static org.swasth.apigateway.constants.Constants.*;
 
 @Data
-public class Request{
+public class JWERequest {
 
     private final Map<String, Object> payload;
     protected final Map<String, Object> hcxHeaders;
 
-    public Request(Map<String, Object> body) throws Exception {
+    public JWERequest(Map<String, Object> body) throws Exception {
         this.payload = body;
         try {
             this.hcxHeaders =JSONUtils.decodeBase64String(validateRequestBody(payload)[0], Map.class);

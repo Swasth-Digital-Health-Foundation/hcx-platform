@@ -28,6 +28,26 @@ public class CoverageEligibilityTests extends BaseSpec {
       assertEquals(202, status);
     }
 
+//    @Test
+//    public void check_coverage_eligibility_success_plain_request_scenario() throws Exception {
+//        doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
+//        String requestBody = getErrorRequestBody();
+//        MvcResult mvcResult = mockMvc.perform(post("/v1/coverageeligibility/on_check").content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+//        MockHttpServletResponse response = mvcResult.getResponse();
+//        int status = response.getStatus();
+//        assertEquals(202, status);
+//    }
+
+    @Test
+    public void check_coverage_eligibility_error_plain_request_scenario() throws Exception {
+        doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
+        String requestBody = "{}";
+        MvcResult mvcResult = mockMvc.perform(post("/v1/coverageeligibility/on_check").content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        assertEquals(500, status);
+    }
+
     @Test
     public void check_coverage_eligibility_exception_scenario() throws Exception {
         String requestBody = "{}";

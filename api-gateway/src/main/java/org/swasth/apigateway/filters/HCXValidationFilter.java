@@ -4,8 +4,8 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import org.swasth.apigateway.constants.Constants;
 import org.swasth.apigateway.helpers.ExceptionHandler;
-import org.swasth.apigateway.models.ErrorRequest;
-import org.swasth.apigateway.models.Request;
+import org.swasth.apigateway.models.PlainRequest;
+import org.swasth.apigateway.models.JWERequest;
 import org.swasth.apigateway.service.RegistryService;
 import org.swasth.apigateway.utils.JSONUtils;
 import org.slf4j.Logger;
@@ -62,13 +62,13 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                 StringBuilder cachedBody = new StringBuilder(StandardCharsets.UTF_8.decode(((DataBuffer) exchange.getAttribute(CACHED_REQUEST_BODY_ATTR)).asByteBuffer()));
                 Map<String,Object> requestBody = JSONUtils.deserialize(cachedBody.toString(), HashMap.class);
                 if(requestBody.containsKey(Constants.PAYLOAD)) {
-                    Request request = new Request(requestBody);
+                    JWERequest request = new JWERequest(requestBody);
                     correlationId = request.getCorrelationId();
                     apiCallId = request.getApiCallId();
                     request.validate(getMandatoryHeaders(), getDetails(request.getSenderCode()), getDetails(request.getRecipientCode()), getSubject(exchange), timestampRange);
                 } else {
-                    ErrorRequest request = new ErrorRequest(requestBody);
-                    request.validate(getErrorMandatoryHeaders(), getDetails((String) requestBody.get(Constants.SENDER_CODE)),getDetails((String) requestBody.get(Constants.RECIPIENT_CODE)), getSubject(exchange));
+                    PlainRequest request = new PlainRequest(requestBody);
+                    request.validate(getErrorMandatoryHeaders(), getDetails(request.getSenderCode()),getDetails(request.getRecipientCode()), getSubject(exchange));
                 }
             } catch (Exception e) {
                 return exceptionHandler.errorResponse(e, exchange, correlationId, apiCallId);
@@ -86,7 +86,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
 
     private List<String> getErrorMandatoryHeaders() {
         List<String> mandatoryHeaders = new ArrayList<>();
-        mandatoryHeaders.addAll(env.getProperty("error.headers.mandatory", List.class));
+        mandatoryHeaders.addAll(env.getProperty("plainrequest.headers.mandatory", List.class));
         return mandatoryHeaders;
     }
 

@@ -15,11 +15,11 @@ import java.util.stream.Collectors;
 
 import static org.swasth.apigateway.constants.Constants.*;
 
-public class ErrorRequest {
+public class PlainRequest {
 
     private Map<String, Object> errorRequest;
 
-    public ErrorRequest(Map<String, Object> body) throws ClientException {
+    public PlainRequest(Map<String, Object> body) throws ClientException {
         try {
             this.errorRequest = body;
         } catch (Exception e) {
@@ -34,10 +34,10 @@ public class ErrorRequest {
         }
 
 
-        String correlationId = (String) errorRequest.get(Constants.CORRELATION_ID);
+        String correlationId = getCorrelationId();
         validateCondition(!Utils.isUUID(correlationId), ErrorCodes.ERR_INVALID_CORRELATION_ID, "Correlation id should be a valid UUID");
 
-        String status = (String) errorRequest.get(Constants.STATUS);
+        String status = getStatus();
         validateCondition(!status.equals(Constants.ERROR_RESPONSE), ErrorCodes.ERR_INVALID_STATUS, "Invalid Status");
 
         Map<String, Object> errorDetails = (Map) errorRequest.get(Constants.ERROR_DETAILS);
@@ -76,4 +76,19 @@ public class ErrorRequest {
             }
         }
     }
+
+    public String getSenderCode() {
+        return getHeader(SENDER_CODE);
+    }
+
+    public String getRecipientCode() { return getHeader(RECIPIENT_CODE); }
+
+    protected String getHeader(String key) {
+        return (String) errorRequest.getOrDefault(key, null);
+    }
+
+    public String getCorrelationId() {
+        return getHeader(CORRELATION_ID);
+    }
+    public String getStatus() { return getHeader(STATUS); }
 }
