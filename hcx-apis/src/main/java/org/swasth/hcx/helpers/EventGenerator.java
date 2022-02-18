@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.swasth.common.dto.Request;
-import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
 
 import java.util.HashMap;
@@ -28,6 +27,7 @@ public class EventGenerator {
     }
 
     public String generateMetadataEvent(String mid, String apiAction, Request request) throws Exception {
+        //TODO - Need modifications for error headers
         Map<String,Object> event = new HashMap<>();
         if(request.getPayload().containsKey(PAYLOAD)) {
             List<String> protocolHeaders = env.getProperty(PROTOCOL_HEADERS_MANDATORY, List.class);
