@@ -22,7 +22,6 @@ public class ErrorRequest {
     }
 
     public void validate(Map<String, Object> senderDetails, Map<String, Object> recipientDetails) throws ClientException {
-        try {
             String correlationId = (String) errorRequest.get(Constants.CORRELATION_ID);
             validateCondition(!Utils.isUUID(correlationId), ErrorCodes.ERR_INVALID_CORRELATION_ID, "Correlation id should be a valid UUID");
 
@@ -34,9 +33,6 @@ public class ErrorRequest {
             validateDetails(errorDetails, ErrorCodes.ERR_INVALID_ERROR_DETAILS, "Error details cannot be null, empty and other than 'JSON Object'", ERROR_DETAILS_VALUES, "Error details should contain only: ");
             validateParticipant(senderDetails, ErrorCodes.ERR_INVALID_SENDER, "sender");
             validateParticipant(recipientDetails, ErrorCodes.ERR_INVALID_RECIPIENT, "recipient");
-        } catch (ClientException e){
-            throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, "Error while parsing protected headers");
-        }
     }
 
     private void validateCondition(Boolean condition, ErrorCodes errorcode, String msg) throws ClientException {
@@ -56,8 +52,10 @@ public class ErrorRequest {
     private void validateDetails(Map<String, Object> inputMap, ErrorCodes errorCode, String msg,List<String> rangeValues, String rangeMsg) throws ClientException {
         if (MapUtils.isEmpty(inputMap)) {
             throw new ClientException(errorCode, msg);
-        } else if (!inputMap.containsKey("code") || !inputMap.containsKey("message")) {
+        }else if (!inputMap.containsKey("code") || !inputMap.containsKey("message")) {
             throw new ClientException(errorCode, "Mandatory fields code or message is missing");
+        } else if (!RECIPIENT_ERROR_VALUES.contains(inputMap.get("code"))){
+            throw new ClientException(errorCode, "Invalid Recipient Error Code");
         }
         for(String key: inputMap.keySet()){
             if(!rangeValues.contains(key)){
