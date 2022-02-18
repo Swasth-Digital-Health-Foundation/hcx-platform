@@ -71,6 +71,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                     request.validate(getErrorMandatoryHeaders(), getDetails((String) requestBody.get(Constants.SENDER_CODE)),getDetails((String) requestBody.get(Constants.RECIPIENT_CODE)), getSubject(exchange));
                 }
             } catch (Exception e) {
+                System.out.println("Exception"+e);
                 return exceptionHandler.errorResponse(e, exchange, correlationId, apiCallId);
             }
             return chain.filter(exchange);
