@@ -9,6 +9,12 @@ protocol:
 headers:
   jose: ${jose_headers:alg, enc}
 
+#hcx error headers
+error:
+  headers:
+    mandatory: ${error_mandatory_headers:x-hcx-status, x-hcx-sender_code, x-hcx-recipient_code, x-hcx-error_details}
+    optional: ${error_optional_headers:x-hcx-workflow_id, x-hcx-api_call_id}
+
 timestamp:
   range: ${timestamp_range:10000}
 

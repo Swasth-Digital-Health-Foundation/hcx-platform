@@ -1,6 +1,7 @@
 package org.swasth.apigateway.models;
 
 import com.fasterxml.jackson.core.JsonParseException;
+import org.swasth.apigateway.constants.Constants;
 import org.swasth.apigateway.exception.ClientException;
 import org.swasth.apigateway.exception.ErrorCodes;
 import org.swasth.apigateway.utils.DateTimeUtils;

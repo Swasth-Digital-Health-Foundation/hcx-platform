@@ -8,8 +8,10 @@ import org.swasth.apigateway.exception.ClientException;
 import org.swasth.apigateway.exception.ErrorCodes;
 import org.swasth.apigateway.utils.Utils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.swasth.apigateway.constants.Constants.*;
 
@@ -17,22 +19,33 @@ public class ErrorRequest {
 
     private Map<String, Object> errorRequest;
 
-    public ErrorRequest(Map<String, Object> body){
-        this.errorRequest = body;
+    public ErrorRequest(Map<String, Object> body) throws ClientException {
+        try {
+            this.errorRequest = body;
+        } catch (Exception e) {
+            throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, "Invalid payload");
+        }
     }
 
-    public void validate(Map<String, Object> senderDetails, Map<String, Object> recipientDetails) throws ClientException {
-            String correlationId = (String) errorRequest.get(Constants.CORRELATION_ID);
-            validateCondition(!Utils.isUUID(correlationId), ErrorCodes.ERR_INVALID_CORRELATION_ID, "Correlation id should be a valid UUID");
+    public void validate(List<String> mandatoryHeaders,Map<String, Object> senderDetails, Map<String, Object> recipientDetails, String subject) throws ClientException {
+        List<String> missingHeaders = mandatoryHeaders.stream().filter(key -> !errorRequest.containsKey(key)).collect(Collectors.toList());
+        if (!missingHeaders.isEmpty()) {
+            throw new ClientException(ErrorCodes.ERR_MANDATORY_HEADERFIELD_MISSING, "Mandatory headers are missing: " + missingHeaders);
+        }
 
-            String status = (String) errorRequest.get(Constants.STATUS);
-            validateCondition(status.equals(Constants.ERROR_RESPONSE), ErrorCodes.ERR_INVALID_STATUS, "Invalid Status");
+        String correlationId = (String) errorRequest.get(Constants.CORRELATION_ID);
+        validateCondition(!Utils.isUUID(correlationId), ErrorCodes.ERR_INVALID_CORRELATION_ID, "Correlation id should be a valid UUID");
 
-            Map<String, Object> errorDetails = (Map) errorRequest.get(Constants.ERROR_DETAILS);
+        String status = (String) errorRequest.get(Constants.STATUS);
+        validateCondition(!status.equals(Constants.ERROR_RESPONSE), ErrorCodes.ERR_INVALID_STATUS, "Invalid Status");
 
-            validateDetails(errorDetails, ErrorCodes.ERR_INVALID_ERROR_DETAILS, "Error details cannot be null, empty and other than 'JSON Object'", ERROR_DETAILS_VALUES, "Error details should contain only: ");
-            validateParticipant(senderDetails, ErrorCodes.ERR_INVALID_SENDER, "sender");
-            validateParticipant(recipientDetails, ErrorCodes.ERR_INVALID_RECIPIENT, "recipient");
+        Map<String, Object> errorDetails = (Map) errorRequest.get(Constants.ERROR_DETAILS);
+
+        validateDetails(errorDetails, ErrorCodes.ERR_INVALID_ERROR_DETAILS, "Error details cannot be null, empty and other than 'JSON Object'", ERROR_DETAILS_VALUES, "Error details should contain only: ");
+        validateParticipant(senderDetails, ErrorCodes.ERR_INVALID_SENDER, "sender");
+        validateParticipant(recipientDetails, ErrorCodes.ERR_INVALID_RECIPIENT, "recipient");
+        validateCondition(!StringUtils.equals(((ArrayList) senderDetails.get(OS_OWNER)).get(0).toString(), subject), ErrorCodes.ERR_ACCESS_DENIED, "Caller id and sender code is not matched");
+
     }
 
     private void validateCondition(Boolean condition, ErrorCodes errorcode, String msg) throws ClientException {

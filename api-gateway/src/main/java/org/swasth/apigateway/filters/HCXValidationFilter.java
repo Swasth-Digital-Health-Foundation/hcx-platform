@@ -68,7 +68,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                     request.validate(getMandatoryHeaders(), getDetails(request.getSenderCode()), getDetails(request.getRecipientCode()), getSubject(exchange), timestampRange);
                 } else {
                     ErrorRequest request = new ErrorRequest(requestBody);
-                    request.validate(getDetails((String) requestBody.get(Constants.SENDER_CODE)),getDetails((String) requestBody.get(Constants.RECIPIENT_CODE)));
+                    request.validate(getErrorMandatoryHeaders(), getDetails((String) requestBody.get(Constants.SENDER_CODE)),getDetails((String) requestBody.get(Constants.RECIPIENT_CODE)), getSubject(exchange));
                 }
             } catch (Exception e) {
                 return exceptionHandler.errorResponse(e, exchange, correlationId, apiCallId);
@@ -81,6 +81,12 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
         List<String> mandatoryHeaders = new ArrayList<>();
         mandatoryHeaders.addAll(env.getProperty("protocol.headers.mandatory", List.class));
         mandatoryHeaders.addAll(env.getProperty("headers.jose", List.class));
+        return mandatoryHeaders;
+    }
+
+    private List<String> getErrorMandatoryHeaders() {
+        List<String> mandatoryHeaders = new ArrayList<>();
+        mandatoryHeaders.addAll(env.getProperty("error.headers.mandatory", List.class));
         return mandatoryHeaders;
     }
 
