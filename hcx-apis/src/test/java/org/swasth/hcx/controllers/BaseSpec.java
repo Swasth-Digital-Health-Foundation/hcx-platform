@@ -74,15 +74,30 @@ public class BaseSpec {
         obj.put("x-hcx-status","response.error");
         obj.put("x-hcx-sender_code","1-0756766c-ad43-4145-86ea-d1b17b729a3f");
         obj.put("x-hcx-recipient_code","1-68c5deca-8299-4feb-b441-923bb649a9a3");
-        obj.put("X-hcx-correlation_id","5e934f90-111d-4f0b-b016-c22d820674e4");
+        obj.put("x-hcx-correlation_id","5e934f90-111d-4f0b-b016-c22d820674e4");
+        obj.put("x-hcx-api_call_id","5e934f90-111d-4f0b-b016-c22d820674e6");
         obj.put("x-hcx-error_details", new HashMap<>() {{
             put("code","ERR_INVALID_ENCRYPTION");
             put("error","");
             put("trace","Recipient Invalid Encryption");
         }});
-
         return JSONUtils.serialize(obj);
     }
+
+//    public String getErrorRequestBody() throws JsonProcessingException {
+//        Map<String,Object> obj = new HashMap<>();
+//        obj.put("x-hcx-status","response.error");
+//        obj.put("x-hcx-sender_code","1-0756766c-ad43-4145-86ea-d1b17b729a3f");
+//        obj.put("x-hcx-recipient_code","1-68c5deca-8299-4feb-b441-923bb649a9a3");
+//        obj.put("X-hcx-correlation_id","5e934f90-111d-4f0b-b016-c22d820674e4");
+//        obj.put("x-hcx-error_details", new HashMap<>() {{
+//            put("code","ERR_INVALID_ENCRYPTION");
+//            put("error","");
+//            put("trace","Recipient Invalid Encryption");
+//        }});
+//
+//        return JSONUtils.serialize(obj);
+//    }
 
     public String getBadRequestBody() throws JsonProcessingException {
         Map<String,Object> obj = new HashMap<>();

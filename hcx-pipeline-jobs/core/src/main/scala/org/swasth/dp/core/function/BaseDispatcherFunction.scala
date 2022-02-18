@@ -93,6 +93,7 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
         val payload = getPayload(payloadRefId);
         val payloadJSON = JSONUtil.serialize(payload);
         val result = DispatcherUtil.dispatch(recipientCtx, payloadJSON)
+        Console.println("result::"+result)
         //Adding updatedTimestamp for auditing
         event.put(Constants.UPDATED_TIME, Calendar.getInstance().getTime())
         audit(event, result.success, context, metrics);
