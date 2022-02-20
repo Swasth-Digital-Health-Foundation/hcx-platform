@@ -51,6 +51,7 @@ public class Constants {
     public static final String RECIPIENT_CODE = "x-hcx-recipient_code";
     public static final String TIMESTAMP = "x-hcx-timestamp";
     public static final String DEBUG_FLAG = "x-hcx-debug_flag";
+    public static final String REDIRECT_TO = "x-hcx-redirect_to";
     public static final List<String> DEBUG_FLAG_VALUES = Arrays.asList("Error","Info","Debug");
     public static final String STATUS = "x-hcx-status";
     public static final List<String> STATUS_VALUES = Arrays.asList("request.queued", "request.dispatched", "response.complete", "response.partial", "response.error", "response.redirect");
@@ -60,5 +61,8 @@ public class Constants {
     public static final String BLOCKED = "Blocked";
     public static final String INACTIVE = "Inactive";
     public static final String OS_OWNER = "osOwner";
+    public static final String REDIRECT_STATUS = "response.redirect";
+    public static final String ROLES = "roles";
+    public static final String ACTION = "action";
 
 }
