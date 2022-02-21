@@ -12,7 +12,7 @@ headers:
 timestamp:
   range: ${timestamp_range:10000}
 
-allowedEntitiesForForward: ${allowedEntitiesForForward:coverageeligibility}
+allowedEntitiesForForward: ${allowedEntitiesForForward:coverageeligibility, preauth, claim}
 allowedRolesForForward: ${allowedRolesForForward:payor, agency.tpa}
 
 jwt:

@@ -92,7 +92,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
             String action = (String) audit.get(ACTION);
             String entity = getEntity(action);
             if(!OPERATIONAL_ENTITIES.contains(entity) && action.contains("on_") && ((List<String>) audit.get(RECIPIENT_ROLE)).contains(PROVIDER) && audit.get(STATUS).equals(STATUS_COMPLETE)){
-                throw new ClientException("Invalid request, cycle is closed for correlation id");
+                throw new ClientException(ErrorCodes.ERR_INVALID_CORRELATION_ID, "Invalid request, cycle is closed for correlation id");
             }
         }
         if(path.contains("on_")) {
@@ -107,13 +107,13 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
         // forward flow validations
         if(isForwardRequest((List<String>) senderDetails.get(ROLES), (List<String>) recipientDetails.get(ROLES))){
             if(!allowedEntitiesForForward.contains(getEntity(path))){
-                throw new ClientException("Entity is not allowed for forwarding");
+                throw new ClientException(ErrorCodes.ERR_INVALID_FORWARD_REQ, "Entity is not allowed for forwarding");
             }
             validateCorrelationId(auditData, "The request contains invalid correlation id");
             validateWorkflowId(request, auditData.get(0));
             for(Map<String,Object> audit: auditData){
                 if(!request.getRecipientCode().equals(audit.get(SENDER_CODE))){
-                    throw new ClientException("Invalid forward request, cannot forward the request to the forward initiators");
+                    throw new ClientException(ErrorCodes.ERR_INVALID_FORWARD_REQ, "Request cannot be forwarded to the forward initiators");
                 }
             }
         }
