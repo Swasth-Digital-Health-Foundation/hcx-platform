@@ -1,6 +1,7 @@
 package org.swasth.apigateway.models;
 
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 import org.swasth.apigateway.exception.ClientException;
 import org.swasth.apigateway.exception.ErrorCodes;
 import org.swasth.apigateway.service.AuditService;
@@ -21,8 +22,7 @@ public class JSONRequest extends BaseRequest{
 
     public void validateRedirectRequest(List<String> allowedApis,List<String> allowedRoles) throws Exception {
         if (allowedApis.contains(getApiAction())) {
-            validateValues(getApiAction(), ErrorCodes.ERR_INVALID_REDIRECT_TO, "Invalid redirect request," + getApiAction() + " is not allowed for redirect", allowedApis, "Allowed APIs are: ");
-
+            validateCondition(StringUtils.isEmpty(getRedirectTo()),ErrorCodes.ERR_INVALID_REDIRECT_TO, "Redirect requests must have valid participant code for field "+REDIRECT_TO);
             validateCondition(getSenderCode().equalsIgnoreCase(getRedirectTo()), ErrorCodes.ERR_INVALID_REDIRECT_TO, "Sender can not redirect request to self");
 
             Map<String, Object> redirectDetails = getDetails(getRedirectTo());
@@ -52,7 +52,7 @@ public class JSONRequest extends BaseRequest{
                 }
             }
         } else {
-            throw new ClientException(ErrorCodes.ERR_INVALID_REDIRECT_TO, getApiAction()+" is not configured for redirect calls");
+            validateValues(getApiAction(), ErrorCodes.ERR_INVALID_REDIRECT_TO, "Invalid redirect request," + getApiAction() + " is not allowed for redirect", allowedApis, "Allowed APIs are: ");
         }
     }
 
