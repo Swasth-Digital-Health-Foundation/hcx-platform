@@ -20,19 +20,13 @@ import static org.swasth.apigateway.constants.Constants.*;
 @Data
 public class BaseRequest {
 
-    private RegistryService registryService;
-    private AuditService auditService;
-    private Map<String,Object> payload;
     private boolean isJSONRequest;
     private String apiAction;
     private Map<String,Object> protocolHeaders;
 
     public BaseRequest(){}
 
-    public BaseRequest(RegistryService registryService, AuditService auditService, Map<String, Object> payload,boolean isJSONRequest,String apiAction) throws Exception{
-        this.registryService = registryService;
-        this.auditService = auditService;
-        this.payload = payload;
+    public BaseRequest(Map<String, Object> payload,boolean isJSONRequest,String apiAction) throws Exception{
         this.isJSONRequest = isJSONRequest;
         this.apiAction = apiAction;
         try {
@@ -45,7 +39,7 @@ public class BaseRequest {
         }
     }
 
-    public void validate(List<String> mandatoryHeaders,String subject, int timestampRange) throws Exception {
+    public void validate(List<String> mandatoryHeaders,String subject, int timestampRange,Map<String,Object> senderDetails,Map<String,Object> recipientDetails) throws Exception {
         for (Map.Entry<String, ClientException> entry : getResponseParamErrors().entrySet()) {
             validateHeader(protocolHeaders, entry.getKey(), entry.getValue());
         }
@@ -63,8 +57,7 @@ public class BaseRequest {
         validateCondition(!DateTimeUtils.validTimestamp(timestampRange, getTimestamp()), ErrorCodes.ERR_INVALID_TIMESTAMP, "Timestamp cannot be more than " + timestampRange + " hours in the past or future time");
         validateCondition(protocolHeaders.containsKey(WORKFLOW_ID) && !Utils.isUUID(getWorkflowId()), ErrorCodes.ERR_INVALID_WORKFLOW_ID, "Workflow id should be a valid UUID");
         validateCondition(StringUtils.equals(getSenderCode(), getRecipientCode()), null, "sender and recipient code cannot be the same");
-        validateParticipant(getDetails(getRecipientCode()), ErrorCodes.ERR_INVALID_RECIPIENT, "recipient");
-        Map<String, Object> senderDetails = getDetails(getSenderCode());
+        validateParticipant(recipientDetails, ErrorCodes.ERR_INVALID_RECIPIENT, "recipient");
         validateParticipant(senderDetails, ErrorCodes.ERR_INVALID_SENDER, "sender");
         validateCondition(!StringUtils.equals(((ArrayList) senderDetails.get(OS_OWNER)).get(0).toString(), subject), ErrorCodes.ERR_ACCESS_DENIED, "Caller id and sender code is not matched");
 
@@ -144,16 +137,7 @@ public class BaseRequest {
         return errors;
     }
 
-    protected Map<String,Object> getDetails(String code) throws Exception {
-        return registryService.fetchDetails("osid", code);
-    }
-
-    protected List<Object> getAuditData(Map<String,Object> filters) throws Exception {
-        return auditService.getAuditLogs(filters);
-    }
-
-    public void validateUsingAuditData(String correlationId,String workflowId) throws Exception {
-        List<Object> auditData = getAuditData(Collections.singletonMap(CORRELATION_ID, correlationId));
+    public void validateUsingAuditData(String workflowId,List<Object> auditData) throws Exception {
         if(ON_ACTION_APIS.contains(apiAction)) {
             validateCondition(auditData.isEmpty(), ErrorCodes.ERR_INVALID_CORRELATION_ID, "The on_action request should contain the same correlation id as in corresponding action request");
             Map<String,Object> auditEvent = (Map<String, Object>) auditData.get(0);
@@ -171,9 +155,9 @@ public class BaseRequest {
 
     public String getCorrelationId() { return getHeader(CORRELATION_ID); }
 
-    protected String getSenderCode() { return getHeader(SENDER_CODE); }
+    public String getSenderCode() { return getHeader(SENDER_CODE); }
 
-    protected String getRecipientCode() { return getHeader(RECIPIENT_CODE); }
+    public String getRecipientCode() { return getHeader(RECIPIENT_CODE); }
 
     protected String getTimestamp() { return getHeader(TIMESTAMP); }
 
@@ -189,7 +173,7 @@ public class BaseRequest {
 
     protected Map<String,Object> getDebugDetails(){ return getHeaderMap(DEBUG_DETAILS); }
 
-    protected String getRedirectTo() { return getHeader(REDIRECT_TO); }
+    public String getRedirectTo() { return getHeader(REDIRECT_TO); }
 
     protected String[] validateRequestBody(Map<String, Object> requestBody) throws Exception {
         try {

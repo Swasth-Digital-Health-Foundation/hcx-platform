@@ -2,12 +2,8 @@ package org.swasth.apigateway.models;
 
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
-import org.swasth.apigateway.exception.ClientException;
 import org.swasth.apigateway.exception.ErrorCodes;
-import org.swasth.apigateway.service.AuditService;
-import org.swasth.apigateway.service.RegistryService;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -16,30 +12,26 @@ import static org.swasth.apigateway.constants.Constants.*;
 @Data
 public class JSONRequest extends BaseRequest{
 
-    public JSONRequest(RegistryService registryService, AuditService auditService, Map<String, Object> payload,boolean isJSONRequest,String apiAction) throws Exception{
-        super(registryService, auditService, payload,isJSONRequest,apiAction);
+    public JSONRequest(Map<String, Object> payload,boolean isJSONRequest,String apiAction) throws Exception{
+        super(payload,isJSONRequest,apiAction);
     }
 
-    public void validateRedirectRequest(List<String> allowedApis,List<String> allowedRoles) throws Exception {
-        if (allowedApis.contains(getApiAction())) {
+    public void validateRedirectRequest(List<String> allowedRoles,Map<String, Object> redirectDetails,List<Object> callAuditData,List<Object> correlationAuditData) throws Exception {
             validateCondition(StringUtils.isEmpty(getRedirectTo()),ErrorCodes.ERR_INVALID_REDIRECT_TO, "Redirect requests must have valid participant code for field "+REDIRECT_TO);
             validateCondition(getSenderCode().equalsIgnoreCase(getRedirectTo()), ErrorCodes.ERR_INVALID_REDIRECT_TO, "Sender can not redirect request to self");
 
-            Map<String, Object> redirectDetails = getDetails(getRedirectTo());
             validateParticipant(redirectDetails, ErrorCodes.ERR_INVALID_REDIRECT_TO, "Redirected");
             List<String> redirectRoles = (List<String>) redirectDetails.get(ROLES);
             validateCondition(!hasRedirectRole(allowedRoles, redirectRoles), ErrorCodes.ERR_INVALID_REDIRECT_TO, "Redirected participant do not have access to send across on_* API calls");
 
-            validateCondition(!getAuditData(Collections.singletonMap(API_CALL_ID, getApiCallId())).isEmpty(), ErrorCodes.ERR_INVALID_API_CALL_ID, "Already request exists with same api call id:" + getApiCallId());
-            List<Object> auditData = getAuditData(Collections.singletonMap(CORRELATION_ID, getCorrelationId()));
-            validateCondition(auditData.isEmpty(), ErrorCodes.ERR_INVALID_CORRELATION_ID, "The on_action request should contain the same correlation id as in corresponding action request");
-            //TODO Do we need to check for all audit entries or this is fine
-            Map<String, Object> auditEvent = (Map<String, Object>) auditData.get(0);
+            validateCondition(!callAuditData.isEmpty(), ErrorCodes.ERR_INVALID_API_CALL_ID, "Already request exists with same api call id:" + getApiCallId());
+            validateCondition(correlationAuditData.isEmpty(), ErrorCodes.ERR_INVALID_CORRELATION_ID, "The on_action request should contain the same correlation id as in corresponding action request");
+            Map<String, Object> auditEvent = (Map<String, Object>) correlationAuditData.get(0);
             if (auditEvent.containsKey(WORKFLOW_ID)) {
                 validateCondition(!getWorkflowId().equals(auditEvent.get(WORKFLOW_ID)), ErrorCodes.ERR_INVALID_WORKFLOW_ID, "The on_action request should contain the same workflow id as in corresponding action request");
             }
 
-            for (Object audit : auditData) {
+            for (Object audit : correlationAuditData) {
                 Map<String, Object> auditEventData = (Map<String, Object>) audit;
                 //Check for only on_* requests from Audit data
                 if (((String) auditEventData.get(ACTION)).contains("on_")) {
@@ -47,13 +39,10 @@ public class JSONRequest extends BaseRequest{
                         //Identifying open redirect requests
                         validateCondition(REDIRECT_STATUS.equals(auditEvent.get(STATUS)), ErrorCodes.ERR_INVALID_REDIRECT_TO, "The redirect request has been closed with status as complete");
                     }
-                    //Validate
+                    //validate the redirected has any one of request initiators
                     validateCondition(getRedirectTo().equalsIgnoreCase((String) auditEventData.get(SENDER_CODE)), ErrorCodes.ERR_INVALID_REDIRECT_TO, "Redirect request can not be redirected to one of the initiators");
                 }
             }
-        } else {
-            validateValues(getApiAction(), ErrorCodes.ERR_INVALID_REDIRECT_TO, "Invalid redirect request," + getApiAction() + " is not allowed for redirect", allowedApis, "Allowed APIs are: ");
-        }
     }
 
     private boolean hasRedirectRole(List<String> allowedRoles, List<String> redirectRoles) {

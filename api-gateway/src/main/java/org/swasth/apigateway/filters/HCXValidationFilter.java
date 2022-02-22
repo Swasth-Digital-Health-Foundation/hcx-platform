@@ -2,12 +2,6 @@ package org.swasth.apigateway.filters;
 
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import org.swasth.apigateway.exception.ErrorCodes;
-import org.swasth.apigateway.helpers.ExceptionHandler;
-import org.swasth.apigateway.models.Request;
-import org.swasth.apigateway.service.AuditService;
-import org.swasth.apigateway.service.RegistryService;
-import org.swasth.apigateway.utils.JSONUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +14,14 @@ import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
+import org.swasth.apigateway.exception.ClientException;
+import org.swasth.apigateway.exception.ErrorCodes;
+import org.swasth.apigateway.helpers.ExceptionHandler;
+import org.swasth.apigateway.models.JSONRequest;
+import org.swasth.apigateway.models.JWERequest;
+import org.swasth.apigateway.service.AuditService;
+import org.swasth.apigateway.service.RegistryService;
+import org.swasth.apigateway.utils.JSONUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -61,29 +63,33 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
             try {
                 StringBuilder cachedBody = new StringBuilder(StandardCharsets.UTF_8.decode(((DataBuffer) exchange.getAttribute(CACHED_REQUEST_BODY_ATTR)).asByteBuffer()));
                 String path = exchange.getRequest().getPath().value();
-                Request request = new Request(JSONUtils.deserialize(cachedBody.toString(), HashMap.class));
-                correlationId = request.getCorrelationId();
-                apiCallId = request.getApiCallId();
-                request.validate(getMandatoryHeaders(), getDetails(request.getSenderCode()), getDetails(request.getRecipientCode()), getSubject(exchange), timestampRange);
-                validateUsingAuditData(path, request);
+                Map<String, Object> requestBody = JSONUtils.deserialize(cachedBody.toString(), HashMap.class);
+                if (requestBody.containsKey(PAYLOAD)) {
+                    JWERequest jweRequest = new JWERequest(requestBody, false, path);
+                    correlationId = jweRequest.getCorrelationId();
+                    apiCallId = jweRequest.getApiCallId();
+                    jweRequest.validate(getMandatoryHeaders(), getSubject(exchange), timestampRange, getDetails(jweRequest.getSenderCode()), getDetails(jweRequest.getRecipientCode()));
+                    jweRequest.validateUsingAuditData(jweRequest.getWorkflowId(), getAuditData(Collections.singletonMap(CORRELATION_ID, jweRequest.getCorrelationId())));
+                } else {
+                    JSONRequest jsonRequest = new JSONRequest(requestBody, true, path);
+                    correlationId = jsonRequest.getCorrelationId();
+                    apiCallId = jsonRequest.getApiCallId();
+                    jsonRequest.validate(getPlainMandatoryHeaders(), getSubject(exchange), timestampRange, getDetails(jsonRequest.getSenderCode()), getDetails(jsonRequest.getRecipientCode()));
+                    if (ON_ACTION_APIS.contains(path) && REDIRECT_STATUS.equalsIgnoreCase(jsonRequest.getStatus())) {
+                        List<String> allowedApis = getApisForRedirect();
+                        if (allowedApis.contains(jsonRequest.getApiAction()))
+                            jsonRequest.validateRedirectRequest(getRolesForRedirect(), getDetails(jsonRequest.getRedirectTo()), getAuditData(Collections.singletonMap(API_CALL_ID, jsonRequest.getApiCallId())), getAuditData(Collections.singletonMap(CORRELATION_ID, jsonRequest.getCorrelationId())));
+                        else
+                            throw new ClientException(ErrorCodes.ERR_INVALID_REDIRECT_TO, "Invalid redirect request," + jsonRequest.getApiAction() + " is not allowed for redirect, Allowed APIs are: " + allowedApis);
+                    } else
+                        throw new ClientException(ErrorCodes.ERR_INVALID_REDIRECT_TO, "Invalid request," + jsonRequest.getApiAction() + " is not allowed to send across plain protocol headers");
+                }
             } catch (Exception e) {
+                logger.error("Exception occurred for request with correlationId: "+correlationId);
                 return exceptionHandler.errorResponse(e, exchange, correlationId, apiCallId);
             }
             return chain.filter(exchange);
         };
-    }
-
-    private void validateUsingAuditData(String apiAction, Request request) throws Exception {
-        List<Object> auditData = getAuditData(Collections.singletonMap(CORRELATION_ID, request.getCorrelationId()));
-        if(ON_ACTION_APIS.contains(apiAction)) {
-            request.validateCondition(auditData.isEmpty(), ErrorCodes.ERR_INVALID_CORRELATION_ID, "The on_action request should contain the same correlation id as in corresponding action request");
-            Map<String,Object> auditEvent = (Map<String, Object>) auditData.get(0);
-            if(auditEvent.containsKey(WORKFLOW_ID)) {
-                request.validateCondition(!request.getWorkflowId().equals(auditEvent.get(WORKFLOW_ID)), ErrorCodes.ERR_INVALID_WORKFLOW_ID, "he on_action request should contain the same workflow id as in corresponding action request");
-            }
-        } else {
-            request.validateCondition(!auditData.isEmpty(), ErrorCodes.ERR_INVALID_CORRELATION_ID, "Request already exist with same correlation id");
-        }
     }
 
     private List<String> getMandatoryHeaders() {
@@ -109,6 +115,24 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
     }
 
     public static class Config {
+    }
+
+    private List<String> getPlainMandatoryHeaders(){
+        List<String> plainMandatoryHeaders = new ArrayList<>();
+        plainMandatoryHeaders.addAll(env.getProperty("plain.headers.mandatory", List.class));
+        return plainMandatoryHeaders;
+    }
+
+    private List<String> getApisForRedirect(){
+        List<String> allowedApis = new ArrayList<>();
+        allowedApis.addAll(env.getProperty("redirect.apis", List.class));
+        return allowedApis;
+    }
+
+    private List<String> getRolesForRedirect(){
+        List<String> allowedRoles = new ArrayList<>();
+        allowedRoles.addAll(env.getProperty("redirect.roles", List.class));
+        return allowedRoles;
     }
 
 }
