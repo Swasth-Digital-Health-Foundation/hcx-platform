@@ -62,6 +62,10 @@ abstract class BaseProcessFunction[T, R](config: BaseJobConfig) extends ProcessF
     event.get(Constants.HEADERS).asInstanceOf[util.Map[String, AnyRef]].get(Constants.PROTOCOL).asInstanceOf[util.Map[String, AnyRef]].getOrDefault(key,new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]]
   }
 
+  def getCDataListValue(event: util.Map[String, AnyRef], participant: String, key: String): util.List[String] = {
+    event.getOrDefault(Constants.CDATA, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]].getOrDefault(participant, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]].get(key).asInstanceOf[util.List[String]]
+  }
+
   def getReplacedAction(actionStr: String): String = {
     var replacedAction = actionStr
     val lastVal = actionStr.split("/").last

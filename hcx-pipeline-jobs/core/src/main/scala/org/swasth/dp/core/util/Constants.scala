@@ -32,6 +32,9 @@ object Constants {
   val STATUS = "status"
   val REQUESTED_TIME = "requestTimeStamp"
   val UPDATED_TIME = "updatedTimestamp"
+  val SENDER_ROLE = "senderRole"
+  val RECIPIENT_ROLE = "recipientRole"
+  val ROLES = "roles"
 
   //Event Fields
   val SENDER_CODE = "x-hcx-sender_code"
