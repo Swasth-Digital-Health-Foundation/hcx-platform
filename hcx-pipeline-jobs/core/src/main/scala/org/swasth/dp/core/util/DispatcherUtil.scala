@@ -53,7 +53,7 @@ object DispatcherUtil {
     Console.println("URL", url)
     var response: CloseableHttpResponse = null
     try {
-      if (StringUtils.isEmpty(url)) {
+      if (StringUtils.isNotEmpty(url)) {
         val httpPost = new HttpPost(url);
         headers.map(f => httpPost.addHeader(f._1, f._2));
         httpPost.setEntity(new StringEntity(payload))

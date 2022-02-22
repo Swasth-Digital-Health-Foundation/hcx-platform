@@ -38,8 +38,8 @@ public class PreAuthenticationFilter implements GlobalFilter, Ordered {
         if(anonymousAllowedPaths.getPaths().contains(path) || Utils.containsRegexPath(anonymousAllowedPaths.getRegexPaths(), path)){
             exchange.getAttributes().put(Constants.AUTH_REQUIRED, false);
         }
-        else{
-        exchange.getAttributes().put(Constants.AUTH_REQUIRED, true);
+        else {
+            exchange.getAttributes().put(Constants.AUTH_REQUIRED, true);
         }
         return chain.filter(exchange);
     }

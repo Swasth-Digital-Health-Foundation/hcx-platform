@@ -32,11 +32,9 @@ public class StatusController extends BaseController {
     public ResponseEntity<Object> status(@RequestBody Map<String, Object> requestBody) throws Exception {
         Response response = new Response();
         try {
-            if (!HealthCheckManager.allSystemHealthResult)
-                throw new ServiceUnavailbleException(ErrorCodes.ERR_SERVICE_UNAVAILABLE, "Service is unavailable");
+            checkSystemHealth();
             Request request = new Request(requestBody);
             setResponseParams(request, response);
-            request.validate(getAuditData(request), HCX_STATUS);
             Map<String, Object> hcxHeaders = request.getHcxHeaders();
             // TODO: filter properties validation
             if (!hcxHeaders.containsKey(STATUS_FILTERS) || ((Map<String, Object>) hcxHeaders.get(STATUS_FILTERS)).isEmpty()) {
@@ -76,11 +74,9 @@ public class StatusController extends BaseController {
     public ResponseEntity<Object> onStatus(@RequestBody Map<String, Object> requestBody) {
         Response response = new Response();
         try {
-            if (!HealthCheckManager.allSystemHealthResult)
-                throw new ServiceUnavailbleException(ErrorCodes.ERR_SERVICE_UNAVAILABLE, "Service is unavailable");
+            checkSystemHealth();
             Request request = new Request(requestBody);
             setResponseParams(request, response);
-            request.validate(getAuditData(request), HCX_ONSTATUS);
             Map<String, Object> hcxHeaders = request.getHcxHeaders();
             if(!hcxHeaders.containsKey(STATUS_RESPONSE) || ((Map<String, Object>) hcxHeaders.get(STATUS_RESPONSE)).isEmpty()) {
                 throw new ClientException("Invalid request, status response is missing or empty.");

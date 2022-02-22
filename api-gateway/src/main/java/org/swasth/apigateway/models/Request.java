@@ -39,6 +39,7 @@ public class Request{
     }
 
     public void validate(List<String> mandatoryHeaders, Map<String, Object> senderDetails, Map<String, Object> recipientDetails, String subject, int timestampRange) throws ClientException {
+
         List<String> missingHeaders = mandatoryHeaders.stream().filter(key -> !hcxHeaders.containsKey(key)).collect(Collectors.toList());
         if (!missingHeaders.isEmpty()) {
             throw new ClientException(ErrorCodes.ERR_MANDATORY_HEADERFIELD_MISSING, "Mandatory headers are missing: " + missingHeaders);
@@ -57,8 +58,9 @@ public class Request{
         if (hcxHeaders.containsKey(DEBUG_FLAG)) {
             validateValues(getDebugFlag(), ErrorCodes.ERR_INVALID_DEBUG_FLAG, "Debug flag cannot be null, empty and other than 'String'", DEBUG_FLAG_VALUES, "Debug flag cannot be other than Error, Info or Debug");
         }
-        validateValues(getStatus(), ErrorCodes.ERR_INVALID_STATUS, "Status cannot be null, empty and other than 'String'", STATUS_VALUES, "Status value can be only: ");
-
+        if (hcxHeaders.containsKey(STATUS)) {
+            validateValues(getStatus(), ErrorCodes.ERR_INVALID_STATUS, "Status cannot be null, empty and other than 'String'", STATUS_VALUES, "Status value can be only: ");
+        }
         if (hcxHeaders.containsKey(ERROR_DETAILS)) {
             validateDetails(getErrorDetails(), ErrorCodes.ERR_INVALID_ERROR_DETAILS, "Error details cannot be null, empty and other than 'JSON Object'", ERROR_DETAILS_VALUES, "Error details should contain only: ");
         }
@@ -68,7 +70,7 @@ public class Request{
 
     }
 
-    private void validateCondition(Boolean condition, ErrorCodes errorcode, String msg) throws ClientException {
+    public void validateCondition(Boolean condition, ErrorCodes errorcode, String msg) throws ClientException {
         if(condition){
             throw new ClientException(errorcode, msg);
         }

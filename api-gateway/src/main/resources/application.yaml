@@ -4,8 +4,8 @@ server:
 #hcx headers
 protocol:
   headers:
-    mandatory: ${protocol_mandatory_headers:x-hcx-sender_code, x-hcx-recipient_code, x-hcx-api_call_id, x-hcx-timestamp, x-hcx-status, x-hcx-correlation_id}
-    optional: ${protocol_optional_headers:x-hcx-workflow_id, x-hcx-debug_flag, x-hcx-error_details, x-hcx-debug_details}
+    mandatory: ${protocol_mandatory_headers:x-hcx-sender_code, x-hcx-recipient_code, x-hcx-api_call_id, x-hcx-timestamp, x-hcx-correlation_id}
+    optional: ${protocol_optional_headers:x-hcx-workflow_id, x-hcx-debug_flag, x-hcx-error_details, x-hcx-debug_details, x-hcx-status}
 headers:
   jose: ${jose_headers:alg, enc}
 
@@ -26,6 +26,9 @@ redis:
 registry:
   basePath: ${REGISTRY_BASE_PATH:http://localhost:8081}
 
+hcx-api:
+  basePath: ${HCX_API_BASEPATH:http://localhost:8080}
+
 spring:
   main:
     web-application-type: reactive
@@ -43,7 +46,7 @@ spring:
             - CachingRequestBodyFilter
             - HCXValidationFilter
           predicates:
-            - Path=/v1/coverageeligibility/**, /v1/preauth/**, /v1/claim/**, /v1/paymentnotice/**, /v1/hcx/**
+            - Path=/v1/coverageeligibility/**, /v1/preauth/**, /v1/claim/**, /v1/paymentnotice/**, /v1/hcx/**, /v1/predetermination/**
 
         - id: hcx-api-route-audit
           uri: ${HCX_API_BASEPATH:http://localhost:8080}

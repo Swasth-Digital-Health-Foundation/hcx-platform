@@ -63,15 +63,9 @@ public class BaseController {
     public ResponseEntity<Object> validateReqAndPushToKafka(Map<String, Object> requestBody, String apiAction, String kafkaTopic) {
         Response response = new Response();
         try {
-            if (!HealthCheckManager.allSystemHealthResult)
-                throw new ServiceUnavailbleException(ErrorCodes.ERR_SERVICE_UNAVAILABLE, "Service is unavailable");
-            Request request = null;
-            if (HCX_SEARCH.equalsIgnoreCase(apiAction) || HCX_ON_SEARCH.equalsIgnoreCase(apiAction))
-                request = new SearchRequest(requestBody);
-            else
-                request = new Request(requestBody);
+            checkSystemHealth();
+            Request request = new Request(requestBody);
             setResponseParams(request, response);
-            request.validate(getAuditData(request), apiAction);
             processAndSendEvent(apiAction, kafkaTopic, request);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
@@ -79,8 +73,9 @@ public class BaseController {
         }
     }
 
-    protected List<HeaderAudit> getAuditData(Request request) {
-        return auditService.search(new SearchRequestDTO(new HashMap<>(Collections.singletonMap(CORRELATION_ID, request.getCorrelationId()))));
+    protected void checkSystemHealth() throws ServiceUnavailbleException {
+        if (!HealthCheckManager.allSystemHealthResult)
+            throw new ServiceUnavailbleException(ErrorCodes.ERR_SERVICE_UNAVAILABLE, "Service is unavailable");
     }
 
     protected void setResponseParams(Request request, Response response){
