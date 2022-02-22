@@ -4,7 +4,7 @@ import org.apache.commons.collections.MapUtils
 import org.apache.flink.streaming.api.functions.ProcessFunction
 import org.slf4j.LoggerFactory
 import org.swasth.dp.core.job.{BaseJobConfig, BaseProcessFunction, Metrics}
-import org.swasth.dp.core.util.{DispatcherUtil, JSONUtil, Constants}
+import org.swasth.dp.core.util.{Constants, DispatcherUtil, JSONUtil}
 
 import java.util
 import java.util.Calendar
@@ -36,28 +36,24 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
   }
 
   def dispatchErrorResponse(event: util.Map[String, AnyRef], error: Option[ErrorResponse], correlationId: String, payloadRefId: String, senderCtx: util.Map[String, AnyRef], context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
-    // Decode the payload, add error response to the payload, encode the updated payload
-    val payloadMap = getPayload(payloadRefId)
-    val encodedPayload = payloadMap.get(Constants.PAYLOAD).asInstanceOf[String]
-    //Place the updated protected header values into this map and encode the values
-    val parsedPayload = JSONUtil.parsePayload(encodedPayload)
-    val protectString = parsedPayload.get(Constants.PROTECTED).asInstanceOf[String]
-    //Decode protected String
-    val protectedMap = JSONUtil.decodeBase64String(protectString, classOf[util.HashMap[String, AnyRef]])
+    val protectedMap = new util.HashMap[String, AnyRef]
     //Update sender code
     protectedMap.put(Constants.SENDER_CODE, config.hcxRegistryCode)
     //Update recipient code
     protectedMap.put(Constants.RECIPIENT_CODE, getProtocolStringValue(event,Constants.SENDER_CODE))
+    //Keep same correlationId
+    protectedMap.put(Constants.CORRELATION_ID, getProtocolStringValue(event,Constants.CORRELATION_ID))
+    //Keep same api call id
+    protectedMap.put(Constants.API_CALL_ID, getProtocolStringValue(event,Constants.API_CALL_ID))
+    //Keep same work flow id if it exists in the incoming event
+    if(!getProtocolStringValue(event,Constants.WORKFLOW_ID).isEmpty)
+    protectedMap.put(Constants.WORKFLOW_ID, getProtocolStringValue(event,Constants.WORKFLOW_ID))
     //Update error details
     protectedMap.put(Constants.ERROR_DETAILS,createErrorMap(error))
     //Update status
     protectedMap.put(Constants.HCX_STATUS,Constants.HCX_ERROR_STATUS)
-    //Updating protected map with the latest encoded values
-    parsedPayload.put(Constants.PROTECTED, JSONUtil.encodeBase64Object(protectedMap))
-    //TODO use the helper classes to generate empty cipher text and replace the below code, as of now sending the same cipher text
-    //parsedPayload.put(Constants.CIPHERTEXT, getEmptyCipherText)
-    Console.println("Payload: " + parsedPayload)
-    val result = DispatcherUtil.dispatch(senderCtx, JSONUtil.serialize(parsedPayload))
+    Console.println("Payload: " + protectedMap)
+    val result = DispatcherUtil.dispatch(senderCtx, JSONUtil.serialize(protectedMap))
     if(result.retry) {
       metrics.incCounter(metric = config.dispatcherRetryCount)
       context.output(config.retryOutputTag, JSONUtil.serialize(event))
@@ -65,7 +61,7 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
   }
 
   override def processElement(event: util.Map[String, AnyRef], context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
-
+    //TODO Make changes here for handling redirect requests with flat JSON objects
     val correlationId = getProtocolStringValue(event,Constants.CORRELATION_ID)
     val payloadRefId = event.get(Constants.MID).asInstanceOf[String]
     // TODO change cdata to context after discussion.
@@ -100,6 +96,7 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
         //Adding updatedTimestamp for auditing
         event.put(Constants.UPDATED_TIME, Calendar.getInstance().getTime())
         if(result.success) {
+          if(!event.get(Constants.ACTION).asInstanceOf[String].contains("on_"))
           event.get(Constants.HEADERS).asInstanceOf[util.Map[String, AnyRef]].get(Constants.PROTOCOL).asInstanceOf[util.Map[String, AnyRef]].put(Constants.HCX_STATUS, Constants.HCX_DISPATCH_STATUS)
           audit(event, result.success, context, metrics);
           metrics.incCounter(metric = config.dispatcherSuccessCount)
@@ -112,6 +109,7 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
         }
         if(!result.retry && !result.success) {
           metrics.incCounter(metric = config.dispatcherFailedCount)
+          audit(event, result.success, context, metrics);
           dispatchErrorResponse(event,result.error, correlationId, payloadRefId, senderCtx, context, metrics)
         }
       }

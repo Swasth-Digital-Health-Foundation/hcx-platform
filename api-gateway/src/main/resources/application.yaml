@@ -9,6 +9,15 @@ protocol:
 headers:
   jose: ${jose_headers:alg, enc}
 
+plain:
+  headers:
+    mandatory: ${plain_mandatory_headers:x-hcx-sender_code, x-hcx-recipient_code, x-hcx-api_call_id, x-hcx-timestamp, x-hcx-correlation_id}
+    optional: ${plain_optional_headers:x-hcx-workflow_id, x-hcx-status, x-hcx-redirect_to}
+
+redirect:
+  apis: ${redirect_apis:/v1/coverageeligibility/on_check, /v1/preauth/on_submit, /v1/claim/on_submit}
+  roles: ${redirect_roles:payor, agency.tpa}
+
 timestamp:
   range: ${timestamp_range:10000}
 
