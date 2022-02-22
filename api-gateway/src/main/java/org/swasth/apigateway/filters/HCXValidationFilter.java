@@ -101,17 +101,18 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
             filters.put(RECIPIENT_CODE, request.getSenderCode());
             filters.put(CORRELATION_ID, request.getCorrelationId());
             List<Map<String,Object>> onActionAuditData = getAuditData(filters);
-            validateCorrelationId(onActionAuditData, "Invalid on_action request, corresponding action request does not exist");
+            if (auditData.isEmpty()) {
+                throw new ClientException(ErrorCodes.ERR_INVALID_CORRELATION_ID, "Invalid on_action request, corresponding action request does not exist");
+            }
             validateWorkflowId(request, onActionAuditData.get(0));
         }
         List<String> senderRoles = (List<String>) senderDetails.get(ROLES);
         List<String> recipientRoles = (List<String>) recipientDetails.get(ROLES);
         // forward flow validations
-        if(checkParticipantRole(senderRoles) && checkParticipantRole(recipientRoles)){
+        if(isForwardRequest(senderRoles, recipientRoles, auditData)){
             if(!allowedEntitiesForForward.contains(getEntity(path))){
                 throw new ClientException(ErrorCodes.ERR_INVALID_FORWARD_REQ, "Entity is not allowed for forwarding");
             }
-            validateCorrelationId(auditData, "The request contains invalid correlation id");
             validateWorkflowId(request, auditData.get(0));
             if(!path.contains("on_")){
                 for (Map<String, Object> audit : auditData) {
@@ -147,10 +148,14 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
         return auditService.getAuditLogs(filters);
     }
 
-    private void validateCorrelationId(List<Map<String,Object>> auditData, String errMsg) throws ClientException {
-        if (auditData.isEmpty()) {
-            throw new ClientException(ErrorCodes.ERR_INVALID_CORRELATION_ID, errMsg);
+    public boolean isForwardRequest(List<String> senderRoles, List<String> recipientRoles, List<Map<String,Object>> auditData) throws ClientException {
+        if(checkParticipantRole(senderRoles) && checkParticipantRole(recipientRoles)){
+            if(!auditData.isEmpty())
+                return true;
+            else
+                throw new ClientException(ErrorCodes.ERR_INVALID_FORWARD_REQ, "The request contains invalid correlation id");
         }
+        return false;
     }
 
     private void validateWorkflowId(Request request, Map<String, Object> auditEvent) throws ClientException {
