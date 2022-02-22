@@ -48,6 +48,7 @@ object Constants {
   val HCX_STATUS = "x-hcx-status"
   val HCX_ERROR_STATUS = "response.error"
   val HCX_DISPATCH_STATUS = "request.dispatched"
+  val HCX_QUEUED_STATUS = "request.queued"
 
   //Search Fields
   val SEARCH_REQUEST = "x-hcx-search"

@@ -104,18 +104,24 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
             validateCorrelationId(onActionAuditData, "Invalid on_action request, corresponding action request does not exist");
             validateWorkflowId(request, onActionAuditData.get(0));
         }
+        List<String> senderRoles = (List<String>) senderDetails.get(ROLES);
+        List<String> recipientRoles = (List<String>) recipientDetails.get(ROLES);
         // forward flow validations
-        if(isForwardRequest((List<String>) senderDetails.get(ROLES), (List<String>) recipientDetails.get(ROLES))){
+        if(checkParticipantRole(senderRoles) && checkParticipantRole(recipientRoles)){
             if(!allowedEntitiesForForward.contains(getEntity(path))){
                 throw new ClientException(ErrorCodes.ERR_INVALID_FORWARD_REQ, "Entity is not allowed for forwarding");
             }
             validateCorrelationId(auditData, "The request contains invalid correlation id");
             validateWorkflowId(request, auditData.get(0));
-            for(Map<String,Object> audit: auditData){
-                if(!request.getRecipientCode().equals(audit.get(SENDER_CODE))){
-                    throw new ClientException(ErrorCodes.ERR_INVALID_FORWARD_REQ, "Request cannot be forwarded to the forward initiators");
+            if(!path.contains("on_")){
+                for (Map<String, Object> audit : auditData) {
+                    if (request.getRecipientCode().equals(audit.get(SENDER_CODE))) {
+                        throw new ClientException(ErrorCodes.ERR_INVALID_FORWARD_REQ, "Request cannot be forwarded to the forward initiators");
+                    }
                 }
             }
+        } else if(!path.contains("on_") && checkParticipantRole(senderRoles) && recipientRoles.contains(PROVIDER)) {
+            throw new ClientException("Invalid recipient");
         }
     }
 
@@ -149,19 +155,16 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
 
     private void validateWorkflowId(Request request, Map<String, Object> auditEvent) throws ClientException {
         if (auditEvent.containsKey(WORKFLOW_ID)) {
-            if (!request.getHcxHeaders().containsKey(WORKFLOW_ID) && !request.getWorkflowId().equals(auditEvent.get(WORKFLOW_ID))) {
+            if (!request.getHcxHeaders().containsKey(WORKFLOW_ID) || !request.getWorkflowId().equals(auditEvent.get(WORKFLOW_ID))) {
                 throw new ClientException(ErrorCodes.ERR_INVALID_WORKFLOW_ID, "The request contains invalid workflow id");
             }
         }
     }
 
-    private boolean isForwardRequest(List<String> senderRoles, List<String> recipientRoles){
-        for(String senderRole: senderRoles){
-            if (allowedRolesForForward.contains(senderRole)) {
-                for (String recipientRole : recipientRoles) {
-                    if (allowedRolesForForward.contains(recipientRole))
-                        return true;
-                }
+    private boolean checkParticipantRole(List<String> roles){
+        for(String role: roles){
+            if (allowedRolesForForward.contains(role)) {
+                return true;
             }
         }
         return false;

@@ -20,6 +20,7 @@ rbac:
       - /v1/coverageeligibility/check
       - /v1/preauth/submit
       - /v1/claim/submit
+      - /v1/predetermination/submit
       - /v1/coverageeligibility/on_check
       - /v1/predetermination/on_submit
       - /v1/preauth/on_submit
@@ -34,6 +35,7 @@ rbac:
       - /v1/coverageeligibility/check
       - /v1/preauth/submit
       - /v1/claim/submit
+      - /v1/predetermination/submit
       - /v1/coverageeligibility/on_check
       - /v1/predetermination/on_submit
       - /v1/preauth/on_submit
