@@ -2,6 +2,8 @@ package org.swasth.common.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.List;
+
 public class HeaderAudit {
 
 	private String eid;
@@ -27,10 +29,12 @@ public class HeaderAudit {
 	private String action;
 	private String mid;
 	private String status;
+	private List<String> senderRole;
+	private List<String> recipientRole;
 
 	public HeaderAudit() {}
 
-	public HeaderAudit(String eid, Object error_details, Object debug_details, String recipient_code, String sender_code, String api_call_id, String workflow_id, String correlation_id, String timestamp, long requestTimeStamp, long auditTimeStamp, long updatedTimestamp, String action, String mid, String status) {
+	public HeaderAudit(String eid, Object error_details, Object debug_details, String recipient_code, String sender_code, String api_call_id, String workflow_id, String correlation_id, String timestamp, long requestTimeStamp, long auditTimeStamp, long updatedTimestamp, String action, String mid, String status, List<String> senderRole, List<String> recipientRole) {
 		this.eid = eid;
 		this.error_details = error_details;
 		this.debug_details = debug_details;
@@ -46,6 +50,8 @@ public class HeaderAudit {
 		this.action = action;
 		this.mid = mid;
 		this.status = status;
+		this.senderRole = senderRole;
+		this.recipientRole = recipientRole;
 	}
 	public String getEid() {
 		return eid;
@@ -136,5 +142,17 @@ public class HeaderAudit {
 	}
 	public void setStatus(String status) {
 		this.status = status;
+	}
+	public List<String> getSenderRole() {
+		return senderRole;
+	}
+	public void setSenderRole(List<String> senderRole) {
+		this.senderRole = senderRole;
+	}
+	public List<String> getRecipientRole() {
+		return recipientRole;
+	}
+	public void setRecipientRole(List<String> recipientRole) {
+		this.recipientRole = recipientRole;
 	}
 }
