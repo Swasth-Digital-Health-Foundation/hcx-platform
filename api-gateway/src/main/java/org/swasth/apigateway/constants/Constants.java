@@ -64,5 +64,6 @@ public class Constants {
     public static final String REDIRECT_STATUS = "response.redirect";
     public static final String ROLES = "roles";
     public static final String ACTION = "action";
+    public static final String COMPLETE_STATUS = "response.complete";
 
 }

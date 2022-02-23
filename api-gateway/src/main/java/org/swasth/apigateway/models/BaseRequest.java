@@ -144,8 +144,6 @@ public class BaseRequest {
             if(auditEvent.containsKey(WORKFLOW_ID)) {
                 validateCondition(!workflowId.equals(auditEvent.get(WORKFLOW_ID)), ErrorCodes.ERR_INVALID_WORKFLOW_ID, "The on_action request should contain the same workflow id as in corresponding action request");
             }
-        } else {
-            validateCondition(!auditData.isEmpty(), ErrorCodes.ERR_INVALID_CORRELATION_ID, "Request already exist with same correlation id");
         }
     }
 

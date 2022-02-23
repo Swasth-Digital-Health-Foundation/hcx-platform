@@ -74,18 +74,17 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                     JSONRequest jsonRequest = new JSONRequest(requestBody, true, path);
                     correlationId = jsonRequest.getCorrelationId();
                     apiCallId = jsonRequest.getApiCallId();
-                    jsonRequest.validate(getPlainMandatoryHeaders(), getSubject(exchange), timestampRange, getDetails(jsonRequest.getSenderCode()), getDetails(jsonRequest.getRecipientCode()));
-                    if (ON_ACTION_APIS.contains(path) && REDIRECT_STATUS.equalsIgnoreCase(jsonRequest.getStatus())) {
-                        List<String> allowedApis = getApisForRedirect();
-                        if (allowedApis.contains(jsonRequest.getApiAction()))
-                            jsonRequest.validateRedirectRequest(getRolesForRedirect(), getDetails(jsonRequest.getRedirectTo()), getAuditData(Collections.singletonMap(API_CALL_ID, jsonRequest.getApiCallId())), getAuditData(Collections.singletonMap(CORRELATION_ID, jsonRequest.getCorrelationId())));
+                    jsonRequest.validate(getRedirectMandatoryHeaders(), getSubject(exchange), timestampRange, getDetails(jsonRequest.getSenderCode()), getDetails(jsonRequest.getRecipientCode()));
+                    if (getApisForRedirect().contains(path)) {
+                        if (REDIRECT_STATUS.equalsIgnoreCase(jsonRequest.getStatus()))
+                            jsonRequest.validateRedirect(getRolesForRedirect(), getDetails(jsonRequest.getRedirectTo()), getAuditData(Collections.singletonMap(API_CALL_ID, jsonRequest.getApiCallId())), getAuditData(Collections.singletonMap(CORRELATION_ID, jsonRequest.getCorrelationId())));
                         else
-                            throw new ClientException(ErrorCodes.ERR_INVALID_REDIRECT_TO, "Invalid redirect request," + jsonRequest.getApiAction() + " is not allowed for redirect, Allowed APIs are: " + allowedApis);
+                            throw new ClientException(ErrorCodes.ERR_INVALID_REDIRECT_TO, "Invalid redirect request," + jsonRequest.getStatus() + " status is not allowed for redirect, Allowed status is " + REDIRECT_STATUS);
                     } else
-                        throw new ClientException(ErrorCodes.ERR_INVALID_REDIRECT_TO, "Invalid request," + jsonRequest.getApiAction() + " is not allowed to send across plain protocol headers");
+                        throw new ClientException(ErrorCodes.ERR_INVALID_REDIRECT_TO,"Invalid redirect request," + jsonRequest.getApiAction() + " is not allowed for redirect, Allowed APIs are: ");
                 }
             } catch (Exception e) {
-                logger.error("Exception occurred for request with correlationId: "+correlationId);
+                logger.error("Exception occurred for request with correlationId: " + correlationId);
                 return exceptionHandler.errorResponse(e, exchange, correlationId, apiCallId);
             }
             return chain.filter(exchange);
@@ -106,30 +105,30 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
         return decodedJWT.getSubject();
     }
 
-    private Map<String,Object> getDetails(String code) throws Exception {
+    private Map<String, Object> getDetails(String code) throws Exception {
         return registryService.fetchDetails("osid", code);
     }
 
-    private List<Object> getAuditData(Map<String,Object> filters) throws Exception {
+    private List<Object> getAuditData(Map<String, Object> filters) throws Exception {
         return auditService.getAuditLogs(filters);
     }
 
     public static class Config {
     }
 
-    private List<String> getPlainMandatoryHeaders(){
+    private List<String> getRedirectMandatoryHeaders() {
         List<String> plainMandatoryHeaders = new ArrayList<>();
-        plainMandatoryHeaders.addAll(env.getProperty("plain.headers.mandatory", List.class));
+        plainMandatoryHeaders.addAll(env.getProperty("redirect.headers.mandatory", List.class));
         return plainMandatoryHeaders;
     }
 
-    private List<String> getApisForRedirect(){
+    private List<String> getApisForRedirect() {
         List<String> allowedApis = new ArrayList<>();
         allowedApis.addAll(env.getProperty("redirect.apis", List.class));
         return allowedApis;
     }
 
-    private List<String> getRolesForRedirect(){
+    private List<String> getRolesForRedirect() {
         List<String> allowedRoles = new ArrayList<>();
         allowedRoles.addAll(env.getProperty("redirect.roles", List.class));
         return allowedRoles;
