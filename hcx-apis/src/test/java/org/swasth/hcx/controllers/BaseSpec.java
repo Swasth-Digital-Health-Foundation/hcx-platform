@@ -22,14 +22,13 @@ import org.swasth.hcx.service.HeaderAuditService;
 import org.swasth.kafka.client.IEventService;
 import org.swasth.postgresql.IDatabaseService;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.swasth.common.utils.Constants.HEADERS;
-import static org.swasth.common.utils.Constants.PROTOCOL;
 
-
-@WebMvcTest({CoverageEligibilityController.class, PreAuthController.class, ClaimsController.class, PaymentsController.class, AuditController.class, StatusController.class, SearchController.class})
+@WebMvcTest({CoverageEligibilityController.class, PreAuthController.class, ClaimsController.class, PaymentsController.class, AuditController.class, StatusController.class, SearchController.class, ParticipantController.class})
 @ExtendWith(MockitoExtension.class)
 @ActiveProfiles("test")
 public class BaseSpec {
@@ -75,7 +74,7 @@ public class BaseSpec {
         obj.put("x-hcx-sender_code","1-0756766c-ad43-4145-86ea-d1b17b729a3f");
         obj.put("x-hcx-recipient_code","1-68c5deca-8299-4feb-b441-923bb649a9a3");
         obj.put("x-hcx-correlation_id","5e934f90-111d-4f0b-b016-c22d820674e4");
-        obj.put("x-hcx-api_call_id","5e934f90-111d-4f0b-b016-c22d820674e6");
+        obj.put("x-hcx-workflow_id","1e83-460a-4f0b-b016-c22d820674e1");
         obj.put("x-hcx-error_details", new HashMap<>() {{
             put("code","ERR_INVALID_ENCRYPTION");
             put("error","");
@@ -83,21 +82,6 @@ public class BaseSpec {
         }});
         return JSONUtils.serialize(obj);
     }
-
-//    public String getErrorRequestBody() throws JsonProcessingException {
-//        Map<String,Object> obj = new HashMap<>();
-//        obj.put("x-hcx-status","response.error");
-//        obj.put("x-hcx-sender_code","1-0756766c-ad43-4145-86ea-d1b17b729a3f");
-//        obj.put("x-hcx-recipient_code","1-68c5deca-8299-4feb-b441-923bb649a9a3");
-//        obj.put("X-hcx-correlation_id","5e934f90-111d-4f0b-b016-c22d820674e4");
-//        obj.put("x-hcx-error_details", new HashMap<>() {{
-//            put("code","ERR_INVALID_ENCRYPTION");
-//            put("error","");
-//            put("trace","Recipient Invalid Encryption");
-//        }});
-//
-//        return JSONUtils.serialize(obj);
-//    }
 
     public String getBadRequestBody() throws JsonProcessingException {
         Map<String,Object> obj = new HashMap<>();
@@ -113,5 +97,48 @@ public class BaseSpec {
 
     public Response validHealthResponse() {
         return new Response("healthy",true);
+    }
+
+    public String getParticipantCreateBody() throws JsonProcessingException {
+        Map<String,Object> obj = new HashMap<>();
+        obj.put("participant_name","New Teja Hospital888");
+        obj.put("primary_mobile","9493347239");
+        obj.put("primary_email","dharmateja888@gmail.com");
+        obj.put("roles",new ArrayList<String>(Collections.singleton("provider")));
+        obj.put("address", new HashMap<>() {{
+            put("plot","5-4-199");
+            put("street","road no 12");
+            put("landmark","");
+            put("village","Nampally");
+            put("district","Hyd");
+            put("state","Telangana");
+            put("pincode","500805");
+        }});
+        obj.put("phone",new ArrayList<String>(Collections.singleton("040-387658992")));
+        obj.put("status","Created");
+        obj.put("endpoint_url","http://a4a175528daf949a2af3cd141af93de2-1466580421.ap-south-1.elb.amazonaws.com:8080");
+        obj.put("payment_details", new HashMap<>() {{
+            put("account_number","4707890099809809");
+            put("ifsc_code","ICICLE");
+        }});
+        obj.put("signing_cert_path","urn:isbn:0-476-27557-4");
+        obj.put("linked_registry_codes",new ArrayList<String>(Collections.singleton("22344")));
+        obj.put("encryption_cert","urn:isbn:0-4234");
+        return JSONUtils.serialize(obj);
+    }
+
+    public String getSearchFilter() throws JsonProcessingException {
+        Map<String,Object> obj = new HashMap<>();
+        obj.put("filters", new HashMap<>() {{
+            put("primary_email",new HashMap<>() {{
+                put("eq","dharmateja887@gmail.com");
+            }});
+        }});
+        return JSONUtils.serialize(obj);
+    }
+
+    public String getAuthorizationHeader() throws JsonProcessingException{
+        String s = "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICI3Q1l0Z2VYMzA2NEQ3VUU0czdCQWlJZmUzN3hxczBtNEVSQnpmdzVuMzdNIn0.eyJleHAiOjE2NDYwMjM5NTUsImlhdCI6MTY0NTE1OTk1NSwianRpIjoiZjJhNWZhMTgtY2E3Ni00NjZlLTg5MTUtYjAwZWIzYTczOWRhIiwiaXNzIjoiaHR0cDovL2FlZjgxMDFjNDMyZDA0YTY1OWU2MzE3YjNlNTAzMWNmLTE2NzQ1ODYwNjguYXAtc291dGgtMS5lbGIuYW1hem9uYXdzLmNvbTo4MDgwL2F1dGgvcmVhbG1zL3N3YXN0aC1oZWFsdGgtY2xhaW0tZXhjaGFuZ2UiLCJhdWQiOiJhY2NvdW50Iiwic3ViIjoiZjY5OGI1MjEtNzQwOS00MzJkLWE1ZGItZDEzZTUxZjAyOWE5IiwidHlwIjoiQmVhcmVyIiwiYXpwIjoicmVnaXN0cnktZnJvbnRlbmQiLCJzZXNzaW9uX3N0YXRlIjoiMmIwYjExMzQtZjcyNC00YmQ2LWFjNzMtMDZkOTkyYWY4MzZlIiwiYWNyIjoiMSIsInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJISUUvSElPLkhDWCIsImRlZmF1bHQtcm9sZXMtbmRlYXIiXX0sInJlc291cmNlX2FjY2VzcyI6eyJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50IiwibWFuYWdlLWFjY291bnQtbGlua3MiLCJ2aWV3LXByb2ZpbGUiXX19LCJzY29wZSI6InByb2ZpbGUgZW1haWwiLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsInByZWZlcnJlZF91c2VybmFtZSI6ImhjeGdhdGV3YXlAZ21haWwuY29tIiwiZW50aXR5IjpbIk9yZ2FuaXNhdGlvbiJdLCJlbWFpbCI6ImhjeGdhdGV3YXlAZ21haWwuY29tIn0.hnLVaBWPnaiRXxo2XKnE0wpoH2SdGcVRP3Xpxp1gUW5yII3a1aB0h_Qvzs_uhCnt6Fud_hk6WtntzuIjcvzdvXTCjF8k4zZefwADtTsFNt-G82fibhBghID3nO-V7mgIhJ3TNiYcybW2cNMKdJTlORAImbqmtZckFPJCW2F7o1uG06be1ltZ-lVzBvC40MWcX9eaqeWRFotwLJqcX7ZM2kozYbAt9CBeQaP5zokFV8r4EsNmWb3gJWw5osj9Kyqk_Ya3L0EsFMV8vxWgzmA7i4qqc2kYeGulBgEupMCt7qglLeGpDuennGPOPNghHB13tqI1g-ltlNL8zgKPdv9OAw";
+        return s;
     }
 }

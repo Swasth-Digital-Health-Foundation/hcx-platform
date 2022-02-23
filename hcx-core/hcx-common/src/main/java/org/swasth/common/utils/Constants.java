@@ -94,5 +94,7 @@ public class Constants {
     public static final List<String> SEARCH_RES_KEYS = Arrays.asList("count","entity_counts");
     public static final String HCX_REGISTRY_CODE = "hcx-registry-code";
 
+    public static final String ERROR_STATUS = "response.error";
+
 
 }

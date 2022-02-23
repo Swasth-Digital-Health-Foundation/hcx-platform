@@ -43,16 +43,12 @@ public class EventGenerator {
                 if (protectedHeaders.containsKey(key))
                     filterProtocolHeaders.put(key, protectedHeaders.get(key));
             });
-            event.put(MID, mid);
-            event.put(ETS, System.currentTimeMillis());
-            event.put(ACTION, apiAction);
             event.put(HEADERS, new HashMap<>(){{
                 put(JOSE, filterJoseHeaders);
                 put(PROTOCOL, filterProtocolHeaders);
             }});
-            event.put("status", "request.queued");
         } else {
-            if(!ERROR_HEADERS_MANDATORY.isEmpty() && !ERROR_HEADERS_OPTIONAL.isEmpty()){
+            if(ERROR_STATUS.equals(request.getStatus())){
                 List<String> protocolHeaders = env.getProperty(ERROR_HEADERS_MANDATORY, List.class);
                 protocolHeaders.addAll(env.getProperty(ERROR_HEADERS_OPTIONAL, List.class));
                 Map<String, Object> protectedHeaders = request.getHcxHeaders();
@@ -65,11 +61,11 @@ public class EventGenerator {
                     put(PROTOCOL, filterProtocolHeaders);
                 }});
             }
-            event.put(MID, mid);
-            event.put(ETS, System.currentTimeMillis());
-            event.put(ACTION, apiAction);
-            event.put("status", "request.queued");
         }
+        event.put(MID, mid);
+        event.put(ETS, System.currentTimeMillis());
+        event.put(ACTION, apiAction);
+        event.put("status", "request.queued");
         return JSONUtils.serialize(event);
     }
 }

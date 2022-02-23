@@ -12,7 +12,7 @@ headers:
 #hcx error headers
 plainrequest:
   headers:
-    mandatory: ${error_mandatory_headers:x-hcx-status, x-hcx-sender_code, x-hcx-recipient_code, x-hcx-error_details}
+    mandatory: ${error_mandatory_headers:x-hcx-status, x-hcx-sender_code, x-hcx-recipient_code, x-hcx-error_details, x-hcx-correlation_id}
     optional: ${error_optional_headers:x-hcx-workflow_id, x-hcx-api_call_id}
 
 timestamp:
