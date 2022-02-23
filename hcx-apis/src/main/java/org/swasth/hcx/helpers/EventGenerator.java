@@ -43,10 +43,10 @@ public class EventGenerator {
                 if (protectedHeaders.containsKey(key))
                     filterProtocolHeaders.put(key, protectedHeaders.get(key));
             });
-            event.put(HEADERS, new HashMap<>(){{
-                put(JOSE, filterJoseHeaders);
-                put(PROTOCOL, filterProtocolHeaders);
-            }});
+            Map<String,Object> headers = new HashMap<>();
+            headers.put(JOSE, filterJoseHeaders);
+            headers.put(PROTOCOL, filterProtocolHeaders);
+            event.put(HEADERS, headers);
         } else {
             if(ERROR_STATUS.equals(request.getStatus())){
                 List<String> protocolHeaders = env.getProperty(ERROR_HEADERS_MANDATORY, List.class);
