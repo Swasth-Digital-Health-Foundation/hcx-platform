@@ -14,7 +14,6 @@ public class RequestTest {
     @Test
     public void check_payload() throws Exception {
         Request request = new Request(getRequestBody());
-        assertEquals(true,true);
     }
 
     @Test
