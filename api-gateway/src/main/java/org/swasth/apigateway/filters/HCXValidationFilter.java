@@ -2,13 +2,6 @@ package org.swasth.apigateway.filters;
 
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import org.swasth.apigateway.exception.ClientException;
-import org.swasth.apigateway.exception.ErrorCodes;
-import org.swasth.apigateway.helpers.ExceptionHandler;
-import org.swasth.apigateway.models.Request;
-import org.swasth.apigateway.service.AuditService;
-import org.swasth.apigateway.service.RegistryService;
-import org.swasth.apigateway.utils.JSONUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +14,14 @@ import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
+import org.swasth.apigateway.exception.ClientException;
+import org.swasth.apigateway.exception.ErrorCodes;
+import org.swasth.apigateway.helpers.ExceptionHandler;
+import org.swasth.apigateway.models.JSONRequest;
+import org.swasth.apigateway.models.JWERequest;
+import org.swasth.apigateway.service.AuditService;
+import org.swasth.apigateway.service.RegistryService;
+import org.swasth.apigateway.utils.JSONUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -68,62 +69,50 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
             try {
                 StringBuilder cachedBody = new StringBuilder(StandardCharsets.UTF_8.decode(((DataBuffer) exchange.getAttribute(CACHED_REQUEST_BODY_ATTR)).asByteBuffer()));
                 String path = exchange.getRequest().getPath().value();
-                Request request = new Request(JSONUtils.deserialize(cachedBody.toString(), HashMap.class));
-                correlationId = request.getCorrelationId();
-                apiCallId = request.getApiCallId();
-                Map<String,Object> senderDetails = getDetails(request.getSenderCode());
-                Map<String,Object> recipientDetails = getDetails(request.getRecipientCode());
-                request.validate(getMandatoryHeaders(), senderDetails, recipientDetails, getSubject(exchange), timestampRange);
-                validateUsingAuditData(request, senderDetails, recipientDetails, path);
+                Map<String, Object> requestBody = JSONUtils.deserialize(cachedBody.toString(), HashMap.class);
+                if (requestBody.containsKey(PAYLOAD)) {
+                    JWERequest jweRequest = new JWERequest(requestBody, false, path);
+                    correlationId = jweRequest.getCorrelationId();
+                    apiCallId = jweRequest.getApiCallId();
+                    Map<String,Object> senderDetails = getDetails(jweRequest.getSenderCode());
+                    Map<String,Object> recipientDetails = getDetails(jweRequest.getRecipientCode());
+                    jweRequest.validate(getMandatoryHeaders(), getSubject(exchange), timestampRange, senderDetails, recipientDetails);
+                    jweRequest.validateUsingAuditData(allowedEntitiesForForward, allowedRolesForForward, senderDetails, recipientDetails, getCorrelationAuditData(jweRequest.getCorrelationId()), getCallAuditData(jweRequest.getApiCallId()), getParticipantCtxAuditData(jweRequest.getSenderCode(), jweRequest.getRecipientCode(), jweRequest.getCorrelationId()));
+                } else {
+                    JSONRequest jsonRequest = new JSONRequest(requestBody, true, path);
+                    correlationId = jsonRequest.getCorrelationId();
+                    apiCallId = jsonRequest.getApiCallId();
+                    jsonRequest.validate(getRedirectMandatoryHeaders(), getSubject(exchange), timestampRange, getDetails(jsonRequest.getSenderCode()), getDetails(jsonRequest.getRecipientCode()));
+                    if (getApisForRedirect().contains(path)) {
+                        if (REDIRECT_STATUS.equalsIgnoreCase(jsonRequest.getStatus()))
+                            jsonRequest.validateRedirect(getRolesForRedirect(), getDetails(jsonRequest.getRedirectTo()), getCallAuditData(jsonRequest.getApiCallId()), getCorrelationAuditData(jsonRequest.getCorrelationId()));
+                        else
+                            throw new ClientException(ErrorCodes.ERR_INVALID_REDIRECT_TO, "Invalid redirect request," + jsonRequest.getStatus() + " status is not allowed for redirect, Allowed status is " + REDIRECT_STATUS);
+                    } else
+                        throw new ClientException(ErrorCodes.ERR_INVALID_REDIRECT_TO,"Invalid redirect request," + jsonRequest.getApiAction() + " is not allowed for redirect, Allowed APIs are: ");
+                }
             } catch (Exception e) {
+                logger.error("Exception occurred for request with correlationId: " + correlationId);
                 return exceptionHandler.errorResponse(e, exchange, correlationId, apiCallId);
             }
             return chain.filter(exchange);
         };
     }
 
-    private void validateUsingAuditData(Request request, Map<String,Object> senderDetails, Map<String,Object> recipientDetails, String path) throws Exception {
-        if(!getAuditData(Collections.singletonMap(API_CALL_ID, request.getApiCallId())).isEmpty()){
-            throw new ClientException(ErrorCodes.ERR_INVALID_API_CALL_ID, "Request exist with same api call id");
-        }
-        List<Map<String,Object>> auditData = getAuditData(Collections.singletonMap(CORRELATION_ID, request.getCorrelationId()));
-        // validate request cycle is not closed
-        for(Map<String,Object> audit: auditData){
-            String action = (String) audit.get(ACTION);
-            String entity = getEntity(action);
-            if(!OPERATIONAL_ENTITIES.contains(entity) && action.contains("on_") && ((List<String>) audit.get(RECIPIENT_ROLE)).contains(PROVIDER) && audit.get(STATUS).equals(STATUS_COMPLETE)){
-                throw new ClientException(ErrorCodes.ERR_INVALID_CORRELATION_ID, "Invalid request, cycle is closed for correlation id");
-            }
-        }
-        if(path.contains("on_")) {
-            Map<String,String> filters = new HashMap<>();
-            filters.put(SENDER_CODE, request.getRecipientCode());
-            filters.put(RECIPIENT_CODE, request.getSenderCode());
-            filters.put(CORRELATION_ID, request.getCorrelationId());
-            List<Map<String,Object>> onActionAuditData = getAuditData(filters);
-            if (auditData.isEmpty()) {
-                throw new ClientException(ErrorCodes.ERR_INVALID_CORRELATION_ID, "Invalid on_action request, corresponding action request does not exist");
-            }
-            validateWorkflowId(request, onActionAuditData.get(0));
-        }
-        List<String> senderRoles = (List<String>) senderDetails.get(ROLES);
-        List<String> recipientRoles = (List<String>) recipientDetails.get(ROLES);
-        // forward flow validations
-        if(isForwardRequest(senderRoles, recipientRoles, auditData)){
-            if(!allowedEntitiesForForward.contains(getEntity(path))){
-                throw new ClientException(ErrorCodes.ERR_INVALID_FORWARD_REQ, "Entity is not allowed for forwarding");
-            }
-            validateWorkflowId(request, auditData.get(0));
-            if(!path.contains("on_")){
-                for (Map<String, Object> audit : auditData) {
-                    if (request.getRecipientCode().equals(audit.get(SENDER_CODE))) {
-                        throw new ClientException(ErrorCodes.ERR_INVALID_FORWARD_REQ, "Request cannot be forwarded to the forward initiators");
-                    }
-                }
-            }
-        } else if(!path.contains("on_") && checkParticipantRole(senderRoles) && recipientRoles.contains(PROVIDER)) {
-            throw new ClientException("Invalid recipient");
-        }
+    private List<Map<String, Object>> getCallAuditData(String apiCallId) throws Exception {
+        return getAuditData(Collections.singletonMap(API_CALL_ID, apiCallId));
+    }
+
+    private List<Map<String, Object>> getCorrelationAuditData(String correlationId) throws Exception {
+        return getAuditData(Collections.singletonMap(CORRELATION_ID, correlationId));
+    }
+
+    private List<Map<String, Object>> getParticipantCtxAuditData(String senderCode, String recipientCode, String correlationId) throws Exception {
+        Map<String,String> filters = new HashMap<>();
+        filters.put(SENDER_CODE, recipientCode);
+        filters.put(RECIPIENT_CODE, senderCode);
+        filters.put(CORRELATION_ID, correlationId);
+        return getAuditData(filters);
     }
 
     private List<String> getMandatoryHeaders() {
@@ -140,7 +129,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
         return decodedJWT.getSubject();
     }
 
-    private Map<String,Object> getDetails(String code) throws Exception {
+    private Map<String, Object> getDetails(String code) throws Exception {
         return registryService.fetchDetails("osid", code);
     }
 
@@ -148,45 +137,25 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
         return auditService.getAuditLogs(filters);
     }
 
-    public boolean isForwardRequest(List<String> senderRoles, List<String> recipientRoles, List<Map<String,Object>> auditData) throws ClientException {
-        if(checkParticipantRole(senderRoles) && checkParticipantRole(recipientRoles)){
-            if(!auditData.isEmpty())
-                return true;
-            else
-                throw new ClientException(ErrorCodes.ERR_INVALID_FORWARD_REQ, "The request contains invalid correlation id");
-        }
-        return false;
-    }
-
-    private void validateWorkflowId(Request request, Map<String, Object> auditEvent) throws ClientException {
-        if (auditEvent.containsKey(WORKFLOW_ID)) {
-            if (!request.getHcxHeaders().containsKey(WORKFLOW_ID) || !request.getWorkflowId().equals(auditEvent.get(WORKFLOW_ID))) {
-                throw new ClientException(ErrorCodes.ERR_INVALID_WORKFLOW_ID, "The request contains invalid workflow id");
-            }
-        }
-    }
-
-    private boolean checkParticipantRole(List<String> roles){
-        for(String role: roles){
-            if (allowedRolesForForward.contains(role)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public String getEntity(String path){
-        if (path.contains("status")) {
-            return "status";
-        } else if (path.contains("search")) {
-            return "search";
-        } else {
-            String[] str = path.split("/");
-            return str[str.length-2];
-        }
-    }
-
     public static class Config {
+    }
+
+    private List<String> getRedirectMandatoryHeaders() {
+        List<String> plainMandatoryHeaders = new ArrayList<>();
+        plainMandatoryHeaders.addAll(env.getProperty("redirect.headers.mandatory", List.class));
+        return plainMandatoryHeaders;
+    }
+
+    private List<String> getApisForRedirect() {
+        List<String> allowedApis = new ArrayList<>();
+        allowedApis.addAll(env.getProperty("redirect.apis", List.class));
+        return allowedApis;
+    }
+
+    private List<String> getRolesForRedirect() {
+        List<String> allowedRoles = new ArrayList<>();
+        allowedRoles.addAll(env.getProperty("redirect.roles", List.class));
+        return allowedRoles;
     }
 
 }
