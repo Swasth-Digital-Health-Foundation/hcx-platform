@@ -32,7 +32,7 @@ public class AuditService {
         List<Map<String,Object>> details;
         if (response != null && response.getStatus() == 200) {
             details = JSONUtils.deserialize((String) response.getBody(), ArrayList.class);
-            System.out.println("Audit filters: " + filters + " Audit data: " + details);
+            System.out.println("Audit filters: " + filters + " Audit data count: " + details.size() + " Audit data: " + details);
         } else {
             throw new Exception("Error in fetching the audit logs" + response.getStatus());
         }
