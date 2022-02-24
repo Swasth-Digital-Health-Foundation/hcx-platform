@@ -16,7 +16,7 @@ public class JSONRequest extends BaseRequest{
         super(payload,isJSONRequest,apiAction);
     }
 
-    public void validateRedirect(List<String> allowedRoles,Map<String, Object> redirectDetails,List<Object> callAuditData,List<Object> correlationAuditData) throws Exception {
+    public void validateRedirect(List<String> allowedRoles,Map<String, Object> redirectDetails,List<Map<String, Object>> callAuditData,List<Map<String, Object>> correlationAuditData) throws Exception {
             validateCondition(StringUtils.isEmpty(getRedirectTo()), ErrorCodes.ERR_INVALID_REDIRECT_TO, "Redirect requests must have valid participant code for field " + REDIRECT_TO);
             validateCondition(getSenderCode().equalsIgnoreCase(getRedirectTo()), ErrorCodes.ERR_INVALID_REDIRECT_TO, "Sender can not redirect request to self");
 
