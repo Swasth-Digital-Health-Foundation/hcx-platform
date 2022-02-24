@@ -1,6 +1,5 @@
 package org.swasth.hcx.helpers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -9,6 +8,8 @@ import org.swasth.common.utils.JSONUtils;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest(classes = {EventGenerator.class})
 public class EventGeneratorTests {
@@ -31,14 +32,16 @@ public class EventGeneratorTests {
     @Test
     public void check_generateMetadataEvent_JSON() throws Exception {
         String result = eventGenerator.generateMetadataEvent("test", "/test", getJSONRequest("response.error"));
+        Map<String,Object> resultMap = JSONUtils.deserialize(result, HashMap.class);
+        assertEquals(true,((Map)((Map) resultMap.get("headers")).get("protocol")).containsKey("x-hcx-status"));
+        assertEquals(true,((Map)((Map) resultMap.get("headers")).get("protocol")).containsKey("x-hcx-recipient_code"));
+        assertEquals(true,((Map)((Map) resultMap.get("headers")).get("protocol")).containsKey("x-hcx-sender_code"));
+        assertEquals(true,((Map)((Map) resultMap.get("headers")).get("protocol")).containsKey("x-hcx-correlation_id"));
+        assertEquals(true,((Map)((Map) resultMap.get("headers")).get("protocol")).containsKey("x-hcx-status"));
+        assertEquals("response.error",(String)((Map)((Map) resultMap.get("headers")).get("protocol")).get("x-hcx-status"));
         assert (!result.isEmpty());
     }
 
-    @Test
-    public void check_generateMetadataEvent_error() throws Exception {
-        String result = eventGenerator.generateMetadataEvent("test", "/test", getJSONRequest("response.complete"));
-        assert (!result.isEmpty());
-    }
 
     public Request getRequest() throws Exception {
         Map<String,Object> obj = new HashMap<>();
