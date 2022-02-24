@@ -37,6 +37,7 @@ public class Constants {
     public static final String PREDETERMINATION_SUBMIT = VERSION_PREFIX + "/predetermination/submit";
     public static final String PREDETERMINATION_ONSUBMIT = VERSION_PREFIX + "/predetermination/on_submit";
 
+    public static final List<String> ACTION_APIS = Arrays.asList(COVERAGE_ELIGIBILITY_CHECK, PRE_AUTH_SUBMIT, CLAIM_SUBMIT, PAYMENT_NOTICE_REQUEST, HCX_STATUS, HCX_SEARCH, COMMUNICATION_REQUEST, PREDETERMINATION_SUBMIT);
     public static final List<String> ON_ACTION_APIS = Arrays.asList(COVERAGE_ELIGIBILITY_ONCHECK, PRE_AUTH_ONSUBMIT, CLAIM_ONSUBMIT, PAYMENT_NOTICE_ONREQUEST, HCX_ONSTATUS, HCX_ON_SEARCH, COMMUNICATION_ONREQUEST, PREDETERMINATION_ONSUBMIT);
 
     public static final int PAYLOAD_LENGTH = 5;
@@ -61,9 +62,13 @@ public class Constants {
     public static final String BLOCKED = "Blocked";
     public static final String INACTIVE = "Inactive";
     public static final String OS_OWNER = "osOwner";
-    public static final String REDIRECT_STATUS = "response.redirect";
     public static final String ROLES = "roles";
     public static final String ACTION = "action";
+    public static final String SENDER_ROLE = "senderRole";
+    public static final String RECIPIENT_ROLE = "recipientRole";
+    public static final String PROVIDER = "provider";
+    public static final List<String> OPERATIONAL_ENTITIES = Arrays.asList("notification", "communication", "status");
+    public static final String REDIRECT_STATUS = "response.redirect";
     public static final String COMPLETE_STATUS = "response.complete";
 
 }

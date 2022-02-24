@@ -96,22 +96,21 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
         //Adding updatedTimestamp for auditing
         event.put(Constants.UPDATED_TIME, Calendar.getInstance().getTime())
         if(result.success) {
-          if(!event.get(Constants.ACTION).asInstanceOf[String].contains("on_"))
-          event.get(Constants.HEADERS).asInstanceOf[util.Map[String, AnyRef]].get(Constants.PROTOCOL).asInstanceOf[util.Map[String, AnyRef]].put(Constants.HCX_STATUS, Constants.HCX_DISPATCH_STATUS)
-          audit(event, result.success, context, metrics);
+          setStatus(event, Constants.HCX_DISPATCH_STATUS)
           metrics.incCounter(metric = config.dispatcherSuccessCount)
         }
         if(result.retry) {
+          setStatus(event, Constants.HCX_QUEUED_STATUS)
           metrics.incCounter(metric = config.dispatcherRetryCount)
-          audit(event, result.success, context, metrics);
           //For retry place the incoming event into retry topic
           context.output(config.retryOutputTag, JSONUtil.serialize(event))
         }
         if(!result.retry && !result.success) {
+          setStatus(event, Constants.HCX_ERROR_STATUS)
           metrics.incCounter(metric = config.dispatcherFailedCount)
-          audit(event, result.success, context, metrics);
           dispatchErrorResponse(event,result.error, correlationId, payloadRefId, senderCtx, context, metrics)
         }
+        audit(event, result.success, context, metrics);
       }
     }
   }

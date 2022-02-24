@@ -45,10 +45,16 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
     ExceptionHandler exceptionHandler;
 
     @Autowired
-    protected Environment env;
+    private Environment env;
 
     @Value("${timestamp.range}")
-    protected int timestampRange;
+    private int timestampRange;
+
+    @Value("${allowedEntitiesForForward}")
+    private List<String> allowedEntitiesForForward;
+
+    @Value("${allowedRolesForForward}")
+    private List<String> allowedRolesForForward;
 
     public HCXValidationFilter(@Qualifier("jwk") JWTVerifier jwtVerifier) {
         super(Config.class);
@@ -68,8 +74,10 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                     JWERequest jweRequest = new JWERequest(requestBody, false, path);
                     correlationId = jweRequest.getCorrelationId();
                     apiCallId = jweRequest.getApiCallId();
-                    jweRequest.validate(getMandatoryHeaders(), getSubject(exchange), timestampRange, getDetails(jweRequest.getSenderCode()), getDetails(jweRequest.getRecipientCode()));
-                    jweRequest.validateUsingAuditData(jweRequest.getWorkflowId(), getAuditData(Collections.singletonMap(CORRELATION_ID, jweRequest.getCorrelationId())));
+                    Map<String,Object> senderDetails = getDetails(jweRequest.getSenderCode());
+                    Map<String,Object> recipientDetails = getDetails(jweRequest.getRecipientCode());
+                    jweRequest.validate(getMandatoryHeaders(), getSubject(exchange), timestampRange, senderDetails, recipientDetails);
+                    jweRequest.validateUsingAuditData(allowedEntitiesForForward, allowedRolesForForward, senderDetails, recipientDetails, getCorrelationAuditData(jweRequest.getCorrelationId()), getCallAuditData(jweRequest.getApiCallId()), getParticipantCtxAuditData(jweRequest.getSenderCode(), jweRequest.getRecipientCode(), jweRequest.getCorrelationId()));
                 } else {
                     JSONRequest jsonRequest = new JSONRequest(requestBody, true, path);
                     correlationId = jsonRequest.getCorrelationId();
@@ -77,7 +85,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                     jsonRequest.validate(getRedirectMandatoryHeaders(), getSubject(exchange), timestampRange, getDetails(jsonRequest.getSenderCode()), getDetails(jsonRequest.getRecipientCode()));
                     if (getApisForRedirect().contains(path)) {
                         if (REDIRECT_STATUS.equalsIgnoreCase(jsonRequest.getStatus()))
-                            jsonRequest.validateRedirect(getRolesForRedirect(), getDetails(jsonRequest.getRedirectTo()), getAuditData(Collections.singletonMap(API_CALL_ID, jsonRequest.getApiCallId())), getAuditData(Collections.singletonMap(CORRELATION_ID, jsonRequest.getCorrelationId())));
+                            jsonRequest.validateRedirect(getRolesForRedirect(), getDetails(jsonRequest.getRedirectTo()), getCallAuditData(jsonRequest.getApiCallId()), getCorrelationAuditData(jsonRequest.getCorrelationId()));
                         else
                             throw new ClientException(ErrorCodes.ERR_INVALID_REDIRECT_TO, "Invalid redirect request," + jsonRequest.getStatus() + " status is not allowed for redirect, Allowed status is " + REDIRECT_STATUS);
                     } else
@@ -89,6 +97,22 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
             }
             return chain.filter(exchange);
         };
+    }
+
+    private List<Map<String, Object>> getCallAuditData(String apiCallId) throws Exception {
+        return getAuditData(Collections.singletonMap(API_CALL_ID, apiCallId));
+    }
+
+    private List<Map<String, Object>> getCorrelationAuditData(String correlationId) throws Exception {
+        return getAuditData(Collections.singletonMap(CORRELATION_ID, correlationId));
+    }
+
+    private List<Map<String, Object>> getParticipantCtxAuditData(String senderCode, String recipientCode, String correlationId) throws Exception {
+        Map<String,String> filters = new HashMap<>();
+        filters.put(SENDER_CODE, recipientCode);
+        filters.put(RECIPIENT_CODE, senderCode);
+        filters.put(CORRELATION_ID, correlationId);
+        return getAuditData(filters);
     }
 
     private List<String> getMandatoryHeaders() {
@@ -109,7 +133,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
         return registryService.fetchDetails("osid", code);
     }
 
-    private List<Object> getAuditData(Map<String, Object> filters) throws Exception {
+    private List<Map<String, Object>> getAuditData(Map<String,String> filters) throws Exception {
         return auditService.getAuditLogs(filters);
     }
 

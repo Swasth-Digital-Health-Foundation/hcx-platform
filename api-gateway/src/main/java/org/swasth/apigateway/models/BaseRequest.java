@@ -6,13 +6,14 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.swasth.apigateway.exception.ClientException;
 import org.swasth.apigateway.exception.ErrorCodes;
-import org.swasth.apigateway.service.AuditService;
-import org.swasth.apigateway.service.RegistryService;
 import org.swasth.apigateway.utils.DateTimeUtils;
 import org.swasth.apigateway.utils.JSONUtils;
 import org.swasth.apigateway.utils.Utils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.swasth.apigateway.constants.Constants.*;
@@ -137,13 +138,31 @@ public class BaseRequest {
         return errors;
     }
 
-    public void validateUsingAuditData(String workflowId,List<Object> auditData) throws Exception {
-        if(ON_ACTION_APIS.contains(apiAction)) {
-            validateCondition(auditData.isEmpty(), ErrorCodes.ERR_INVALID_CORRELATION_ID, "The on_action request should contain the same correlation id as in corresponding action request");
-            Map<String,Object> auditEvent = (Map<String, Object>) auditData.get(0);
-            if(auditEvent.containsKey(WORKFLOW_ID)) {
-                validateCondition(!workflowId.equals(auditEvent.get(WORKFLOW_ID)), ErrorCodes.ERR_INVALID_WORKFLOW_ID, "The on_action request should contain the same workflow id as in corresponding action request");
+    public void validateUsingAuditData(List<String> allowedEntitiesForForward, List<String> allowedRolesForForward, Map<String,Object> senderDetails, Map<String,Object> recipientDetails, List<Map<String,Object>> correlationAuditData, List<Map<String,Object>> callAuditData, List<Map<String,Object>> participantCtxAuditData) throws Exception {
+        validateCondition(!callAuditData.isEmpty(), ErrorCodes.ERR_INVALID_API_CALL_ID, "Request exist with same api call id");
+        // validate request cycle is not closed
+        for(Map<String,Object> audit: correlationAuditData){
+            String action = (String) audit.get(ACTION);
+            String entity = getEntity(action);
+            validateCondition(!OPERATIONAL_ENTITIES.contains(entity) && action.contains("on_") && ((List<String>) audit.get(RECIPIENT_ROLE)).contains(PROVIDER) && audit.get(STATUS).equals(COMPLETE_STATUS), ErrorCodes.ERR_INVALID_CORRELATION_ID, "Invalid request, cycle is closed for correlation id");
+        }
+        if(apiAction.contains("on_")) {
+            validateCondition(participantCtxAuditData.isEmpty(), ErrorCodes.ERR_INVALID_CORRELATION_ID, "Invalid on_action request, corresponding action request does not exist");
+            validateWorkflowId(participantCtxAuditData.get(0));
+        }
+        List<String> senderRoles = (List<String>) senderDetails.get(ROLES);
+        List<String> recipientRoles = (List<String>) recipientDetails.get(ROLES);
+        // forward flow validations
+        if(isForwardRequest(allowedRolesForForward, senderRoles, recipientRoles, correlationAuditData)){
+            validateCondition(!allowedEntitiesForForward.contains(getEntity(apiAction)), ErrorCodes.ERR_INVALID_FORWARD_REQ, "Entity is not allowed for forwarding");
+            validateWorkflowId(correlationAuditData.get(0));
+            if(!apiAction.contains("on_")){
+                for (Map<String, Object> audit : correlationAuditData) {
+                    validateCondition(getRecipientCode().equals(audit.get(SENDER_CODE)), ErrorCodes.ERR_INVALID_FORWARD_REQ, "Request cannot be forwarded to the forward initiators");
+                }
             }
+        } else if(!apiAction.contains("on_") && checkParticipantRole(allowedRolesForForward, senderRoles) && recipientRoles.contains(PROVIDER)) {
+            throw new ClientException("Invalid recipient");
         }
     }
 
@@ -185,6 +204,42 @@ public class BaseRequest {
             return payloadValues;
         } catch (Exception e) {
             throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, "Invalid payload");
+        }
+    }
+
+    public boolean isForwardRequest(List<String> allowedRolesForForward, List<String> senderRoles, List<String> recipientRoles, List<Map<String,Object>> auditData) throws ClientException {
+        if(checkParticipantRole(allowedRolesForForward, senderRoles) && checkParticipantRole(allowedRolesForForward, recipientRoles)){
+            if(!auditData.isEmpty())
+                return true;
+            else
+                throw new ClientException(ErrorCodes.ERR_INVALID_FORWARD_REQ, "The request contains invalid correlation id");
+        }
+        return false;
+    }
+
+    private void validateWorkflowId(Map<String, Object> auditEvent) throws ClientException {
+        if (auditEvent.containsKey(WORKFLOW_ID)) {
+            validateCondition(!protocolHeaders.containsKey(WORKFLOW_ID) || !getWorkflowId().equals(auditEvent.get(WORKFLOW_ID)), ErrorCodes.ERR_INVALID_WORKFLOW_ID, "The request contains invalid workflow id");
+        }
+    }
+
+    private boolean checkParticipantRole(List<String> allowedRolesForForward, List<String> roles){
+        for(String role: roles){
+            if (allowedRolesForForward.contains(role)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public String getEntity(String path){
+        if (path.contains("status")) {
+            return "status";
+        } else if (path.contains("search")) {
+            return "search";
+        } else {
+            String[] str = path.split("/");
+            return str[str.length-2];
         }
     }
 

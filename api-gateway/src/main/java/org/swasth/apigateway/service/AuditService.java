@@ -21,7 +21,7 @@ public class AuditService {
     @Value("${hcx-api.basePath}")
     private String hcxApiUrl;
 
-    public List<Object> getAuditLogs(Map<String,Object> filters) throws Exception {
+    public List<Map<String, Object>> getAuditLogs(Map<String,String> filters) throws Exception {
         String url = hcxApiUrl + "/v1/audit/search";
         HttpResponse response;
         try {
@@ -29,9 +29,10 @@ public class AuditService {
         } catch (UnirestException e) {
             throw new ServerException(ErrorCodes.SERVICE_UNAVAILABLE, "Error connecting to audit service: " + e.getMessage());
         }
-        List<Object> details;
+        List<Map<String,Object>> details;
         if (response != null && response.getStatus() == 200) {
             details = JSONUtils.deserialize((String) response.getBody(), ArrayList.class);
+            System.out.println("Audit filters: " + filters + " Audit data count: " + details.size() + " Audit data: " + details);
         } else {
             throw new Exception("Error in fetching the audit logs" + response.getStatus());
         }
