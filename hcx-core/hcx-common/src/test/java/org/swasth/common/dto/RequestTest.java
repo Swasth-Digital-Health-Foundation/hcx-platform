@@ -2,6 +2,7 @@ package org.swasth.common.dto;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.Test;
+import org.swasth.common.exception.ClientException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,9 +22,9 @@ public class RequestTest {
         Request request = new Request(getPlainRequestBody());
     }
 
-    @Test
+    @Test(expected = ClientException.class)
     public void check_exception_payload() throws Exception {
-        Request request = new Request(new HashMap<>());
+        Request request = new Request(null);
     }
 
     public Map<String, Object> getRequestBody() {
