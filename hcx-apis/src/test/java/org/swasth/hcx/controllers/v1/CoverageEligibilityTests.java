@@ -30,7 +30,7 @@ public class CoverageEligibilityTests extends BaseSpec {
 
     @Test
     public void check_coverage_eligibility_exception_scenario() throws Exception {
-        String requestBody = "{}";
+        String requestBody = getExceptionRequestBody();
         MvcResult mvcResult = mockMvc.perform(post("/v1/coverageeligibility/check").content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
@@ -50,7 +50,7 @@ public class CoverageEligibilityTests extends BaseSpec {
 
     @Test
     public void on_check_coverage_eligibility_exception_scenario() throws Exception {
-        String requestBody = "{}";
+        String requestBody = getExceptionRequestBody();
         MvcResult mvcResult = mockMvc.perform(post("/v1/coverageeligibility/on_check").content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();

@@ -31,7 +31,7 @@ public class PaymentsTests extends BaseSpec {
 
     @Test
     public void check_payment_request_exception_scenario() throws Exception {
-        String requestBody = "{}";
+        String requestBody = getExceptionRequestBody();
         MvcResult mvcResult = mockMvc.perform(post("/v1/paymentnotice/request").content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
@@ -51,7 +51,7 @@ public class PaymentsTests extends BaseSpec {
 
     @Test
     public void check_payment_on_request_exception_scenario() throws Exception {
-        String requestBody = "{}";
+        String requestBody = getExceptionRequestBody();
         MvcResult mvcResult = mockMvc.perform(post("/v1/paymentnotice/on_request").content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();

@@ -31,7 +31,7 @@ public class ClaimsTests extends BaseSpec {
 
   @Test
   public void check_claim_submit_exception_scenario() throws Exception {
-      String requestBody = "{}";
+      String requestBody = getExceptionRequestBody();
       MvcResult mvcResult = mockMvc.perform(post("/v1/claim/submit").content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
       MockHttpServletResponse response = mvcResult.getResponse();
       int status = response.getStatus();
@@ -51,7 +51,7 @@ public class ClaimsTests extends BaseSpec {
 
   @Test
   public void check_claim_on_submit_exception_scenario() throws Exception {
-      String requestBody = "{}";
+      String requestBody = getExceptionRequestBody();
       MvcResult mvcResult = mockMvc.perform(post("/v1/claim/on_submit").content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
       MockHttpServletResponse response = mvcResult.getResponse();
       int status = response.getStatus();

@@ -31,7 +31,7 @@ public class PredeterminationControllerTests extends BaseSpec {
 
   @Test
   public void check_predetermination_submit_exception_scenario() throws Exception {
-      String requestBody = "{}";
+      String requestBody = getExceptionRequestBody();
       MvcResult mvcResult = mockMvc.perform(post("/v1/predetermination/submit").content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
       MockHttpServletResponse response = mvcResult.getResponse();
       int status = response.getStatus();
@@ -51,7 +51,7 @@ public class PredeterminationControllerTests extends BaseSpec {
 
   @Test
   public void check_predetermination_on_submit_exception_scenario() throws Exception {
-      String requestBody = "{}";
+      String requestBody = getExceptionRequestBody();
       MvcResult mvcResult = mockMvc.perform(post("/v1/predetermination/on_submit").content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
       MockHttpServletResponse response = mvcResult.getResponse();
       int status = response.getStatus();
