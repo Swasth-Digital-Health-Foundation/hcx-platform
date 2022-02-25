@@ -4,7 +4,7 @@ import org.apache.commons.collections.MapUtils
 import org.apache.flink.streaming.api.functions.ProcessFunction
 import org.slf4j.LoggerFactory
 import org.swasth.dp.core.job.{BaseJobConfig, BaseProcessFunction, Metrics}
-import org.swasth.dp.core.util.{DispatcherUtil, JSONUtil, Constants}
+import org.swasth.dp.core.util.{Constants, DispatcherUtil, JSONUtil}
 
 import java.util
 import java.util.Calendar
@@ -61,7 +61,7 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
   }
 
   override def processElement(event: util.Map[String, AnyRef], context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
-
+    //TODO Make changes here for handling redirect requests with flat JSON objects
     val correlationId = getProtocolStringValue(event,Constants.CORRELATION_ID)
     val payloadRefId = event.get(Constants.MID).asInstanceOf[String]
     // TODO change cdata to context after discussion.
@@ -96,20 +96,27 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
         Console.println("result::"+result)
         //Adding updatedTimestamp for auditing
         event.put(Constants.UPDATED_TIME, Calendar.getInstance().getTime())
+<<<<<<< HEAD
         Console.println("event::"+event)
         audit(event, result.success, context, metrics);
+=======
+>>>>>>> d6c869a8efc9dda3f15ecc8af7f44aa979982bae
         if(result.success) {
+          setStatus(event, Constants.HCX_DISPATCH_STATUS)
           metrics.incCounter(metric = config.dispatcherSuccessCount)
         }
         if(result.retry) {
+          setStatus(event, Constants.HCX_QUEUED_STATUS)
           metrics.incCounter(metric = config.dispatcherRetryCount)
           //For retry place the incoming event into retry topic
           context.output(config.retryOutputTag, JSONUtil.serialize(event))
         }
         if(!result.retry && !result.success) {
+          setStatus(event, Constants.HCX_ERROR_STATUS)
           metrics.incCounter(metric = config.dispatcherFailedCount)
           dispatchErrorResponse(event,result.error, correlationId, payloadRefId, senderCtx, context, metrics)
         }
+        audit(event, result.success, context, metrics);
       }
     }
   }
@@ -131,10 +138,12 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
     audit.put(Constants.DEBUG_DETAILS,getProtocolMapValue(event,Constants.DEBUG_DETAILS))
     audit.put(Constants.MID,event.get(Constants.MID).asInstanceOf[String])
     audit.put(Constants.ACTION,event.get(Constants.ACTION).asInstanceOf[String])
-    audit.put(Constants.STATUS,event.get(Constants.STATUS).asInstanceOf[String])
+    audit.put(Constants.HCX_STATUS,getProtocolStringValue(event,Constants.HCX_STATUS))
     audit.put(Constants.REQUESTED_TIME,event.get(Constants.ETS))
     audit.put(Constants.UPDATED_TIME,event.getOrDefault(Constants.UPDATED_TIME, Calendar.getInstance().getTime()))
     audit.put(Constants.AUDIT_TIMESTAMP, Calendar.getInstance().getTime())
+    audit.put(Constants.SENDER_ROLE, getCDataListValue(event, Constants.SENDER, Constants.ROLES))
+    audit.put(Constants.RECIPIENT_ROLE, getCDataListValue(event, Constants.RECIPIENT, Constants.ROLES))
     audit
   }
 

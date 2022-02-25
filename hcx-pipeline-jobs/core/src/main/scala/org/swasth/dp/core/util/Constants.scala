@@ -32,6 +32,9 @@ object Constants {
   val STATUS = "status"
   val REQUESTED_TIME = "requestTimeStamp"
   val UPDATED_TIME = "updatedTimestamp"
+  val SENDER_ROLE = "senderRole"
+  val RECIPIENT_ROLE = "recipientRole"
+  val ROLES = "roles"
 
   //Event Fields
   val SENDER_CODE = "x-hcx-sender_code"
@@ -44,6 +47,8 @@ object Constants {
   val DEBUG_FLAG = "x-hcx-debug_flag"
   val HCX_STATUS = "x-hcx-status"
   val HCX_ERROR_STATUS = "response.error"
+  val HCX_DISPATCH_STATUS = "request.dispatched"
+  val HCX_QUEUED_STATUS = "request.queued"
 
   //Search Fields
   val SEARCH_REQUEST = "x-hcx-search"

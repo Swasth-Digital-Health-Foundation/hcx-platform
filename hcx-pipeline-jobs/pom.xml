@@ -30,6 +30,8 @@
     <module>search-response-job</module>
     <module>jobs-distribution</module>
     <module>audit-indexer</module>
+    <module>communication-job</module>
+    <module>predetermination-job</module>
   </modules>
 
   <properties>

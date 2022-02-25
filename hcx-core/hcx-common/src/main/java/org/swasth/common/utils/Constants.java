@@ -29,7 +29,13 @@ public class Constants {
     public static final String HCX_SEARCH = VERSION_PREFIX + "/hcx/search";
     public static final String HCX_ON_SEARCH = VERSION_PREFIX + "/hcx/on_search";
 
-    public static final List<String> ON_ACTION_APIS = Arrays.asList(COVERAGE_ELIGIBILITY_ONCHECK, PRE_AUTH_ONSUBMIT, CLAIM_ONSUBMIT, PAYMENT_NOTICE_ONREQUEST, HCX_ONSTATUS, HCX_ON_SEARCH);
+    //Communication APIs
+    public static final String COMMUNICATION_REQUEST = VERSION_PREFIX + "/communication/request";
+    public static final String COMMUNICATION_ONREQUEST = VERSION_PREFIX + "/communication/on_request";
+
+    //Predetermination APIs
+    public static final String PREDETERMINATION_SUBMIT = VERSION_PREFIX + "/predetermination/submit";
+    public static final String PREDETERMINATION_ONSUBMIT = VERSION_PREFIX + "/predetermination/on_submit";
 
     public static final String HEALTHY = "healthy";
     public static final String NAME = "name";
@@ -56,6 +62,8 @@ public class Constants {
     public static final String ERROR_HEADERS_MANDATORY = "plainrequest.headers.mandatory";
     public static final String ERROR_HEADERS_OPTIONAL = "plainrequest.headers.optional";
     public static final String PROTOCOL_HEADERS_OPTIONAL = "protocol.headers.optional";
+    public static final String REDIRECT_HEADERS_MANDATORY = "redirect.headers.mandatory";
+    public static final String REDIRECT_HEADERS_OPTIONAL = "redirect.headers.optional";
     public static final String JOSE_HEADERS = "headers.jose";
     public static final String DOMAIN_HEADERS = "headers.domain";
     public static final String SENDER_CODE = "x-hcx-sender_code";
@@ -95,6 +103,7 @@ public class Constants {
     public static final String HCX_REGISTRY_CODE = "hcx-registry-code";
 
     public static final String ERROR_STATUS = "response.error";
-
+    public static final String REDIRECT_STATUS = "response.redirect";
+    public static final String COMPLETE_STATUS = "response.complete";
 
 }
