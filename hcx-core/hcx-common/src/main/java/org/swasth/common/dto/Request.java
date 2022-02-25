@@ -12,11 +12,20 @@ import static org.swasth.common.utils.Constants.*;
 public class Request {
 
     private final Map<String, Object> payload;
-    protected final Map<String, Object> hcxHeaders;
+    protected Map<String, Object> hcxHeaders = null;
 
     public Request(Map<String, Object> body) throws Exception {
         this.payload = body;
-        this.hcxHeaders = JSONUtils.decodeBase64String(((String) body.get(PAYLOAD)).split("\\.")[0], Map.class);
+        try {
+            if(body.containsKey(PAYLOAD)) {
+                hcxHeaders = JSONUtils.decodeBase64String(((String) body.get(PAYLOAD)).split("\\.")[0], Map.class);
+            } else if(body.containsKey(STATUS)) {
+                hcxHeaders = body;
+            }
+        } catch (Exception e) {
+            throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD,"Invalid Payload");
+        }
+
     }
 
     public void validate(List<HeaderAudit> auditResponse, String apiAction) throws ClientException {

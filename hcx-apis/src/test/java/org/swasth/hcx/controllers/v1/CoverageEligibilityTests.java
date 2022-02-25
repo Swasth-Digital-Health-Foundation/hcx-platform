@@ -28,6 +28,8 @@ public class CoverageEligibilityTests extends BaseSpec {
       assertEquals(202, status);
     }
 
+
+
     @Test
     public void check_coverage_eligibility_exception_scenario() throws Exception {
         String requestBody = "{}";

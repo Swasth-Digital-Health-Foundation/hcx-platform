@@ -43,6 +43,7 @@ object Constants {
   val TIMESTAMP = "x-hcx-timestamp"
   val DEBUG_FLAG = "x-hcx-debug_flag"
   val HCX_STATUS = "x-hcx-status"
+  val HCX_ERROR_STATUS = "response.error"
 
   //Search Fields
   val SEARCH_REQUEST = "x-hcx-search"

@@ -53,6 +53,8 @@ public class Constants {
 
     //Request props
     public static final String PROTOCOL_HEADERS_MANDATORY = "protocol.headers.mandatory";
+    public static final String ERROR_HEADERS_MANDATORY = "plainrequest.headers.mandatory";
+    public static final String ERROR_HEADERS_OPTIONAL = "plainrequest.headers.optional";
     public static final String PROTOCOL_HEADERS_OPTIONAL = "protocol.headers.optional";
     public static final String JOSE_HEADERS = "headers.jose";
     public static final String DOMAIN_HEADERS = "headers.domain";
@@ -91,6 +93,8 @@ public class Constants {
     public static final String SEARCH_FILTERS_RECEIVER = "receivers";
     public static final List<String> SEARCH_RES_KEYS = Arrays.asList("count","entity_counts");
     public static final String HCX_REGISTRY_CODE = "hcx-registry-code";
+
+    public static final String ERROR_STATUS = "response.error";
 
 
 }
