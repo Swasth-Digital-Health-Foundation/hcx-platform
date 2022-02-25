@@ -96,11 +96,8 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
         Console.println("result::"+result)
         //Adding updatedTimestamp for auditing
         event.put(Constants.UPDATED_TIME, Calendar.getInstance().getTime())
-<<<<<<< HEAD
         Console.println("event::"+event)
         audit(event, result.success, context, metrics);
-=======
->>>>>>> d6c869a8efc9dda3f15ecc8af7f44aa979982bae
         if(result.success) {
           setStatus(event, Constants.HCX_DISPATCH_STATUS)
           metrics.incCounter(metric = config.dispatcherSuccessCount)
