@@ -93,10 +93,9 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
         val payload = getPayload(payloadRefId);
         val payloadJSON = JSONUtil.serialize(payload);
         val result = DispatcherUtil.dispatch(recipientCtx, payloadJSON)
-        Console.println("result::"+result)
+        logger.info("result::"+result)
         //Adding updatedTimestamp for auditing
         event.put(Constants.UPDATED_TIME, Calendar.getInstance().getTime())
-        Console.println("event::"+event)
         audit(event, result.success, context, metrics);
         if(result.success) {
           setStatus(event, Constants.HCX_DISPATCH_STATUS)
