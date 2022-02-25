@@ -27,6 +27,12 @@ postgres:
   password: ${postgres_password:postgres}
   tablename: ${postgres_tablename:payload}
 
+#hcx error headers
+plainrequest:
+  headers:
+    mandatory: ${error_mandatory_headers:x-hcx-status, x-hcx-sender_code, x-hcx-recipient_code, x-hcx-error_details, x-hcx-correlation_id, x-hcx-api_call_id, x-hcx-timestamp}
+    optional: ${error_optional_headers:x-hcx-workflow_id}
+
 #hcx headers
 protocol:
   headers:
@@ -39,11 +45,6 @@ headers:
 elasticsearch:
   url: ${elasticsearch_url:localhost:9200}
 
-#hcx error headers
-plainrequest:
-  headers:
-    mandatory: ${error_mandatory_headers:x-hcx-status, x-hcx-sender_code, x-hcx-recipient_code, x-hcx-error_details}
-    optional: ${error_optional_headers:x-hcx-workflow_id, x-hcx-api_call_id}
 
 #hcx redirect headers
 redirect:

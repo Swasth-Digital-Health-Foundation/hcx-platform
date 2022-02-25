@@ -27,7 +27,7 @@ public class EventGenerator {
 
     public String generateMetadataEvent(String mid, String apiAction, Request request) throws Exception {
         Map<String,Object> event = new HashMap<>();
-        List<String> protocolHeaders = null;
+        List<String> protocolHeaders;
         if (request.getPayload().containsKey(PAYLOAD)) {
             protocolHeaders = env.getProperty(PROTOCOL_HEADERS_MANDATORY, List.class);
             protocolHeaders.addAll(env.getProperty(PROTOCOL_HEADERS_OPTIONAL, List.class));
@@ -46,10 +46,10 @@ public class EventGenerator {
             event.put(MID, mid);
             event.put(ETS, System.currentTimeMillis());
             event.put(ACTION, apiAction);
-            event.put(HEADERS, new HashMap<>(){{
-                put(JOSE, filterJoseHeaders);
-                put(PROTOCOL, filterProtocolHeaders);
-            }});
+            Map<String,Object> headers = new HashMap<>();
+            headers.put(JOSE, filterJoseHeaders);
+            headers.put(PROTOCOL, filterProtocolHeaders);
+            event.put(HEADERS, headers);
             event.put("status", "request.queued");
         } else {
             if(REDIRECT_STATUS.equalsIgnoreCase(request.getStatus())) {
@@ -61,13 +61,15 @@ public class EventGenerator {
             }
             Map<String, Object> protectedHeaders = request.getHcxHeaders();
             Map<String, Object> filterProtocolHeaders = new HashMap<>();
-            protocolHeaders.forEach(key -> {
-                if (protectedHeaders.containsKey(key))
-                    filterProtocolHeaders.put(key, protectedHeaders.get(key));
-            });
-            event.put(HEADERS, new HashMap<>() {{
-                put(PROTOCOL, filterProtocolHeaders);
-            }});
+            if(protocolHeaders != null) {
+                protocolHeaders.forEach(key -> {
+                    if (protectedHeaders.containsKey(key))
+                        filterProtocolHeaders.put(key, protectedHeaders.get(key));
+                });
+                Map<String, Object> headers = new HashMap<>();
+                headers.put(PROTOCOL, filterProtocolHeaders);
+                event.put(HEADERS, headers);
+            }
             event.put(MID, mid);
             event.put(ETS, System.currentTimeMillis());
             event.put(ACTION, apiAction);

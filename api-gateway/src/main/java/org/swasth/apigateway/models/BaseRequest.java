@@ -70,6 +70,7 @@ public class BaseRequest {
         }
         if (protocolHeaders.containsKey(ERROR_DETAILS)) {
             validateDetails(getErrorDetails(), ErrorCodes.ERR_INVALID_ERROR_DETAILS, "Error details cannot be null, empty and other than 'JSON Object'", ERROR_DETAILS_VALUES, "Error details should contain only: ");
+            validateCondition(!RECIPIENT_ERROR_VALUES.contains(((Map<String,Object>) protocolHeaders.get(ERROR_DETAILS)).get("code")),ErrorCodes.ERR_INVALID_ERROR_DETAILS,"Invalid Error Code");
         }
         if (protocolHeaders.containsKey(DEBUG_DETAILS)) {
             validateDetails(getDebugDetails(), ErrorCodes.ERR_INVALID_DEBUG_DETAILS, "Debug details cannot be null, empty and other than 'JSON Object'", ERROR_DETAILS_VALUES, "Debug details should contain only: ");

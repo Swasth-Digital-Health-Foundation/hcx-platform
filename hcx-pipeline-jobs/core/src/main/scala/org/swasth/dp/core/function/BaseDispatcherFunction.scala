@@ -47,7 +47,7 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
     protectedMap.put(Constants.API_CALL_ID, getProtocolStringValue(event,Constants.API_CALL_ID))
     //Keep same work flow id if it exists in the incoming event
     if(!getProtocolStringValue(event,Constants.WORKFLOW_ID).isEmpty)
-    protectedMap.put(Constants.WORKFLOW_ID, getProtocolStringValue(event,Constants.WORKFLOW_ID))
+      protectedMap.put(Constants.WORKFLOW_ID, getProtocolStringValue(event,Constants.WORKFLOW_ID))
     //Update error details
     protectedMap.put(Constants.ERROR_DETAILS,createErrorMap(error))
     //Update status
@@ -93,8 +93,10 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
         val payload = getPayload(payloadRefId);
         val payloadJSON = JSONUtil.serialize(payload);
         val result = DispatcherUtil.dispatch(recipientCtx, payloadJSON)
+        logger.info("result::"+result)
         //Adding updatedTimestamp for auditing
         event.put(Constants.UPDATED_TIME, Calendar.getInstance().getTime())
+        audit(event, result.success, context, metrics);
         if(result.success) {
           setStatus(event, Constants.HCX_DISPATCH_STATUS)
           metrics.incCounter(metric = config.dispatcherSuccessCount)

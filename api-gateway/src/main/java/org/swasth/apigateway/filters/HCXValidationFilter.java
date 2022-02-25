@@ -82,14 +82,18 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                     JSONRequest jsonRequest = new JSONRequest(requestBody, true, path);
                     correlationId = jsonRequest.getCorrelationId();
                     apiCallId = jsonRequest.getApiCallId();
-                    jsonRequest.validate(getRedirectMandatoryHeaders(), getSubject(exchange), timestampRange, getDetails(jsonRequest.getSenderCode()), getDetails(jsonRequest.getRecipientCode()));
-                    if (getApisForRedirect().contains(path)) {
-                        if (REDIRECT_STATUS.equalsIgnoreCase(jsonRequest.getStatus()))
-                            jsonRequest.validateRedirect(getRolesForRedirect(), getDetails(jsonRequest.getRedirectTo()), getCallAuditData(jsonRequest.getApiCallId()), getCorrelationAuditData(jsonRequest.getCorrelationId()));
-                        else
-                            throw new ClientException(ErrorCodes.ERR_INVALID_REDIRECT_TO, "Invalid redirect request," + jsonRequest.getStatus() + " status is not allowed for redirect, Allowed status is " + REDIRECT_STATUS);
-                    } else
-                        throw new ClientException(ErrorCodes.ERR_INVALID_REDIRECT_TO,"Invalid redirect request," + jsonRequest.getApiAction() + " is not allowed for redirect, Allowed APIs are: ");
+                    if(ERROR_RESPONSE.equalsIgnoreCase(jsonRequest.getStatus())) {
+                        jsonRequest.validate(getErrorMandatoryHeaders(), getSubject(exchange), timestampRange, getDetails(jsonRequest.getSenderCode()), getDetails(jsonRequest.getRecipientCode()));
+                    } else {
+                        jsonRequest.validate(getRedirectMandatoryHeaders(), getSubject(exchange), timestampRange, getDetails(jsonRequest.getSenderCode()), getDetails(jsonRequest.getRecipientCode()));
+                        if (getApisForRedirect().contains(path)) {
+                            if (REDIRECT_STATUS.equalsIgnoreCase(jsonRequest.getStatus()))
+                                jsonRequest.validateRedirect(getRolesForRedirect(), getDetails(jsonRequest.getRedirectTo()), getCallAuditData(jsonRequest.getApiCallId()), getCorrelationAuditData(jsonRequest.getCorrelationId()));
+                            else
+                                throw new ClientException(ErrorCodes.ERR_INVALID_REDIRECT_TO, "Invalid redirect request," + jsonRequest.getStatus() + " status is not allowed for redirect, Allowed status is " + REDIRECT_STATUS);
+                        } else
+                            throw new ClientException(ErrorCodes.ERR_INVALID_REDIRECT_TO,"Invalid redirect request," + jsonRequest.getApiAction() + " is not allowed for redirect, Allowed APIs are: ");
+                    }
                 }
             } catch (Exception e) {
                 logger.error("Exception occurred for request with correlationId: " + correlationId);
@@ -119,6 +123,12 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
         List<String> mandatoryHeaders = new ArrayList<>();
         mandatoryHeaders.addAll(env.getProperty("protocol.headers.mandatory", List.class));
         mandatoryHeaders.addAll(env.getProperty("headers.jose", List.class));
+        return mandatoryHeaders;
+    }
+
+    private List<String> getErrorMandatoryHeaders() {
+        List<String> mandatoryHeaders = new ArrayList<>();
+        mandatoryHeaders.addAll(env.getProperty("plainrequest.headers.mandatory", List.class));
         return mandatoryHeaders;
     }
 
