@@ -50,16 +50,18 @@ public class EventGenerator {
         } else {
             if(ERROR_STATUS.equals(request.getStatus())){
                 List<String> protocolHeaders = env.getProperty(ERROR_HEADERS_MANDATORY, List.class);
-                if(protocolHeaders != null) protocolHeaders.addAll(env.getProperty(ERROR_HEADERS_OPTIONAL, List.class));
-                Map<String, Object> protectedHeaders = request.getHcxHeaders();
-                Map<String, Object> filterProtocolHeaders = new HashMap<>();
-                protocolHeaders.forEach(key -> {
-                    if (protectedHeaders.containsKey(key))
-                        filterProtocolHeaders.put(key, protectedHeaders.get(key));
-                });
-                Map<String,Object> headers = new HashMap<>();
-                headers.put(PROTOCOL, filterProtocolHeaders);
-                event.put(HEADERS, headers);
+                if(protocolHeaders != null) {
+                    protocolHeaders.addAll(env.getProperty(ERROR_HEADERS_OPTIONAL, List.class));
+                    Map<String, Object> protectedHeaders = request.getHcxHeaders();
+                    Map<String, Object> filterProtocolHeaders = new HashMap<>();
+                    protocolHeaders.forEach(key -> {
+                        if (protectedHeaders.containsKey(key))
+                            filterProtocolHeaders.put(key, protectedHeaders.get(key));
+                    });
+                    Map<String,Object> headers = new HashMap<>();
+                    headers.put(PROTOCOL, filterProtocolHeaders);
+                    event.put(HEADERS, headers);
+                }
             }
         }
         event.put(MID, mid);
