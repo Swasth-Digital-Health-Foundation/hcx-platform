@@ -16,12 +16,12 @@ public class Request {
     public Request(Map<String, Object> body) throws Exception {
         this.payload = body;
         try {
-            if(body.containsKey(PAYLOAD)) {
+            if (body.containsKey(PAYLOAD)) {
                 hcxHeaders = JSONUtils.decodeBase64String(((String) body.get(PAYLOAD)).split("\\.")[0], Map.class);
-            } else
+            } else if (body.containsKey(STATUS))
                 hcxHeaders = body;
         } catch (Exception e) {
-            throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD,"Invalid Payload");
+            throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, "Invalid Payload");
         }
     }
 
@@ -46,15 +46,23 @@ public class Request {
         return getHeader(SENDER_CODE);
     }
 
-    public String getRecipientCode() { return getHeader(RECIPIENT_CODE); }
+    public String getRecipientCode() {
+        return getHeader(RECIPIENT_CODE);
+    }
 
-    public String getTimestamp() { return getHeader(TIMESTAMP); }
+    public String getTimestamp() {
+        return getHeader(TIMESTAMP);
+    }
 
-    public String getDebugFlag() { return getHeader(DEBUG_FLAG); }
+    public String getDebugFlag() {
+        return getHeader(DEBUG_FLAG);
+    }
 
-    public String getStatus() { return getHeader(STATUS); }
+    public String getStatus() {
+        return getHeader(STATUS);
+    }
 
-    public Map<String,Object> getHcxHeaders() {
+    public Map<String, Object> getHcxHeaders() {
         return hcxHeaders;
     }
 
@@ -62,13 +70,17 @@ public class Request {
         return (String) hcxHeaders.getOrDefault(key, null);
     }
 
-    protected Map<String,Object> getHeaderMap(String key){
-        return (Map<String,Object>) hcxHeaders.getOrDefault(key,null);
+    protected Map<String, Object> getHeaderMap(String key) {
+        return (Map<String, Object>) hcxHeaders.getOrDefault(key, null);
     }
 
-    private Map<String,Object> getErrorDetails(){ return getHeaderMap(ERROR_DETAILS); }
+    private Map<String, Object> getErrorDetails() {
+        return getHeaderMap(ERROR_DETAILS);
+    }
 
-    private Map<String,Object> getDebugDetails(){ return getHeaderMap(DEBUG_DETAILS); }
+    private Map<String, Object> getDebugDetails() {
+        return getHeaderMap(DEBUG_DETAILS);
+    }
 
 }
 

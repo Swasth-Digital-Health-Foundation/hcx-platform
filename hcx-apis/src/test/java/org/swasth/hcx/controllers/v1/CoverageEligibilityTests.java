@@ -56,4 +56,23 @@ public class CoverageEligibilityTests extends BaseSpec {
         int status = response.getStatus();
         assertEquals(500, status);
     }
+
+    @Test
+    public void on_check_coverage_eligibility_redirect() throws Exception {
+        String requestBody = "{\"x-hcx-status\":\"response.redirect\"}";
+        MvcResult mvcResult = mockMvc.perform(post("/v1/coverageeligibility/on_check").content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        assertEquals(202, status);
+    }
+
+    @Test
+    public void on_check_coverage_eligibility_redirect_status() throws Exception {
+        String requestBody = "{\"x-hcx-sender_code\":\"1234567\"}";
+        MvcResult mvcResult = mockMvc.perform(post("/v1/coverageeligibility/on_check").content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        assertEquals(500, status);
+    }
+
 }
