@@ -57,7 +57,7 @@ public class BaseRequest {
 
         validateCondition(!DateTimeUtils.validTimestamp(timestampRange, getTimestamp()), ErrorCodes.ERR_INVALID_TIMESTAMP, "Timestamp cannot be more than " + timestampRange + " hours in the past or future time");
         validateCondition(protocolHeaders.containsKey(WORKFLOW_ID) && !Utils.isUUID(getWorkflowId()), ErrorCodes.ERR_INVALID_WORKFLOW_ID, "Workflow id should be a valid UUID");
-        validateCondition(StringUtils.equals(getSenderCode(), getRecipientCode()), null, "sender and recipient code cannot be the same");
+        validateCondition(StringUtils.equals(getSenderCode(), getRecipientCode()), ErrorCodes.ERR_INVALID_SENDER_AND_RECIPIENT, "sender and recipient code cannot be the same");
         validateParticipant(recipientDetails, ErrorCodes.ERR_INVALID_RECIPIENT, "recipient");
         validateParticipant(senderDetails, ErrorCodes.ERR_INVALID_SENDER, "sender");
         validateCondition(!StringUtils.equals(((ArrayList) senderDetails.get(OS_OWNER)).get(0).toString(), subject), ErrorCodes.ERR_ACCESS_DENIED, "Caller id and sender code is not matched");
