@@ -26,8 +26,8 @@ redirect:
 timestamp:
   range: ${timestamp_range:10000}
 
-allowedEntitiesForForward: ${allowedEntitiesForForward:coverageeligibility, preauth, claim}
-allowedRolesForForward: ${allowedRolesForForward:payor, agency.tpa}
+allowedEntitiesForForward: ${allowed_entities_for_forward:coverageeligibility, preauth, claim}
+allowedRolesForForward: ${allowed_roles_for_forward:payor, agency.tpa}
 
 jwt:
   enabled: ${JWT_ENABLED:true}
