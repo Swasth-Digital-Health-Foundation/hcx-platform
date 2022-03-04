@@ -11,6 +11,7 @@ rbac:
       - /v1/preauth/submit
       - /v1/claim/submit
       - /v1/paymentnotice/on_request
+      - /v1/communication/on_request
       - /v1/hcx/status
       - /v1/audit/search
       - /participant/search
@@ -26,6 +27,7 @@ rbac:
       - /v1/preauth/on_submit
       - /v1/claim/on_submit
       - /v1/paymentnotice/request
+      - /v1/communication/request
       - /v1/hcx/on_status
       - /v1/audit/search
       - /participant/search
@@ -41,6 +43,7 @@ rbac:
       - /v1/preauth/on_submit
       - /v1/claim/on_submit
       - /v1/paymentnotice/request
+      - /v1/communication/request
       - /v1/hcx/on_status
       - /v1/audit/search
       - /participant/search
@@ -74,6 +77,7 @@ rbac:
       - /v1/preauth/on_submit
       - /v1/claim/on_submit
       - /v1/paymentnotice/request
+      - /v1/communication/request
       - /v1/hcx/on_status
       - /v1/audit/search
       - /participant/search
