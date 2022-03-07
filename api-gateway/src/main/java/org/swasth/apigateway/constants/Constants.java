@@ -81,5 +81,6 @@ public class Constants {
     public static final List<String> OPERATIONAL_ENTITIES = Arrays.asList("notification", "communication", "status");
     public static final String REDIRECT_STATUS = "response.redirect";
     public static final String COMPLETE_STATUS = "response.complete";
+    public static final List<String> EXCLUDE_ENTITIES = Arrays.asList("communication", "payment","notification");
 
 }
