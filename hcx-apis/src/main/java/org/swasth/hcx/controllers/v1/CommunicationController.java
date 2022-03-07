@@ -36,17 +36,15 @@ public class CommunicationController extends BaseController {
             Request request = new Request(requestBody);
             setResponseParams(request, response);
             Map<String, Object> hcxHeaders = request.getHcxHeaders();
-            Map<String, String> filters = new HashMap();
+            Map<String, String> filters = new HashMap<>();
             filters.put(CORRELATION_ID,request.getCorrelationId());
             List<HeaderAudit> auditResponse = auditService.search(new SearchRequestDTO(filters));
             if(auditResponse.isEmpty()){
                 throw new ClientException(ErrorCodes.ERR_INVALID_CORRELATION_ID,"Invalid Correlation Id");
             }
             HeaderAudit auditData = auditResponse.get(0);
-            if (auditData.getWorkflow_id() != null) {
-                if(!hcxHeaders.containsKey(WORKFLOW_ID) || !request.getWorkflowId().equals(auditData.getWorkflow_id())) {
-                    throw new ClientException(ErrorCodes.ERR_INVALID_WORKFLOW_ID, "The request contains invalid workflow id");
-                }
+            if (auditData.getWorkflow_id() != null && (!hcxHeaders.containsKey(WORKFLOW_ID) || !request.getWorkflowId().equals(auditData.getWorkflow_id()))) {
+                throw new ClientException(ErrorCodes.ERR_INVALID_WORKFLOW_ID, "The request contains invalid workflow id");
             }
             processAndSendEvent(COMMUNICATION_REQUEST, kafkaTopic, request);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
