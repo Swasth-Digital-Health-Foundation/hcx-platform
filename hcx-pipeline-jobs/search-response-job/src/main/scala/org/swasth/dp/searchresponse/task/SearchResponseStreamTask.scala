@@ -26,9 +26,6 @@ class SearchResponseStreamTask(config: SearchResponseConfig, kafkaConnector: Fli
         .rebalance()
         .process(new SearchResponseFunction(config)).setParallelism(config.downstreamOperatorsParallelism)
 
-    /** Sink for retry events */
-    searchStream.getSideOutput(config.retryOutputTag).addSink(kafkaConnector.kafkaStringSink(config.retryTopic)).name(config.retryProducer).uid(config.retryProducer).setParallelism(config.downstreamOperatorsParallelism)
-
     /** Sink for audit events */
     searchStream.getSideOutput(config.auditOutputTag).addSink(kafkaConnector.kafkaStringSink(config.auditTopic)).name(config.auditProducer).uid(config.auditProducer).setParallelism(config.downstreamOperatorsParallelism)
 

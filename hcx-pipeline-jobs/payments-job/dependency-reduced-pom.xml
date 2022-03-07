@@ -228,10 +228,6 @@
           <groupId>org.apache.flink</groupId>
         </exclusion>
         <exclusion>
-          <artifactId>commons-io</artifactId>
-          <groupId>commons-io</groupId>
-        </exclusion>
-        <exclusion>
           <artifactId>flink-shaded-netty</artifactId>
           <groupId>org.apache.flink</groupId>
         </exclusion>
@@ -294,12 +290,6 @@
       <artifactId>embedded-redis</artifactId>
       <version>0.7.1</version>
       <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>commons-io</artifactId>
-          <groupId>commons-io</groupId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>io.zonky.test</groupId>
@@ -334,10 +324,6 @@
         <exclusion>
           <artifactId>postgresql</artifactId>
           <groupId>org.postgresql</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>commons-io</artifactId>
-          <groupId>commons-io</groupId>
         </exclusion>
       </exclusions>
     </dependency>
