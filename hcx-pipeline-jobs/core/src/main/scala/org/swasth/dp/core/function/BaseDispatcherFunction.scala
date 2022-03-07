@@ -1,13 +1,14 @@
 package org.swasth.dp.core.function
 
 import org.apache.commons.collections.MapUtils
+import org.apache.flink.configuration.Configuration
 import org.apache.flink.streaming.api.functions.ProcessFunction
 import org.slf4j.LoggerFactory
 import org.swasth.dp.core.job.{BaseJobConfig, BaseProcessFunction, Metrics}
-import org.swasth.dp.core.util.{Constants, DispatcherUtil, JSONUtil}
+import org.swasth.dp.core.util._
 
 import java.util
-import java.util.Calendar
+import java.util.{Calendar, UUID}
 
 case class Response(timestamp: Long, correlation_id: String, error: Option[ErrorResponse])
 case class ErrorResponse(code: Option[String], message: Option[String], trace: Option[String]);
@@ -19,13 +20,48 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
 
   private[this] val logger = LoggerFactory.getLogger(classOf[BaseDispatcherFunction])
 
+  var postgresConnect: PostgresConnect = null
+
+  override def open(parameters: Configuration): Unit = {
+    super.open(parameters)
+    postgresConnect = new PostgresConnect(PostgresConnectionConfig(config.postgresUser, config.postgresPassword, config.postgresDB, config.postgresHost, config.postgresPort, config.postgresMaxConnections))
+  }
+
+  override def close(): Unit = {
+    super.close()
+    postgresConnect.closeConnection()
+  }
+
   def validate(event: util.Map[String, AnyRef]):ValidationResult
 
   @throws(classOf[Exception])
-  def getPayload(payloadRefId: String): util.Map[String, AnyRef]
+  def getPayload(payloadRefId: String): util.Map[String, AnyRef] = {
+    Console.println("Fetching payload from postgres for mid: " + payloadRefId)
+    logger.info("Fetching payload from postgres for mid: " + payloadRefId)
+    val postgresQuery = String.format("SELECT data FROM %s WHERE mid = '%s'", config.postgresTable, payloadRefId);
+    val preparedStatement = postgresConnect.getConnection.prepareStatement(postgresQuery)
+    try {
+      val resultSet = preparedStatement.executeQuery()
+      if(resultSet.next()) {
+        val payload = resultSet.getString(1)
+        JSONUtil.deserialize[util.Map[String, AnyRef]](payload)
+      } else {
+        throw new Exception("Payload not found for the given reference id: " + payloadRefId)
+      }
+    } catch {
+      case ex: Exception => throw ex
+    } finally {
+      preparedStatement.close()
+    }
+
+  }
 
   @throws(classOf[Exception])
-  def audit(event: util.Map[String, AnyRef], status: Boolean, context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit
+  def audit(event: util.Map[String, AnyRef], context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
+    val audit = createAuditRecord(event,"AUDIT")
+    context.output(config.auditOutputTag, JSONUtil.serialize(audit))
+    metrics.incCounter(config.auditEventsCount)
+  }
 
   def createErrorMap(error: Option[ErrorResponse]):util.Map[String, AnyRef] = {
     val errorMap:util.Map[String, AnyRef] = new util.HashMap[String, AnyRef]
@@ -44,7 +80,7 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
     //Keep same correlationId
     protectedMap.put(Constants.CORRELATION_ID, getProtocolStringValue(event,Constants.CORRELATION_ID))
     //Keep same api call id
-    protectedMap.put(Constants.API_CALL_ID, getProtocolStringValue(event,Constants.API_CALL_ID))
+    protectedMap.put(Constants.API_CALL_ID, UUID.randomUUID())
     //Keep same work flow id if it exists in the incoming event
     if(!getProtocolStringValue(event,Constants.WORKFLOW_ID).isEmpty)
       protectedMap.put(Constants.WORKFLOW_ID, getProtocolStringValue(event,Constants.WORKFLOW_ID))
@@ -56,7 +92,6 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
     val result = DispatcherUtil.dispatch(senderCtx, JSONUtil.serialize(protectedMap))
     if(result.retry) {
       metrics.incCounter(metric = config.dispatcherRetryCount)
-      context.output(config.retryOutputTag, JSONUtil.serialize(event))
     }
   }
 
@@ -71,7 +106,7 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
       Console.println("sender context is empty for mid: " + payloadRefId)
       logger.warn("sender context is empty for mid: " + payloadRefId)
       //Audit the record if sender context is empty
-      audit(event,true,context,metrics)
+      audit(event,context,metrics)
     } else if (MapUtils.isEmpty(recipientCtx)) {
       Console.println("recipient context is empty for mid: " + payloadRefId)
       logger.warn("recipient context is empty for mid: " + payloadRefId)
@@ -84,7 +119,7 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
       val validationResult = validate(event)
       if(!validationResult.status) {
         metrics.incCounter(metric = config.dispatcherValidationFailedCount)
-        audit(event, validationResult.status, context, metrics);
+        audit(event, context, metrics);
         dispatchErrorResponse(event,validationResult.error, correlationId, payloadRefId, senderCtx, context, metrics)
       }
 
@@ -96,7 +131,6 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
         logger.info("result::"+result)
         //Adding updatedTimestamp for auditing
         event.put(Constants.UPDATED_TIME, Calendar.getInstance().getTime())
-        audit(event, result.success, context, metrics);
         if(result.success) {
           setStatus(event, Constants.HCX_DISPATCH_STATUS)
           metrics.incCounter(metric = config.dispatcherSuccessCount)
@@ -105,14 +139,13 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
           setStatus(event, Constants.HCX_QUEUED_STATUS)
           metrics.incCounter(metric = config.dispatcherRetryCount)
           //For retry place the incoming event into retry topic
-          context.output(config.retryOutputTag, JSONUtil.serialize(event))
         }
         if(!result.retry && !result.success) {
           setStatus(event, Constants.HCX_ERROR_STATUS)
           metrics.incCounter(metric = config.dispatcherFailedCount)
           dispatchErrorResponse(event,result.error, correlationId, payloadRefId, senderCtx, context, metrics)
         }
-        audit(event, result.success, context, metrics);
+        audit(event, context, metrics);
       }
     }
   }

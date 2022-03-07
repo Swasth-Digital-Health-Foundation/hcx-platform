@@ -30,9 +30,6 @@ class ClaimsStreamTask(config: ClaimsConfig, kafkaConnector: FlinkKafkaConnector
     val eventStream = enrichedStream.getSideOutput(config.enrichedOutputTag)
         .process(new ClaimsProcessFunction(config)).setParallelism(config.downstreamOperatorsParallelism)
 
-    /** Sink for retry events */
-    eventStream.getSideOutput(config.retryOutputTag).addSink(kafkaConnector.kafkaStringSink(config.retryTopic)).name(config.retryProducer).uid(config.retryProducer).setParallelism(config.downstreamOperatorsParallelism)
-
     /** Sink for audit events */
     eventStream.getSideOutput(config.auditOutputTag).addSink(kafkaConnector.kafkaStringSink(config.auditTopic)).name(config.auditProducer).uid(config.auditProducer).setParallelism(config.downstreamOperatorsParallelism)
 

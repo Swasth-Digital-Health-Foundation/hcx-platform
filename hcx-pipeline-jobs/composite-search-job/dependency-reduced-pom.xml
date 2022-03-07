@@ -53,6 +53,33 @@
         </executions>
       </plugin>
       <plugin>
+        <groupId>net.alchim31.maven</groupId>
+        <artifactId>scala-maven-plugin</artifactId>
+        <version>3.2.2</version>
+        <executions>
+          <execution>
+            <id>scala-compile-first</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>add-source</goal>
+              <goal>compile</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>scala-test-compile</id>
+            <phase>process-test-resources</phase>
+            <goals>
+              <goal>testCompile</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <source>${java.target.runtime}</source>
+          <target>${java.target.runtime}</target>
+          <checkMultipleScalaVersions>false</checkMultipleScalaVersions>
+        </configuration>
+      </plugin>
+      <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>3.0.0-M5</version>
         <configuration>
@@ -124,6 +151,10 @@
           <groupId>org.apache.flink</groupId>
         </exclusion>
         <exclusion>
+          <artifactId>junit</artifactId>
+          <groupId>junit</groupId>
+        </exclusion>
+        <exclusion>
           <artifactId>curator-test</artifactId>
           <groupId>org.apache.curator</groupId>
         </exclusion>
@@ -163,6 +194,10 @@
         <exclusion>
           <artifactId>embedded-postgres-binaries-linux-amd64-alpine</artifactId>
           <groupId>io.zonky.test.postgres</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>xz</artifactId>
+          <groupId>org.tukaani</groupId>
         </exclusion>
         <exclusion>
           <artifactId>postgresql</artifactId>

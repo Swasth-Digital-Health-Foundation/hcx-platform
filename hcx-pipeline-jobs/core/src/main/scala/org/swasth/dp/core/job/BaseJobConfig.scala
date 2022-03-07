@@ -51,9 +51,6 @@ class BaseJobConfig(val config: Config, val jobName: String) extends Serializabl
   // Default output configurations
   val enrichedOutputTag: OutputTag[util.Map[String, AnyRef]] = OutputTag[util.Map[String, AnyRef]]("enriched-events")
 
-  val retryOutputTag: OutputTag[String] = OutputTag[String]("retry-events")
-  val retryTopic = if (config.hasPath("kafka.retry.topic")) config.getString("kafka.retry.topic") else ""
-
   val auditOutputTag: OutputTag[String] = OutputTag[String]("audit-events")
   val auditTopic = if (config.hasPath("kafka.audit.topic")) config.getString("kafka.audit.topic") else ""
 
@@ -98,4 +95,16 @@ class BaseJobConfig(val config: Config, val jobName: String) extends Serializabl
   val keycloakUsername = config.getString("keycloak.username")
   val keycloakPassword = config.getString("keycloak.password")
   val keycloakRealm = config.getString("keycloak.realm")
+
+  //Postgres
+  val postgresDB = config.getString("postgres.db")
+  val postgresUser: String = config.getString("postgres.user")
+  val postgresPassword: String = config.getString("postgres.password")
+  val postgresTable: String = config.getString("postgres.table")
+  val postgresDb: String = config.getString("postgres.database")
+  val postgresHost: String = config.getString("postgres.host")
+  val postgresPort: Int = config.getInt("postgres.port")
+  val postgresMaxConnections: Int = config.getInt("postgres.maxConnections")
+
+  val maxRetry = config.getInt("max.retry")
 }

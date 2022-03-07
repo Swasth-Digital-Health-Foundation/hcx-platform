@@ -16,63 +16,15 @@ import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.util.control.Breaks.{break, breakable}
 
-class SearchResponseFunction(config: SearchResponseConfig, @transient var postgresConnect: PostgresConnect = null)(implicit val stringTypeInfo: TypeInformation[String])
+class SearchResponseFunction(config: SearchResponseConfig)(implicit val stringTypeInfo: TypeInformation[String])
   extends BaseDispatcherFunction(config) {
 
   private[this] val logger = LoggerFactory.getLogger(classOf[SearchResponseFunction])
-
-  override def open(parameters: Configuration): Unit = {
-    super.open(parameters)
-    if (postgresConnect == null) {
-      postgresConnect = new PostgresConnect(PostgresConnectionConfig(
-        user = config.postgresUser,
-        password = config.postgresPassword,
-        database = config.postgresDb,
-        host = config.postgresHost,
-        port = config.postgresPort,
-        maxConnections = config.postgresMaxConnections
-      ))
-    }
-  }
-
-  override def close(): Unit = {
-    super.close()
-    postgresConnect.closeConnection()
-  }
 
   override def validate(event: util.Map[String, AnyRef]): ValidationResult = {
     // TODO: Add domain specific validations
     ValidationResult(status = true, None)
   }
-
-  override def getPayload(payloadRefId: String): util.Map[String, AnyRef] = {
-    Console.println("Fetching payload from postgres for mid: " + payloadRefId)
-    logger.info("Fetching payload from postgres for mid: " + payloadRefId)
-    val postgresQuery = String.format("SELECT data FROM %s WHERE mid = '%s'", config.payloadTable, payloadRefId)
-    val preparedStatement = postgresConnect.getConnection.prepareStatement(postgresQuery)
-    try {
-      val resultSet = preparedStatement.executeQuery()
-      if (resultSet.next()) {
-        val payload = resultSet.getString(1)
-        JSONUtil.deserialize[util.Map[String, AnyRef]](payload)
-      } else {
-        throw new Exception("Payload not found for the given mid: " + payloadRefId)
-      }
-    } catch {
-      case ex: Exception => throw ex
-    } finally {
-      preparedStatement.close()
-    }
-
-  }
-
-  override def audit(event: util.Map[String, AnyRef], status: Boolean, context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
-    val audit = createAuditRecord(event, "AUDIT")
-    context.output(config.auditOutputTag, JSONUtil.serialize(audit))
-    metrics.incCounter(config.auditEventsCount)
-  }
-
-
 
   override def processElement(event: util.Map[String, AnyRef], context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
     /**
@@ -134,7 +86,7 @@ class SearchResponseFunction(config: SearchResponseConfig, @transient var postgr
 
       Console.println("Writing recipient response to audit log with correlationId:" + correlationId)
       event.put(Constants.UPDATED_TIME, Calendar.getInstance().getTime())
-      audit(event, status = true, context, metrics)
+      audit(event, context, metrics)
       /**
        * 6. Check whether all the child record status were in CLOSE/FAIL, then mark it as last recipient response received
        * 7. If it is the last recipient response, do the following
@@ -177,7 +129,7 @@ class SearchResponseFunction(config: SearchResponseConfig, @transient var postgr
         //Update the protocol headers in the event
         event.get(Constants.HEADERS).asInstanceOf[util.Map[String, AnyRef]].put(Constants.PROTOCOL, mutableMap.asJava)
         event.put(Constants.UPDATED_TIME, Calendar.getInstance().getTime())
-        audit(event, status = true, context, metrics)
+        audit(event, context, metrics)
       } else {
         Console.println("Pending records, waiting for responses from recipients for correlationId:" + correlationId)
       }
