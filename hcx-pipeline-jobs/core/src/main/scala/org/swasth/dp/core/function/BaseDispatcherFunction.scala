@@ -4,6 +4,7 @@ import org.apache.commons.collections.MapUtils
 import org.apache.flink.configuration.Configuration
 import org.apache.flink.streaming.api.functions.ProcessFunction
 import org.slf4j.LoggerFactory
+import org.swasth.dp.core.exception.PipelineException
 import org.swasth.dp.core.job.{BaseJobConfig, BaseProcessFunction, Metrics}
 import org.swasth.dp.core.util._
 
@@ -102,51 +103,56 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
     // TODO change cdata to context after discussion.
     val senderCtx = event.getOrDefault(Constants.CDATA, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]].getOrDefault(Constants.SENDER, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]]
     val recipientCtx = event.getOrDefault(Constants.CDATA, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]].getOrDefault(Constants.RECIPIENT, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]]
-    if (MapUtils.isEmpty(senderCtx)) {
-      Console.println("sender context is empty for mid: " + payloadRefId)
-      logger.warn("sender context is empty for mid: " + payloadRefId)
-      //Audit the record if sender context is empty
-      audit(event,context,metrics)
-    } else if (MapUtils.isEmpty(recipientCtx)) {
-      Console.println("recipient context is empty for mid: " + payloadRefId)
-      logger.warn("recipient context is empty for mid: " + payloadRefId)
-      //Send on_action request back to sender when recipient context is missing
-      val errorResponse = ErrorResponse(Option(Constants.RECIPIENT_ERROR_CODE), Option(Constants.RECIPIENT_ERROR_MESSAGE), Option(Constants.RECIPIENT_ERROR_LOG))
-      dispatchErrorResponse(event,ValidationResult(true, Option(errorResponse)).error, correlationId, payloadRefId, senderCtx, context, metrics)
-    } else {
-      Console.println("sender and recipient available for mid: " + payloadRefId)
-      logger.info("sender and recipient available for mid: " + payloadRefId)
-      val validationResult = validate(event)
-      if(!validationResult.status) {
-        metrics.incCounter(metric = config.dispatcherValidationFailedCount)
-        audit(event, context, metrics);
-        dispatchErrorResponse(event,validationResult.error, correlationId, payloadRefId, senderCtx, context, metrics)
-      }
+    try {
+      if (MapUtils.isEmpty(senderCtx)) {
+        Console.println("sender context is empty for mid: " + payloadRefId)
+        logger.warn("sender context is empty for mid: " + payloadRefId)
+        //Audit the record if sender context is empty
+        audit(event, context, metrics)
+      } else if (MapUtils.isEmpty(recipientCtx)) {
+        Console.println("recipient context is empty for mid: " + payloadRefId)
+        logger.warn("recipient context is empty for mid: " + payloadRefId)
+        //Send on_action request back to sender when recipient context is missing
+        throw PipelineException(Constants.RECIPIENT_ERROR_CODE, Constants.RECIPIENT_ERROR_MESSAGE, Constants.RECIPIENT_ERROR_LOG)
+      } else {
+        Console.println("sender and recipient available for mid: " + payloadRefId)
+        logger.info("sender and recipient available for mid: " + payloadRefId)
+        val validationResult = validate(event)
+        if (!validationResult.status) {
+          metrics.incCounter(metric = config.dispatcherValidationFailedCount)
+          audit(event, context, metrics);
+          throw PipelineException(validationResult.error.get.code.get, validationResult.error.get.message.get, validationResult.error.get.trace.get)
+        }
 
-      if(validationResult.status) {
-        metrics.incCounter(metric = config.dispatcherValidationSuccessCount)
-        val payload = getPayload(payloadRefId);
-        val payloadJSON = JSONUtil.serialize(payload);
-        val result = DispatcherUtil.dispatch(recipientCtx, payloadJSON)
-        logger.info("result::"+result)
-        //Adding updatedTimestamp for auditing
-        event.put(Constants.UPDATED_TIME, Calendar.getInstance().getTime())
-        if(result.success) {
-          setStatus(event, Constants.HCX_DISPATCH_STATUS)
-          metrics.incCounter(metric = config.dispatcherSuccessCount)
+        if (validationResult.status) {
+          metrics.incCounter(metric = config.dispatcherValidationSuccessCount)
+          val payload = getPayload(payloadRefId);
+          val payloadJSON = JSONUtil.serialize(payload);
+          val result = DispatcherUtil.dispatch(recipientCtx, payloadJSON)
+          logger.info("result::" + result)
+          //Adding updatedTimestamp for auditing
+          event.put(Constants.UPDATED_TIME, Calendar.getInstance().getTime())
+          if (result.success) {
+            setStatus(event, Constants.HCX_DISPATCH_STATUS)
+            metrics.incCounter(metric = config.dispatcherSuccessCount)
+          }
+          if (result.retry) {
+            setStatus(event, Constants.HCX_QUEUED_STATUS)
+            metrics.incCounter(metric = config.dispatcherRetryCount)
+            //For retry place the incoming event into retry topic
+          }
+          if (!result.retry && !result.success) {
+            setStatus(event, Constants.HCX_ERROR_STATUS)
+            metrics.incCounter(metric = config.dispatcherFailedCount)
+            throw PipelineException(result.error.get.code.get, result.error.get.message.get, result.error.get.trace.get)
+          }
+          audit(event, context, metrics);
         }
-        if(result.retry) {
-          setStatus(event, Constants.HCX_QUEUED_STATUS)
-          metrics.incCounter(metric = config.dispatcherRetryCount)
-          //For retry place the incoming event into retry topic
-        }
-        if(!result.retry && !result.success) {
-          setStatus(event, Constants.HCX_ERROR_STATUS)
-          metrics.incCounter(metric = config.dispatcherFailedCount)
-          dispatchErrorResponse(event,result.error, correlationId, payloadRefId, senderCtx, context, metrics)
-        }
-        audit(event, context, metrics);
       }
+    } catch {
+      case ex: PipelineException =>
+        val errorResponse = ErrorResponse(Option(ex.code), Option(ex.message), Option(ex.trace))
+        dispatchErrorResponse(event, ValidationResult(true, Option(errorResponse)).error, correlationId, payloadRefId, senderCtx, context, metrics)
     }
   }
 
