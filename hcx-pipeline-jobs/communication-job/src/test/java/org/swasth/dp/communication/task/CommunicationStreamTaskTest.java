@@ -36,7 +36,6 @@ public class CommunicationStreamTaskTest {
     @Before
     public void beforeClass() throws Exception {
         when(mockKafkaUtil.kafkaMapSource(communicationConfig.kafkaInputTopic)).thenReturn(new CommunicationSource());
-        when(mockKafkaUtil.kafkaStringSink(communicationConfig.retryTopic())).thenReturn(new RetrySink());
         when(mockKafkaUtil.kafkaStringSink(communicationConfig.auditTopic())).thenReturn(new AuditEventsSink());
         flinkCluster.before();
     }

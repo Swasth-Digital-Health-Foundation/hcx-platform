@@ -361,4 +361,17 @@ object EventFixture {
       |"endpoint_url":"http://a07c089412c1b46f2b49946c59267d03-2070772031.ap-south-1.elb.amazonaws.com:8080/v1/predetermination/submit",
       |"participant_name":"Test Provider","hfr_code":"0001","status":"Created"}}}""".stripMargin
 
+  val SAMPLE_VALID_RETRY_REQUEST: String =
+    """{"ets":1637320447257,"headers":{"jose":{"alg":"RSA-OAEP","enc":"A256GCM"},
+      |"protocol":{"x-hcx-recipient_code":"c4f5d97d-fe55-4322-aefe-69345268e4eb","x-hcx-api_call_id":"26b1060c-1e83-4600-9612-ea31e0ca5091",
+      |"x-hcx-timestamp":"2021-10-27T20:35:52.636+0530","x-hcx-sender_code":"4193d6c2-5af9-4868-bf47-4356ca6d785b","x-hcx-correlation_id":"5e934f90-111d-4f0b-b016-c22d820674e1",
+      |"x-hcx-status":"request.initiate"},"domain":{"request_amount":120000}},"mid":"761dfc11-1870-4981-b33d-16254a104a9d",
+      |"action":"/v1/communication/request","status":"Submitted",
+      |"cdata":{"sender":{"participant_code":"12345","signing_cert_path":"","roles":"admin","encryption_cert":"",
+      |"endpoint_url":"http://a4a175528daf949a2af3cd141af93de2-1466580421.ap-south-1.elb.amazonaws.com:8080/v1/predetermination/on_submit",
+      |"participant_name":"Test Provider","hfr_code":"0001","status":"Created"},
+      |"recipient":{"participant_code":"67890","signing_cert_path":"urn:isbn:0-476-27557-4","roles":"admin","encryption_cert":"urn:isbn:0-4234",
+      |"endpoint_url":"http://a07c089412c1b46f2b49946c59267d03-2070772031.ap-south-1.elb.amazonaws.com:8080/v1/predetermination/submit",
+      |"participant_name":"Test Provider","hfr_code":"0001","status":"Created"}}}""".stripMargin
+
 }

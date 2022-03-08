@@ -14,7 +14,6 @@ import org.swasth.dp.coverageeligiblitycheck.task.CoverageEligibilityCheckConfig
 import org.swasth.fixture.EventFixture
 
 import java.util
-import scala.collection.JavaConverters._
 
 class CoverageEligibilityProcessFunctionTest extends FlatSpec with Matchers{
 
@@ -45,16 +44,6 @@ class CoverageEligibilityProcessFunctionTest extends FlatSpec with Matchers{
     val harness = ProcessFunctionTestHarnesses.forProcessFunction(processFunction)
     val testEvent = JSONUtil.deserialize[util.Map[String, AnyRef]](EventFixture.SAMPLE_INVALID_ACTION_EVENT)
     harness.processElement(testEvent, new java.util.Date().getTime)
-    val outputs = harness.getSideOutput(eligibilityCheckConfig.retryOutputTag).asScala.map {
-      event => event.getValue
-    }
-    outputs.size should be(1)
-
-    outputs.map {
-      event => {
-        Console.println("retryOutputTag Payload is:",JSONUtil.serialize(event))
-      }
-    }
   }
 
 }

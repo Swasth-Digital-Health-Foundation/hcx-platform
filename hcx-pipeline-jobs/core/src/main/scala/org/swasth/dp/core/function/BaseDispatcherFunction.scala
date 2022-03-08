@@ -5,8 +5,9 @@ import org.apache.flink.configuration.Configuration
 import org.apache.flink.streaming.api.functions.ProcessFunction
 import org.slf4j.LoggerFactory
 import org.swasth.dp.core.job.{BaseJobConfig, BaseProcessFunction, Metrics}
-import org.swasth.dp.core.util._
+import org.swasth.dp.core.util.{Constants, DispatcherUtil, JSONUtil, PostgresConnect, PostgresConnectionConfig}
 
+import java.sql.ResultSet
 import java.util
 import java.util.{Calendar, UUID}
 
@@ -24,7 +25,7 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
 
   override def open(parameters: Configuration): Unit = {
     super.open(parameters)
-    postgresConnect = new PostgresConnect(PostgresConnectionConfig(config.postgresUser, config.postgresPassword, config.postgresDB, config.postgresHost, config.postgresPort, config.postgresMaxConnections))
+    postgresConnect = new PostgresConnect(PostgresConnectionConfig(config.postgresUser, config.postgresPassword, config.postgresDb, config.postgresHost, config.postgresPort, config.postgresMaxConnections))
   }
 
   override def close(): Unit = {
@@ -91,6 +92,7 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
     Console.println("Payload: " + protectedMap)
     val result = DispatcherUtil.dispatch(senderCtx, JSONUtil.serialize(protectedMap))
     if(result.retry) {
+      logger.info("Error while dispatching error response: " + result.error.get.message.get)
       metrics.incCounter(metric = config.dispatcherRetryCount)
     }
   }
@@ -128,26 +130,50 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
         val payload = getPayload(payloadRefId);
         val payloadJSON = JSONUtil.serialize(payload);
         val result = DispatcherUtil.dispatch(recipientCtx, payloadJSON)
-        logger.info("result::"+result)
+        logger.info("result::" + result)
         //Adding updatedTimestamp for auditing
         event.put(Constants.UPDATED_TIME, Calendar.getInstance().getTime())
-        if(result.success) {
+        if (result.success) {
+          updateDBStatus(payloadRefId, Constants.DISPATCH_STATUS)
           setStatus(event, Constants.HCX_DISPATCH_STATUS)
           metrics.incCounter(metric = config.dispatcherSuccessCount)
         }
-        if(result.retry) {
-          setStatus(event, Constants.HCX_QUEUED_STATUS)
-          metrics.incCounter(metric = config.dispatcherRetryCount)
-          //For retry place the incoming event into retry topic
+        var retryCount: Int = 0
+        if (result.retry) {
+          if(event.containsKey("retryCount"))
+            retryCount = event.get("retryCount").asInstanceOf[Int]
+          if (retryCount + 1 < config.maxRetry) {
+            val query = "UPDATE %s SET status ='%s', retryCount = retryCount + 1, lastUpdatedOn = %d WHERE mid ='%s'".format(config.postgresTable, "request.retry", System.currentTimeMillis(), payloadRefId)
+            executeDBQuery(query)
+            setStatus(event, Constants.HCX_QUEUED_STATUS)
+            metrics.incCounter(metric = config.dispatcherRetryCount)
+          }
         }
-        if(!result.retry && !result.success) {
+        if (retryCount + 1 == config.maxRetry || (!result.retry && !result.success)) {
+          updateDBStatus(payloadRefId, Constants.ERROR_STATUS)
           setStatus(event, Constants.HCX_ERROR_STATUS)
           metrics.incCounter(metric = config.dispatcherFailedCount)
           dispatchErrorResponse(event,result.error, correlationId, payloadRefId, senderCtx, context, metrics)
         }
-        audit(event, context, metrics);
+        audit(event, context, metrics)
       }
     }
+  }
+
+  private def executeDBQuery(query: String): ResultSet = {
+    val preparedStatement = postgresConnect.getConnection.prepareStatement(query)
+    try {
+      preparedStatement.executeQuery()
+    } catch {
+      case ex: Exception => throw ex
+    } finally {
+      preparedStatement.close()
+    }
+  }
+
+  private def updateDBStatus(payloadRefId: String, status: String): Unit = {
+    val query = "UPDATE %s SET status = %s, lastUpdatedOn = %d WHERE mid = %s;".format(config.postgresTable, status, System.currentTimeMillis(), payloadRefId)
+    executeDBQuery(query)
   }
 
   override def metricsList(): List[String] = {

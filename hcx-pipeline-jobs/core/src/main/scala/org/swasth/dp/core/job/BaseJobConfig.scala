@@ -55,7 +55,6 @@ class BaseJobConfig(val config: Config, val jobName: String) extends Serializabl
   val auditTopic = if (config.hasPath("kafka.audit.topic")) config.getString("kafka.audit.topic") else ""
 
   // Producers
-  val retryProducer = "retry-events-sink"
   val auditProducer = "audit-events-sink"
 
   // Default job metrics
@@ -97,7 +96,6 @@ class BaseJobConfig(val config: Config, val jobName: String) extends Serializabl
   val keycloakRealm = config.getString("keycloak.realm")
 
   //Postgres
-  val postgresDB = config.getString("postgres.db")
   val postgresUser: String = config.getString("postgres.user")
   val postgresPassword: String = config.getString("postgres.password")
   val postgresTable: String = config.getString("postgres.table")

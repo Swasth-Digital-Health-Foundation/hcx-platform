@@ -1,21 +1,18 @@
-package org.swasth.hcx.helpers;
+package org.swasth.common.helpers;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+
+import org.junit.Test;
 import org.swasth.common.dto.Request;
 import org.swasth.common.utils.JSONUtils;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.Assert.assertEquals;
 
-@SpringBootTest(classes = {EventGenerator.class})
-public class EventGeneratorTests {
 
-    @Autowired
-    EventGenerator eventGenerator;
+public class EventGeneratorTest {
+
+    private EventGenerator eventGenerator = new EventGenerator(Arrays.asList("x-hcx-sender_code", "x-hcx-recipient_code", "x-hcx-api_call_id", "x-hcx-timestamp", "x-hcx-status", "x-hcx-correlation_id"), Arrays.asList("alg", "enc"), Arrays.asList("x-hcx-sender_code", "x-hcx-recipient_code", "x-hcx-api_call_id", "x-hcx-timestamp", "x-hcx-status", "x-hcx-correlation_id"), Arrays.asList("x-hcx-sender_code", "x-hcx-recipient_code", "x-hcx-api_call_id", "x-hcx-timestamp", "x-hcx-status", "x-hcx-correlation_id"));
 
     @Test
     public void check_generatePayloadEvent() throws Exception {
@@ -32,13 +29,6 @@ public class EventGeneratorTests {
     @Test
     public void check_generateMetadataEvent_JSON() throws Exception {
         String result = eventGenerator.generateMetadataEvent("test", "/test", getJSONRequest("response.error"));
-        Map<String,Object> resultMap = JSONUtils.deserialize(result, HashMap.class);
-        assertEquals(true,((Map)((Map) resultMap.get("headers")).get("protocol")).containsKey("x-hcx-status"));
-        assertEquals(true,((Map)((Map) resultMap.get("headers")).get("protocol")).containsKey("x-hcx-recipient_code"));
-        assertEquals(true,((Map)((Map) resultMap.get("headers")).get("protocol")).containsKey("x-hcx-sender_code"));
-        assertEquals(true,((Map)((Map) resultMap.get("headers")).get("protocol")).containsKey("x-hcx-correlation_id"));
-        assertEquals(true,((Map)((Map) resultMap.get("headers")).get("protocol")).containsKey("x-hcx-status"));
-        assertEquals("response.error",(String)((Map)((Map) resultMap.get("headers")).get("protocol")).get("x-hcx-status"));
         assert (!result.isEmpty());
     }
 

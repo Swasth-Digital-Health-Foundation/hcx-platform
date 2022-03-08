@@ -78,7 +78,7 @@ class SearchResponseFunction(config: SearchResponseConfig)(implicit val stringTy
 
       val dispatchResult: DispatcherResult = dispatchRecipient(baseRecord.senderCode, action, parsedPayload)
       if (!dispatchResult.success) {
-        context.output(config.retryOutputTag, JSONUtil.serialize(event))
+        //context.output(config.retryOutputTag, JSONUtil.serialize(event))
       } else {
         //Update Base record
         updateSearchRecord(correlationId, baseRecord.apiCallId, Constants.PARTIAL_RESPONSE, new util.HashMap[String, Object]())

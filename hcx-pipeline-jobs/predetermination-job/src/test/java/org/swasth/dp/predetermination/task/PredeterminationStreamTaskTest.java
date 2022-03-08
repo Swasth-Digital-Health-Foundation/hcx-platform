@@ -40,7 +40,6 @@ public class PredeterminationStreamTaskTest {
     @Before
     public void beforeClass() throws Exception {
         when(mockKafkaUtil.kafkaMapSource(predeterminationConfig.kafkaInputTopic)).thenReturn(new PredeterminationSource());
-        when(mockKafkaUtil.kafkaStringSink(predeterminationConfig.retryTopic())).thenReturn(new RetrySink());
         when(mockKafkaUtil.kafkaStringSink(predeterminationConfig.auditTopic())).thenReturn(new AuditEventsSink());
         flinkCluster.before();
     }

@@ -13,7 +13,6 @@ import org.swasth.dp.searchresponse.task.SearchResponseConfig
 import org.swasth.fixture.EventFixture
 
 import java.util
-import scala.collection.JavaConverters._
 
 class SearchResponseFunctionTestSpec extends FlatSpec with Matchers{
 
@@ -36,7 +35,6 @@ class SearchResponseFunctionTestSpec extends FlatSpec with Matchers{
     harness.processElement(testData)
 
     harness.getSideOutput(searchConfig.auditOutputTag) should have size 1
-    harness.getSideOutput(searchConfig.retryOutputTag) should have size 1
 
     harness.close()
   }

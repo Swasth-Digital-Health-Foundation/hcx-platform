@@ -80,7 +80,6 @@ class CoverageEligibilityCheckStreamTaskTestSpec extends BaseTestSpec {
     }
 
     when(mockKafkaUtil.kafkaMapSource(eligibilityCheckConfig.kafkaInputTopic)).thenReturn(new EligibilityCheckEventSource)
-    when(mockKafkaUtil.kafkaMapSink(eligibilityCheckConfig.retryTopic)).thenReturn(new RetryEventsSink)
     when(mockKafkaUtil.kafkaMapSink(eligibilityCheckConfig.auditTopic)).thenReturn(new AuditEventsSink)
     flinkCluster.before()
   }

@@ -1,6 +1,7 @@
 package org.swasth.postgresql;
 
 import org.swasth.common.exception.ClientException;
+import org.swasth.common.utils.Constants;
 
 import java.sql.*;
 
@@ -9,16 +10,14 @@ public class PostgreSQLClient implements IDatabaseService {
     private String url;
     private String user;
     private String password;
-    private String tableName;
 
-    public PostgreSQLClient(String url, String user, String password, String tableName) {
+    public PostgreSQLClient(String url, String user, String password) {
         this.url = url;
         this.user = user;
         this.password = password;
-        this.tableName = tableName;
     }
 
-    private Connection getConnection() throws ClientException {
+    public Connection getConnection() throws ClientException {
         Connection conn;
         try {
             conn = DriverManager.getConnection(url, user, password);
@@ -29,21 +28,38 @@ public class PostgreSQLClient implements IDatabaseService {
         return conn;
     }
 
-    public void insert(String mid, String payload) throws ClientException, SQLException {
+
+    public boolean execute(String query) throws ClientException, SQLException {
         Connection connection = getConnection();
         try {
             connection.setAutoCommit(false);
-            String query = "INSERT INTO " + tableName +" VALUES (?,?);";
-            PreparedStatement pstmt = connection.prepareStatement(query);
-            pstmt.setString(1, mid);
-            pstmt.setString(2, payload);
-            pstmt.executeUpdate();
-            System.out.println("Insert operation completed successfully.");
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            boolean result = preparedStatement.execute();
+            System.out.println("Database operation completed successfully");
             connection.commit();
+            return result;
         } catch (Exception e) {
-            throw new ClientException("Error while performing insert operation: " + e.getMessage());
+            throw new ClientException("Error while performing database operation: " + e.getMessage());
         } finally {
             connection.close();
+            System.out.println("Connection is closed successfully.");
+        }
+    }
+
+    public ResultSet executeQuery(String query) throws ClientException, SQLException {
+        Connection connection = getConnection();
+        try {
+            connection.setAutoCommit(false);
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            System.out.println("Database operation completed successfully");
+            connection.commit();
+            return resultSet;
+        } catch (Exception e) {
+            throw new ClientException("Error while performing database operation: " + e.getMessage());
+        } finally {
+            connection.close();
+            System.out.println("Connection is closed successfully.");
         }
     }
 

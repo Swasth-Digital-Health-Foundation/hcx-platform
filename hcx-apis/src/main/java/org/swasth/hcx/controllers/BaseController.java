@@ -11,13 +11,18 @@ import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
 import org.swasth.common.exception.ServerException;
 import org.swasth.common.exception.ServiceUnavailbleException;
+import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
-import org.swasth.hcx.helpers.EventGenerator;
+import org.swasth.common.helpers.EventGenerator;
 import org.swasth.hcx.managers.HealthCheckManager;
 import org.swasth.hcx.service.HeaderAuditService;
 import org.swasth.kafka.client.IEventService;
 import org.swasth.postgresql.IDatabaseService;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.*;
 
 import static org.swasth.common.utils.Constants.*;
@@ -39,6 +44,9 @@ public class BaseController {
     @Autowired
     protected HeaderAuditService auditService;
 
+    @Value("${postgres.tablename}")
+    private String postgresTableName;
+
     protected Response errorResponse(Response response, ErrorCodes code, java.lang.Exception e){
         ResponseError error= new ResponseError(code, e.getMessage(), e.getCause());
         response.setError(error);
@@ -52,11 +60,12 @@ public class BaseController {
         String key = request.getSenderCode();
         String payloadEvent = eventGenerator.generatePayloadEvent(mid, request);
         String metadataEvent = eventGenerator.generateMetadataEvent(mid, apiAction, request);
+        String query = String.format("INSERT INTO %s VALUES ('%s','%s','%s','%s',%d,%d)", postgresTableName, mid, JSONUtils.serialize(request.getPayload()), apiAction, QUEUED_STATUS, 0, System.currentTimeMillis());
         System.out.println("Mode: " + serviceMode + " :: mid: " + mid + " :: Event: " + metadataEvent);
         if(StringUtils.equalsIgnoreCase(serviceMode, GATEWAY)) {
+            postgreSQLClient.execute(query);
             kafkaClient.send(payloadTopic, key, payloadEvent);
             kafkaClient.send(metadataTopic, key, metadataEvent);
-            postgreSQLClient.insert(mid, JSONUtils.serialize(request.getPayload()));
         }
     }
 
@@ -85,6 +94,7 @@ public class BaseController {
 
     protected ResponseEntity<Object> exceptionHandler(Response response, Exception e){
         if (e instanceof ClientException) {
+            e.printStackTrace();
             return new ResponseEntity<>(errorResponse(response, ((ClientException) e).getErrCode(), e), HttpStatus.BAD_REQUEST);
         } else if (e instanceof ServiceUnavailbleException) {
             return new ResponseEntity<>(errorResponse(response, ((ServiceUnavailbleException) e).getErrCode(), e), HttpStatus.SERVICE_UNAVAILABLE);

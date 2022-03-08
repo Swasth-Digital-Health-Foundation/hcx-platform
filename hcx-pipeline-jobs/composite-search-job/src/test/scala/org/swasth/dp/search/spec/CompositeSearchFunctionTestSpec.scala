@@ -35,7 +35,6 @@ class CompositeSearchFunctionTestSpec extends FlatSpec with Matchers{
     harness.processElement(testData)
 
     harness.getSideOutput(searchConfig.auditOutputTag) should have size 2
-    harness.getSideOutput(searchConfig.retryOutputTag) should have size 1
 
     harness.close()
   }

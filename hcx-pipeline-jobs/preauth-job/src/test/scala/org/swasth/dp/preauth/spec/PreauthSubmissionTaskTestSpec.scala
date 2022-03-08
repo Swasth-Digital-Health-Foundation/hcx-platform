@@ -38,7 +38,6 @@ class PreauthSubmissionTaskTestSpec extends BaseTestSpec{
 
   override protected def beforeAll(): Unit = {
     super.beforeAll()
-    when(mockKafkaUtil.kafkaMapSink(eligibilityCheckConfig.retryTopic)).thenReturn(new RetryEventsSink)
     when(mockKafkaUtil.kafkaStringSink(eligibilityCheckConfig.auditTopic)).thenReturn(new AuditEventsSink)
     flinkCluster.before()
   }
