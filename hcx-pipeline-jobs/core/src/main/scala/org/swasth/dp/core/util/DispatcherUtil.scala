@@ -31,11 +31,11 @@ object DispatcherUtil {
     override def retryRequest(exception: IOException, executionCount: Int, httpContext: HttpContext): Boolean = {
       Console.println("HTTP retry request execution count", executionCount)
       if (executionCount > 3) { // TODO: load from config
-        return false
+        false
       } else {
         // wait a second before retrying again
         Thread.sleep(1000) // TODO: load from config
-        return true
+        true
       }
     }
   }
@@ -73,10 +73,11 @@ object DispatcherUtil {
           DispatcherResult(false, statusCode, Option(errorResponse), true)
         }
       } else  //As url is null, no need to retry
-        DispatcherResult(false, 0, None, false)
+        DispatcherResult(false, 0, Option(ErrorResponse(Option(Constants.RECIPIENT_ERROR_CODE), Option(Constants.RECIPIENT_ERROR_MESSAGE), Option(Constants.RECIPIENT_ERROR_LOG))), false)
     } catch {
       case ex: Exception => {
-        DispatcherResult(false, 0, None, true)
+
+        DispatcherResult(false, 0, None , true)
       }
     } finally {
       if (response != null)

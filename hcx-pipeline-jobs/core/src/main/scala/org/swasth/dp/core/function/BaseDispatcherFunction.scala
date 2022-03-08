@@ -59,6 +59,8 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
       metrics.incCounter(metric = config.dispatcherRetryCount)
       context.output(config.retryOutputTag, JSONUtil.serialize(event))
     }
+    //create audit entry for response call back API
+    audit(event,true,context,metrics)
   }
 
   override def processElement(event: util.Map[String, AnyRef], context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
@@ -96,9 +98,6 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
           val payloadJSON = JSONUtil.serialize(payload);
           val result = DispatcherUtil.dispatch(recipientCtx, payloadJSON)
           logger.info("result::" + result)
-          //Adding updatedTimestamp for auditing
-          event.put(Constants.UPDATED_TIME, Calendar.getInstance().getTime())
-          audit(event, result.success, context, metrics);
           if (result.success) {
             setStatus(event, Constants.HCX_DISPATCH_STATUS)
             metrics.incCounter(metric = config.dispatcherSuccessCount)
@@ -115,6 +114,8 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
             //dispatchErrorResponse(event, result.error, correlationId, payloadRefId, senderCtx, context, metrics)
             throw PipelineException(result.error.get.code.get, result.error.get.message.get, result.error.get.trace.get)
           }
+          //Adding updatedTimestamp for auditing
+          event.put(Constants.UPDATED_TIME, Calendar.getInstance().getTime())
           audit(event, result.success, context, metrics);
         }
       }
