@@ -1,4 +1,4 @@
-package org.swasth.dp.retrybatch.task;
+package org.swasth.retrybatch.task;
 
 import com.typesafe.config.Config;
 
@@ -25,7 +25,7 @@ public class RetryConfig {
     public List<String> errorHeaders;
 
 
-    public RetryConfig(Config config, String jobName) {
+    public RetryConfig(Config config) {
         this.config = config;
         initValues();
     }
@@ -35,7 +35,7 @@ public class RetryConfig {
         postgresUser = config.getString("postgres.user");
         postgresPassword = config.getString("postgres.password");
         postgresTable = config.getString("postgres.table");
-        kafkaUrl = config.getString("kafka.broker-servers");
+        kafkaUrl = config.getString("kafka.url");
         kafkaInputTopic = config.getString("kafka.topic.input");
         maxRetry = config.getInt("max.retry");
         protocolHeaders = config.getStringList("protocol.headers.mandatory");

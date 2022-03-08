@@ -1,18 +1,18 @@
-package org.swasth.dp.retrybatch.task;
+package org.swasth.retrybatch.task;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.swasth.dp.retrybatch.functions.RetryFunction;
+import org.swasth.retrybatch.functions.RetryFunction;
 
 public class RetryBatchTask {
 
 	private final static Logger logger = LoggerFactory.getLogger(RetryBatchTask.class);
 
 	public static void main(String[] args) {
-		Config conf = ConfigFactory.load("resources/retry.conf").withFallback(ConfigFactory.systemEnvironment());
-		RetryConfig config = new RetryConfig(conf,"Retry-Job");
+		Config conf = ConfigFactory.load().withFallback(ConfigFactory.systemEnvironment());
+		RetryConfig config = new RetryConfig(conf);
 		try {
 			RetryFunction retryFunction = new RetryFunction(config);
 			retryFunction.process();

@@ -75,9 +75,9 @@ object DispatcherUtil {
       } else  //As url is null, no need to retry
         DispatcherResult(false, 0, None, false)
     } catch {
-      case ex: Exception => {
-        DispatcherResult(false, 0, None, true)
-      }
+      case ex: Exception =>
+        val errorResponse: ErrorResponse = ErrorResponse(Option(Constants.RECIPIENT_ERROR_CODE), Option(Constants.RECIPIENT_ERROR_MESSAGE), Option(""))
+        DispatcherResult(false, 0, Option(errorResponse), true)
     } finally {
       if (response != null)
         response.close()

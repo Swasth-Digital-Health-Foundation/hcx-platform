@@ -5,9 +5,8 @@ import org.apache.flink.configuration.Configuration
 import org.apache.flink.streaming.api.functions.ProcessFunction
 import org.slf4j.LoggerFactory
 import org.swasth.dp.core.job.{BaseJobConfig, BaseProcessFunction, Metrics}
-import org.swasth.dp.core.util.{Constants, DispatcherUtil, JSONUtil, PostgresConnect, PostgresConnectionConfig}
+import org.swasth.dp.core.util._
 
-import java.sql.ResultSet
 import java.util
 import java.util.{Calendar, UUID}
 
@@ -143,7 +142,7 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
           if(event.containsKey("retryCount"))
             retryCount = event.get("retryCount").asInstanceOf[Int]
           if (retryCount + 1 < config.maxRetry) {
-            val query = "UPDATE %s SET status ='%s', retryCount = retryCount + 1, lastUpdatedOn = %d WHERE mid ='%s'".format(config.postgresTable, "request.retry", System.currentTimeMillis(), payloadRefId)
+            val query = "UPDATE %s SET status = '%s', retryCount = retryCount + 1, lastUpdatedOn = %d WHERE mid = '%s'".format(config.postgresTable, "request.retry", System.currentTimeMillis(), payloadRefId)
             executeDBQuery(query)
             setStatus(event, Constants.HCX_QUEUED_STATUS)
             metrics.incCounter(metric = config.dispatcherRetryCount)
@@ -160,10 +159,10 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
     }
   }
 
-  private def executeDBQuery(query: String): ResultSet = {
+  private def executeDBQuery(query: String): Boolean = {
     val preparedStatement = postgresConnect.getConnection.prepareStatement(query)
     try {
-      preparedStatement.executeQuery()
+      preparedStatement.execute()
     } catch {
       case ex: Exception => throw ex
     } finally {
@@ -172,7 +171,7 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
   }
 
   private def updateDBStatus(payloadRefId: String, status: String): Unit = {
-    val query = "UPDATE %s SET status = %s, lastUpdatedOn = %d WHERE mid = %s;".format(config.postgresTable, status, System.currentTimeMillis(), payloadRefId)
+    val query = "UPDATE %s SET status = '%s', lastUpdatedOn = %d WHERE mid = '%s';".format(config.postgresTable, status, System.currentTimeMillis(), payloadRefId)
     executeDBQuery(query)
   }
 
