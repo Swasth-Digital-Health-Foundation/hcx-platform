@@ -4,6 +4,7 @@ import org.apache.commons.collections.MapUtils
 import org.apache.flink.configuration.Configuration
 import org.apache.flink.streaming.api.functions.ProcessFunction
 import org.slf4j.LoggerFactory
+import org.swasth.dp.core.exception.PipelineException
 import org.swasth.dp.core.job.{BaseJobConfig, BaseProcessFunction, Metrics}
 import org.swasth.dp.core.util._
 
@@ -103,6 +104,7 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
     // TODO change cdata to context after discussion.
     val senderCtx = event.getOrDefault(Constants.CDATA, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]].getOrDefault(Constants.SENDER, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]]
     val recipientCtx = event.getOrDefault(Constants.CDATA, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]].getOrDefault(Constants.RECIPIENT, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]]
+    try {
     if (MapUtils.isEmpty(senderCtx)) {
       Console.println("sender context is empty for mid: " + payloadRefId)
       logger.warn("sender context is empty for mid: " + payloadRefId)
@@ -156,6 +158,10 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
         }
         audit(event, context, metrics)
       }
+    } catch {
+      case ex: PipelineException =>
+        val errorResponse = ErrorResponse(Option(ex.code), Option(ex.message), Option(ex.trace))
+        dispatchErrorResponse(event, ValidationResult(true, Option(errorResponse)).error, correlationId, payloadRefId, senderCtx, context, metrics)
     }
   }
 

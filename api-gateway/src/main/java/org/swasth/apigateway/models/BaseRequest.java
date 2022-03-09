@@ -139,7 +139,7 @@ public class BaseRequest {
         return errors;
     }
 
-    public void validateUsingAuditData(List<String> allowedEntitiesForForward, List<String> allowedRolesForForward, Map<String,Object> senderDetails, Map<String,Object> recipientDetails, List<Map<String,Object>> correlationAuditData, List<Map<String,Object>> callAuditData, List<Map<String,Object>> participantCtxAuditData) throws Exception {
+    public void validateUsingAuditData(List<String> allowedEntitiesForForward, List<String> allowedRolesForForward, Map<String,Object> senderDetails, Map<String,Object> recipientDetails, List<Map<String,Object>> correlationAuditData, List<Map<String,Object>> callAuditData, List<Map<String,Object>> participantCtxAuditData, String path ) throws Exception {
         validateCondition(!callAuditData.isEmpty(), ErrorCodes.ERR_INVALID_API_CALL_ID, "Request exist with same api call id");
         // validate request cycle is not closed
         for(Map<String,Object> audit: correlationAuditData){
@@ -162,7 +162,7 @@ public class BaseRequest {
                     validateCondition(getRecipientCode().equals(audit.get(SENDER_CODE)), ErrorCodes.ERR_INVALID_FORWARD_REQ, "Request cannot be forwarded to the forward initiators");
                 }
             }
-        } else if(!apiAction.contains("on_") && checkParticipantRole(allowedRolesForForward, senderRoles) && recipientRoles.contains(PROVIDER)) {
+        } else if( !EXCLUDE_ENTITIES.contains(getEntity(path)) && !apiAction.contains("on_") && checkParticipantRole(allowedRolesForForward, senderRoles) && recipientRoles.contains(PROVIDER)) {
             throw new ClientException("Invalid recipient");
         }
     }
