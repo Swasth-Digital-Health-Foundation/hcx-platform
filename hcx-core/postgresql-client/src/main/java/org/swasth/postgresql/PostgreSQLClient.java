@@ -1,7 +1,6 @@
 package org.swasth.postgresql;
 
 import org.swasth.common.exception.ClientException;
-import org.swasth.common.utils.Constants;
 
 import java.sql.*;
 
@@ -30,30 +29,32 @@ public class PostgreSQLClient implements IDatabaseService {
 
     public boolean execute(String query) throws ClientException, SQLException {
         Connection connection = getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement(query);
         try {
             connection.setAutoCommit(false);
-            PreparedStatement preparedStatement = connection.prepareStatement(query);
             boolean result = preparedStatement.execute();
             connection.commit();
             return result;
         } catch (Exception e) {
             throw new ClientException("Error while performing database operation: " + e.getMessage());
         } finally {
+            preparedStatement.close();
             connection.close();
         }
     }
 
     public ResultSet executeQuery(String query) throws ClientException, SQLException {
         Connection connection = getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement(query);
         try {
             connection.setAutoCommit(false);
-            PreparedStatement preparedStatement = connection.prepareStatement(query);
             ResultSet resultSet = preparedStatement.executeQuery();
             connection.commit();
             return resultSet;
         } catch (Exception e) {
             throw new ClientException("Error while performing database operation: " + e.getMessage());
         } finally {
+            preparedStatement.close();
             connection.close();
         }
     }
