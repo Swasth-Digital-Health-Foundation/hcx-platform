@@ -53,8 +53,8 @@ public class BaseController {
     }
 
     protected void processAndSendEvent(String apiAction, String metadataTopic, Request request) throws Exception {
-        String mid = UUID.randomUUID().toString();
         EventGenerator eventGenerator = new EventGenerator(getProtocolHeaders(), getJoseHeaders(), getRedirectHeaders(), getErrorHeaders());
+        String mid = UUID.randomUUID().toString();
         String serviceMode = env.getProperty(SERVICE_MODE);
         String payloadTopic = env.getProperty(KAFKA_TOPIC_PAYLOAD);
         String key = request.getSenderCode();
