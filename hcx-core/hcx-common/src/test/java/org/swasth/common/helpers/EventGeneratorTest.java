@@ -33,6 +33,18 @@ public class EventGeneratorTest {
         assertNotNull(result);
     }
 
+    @Test
+    public void check_generateMetadataEvent_JSON_Redirect() throws Exception {
+        String result = eventGenerator.generateMetadataEvent("test", "/test", getRedirectJSONRequest());
+        assertNotNull(result);
+    }
+
+    @Test
+    public void check_generateMetadataEvent_JSON_Empty_Headers() throws Exception {
+        String result = eventGenerator.generateMetadataEvent("test", "/test", getJSONRequest(""));
+        assertNotNull(result);
+    }
+
 
     public Request getRequest() throws Exception {
         Map<String,Object> obj = new HashMap<>();
@@ -51,6 +63,16 @@ public class EventGeneratorTest {
             put("message","");
             put("trace","Recipient Invalid Encryption");
         }});
+        return new Request(obj);
+    }
+
+    public Request getRedirectJSONRequest() throws Exception {
+        Map<String,Object> obj = new HashMap<>();
+        obj.put("x-hcx-sender_code","1-0756766c-ad43-4145-86ea-d1b17b729a3f");
+        obj.put("x-hcx-recipient_code","1-68c5deca-8299-4feb-b441-923bb649a9a3");
+        obj.put("x-hcx-correlation_id","5e934f90-111d-4f0b-b016-c22d820674e4");
+        obj.put("x-hcx-redirect_to","1-74f6cb29-4116-42d0-9fbb-adb65e6a64a");
+        obj.put("x-hcx-status","response.redirect");
         return new Request(obj);
     }
 
