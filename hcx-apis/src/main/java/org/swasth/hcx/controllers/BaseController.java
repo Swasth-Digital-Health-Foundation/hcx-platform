@@ -6,24 +6,22 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.swasth.common.dto.*;
+import org.swasth.common.dto.Request;
+import org.swasth.common.dto.Response;
+import org.swasth.common.dto.ResponseError;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
 import org.swasth.common.exception.ServerException;
 import org.swasth.common.exception.ServiceUnavailbleException;
-import org.swasth.common.utils.Constants;
-import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.helpers.EventGenerator;
+import org.swasth.common.utils.JSONUtils;
 import org.swasth.hcx.managers.HealthCheckManager;
 import org.swasth.hcx.service.HeaderAuditService;
 import org.swasth.kafka.client.IEventService;
 import org.swasth.postgresql.IDatabaseService;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.*;
+import java.util.Map;
+import java.util.UUID;
 
 import static org.swasth.common.utils.Constants.*;
 

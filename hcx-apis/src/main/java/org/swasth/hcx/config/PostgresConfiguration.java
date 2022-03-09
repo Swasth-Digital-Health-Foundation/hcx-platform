@@ -20,8 +20,7 @@ public class PostgresConfiguration {
 
     @Bean
     public IDatabaseService postgreSQLClient(){
-        IDatabaseService postgreSQLClient = new PostgreSQLClient(postgresUrl, postgresUser, postgresPassword);
-        return postgreSQLClient;
+        return new PostgreSQLClient(postgresUrl, postgresUser, postgresPassword);
     }
 
 }

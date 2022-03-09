@@ -14,8 +14,7 @@ public class KafkaConfiguration {
 
     @Bean
     public IEventService kafkaClient() {
-        IEventService kafkaClient = new KafkaClient(kafkaServerUrl);
-        return kafkaClient;
+        return new KafkaClient(kafkaServerUrl);
     }
 
 }

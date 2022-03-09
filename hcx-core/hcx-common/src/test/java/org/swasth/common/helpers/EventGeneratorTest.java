@@ -3,33 +3,34 @@ package org.swasth.common.helpers;
 
 import org.junit.Test;
 import org.swasth.common.dto.Request;
-import org.swasth.common.utils.JSONUtils;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 
 public class EventGeneratorTest {
 
-    private EventGenerator eventGenerator = new EventGenerator(Arrays.asList("x-hcx-sender_code", "x-hcx-recipient_code", "x-hcx-api_call_id", "x-hcx-timestamp", "x-hcx-status", "x-hcx-correlation_id"), Arrays.asList("alg", "enc"), Arrays.asList("x-hcx-sender_code", "x-hcx-recipient_code", "x-hcx-api_call_id", "x-hcx-timestamp", "x-hcx-status", "x-hcx-correlation_id"), Arrays.asList("x-hcx-sender_code", "x-hcx-recipient_code", "x-hcx-api_call_id", "x-hcx-timestamp", "x-hcx-status", "x-hcx-correlation_id"));
+    private final EventGenerator eventGenerator = new EventGenerator(Arrays.asList("x-hcx-sender_code", "x-hcx-recipient_code", "x-hcx-api_call_id", "x-hcx-timestamp", "x-hcx-status", "x-hcx-correlation_id"), Arrays.asList("alg", "enc"), Arrays.asList("x-hcx-sender_code", "x-hcx-recipient_code", "x-hcx-api_call_id", "x-hcx-timestamp", "x-hcx-status", "x-hcx-correlation_id"), Arrays.asList("x-hcx-sender_code", "x-hcx-recipient_code", "x-hcx-api_call_id", "x-hcx-timestamp", "x-hcx-status", "x-hcx-correlation_id"));
 
     @Test
     public void check_generatePayloadEvent() throws Exception {
         String result = eventGenerator.generatePayloadEvent("test_123", getRequest());
-        assert (!result.isEmpty());
+        assertNotNull(result);
     }
 
     @Test
     public void check_generateMetadataEvent() throws Exception {
-    String result = eventGenerator.generateMetadataEvent("test", "/test", getRequest());
-    assert (!result.isEmpty());
+        String result = eventGenerator.generateMetadataEvent("test", "/test", getRequest());
+        assertNotNull(result);
     }
 
     @Test
     public void check_generateMetadataEvent_JSON() throws Exception {
         String result = eventGenerator.generateMetadataEvent("test", "/test", getJSONRequest("response.error"));
-        assert (!result.isEmpty());
+        assertNotNull(result);
     }
 
 
