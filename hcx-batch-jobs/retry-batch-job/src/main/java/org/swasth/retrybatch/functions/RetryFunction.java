@@ -34,9 +34,6 @@ public class RetryFunction {
             String selectQuery = String.format("SELECT * FROM %s WHERE status = '%s' AND retryCount < %d;", config.postgresTable, Constants.RETRY_STATUS, config.maxRetry);
             ResultSet result = postgreSQLClient.executeQuery(selectQuery);
             int metrics = 0;
-            if(!result.next()) {
-                System.out.println("No events to process");
-            }
             while (result.next()) {
                 Request request = new Request(JSONUtils.deserialize(result.getString("data"), Map.class));
                 String mid = result.getString(Constants.MID);

@@ -29,8 +29,8 @@ public class PostgreSQLClient implements IDatabaseService {
 
     public boolean execute(String query) throws ClientException, SQLException {
         Connection connection = getConnection();
-        PreparedStatement preparedStatement = connection.prepareStatement(query);
         try {
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
             connection.setAutoCommit(false);
             boolean result = preparedStatement.execute();
             connection.commit();
@@ -38,23 +38,21 @@ public class PostgreSQLClient implements IDatabaseService {
         } catch (Exception e) {
             throw new ClientException("Error while performing database operation: " + e.getMessage());
         } finally {
-            preparedStatement.close();
             connection.close();
         }
     }
 
     public ResultSet executeQuery(String query) throws ClientException, SQLException {
         Connection connection = getConnection();
-        PreparedStatement preparedStatement = connection.prepareStatement(query);
         try {
             connection.setAutoCommit(false);
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
             ResultSet resultSet = preparedStatement.executeQuery();
             connection.commit();
             return resultSet;
         } catch (Exception e) {
             throw new ClientException("Error while performing database operation: " + e.getMessage());
         } finally {
-            preparedStatement.close();
             connection.close();
         }
     }

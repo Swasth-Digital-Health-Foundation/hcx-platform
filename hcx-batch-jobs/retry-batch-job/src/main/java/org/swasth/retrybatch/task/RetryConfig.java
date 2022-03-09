@@ -1,9 +1,12 @@
 package org.swasth.retrybatch.task;
 
 import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+@Component
 public class RetryConfig {
 
     private Config config;
@@ -24,9 +27,8 @@ public class RetryConfig {
     public List<String> redirectHeaders;
     public List<String> errorHeaders;
 
-
-    public RetryConfig(Config config) {
-        this.config = config;
+    public RetryConfig() {
+        this.config = ConfigFactory.load().withFallback(ConfigFactory.systemEnvironment());
         initValues();
     }
 
