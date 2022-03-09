@@ -92,7 +92,6 @@ public class BaseController {
 
     protected ResponseEntity<Object> exceptionHandler(Response response, Exception e){
         if (e instanceof ClientException) {
-            e.printStackTrace();
             return new ResponseEntity<>(errorResponse(response, ((ClientException) e).getErrCode(), e), HttpStatus.BAD_REQUEST);
         } else if (e instanceof ServiceUnavailbleException) {
             return new ResponseEntity<>(errorResponse(response, ((ServiceUnavailbleException) e).getErrCode(), e), HttpStatus.SERVICE_UNAVAILABLE);
