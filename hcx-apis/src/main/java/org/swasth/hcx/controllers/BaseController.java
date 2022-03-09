@@ -20,6 +20,7 @@ import org.swasth.hcx.service.HeaderAuditService;
 import org.swasth.kafka.client.IEventService;
 import org.swasth.postgresql.IDatabaseService;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -53,6 +54,7 @@ public class BaseController {
 
     protected void processAndSendEvent(String apiAction, String metadataTopic, Request request) throws Exception {
         String mid = UUID.randomUUID().toString();
+        EventGenerator eventGenerator = new EventGenerator(getProtocolHeaders(), getJoseHeaders(), getRedirectHeaders(), getErrorHeaders());
         String serviceMode = env.getProperty(SERVICE_MODE);
         String payloadTopic = env.getProperty(KAFKA_TOPIC_PAYLOAD);
         String key = request.getSenderCode();
@@ -78,6 +80,28 @@ public class BaseController {
         } catch (Exception e) {
             return exceptionHandler(response, e);
         }
+    }
+
+    private List<String> getProtocolHeaders(){
+        List<String> protocolHeaders = env.getProperty(PROTOCOL_HEADERS_MANDATORY, List.class);
+        protocolHeaders.addAll(env.getProperty(PROTOCOL_HEADERS_OPTIONAL, List.class));
+        return protocolHeaders;
+    }
+
+    private List<String> getJoseHeaders(){
+        return env.getProperty(JOSE_HEADERS, List.class);
+    }
+
+    private List<String> getRedirectHeaders(){
+        List<String> redirectHeaders = env.getProperty(REDIRECT_HEADERS_MANDATORY, List.class);
+        redirectHeaders.addAll(env.getProperty(REDIRECT_HEADERS_OPTIONAL, List.class));
+        return  redirectHeaders;
+    }
+
+    private List<String> getErrorHeaders(){
+        List<String> errorHeaders = env.getProperty(ERROR_HEADERS_MANDATORY, List.class);
+        errorHeaders.addAll(env.getProperty(ERROR_HEADERS_OPTIONAL, List.class));
+        return errorHeaders;
     }
 
     protected void checkSystemHealth() throws ServiceUnavailbleException {
