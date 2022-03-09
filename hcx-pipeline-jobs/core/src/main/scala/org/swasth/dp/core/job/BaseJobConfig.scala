@@ -104,5 +104,6 @@ class BaseJobConfig(val config: Config, val jobName: String) extends Serializabl
   val postgresPort: Int = config.getInt("postgres.port")
   val postgresMaxConnections: Int = config.getInt("postgres.maxConnections")
 
-  val maxRetry = config.getInt("max.retry")
+  val maxRetry: Int = config.getInt("max.retry")
+  val allowedEntitiesForRetry: util.List[String] = config.getStringList("allowedEntitiesForRetry")
 }

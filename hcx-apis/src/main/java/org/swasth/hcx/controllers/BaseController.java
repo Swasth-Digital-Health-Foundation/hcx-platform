@@ -60,7 +60,7 @@ public class BaseController {
         String key = request.getSenderCode();
         String payloadEvent = eventGenerator.generatePayloadEvent(mid, request);
         String metadataEvent = eventGenerator.generateMetadataEvent(mid, apiAction, request);
-        String query = String.format("INSERT INTO %s VALUES ('%s','%s','%s','%s',%d,%d)", postgresTableName, mid, JSONUtils.serialize(request.getPayload()), apiAction, QUEUED_STATUS, 0, System.currentTimeMillis());
+        String query = String.format("INSERT INTO %s (mid,data,action,status,retrycount,lastupdatedon) VALUES ('%s','%s','%s','%s',%d,%d)", postgresTableName, mid, JSONUtils.serialize(request.getPayload()), apiAction, QUEUED_STATUS, 0, System.currentTimeMillis());
         System.out.println("Mode: " + serviceMode + " :: mid: " + mid + " :: Event: " + metadataEvent);
         if(StringUtils.equalsIgnoreCase(serviceMode, GATEWAY)) {
             postgreSQLClient.execute(query);

@@ -52,10 +52,7 @@ public class Constants {
     public static final String JOSE="jose";
     public static final String PROTOCOL = "protocol";
     public static final String DOMAIN = "domain";
-    public static final String LOG_DETAILS = "log_details";
-    public static final String CODE = "code";
-    public static final String MESSAGE = "message";
-    public static final String TRACE = "trace";
+    public static final String RETRY_COUNT = "retryCount";
 
     //Request props
     public static final String PROTOCOL_HEADERS_MANDATORY = "protocol.headers.mandatory";
@@ -105,5 +102,7 @@ public class Constants {
     public static final String REDIRECT_STATUS = "response.redirect";
     public static final String COMPLETE_STATUS = "response.complete";
     public static final String QUEUED_STATUS = "request.queued";
+    public static final String RETRY_STATUS = "request.retry";
+    public static final String RETRY_PROCESSING_STATUS = "request.retry.processing";
 
 }

@@ -137,26 +137,43 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
           setStatus(event, Constants.HCX_DISPATCH_STATUS)
           metrics.incCounter(metric = config.dispatcherSuccessCount)
         }
-        var retryCount: Int = 0
         if (result.retry) {
-          if(event.containsKey("retryCount"))
-            retryCount = event.get("retryCount").asInstanceOf[Int]
-          if (retryCount + 1 < config.maxRetry) {
+          var retryCount: Int = 0
+          if(event.containsKey(Constants.RETRY_COUNT))
+            retryCount = event.get(Constants.RETRY_COUNT).asInstanceOf[Int]
+          if (!config.allowedEntitiesForRetry.contains(getEntity(event.get(Constants.ACTION).asInstanceOf[String])) || retryCount + 1 == config.maxRetry){
+            dispatchError(payloadRefId, event, result, correlationId, senderCtx, context, metrics)
+          } else if (retryCount + 1 < config.maxRetry) {
             val query = "UPDATE %s SET status = '%s', retryCount = retryCount + 1, lastUpdatedOn = %d WHERE mid = '%s'".format(config.postgresTable, "request.retry", System.currentTimeMillis(), payloadRefId)
             executeDBQuery(query)
             setStatus(event, Constants.HCX_QUEUED_STATUS)
             metrics.incCounter(metric = config.dispatcherRetryCount)
+            Console.println("Event is updated for retrying later")
           }
         }
-        if (retryCount + 1 == config.maxRetry || (!result.retry && !result.success)) {
-          updateDBStatus(payloadRefId, Constants.ERROR_STATUS)
-          setStatus(event, Constants.HCX_ERROR_STATUS)
-          metrics.incCounter(metric = config.dispatcherFailedCount)
-          dispatchErrorResponse(event,result.error, correlationId, payloadRefId, senderCtx, context, metrics)
+        if (!result.retry && !result.success) {
+          dispatchError(payloadRefId, event, result, correlationId, senderCtx, context, metrics)
         }
         audit(event, context, metrics)
       }
     }
+  }
+
+  private def getEntity(path: String) : String = {
+    if (path.contains("status")) "status"
+    else if (path.contains("on_search")) "searchresponse"
+    else if (path.contains("search")) "search"
+    else {
+      val str = path.split("/")
+      str(str.length - 2)
+    }
+  }
+
+  private def dispatchError(payloadRefId: String, event: util.Map[String,AnyRef], result: DispatcherResult, correlationId: String, senderCtx: util.Map[String,AnyRef], context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
+    updateDBStatus(payloadRefId, Constants.ERROR_STATUS)
+    setStatus(event, Constants.HCX_ERROR_STATUS)
+    metrics.incCounter(metric = config.dispatcherFailedCount)
+    dispatchErrorResponse(event,result.error, correlationId, payloadRefId, senderCtx, context, metrics)
   }
 
   private def executeDBQuery(query: String): Boolean = {
