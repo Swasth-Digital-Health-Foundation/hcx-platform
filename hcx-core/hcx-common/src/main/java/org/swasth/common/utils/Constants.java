@@ -53,6 +53,7 @@ public class Constants {
     public static final String PROTOCOL = "protocol";
     public static final String DOMAIN = "domain";
     public static final String RETRY_COUNT = "retryCount";
+    public static final String RETRY_INDEX = "retryIndex";
 
     //Request props
     public static final String PROTOCOL_HEADERS_MANDATORY = "protocol.headers.mandatory";

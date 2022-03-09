@@ -141,8 +141,8 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
         }
         if (result.retry) {
           var retryCount: Int = 0
-          if(event.containsKey(Constants.RETRY_COUNT))
-            retryCount = event.get(Constants.RETRY_COUNT).asInstanceOf[Int]
+          if(event.containsKey(Constants.RETRY_INDEX))
+            retryCount = event.get(Constants.RETRY_INDEX).asInstanceOf[Int]
           if (!config.allowedEntitiesForRetry.contains(getEntity(event.get(Constants.ACTION).asInstanceOf[String])) || retryCount + 1 == config.maxRetry){
             dispatchError(payloadRefId, event, result, correlationId, senderCtx, context, metrics)
           } else if (retryCount + 1 < config.maxRetry) {

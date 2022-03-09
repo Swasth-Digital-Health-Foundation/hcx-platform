@@ -44,7 +44,7 @@ public class RetryFunction {
                 int retryCount = result.getInt(Constants.RETRY_COUNT);
                 String event = eventGenerator.generateMetadataEvent(mid, action, request);
                 Map<String,Object> eventMap = JSONUtils.deserialize(event, Map.class);
-                eventMap.put(Constants.RETRY_COUNT, retryCount);
+                eventMap.put(Constants.RETRY_INDEX, retryCount);
                 kafkaClient.send(config.kafkaInputTopic, request.getSenderCode(), JSONUtils.serialize(eventMap));
                 System.out.println("Event is pushed to kafka topic, mid: " + mid + " retry count: " + retryCount);
                 String updateQuery = String.format("UPDATE %s SET status = '%s', lastUpdatedOn = %d WHERE mid = '%s'", config.postgresTable, Constants.RETRY_PROCESSING_STATUS, System.currentTimeMillis(), mid);
