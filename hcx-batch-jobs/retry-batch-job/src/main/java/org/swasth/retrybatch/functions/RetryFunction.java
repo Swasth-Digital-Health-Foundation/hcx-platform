@@ -88,8 +88,7 @@ public class RetryFunction {
 
     private List<String> getProtocolHeaders(){
         List<String> protocolHeaders = env.getProperty(PROTOCOL_HEADERS_MANDATORY, List.class);
-        List<String> optionalProtocolHeaders = env.getProperty(PROTOCOL_HEADERS_OPTIONAL, List.class);
-        if (optionalProtocolHeaders != null) protocolHeaders.addAll(optionalProtocolHeaders);
+        protocolHeaders.addAll(env.getProperty(PROTOCOL_HEADERS_OPTIONAL, List.class));
         return protocolHeaders;
     }
 
@@ -99,15 +98,13 @@ public class RetryFunction {
 
     private List<String> getRedirectHeaders(){
         List<String> redirectHeaders = env.getProperty(REDIRECT_HEADERS_MANDATORY, List.class);
-        List<String> optionalRedirectHeaders = env.getProperty(REDIRECT_HEADERS_OPTIONAL, List.class);
-        if (optionalRedirectHeaders != null) redirectHeaders.addAll(optionalRedirectHeaders);
+        redirectHeaders.addAll(env.getProperty(REDIRECT_HEADERS_OPTIONAL, List.class));
         return  redirectHeaders;
     }
 
     private List<String> getErrorHeaders(){
         List<String> errorHeaders = env.getProperty(ERROR_HEADERS_MANDATORY, List.class);
-        List<String> optionalErrorHeaders = env.getProperty(ERROR_HEADERS_OPTIONAL, List.class);
-        if (optionalErrorHeaders != null) errorHeaders.addAll(optionalErrorHeaders);
+        errorHeaders.addAll(env.getProperty(ERROR_HEADERS_OPTIONAL, List.class));
         return errorHeaders;
     }
 
