@@ -143,14 +143,13 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
           var retryCount: Int = 0
           if(event.containsKey(Constants.RETRY_INDEX))
             retryCount = event.get(Constants.RETRY_INDEX).asInstanceOf[Int]
-          if (!config.allowedEntitiesForRetry.contains(getEntity(event.get(Constants.ACTION).asInstanceOf[String])) || retryCount + 1 == config.maxRetry){
+          if (!config.allowedEntitiesForRetry.contains(getEntity(event.get(Constants.ACTION).asInstanceOf[String])) || retryCount == config.maxRetry){
             dispatchError(payloadRefId, event, result, correlationId, senderCtx, context, metrics)
-          } else if (retryCount + 1 < config.maxRetry) {
-            val query = "UPDATE %s SET status = '%s', retryCount = retryCount + 1, lastUpdatedOn = %d WHERE mid = '%s'".format(config.postgresTable, "request.retry", System.currentTimeMillis(), payloadRefId)
-            executeDBQuery(query)
+          } else if (retryCount < config.maxRetry) {
+            updateDBStatus(payloadRefId, "request.retry")
             setStatus(event, Constants.HCX_QUEUED_STATUS)
             metrics.incCounter(metric = config.dispatcherRetryCount)
-            Console.println("Event is updated for retrying later")
+            Console.println("Event is updated for retrying..")
           }
         }
         if (!result.retry && !result.success) {

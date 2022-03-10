@@ -7,6 +7,7 @@ import org.apache.flink.streaming.runtime.streamrecord.StreamRecord;
 import org.apache.flink.streaming.util.OneInputStreamOperatorTestHarness;
 import org.apache.flink.streaming.util.ProcessFunctionTestHarnesses;
 import org.junit.Test;
+import org.swasth.dp.core.util.JSONUtil;
 import org.swasth.dp.retry.task.RetryConfig;
 import org.swasth.fixture.EventFixture;
 
@@ -35,6 +36,7 @@ public class RetryProcessFunctionTest {
         harness.processElement(testData);
 
         assertEquals(harness.getSideOutput(retryConfig.auditOutputTag()).size(),1);
+        assertEquals(harness.getSideOutput(retryConfig.auditOutputTag()).stream().map(event -> JSONUtil.deserialize(event.getValue(), Map.class).get("mid").toString()),"761dfc11-1870-4981-b33d-16254a104a9d");
 
         harness.close();
 
