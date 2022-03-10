@@ -84,7 +84,8 @@ public class BaseController {
 
     private List<String> getProtocolHeaders(){
         List<String> protocolHeaders = env.getProperty(PROTOCOL_HEADERS_MANDATORY, List.class);
-        protocolHeaders.addAll(env.getProperty(PROTOCOL_HEADERS_OPTIONAL, List.class));
+        List<String> optionalProtocolHeaders = env.getProperty(PROTOCOL_HEADERS_OPTIONAL, List.class);
+        if (optionalProtocolHeaders != null) protocolHeaders.addAll(optionalProtocolHeaders);
         return protocolHeaders;
     }
 
@@ -94,13 +95,15 @@ public class BaseController {
 
     private List<String> getRedirectHeaders(){
         List<String> redirectHeaders = env.getProperty(REDIRECT_HEADERS_MANDATORY, List.class);
-        redirectHeaders.addAll(env.getProperty(REDIRECT_HEADERS_OPTIONAL, List.class));
+        List<String> optionalRedirectHeaders = env.getProperty(REDIRECT_HEADERS_OPTIONAL, List.class);
+        if (optionalRedirectHeaders != null) redirectHeaders.addAll(optionalRedirectHeaders);
         return  redirectHeaders;
     }
 
     private List<String> getErrorHeaders(){
         List<String> errorHeaders = env.getProperty(ERROR_HEADERS_MANDATORY, List.class);
-        errorHeaders.addAll(env.getProperty(ERROR_HEADERS_OPTIONAL, List.class));
+        List<String> optionalErrorHeaders = env.getProperty(ERROR_HEADERS_OPTIONAL, List.class);
+        if (optionalErrorHeaders != null) errorHeaders.addAll(optionalErrorHeaders);
         return errorHeaders;
     }
 
