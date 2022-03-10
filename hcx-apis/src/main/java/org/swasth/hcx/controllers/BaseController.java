@@ -20,6 +20,7 @@ import org.swasth.hcx.service.HeaderAuditService;
 import org.swasth.kafka.client.IEventService;
 import org.swasth.postgresql.IDatabaseService;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -83,8 +84,8 @@ public class BaseController {
     }
 
     private List<String> getProtocolHeaders(){
-        List<String> protocolHeaders = env.getProperty(PROTOCOL_HEADERS_MANDATORY, List.class);
-        protocolHeaders.addAll(env.getProperty(PROTOCOL_HEADERS_OPTIONAL, List.class));
+        List<String> protocolHeaders = env.getProperty(PROTOCOL_HEADERS_MANDATORY, List.class, new ArrayList<String>());
+        protocolHeaders.addAll(env.getProperty(PROTOCOL_HEADERS_OPTIONAL, List.class, new ArrayList<String>()));
         return protocolHeaders;
     }
 
@@ -93,14 +94,14 @@ public class BaseController {
     }
 
     private List<String> getRedirectHeaders(){
-        List<String> redirectHeaders = env.getProperty(REDIRECT_HEADERS_MANDATORY, List.class);
-        redirectHeaders.addAll(env.getProperty(REDIRECT_HEADERS_OPTIONAL, List.class));
+        List<String> redirectHeaders = env.getProperty(REDIRECT_HEADERS_MANDATORY, List.class, new ArrayList<String>());
+        redirectHeaders.addAll(env.getProperty(REDIRECT_HEADERS_OPTIONAL, List.class, new ArrayList<String>()));
         return  redirectHeaders;
     }
 
     private List<String> getErrorHeaders(){
-        List<String> errorHeaders = env.getProperty(ERROR_HEADERS_MANDATORY, List.class);
-        errorHeaders.addAll(env.getProperty(ERROR_HEADERS_OPTIONAL, List.class));
+        List<String> errorHeaders = env.getProperty(ERROR_HEADERS_MANDATORY, List.class, new ArrayList<String>());
+        errorHeaders.addAll(env.getProperty(ERROR_HEADERS_OPTIONAL, List.class, new ArrayList<String>()));
         return errorHeaders;
     }
 
