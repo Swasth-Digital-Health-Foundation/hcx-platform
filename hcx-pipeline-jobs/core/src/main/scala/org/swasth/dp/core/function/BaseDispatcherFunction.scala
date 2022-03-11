@@ -105,57 +105,58 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
     val senderCtx = event.getOrDefault(Constants.CDATA, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]].getOrDefault(Constants.SENDER, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]]
     val recipientCtx = event.getOrDefault(Constants.CDATA, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]].getOrDefault(Constants.RECIPIENT, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]]
     try {
-    if (MapUtils.isEmpty(senderCtx)) {
-      Console.println("sender context is empty for mid: " + payloadRefId)
-      logger.warn("sender context is empty for mid: " + payloadRefId)
-      //Audit the record if sender context is empty
-      audit(event,context,metrics)
-    } else if (MapUtils.isEmpty(recipientCtx)) {
-      Console.println("recipient context is empty for mid: " + payloadRefId)
-      logger.warn("recipient context is empty for mid: " + payloadRefId)
-      //Send on_action request back to sender when recipient context is missing
-      val errorResponse = ErrorResponse(Option(Constants.RECIPIENT_ERROR_CODE), Option(Constants.RECIPIENT_ERROR_MESSAGE), Option(Constants.RECIPIENT_ERROR_LOG))
-      dispatchErrorResponse(event,ValidationResult(true, Option(errorResponse)).error, correlationId, payloadRefId, senderCtx, context, metrics)
-    } else {
-      Console.println("sender and recipient available for mid: " + payloadRefId)
-      logger.info("sender and recipient available for mid: " + payloadRefId)
-      val validationResult = validate(event)
-      if(!validationResult.status) {
-        metrics.incCounter(metric = config.dispatcherValidationFailedCount)
-        audit(event, context, metrics);
-        dispatchErrorResponse(event,validationResult.error, correlationId, payloadRefId, senderCtx, context, metrics)
-      }
-
-      if(validationResult.status) {
-        metrics.incCounter(metric = config.dispatcherValidationSuccessCount)
-        val payload = getPayload(payloadRefId);
-        val payloadJSON = JSONUtil.serialize(payload);
-        val result = DispatcherUtil.dispatch(recipientCtx, payloadJSON)
-        logger.info("result::" + result)
-        //Adding updatedTimestamp for auditing
-        event.put(Constants.UPDATED_TIME, Calendar.getInstance().getTime())
-        if (result.success) {
-          updateDBStatus(payloadRefId, Constants.DISPATCH_STATUS)
-          setStatus(event, Constants.HCX_DISPATCH_STATUS)
-          metrics.incCounter(metric = config.dispatcherSuccessCount)
-        }
-        if (result.retry) {
-          var retryCount: Int = 0
-          if(event.containsKey(Constants.RETRY_INDEX))
-            retryCount = event.get(Constants.RETRY_INDEX).asInstanceOf[Int]
-          if (!config.allowedEntitiesForRetry.contains(getEntity(event.get(Constants.ACTION).asInstanceOf[String])) || retryCount == config.maxRetry){
-            dispatchError(payloadRefId, event, result, correlationId, senderCtx, context, metrics)
-          } else if (retryCount < config.maxRetry) {
-            updateDBStatus(payloadRefId, "request.retry")
-            setStatus(event, Constants.HCX_QUEUED_STATUS)
-            metrics.incCounter(metric = config.dispatcherRetryCount)
-            Console.println("Event is updated for retrying..")
-          }
-        }
-        if (!result.retry && !result.success) {
-          dispatchError(payloadRefId, event, result, correlationId, senderCtx, context, metrics)
-        }
+      if (MapUtils.isEmpty(senderCtx)) {
+        Console.println("sender context is empty for mid: " + payloadRefId)
+        logger.warn("sender context is empty for mid: " + payloadRefId)
+        //Audit the record if sender context is empty
         audit(event, context, metrics)
+      } else if (MapUtils.isEmpty(recipientCtx)) {
+        Console.println("recipient context is empty for mid: " + payloadRefId)
+        logger.warn("recipient context is empty for mid: " + payloadRefId)
+        //Send on_action request back to sender when recipient context is missing
+        val errorResponse = ErrorResponse(Option(Constants.RECIPIENT_ERROR_CODE), Option(Constants.RECIPIENT_ERROR_MESSAGE), Option(Constants.RECIPIENT_ERROR_LOG))
+        dispatchErrorResponse(event, ValidationResult(true, Option(errorResponse)).error, correlationId, payloadRefId, senderCtx, context, metrics)
+      } else {
+        Console.println("sender and recipient available for mid: " + payloadRefId)
+        logger.info("sender and recipient available for mid: " + payloadRefId)
+        val validationResult = validate(event)
+        if (!validationResult.status) {
+          metrics.incCounter(metric = config.dispatcherValidationFailedCount)
+          audit(event, context, metrics);
+          dispatchErrorResponse(event, validationResult.error, correlationId, payloadRefId, senderCtx, context, metrics)
+        }
+
+        if (validationResult.status) {
+          metrics.incCounter(metric = config.dispatcherValidationSuccessCount)
+          val payload = getPayload(payloadRefId);
+          val payloadJSON = JSONUtil.serialize(payload);
+          val result = DispatcherUtil.dispatch(recipientCtx, payloadJSON)
+          logger.info("result::" + result)
+          //Adding updatedTimestamp for auditing
+          event.put(Constants.UPDATED_TIME, Calendar.getInstance().getTime())
+          if (result.success) {
+            updateDBStatus(payloadRefId, Constants.DISPATCH_STATUS)
+            setStatus(event, Constants.HCX_DISPATCH_STATUS)
+            metrics.incCounter(metric = config.dispatcherSuccessCount)
+          }
+          if (result.retry) {
+            var retryCount: Int = 0
+            if (event.containsKey(Constants.RETRY_INDEX))
+              retryCount = event.get(Constants.RETRY_INDEX).asInstanceOf[Int]
+            if (!config.allowedEntitiesForRetry.contains(getEntity(event.get(Constants.ACTION).asInstanceOf[String])) || retryCount == config.maxRetry) {
+              dispatchError(payloadRefId, event, result, correlationId, senderCtx, context, metrics)
+            } else if (retryCount < config.maxRetry) {
+              updateDBStatus(payloadRefId, "request.retry")
+              setStatus(event, Constants.HCX_QUEUED_STATUS)
+              metrics.incCounter(metric = config.dispatcherRetryCount)
+              Console.println("Event is updated for retrying..")
+            }
+          }
+          if (!result.retry && !result.success) {
+            dispatchError(payloadRefId, event, result, correlationId, senderCtx, context, metrics)
+          }
+          audit(event, context, metrics)
+        }
       }
     } catch {
       case ex: PipelineException =>
