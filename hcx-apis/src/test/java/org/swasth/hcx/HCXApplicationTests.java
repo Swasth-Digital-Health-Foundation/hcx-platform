@@ -9,7 +9,7 @@ class HCXApplicationTests {
 	}
 
 	@Test
-	public void applicationStarts() {
+	void applicationStarts() {
 		HCXApplication.main(new String[] {});
 	}
 

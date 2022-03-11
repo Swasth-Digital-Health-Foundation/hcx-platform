@@ -21,9 +21,6 @@ public final class SearchUtil {
 
     public static SearchRequest buildSearchRequest(final String indexName,
                                                    final SearchRequestDTO dto) {
-    	System.out.println("i came in line 19");
-    	System.out.print(dto.getFilters());
-    	System.out.println("i came in line 19");
     	try {
             final int page = dto.getOffset();
             final int size = dto.getLimit();
