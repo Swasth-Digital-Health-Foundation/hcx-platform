@@ -8,4 +8,9 @@ class HCXApplicationTests {
 	void contextLoads() {
 	}
 
+	@Test
+	public void applicationStarts() {
+		HCXApplication.main(new String[] {});
+	}
+
 }
