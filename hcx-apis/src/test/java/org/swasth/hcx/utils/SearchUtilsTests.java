@@ -2,21 +2,14 @@ package org.swasth.hcx.utils;
 
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.index.query.QueryBuilder;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInfo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.swasth.common.dto.SearchRequestDTO;
-import org.swasth.common.exception.ClientException;
 import org.swasth.hcx.controllers.BaseSpec;
-import org.swasth.hcx.helpers.EventGenerator;
 
-import java.util.HashMap;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 
 @ContextConfiguration(classes=SearchUtil.class)
