@@ -9,7 +9,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
-public class ParticipantControllerTests extends BaseSpec{
+class ParticipantControllerTests extends BaseSpec{
 
 
 
