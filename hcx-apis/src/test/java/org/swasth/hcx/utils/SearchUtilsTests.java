@@ -27,7 +27,7 @@ class SearchUtilsTests extends BaseSpec {
     SearchUtil searchUtil;
 
     @Test
-    void buildSearchRequestTest() throws Exception{
+    void buildSearchRequestTest() {
         SearchRequest result = searchUtil.buildSearchRequest("hcx_audit",new SearchRequestDTO());
     }
 
