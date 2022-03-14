@@ -17,7 +17,7 @@ import java.util.Optional;
 
 public final class SearchUtil {
 
-    private SearchUtil() {}
+    SearchUtil() {}
 
     public static SearchRequest buildSearchRequest(final String indexName,
                                                    final SearchRequestDTO dto) {
@@ -43,7 +43,7 @@ public final class SearchUtil {
 
 
 
-    private static QueryBuilder getQueryBuilder(final SearchRequestDTO dto) throws ParseException {
+    static QueryBuilder getQueryBuilder(final SearchRequestDTO dto) throws ParseException {
         if (dto == null) {
             return null;
         }
