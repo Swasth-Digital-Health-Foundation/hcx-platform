@@ -15,9 +15,8 @@ import org.swasth.hcx.helpers.EventGenerator;
 
 import java.util.HashMap;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 @ContextConfiguration(classes=SearchUtil.class)
@@ -29,11 +28,13 @@ class SearchUtilsTests extends BaseSpec {
     @Test
     void buildSearchRequestTest() {
         SearchRequest result = searchUtil.buildSearchRequest("hcx_audit",new SearchRequestDTO());
+        assertNotNull(result);
     }
 
     @Test
     void getQueryBuilderTest() throws Exception{
         QueryBuilder result = searchUtil.getQueryBuilder(new SearchRequestDTO());
+        assertNull(result);
     }
 
 }
