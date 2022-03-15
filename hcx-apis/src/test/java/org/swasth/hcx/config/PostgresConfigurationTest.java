@@ -13,7 +13,7 @@ class PostgresConfigurationTest{
             .withUserConfiguration(PostgresConfiguration.class);
 
     @Test
-    public void should_check_presence_of_postgres_service() {
+    void should_check_presence_of_postgres_service() {
         context.run(it -> assertThat(it).hasSingleBean(PostgreSQLClient.class));
     }
 }

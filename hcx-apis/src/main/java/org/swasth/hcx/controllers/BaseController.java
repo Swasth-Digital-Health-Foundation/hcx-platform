@@ -30,9 +30,6 @@ import static org.swasth.common.utils.Constants.*;
 public class BaseController {
 
     @Autowired
-    private EventGenerator eventGenerator;
-
-    @Autowired
     protected Environment env;
 
     @Autowired
