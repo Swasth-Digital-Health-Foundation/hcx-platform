@@ -6,14 +6,18 @@ import java.sql.*;
 
 public class PostgreSQLClient implements IDatabaseService {
 
-    private String url;
-    private String user;
-    private String password;
+    private final String url;
+    private final String user;
+    private final String password;
+    private final Connection connection;
+    private final Statement statement;
 
-    public PostgreSQLClient(String url, String user, String password) {
+    public PostgreSQLClient(String url, String user, String password) throws ClientException, SQLException {
         this.url = url;
         this.user = user;
         this.password = password;
+        this.connection = getConnection();
+        this.statement = this.connection.createStatement();
     }
 
     public Connection getConnection() throws ClientException {
@@ -26,34 +30,24 @@ public class PostgreSQLClient implements IDatabaseService {
         return conn;
     }
 
+    public void close() throws SQLException {
+        statement.close();
+        connection.close();
+    }
 
-    public boolean execute(String query) throws ClientException, SQLException {
-        Connection connection = getConnection();
+    public boolean execute(String query) throws ClientException {
         try {
-            PreparedStatement preparedStatement = connection.prepareStatement(query);
-            connection.setAutoCommit(false);
-            boolean result = preparedStatement.execute();
-            connection.commit();
-            return result;
+            return statement.execute(query);
         } catch (Exception e) {
             throw new ClientException("Error while performing database operation: " + e.getMessage());
-        } finally {
-            connection.close();
         }
     }
 
-    public ResultSet executeQuery(String query) throws ClientException, SQLException {
-        Connection connection = getConnection();
+    public ResultSet executeQuery(String query) throws ClientException {
         try {
-            connection.setAutoCommit(false);
-            PreparedStatement preparedStatement = connection.prepareStatement(query);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            connection.commit();
-            return resultSet;
+            return statement.executeQuery(query);
         } catch (Exception e) {
             throw new ClientException("Error while performing database operation: " + e.getMessage());
-        } finally {
-            connection.close();
         }
     }
 

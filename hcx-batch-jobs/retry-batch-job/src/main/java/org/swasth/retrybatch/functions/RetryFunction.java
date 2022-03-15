@@ -89,6 +89,7 @@ public class RetryFunction {
             if(result != null) result.close();
             if(createStatement != null) createStatement.close();
             connection.close();
+            postgreSQLClient.close();
         }
     }
 

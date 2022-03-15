@@ -67,7 +67,7 @@ public class BaseController {
         }
     }
 
-    public ResponseEntity<Object> validateReqAndPushToKafka(Map<String, Object> requestBody, String apiAction, String kafkaTopic) {
+    public ResponseEntity<Object> validateReqAndPushToKafka(Map<String, Object> requestBody, String apiAction, String kafkaTopic) throws Exception {
         Response response = new Response();
         try {
             checkSystemHealth();
@@ -77,6 +77,8 @@ public class BaseController {
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
             return exceptionHandler(response, e);
+        } finally {
+            postgreSQLClient.close();
         }
     }
 
