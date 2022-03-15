@@ -15,6 +15,8 @@ import org.swasth.kafka.client.KafkaClient;
 import org.swasth.postgresql.PostgreSQLClient;
 
 import javax.annotation.PostConstruct;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
@@ -58,6 +60,8 @@ public class RetryFunction {
         PostgreSQLClient postgreSQLClient = new PostgreSQLClient(postgresUrl, postgresUser, postgresPassword);
         System.out.println("Retry batch job is started");
         ResultSet result = null;
+        Connection connection = postgreSQLClient.getConnection();
+        PreparedStatement preparedStatement = null;
         try {
             String selectQuery = String.format("SELECT * FROM %s WHERE status = '%s' AND retryCount <= %d;", postgresTableName, Constants.RETRY_STATUS, maxRetry);
             result = postgreSQLClient.executeQuery(selectQuery);
@@ -73,9 +77,11 @@ public class RetryFunction {
                 kafkaClient.send(kafkaOutputTopic, request.getSenderCode(), JSONUtils.serialize(eventMap));
                 System.out.println("Event is pushed to kafka topic, mid: " + mid + " retry count: " + retryCount);
                 String updateQuery = String.format("UPDATE %s SET status = '%s', retryCount = retryCount + 1, lastUpdatedOn = %d WHERE mid = '%s'", postgresTableName, Constants.RETRY_PROCESSING_STATUS, System.currentTimeMillis(), mid);
-                postgreSQLClient.execute(updateQuery);
+                preparedStatement = connection.prepareStatement(updateQuery);
+                preparedStatement.addBatch();
                 metrics++;
             }
+            if (preparedStatement != null) preparedStatement.executeBatch();
             System.out.println("Total number of events processed: " + metrics);
             System.out.println("Job is completed");
         } catch (Exception e) {
@@ -83,6 +89,8 @@ public class RetryFunction {
             throw e;
         } finally {
             if(result != null) result.close();
+            if(preparedStatement != null) preparedStatement.close();
+            connection.close();
         }
     }
 
