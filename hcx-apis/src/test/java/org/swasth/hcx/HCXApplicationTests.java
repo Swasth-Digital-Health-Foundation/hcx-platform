@@ -13,8 +13,6 @@ class HCXApplicationTests {
 	@Test
 	void applicationStarts() {
 		HCXApplication.main(new String[] {});
-		//we added dummy assert for now later we remove this one
-		assertEquals(true, true);
 	}
 
 }
