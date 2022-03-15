@@ -53,7 +53,6 @@ public class RetryFunction {
 
     @PostConstruct
     public void process() throws Exception {
-        System.out.println("Testing " + kafkaUrl + postgresTableName);
         KafkaClient kafkaClient = new KafkaClient(kafkaUrl);
         EventGenerator eventGenerator = new EventGenerator(getProtocolHeaders(), getJoseHeaders(), getRedirectHeaders(), getErrorHeaders());
         PostgreSQLClient postgreSQLClient = new PostgreSQLClient(postgresUrl, postgresUser, postgresPassword);
