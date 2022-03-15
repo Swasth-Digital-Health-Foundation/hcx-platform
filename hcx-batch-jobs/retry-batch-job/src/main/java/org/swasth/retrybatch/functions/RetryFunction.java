@@ -4,8 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.core.env.Environment;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.swasth.common.dto.Request;
 import org.swasth.common.helpers.EventGenerator;
@@ -14,10 +14,9 @@ import org.swasth.common.utils.JSONUtils;
 import org.swasth.kafka.client.KafkaClient;
 import org.swasth.postgresql.PostgreSQLClient;
 
-import javax.annotation.PostConstruct;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -53,7 +52,7 @@ public class RetryFunction {
     @Value("${kafka.topic.output}")
     private String kafkaOutputTopic;
 
-    @PostConstruct
+    @Scheduled(fixedDelayString = "${fixedDelay.in.milliseconds}")
     public void process() throws Exception {
         KafkaClient kafkaClient = new KafkaClient(kafkaUrl);
         EventGenerator eventGenerator = new EventGenerator(getProtocolHeaders(), getJoseHeaders(), getRedirectHeaders(), getErrorHeaders());
@@ -61,7 +60,7 @@ public class RetryFunction {
         System.out.println("Retry batch job is started");
         ResultSet result = null;
         Connection connection = postgreSQLClient.getConnection();
-        PreparedStatement preparedStatement = null;
+        Statement createStatement = connection.createStatement();
         try {
             String selectQuery = String.format("SELECT * FROM %s WHERE status = '%s' AND retryCount <= %d;", postgresTableName, Constants.RETRY_STATUS, maxRetry);
             result = postgreSQLClient.executeQuery(selectQuery);
@@ -70,18 +69,17 @@ public class RetryFunction {
                 Request request = new Request(JSONUtils.deserialize(result.getString("data"), Map.class));
                 String mid = result.getString(Constants.MID);
                 String action = result.getString(Constants.ACTION);
-                int retryCount = result.getInt(Constants.RETRY_COUNT);
+                int retryCount = result.getInt(Constants.RETRY_COUNT) + 1 ;
                 String event = eventGenerator.generateMetadataEvent(mid, action, request);
                 Map<String,Object> eventMap = JSONUtils.deserialize(event, Map.class);
-                eventMap.put(Constants.RETRY_INDEX, retryCount + 1);
+                eventMap.put(Constants.RETRY_INDEX, retryCount);
                 kafkaClient.send(kafkaOutputTopic, request.getSenderCode(), JSONUtils.serialize(eventMap));
                 System.out.println("Event is pushed to kafka topic, mid: " + mid + " retry count: " + retryCount);
-                String updateQuery = String.format("UPDATE %s SET status = '%s', retryCount = retryCount + 1, lastUpdatedOn = %d WHERE mid = '%s'", postgresTableName, Constants.RETRY_PROCESSING_STATUS, System.currentTimeMillis(), mid);
-                preparedStatement = connection.prepareStatement(updateQuery);
-                preparedStatement.addBatch();
+                String updateQuery = String.format("UPDATE %s SET status = '%s', retryCount = %d, lastUpdatedOn = %d WHERE mid = '%s'", postgresTableName, Constants.RETRY_PROCESSING_STATUS, retryCount, System.currentTimeMillis(), mid);
+                createStatement.addBatch(updateQuery);
                 metrics++;
             }
-            if (preparedStatement != null) preparedStatement.executeBatch();
+            createStatement.executeBatch();
             System.out.println("Total number of events processed: " + metrics);
             System.out.println("Job is completed");
         } catch (Exception e) {
@@ -89,7 +87,7 @@ public class RetryFunction {
             throw e;
         } finally {
             if(result != null) result.close();
-            if(preparedStatement != null) preparedStatement.close();
+            if(createStatement != null) createStatement.close();
             connection.close();
         }
     }

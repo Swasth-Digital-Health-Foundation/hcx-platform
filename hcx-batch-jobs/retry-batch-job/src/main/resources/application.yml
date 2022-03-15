@@ -1,6 +1,6 @@
 fixedDelay:
   in:
-    milliseconds: 5000
+    milliseconds: 20000
 
 kafka:
   url: ${kafka_url:localhost:9092}
