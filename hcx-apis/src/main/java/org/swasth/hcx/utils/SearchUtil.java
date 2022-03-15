@@ -17,13 +17,10 @@ import java.util.Optional;
 
 public final class SearchUtil {
 
-    private SearchUtil() {}
+    SearchUtil() {}
 
     public static SearchRequest buildSearchRequest(final String indexName,
                                                    final SearchRequestDTO dto) {
-    	System.out.println("i came in line 19");
-    	System.out.print(dto.getFilters());
-    	System.out.println("i came in line 19");
     	try {
             final int page = dto.getOffset();
             final int size = dto.getLimit();
@@ -58,7 +55,6 @@ public final class SearchUtil {
         if (firstkey.isPresent()) {
             BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
             for (Entry<String, String> entry : fields.entrySet()) {
-                System.out.println(entry.getKey() + ": " + entry.getValue());
                 if(entry.getKey() != "start_datetime" & entry.getKey() != "stop_datetime") {
                 	queryBuilder = queryBuilder.must(QueryBuilders.termQuery(entry.getKey(),entry.getValue()));	
                 } else if (entry.getKey() == "start_datetime") {
