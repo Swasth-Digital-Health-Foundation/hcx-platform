@@ -43,7 +43,7 @@ public final class SearchUtil {
 
 
 
-    static QueryBuilder getQueryBuilder(final SearchRequestDTO dto) throws ParseException {
+    private static QueryBuilder getQueryBuilder(final SearchRequestDTO dto) throws ParseException {
         if (dto == null) {
             return null;
         }
@@ -55,7 +55,6 @@ public final class SearchUtil {
         if (firstkey.isPresent()) {
             BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
             for (Entry<String, String> entry : fields.entrySet()) {
-                System.out.println(entry.getKey() + ": " + entry.getValue());
                 if(entry.getKey() != "start_datetime" & entry.getKey() != "stop_datetime") {
                 	queryBuilder = queryBuilder.must(QueryBuilders.termQuery(entry.getKey(),entry.getValue()));	
                 } else if (entry.getKey() == "start_datetime") {
