@@ -1,11 +1,10 @@
 package org.swasth.postgresql;
 
-import org.swasth.common.exception.ClientException;
-
-import java.sql.SQLException;
-
 public interface IDatabaseService {
 
-    void insert(String mid, String payload) throws ClientException, SQLException;
+    Object executeQuery(String query) throws Exception;
+    boolean execute(String query) throws Exception;
     boolean isHealthy();
+    Object getConnection() throws Exception;
+    void close() throws Exception;
 }

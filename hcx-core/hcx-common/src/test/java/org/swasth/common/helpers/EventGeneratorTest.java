@@ -1,45 +1,48 @@
-package org.swasth.hcx.helpers;
+package org.swasth.common.helpers;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+
+import org.junit.Test;
 import org.swasth.common.dto.Request;
-import org.swasth.common.utils.JSONUtils;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
-@SpringBootTest(classes = {EventGenerator.class})
-public class EventGeneratorTests {
 
-    @Autowired
-    EventGenerator eventGenerator;
+public class EventGeneratorTest {
+
+    private final EventGenerator eventGenerator = new EventGenerator(Arrays.asList("x-hcx-sender_code", "x-hcx-recipient_code", "x-hcx-api_call_id", "x-hcx-timestamp", "x-hcx-status", "x-hcx-correlation_id"), Arrays.asList("alg", "enc"), Arrays.asList("x-hcx-sender_code", "x-hcx-recipient_code", "x-hcx-api_call_id", "x-hcx-timestamp", "x-hcx-status", "x-hcx-correlation_id"), Arrays.asList("x-hcx-sender_code", "x-hcx-recipient_code", "x-hcx-api_call_id", "x-hcx-timestamp", "x-hcx-status", "x-hcx-correlation_id"));
 
     @Test
     public void check_generatePayloadEvent() throws Exception {
         String result = eventGenerator.generatePayloadEvent("test_123", getRequest());
-        assert (!result.isEmpty());
+        assertNotNull(result);
     }
 
     @Test
     public void check_generateMetadataEvent() throws Exception {
-    String result = eventGenerator.generateMetadataEvent("test", "/test", getRequest());
-    assert (!result.isEmpty());
+        String result = eventGenerator.generateMetadataEvent("test", "/test", getRequest());
+        assertNotNull(result);
     }
 
     @Test
     public void check_generateMetadataEvent_JSON() throws Exception {
         String result = eventGenerator.generateMetadataEvent("test", "/test", getJSONRequest("response.error"));
-        Map<String,Object> resultMap = JSONUtils.deserialize(result, HashMap.class);
-        assertEquals(true,((Map)((Map) resultMap.get("headers")).get("protocol")).containsKey("x-hcx-status"));
-        assertEquals(true,((Map)((Map) resultMap.get("headers")).get("protocol")).containsKey("x-hcx-recipient_code"));
-        assertEquals(true,((Map)((Map) resultMap.get("headers")).get("protocol")).containsKey("x-hcx-sender_code"));
-        assertEquals(true,((Map)((Map) resultMap.get("headers")).get("protocol")).containsKey("x-hcx-correlation_id"));
-        assertEquals(true,((Map)((Map) resultMap.get("headers")).get("protocol")).containsKey("x-hcx-status"));
-        assertEquals("response.error",(String)((Map)((Map) resultMap.get("headers")).get("protocol")).get("x-hcx-status"));
-        assert (!result.isEmpty());
+        assertNotNull(result);
+    }
+
+    @Test
+    public void check_generateMetadataEvent_JSON_Redirect() throws Exception {
+        String result = eventGenerator.generateMetadataEvent("test", "/test", getRedirectJSONRequest());
+        assertNotNull(result);
+    }
+
+    @Test
+    public void check_generateMetadataEvent_JSON_Empty_Headers() throws Exception {
+        String result = eventGenerator.generateMetadataEvent("test", "/test", getJSONRequest(""));
+        assertNotNull(result);
     }
 
 
@@ -60,6 +63,16 @@ public class EventGeneratorTests {
             put("message","");
             put("trace","Recipient Invalid Encryption");
         }});
+        return new Request(obj);
+    }
+
+    public Request getRedirectJSONRequest() throws Exception {
+        Map<String,Object> obj = new HashMap<>();
+        obj.put("x-hcx-sender_code","1-0756766c-ad43-4145-86ea-d1b17b729a3f");
+        obj.put("x-hcx-recipient_code","1-68c5deca-8299-4feb-b441-923bb649a9a3");
+        obj.put("x-hcx-correlation_id","5e934f90-111d-4f0b-b016-c22d820674e4");
+        obj.put("x-hcx-redirect_to","1-74f6cb29-4116-42d0-9fbb-adb65e6a64a");
+        obj.put("x-hcx-status","response.redirect");
         return new Request(obj);
     }
 

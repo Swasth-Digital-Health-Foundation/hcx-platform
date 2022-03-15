@@ -1,4 +1,4 @@
-package org.swasth.common.dto.exception;
+package org.swasth.common.exception;
 
 import org.junit.Test;
 import org.swasth.common.exception.ErrorCodes;

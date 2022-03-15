@@ -1,0 +1,41 @@
+fixedDelay:
+  in:
+    milliseconds: 20000
+
+kafka:
+  url: ${kafka_url:localhost:9092}
+  groupId: ${kafka_group_id:local-retry-group}
+  topic:
+    output: ${kafka_topic_input:local.hcx.request.retry}
+
+max:
+  retry: ${max_retry:3}
+
+#postgres config
+postgres:
+  url: ${postgres_url:jdbc:postgresql://localhost:5432/postgres}
+  user: ${postgres_user:postgres}
+  password: ${postgres_password:postgres}
+  tablename: ${postgres_tablename:payload}
+
+#hcx error headers
+plainrequest:
+  headers:
+    mandatory: ${error_mandatory_headers:x-hcx-status, x-hcx-sender_code, x-hcx-recipient_code, x-hcx-error_details, x-hcx-correlation_id, x-hcx-api_call_id, x-hcx-timestamp}
+    optional: ${error_optional_headers:x-hcx-workflow_id}
+
+#hcx headers
+protocol:
+  headers:
+    mandatory: ${protocol_mandatory_headers:x-hcx-sender_code, x-hcx-recipient_code, x-hcx-api_call_id, x-hcx-timestamp, x-hcx-status, x-hcx-correlation_id}
+    optional: ${protocol_optional_headers:x-hcx-workflow_id, x-hcx-debug_flag, x-hcx-error_details, x-hcx-debug_details}
+headers:
+  jose: ${jose_headers:alg, enc}
+
+#hcx redirect headers
+redirect:
+  headers:
+    mandatory: ${redirect_mandatory_headers:x-hcx-sender_code, x-hcx-recipient_code, x-hcx-api_call_id, x-hcx-timestamp, x-hcx-correlation_id}
+    optional: ${redirect_optional_headers:x-hcx-workflow_id, x-hcx-status, x-hcx-redirect_to}
+
+

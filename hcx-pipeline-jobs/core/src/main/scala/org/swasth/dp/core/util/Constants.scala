@@ -35,6 +35,7 @@ object Constants {
   val SENDER_ROLE = "senderRole"
   val RECIPIENT_ROLE = "recipientRole"
   val ROLES = "roles"
+  val RETRY_INDEX= "retryIndex"
 
   //Event Fields
   val SENDER_CODE = "x-hcx-sender_code"

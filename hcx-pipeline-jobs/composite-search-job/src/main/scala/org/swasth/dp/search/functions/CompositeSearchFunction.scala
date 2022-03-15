@@ -79,7 +79,6 @@ class CompositeSearchFunction(config: SearchConfig)(implicit val stringTypeInfo:
       if (!dispatchResult.success) {
         insertSearchRecord(correlationId, apiCallId, config.hcxRegistryCode, recipientCode, Constants.RETRY_STATUS, "{}")
         //Update the protocol headers with the updated values
-        context.output(config.retryOutputTag, JSONUtil.serialize(event))
       } else
         insertSearchRecord(correlationId, apiCallId, config.hcxRegistryCode, recipientCode, Constants.OPEN_STATUS, "{}")
       //Audit the each child record after dispatching the api_call with the updated protected headers

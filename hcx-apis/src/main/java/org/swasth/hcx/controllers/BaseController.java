@@ -6,26 +6,28 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.swasth.common.dto.*;
+import org.swasth.common.dto.Request;
+import org.swasth.common.dto.Response;
+import org.swasth.common.dto.ResponseError;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
 import org.swasth.common.exception.ServerException;
 import org.swasth.common.exception.ServiceUnavailbleException;
+import org.swasth.common.helpers.EventGenerator;
 import org.swasth.common.utils.JSONUtils;
-import org.swasth.hcx.helpers.EventGenerator;
 import org.swasth.hcx.managers.HealthCheckManager;
 import org.swasth.hcx.service.HeaderAuditService;
 import org.swasth.kafka.client.IEventService;
 import org.swasth.postgresql.IDatabaseService;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import static org.swasth.common.utils.Constants.*;
 
 public class BaseController {
-
-    @Autowired
-    private EventGenerator eventGenerator;
 
     @Autowired
     protected Environment env;
@@ -39,6 +41,9 @@ public class BaseController {
     @Autowired
     protected HeaderAuditService auditService;
 
+    @Value("${postgres.tablename}")
+    private String postgresTableName;
+
     protected Response errorResponse(Response response, ErrorCodes code, java.lang.Exception e){
         ResponseError error= new ResponseError(code, e.getMessage(), e.getCause());
         response.setError(error);
@@ -46,21 +51,23 @@ public class BaseController {
     }
 
     protected void processAndSendEvent(String apiAction, String metadataTopic, Request request) throws Exception {
+        EventGenerator eventGenerator = new EventGenerator(getProtocolHeaders(), getJoseHeaders(), getRedirectHeaders(), getErrorHeaders());
         String mid = UUID.randomUUID().toString();
         String serviceMode = env.getProperty(SERVICE_MODE);
         String payloadTopic = env.getProperty(KAFKA_TOPIC_PAYLOAD);
         String key = request.getSenderCode();
         String payloadEvent = eventGenerator.generatePayloadEvent(mid, request);
         String metadataEvent = eventGenerator.generateMetadataEvent(mid, apiAction, request);
+        String query = String.format("INSERT INTO %s (mid,data,action,status,retrycount,lastupdatedon) VALUES ('%s','%s','%s','%s',%d,%d)", postgresTableName, mid, JSONUtils.serialize(request.getPayload()), apiAction, QUEUED_STATUS, 0, System.currentTimeMillis());
         System.out.println("Mode: " + serviceMode + " :: mid: " + mid + " :: Event: " + metadataEvent);
         if(StringUtils.equalsIgnoreCase(serviceMode, GATEWAY)) {
+            postgreSQLClient.execute(query);
             kafkaClient.send(payloadTopic, key, payloadEvent);
             kafkaClient.send(metadataTopic, key, metadataEvent);
-            postgreSQLClient.insert(mid, JSONUtils.serialize(request.getPayload()));
         }
     }
 
-    public ResponseEntity<Object> validateReqAndPushToKafka(Map<String, Object> requestBody, String apiAction, String kafkaTopic) {
+    public ResponseEntity<Object> validateReqAndPushToKafka(Map<String, Object> requestBody, String apiAction, String kafkaTopic) throws Exception {
         Response response = new Response();
         try {
             checkSystemHealth();
@@ -70,7 +77,31 @@ public class BaseController {
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
             return exceptionHandler(response, e);
+        } finally {
+            postgreSQLClient.close();
         }
+    }
+
+    private List<String> getProtocolHeaders(){
+        List<String> protocolHeaders = env.getProperty(PROTOCOL_HEADERS_MANDATORY, List.class, new ArrayList<String>());
+        protocolHeaders.addAll(env.getProperty(PROTOCOL_HEADERS_OPTIONAL, List.class, new ArrayList<String>()));
+        return protocolHeaders;
+    }
+
+    private List<String> getJoseHeaders(){
+        return env.getProperty(JOSE_HEADERS, List.class);
+    }
+
+    private List<String> getRedirectHeaders(){
+        List<String> redirectHeaders = env.getProperty(REDIRECT_HEADERS_MANDATORY, List.class, new ArrayList<String>());
+        redirectHeaders.addAll(env.getProperty(REDIRECT_HEADERS_OPTIONAL, List.class, new ArrayList<String>()));
+        return  redirectHeaders;
+    }
+
+    private List<String> getErrorHeaders(){
+        List<String> errorHeaders = env.getProperty(ERROR_HEADERS_MANDATORY, List.class, new ArrayList<String>());
+        errorHeaders.addAll(env.getProperty(ERROR_HEADERS_OPTIONAL, List.class, new ArrayList<String>()));
+        return errorHeaders;
     }
 
     protected void checkSystemHealth() throws ServiceUnavailbleException {

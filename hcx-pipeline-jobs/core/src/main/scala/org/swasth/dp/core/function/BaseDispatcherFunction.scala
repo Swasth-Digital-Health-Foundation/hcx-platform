@@ -25,7 +25,7 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
 
   override def open(parameters: Configuration): Unit = {
     super.open(parameters)
-    postgresConnect = new PostgresConnect(PostgresConnectionConfig(config.postgresUser, config.postgresPassword, config.postgresDB, config.postgresHost, config.postgresPort, config.postgresMaxConnections))
+    postgresConnect = new PostgresConnect(PostgresConnectionConfig(config.postgresUser, config.postgresPassword, config.postgresDb, config.postgresHost, config.postgresPort, config.postgresMaxConnections))
   }
 
   override def close(): Unit = {
@@ -92,6 +92,7 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
     Console.println("Payload: " + protectedMap)
     val result = DispatcherUtil.dispatch(senderCtx, JSONUtil.serialize(protectedMap))
     if(result.retry) {
+      logger.info("Error while dispatching error response: " + result.error.get.message.get)
       metrics.incCounter(metric = config.dispatcherRetryCount)
     }
   }
@@ -113,7 +114,8 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
         Console.println("recipient context is empty for mid: " + payloadRefId)
         logger.warn("recipient context is empty for mid: " + payloadRefId)
         //Send on_action request back to sender when recipient context is missing
-        throw PipelineException(Constants.RECIPIENT_ERROR_CODE, Constants.RECIPIENT_ERROR_MESSAGE, Constants.RECIPIENT_ERROR_LOG)
+        val errorResponse = ErrorResponse(Option(Constants.RECIPIENT_ERROR_CODE), Option(Constants.RECIPIENT_ERROR_MESSAGE), Option(Constants.RECIPIENT_ERROR_LOG))
+        dispatchErrorResponse(event, ValidationResult(true, Option(errorResponse)).error, correlationId, payloadRefId, senderCtx, context, metrics)
       } else {
         Console.println("sender and recipient available for mid: " + payloadRefId)
         logger.info("sender and recipient available for mid: " + payloadRefId)
@@ -121,7 +123,7 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
         if (!validationResult.status) {
           metrics.incCounter(metric = config.dispatcherValidationFailedCount)
           audit(event, context, metrics);
-          throw PipelineException(validationResult.error.get.code.get, validationResult.error.get.message.get, validationResult.error.get.trace.get)
+          dispatchErrorResponse(event, validationResult.error, correlationId, payloadRefId, senderCtx, context, metrics)
         }
 
         if (validationResult.status) {
@@ -133,20 +135,27 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
           //Adding updatedTimestamp for auditing
           event.put(Constants.UPDATED_TIME, Calendar.getInstance().getTime())
           if (result.success) {
+            updateDBStatus(payloadRefId, Constants.DISPATCH_STATUS)
             setStatus(event, Constants.HCX_DISPATCH_STATUS)
             metrics.incCounter(metric = config.dispatcherSuccessCount)
           }
           if (result.retry) {
-            setStatus(event, Constants.HCX_QUEUED_STATUS)
-            metrics.incCounter(metric = config.dispatcherRetryCount)
-            //For retry place the incoming event into retry topic
+            var retryCount: Int = 0
+            if (event.containsKey(Constants.RETRY_INDEX))
+              retryCount = event.get(Constants.RETRY_INDEX).asInstanceOf[Int]
+            if (!config.allowedEntitiesForRetry.contains(getEntity(event.get(Constants.ACTION).asInstanceOf[String])) || retryCount == config.maxRetry) {
+              dispatchError(payloadRefId, event, result, correlationId, senderCtx, context, metrics)
+            } else if (retryCount < config.maxRetry) {
+              updateDBStatus(payloadRefId, "request.retry")
+              setStatus(event, Constants.HCX_QUEUED_STATUS)
+              metrics.incCounter(metric = config.dispatcherRetryCount)
+              Console.println("Event is updated for retrying..")
+            }
           }
           if (!result.retry && !result.success) {
-            setStatus(event, Constants.HCX_ERROR_STATUS)
-            metrics.incCounter(metric = config.dispatcherFailedCount)
-            throw PipelineException(result.error.get.code.get, result.error.get.message.get, result.error.get.trace.get)
+            dispatchError(payloadRefId, event, result, correlationId, senderCtx, context, metrics)
           }
-          audit(event, context, metrics);
+          audit(event, context, metrics)
         }
       }
     } catch {
@@ -154,6 +163,39 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
         val errorResponse = ErrorResponse(Option(ex.code), Option(ex.message), Option(ex.trace))
         dispatchErrorResponse(event, ValidationResult(true, Option(errorResponse)).error, correlationId, payloadRefId, senderCtx, context, metrics)
     }
+  }
+
+  private def getEntity(path: String) : String = {
+    if (path.contains("status")) "status"
+    else if (path.contains("on_search")) "searchresponse"
+    else if (path.contains("search")) "search"
+    else {
+      val str = path.split("/")
+      str(str.length - 2)
+    }
+  }
+
+  private def dispatchError(payloadRefId: String, event: util.Map[String,AnyRef], result: DispatcherResult, correlationId: String, senderCtx: util.Map[String,AnyRef], context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
+    updateDBStatus(payloadRefId, Constants.ERROR_STATUS)
+    setStatus(event, Constants.HCX_ERROR_STATUS)
+    metrics.incCounter(metric = config.dispatcherFailedCount)
+    dispatchErrorResponse(event,result.error, correlationId, payloadRefId, senderCtx, context, metrics)
+  }
+
+  private def executeDBQuery(query: String): Boolean = {
+    val preparedStatement = postgresConnect.getConnection.prepareStatement(query)
+    try {
+      preparedStatement.execute()
+    } catch {
+      case ex: Exception => throw ex
+    } finally {
+      preparedStatement.close()
+    }
+  }
+
+  private def updateDBStatus(payloadRefId: String, status: String): Unit = {
+    val query = "UPDATE %s SET status = '%s', lastUpdatedOn = %d WHERE mid = '%s';".format(config.postgresTable, status, System.currentTimeMillis(), payloadRefId)
+    executeDBQuery(query)
   }
 
   override def metricsList(): List[String] = {

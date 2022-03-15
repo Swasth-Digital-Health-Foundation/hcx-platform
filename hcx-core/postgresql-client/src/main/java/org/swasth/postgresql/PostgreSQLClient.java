@@ -6,44 +6,48 @@ import java.sql.*;
 
 public class PostgreSQLClient implements IDatabaseService {
 
-    private String url;
-    private String user;
-    private String password;
-    private String tableName;
+    private final String url;
+    private final String user;
+    private final String password;
+    private final Connection connection;
+    private final Statement statement;
 
-    public PostgreSQLClient(String url, String user, String password, String tableName) {
+    public PostgreSQLClient(String url, String user, String password) throws ClientException, SQLException {
         this.url = url;
         this.user = user;
         this.password = password;
-        this.tableName = tableName;
+        this.connection = getConnection();
+        this.statement = this.connection.createStatement();
     }
 
-    private Connection getConnection() throws ClientException {
+    public Connection getConnection() throws ClientException {
         Connection conn;
         try {
             conn = DriverManager.getConnection(url, user, password);
-            System.out.println("Connected to the PostgreSQL server successfully.");
         } catch (Exception e) {
             throw new ClientException("Error connecting to the PostgreSQL server: " + e.getMessage());
         }
         return conn;
     }
 
-    public void insert(String mid, String payload) throws ClientException, SQLException {
-        Connection connection = getConnection();
+    public void close() throws SQLException {
+        statement.close();
+        connection.close();
+    }
+
+    public boolean execute(String query) throws ClientException {
         try {
-            connection.setAutoCommit(false);
-            String query = "INSERT INTO " + tableName +" VALUES (?,?);";
-            PreparedStatement pstmt = connection.prepareStatement(query);
-            pstmt.setString(1, mid);
-            pstmt.setString(2, payload);
-            pstmt.executeUpdate();
-            System.out.println("Insert operation completed successfully.");
-            connection.commit();
+            return statement.execute(query);
         } catch (Exception e) {
-            throw new ClientException("Error while performing insert operation: " + e.getMessage());
-        } finally {
-            connection.close();
+            throw new ClientException("Error while performing database operation: " + e.getMessage());
+        }
+    }
+
+    public ResultSet executeQuery(String query) throws ClientException {
+        try {
+            return statement.executeQuery(query);
+        } catch (Exception e) {
+            throw new ClientException("Error while performing database operation: " + e.getMessage());
         }
     }
 

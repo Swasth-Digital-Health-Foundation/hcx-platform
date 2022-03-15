@@ -35,7 +35,6 @@ public class PredeterminationProcessFunctionTest {
         harness.processElement(testData);
 
         assertEquals(harness.getSideOutput(predeterminationConfig.auditOutputTag()).size(),1);
-        assertEquals(harness.getSideOutput(predeterminationConfig.retryOutputTag()).size(),1);
 
         harness.close();
 

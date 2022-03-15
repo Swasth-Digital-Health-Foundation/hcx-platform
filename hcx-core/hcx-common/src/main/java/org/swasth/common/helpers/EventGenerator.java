@@ -1,9 +1,6 @@
-package org.swasth.hcx.helpers;
+package org.swasth.common.helpers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
-import org.springframework.stereotype.Component;
 import org.swasth.common.dto.Request;
 import org.swasth.common.utils.JSONUtils;
 
@@ -13,11 +10,21 @@ import java.util.Map;
 
 import static org.swasth.common.utils.Constants.*;
 
-@Component
+
 public class EventGenerator {
 
-    @Autowired
-    Environment env;
+    private List<String> protocolHeaders;
+    private List<String> joseHeaders;
+    private List<String> redirectHeaders;
+    private List<String> errorHeaders;
+
+    public EventGenerator(List<String> protocolHeaders, List<String> joseHeaders, List<String> redirectHeaders, List<String> errorHeaders) {
+        this.protocolHeaders = protocolHeaders;
+        this.joseHeaders = joseHeaders;
+        this.redirectHeaders = redirectHeaders;
+        this.errorHeaders = errorHeaders;
+    }
+
     public String generatePayloadEvent(String mid, Request request) throws JsonProcessingException {
         Map<String,Object> event = new HashMap<>();
         event.put(MID, mid);
@@ -27,11 +34,7 @@ public class EventGenerator {
 
     public String generateMetadataEvent(String mid, String apiAction, Request request) throws Exception {
         Map<String,Object> event = new HashMap<>();
-        List<String> protocolHeaders;
         if (request.getPayload().containsKey(PAYLOAD)) {
-            protocolHeaders = env.getProperty(PROTOCOL_HEADERS_MANDATORY, List.class);
-            protocolHeaders.addAll(env.getProperty(PROTOCOL_HEADERS_OPTIONAL, List.class));
-            List<String> joseHeaders = env.getProperty(JOSE_HEADERS, List.class);
             Map<String,Object> protectedHeaders = request.getHcxHeaders();
             Map<String,Object> filterJoseHeaders = new HashMap<>();
             Map<String,Object> filterProtocolHeaders = new HashMap<>();
@@ -52,23 +55,22 @@ public class EventGenerator {
             event.put(HEADERS, headers);
             event.put("status", "request.queued");
         } else {
+            List<String> headers;
             if(REDIRECT_STATUS.equalsIgnoreCase(request.getStatus())) {
-                protocolHeaders = env.getProperty(REDIRECT_HEADERS_MANDATORY, List.class);
-                protocolHeaders.addAll(env.getProperty(REDIRECT_HEADERS_OPTIONAL, List.class));
+                headers = redirectHeaders;
             }else {
-                protocolHeaders = env.getProperty(ERROR_HEADERS_MANDATORY, List.class);
-                protocolHeaders.addAll(env.getProperty(ERROR_HEADERS_OPTIONAL, List.class));
+                headers = errorHeaders;
             }
             Map<String, Object> protectedHeaders = request.getHcxHeaders();
-            Map<String, Object> filterProtocolHeaders = new HashMap<>();
-            if(protocolHeaders != null) {
-                protocolHeaders.forEach(key -> {
+            Map<String, Object> filterHeaders = new HashMap<>();
+            if(headers != null) {
+                headers.forEach(key -> {
                     if (protectedHeaders.containsKey(key))
-                        filterProtocolHeaders.put(key, protectedHeaders.get(key));
+                        filterHeaders.put(key, protectedHeaders.get(key));
                 });
-                Map<String, Object> headers = new HashMap<>();
-                headers.put(PROTOCOL, filterProtocolHeaders);
-                event.put(HEADERS, headers);
+                Map<String, Object> headerMap = new HashMap<>();
+                headerMap.put(PROTOCOL, filterHeaders);
+                event.put(HEADERS, headerMap);
             }
             event.put(MID, mid);
             event.put(ETS, System.currentTimeMillis());

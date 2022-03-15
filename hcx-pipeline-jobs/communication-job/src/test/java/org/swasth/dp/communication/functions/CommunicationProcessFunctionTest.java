@@ -37,7 +37,6 @@ public class CommunicationProcessFunctionTest {
         harness.processElement(testData);
 
         assertEquals(harness.getSideOutput(communicationConfig.auditOutputTag()).size(),1);
-        assertEquals(harness.getSideOutput(communicationConfig.retryOutputTag()).size(),1);
 
         harness.close();
 
