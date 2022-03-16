@@ -6,7 +6,7 @@ kafka:
   url: ${kafka_url:localhost:9092}
   groupId: ${kafka_group_id:local-retry-group}
   topic:
-    output: ${kafka_topic_input:local.hcx.request.retry}
+    output: ${kafka_topic_ouput:local.hcx.request.retry}
 
 max:
   retry: ${max_retry:3}
