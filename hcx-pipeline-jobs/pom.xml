@@ -50,6 +50,8 @@
     <module>communication-job</module>
         
     <module>predetermination-job</module>
+
+    <module>retry-job</module>
       
   </modules>
     
