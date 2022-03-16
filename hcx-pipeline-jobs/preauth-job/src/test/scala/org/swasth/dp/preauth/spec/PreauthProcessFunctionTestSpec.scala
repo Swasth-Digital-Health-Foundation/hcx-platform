@@ -3,18 +3,17 @@ package org.swasth.dp.preauth.spec
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.gson.Gson
 import com.typesafe.config.{Config, ConfigFactory}
-import org.swasth.dp.preauth.functions.PreauthProcessFunction
-import org.swasth.dp.preauth.task.PreauthConfig
 import org.apache.flink.api.scala.createTypeInformation
 import org.apache.flink.streaming.runtime.streamrecord.StreamRecord
 import org.apache.flink.streaming.util.ProcessFunctionTestHarnesses
 import org.scalatest.{FlatSpec, Matchers}
 import org.swasth.dp.core.job.BaseJobConfig
 import org.swasth.dp.core.util.JSONUtil
+import org.swasth.dp.preauth.functions.PreauthProcessFunction
+import org.swasth.dp.preauth.task.PreauthConfig
 import org.swasth.fixture.EventFixture
 
 import java.util
-import scala.collection.JavaConverters._
 
 class PreauthProcessFunctionTestSpec extends FlatSpec with Matchers{
 
@@ -45,16 +44,6 @@ class PreauthProcessFunctionTestSpec extends FlatSpec with Matchers{
     val harness = ProcessFunctionTestHarnesses.forProcessFunction(processFunction)
     val testEvent = JSONUtil.deserialize[util.Map[String, AnyRef]](EventFixture.SAMPLE_INVALID_PREAUTH_SUBMIT_ACTION_EVENT)
     harness.processElement(testEvent, new java.util.Date().getTime)
-    val outputs = harness.getSideOutput(eligibilityCheckConfig.retryOutputTag).asScala.map {
-      event => event.getValue
-    }
-    outputs.size should be(1)
-
-    outputs.map {
-      event => {
-        Console.println("Test console event:"+JSONUtil.serialize(event))
-      }
-    }
     harness.close()
   }
 
@@ -76,16 +65,6 @@ class PreauthProcessFunctionTestSpec extends FlatSpec with Matchers{
     val harness = ProcessFunctionTestHarnesses.forProcessFunction(processFunction)
     val testEvent = JSONUtil.deserialize[util.Map[String, AnyRef]](EventFixture.SAMPLE_INVALID_PREAUTH_SEARCH_ACTION_EVENT)
     harness.processElement(testEvent, new java.util.Date().getTime)
-    val outputs = harness.getSideOutput(eligibilityCheckConfig.retryOutputTag).asScala.map {
-      event => event.getValue
-    }
-    outputs.size should be(1)
-
-    outputs.map {
-      event => {
-        Console.println("Test console event:"+JSONUtil.serialize(event))
-      }
-    }
     harness.close()
   }
 
