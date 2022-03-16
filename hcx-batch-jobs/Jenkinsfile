@@ -12,10 +12,10 @@ node('java11') {
               // Building jar
               sh """
                 java --version
-                cd ../hcx-core
+                cd hcx-core
                 pwd
                 mvn clean install
-                cd ${env.WORKSPACE}/hcx-batch-jobs
+                cd ../hcx-batch-jobs
                 pwd
                 mvn clean install
               """
