@@ -26,7 +26,7 @@ class PreauthProcessFunctionTestSpec extends FlatSpec with Matchers{
   val objMapper = new ObjectMapper
   val gson = new Gson()
 
-  "PreauthSubmissionProcessFunction" should "write data into audit topic as the event does not have context " in {
+  "PreauthSubmissionProcessFunction" should "write data into audit as the event does not have context " in {
     // wrap user defined function into a the corresponding operator
     val harness = ProcessFunctionTestHarnesses.forProcessFunction(processFunction)
 
@@ -34,9 +34,6 @@ class PreauthProcessFunctionTestSpec extends FlatSpec with Matchers{
     val eventMap = gson.fromJson(EventFixture.SAMPLE_PREAUTH_SUBMIT_EVENT, new util.HashMap[String, AnyRef]().getClass).asInstanceOf[util.Map[String, AnyRef]]
     val testData: StreamRecord[util.Map[String, AnyRef]] = new StreamRecord[util.Map[String, AnyRef]](eventMap)
     harness.processElement(testData)
-
-    harness.getSideOutput(eligibilityCheckConfig.auditOutputTag) should have size 1
-
     harness.close()
   }
 
@@ -47,7 +44,7 @@ class PreauthProcessFunctionTestSpec extends FlatSpec with Matchers{
     harness.close()
   }
 
-  "PreauthSearchProcessFunction" should "write data into audit topic as the event does not have context " in {
+  "PreauthSearchProcessFunction" should "write data into audit as the event does not have context " in {
     // wrap user defined function into a the corresponding operator
     val harness = ProcessFunctionTestHarnesses.forProcessFunction(processFunction)
 
@@ -55,9 +52,6 @@ class PreauthProcessFunctionTestSpec extends FlatSpec with Matchers{
     val eventMap = gson.fromJson(EventFixture.SAMPLE_PREAUTH_SEARCH_EVENT, new util.HashMap[String, AnyRef]().getClass).asInstanceOf[util.Map[String, AnyRef]]
     val testData: StreamRecord[util.Map[String, AnyRef]] = new StreamRecord[util.Map[String, AnyRef]](eventMap)
     harness.processElement(testData)
-
-    harness.getSideOutput(eligibilityCheckConfig.auditOutputTag) should have size 1
-
     harness.close()
   }
 

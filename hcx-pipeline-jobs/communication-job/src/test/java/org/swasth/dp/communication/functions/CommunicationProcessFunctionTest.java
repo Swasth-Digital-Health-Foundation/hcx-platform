@@ -35,9 +35,6 @@ public class CommunicationProcessFunctionTest {
         Map<String, Object> eventMap = (HashMap<String,Object>) gson.fromJson(EventFixture.SAMPLE_VALID_COMMUNICATION_REQUEST(),HashMap.class);
         StreamRecord<Map<String, Object>> testData  = new StreamRecord<>(eventMap);
         harness.processElement(testData);
-
-        assertEquals(harness.getSideOutput(communicationConfig.auditOutputTag()).size(),1);
-
         harness.close();
 
     }
