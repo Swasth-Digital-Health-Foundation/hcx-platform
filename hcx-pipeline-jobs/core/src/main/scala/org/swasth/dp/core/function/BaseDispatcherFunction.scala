@@ -232,7 +232,7 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
       val settings = "{ \"index\": { } }"
       val mappings = "{ \"properties\": { \"x-hcx-sender_code\": { \"type\": \"keyword\" }, \"x-hcx-recipient_code\": { \"type\": \"keyword\" }, \"x-hcx-api_call_id\": { \"type\": \"keyword\" }, \"x-hcx-correlation_id\": { \"type\": \"keyword\" }, \"x-hcx-workflow_id\": { \"type\": \"keyword\" }, \"x-hcx-timestamp\": { \"type\": \"keyword\" }, \"mid\": { \"type\": \"keyword\" }, \"action\": { \"type\": \"keyword\" }, \"x-hcx-status\": { \"type\": \"keyword\" }, \"auditTimeStamp\": { \"type\": \"keyword\" }, \"requestTimeStamp\": { \"type\": \"keyword\" }, \"updatedTimestamp\": { \"type\": \"keyword\" }, \"error_details\": { \"type\": \"object\" }, \"debug_details\": { \"type\": \"object\" }, \"senderRole\": { \"type\": \"keyword\" }, \"recipientRole\": { \"type\": \"keyword\" } } }"
       val cal = Calendar.getInstance(TimeZone.getTimeZone(config.timeZone))
-      cal.setTime(new Date(auditEvent.get(Constants.AUDIT_TIMESTAMP).asInstanceOf[Long]))
+      cal.setTime(auditEvent.get(Constants.AUDIT_TIMESTAMP).asInstanceOf[Date])
       val indexName = config.auditIndex + "_" + cal.get(Calendar.YEAR) + "_" + cal.get(Calendar.WEEK_OF_YEAR)
       val mid = auditEvent.get(Constants.MID).asInstanceOf[String]
       esUtil.addIndex(settings, mappings, indexName, config.auditAlias)
