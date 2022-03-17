@@ -39,7 +39,6 @@ public class RetryStreamTaskTest {
     @Before
     public void beforeClass() throws Exception {
         when(mockKafkaUtil.kafkaMapSource(retryConfig.kafkaInputTopic)).thenReturn(new RetrySource());
-        when(mockKafkaUtil.kafkaStringSink(retryConfig.auditTopic())).thenReturn(new AuditEventsSink());
         flinkCluster.before();
     }
 

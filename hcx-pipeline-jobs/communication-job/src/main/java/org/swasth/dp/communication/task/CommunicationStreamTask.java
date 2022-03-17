@@ -51,11 +51,8 @@ public class CommunicationStreamTask {
 				.rebalance()
 				.process(new ContextEnrichmentFunction(config, TypeExtractor.getForClass(String.class))).setParallelism(config.downstreamOperatorsParallelism);
 
-		SingleOutputStreamOperator<Map<String,Object>> eventStream = enrichedStream.getSideOutput(config.enrichedOutputTag())
+		enrichedStream.getSideOutput(config.enrichedOutputTag())
 				.process(new CommunicationProcessFunction(config)).setParallelism(config.downstreamOperatorsParallelism);
-
-		/** Sink for audit events */
-		eventStream.getSideOutput(config.auditOutputTag()).addSink(kafkaConnector.kafkaStringSink(config.auditTopic())).name(config.auditProducer()).uid(config.auditProducer()).setParallelism(config.downstreamOperatorsParallelism);
 
 		System.out.println(config.jobName() + " is processing");
 		env.execute(config.jobName());

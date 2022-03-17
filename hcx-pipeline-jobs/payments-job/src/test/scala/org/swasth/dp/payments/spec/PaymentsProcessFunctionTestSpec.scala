@@ -26,7 +26,7 @@ class PaymentsProcessFunctionTestSpec extends FlatSpec with Matchers{
   val objMapper = new ObjectMapper
   val gson = new Gson()
 
-  "PaymentsProcessFunction" should "write data into audit topic as the search event does not have context " in {
+  "PaymentsProcessFunction" should "write data into audit as the search event does not have context " in {
     // wrap user defined function into a the corresponding operator
     val harness = ProcessFunctionTestHarnesses.forProcessFunction(processFunction)
 
@@ -34,9 +34,6 @@ class PaymentsProcessFunctionTestSpec extends FlatSpec with Matchers{
     val eventMap = gson.fromJson(EventFixture.SAMPLE_PAYMENTS_SEARCH_EVENT, new util.HashMap[String, AnyRef]().getClass).asInstanceOf[util.Map[String, AnyRef]]
     val testData: StreamRecord[util.Map[String, AnyRef]] = new StreamRecord[util.Map[String, AnyRef]](eventMap)
     harness.processElement(testData)
-
-    harness.getSideOutput(eligibilityCheckConfig.auditOutputTag) should have size 1
-
     harness.close()
   }
 
@@ -47,7 +44,7 @@ class PaymentsProcessFunctionTestSpec extends FlatSpec with Matchers{
     harness.close()
   }
 
-  "PaymentsProcessFunction" should "write data into audit topic as the request event does not have context " in {
+  "PaymentsProcessFunction" should "write data into audit as the request event does not have context " in {
     // wrap user defined function into a the corresponding operator
     val harness = ProcessFunctionTestHarnesses.forProcessFunction(processFunction)
 
@@ -55,9 +52,6 @@ class PaymentsProcessFunctionTestSpec extends FlatSpec with Matchers{
     val eventMap = gson.fromJson(EventFixture.SAMPLE_PAYMENTS_REQUEST_EVENT, new util.HashMap[String, AnyRef]().getClass).asInstanceOf[util.Map[String, AnyRef]]
     val testData: StreamRecord[util.Map[String, AnyRef]] = new StreamRecord[util.Map[String, AnyRef]](eventMap)
     harness.processElement(testData)
-
-    harness.getSideOutput(eligibilityCheckConfig.auditOutputTag) should have size 1
-
     harness.close()
   }
 
@@ -68,7 +62,7 @@ class PaymentsProcessFunctionTestSpec extends FlatSpec with Matchers{
     harness.close()
   }
 
-  "PaymentsProcessFunction" should "write data into audit topic as the search event was successful" in {
+  "PaymentsProcessFunction" should "write data into audit as the search event was successful" in {
     // wrap user defined function into a the corresponding operator
     val harness = ProcessFunctionTestHarnesses.forProcessFunction(processFunction)
 
@@ -76,13 +70,10 @@ class PaymentsProcessFunctionTestSpec extends FlatSpec with Matchers{
     val eventMap = gson.fromJson(EventFixture.SAMPLE_VALID_PAYMENTS_SEARCH_ACTION_EVENT, new util.HashMap[String, AnyRef]().getClass).asInstanceOf[util.Map[String, AnyRef]]
     val testData: StreamRecord[util.Map[String, AnyRef]] = new StreamRecord[util.Map[String, AnyRef]](eventMap)
     harness.processElement(testData)
-
-    harness.getSideOutput(eligibilityCheckConfig.auditOutputTag) should have size 1
-
     harness.close()
   }
 
-  "PaymentsProcessFunction" should "write data into audit topic after successful payments request" in {
+  "PaymentsProcessFunction" should "write data into audit after successful payments request" in {
     // wrap user defined function into a the corresponding operator
     val harness = ProcessFunctionTestHarnesses.forProcessFunction(processFunction)
 
@@ -90,9 +81,6 @@ class PaymentsProcessFunctionTestSpec extends FlatSpec with Matchers{
     val eventMap = gson.fromJson(EventFixture.SAMPLE_VALID_PAYMENTS_REQUEST_ACTION_EVENT, new util.HashMap[String, AnyRef]().getClass).asInstanceOf[util.Map[String, AnyRef]]
     val testData: StreamRecord[util.Map[String, AnyRef]] = new StreamRecord[util.Map[String, AnyRef]](eventMap)
     harness.processElement(testData)
-
-    harness.getSideOutput(eligibilityCheckConfig.auditOutputTag) should have size 1
-
     harness.close()
   }
 

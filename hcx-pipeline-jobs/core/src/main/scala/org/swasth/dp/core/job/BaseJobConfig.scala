@@ -51,12 +51,6 @@ class BaseJobConfig(val config: Config, val jobName: String) extends Serializabl
   // Default output configurations
   val enrichedOutputTag: OutputTag[util.Map[String, AnyRef]] = OutputTag[util.Map[String, AnyRef]]("enriched-events")
 
-  val auditOutputTag: OutputTag[String] = OutputTag[String]("audit-events")
-  val auditTopic = if (config.hasPath("kafka.audit.topic")) config.getString("kafka.audit.topic") else ""
-
-  // Producers
-  val auditProducer = "audit-events-sink"
-
   // Default job metrics
   val dispatcherSuccessCount = "dispatcher-success-count"
   val dispatcherValidationFailedCount = "dispatcher-validation-failed-count"
@@ -106,4 +100,12 @@ class BaseJobConfig(val config: Config, val jobName: String) extends Serializabl
 
   val maxRetry: Int = config.getInt("max.retry")
   val allowedEntitiesForRetry: util.List[String] = config.getStringList("allowedEntitiesForRetry")
+
+  // Elastic Search Config
+  val esUrl: String = config.getString("es.basePath")
+  val batchSize: Int = config.getInt("es.batchSize")
+  val timeZone: String = config.getString("audit.timezone")
+  val auditIndex: String = config.getString("audit.index")
+  val auditAlias: String = config.getString("audit.alias")
+
 }

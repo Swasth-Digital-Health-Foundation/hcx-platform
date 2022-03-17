@@ -9,7 +9,7 @@ import org.swasth.dp.core.job.{BaseJobConfig, BaseProcessFunction, Metrics}
 import org.swasth.dp.core.util._
 
 import java.util
-import java.util.{Calendar, UUID}
+import java.util.{Calendar, Date, TimeZone, UUID}
 
 case class Response(timestamp: Long, correlation_id: String, error: Option[ErrorResponse])
 case class ErrorResponse(code: Option[String], message: Option[String], trace: Option[String]);
@@ -22,15 +22,19 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
   private[this] val logger = LoggerFactory.getLogger(classOf[BaseDispatcherFunction])
 
   var postgresConnect: PostgresConnect = null
+  var esUtil: ElasticSearchUtil = null
+
 
   override def open(parameters: Configuration): Unit = {
     super.open(parameters)
     postgresConnect = new PostgresConnect(PostgresConnectionConfig(config.postgresUser, config.postgresPassword, config.postgresDb, config.postgresHost, config.postgresPort, config.postgresMaxConnections))
+    esUtil = new ElasticSearchUtil(config.esUrl, config.auditIndex, config.batchSize)
   }
 
   override def close(): Unit = {
     super.close()
     postgresConnect.closeConnection()
+    esUtil.close()
   }
 
   def validate(event: util.Map[String, AnyRef]):ValidationResult
@@ -59,8 +63,7 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
 
   @throws(classOf[Exception])
   def audit(event: util.Map[String, AnyRef], context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
-    val audit = createAuditRecord(event,"AUDIT")
-    context.output(config.auditOutputTag, JSONUtil.serialize(audit))
+    indexAudit(createAuditRecord(event,"AUDIT"))
     metrics.incCounter(config.auditEventsCount)
   }
 
@@ -222,6 +225,24 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
     audit.put(Constants.SENDER_ROLE, getCDataListValue(event, Constants.SENDER, Constants.ROLES))
     audit.put(Constants.RECIPIENT_ROLE, getCDataListValue(event, Constants.RECIPIENT, Constants.ROLES))
     audit
+  }
+
+  def indexAudit(auditEvent: util.Map[String, AnyRef]): Unit ={
+    try {
+      val settings = "{ \"index\": { } }"
+      val mappings = "{ \"properties\": { \"x-hcx-sender_code\": { \"type\": \"keyword\" }, \"x-hcx-recipient_code\": { \"type\": \"keyword\" }, \"x-hcx-api_call_id\": { \"type\": \"keyword\" }, \"x-hcx-correlation_id\": { \"type\": \"keyword\" }, \"x-hcx-workflow_id\": { \"type\": \"keyword\" }, \"x-hcx-timestamp\": { \"type\": \"keyword\" }, \"mid\": { \"type\": \"keyword\" }, \"action\": { \"type\": \"keyword\" }, \"x-hcx-status\": { \"type\": \"keyword\" }, \"auditTimeStamp\": { \"type\": \"keyword\" }, \"requestTimeStamp\": { \"type\": \"keyword\" }, \"updatedTimestamp\": { \"type\": \"keyword\" }, \"error_details\": { \"type\": \"object\" }, \"debug_details\": { \"type\": \"object\" }, \"senderRole\": { \"type\": \"keyword\" }, \"recipientRole\": { \"type\": \"keyword\" } } }"
+      val cal = Calendar.getInstance(TimeZone.getTimeZone(config.timeZone))
+      cal.setTime(new Date(auditEvent.get(Constants.AUDIT_TIMESTAMP).asInstanceOf[Long]))
+      val indexName = config.auditIndex + "_" + cal.get(Calendar.YEAR) + "_" + cal.get(Calendar.WEEK_OF_YEAR)
+      val mid = auditEvent.get(Constants.MID).asInstanceOf[String]
+      esUtil.addIndex(settings, mappings, indexName, config.auditAlias)
+      esUtil.addDocumentWithIndex(JSONUtil.serialize(auditEvent), indexName, mid)
+      Console.println("Audit document created for mid: " + mid)
+    } catch {
+      case e: Exception =>
+        logger.error("Error while processing event :: " + auditEvent + " :: " + e.getMessage)
+        throw e
+    }
   }
 
   def dispatchRecipient(baseSenderCode: String, action: String, parsedPayload: util.Map[String, AnyRef]) = {
