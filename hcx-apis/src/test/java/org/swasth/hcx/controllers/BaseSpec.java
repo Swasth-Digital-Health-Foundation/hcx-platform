@@ -137,7 +137,7 @@ public class BaseSpec {
     public String getParticipantUpdateBody() throws JsonProcessingException {
         Map<String,Object> obj = new HashMap<>();
         obj.put("participant_name","New Teja Hospital888");
-        obj.put("primary_mobile","9493347239");
+        obj.put("primary_mobile","9493347232");
         obj.put("primary_email","dharmateja888@gmail.com");
         obj.put("participant_code","1-68c5deca-8299-4feb-b441-923bb649a9a3");
         obj.put("address", new HashMap<>() {{
