@@ -79,6 +79,9 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                     jweRequest.validate(getMandatoryHeaders(), getSubject(exchange), timestampRange, senderDetails, recipientDetails);
                     jweRequest.validateUsingAuditData(allowedEntitiesForForward, allowedRolesForForward, senderDetails, recipientDetails, getCorrelationAuditData(jweRequest.getCorrelationId()), getCallAuditData(jweRequest.getApiCallId()), getParticipantCtxAuditData(jweRequest.getSenderCode(), jweRequest.getRecipientCode(), jweRequest.getCorrelationId()), path);
                 } else {
+                    if (!path.contains("on_")) {
+                        throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, "Invalid request body");
+                    }
                     JSONRequest jsonRequest = new JSONRequest(requestBody, true, path);
                     correlationId = jsonRequest.getCorrelationId();
                     apiCallId = jsonRequest.getApiCallId();
