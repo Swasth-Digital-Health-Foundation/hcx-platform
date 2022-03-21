@@ -6,13 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class HCXApplicationTests {
 
-	@Test
-	void contextLoads() {
-	}
-
-	@Test
-	void applicationStarts() {
-		HCXApplication.main(new String[] {});
-	}
+//	@Test
+//	void applicationStarts() {
+//		HCXApplication.main(new String[] {});
+//	}
 
 }
