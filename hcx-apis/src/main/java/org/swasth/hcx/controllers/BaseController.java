@@ -77,8 +77,6 @@ public class BaseController {
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
             return exceptionHandler(response, e);
-        } finally {
-            postgreSQLClient.close();
         }
     }
 
