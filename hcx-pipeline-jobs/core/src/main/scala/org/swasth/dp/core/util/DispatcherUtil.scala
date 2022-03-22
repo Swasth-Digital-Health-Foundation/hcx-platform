@@ -8,18 +8,14 @@ import org.apache.http.entity.StringEntity
 import org.apache.http.impl.client.HttpClientBuilder
 import org.apache.http.protocol.HttpContext
 import org.apache.http.util.EntityUtils
-import org.slf4j.LoggerFactory
 import org.swasth.dp.core.function.{DispatcherResult, ErrorResponse}
 
 import java.io.IOException
-import java.net.UnknownHostException
 import java.nio.charset.StandardCharsets
 import java.util
 import scala.io.Source
 
 object DispatcherUtil {
-
-  private[this] val logger = LoggerFactory.getLogger(DispatcherUtil.getClass)
 
   val successCodes = Array(200, 202) // TODO: load from config
   val errorCodes = Array(400, 401, 403, 404) // TODO: load from config
@@ -79,11 +75,9 @@ object DispatcherUtil {
       } else  //As url is null, no need to retry
         DispatcherResult(false, 0, None, false)
     } catch {
-      case ex: UnknownHostException =>
-        DispatcherResult(false, 0, Option(ErrorResponse(Option(Constants.RECIPIENT_ERROR_CODE), Option(Constants.RECIPIENT_ERROR_MESSAGE), Option(ex.getCause.toString))), true)
       case ex: Exception =>
-        logger.error("Exception while dispatching the request: " + ex.getMessage)
-        DispatcherResult(false, 0, Option(ErrorResponse(Option("INTERNAL_SERVER_ERROR"), Option(ex.getMessage), Option(ex.getCause.toString))), false)
+        val errorResponse: ErrorResponse = ErrorResponse(Option(Constants.RECIPIENT_ERROR_CODE), Option(Constants.RECIPIENT_ERROR_MESSAGE), Option(""))
+        DispatcherResult(false, 0, Option(errorResponse), true)
     } finally {
       if (response != null)
         response.close()
