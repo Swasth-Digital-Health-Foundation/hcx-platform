@@ -56,7 +56,7 @@ public class AuditValidationFilter extends AbstractGatewayFilterFactory<AuditVal
                     String code = (String) participant.get("osid");
                     Map<String, String> filters = (Map<String, String>) filterMap.get("filters");
                     if(roles.contains("payor") || roles.contains("provider")) {
-                        filters.put("sender_code", code);
+                        filters.put("x-hcx-sender_code", code);
                         filterMap.put("filters", filters);
                         System.out.println("updated filters" + filterMap);
                     }
