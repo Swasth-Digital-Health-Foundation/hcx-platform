@@ -80,7 +80,6 @@ class ClaimsStreamTaskTestSpec extends BaseTestSpec {
     }
 
     when(mockKafkaUtil.kafkaMapSource(eligibilityCheckConfig.kafkaInputTopic)).thenReturn(new ClaimsEventSource)
-    when(mockKafkaUtil.kafkaStringSink(eligibilityCheckConfig.auditTopic)).thenReturn(new AuditEventsSink)
     flinkCluster.before()
   }
 

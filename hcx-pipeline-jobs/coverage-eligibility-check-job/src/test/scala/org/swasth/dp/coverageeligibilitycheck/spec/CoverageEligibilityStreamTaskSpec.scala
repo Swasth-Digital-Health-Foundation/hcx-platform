@@ -40,7 +40,6 @@ class CoverageEligibilityStreamTaskSpec extends BaseTestSpec{
   override protected def beforeAll(): Unit = {
     super.beforeAll()
     when(mockKafkaUtil.kafkaMapSource(eligibilityCheckConfig.kafkaInputTopic)).thenReturn(new EligibilityEventSource)
-    when(mockKafkaUtil.kafkaStringSink(eligibilityCheckConfig.auditTopic)).thenReturn(new AuditCoverageEventsSink)
     flinkCluster.before()
   }
 

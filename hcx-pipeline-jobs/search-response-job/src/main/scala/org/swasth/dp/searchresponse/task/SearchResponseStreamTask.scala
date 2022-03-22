@@ -20,14 +20,10 @@ class SearchResponseStreamTask(config: SearchResponseConfig, kafkaConnector: Fli
     implicit val mapTypeInfo: TypeInformation[util.Map[String, AnyRef]] = TypeExtractor.getForClass(classOf[util.Map[String, AnyRef]])
     implicit val stringTypeInfo: TypeInformation[String] = TypeExtractor.getForClass(classOf[String])
     val kafkaConsumer = kafkaConnector.kafkaMapSource(config.kafkaInputTopic)
-    val searchStream =
-      env.addSource(kafkaConsumer, config.searchResponseConsumer)
+    env.addSource(kafkaConsumer, config.searchResponseConsumer)
         .uid(config.searchResponseConsumer).setParallelism(config.kafkaConsumerParallelism)
         .rebalance()
         .process(new SearchResponseFunction(config)).setParallelism(config.downstreamOperatorsParallelism)
-
-    /** Sink for audit events */
-    searchStream.getSideOutput(config.auditOutputTag).addSink(kafkaConnector.kafkaStringSink(config.auditTopic)).name(config.auditProducer).uid(config.auditProducer).setParallelism(config.downstreamOperatorsParallelism)
 
     Console.println(config.jobName +" is processing")
     env.execute(config.jobName)

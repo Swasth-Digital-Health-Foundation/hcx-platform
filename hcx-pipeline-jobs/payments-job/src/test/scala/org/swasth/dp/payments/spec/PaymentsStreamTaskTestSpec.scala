@@ -80,7 +80,6 @@ class PaymentsStreamTaskTestSpec extends BaseTestSpec {
     }
 
     when(mockKafkaUtil.kafkaMapSource(eligibilityCheckConfig.kafkaInputTopic)).thenReturn(new PaymentsEventSource)
-    when(mockKafkaUtil.kafkaStringSink(eligibilityCheckConfig.auditTopic)).thenReturn(new AuditEventsSink)
     flinkCluster.before()
   }
 

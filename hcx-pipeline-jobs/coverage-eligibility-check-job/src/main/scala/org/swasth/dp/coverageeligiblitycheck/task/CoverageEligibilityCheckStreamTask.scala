@@ -27,11 +27,8 @@ class CoverageEligibilityCheckStreamTask(config: CoverageEligibilityCheckConfig,
         .rebalance()
         .process(new ContextEnrichmentFunction(config)).setParallelism(config.downstreamOperatorsParallelism)
 
-    val eventStream = enrichedStream.getSideOutput(config.enrichedOutputTag)
+    enrichedStream.getSideOutput(config.enrichedOutputTag)
         .process(new CoverageEligibilityProcessFunction(config)).setParallelism(config.downstreamOperatorsParallelism)
-
-    /** Sink for audit events */
-    eventStream.getSideOutput(config.auditOutputTag).addSink(kafkaConnector.kafkaStringSink(config.auditTopic)).name(config.auditProducer).uid(config.auditProducer).setParallelism(config.downstreamOperatorsParallelism)
 
     Console.println(config.jobName +" is processing")
     env.execute(config.jobName)

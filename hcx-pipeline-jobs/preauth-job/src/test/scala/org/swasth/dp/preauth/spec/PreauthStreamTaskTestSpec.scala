@@ -81,7 +81,6 @@ class PreauthStreamTaskTestSpec extends BaseTestSpec {
     }
 
     when(mockKafkaUtil.kafkaMapSource(eligibilityCheckConfig.kafkaInputTopic)).thenReturn(new PreauthSubmissionEventSource)
-    when(mockKafkaUtil.kafkaStringSink(eligibilityCheckConfig.auditTopic)).thenReturn(new AuditEventsSink)
     flinkCluster.before()
   }
 

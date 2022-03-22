@@ -33,9 +33,6 @@ public class PredeterminationProcessFunctionTest {
         Map<String, Object> eventMap = (HashMap<String,Object>) gson.fromJson(EventFixture.SAMPLE_VALID_PREDETERMINATION_REQUEST(),HashMap.class);
         StreamRecord<Map<String, Object>> testData  = new StreamRecord<>(eventMap);
         harness.processElement(testData);
-
-        assertEquals(harness.getSideOutput(predeterminationConfig.auditOutputTag()).size(),1);
-
         harness.close();
 
     }

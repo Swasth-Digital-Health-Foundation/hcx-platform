@@ -38,7 +38,6 @@ class ClaimsTaskTestSpec extends BaseTestSpec{
 
   override protected def beforeAll(): Unit = {
     super.beforeAll()
-    when(mockKafkaUtil.kafkaStringSink(eligibilityCheckConfig.auditTopic)).thenReturn(new AuditEventsSink)
     flinkCluster.before()
   }
 

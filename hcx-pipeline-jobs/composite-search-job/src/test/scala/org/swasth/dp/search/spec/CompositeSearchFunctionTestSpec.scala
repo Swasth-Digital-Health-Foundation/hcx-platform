@@ -25,7 +25,7 @@ class CompositeSearchFunctionTestSpec extends FlatSpec with Matchers{
   val objMapper = new ObjectMapper
   val gson = new Gson()
 
-  "CompositeSearchFunction" should "write data into audit topic as the search event was successful" in {
+  "CompositeSearchFunction" should "write data into audit as the search event was successful" in {
     // wrap user defined function into a the corresponding operator
     val harness = ProcessFunctionTestHarnesses.forProcessFunction(processFunction)
 
@@ -33,9 +33,6 @@ class CompositeSearchFunctionTestSpec extends FlatSpec with Matchers{
     val eventMap = gson.fromJson(EventFixture.SEARCH_EVENT_VALID, new util.HashMap[String, AnyRef]().getClass).asInstanceOf[util.Map[String, AnyRef]]
     val testData: StreamRecord[util.Map[String, AnyRef]] = new StreamRecord[util.Map[String, AnyRef]](eventMap)
     harness.processElement(testData)
-
-    harness.getSideOutput(searchConfig.auditOutputTag) should have size 2
-
     harness.close()
   }
 
