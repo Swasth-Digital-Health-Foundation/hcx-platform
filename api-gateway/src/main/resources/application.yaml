@@ -9,6 +9,9 @@ protocol:
 headers:
   jose: ${jose_headers:alg, enc}
 
+#rbac config
+rbac:
+  path: ${RBAC_PATH:file:resource/path}
 
 #hcx error headers
 plainrequest:
