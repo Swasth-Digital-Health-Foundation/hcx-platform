@@ -56,7 +56,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
     @Autowired
     ExceptionHandler exceptionHandler;
 
-    public JwtAuthenticationFilter(@Qualifier("jwk") JWTVerifier jwtVerifier, JwtConfigs jwtConfigs,
+    public JwtAuthenticationFilter(JWTVerifier jwtVerifier, JwtConfigs jwtConfigs,
                                    AuthorizationService authorizationService,
                                    Map<String, Acl> aclMap) {
         this.jwtVerifier = jwtVerifier;

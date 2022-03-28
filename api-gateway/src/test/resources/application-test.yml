@@ -1,0 +1,88 @@
+server:
+  port: ${SERVER_PORT:8095}
+
+#hcx headers
+protocol:
+  headers:
+    mandatory: ${protocol_mandatory_headers:x-hcx-sender_code, x-hcx-recipient_code, x-hcx-api_call_id, x-hcx-timestamp, x-hcx-correlation_id}
+    optional: ${protocol_optional_headers:x-hcx-workflow_id, x-hcx-debug_flag, x-hcx-error_details, x-hcx-debug_details, x-hcx-status}
+headers:
+  jose: ${jose_headers:alg, enc}
+
+
+#hcx error headers
+plainrequest:
+  headers:
+    mandatory: ${error_mandatory_headers:x-hcx-status, x-hcx-sender_code, x-hcx-recipient_code, x-hcx-error_details, x-hcx-correlation_id, x-hcx-api_call_id, x-hcx-timestamp}
+    optional: ${error_optional_headers:x-hcx-workflow_id}
+
+redirect:
+  apis: ${redirect_apis:/v1/coverageeligibility/on_check, /v1/preauth/on_submit, /v1/claim/on_submit}
+  roles: ${redirect_roles:payor, agency.tpa}
+  headers:
+    mandatory: ${redirect_mandatory_headers:x-hcx-sender_code, x-hcx-recipient_code, x-hcx-api_call_id, x-hcx-timestamp, x-hcx-correlation_id}
+    optional: ${redirect_optional_headers:x-hcx-workflow_id, x-hcx-status, x-hcx-redirect_to}
+
+timestamp:
+  range: ${timestamp_range:10000}
+
+allowedEntitiesForForward: ${allowed_entities_for_forward:coverageeligibility, preauth, claim}
+allowedRolesForForward: ${allowed_roles_for_forward:payor, agency.tpa}
+
+jwt:
+  enabled: ${JWT_ENABLED:false}
+  issuer: ${JWT_ISSUER:}
+  audience: ${JWT_AUDIENCE:}
+  jwkUrl: ${JWT_JWK_URL:http://localhost:8080/auth/realms/sunbird-rc/protocol/openid-connect/certs}
+  claimsNamespacePath: ${JWT_NS_PATH:$.realm_access.roles}
+
+redis:
+  host: ${REDIS_HOST:localhost}
+  port: ${REDIS_PORT:6379}
+
+registry:
+  basePath: ${REGISTRY_BASE_PATH:http://localhost:8081}
+
+hcx-api:
+  basePath: ${HCX_API_BASEPATH:http://localhost:8080}
+
+spring:
+  main:
+    web-application-type: reactive
+    allow-bean-definition-overriding: true
+  cloud:
+    gateway:
+      routes:
+        - id: hcx-api-route
+          uri: ${HCX_API_BASEPATH:http://localhost:8080}
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
+            - CachingRequestBodyFilter
+            - HCXValidationFilter
+          predicates:
+            - Path=/v1/coverageeligibility/**, /v1/preauth/**, /v1/claim/**, /v1/paymentnotice/**, /v1/hcx/**, /v1/predetermination/**, /v1/communication/**
+
+        - id: hcx-api-route-audit
+          uri: ${HCX_API_BASEPATH:http://localhost:8080}
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
+            - CachingRequestBodyFilter
+            - AuditValidationFilter
+          predicates:
+            - Path=/v1/audit/search
+
+        - id: hcx-registry-api-route
+          uri: ${HCX_API_BASEPATH:http://localhost:8080}
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
+          predicates:
+            - Path=/participant/**, /health, /service/health

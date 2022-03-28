@@ -42,7 +42,6 @@ public class JWTVerifierFactory {
     }
 
     @Bean
-    @Qualifier("jwk")
     public JWTVerifier create()
             throws JwkException, IOException, InvalidKeySpecException, NoSuchAlgorithmException {
 

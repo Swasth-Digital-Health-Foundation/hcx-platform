@@ -1,21 +1,19 @@
 package org.swasth.apigateway.filters;
 
-import com.auth0.jwt.JWTVerifier;
-import org.swasth.apigateway.exception.ClientException;
-import org.swasth.apigateway.exception.ErrorCodes;
-import org.swasth.apigateway.helpers.ExceptionHandler;
-import org.swasth.apigateway.service.RegistryService;
-import org.swasth.apigateway.utils.JSONUtils;
 import kong.unirest.ContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.cloud.gateway.filter.factory.rewrite.ModifyRequestBodyGatewayFilterFactory;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.stereotype.Component;
+import org.swasth.apigateway.exception.ClientException;
+import org.swasth.apigateway.exception.ErrorCodes;
+import org.swasth.apigateway.helpers.ExceptionHandler;
+import org.swasth.apigateway.service.RegistryService;
+import org.swasth.apigateway.utils.JSONUtils;
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
@@ -29,7 +27,6 @@ import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.C
 public class AuditValidationFilter extends AbstractGatewayFilterFactory<AuditValidationFilter.Config> {
 
     private static final Logger logger = LoggerFactory.getLogger(AuditValidationFilter.class);
-    private final JWTVerifier jwtVerifier;
 
     @Autowired
     RegistryService registryService;
@@ -37,9 +34,8 @@ public class AuditValidationFilter extends AbstractGatewayFilterFactory<AuditVal
     @Autowired
     ExceptionHandler exceptionHandler;
 
-    public AuditValidationFilter(@Qualifier("jwk") JWTVerifier jwtVerifier) {
+    public AuditValidationFilter() {
         super(Config.class);
-        this.jwtVerifier = jwtVerifier;
     }
 
     @Override
