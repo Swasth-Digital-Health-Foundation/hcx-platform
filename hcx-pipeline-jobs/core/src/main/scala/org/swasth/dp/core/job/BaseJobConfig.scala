@@ -82,13 +82,6 @@ class BaseJobConfig(val config: Config, val jobName: String) extends Serializabl
   val registryUrl = config.getString("registry.endPointUrl")
   val hcxRegistryCode: String = config.getString("registry.hcx.code")
 
-  //Keycloak
-  val keycloakUrl = config.getString("keycloak.url")
-  val keycloakClientId = config.getString("keycloak.client_id")
-  val keycloakUsername = config.getString("keycloak.username")
-  val keycloakPassword = config.getString("keycloak.password")
-  val keycloakRealm = config.getString("keycloak.realm")
-
   //Postgres
   val postgresUser: String = config.getString("postgres.user")
   val postgresPassword: String = config.getString("postgres.password")
@@ -107,5 +100,9 @@ class BaseJobConfig(val config: Config, val jobName: String) extends Serializabl
   val timeZone: String = config.getString("audit.timezone")
   val auditIndex: String = config.getString("audit.index")
   val auditAlias: String = config.getString("audit.alias")
+
+  // JWT Token
+  val privateKey: String = config.getString("jwt-token.privateKey")
+  val expiryTime: Long = config.getLong("jwt-token.expiryTime")
 
 }

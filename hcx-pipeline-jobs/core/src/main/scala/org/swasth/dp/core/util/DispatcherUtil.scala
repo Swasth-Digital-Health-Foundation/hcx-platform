@@ -9,13 +9,16 @@ import org.apache.http.impl.client.HttpClientBuilder
 import org.apache.http.protocol.HttpContext
 import org.apache.http.util.EntityUtils
 import org.swasth.dp.core.function.{DispatcherResult, ErrorResponse}
+import org.swasth.dp.core.job.BaseJobConfig
 
 import java.io.IOException
 import java.nio.charset.StandardCharsets
 import java.util
 import scala.io.Source
 
-object DispatcherUtil {
+class DispatcherUtil(config: BaseJobConfig) extends Serializable {
+
+  val jwtUtil = new JWTUtil(config)
 
   val successCodes = Array(200, 202) // TODO: load from config
   val errorCodes = Array(400, 401, 403, 404) // TODO: load from config
@@ -59,7 +62,8 @@ object DispatcherUtil {
         httpPost.setEntity(new StringEntity(payload))
         httpPost.setHeader("Accept", "application/json")
         httpPost.setHeader("Content-type", "application/json")
-        //httpPost.setHeader("Authorization", "Bearer "+ KeycloakUtil.getToken())
+        Console.println("Testing " + jwtUtil.generateToken())
+        httpPost.setHeader("Authorization", "Bearer "+ jwtUtil.generateToken())
         response = httpClient.execute(httpPost);
         val statusCode = response.getStatusLine().getStatusCode();
         Console.println("statusCode", statusCode);
