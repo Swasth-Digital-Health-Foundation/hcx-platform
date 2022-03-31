@@ -13,8 +13,10 @@ import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.swasth.apigateway.cache.RedisCache;
 import org.swasth.apigateway.service.AuditService;
 import org.swasth.apigateway.service.RegistryService;
+import org.swasth.apigateway.utils.HttpUtils;
 import org.swasth.apigateway.utils.JSONUtils;
 
 import java.io.IOException;
@@ -32,6 +34,9 @@ public class BaseSpec {
 
     @MockBean
     protected AuditService auditService;
+
+    @MockBean
+    protected RedisCache redisCache;
 
     @MockBean
     protected JWTVerifier jwtVerifier;
@@ -61,6 +66,14 @@ public class BaseSpec {
 
     protected Map<String,Object> getRequestBody() {
         return Collections.singletonMap("payload","eyJlbmMiOiJBMjU2R0NNIiwKImFsZyI6IlJTQS1PQUVQIiwKIngtaGN4LXNlbmRlcl9jb2RlIjoiMS0zYTNiZDY4YS04NDhhLTRkNTItOWVjMi0wN2E5MmQ3NjVmYjQiLAoieC1oY3gtcmVjaXBpZW50X2NvZGUiOiIxLWNlMjNjY2RjLWU2NDUtNGUzNS05N2I4LTBiZDhmZWY0M2VjZCIsCiJ4LWhjeC1hcGlfY2FsbF9pZCI6IjI2YjEwNjBjLTFlODMtNDYwMC05NjEyLWVhMzFlMGNhNTA5MyIsCiJ4LWhjeC1jb3JyZWxhdGlvbl9pZCI6IjVlOTM0ZjkwLTExMWQtNGYwYi1iMDE2LWMyMmQ4MjA2NzRlMSIsCiJ4LWhjeC10aW1lc3RhbXAiOiIyMDIxLTEwLTI3VDIwOjM1OjUyLjYzNiswNTMwIiwKIngtaGN4LXN0YXR1cyI6InJlcXVlc3QucXVldWVkIiwKIngtaGN4LXdvcmtmbG93X2lkIjoiMjZiMTA2MGMtMWU4My00NjAwLTk2MTItZWEzMWUwY2E1MDk0IiwKIngtaGN4LWRlYnVnX2ZsYWciOiJJbmZvIiwKIngtaGN4LWRlYnVnX2RldGFpbHMiOnsiY29kZSI6IkVSUl9JTlZBTElEX0VOQ1JZUFRJT04iLCJtZXNzYWdlIjoiUmVjaXBpZW50IEludmFsaWQgRW5jcnlwdGlvbiIsInRyYWNlIjoiIn0KfQ==.6KB707dM9YTIgHtLvtgWQ8mKwboJW3of9locizkDTHzBC2IlrT1oOQ.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.KDlTtXchhZTGufMYmOYGS4HffxPSUrfmqCHXaI9wOGY.Mz-VPPyU4RlcuYv1IwIvzw");
+    }
+
+    protected Map<String,Object> getAuditRequestBody() {
+        Map<String,Object> obj = new HashMap<>();
+        obj.put("filters",new HashMap<String,Object>(){{
+            put("x-hcx-correlation_id", "5e934f90-111d-4f0b-b016-c22d820674e1");
+        }});
+        return obj;
     }
 
     public String getErrorRequestBody() throws JsonProcessingException {
@@ -97,6 +110,10 @@ public class BaseSpec {
 
     protected List<Map<String,Object>> getAuditLogs() throws Exception {
         return Arrays.asList(JSONUtils.deserialize("{\"eid\":\"AUDIT\",\"x-hcx-error_details\":{},\"x-hcx-recipient_code\":\"1-2ff1f493-c4d4-4fc7-8d41-aaabb997af23\",\"x-hcx-debug_details\":{},\"auditTimeStamp\":1646736378272,\"mid\":\"54af42a9-3905-4f15-8c9d-94079594b6a6\",\"x-hcx-correlation_id\":\"5e934f90-111d-4f0b-b016-c22d820674e1\",\"updatedTimestamp\":1646736375686,\"x-hcx-status\":\"request.queued\",\"recipientRole\":[\"payor\"],\"x-hcx-timestamp\":\"2021-10-27T20:35:52.636+0530\",\"requestTimeStamp\":1646735834459,\"x-hcx-sender_code\":\"1-3a3bd68a-848a-4d52-9ec2-07a92d765fb4\",\"action\":\"/v1/coverageeligibility/check\",\"x-hcx-workflow_id\":\"26b1060c-1e83-4600-9612-ea31e0ca5094\",\"x-hcx-api_call_id\":\"26b1060c-1e83-4600-9612-ea31e0ca5093\",\"senderRole\":[\"provider\"]}", Map.class));
+    }
+
+    protected List<Map<String,Object>> getOnActionAuditLogs() throws Exception {
+        return Arrays.asList(JSONUtils.deserialize("{\"eid\":\"AUDIT\",\"x-hcx-error_details\":{},\"x-hcx-recipient_code\":\"1-2ff1f493-c4d4-4fc7-8d41-aaabb997af23\",\"x-hcx-debug_details\":{},\"auditTimeStamp\":1646736378272,\"mid\":\"54af42a9-3905-4f15-8c9d-94079594b6a6\",\"x-hcx-correlation_id\":\"5e934f90-111d-4f0b-b016-c22d820674e1\",\"updatedTimestamp\":1646736375686,\"x-hcx-status\":\"request.queued\",\"recipientRole\":[\"payor\"],\"x-hcx-timestamp\":\"2021-10-27T20:35:52.636+0530\",\"requestTimeStamp\":1646735834459,\"x-hcx-sender_code\":\"1-3a3bd68a-848a-4d52-9ec2-07a92d765fb4\",\"action\":\"/v1/coverageeligibility/on_check\",\"x-hcx-workflow_id\":\"26b1060c-1e83-4600-9612-ea31e0ca5094\",\"x-hcx-api_call_id\":\"26b1060c-1e83-4600-9612-ea31e0ca5093\",\"senderRole\":[\"provider\"]}", Map.class));
     }
 
     protected String getProviderToken() {

@@ -41,7 +41,7 @@ redis:
   port: ${REDIS_PORT:6379}
 
 registry:
-  basePath: ${REGISTRY_BASE_PATH:http://localhost:8081}
+  basePath: ${REGISTRY_BASE_PATH:http://localhost:8080}
 
 hcx-api:
   basePath: ${HCX_API_BASEPATH:http://localhost:8080}
