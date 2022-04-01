@@ -11,8 +11,7 @@ import org.swasth.apigateway.constants.Constants;
 import java.util.Collections;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 
@@ -20,7 +19,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 public class AuditServiceTest extends BaseSpec {
 
     @Test
-    public void check_audit_server_success_scenario() throws Exception {
+    public void check_audit_server_exception_scenario() throws Exception {
         server.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("[{\"test\":\"123\"}]")
