@@ -75,4 +75,11 @@ object Constants {
   val RECIPIENT_ERROR_MESSAGE = "Please provide correct recipient code"
   val RECIPIENT_ERROR_LOG = "Recipient endpoint url is empty"
 
+  // JWT token properties
+  val JTI = "jti"
+  val ISS = "iss"
+  val SUB = "sub"
+  val IAT = "iat"
+  val EXP = "exp"
+
 }

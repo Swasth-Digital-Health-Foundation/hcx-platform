@@ -93,7 +93,7 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
     //Update status
     protectedMap.put(Constants.HCX_STATUS,Constants.ERROR_STATUS)
     Console.println("Payload: " + protectedMap)
-    val result = DispatcherUtil.dispatch(senderCtx, JSONUtil.serialize(protectedMap))
+    val result = dispatcherUtil.dispatch(senderCtx, JSONUtil.serialize(protectedMap))
     if(result.retry) {
       logger.info("Error while dispatching error response: " + result.error.get.message.get)
       metrics.incCounter(metric = config.dispatcherRetryCount)
@@ -133,7 +133,7 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
           metrics.incCounter(metric = config.dispatcherValidationSuccessCount)
           val payload = getPayload(payloadRefId);
           val payloadJSON = JSONUtil.serialize(payload);
-          val result = DispatcherUtil.dispatch(recipientCtx, payloadJSON)
+          val result = dispatcherUtil.dispatch(recipientCtx, payloadJSON)
           logger.info("result::" + result)
           //Adding updatedTimestamp for auditing
           event.put(Constants.UPDATED_TIME, Calendar.getInstance().getTime())
@@ -251,7 +251,7 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
     val updatedPayload = new util.HashMap[String,AnyRef]()
     //TODO Remove this and use the utility for modifying the ciphertext
     updatedPayload.put(Constants.PAYLOAD,JSONUtil.createPayloadByValues(parsedPayload));
-    DispatcherUtil.dispatch(recipientContext, JSONUtil.serialize(updatedPayload))
+    dispatcherUtil.dispatch(recipientContext, JSONUtil.serialize(updatedPayload))
   }
 
   def getEmptyCipherText: String = {

@@ -35,6 +35,8 @@ abstract class BaseProcessFunction[T, R](config: BaseJobConfig) extends ProcessF
 
   private val metrics: Metrics = registerMetrics(metricsList())
   private var registryDataCache: DataCache = _
+  var dispatcherUtil: DispatcherUtil = _
+
 
   override def open(parameters: Configuration): Unit = {
     metricsList().map { metric =>
@@ -45,6 +47,7 @@ abstract class BaseProcessFunction[T, R](config: BaseJobConfig) extends ProcessF
       new DataCache(config, new RedisConnect(config.redisHost, config.redisPort, config),
         config.redisAssetStore, config.senderReceiverFields)
     registryDataCache.init()
+    dispatcherUtil = new DispatcherUtil(config)
   }
 
   def processElement(event: T, context: ProcessFunction[T, R]#Context, metrics: Metrics): Unit
@@ -132,7 +135,7 @@ abstract class BaseProcessFunction[T, R](config: BaseJobConfig) extends ProcessF
   }
 
   def getDetails(code: String): util.Map[String, AnyRef] = {
-    val responseBody: String = DispatcherUtil.post(config.registryUrl, code)
+    val responseBody: String = dispatcherUtil.post(config.registryUrl, code)
     val responseArr = JSONUtil.deserialize[util.ArrayList[util.HashMap[String, AnyRef]]](responseBody)
     if (!responseArr.isEmpty) {
       val collectionMap = responseArr.get(0)
