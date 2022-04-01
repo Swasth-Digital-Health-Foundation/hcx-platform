@@ -23,8 +23,8 @@ redirect:
   apis: ${redirect_apis:/v1/coverageeligibility/on_check, /v1/preauth/on_submit, /v1/claim/on_submit}
   roles: ${redirect_roles:payor, agency.tpa}
   headers:
-    mandatory: ${redirect_mandatory_headers:x-hcx-sender_code, x-hcx-recipient_code, x-hcx-api_call_id, x-hcx-timestamp, x-hcx-correlation_id}
-    optional: ${redirect_optional_headers:x-hcx-workflow_id, x-hcx-status, x-hcx-redirect_to}
+    mandatory: ${redirect_mandatory_headers:x-hcx-sender_code, x-hcx-recipient_code, x-hcx-api_call_id, x-hcx-timestamp, x-hcx-correlation_id, x-hcx-status, x-hcx-redirect_to}
+    optional: ${redirect_optional_headers:x-hcx-workflow_id}
 
 timestamp:
   range: ${timestamp_range:10000}

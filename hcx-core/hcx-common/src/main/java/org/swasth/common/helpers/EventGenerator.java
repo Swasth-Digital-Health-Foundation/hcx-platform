@@ -46,6 +46,9 @@ public class EventGenerator {
                 if (protectedHeaders.containsKey(key))
                     filterProtocolHeaders.put(key, protectedHeaders.get(key));
             });
+            //Add request.queued status and rewrite the status for action APIs and for on_* API calls use the status sent by the participant
+            if(!apiAction.contains("on_"))
+                filterProtocolHeaders.put(STATUS, QUEUED_STATUS);
             event.put(MID, mid);
             event.put(ETS, System.currentTimeMillis());
             event.put(ACTION, apiAction);
@@ -53,7 +56,6 @@ public class EventGenerator {
             headers.put(JOSE, filterJoseHeaders);
             headers.put(PROTOCOL, filterProtocolHeaders);
             event.put(HEADERS, headers);
-            event.put("status", "request.queued");
         } else {
             List<String> headers;
             if(REDIRECT_STATUS.equalsIgnoreCase(request.getStatus())) {
@@ -75,7 +77,6 @@ public class EventGenerator {
             event.put(MID, mid);
             event.put(ETS, System.currentTimeMillis());
             event.put(ACTION, apiAction);
-            event.put("status", "request.queued");
         }
         return JSONUtils.serialize(event);
     }
