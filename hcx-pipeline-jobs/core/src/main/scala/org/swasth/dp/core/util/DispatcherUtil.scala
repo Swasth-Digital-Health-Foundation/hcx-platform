@@ -21,8 +21,6 @@ class DispatcherUtil(config: BaseJobConfig) extends Serializable {
 
   val jwtUtil = new JWTUtil(config)
 
-  val successCodes = Array(200, 202) // TODO: load from config
-  val errorCodes = Array(400, 401, 403, 404) // TODO: load from config
 
   val requestConfig = RequestConfig.custom()
     .setCookieSpec(CookieSpecs.STANDARD)
@@ -67,9 +65,9 @@ class DispatcherUtil(config: BaseJobConfig) extends Serializable {
         response = httpClient.execute(httpPost);
         val statusCode = response.getStatusLine().getStatusCode();
         Console.println("statusCode", statusCode);
-        if (successCodes.contains(statusCode)) {
+        if (config.successCodes.contains(statusCode)) {
           DispatcherResult(true, statusCode, None, false)
-        } else if (errorCodes.contains(statusCode)) {
+        } else if (config.errorCodes.contains(statusCode)) {
           val errorResponse: ErrorResponse = errorMessageProcess(response)
           DispatcherResult(false, statusCode, Option(errorResponse), false)
         } else {

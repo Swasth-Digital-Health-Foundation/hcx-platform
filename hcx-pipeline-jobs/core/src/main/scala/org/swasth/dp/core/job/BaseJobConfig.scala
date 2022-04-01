@@ -105,4 +105,8 @@ class BaseJobConfig(val config: Config, val jobName: String) extends Serializabl
   val auditIndex: String = config.getString("audit.index")
   val auditAlias: String = config.getString("audit.alias")
 
+  //HTTP Codes
+  val successCodes: util.List[Integer] = config.getIntList("errorCodes.successCodes")
+  val errorCodes: util.List[Integer] = config.getIntList("errorCodes.errorCodes")
+
 }
