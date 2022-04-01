@@ -83,7 +83,7 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
     protectedMap.put(Constants.RECIPIENT_CODE, getProtocolStringValue(event,Constants.SENDER_CODE))
     //Keep same correlationId
     protectedMap.put(Constants.CORRELATION_ID, getProtocolStringValue(event,Constants.CORRELATION_ID))
-    //Keep same api call id
+    //Generate new UUID for each request processed by HCX Gateway
     protectedMap.put(Constants.API_CALL_ID, UUID.randomUUID())
     //Keep same work flow id if it exists in the incoming event
     if(!getProtocolStringValue(event,Constants.WORKFLOW_ID).isEmpty)
@@ -91,7 +91,7 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
     //Update error details
     protectedMap.put(Constants.ERROR_DETAILS,createErrorMap(error))
     //Update status
-    protectedMap.put(Constants.HCX_STATUS,Constants.HCX_ERROR_STATUS)
+    protectedMap.put(Constants.HCX_STATUS,Constants.ERROR_STATUS)
     Console.println("Payload: " + protectedMap)
     val result = DispatcherUtil.dispatch(senderCtx, JSONUtil.serialize(protectedMap))
     if(result.retry) {
@@ -139,7 +139,7 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
           event.put(Constants.UPDATED_TIME, Calendar.getInstance().getTime())
           if (result.success) {
             updateDBStatus(payloadRefId, Constants.DISPATCH_STATUS)
-            setStatus(event, Constants.HCX_DISPATCH_STATUS)
+            setStatus(event, Constants.DISPATCH_STATUS)
             metrics.incCounter(metric = config.dispatcherSuccessCount)
           }
           if (result.retry) {
@@ -149,8 +149,8 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
             if (!config.allowedEntitiesForRetry.contains(getEntity(event.get(Constants.ACTION).asInstanceOf[String])) || retryCount == config.maxRetry) {
               dispatchError(payloadRefId, event, result, correlationId, senderCtx, context, metrics)
             } else if (retryCount < config.maxRetry) {
-              updateDBStatus(payloadRefId, "request.retry")
-              setStatus(event, Constants.HCX_QUEUED_STATUS)
+              updateDBStatus(payloadRefId, Constants.REQ_RETRY)
+              setStatus(event, Constants.QUEUED_STATUS)
               metrics.incCounter(metric = config.dispatcherRetryCount)
               Console.println("Event is updated for retrying..")
             }
@@ -180,7 +180,7 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
 
   private def dispatchError(payloadRefId: String, event: util.Map[String,AnyRef], result: DispatcherResult, correlationId: String, senderCtx: util.Map[String,AnyRef], context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
     updateDBStatus(payloadRefId, Constants.ERROR_STATUS)
-    setStatus(event, Constants.HCX_ERROR_STATUS)
+    setStatus(event, Constants.ERROR_STATUS)
     metrics.incCounter(metric = config.dispatcherFailedCount)
     dispatchErrorResponse(event,result.error, correlationId, payloadRefId, senderCtx, context, metrics)
   }

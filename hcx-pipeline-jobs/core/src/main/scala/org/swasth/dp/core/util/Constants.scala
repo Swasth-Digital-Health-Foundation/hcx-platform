@@ -47,9 +47,10 @@ object Constants {
   val TIMESTAMP = "x-hcx-timestamp"
   val DEBUG_FLAG = "x-hcx-debug_flag"
   val HCX_STATUS = "x-hcx-status"
-  val HCX_ERROR_STATUS = "response.error"
-  val HCX_DISPATCH_STATUS = "request.dispatched"
-  val HCX_QUEUED_STATUS = "request.queued"
+  val ERROR_STATUS = "response.error"
+  val DISPATCH_STATUS = "request.dispatched"
+  val QUEUED_STATUS = "request.queued"
+  val REQ_RETRY = "request.retry"
 
   //Search Fields
   val SEARCH_REQUEST = "x-hcx-search"
@@ -67,8 +68,8 @@ object Constants {
   val CLOSE_STATUS = "CLOSE"
   val PARTIAL_STATUS = "PARTIAL"
   val FAIL_STATUS = "FAIL"
-  val DISPATCH_STATUS = "request.dispatch"
-  val ERROR_STATUS = "response.error"
+  //val DISPATCH_STATUS = "request.dispatched"
+  //val ERROR_STATUS = "response.error"
 
   val RECIPIENT_ERROR_CODE = "ERR_RECIPIENT_NOT_AVAILABLE"
   val RECIPIENT_ERROR_MESSAGE = "Please provide correct recipient code"

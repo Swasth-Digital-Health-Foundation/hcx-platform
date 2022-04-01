@@ -65,9 +65,16 @@ public class BaseRequest {
         if (protocolHeaders.containsKey(DEBUG_FLAG)) {
             validateValues(getDebugFlag(), ErrorCodes.ERR_INVALID_DEBUG_FLAG, "Debug flag cannot be null, empty and other than 'String'", DEBUG_FLAG_VALUES, "Debug flag cannot be other than Error, Info or Debug");
         }
-        if (protocolHeaders.containsKey(STATUS)) {
-            validateValues(getStatus(), ErrorCodes.ERR_INVALID_STATUS, "Status cannot be null, empty and other than 'String'", STATUS_VALUES, "Status value can be only: ");
+
+        if (apiAction.contains("on_")) {
+            validateCondition(!protocolHeaders.containsKey(STATUS), ErrorCodes.ERR_MANDATORY_HEADERFIELD_MISSING, "Mandatory headers are missing: " + STATUS);
+            validateValues(getStatus(), ErrorCodes.ERR_INVALID_STATUS, "Status cannot be null, empty and other than 'String'", RESPONSE_STATUS_VALUES, "Status value for on_* API calls can be only: ");
+        } else {
+            if (protocolHeaders.containsKey(STATUS)) {
+                validateValues(getStatus(), ErrorCodes.ERR_INVALID_STATUS, "Status cannot be null, empty and other than 'String'", REQUEST_STATUS_VALUES, "Status value for *action API calls can be only: ");
+            }
         }
+
         if (protocolHeaders.containsKey(ERROR_DETAILS)) {
             validateDetails(getErrorDetails(), ErrorCodes.ERR_INVALID_ERROR_DETAILS, "Error details cannot be null, empty and other than 'JSON Object'", ERROR_DETAILS_VALUES, "Error details should contain only: ");
             validateCondition(!RECIPIENT_ERROR_VALUES.contains(((Map<String,Object>) protocolHeaders.get(ERROR_DETAILS)).get("code")),ErrorCodes.ERR_INVALID_ERROR_DETAILS,"Invalid Error Code");

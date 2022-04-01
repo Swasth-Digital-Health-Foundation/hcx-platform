@@ -58,7 +58,7 @@ public class Constants {
     public static final String REDIRECT_TO = "x-hcx-redirect_to";
     public static final List<String> DEBUG_FLAG_VALUES = Arrays.asList("Error","Info","Debug");
     public static final String STATUS = "x-hcx-status";
-    public static final List<String> STATUS_VALUES = Arrays.asList("request.queued", "request.dispatched", "response.complete", "response.partial", "response.error", "response.redirect");
+    public static final List<String> REQUEST_STATUS_VALUES = Arrays.asList("request.queued", "request.dispatched");
     public static final String ERROR_DETAILS = "x-hcx-error_details";
     public static final List<String> ERROR_DETAILS_VALUES = Arrays.asList("code","message","trace");
     public static final String DEBUG_DETAILS = "x-hcx-debug_details";
@@ -85,5 +85,6 @@ public class Constants {
     public static final String REDIRECT_STATUS = "response.redirect";
     public static final String COMPLETE_STATUS = "response.complete";
     public static final List<String> EXCLUDE_ENTITIES = Arrays.asList("communication", "payment","notification");
+    public static final List<String> RESPONSE_STATUS_VALUES = Arrays.asList(COMPLETE_STATUS, "response.partial", ERROR_RESPONSE, REDIRECT_STATUS);
 
 }
