@@ -1,8 +1,11 @@
 package org.swasth.apigateway.constants;
 
+import lombok.experimental.UtilityClass;
+
 import java.util.Arrays;
 import java.util.List;
 
+@UtilityClass
 public class Constants {
 
     public static final String VERSION_PREFIX = "/v1";

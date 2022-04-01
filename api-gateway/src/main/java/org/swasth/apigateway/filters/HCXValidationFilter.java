@@ -1,11 +1,8 @@
 package org.swasth.apigateway.filters;
 
-import com.auth0.jwt.JWTVerifier;
-import com.auth0.jwt.interfaces.DecodedJWT;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
@@ -13,7 +10,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
-import org.springframework.web.server.ServerWebExchange;
 import org.swasth.apigateway.exception.ClientException;
 import org.swasth.apigateway.exception.ErrorCodes;
 import org.swasth.apigateway.helpers.ExceptionHandler;
@@ -33,7 +29,6 @@ import static org.swasth.apigateway.constants.Constants.*;
 public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidationFilter.Config> {
 
     private static final Logger logger = LoggerFactory.getLogger(HCXValidationFilter.class);
-    private final JWTVerifier jwtVerifier;
 
     @Autowired
     RegistryService registryService;
@@ -56,9 +51,8 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
     @Value("${allowedRolesForForward}")
     private List<String> allowedRolesForForward;
 
-    public HCXValidationFilter(@Qualifier("jwk") JWTVerifier jwtVerifier) {
+    public HCXValidationFilter() {
         super(Config.class);
-        this.jwtVerifier = jwtVerifier;
     }
 
     @Override
@@ -68,7 +62,9 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
             String apiCallId = null;
             try {
                 StringBuilder cachedBody = new StringBuilder(StandardCharsets.UTF_8.decode(((DataBuffer) exchange.getAttribute(CACHED_REQUEST_BODY_ATTR)).asByteBuffer()));
-                String path = exchange.getRequest().getPath().value();
+                ServerHttpRequest request = exchange.getRequest();
+                String path = request.getPath().value();
+                String subject = request.getHeaders().getFirst("X-jwt-sub");
                 Map<String, Object> requestBody = JSONUtils.deserialize(cachedBody.toString(), HashMap.class);
                 if (requestBody.containsKey(PAYLOAD)) {
                     JWERequest jweRequest = new JWERequest(requestBody, false, path);
@@ -76,16 +72,16 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                     apiCallId = jweRequest.getApiCallId();
                     Map<String,Object> senderDetails = getDetails(jweRequest.getSenderCode());
                     Map<String,Object> recipientDetails = getDetails(jweRequest.getRecipientCode());
-                    jweRequest.validate(getMandatoryHeaders(), getSubject(exchange), timestampRange, senderDetails, recipientDetails);
+                    jweRequest.validate(getMandatoryHeaders(), subject, timestampRange, senderDetails, recipientDetails);
                     jweRequest.validateUsingAuditData(allowedEntitiesForForward, allowedRolesForForward, senderDetails, recipientDetails, getCorrelationAuditData(jweRequest.getCorrelationId()), getCallAuditData(jweRequest.getApiCallId()), getParticipantCtxAuditData(jweRequest.getSenderCode(), jweRequest.getRecipientCode(), jweRequest.getCorrelationId()), path);
                 } else {
                     JSONRequest jsonRequest = new JSONRequest(requestBody, true, path);
                     correlationId = jsonRequest.getCorrelationId();
                     apiCallId = jsonRequest.getApiCallId();
                     if(ERROR_RESPONSE.equalsIgnoreCase(jsonRequest.getStatus())) {
-                        jsonRequest.validate(getErrorMandatoryHeaders(), getSubject(exchange), timestampRange, getDetails(jsonRequest.getSenderCode()), getDetails(jsonRequest.getRecipientCode()));
+                        jsonRequest.validate(getErrorMandatoryHeaders(), subject, timestampRange, getDetails(jsonRequest.getSenderCode()), getDetails(jsonRequest.getRecipientCode()));
                     } else {
-                        jsonRequest.validate(getRedirectMandatoryHeaders(), getSubject(exchange), timestampRange, getDetails(jsonRequest.getSenderCode()), getDetails(jsonRequest.getRecipientCode()));
+                        jsonRequest.validate(getRedirectMandatoryHeaders(), subject, timestampRange, getDetails(jsonRequest.getSenderCode()), getDetails(jsonRequest.getRecipientCode()));
                         if (getApisForRedirect().contains(path)) {
                             if (REDIRECT_STATUS.equalsIgnoreCase(jsonRequest.getStatus()))
                                 jsonRequest.validateRedirect(getRolesForRedirect(), getDetails(jsonRequest.getRedirectTo()), getCallAuditData(jsonRequest.getApiCallId()), getCorrelationAuditData(jsonRequest.getCorrelationId()));
@@ -130,13 +126,6 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
         List<String> mandatoryHeaders = new ArrayList<>();
         mandatoryHeaders.addAll(env.getProperty("plainrequest.headers.mandatory", List.class));
         return mandatoryHeaders;
-    }
-
-    private String getSubject(ServerWebExchange exchange) {
-        ServerHttpRequest request = exchange.getRequest();
-        String token = request.getHeaders().get(AUTHORIZATION).get(0).trim().split("\\s")[1].trim();
-        DecodedJWT decodedJWT = this.jwtVerifier.verify(token);
-        return decodedJWT.getSubject();
     }
 
     private Map<String, Object> getDetails(String code) throws Exception {
