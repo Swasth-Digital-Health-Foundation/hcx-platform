@@ -75,10 +75,13 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                     jweRequest.validate(getMandatoryHeaders(), subject, timestampRange, senderDetails, recipientDetails);
                     jweRequest.validateUsingAuditData(allowedEntitiesForForward, allowedRolesForForward, senderDetails, recipientDetails, getCorrelationAuditData(jweRequest.getCorrelationId()), getCallAuditData(jweRequest.getApiCallId()), getParticipantCtxAuditData(jweRequest.getSenderCode(), jweRequest.getRecipientCode(), jweRequest.getCorrelationId()), path);
                 } else {
+                    if (!path.contains("on_")) {
+                        throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, "Request body should be a proper JWE object for action API calls");
+                    }
                     JSONRequest jsonRequest = new JSONRequest(requestBody, true, path);
                     correlationId = jsonRequest.getCorrelationId();
                     apiCallId = jsonRequest.getApiCallId();
-                    if(ERROR_RESPONSE.equalsIgnoreCase(jsonRequest.getStatus())) {
+                    if (ERROR_RESPONSE.equalsIgnoreCase(jsonRequest.getStatus())) {
                         jsonRequest.validate(getErrorMandatoryHeaders(), subject, timestampRange, getDetails(jsonRequest.getSenderCode()), getDetails(jsonRequest.getRecipientCode()));
                     } else {
                         jsonRequest.validate(getRedirectMandatoryHeaders(), subject, timestampRange, getDetails(jsonRequest.getSenderCode()), getDetails(jsonRequest.getRecipientCode()));
@@ -88,7 +91,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                             else
                                 throw new ClientException(ErrorCodes.ERR_INVALID_REDIRECT_TO, "Invalid redirect request," + jsonRequest.getStatus() + " status is not allowed for redirect, Allowed status is " + REDIRECT_STATUS);
                         } else
-                            throw new ClientException(ErrorCodes.ERR_INVALID_REDIRECT_TO,"Invalid redirect request," + jsonRequest.getApiAction() + " is not allowed for redirect, Allowed APIs are: " + getApisForRedirect());
+                            throw new ClientException(ErrorCodes.ERR_INVALID_REDIRECT_TO, "Invalid redirect request," + jsonRequest.getApiAction() + " is not allowed for redirect, Allowed APIs are: " + getApisForRedirect());
                     }
                 }
             } catch (Exception e) {

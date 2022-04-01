@@ -9,6 +9,7 @@ import org.swasth.apigateway.BaseSpec;
 import org.swasth.apigateway.constants.Constants;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -19,7 +20,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 public class AuditServiceTest extends BaseSpec {
 
     @Test
-    public void check_audit_server_exception_scenario() throws Exception {
+    public void check_audit_server_scenario() throws Exception {
         server.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("[{\"test\":\"123\"}]")
@@ -27,10 +28,8 @@ public class AuditServiceTest extends BaseSpec {
 
         Mockito.when(auditService.getAuditLogs(any())).thenCallRealMethod();
         ReflectionTestUtils.setField(auditService, "hcxApiUrl", "http://localhost:8080");
-        Exception exception = assertThrows(Exception.class, () -> {
-            auditService.getAuditLogs(Collections.singletonMap("x-hcx-correlation_id", "5e934f90-111d-4f0b-b016-c22d820674e1"));
-        });
-        assertEquals("Error connecting to audit service: org.apache.http.NoHttpResponseException: localhost:8080 failed to respond", exception.getMessage());
+        List<Map<String,Object>> auditResponse = auditService.getAuditLogs(Collections.singletonMap("x-hcx-correlation_id", "5e934f90-111d-4f0b-b016-c22d820674e1"));
+        assertEquals("123",auditResponse.get(0).get("test"));
     }
 
     @Test

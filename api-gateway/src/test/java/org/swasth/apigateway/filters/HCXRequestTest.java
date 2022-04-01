@@ -73,7 +73,7 @@ public class HCXRequestTest extends BaseSpec {
         client.post().uri("/v1/coverageeligibility/on_check")
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
-                .bodyValue(getRequestBody())
+                .bodyValue(getOnRequestBody())
                 .exchange()
                 .expectBody(Map.class)
                 .consumeWith(result -> {
@@ -92,7 +92,7 @@ public class HCXRequestTest extends BaseSpec {
                 .thenReturn(getPayorDetails());
         Mockito.when(auditService.getAuditLogs(any())).thenReturn(new ArrayList<>());
 
-        client.post().uri("/v1/coverageeligibility/check")
+        client.post().uri("/v1/coverageeligibility/on_check")
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
                 .bodyValue(getErrorRequestBody())
@@ -171,6 +171,11 @@ public class HCXRequestTest extends BaseSpec {
                     assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
                     assertEquals(ErrorCodes.ERR_INVALID_API_CALL_ID.name(), getResponseErrorCode(result));
                 });
+    }
+
+    @Override
+    protected Map<String, Object> getRequestBody() {
+        return super.getRequestBody();
     }
 
     @Test
@@ -278,12 +283,12 @@ public class HCXRequestTest extends BaseSpec {
         client.post().uri("/v1/coverageeligibility/check")
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
-                .bodyValue("{ \"x-hcx-status\": \"response.error\", \"x-hcx-sender_code\": \"1-30b6ac38-bbfe-4012-9d9c-dcbe8420f68f\", \"x-hcx-recipient_code\": \"1-281cca66-55cd-4c1b-96bb-51813cdbbe17\", \"x-hcx-correlation_id\":\"5e934f90-111d-4f0b-b016-c22d820674e4\", \"x-hcx-api_call_id\": \"24aee489-d0d5-47b6-b3c1-559732c4b385\", \"x-hcx-timestamp\": \"2021-10-27T20:35:52.636+0530\", \"x-hcx-error_details\": { } }")
+                .bodyValue("{ \"x-hcx-status\": \"request.queued\", \"x-hcx-sender_code\": \"1-30b6ac38-bbfe-4012-9d9c-dcbe8420f68f\", \"x-hcx-recipient_code\": \"1-281cca66-55cd-4c1b-96bb-51813cdbbe17\", \"x-hcx-correlation_id\":\"5e934f90-111d-4f0b-b016-c22d820674e4\", \"x-hcx-api_call_id\": \"24aee489-d0d5-47b6-b3c1-559732c4b385\", \"x-hcx-timestamp\": \"2021-10-27T20:35:52.636+0530\", \"x-hcx-error_details\": { } }")
                 .exchange()
                 .expectBody(Map.class)
                 .consumeWith(result -> {
                     assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
-                    assertEquals(ErrorCodes.ERR_INVALID_ERROR_DETAILS.name(), getResponseErrorCode(result));
+                    assertEquals(ErrorCodes.ERR_INVALID_PAYLOAD.name(), getResponseErrorCode(result));
                 });
     }
 
@@ -296,12 +301,12 @@ public class HCXRequestTest extends BaseSpec {
         client.post().uri("/v1/coverageeligibility/check")
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
-                .bodyValue("{ \"x-hcx-status\": \"response.error\", \"x-hcx-sender_code\": \"1-30b6ac38-bbfe-4012-9d9c-dcbe8420f68f\", \"x-hcx-recipient_code\": \"1-281cca66-55cd-4c1b-96bb-51813cdbbe17\", \"x-hcx-correlation_id\":\"5e934f90-111d-4f0b-b016-c22d820674e4\", \"x-hcx-api_call_id\": \"24aee489-d0d5-47b6-b3c1-559732c4b385\", \"x-hcx-timestamp\": \"2021-10-27T20:35:52.636+0530\", \"x-hcx-error_details\": {\"message\": \"\", \"trace\": \"Recipient Invalid Encryption\" } }")
+                .bodyValue("{ \"x-hcx-status\": \"request.queued\", \"x-hcx-sender_code\": \"1-30b6ac38-bbfe-4012-9d9c-dcbe8420f68f\", \"x-hcx-recipient_code\": \"1-281cca66-55cd-4c1b-96bb-51813cdbbe17\", \"x-hcx-correlation_id\":\"5e934f90-111d-4f0b-b016-c22d820674e4\", \"x-hcx-api_call_id\": \"24aee489-d0d5-47b6-b3c1-559732c4b385\", \"x-hcx-timestamp\": \"2021-10-27T20:35:52.636+0530\", \"x-hcx-error_details\": {\"message\": \"\", \"trace\": \"Recipient Invalid Encryption\" } }")
                 .exchange()
                 .expectBody(Map.class)
                 .consumeWith(result -> {
                     assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
-                    assertEquals(ErrorCodes.ERR_INVALID_ERROR_DETAILS.name(), getResponseErrorCode(result));
+                    assertEquals(ErrorCodes.ERR_INVALID_PAYLOAD.name(), getResponseErrorCode(result));
                 });
     }
 
@@ -314,12 +319,12 @@ public class HCXRequestTest extends BaseSpec {
         client.post().uri("/v1/coverageeligibility/check")
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
-                .bodyValue("{ \"x-hcx-status\": \"response.error\", \"x-hcx-sender_code\": \"1-30b6ac38-bbfe-4012-9d9c-dcbe8420f68f\", \"x-hcx-recipient_code\": \"1-281cca66-55cd-4c1b-96bb-51813cdbbe17\", \"x-hcx-correlation_id\":\"5e934f90-111d-4f0b-b016-c22d820674e4\", \"x-hcx-api_call_id\": \"24aee489-d0d5-47b6-b3c1-559732c4b385\", \"x-hcx-timestamp\": \"2021-10-27T20:35:52.636+0530\", \"x-hcx-error_details\": { \"code\": \"ERR_INVALID_ENCRYPTION\", \"message\": \"\", \"trace\": \"Recipient Invalid Encryption\", \"test\": \"\"} }")
+                .bodyValue("{ \"x-hcx-status\": \"request.queued\", \"x-hcx-sender_code\": \"1-30b6ac38-bbfe-4012-9d9c-dcbe8420f68f\", \"x-hcx-recipient_code\": \"1-281cca66-55cd-4c1b-96bb-51813cdbbe17\", \"x-hcx-correlation_id\":\"5e934f90-111d-4f0b-b016-c22d820674e4\", \"x-hcx-api_call_id\": \"24aee489-d0d5-47b6-b3c1-559732c4b385\", \"x-hcx-timestamp\": \"2021-10-27T20:35:52.636+0530\", \"x-hcx-error_details\": { \"code\": \"ERR_INVALID_ENCRYPTION\", \"message\": \"\", \"trace\": \"Recipient Invalid Encryption\", \"test\": \"\"} }")
                 .exchange()
                 .expectBody(Map.class)
                 .consumeWith(result -> {
                     assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
-                    assertEquals(ErrorCodes.ERR_INVALID_ERROR_DETAILS.name(), getResponseErrorCode(result));
+                    assertEquals(ErrorCodes.ERR_INVALID_PAYLOAD.name(), getResponseErrorCode(result));
                 });
     }
 
