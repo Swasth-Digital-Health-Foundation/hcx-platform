@@ -87,7 +87,7 @@ public class BaseSpec {
         obj.put("x-hcx-error_details", new HashMap<String,Object>() {{
             put("code","ERR_INVALID_ENCRYPTION");
             put("message","Recipient Invalid Encryption");
-            put("trace","");
+            put("trace","test");
         }});
         return JSONUtils.serialize(obj);
     }
