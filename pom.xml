@@ -17,6 +17,7 @@
     <modules>
         <module>hcx-apis</module>
         <module>hcx-core</module>
+        <module>api-gateway</module>
     </modules>
 
 </project>

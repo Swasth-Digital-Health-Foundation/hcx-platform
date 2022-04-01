@@ -46,7 +46,7 @@ public class ApiGatewayApplication {
 
 	@SuppressWarnings("rawtypes, unchecked")
 	@Bean
-	public Map<String, Acl> aclMap(@Value("${rbac.path}") String filename) throws IOException {
+	public Map<String, Acl> aclMap(@Value("${rbac.path:classpath:rbac.yaml}") String filename) throws IOException {
 		Resource resource = resourceLoader.getResource(filename);
 		ObjectMapper yamlReader = new ObjectMapper(new YAMLFactory());
 		Map<String, Object> obj = yamlReader.readValue(resource.getInputStream(), Map.class);
