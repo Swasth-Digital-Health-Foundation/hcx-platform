@@ -11,7 +11,7 @@ headers:
 
 #rbac config
 rbac:
-  path: ${RBAC_PATH}
+  path: ${RBAC_PATH:classpath:rbac.yaml}
 
 #hcx error headers
 plainrequest:
