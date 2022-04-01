@@ -19,7 +19,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 public class AuditServiceTest extends BaseSpec {
 
     @Test
-    public void check_audit_server_success_scenario() throws Exception {
+    public void check_audit_server_exception_scenario() throws Exception {
         server.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("[{\"test\":\"123\"}]")
