@@ -32,10 +32,11 @@ public class HeaderAudit {
 	private String status;
 	private List<String> senderRole;
 	private List<String> recipientRole;
+	private String payload;
 
 	public HeaderAudit() {}
 
-	public HeaderAudit(String eid, Object error_details, Object debug_details, String recipient_code, String sender_code, String api_call_id, String workflow_id, String correlation_id, String timestamp, long requestTimeStamp, long auditTimeStamp, long updatedTimestamp, String action, String mid, String status, List<String> senderRole, List<String> recipientRole) {
+	public HeaderAudit(String eid, Object error_details, Object debug_details, String recipient_code, String sender_code, String api_call_id, String workflow_id, String correlation_id, String timestamp, long requestTimeStamp, long auditTimeStamp, long updatedTimestamp, String action, String mid, String status, List<String> senderRole, List<String> recipientRole, String payload) {
 		this.eid = eid;
 		this.error_details = error_details;
 		this.debug_details = debug_details;
@@ -53,6 +54,7 @@ public class HeaderAudit {
 		this.status = status;
 		this.senderRole = senderRole;
 		this.recipientRole = recipientRole;
+		this.payload =	payload;
 	}
 	public String getEid() {
 		return eid;
@@ -155,5 +157,11 @@ public class HeaderAudit {
 	}
 	public void setRecipientRole(List<String> recipientRole) {
 		this.recipientRole = recipientRole;
+	}
+	public String getPayload() {
+		return payload;
+	}
+	public void setPayload(String payload) {
+		this.payload = payload;
 	}
 }

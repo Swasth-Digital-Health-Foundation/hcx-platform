@@ -23,6 +23,7 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
 
   var postgresConnect: PostgresConnect = null
   var esUtil: ElasticSearchUtil = null
+  var payload: util.Map[String, AnyRef] = _
 
 
   override def open(parameters: Configuration): Unit = {
@@ -131,7 +132,7 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
 
         if (validationResult.status) {
           metrics.incCounter(metric = config.dispatcherValidationSuccessCount)
-          val payload = getPayload(payloadRefId);
+          payload = getPayload(payloadRefId);
           val payloadJSON = JSONUtil.serialize(payload);
           val result = dispatcherUtil.dispatch(recipientCtx, payloadJSON)
           logger.info("result::" + result)
@@ -224,13 +225,29 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
     audit.put(Constants.AUDIT_TIMESTAMP, Calendar.getInstance().getTime())
     audit.put(Constants.SENDER_ROLE, getCDataListValue(event, Constants.SENDER, Constants.ROLES))
     audit.put(Constants.RECIPIENT_ROLE, getCDataListValue(event, Constants.RECIPIENT, Constants.ROLES))
+    audit.put(Constants.PAYLOAD, removeEncryptionKey(payload))
     audit
+  }
+
+  def removeEncryptionKey(payload: util.Map[String, AnyRef]): String = {
+    if (payload.containsKey(Constants.PAYLOAD)) {
+      val modifiedPayload = payload.get(Constants.PAYLOAD).asInstanceOf[String].split("\\.").toBuffer
+      modifiedPayload.remove(1)
+      val payloadValues: Array[String] = modifiedPayload.toArray
+      val sb = new StringBuffer()
+      for (value <- payloadValues) {
+        sb.append(value).append(".")
+      }
+      sb.deleteCharAt(sb.length() - 1).toString
+    } else {
+      JSONUtil.serialize(payload)
+    }
   }
 
   def indexAudit(auditEvent: util.Map[String, AnyRef]): Unit ={
     try {
       val settings = "{ \"index\": { } }"
-      val mappings = "{ \"properties\": { \"x-hcx-sender_code\": { \"type\": \"keyword\" }, \"x-hcx-recipient_code\": { \"type\": \"keyword\" }, \"x-hcx-api_call_id\": { \"type\": \"keyword\" }, \"x-hcx-correlation_id\": { \"type\": \"keyword\" }, \"x-hcx-workflow_id\": { \"type\": \"keyword\" }, \"x-hcx-timestamp\": { \"type\": \"keyword\" }, \"mid\": { \"type\": \"keyword\" }, \"action\": { \"type\": \"keyword\" }, \"x-hcx-status\": { \"type\": \"keyword\" }, \"auditTimeStamp\": { \"type\": \"keyword\" }, \"requestTimeStamp\": { \"type\": \"keyword\" }, \"updatedTimestamp\": { \"type\": \"keyword\" }, \"error_details\": { \"type\": \"object\" }, \"debug_details\": { \"type\": \"object\" }, \"senderRole\": { \"type\": \"keyword\" }, \"recipientRole\": { \"type\": \"keyword\" } } }"
+      val mappings = "{ \"properties\": { \"x-hcx-sender_code\": { \"type\": \"keyword\" }, \"x-hcx-recipient_code\": { \"type\": \"keyword\" }, \"x-hcx-api_call_id\": { \"type\": \"keyword\" }, \"x-hcx-correlation_id\": { \"type\": \"keyword\" }, \"x-hcx-workflow_id\": { \"type\": \"keyword\" }, \"x-hcx-timestamp\": { \"type\": \"keyword\" }, \"mid\": { \"type\": \"keyword\" }, \"action\": { \"type\": \"keyword\" }, \"x-hcx-status\": { \"type\": \"keyword\" }, \"auditTimeStamp\": { \"type\": \"keyword\" }, \"requestTimeStamp\": { \"type\": \"keyword\" }, \"updatedTimestamp\": { \"type\": \"keyword\" }, \"error_details\": { \"type\": \"object\" }, \"debug_details\": { \"type\": \"object\" }, \"senderRole\": { \"type\": \"keyword\" }, \"recipientRole\": { \"type\": \"keyword\" }, \"payload\": { \"type\": \"text\" } } }"
       val cal = Calendar.getInstance(TimeZone.getTimeZone(config.timeZone))
       cal.setTime(auditEvent.get(Constants.AUDIT_TIMESTAMP).asInstanceOf[Date])
       val indexName = config.auditIndex + "_" + cal.get(Calendar.YEAR) + "_" + cal.get(Calendar.WEEK_OF_YEAR)
