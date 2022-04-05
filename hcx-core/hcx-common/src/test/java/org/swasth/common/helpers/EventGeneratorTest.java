@@ -3,13 +3,13 @@ package org.swasth.common.helpers;
 
 import org.junit.Test;
 import org.swasth.common.dto.Request;
+import org.swasth.common.utils.Constants;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 
 public class EventGeneratorTest {
@@ -44,6 +44,12 @@ public class EventGeneratorTest {
     public void check_generateMetadataEvent_JSON_Empty_Headers() throws Exception {
         String result = eventGenerator.generateMetadataEvent("test", "/test", getJSONRequest(""));
         assertNotNull(result);
+    }
+
+    @Test
+    public void check_generateAuditEvent() throws Exception {
+        Map<String,Object> result = eventGenerator.generateAuditEvent("test", "/test", getRequest());
+        assertEquals("test", result.get(Constants.MID));
     }
 
     public Request getRequest() throws Exception {
