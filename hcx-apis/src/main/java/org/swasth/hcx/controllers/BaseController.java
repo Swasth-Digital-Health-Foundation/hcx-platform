@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.swasth.auditindexer.function.AuditIndexer;
 import org.swasth.common.dto.Request;
 import org.swasth.common.dto.Response;
 import org.swasth.common.dto.ResponseError;
@@ -41,6 +42,9 @@ public class BaseController {
     @Autowired
     protected HeaderAuditService auditService;
 
+    @Autowired
+    private AuditIndexer auditIndexer;
+
     @Value("${postgres.tablename}")
     private String postgresTableName;
 
@@ -64,6 +68,7 @@ public class BaseController {
             postgreSQLClient.execute(query);
             kafkaClient.send(payloadTopic, key, payloadEvent);
             kafkaClient.send(metadataTopic, key, metadataEvent);
+            auditIndexer.createDocument(eventGenerator.generateAuditEvent(mid, apiAction, request));
         }
     }
 

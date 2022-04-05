@@ -4,9 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.swasth.common.dto.Request;
 import org.swasth.common.utils.JSONUtils;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.swasth.common.utils.Constants.*;
 
@@ -80,4 +78,31 @@ public class EventGenerator {
         }
         return JSONUtils.serialize(event);
     }
+
+    public Map<String,Object> generateAuditEvent(String mid, String apiAction, Request request) {
+        Map<String,Object> event = new HashMap<>();
+        event.put(EID, AUDIT);
+        event.put(RECIPIENT_CODE, request.getRecipientCode());
+        event.put(SENDER_CODE, request.getSenderCode());
+        event.put(API_CALL_ID, request.getApiCallId());
+        event.put(CORRELATION_ID, request.getCorrelationId());
+        event.put(WORKFLOW_ID, request.getWorkflowId());
+        event.put(TIMESTAMP, request.getTimestamp());
+        event.put(ERROR_DETAILS, request.getErrorDetails());
+        event.put(DEBUG_DETAILS, request.getDebugDetails());
+        event.put(MID, mid);
+        event.put(ACTION, apiAction);
+        if(request.getStatus() == null)
+            event.put(STATUS, QUEUED_STATUS);
+        else
+            event.put(STATUS, request.getStatus());
+        event.put(REQUESTED_TIME, System.currentTimeMillis());
+        event.put(UPDATED_TIME, System.currentTimeMillis());
+        event.put(AUDIT_TIMESTAMP, System.currentTimeMillis());
+        event.put(SENDER_ROLE, new ArrayList<>());
+        event.put(RECIPIENT_ROLE, new ArrayList<>());
+        event.put(PAYLOAD, "");
+        return  event;
+    }
+
 }
