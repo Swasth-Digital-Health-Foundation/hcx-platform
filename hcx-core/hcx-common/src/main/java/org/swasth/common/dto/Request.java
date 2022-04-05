@@ -74,11 +74,11 @@ public class Request {
         return (Map<String, Object>) hcxHeaders.getOrDefault(key, null);
     }
 
-    public Map<String, Object> getErrorDetails() {
+    private Map<String, Object> getErrorDetails() {
         return getHeaderMap(ERROR_DETAILS);
     }
 
-    public Map<String, Object> getDebugDetails() {
+    private Map<String, Object> getDebugDetails() {
         return getHeaderMap(DEBUG_DETAILS);
     }
 
