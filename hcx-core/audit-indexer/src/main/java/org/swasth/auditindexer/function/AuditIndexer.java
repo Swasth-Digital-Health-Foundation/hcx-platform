@@ -29,7 +29,6 @@ public class AuditIndexer {
             esUtil.addDocumentWithIndex(mapper.writeValueAsString(event), indexName, mid);
             System.out.println("Audit document created for mid: " + mid);
         } catch (Exception e) {
-            e.printStackTrace();
             throw new Exception("Error while processing event :: " + event + " :: " + e.getMessage());
         }
     }
