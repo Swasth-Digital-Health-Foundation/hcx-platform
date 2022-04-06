@@ -17,14 +17,17 @@ import org.springframework.data.elasticsearch.repository.config.EnableElasticsea
 //@ComponentScan(basePackages = {"org.swasth.hcx"})
 public class ElasticSearchConfiguration extends AbstractElasticsearchConfiguration {
 
-    @Value("${elasticsearch.url}")
-    public String elasticsearchUrl;
+    @Value("${es.host}")
+    public String esHost;
+
+    @Value("${es.port}")
+    public String esPort;
 
     @Bean
     @Override
     public RestHighLevelClient elasticsearchClient() {
         final ClientConfiguration config = ClientConfiguration.builder()
-                .connectedTo(elasticsearchUrl)
+                .connectedTo(esHost + ":" + esPort)
                 .build();
 
         return RestClients.create(config).rest();
