@@ -1,6 +1,7 @@
 package org.swasth.apigateway.service;
 
 import org.swasth.apigateway.cache.RedisCache;
+import org.swasth.apigateway.constants.Constants;
 import org.swasth.apigateway.exception.ErrorCodes;
 import org.swasth.apigateway.exception.ServerException;
 import org.swasth.apigateway.utils.HttpUtils;
@@ -28,6 +29,9 @@ public class RegistryService {
     @Value("${registry.basePath}")
     private String registryUrl;
 
+    @Value("${redis.expires}")
+    private int redisExpires;
+
     public Map<String,Object> fetchDetails(String filterKey, String filterValue) throws Exception {
         try {
             Map<String,Object> details;
@@ -35,7 +39,7 @@ public class RegistryService {
                 details = JSONUtils.deserialize(redisCache.get(filterValue), HashMap.class);
             } else {
                 details = getDetails(filterKey, filterValue);
-                redisCache.set(filterValue, JSONUtils.serialize(details));
+                redisCache.set(filterValue, JSONUtils.serialize(details), redisExpires);
             }
             return details;
         } catch (ServerException e) {

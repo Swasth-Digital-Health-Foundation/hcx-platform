@@ -9,10 +9,10 @@ import redis.clients.jedis.Jedis;
 @Service
 public class RedisCache extends RedisConnector {
 
-    public void set(String key, String value) throws Exception {
+    public void set(String key, String value, int ttl) throws Exception {
         Jedis jedis = getConnection();
         try{
-            jedis.setex(key, Constants.REDIS_KEYS_EXPIRE, value);
+            jedis.setex(key, ttl, value);
         } catch (Exception e) {
             throw new ServerException(ErrorCodes.INTERNAL_SERVER_ERROR, "Exception Occurred While Saving Data to Redis Cache for Key : " + key + "| Exception is:" + e);
         }

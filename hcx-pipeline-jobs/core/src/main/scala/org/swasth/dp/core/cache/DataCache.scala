@@ -127,9 +127,9 @@ class DataCache(val config: BaseJobConfig, val redisConnect: RedisConnect, val d
     }
   }
 
-  def hmSet(key: String, value: String): Unit = {
+  def hmSet(key: String, value: String, ttl: Int): Unit = {
     try {
-      redisConnection.setex(key, Constants.REDIS_KEYS_EXPIRE,value)
+      redisConnection.setex(key, ttl, value)
     } catch {
       case ex: JedisException => {
         logger.error("Exception when inserting data to redis cache", ex)
