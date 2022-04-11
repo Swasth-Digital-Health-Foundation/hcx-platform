@@ -124,7 +124,7 @@ abstract class BaseProcessFunction[T, R](config: BaseJobConfig) extends ProcessF
         Console.println("Could not find the details in cache for code:" + code)
         val collectionMap = getDetails(code)
         if (!collectionMap.isEmpty) // Add the registry data into cache if it is not empty
-          registryDataCache.hmSet(code, JSONUtil.serialize(collectionMap))
+          registryDataCache.hmSet(code, JSONUtil.serialize(collectionMap), config.redisExpires)
         collectionMap
       }
     } catch {

@@ -1,10 +1,10 @@
 package org.swasth.dp.core.cache
 
 import java.util
-
 import com.google.gson.Gson
 import org.slf4j.LoggerFactory
 import org.swasth.dp.core.job.BaseJobConfig
+import org.swasth.dp.core.util.Constants
 import redis.clients.jedis.Jedis
 import redis.clients.jedis.exceptions.{JedisConnectionException, JedisException}
 
@@ -127,9 +127,9 @@ class DataCache(val config: BaseJobConfig, val redisConnect: RedisConnect, val d
     }
   }
 
-  def hmSet(key: String, value: String): Unit = {
+  def hmSet(key: String, value: String, ttl: Int): Unit = {
     try {
-      redisConnection.setnx(key, value)
+      redisConnection.setex(key, ttl, value)
     } catch {
       case ex: JedisException => {
         logger.error("Exception when inserting data to redis cache", ex)
@@ -156,7 +156,7 @@ class DataCache(val config: BaseJobConfig, val redisConnect: RedisConnect, val d
   }
 
   def set(key: String, value: String): Unit = {
-    redisConnection.set(key, value)
+    redisConnection.setex(key, Constants.REDIS_KEYS_EXPIRE, value)
   }
 
   def sMembers(key: String): util.Set[String] = {
