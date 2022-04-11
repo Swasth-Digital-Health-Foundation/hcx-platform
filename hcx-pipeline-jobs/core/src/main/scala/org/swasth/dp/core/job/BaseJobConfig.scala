@@ -37,6 +37,7 @@ class BaseJobConfig(val config: Config, val jobName: String) extends Serializabl
   val redisConnectionTimeout: Int = Option(config.getInt("redisdb.connection.timeout")).getOrElse(30000)
   val redisAssetStore: Int = Option(config.getInt("redisdb.assetstore.id")).getOrElse(0)
   val senderReceiverFields = List("signing_cert_path", "primary_mobile","encryption_cert", "endpoint_url", "participant_name","status","roles")
+  val redisExpires: Int = Option(config.getInt("redis.expires")).getOrElse(3600)
 
   val metaRedisHost: String = Option(config.getString("redis-meta.host")).getOrElse("localhost")
   val metaRedisPort: Int = Option(config.getInt("redis-meta.port")).getOrElse(6379)

@@ -54,6 +54,13 @@ public class Constants {
     public static final String DOMAIN = "domain";
     public static final String RETRY_COUNT = "retryCount";
     public static final String RETRY_INDEX = "retryIndex";
+    public static final String EID = "eid";
+    public static final String AUDIT = "AUDIT";
+    public static final String SENDER_ROLE = "senderRole";
+    public static final String RECIPIENT_ROLE = "recipientRole";
+    public static final String AUDIT_TIMESTAMP = "requestTimeStamp";
+    public static final String UPDATED_TIME = "updatedTimestamp";
+    public static final String REQUESTED_TIME = "auditTimeStamp";
 
     //Request props
     public static final String PROTOCOL_HEADERS_MANDATORY = "protocol.headers.mandatory";
