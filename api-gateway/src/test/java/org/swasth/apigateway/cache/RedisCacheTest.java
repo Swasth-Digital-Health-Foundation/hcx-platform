@@ -9,7 +9,6 @@ import org.springframework.test.context.ActiveProfiles;
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest(classes = RedisCache.class)
 @ActiveProfiles("test")
