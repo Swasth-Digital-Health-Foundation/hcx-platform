@@ -111,7 +111,7 @@ public class BaseRequest {
         if(roles.contains(hcxRoles)) {
             throw new ClientException(code, participant + " role is not be sent as recipient in the incoming requests");
         }
-        if(StringUtils.equals((String) details.get(REGISTRY_STATUS), BLOCKED) || StringUtils.equals((String) details.get("status"), INACTIVE)){
+        if(StringUtils.equals((String) details.get(REGISTRY_STATUS), BLOCKED) || StringUtils.equals((String) details.get(REGISTRY_STATUS), INACTIVE)){
             throw new ClientException(code, participant + "  is blocked or inactive as per the registry");
         }
     }
