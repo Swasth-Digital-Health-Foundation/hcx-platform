@@ -17,6 +17,7 @@
         <module>hcx-common</module>
         <module>kafka-client</module>
         <module>postgresql-client</module>
+        <module>audit-indexer</module>
     </modules>
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
