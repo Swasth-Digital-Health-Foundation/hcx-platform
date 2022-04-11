@@ -54,7 +54,7 @@ public class RedisCacheTest {
 
     @Test
     public void testIsExistException() {
-        Exception exception = assertThrows(Exception.class, () -> {
+        Exception exception = assertThrows(Exception.class,() -> {
             redis.isExists("test");
         });
         assertEquals("Exception occurred while checking key exist or not in Redis Cache: test| Exception is:redis.clients.jedis.exceptions.JedisConnectionException: Unexpected character!", exception.getMessage());
