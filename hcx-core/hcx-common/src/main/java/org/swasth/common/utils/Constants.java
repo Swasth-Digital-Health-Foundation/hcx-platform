@@ -80,6 +80,8 @@ public class Constants {
     public static final String SERVICE_MODE = "service.mode";
     public static final String GATEWAY = "gateway";
     public static final String KAFKA_TOPIC_PAYLOAD = "kafka.topic.payload";
+    public static final String ENDPOINT_URL = "endpoint_url";
+    public static final String HCX_NOT_ALLOWED_URLS = "hcx.urls.notallowed";
 
     public static final String HEADER_AUDIT = "hcx_audit";
     public static final String PAYOR = "payor";

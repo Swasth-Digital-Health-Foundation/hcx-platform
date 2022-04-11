@@ -51,3 +51,8 @@ redirect:
   headers:
     mandatory: ${redirect_mandatory_headers:x-hcx-sender_code, x-hcx-recipient_code, x-hcx-api_call_id, x-hcx-timestamp, x-hcx-correlation_id, x-hcx-status, x-hcx-redirect_to}
     optional: ${redirect_optional_headers:x-hcx-workflow_id}
+
+#hcx not allowed urls
+hcx:
+  urls:
+    notallowed: ${not_allowed_urls:http://a54c5bc648f1a41b8871b77ac01060ed-1840123973.ap-south-1.elb.amazonaws.com:8080,http://a851b026063934683964f22c6732f177-1969328968.ap-south-1.elb.amazonaws.com:8095}

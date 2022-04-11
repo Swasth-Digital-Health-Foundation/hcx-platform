@@ -45,6 +45,8 @@ redis:
 
 registry:
   basePath: ${REGISTRY_BASE_PATH:http://a0b2bab079318431d8ca99f1efb1c25c-874274596.ap-south-1.elb.amazonaws.com:8081}
+  hcxCode: ${REGISTRY_HCX_CODE:1-d2d56996-1b77-4abb-b9e9-0e6e7343c72e}
+  hcxRoles: ${REGISTRY_HCX_ROLE:HIE/HIO.HCX}
 
 hcx-api:
   basePath: ${HCX_API_BASEPATH:http://localhost:8080}

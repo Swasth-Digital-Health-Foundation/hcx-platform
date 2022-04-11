@@ -12,10 +12,7 @@ import org.swasth.common.exception.ErrorCodes;
 import org.swasth.common.utils.HttpUtils;
 import org.swasth.common.utils.JSONUtils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static org.swasth.common.utils.Constants.*;
 
@@ -34,6 +31,12 @@ public class ParticipantController  extends BaseController {
         }
         if (!((ArrayList) requestBody.get(ROLES)).contains(PAYOR) && requestBody.containsKey(SCHEME_CODE)) {
             return new ResponseEntity<>(errorResponse(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, "unknown property, 'scheme_code' is not allowed", null), HttpStatus.BAD_REQUEST);
+        }
+
+        List<String> notAllowedUrls = env.getProperty(HCX_NOT_ALLOWED_URLS, List.class, new ArrayList<String>());
+
+        if (notAllowedUrls.contains(requestBody.get(ENDPOINT_URL))){
+            return new ResponseEntity<>(errorResponse(ErrorCodes.ERR_INVALID_PAYLOAD, "end point url should not be the HCX Gateway/APIs URL", null), HttpStatus.BAD_REQUEST);
         }
         String url =  registryUrl + "/api/v1/Organisation/invite";
         Map<String, String> headersMap = new HashMap<>();

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import lombok.Data;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.swasth.apigateway.exception.ClientException;
 import org.swasth.apigateway.exception.ErrorCodes;
 import org.swasth.apigateway.utils.DateTimeUtils;
@@ -24,6 +25,12 @@ public class BaseRequest {
     private boolean isJSONRequest;
     private String apiAction;
     private Map<String,Object> protocolHeaders;
+
+    @Value("${registry.hcxCode}")
+    private String hcxCode;
+
+    @Value("${registry.hcxRoles}")
+    private String hcxRoles;
 
     public BaseRequest(){}
 
@@ -92,9 +99,19 @@ public class BaseRequest {
     }
 
     protected void validateParticipant(Map<String,Object> details, ErrorCodes code, String participant) throws ClientException {
+        String participantCode = "1" + (String) details.get("participant_code");
+        ArrayList roles = (ArrayList) details.get("roles");
+
         if(details.isEmpty()){
             throw new ClientException(code, participant + " does not exist in registry");
-        } else if(StringUtils.equals((String) details.get("status"), BLOCKED) || StringUtils.equals((String) details.get("status"), INACTIVE)){
+        }
+        if(participantCode == hcxCode) {
+            throw new ClientException(code, participant + " should not be sent as recipient in the incoming requests");
+        }
+        if(roles.contains(hcxRoles)) {
+            throw new ClientException(code, participant + " role is not be sent as recipient in the incoming requests");
+        }
+        if(StringUtils.equals((String) details.get("status"), BLOCKED) || StringUtils.equals((String) details.get("status"), INACTIVE)){
             throw new ClientException(code, participant + "  is blocked or inactive as per the registry");
         }
     }
