@@ -105,7 +105,7 @@ public class BaseRequest {
         if(details.isEmpty()){
             throw new ClientException(code, participant + " does not exist in registry");
         }
-        if(participantCode == hcxCode) {
+        if(participantCode.equals(hcxCode)) {
             throw new ClientException(code, participant + " should not be sent as recipient in the incoming requests");
         }
         if(roles.contains(hcxRoles)) {
