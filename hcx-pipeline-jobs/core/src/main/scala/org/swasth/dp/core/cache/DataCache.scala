@@ -156,7 +156,7 @@ class DataCache(val config: BaseJobConfig, val redisConnect: RedisConnect, val d
   }
 
   def set(key: String, value: String): Unit = {
-    redisConnection.setex(key, Constants.REDIS_KEYS_EXPIRE, value)
+    redisConnection.setex(key, config.redisExpires, value)
   }
 
   def sMembers(key: String): util.Set[String] = {
