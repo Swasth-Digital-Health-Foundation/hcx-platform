@@ -35,13 +35,11 @@ class RedisCacheTest {
     @Test
     void testSet() throws Exception {
         redis.set("test","test",10000000);
-        assertEquals(true, true);
     }
 
     @Test
     void testGet() throws Exception {
         redis.get("test");
-        assertEquals("test", "test");
     }
 
 //    @Test
