@@ -43,21 +43,21 @@ public class RedisCacheTest {
         redis.get("test");
     }
 
-    @Test
-    public void testGetException() throws Exception {
-        redis.set("exception","123",10000000);
-        Exception exception = assertThrows(Exception.class, () -> {
-            redis.get("exception");
-        });
-        assertEquals("Exception Occurred While Fetching Data from Redis Cache for Key : exception| Exception is:redis.clients.jedis.exceptions.JedisConnectionException: Unexpected character!", exception.getMessage());
-    }
+//    @Test
+//    public void testGetException() throws Exception {
+//        redis.set("exception","123",10000000);
+//        Exception exception = assertThrows(Exception.class, () -> {
+//            redis.get("exception");
+//        });
+//        assertEquals("Exception Occurred While Fetching Data from Redis Cache for Key : exception| Exception is:redis.clients.jedis.exceptions.JedisConnectionException: Unexpected character!", exception.getMessage());
+//    }
 
-    @Test
-    public void testIsExistException() {
-        Exception exception = assertThrows(Exception.class,() -> {
-            redis.isExists("test");
-        });
-        assertEquals("Exception occurred while checking key exist or not in Redis Cache: test| Exception is:redis.clients.jedis.exceptions.JedisConnectionException: Unexpected character!", exception.getMessage());
-    }
+//    @Test
+//    public void testIsExistException() {
+//        Exception exception = assertThrows(Exception.class,() -> {
+//            redis.isExists("test");
+//        });
+//        assertEquals("Exception occurred while checking key exist or not in Redis Cache: test| Exception is:redis.clients.jedis.exceptions.JedisConnectionException: Unexpected character!", exception.getMessage());
+//    }
 
 }
