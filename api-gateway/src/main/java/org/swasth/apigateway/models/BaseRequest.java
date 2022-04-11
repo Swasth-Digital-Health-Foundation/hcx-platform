@@ -100,7 +100,7 @@ public class BaseRequest {
 
     protected void validateParticipant(Map<String,Object> details, ErrorCodes code, String participant) throws ClientException {
         String participantCode = "1" + (String) details.get("participant_code");
-        ArrayList roles = (ArrayList) details.get("roles");
+        ArrayList<String> roles = (ArrayList) details.get("roles");
 
         if(details.isEmpty()){
             throw new ClientException(code, participant + " does not exist in registry");
@@ -111,7 +111,7 @@ public class BaseRequest {
         if(roles.contains(hcxRoles)) {
             throw new ClientException(code, participant + " role is not be sent as recipient in the incoming requests");
         }
-        if(StringUtils.equals((String) details.get("status"), BLOCKED) || StringUtils.equals((String) details.get("status"), INACTIVE)){
+        if(StringUtils.equals((String) details.get(REGISTRY_STATUS), BLOCKED) || StringUtils.equals((String) details.get("status"), INACTIVE)){
             throw new ClientException(code, participant + "  is blocked or inactive as per the registry");
         }
     }
