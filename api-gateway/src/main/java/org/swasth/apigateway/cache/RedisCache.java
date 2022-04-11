@@ -1,6 +1,5 @@
 package org.swasth.apigateway.cache;
 
-import org.swasth.apigateway.constants.Constants;
 import org.swasth.apigateway.exception.ErrorCodes;
 import org.swasth.apigateway.exception.ServerException;
 import org.springframework.stereotype.Service;
