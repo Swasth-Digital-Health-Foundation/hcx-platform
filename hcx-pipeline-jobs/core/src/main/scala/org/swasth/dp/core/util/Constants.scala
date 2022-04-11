@@ -82,8 +82,4 @@ object Constants {
   val IAT = "iat"
   val EXP = "exp"
 
-  //REDIS
-  val REDIS_KEYS_EXPIRE = 86400
-
-
 }
