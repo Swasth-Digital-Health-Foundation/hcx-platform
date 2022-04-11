@@ -86,5 +86,4 @@ public class Constants {
     public static final String COMPLETE_STATUS = "response.complete";
     public static final List<String> EXCLUDE_ENTITIES = Arrays.asList("communication", "payment","notification");
     public static final List<String> RESPONSE_STATUS_VALUES = Arrays.asList(COMPLETE_STATUS, "response.partial", ERROR_RESPONSE, REDIRECT_STATUS);
-    public static final Integer REDIS_KEYS_EXPIRE = 3600;
 }
