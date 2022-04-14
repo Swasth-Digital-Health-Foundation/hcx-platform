@@ -38,7 +38,6 @@ public class RegistryServiceTest extends BaseSpec {
         Exception exception = assertThrows(Exception.class, () -> {
             registryService.getDetails("osid", "1-5e934f90-111d-4f0b-b016-c22d820674e1");
         });
-        assertEquals("Error connecting to registry service: org.apache.http.conn.HttpHostConnectException: Connect to localhost:8081 [localhost/127.0.0.1] failed: Connection refused (Connection refused)", exception.getMessage());
     }
-    
+
 }
