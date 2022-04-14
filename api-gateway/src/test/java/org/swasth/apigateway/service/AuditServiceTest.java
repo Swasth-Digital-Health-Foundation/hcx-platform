@@ -4,6 +4,7 @@ import okhttp3.mockwebserver.MockResponse;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.swasth.apigateway.BaseSpec;
 import org.swasth.apigateway.constants.Constants;
@@ -18,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 
-
+@ContextConfiguration
 public class AuditServiceTest extends BaseSpec {
 
     @Test
