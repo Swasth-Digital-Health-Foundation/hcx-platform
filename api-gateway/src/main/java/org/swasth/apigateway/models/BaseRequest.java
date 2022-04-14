@@ -105,13 +105,13 @@ public class BaseRequest {
         if(details.isEmpty()){
             throw new ClientException(code, participant + " does not exist in registry");
         }
-        if(participantCode.equals(hcxCode)) {
-            throw new ClientException(code, participant + " should not be sent as recipient in the incoming requests");
+        else if(participantCode.equals(hcxCode)) {
+            throw new ClientException(code, participant + " should not be sent as sender/recipient in the incoming requests");
         }
-        if(roles.contains(hcxRoles)) {
+        else if(roles.contains(hcxRoles)) {
             throw new ClientException(code, participant + " role is not be sent as recipient in the incoming requests");
         }
-        if(StringUtils.equals((String) details.get(REGISTRY_STATUS), BLOCKED) || StringUtils.equals((String) details.get(REGISTRY_STATUS), INACTIVE)){
+        else if(StringUtils.equals((String) details.get(REGISTRY_STATUS), BLOCKED) || StringUtils.equals((String) details.get(REGISTRY_STATUS), INACTIVE)){
             throw new ClientException(code, participant + "  is blocked or inactive as per the registry");
         }
     }
