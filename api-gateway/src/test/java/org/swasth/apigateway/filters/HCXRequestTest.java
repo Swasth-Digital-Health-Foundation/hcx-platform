@@ -188,6 +188,30 @@ public class HCXRequestTest extends BaseSpec {
     }
 
     @Test
+    public void check_hcx_request_audit_service_fetching_exception_scenario() throws Exception {
+        server.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{}")
+                .addHeader("Content-Type", "application/json"));
+
+        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
+                .thenReturn(getProviderDetails())
+                .thenReturn(getPayorDetails());
+        Mockito.when(auditService.getAuditLogs(any())).thenCallRealMethod();
+        ReflectionTestUtils.setField(auditService, "hcxApiUrl", "http://localhost:8080");
+
+        client.post().uri("/v1/coverageeligibility/check")
+                .header(Constants.AUTHORIZATION, getProviderToken())
+                .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
+                .bodyValue(getRequestBody())
+                .exchange()
+                .expectBody(Map.class)
+                .consumeWith(result -> {
+                    assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatus());
+                });
+    }
+
+    @Test
     public void check_hcx_request_invalid_payload_scenario() {
         client.post().uri("/v1/coverageeligibility/check")
                 .header(Constants.AUTHORIZATION, getProviderToken())
