@@ -9,11 +9,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.swasth.common.dto.*;
 import org.swasth.common.exception.ClientException;
-import org.swasth.common.exception.ErrorCodes;
-import org.swasth.common.exception.ServiceUnavailbleException;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.hcx.controllers.BaseController;
-import org.swasth.hcx.managers.HealthCheckManager;
 
 import java.util.HashMap;
 import java.util.List;
@@ -28,6 +25,9 @@ public class StatusController extends BaseController {
     @Value("${kafka.topic.status}")
     private String topic;
 
+    @Value("${allowedEntitiesForStatusSearch}")
+    private List<String> allowedEntitiesForStatusSearch;
+
     @RequestMapping(value = "/status", method = RequestMethod.POST)
     public ResponseEntity<Object> status(@RequestBody Map<String, Object> requestBody) throws Exception {
         Response response = new Response();
@@ -35,34 +35,25 @@ public class StatusController extends BaseController {
             checkSystemHealth();
             Request request = new Request(requestBody);
             setResponseParams(request, response);
-            Map<String, Object> hcxHeaders = request.getHcxHeaders();
-            // TODO: filter properties validation
-            if (!hcxHeaders.containsKey(STATUS_FILTERS) || ((Map<String, Object>) hcxHeaders.get(STATUS_FILTERS)).isEmpty()) {
-                throw new ClientException("Invalid request, status filters is missing or empty.");
-            }
-            List<HeaderAudit> auditResponse = auditService.search(new SearchRequestDTO((Map<String, String>) hcxHeaders.get(STATUS_FILTERS)));
+            Map<String,String> auditFilters = new HashMap<>();
+            auditFilters.put(SENDER_CODE, request.getSenderCode());
+            auditFilters.put(CORRELATION_ID, request.getCorrelationId());
+            List<HeaderAudit> auditResponse = auditService.search(new SearchRequestDTO(auditFilters));
             if(auditResponse.isEmpty()){
-                throw new ClientException("Invalid api call id is passed in status filters, details not found");
+                throw new ClientException("Invalid correlation id, details do not exist");
             }
-            // Assuming a single result will be fetched for given api_call_id
-            HeaderAudit auditData = auditResponse.get(0);
-            if (!hcxHeaders.get(SENDER_CODE).equals(auditData.getSender_code())) {
-                throw new ClientException("Request does not belongs to sender");
-            }
+            HeaderAudit auditData = auditResponse.get(auditResponse.size()-1);
             String entityType = auditData.getAction().split("/")[2];
-            if (!STATUS_SEARCH_ALLOWED_ENTITIES.contains(entityType)) {
-                throw new ClientException("Invalid entity, status search allowed only for entities: " + STATUS_SEARCH_ALLOWED_ENTITIES);
+            if (!allowedEntitiesForStatusSearch.contains(entityType)) {
+                throw new ClientException("Invalid entity, status search allowed only for entities: " + allowedEntitiesForStatusSearch);
             }
-            StatusResponse statusResponse = new StatusResponse(entityType, auditData.getSender_code(), auditData.getRecipient_code(), (String) auditData.getStatus());
+            StatusResponse statusResponse = new StatusResponse(entityType, auditData.getSender_code(), auditData.getRecipient_code(), auditData.getStatus());
             Map<String,Object> statusResponseMap = JSONUtils.convert(statusResponse, HashMap.class);
-            if (auditData.getStatus().equals("request.queued")) {
+            if (auditData.getStatus().equals(QUEUED_STATUS)) {
                 response.setResult(statusResponseMap);
-            } else if (auditData.getStatus().equals("request.dispatched")) {
+            } else if (auditData.getStatus().equals(DISPATCHED_STATUS)) {
                 response.setResult(statusResponseMap);
                 processAndSendEvent(HCX_STATUS, topic, request);
-            } else {
-                // TODO: handle for other status
-                System.out.println("TODO for status " + auditData.getStatus());
             }
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
@@ -77,11 +68,6 @@ public class StatusController extends BaseController {
             checkSystemHealth();
             Request request = new Request(requestBody);
             setResponseParams(request, response);
-            Map<String, Object> hcxHeaders = request.getHcxHeaders();
-            if(!hcxHeaders.containsKey(STATUS_RESPONSE) || ((Map<String, Object>) hcxHeaders.get(STATUS_RESPONSE)).isEmpty()) {
-                throw new ClientException("Invalid request, status response is missing or empty.");
-            }
-            // TODO: status response property validation
             processAndSendEvent(HCX_ONSTATUS, topic, request);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
