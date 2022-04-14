@@ -17,6 +17,7 @@ import org.swasth.apigateway.utils.JSONUtils;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.time.Duration;
 import java.util.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -41,7 +42,7 @@ public class BaseSpec {
 
     @BeforeEach
     public void setup() throws IOException {
-        client = WebTestClient.bindToServer().baseUrl("http://localhost:" + port).build();
+        client = WebTestClient.bindToServer().baseUrl("http://localhost:" + port).responseTimeout(Duration.ofSeconds(30)).build();
         server.start(InetAddress.getByName("localhost"),8080);
     }
 
