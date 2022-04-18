@@ -1,12 +1,9 @@
 package org.swasth.apigateway;
 
-import com.auth0.jwt.JWTVerifier;
-import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.web.server.LocalServerPort;
@@ -16,11 +13,11 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.swasth.apigateway.cache.RedisCache;
 import org.swasth.apigateway.service.AuditService;
 import org.swasth.apigateway.service.RegistryService;
-import org.swasth.apigateway.utils.HttpUtils;
 import org.swasth.apigateway.utils.JSONUtils;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.time.Duration;
 import java.util.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -38,12 +35,6 @@ public class BaseSpec {
     @MockBean
     protected RedisCache redisCache;
 
-    @MockBean
-    protected JWTVerifier jwtVerifier;
-
-    @Mock
-    protected DecodedJWT decodedJWT;
-
     @LocalServerPort
     protected int port;
 
@@ -51,8 +42,8 @@ public class BaseSpec {
 
     @BeforeEach
     public void setup() throws IOException {
-        client = WebTestClient.bindToServer().baseUrl("http://localhost:" + port).build();
-        server.start(InetAddress.getByName("localhost"),8080);
+        client = WebTestClient.bindToServer().baseUrl("http://localhost:" + port).responseTimeout(Duration.ofSeconds(30)).build();
+        server.start(8080);
     }
 
     @AfterEach
@@ -83,7 +74,7 @@ public class BaseSpec {
     public String getErrorRequestBody() throws JsonProcessingException {
         Map<String,Object> obj = new HashMap<>();
         obj.put("x-hcx-status","response.error");
-        obj.put("x-hcx-sender_code","1-0756766c-ad43-4145-86ea-d1b17b729a3f");
+        obj.put("x-hcx-sender_code","1-ce23ccdc-e645-4e35-97b8-0bd8fef43ecd");
         obj.put("x-hcx-recipient_code","1-68c5deca-8299-4feb-b441-923bb649a9a3");
         obj.put("x-hcx-api_call_id","26b1060c-1e83-4600-9612-ea31e0ca5098");
         obj.put("x-hcx-correlation_id","5e934f90-111d-4f0b-b016-c22d820674e4");
@@ -121,7 +112,15 @@ public class BaseSpec {
     }
 
     protected String getProviderToken() {
-        return "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICI3Q1l0Z2VYMzA2NEQ3VUU0czdCQWlJZmUzN3hxczBtNEVSQnpmdzVuMzdNIn0.eyJleHAiOjE2NDg5NzI3NTAsImlhdCI6MTY0ODEwODc1MCwianRpIjoiNzA4ZTVjYjYtNGMxZC00NDg5LWEzNWItMzMyOGEyMDgyMTgyIiwiaXNzIjoiaHR0cDovL2FlZjgxMDFjNDMyZDA0YTY1OWU2MzE3YjNlNTAzMWNmLTE2NzQ1ODYwNjguYXAtc291dGgtMS5lbGIuYW1hem9uYXdzLmNvbTo4MDgwL2F1dGgvcmVhbG1zL3N3YXN0aC1oZWFsdGgtY2xhaW0tZXhjaGFuZ2UiLCJhdWQiOiJhY2NvdW50Iiwic3ViIjoiZThkOTZlMDAtOTNkMS00MDJhLWFmOTYtMjk2MGM5OTJjNGEzIiwidHlwIjoiQmVhcmVyIiwiYXpwIjoicmVnaXN0cnktZnJvbnRlbmQiLCJzZXNzaW9uX3N0YXRlIjoiOTU4Zjg1YjItNDUzYy00MWNlLTljNjEtZDQzOTY0ZGMyNDc5IiwiYWNyIjoiMSIsInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJwcm92aWRlciIsImRlZmF1bHQtcm9sZXMtbmRlYXIiXX0sInJlc291cmNlX2FjY2VzcyI6eyJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50IiwibWFuYWdlLWFjY291bnQtbGlua3MiLCJ2aWV3LXByb2ZpbGUiXX19LCJzY29wZSI6InByb2ZpbGUgZW1haWwiLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsInByZWZlcnJlZF91c2VybmFtZSI6ImRoYXJtYXRlamE4ODFAZ21haWwuY29tIiwiZW50aXR5IjpbIk9yZ2FuaXNhdGlvbiJdLCJlbWFpbCI6ImRoYXJtYXRlamE4ODFAZ21haWwuY29tIn0.gMiqG1M5OrVrZgGP7IbOP2salrrduaDCe6yFiXIoMe6GI42tYahnmAMo7QojKS54N_LBxR-8F31S7QLSvcupE5gyh_itFJGgFdOYDG7aei2tDseNd36s6g2zOEgpljaVV9-e7jgxlMBEklVgAIXK1yI-pup7qpo2_87pWZgVkd2v8hrg5Gm45mlWXFaQPn4imHmcNO_SBCg1di1EHh3fB3h57BHhV9Rs4W2Kjd6TF91RptOWbP4w9OaRrCzpVtIRO_ift0YngwCAEW_Q7mEl6qoMeILWC49MF5YF7isLFtmYLmdUGl7ErgRDT_VF7mBWkVT-YrnZu3wmw3l2mWao2Q";
+        return "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICI3Q1l0Z2VYMzA2NEQ3VUU0czdCQWlJZmUzN3hxczBtNEVSQnpmdzVuMzdNIn0.eyJleHAiOjE4MjI3MTM0NTEsImlhdCI6MTY0OTkxMzQ1MSwianRpIjoiOTA5ZGUxODAtMmEyOC00Mzg5LWJjM2MtZjgwNzRlN2RkNWNiIiwiaXNzIjoiaHR0cDovL2FlZjgxMDFjNDMyZDA0YTY1OWU2MzE3YjNlNTAzMWNmLTE2NzQ1ODYwNjguYXAtc291dGgtMS5lbGIuYW1hem9uYXdzLmNvbTo4MDgwL2F1dGgvcmVhbG1zL3N3YXN0aC1oZWFsdGgtY2xhaW0tZXhjaGFuZ2UiLCJhdWQiOiJhY2NvdW50Iiwic3ViIjoiZjdjMGU3NTktYmVjMy00MzFiLThjNGYtNmIyOTRkMTAzYTc0IiwidHlwIjoiQmVhcmVyIiwiYXpwIjoicmVnaXN0cnktZnJvbnRlbmQiLCJzZXNzaW9uX3N0YXRlIjoiMTBiNDM3M2UtNWExMC00YTBhLWE0NzYtOTI1ODUxOTAyZjgxIiwiYWNyIjoiMSIsInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJwcm92aWRlciIsImRlZmF1bHQtcm9sZXMtbmRlYXIiXX0sInJlc291cmNlX2FjY2VzcyI6eyJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50IiwibWFuYWdlLWFjY291bnQtbGlua3MiLCJ2aWV3LXByb2ZpbGUiXX19LCJzY29wZSI6InByb2ZpbGUgZW1haWwiLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsInByZWZlcnJlZF91c2VybmFtZSI6ImRoYXJtYXRlamE4ODhAZ21haWwuY29tIiwiZW50aXR5IjpbIk9yZ2FuaXNhdGlvbiJdLCJlbWFpbCI6ImRoYXJtYXRlamE4ODhAZ21haWwuY29tIn0.HZtmRMiGz5e9FA4Ix0pJs7MpMTqO8fEZ9KgafelISL30XEs7JylgjEs-FlmKiGnkIxaUmB2GdNTp3o-Q32QDMNtsrTYjG2Jo8DN4h7yNxcPFj9G-vM3ZhtnYcr1INQPRYuRcfGGqvPGc5s-5JwkS0EUe2fylJVoelTNKTczSMY5cB5PsE4qn04jxdlnc4CPaSt_SIx_CV-ABE6-1WQhCCFoge8jjQ01Hc96HUiy-tgPy90MJqu1it6St3m9yE9_sLbg_4S76dVPGPG41TqK-h34m6FM6xYW1BsiewKgHCcvsKhgNa3WFCuTrnwzx5z3TySRRww1I99ukWULP9IzxQg";
+    }
+
+    protected String getPayorToken() {
+        return "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICI3Q1l0Z2VYMzA2NEQ3VUU0czdCQWlJZmUzN3hxczBtNEVSQnpmdzVuMzdNIn0.eyJleHAiOjE4MjI3MjIxNzMsImlhdCI6MTY0OTkyMjE3MywianRpIjoiZjdiOTE2YzQtZTE0OC00Y2QyLWFhNjYtNDcyZTM2MTBkODY5IiwiaXNzIjoiaHR0cDovL2FlZjgxMDFjNDMyZDA0YTY1OWU2MzE3YjNlNTAzMWNmLTE2NzQ1ODYwNjguYXAtc291dGgtMS5lbGIuYW1hem9uYXdzLmNvbTo4MDgwL2F1dGgvcmVhbG1zL3N3YXN0aC1oZWFsdGgtY2xhaW0tZXhjaGFuZ2UiLCJhdWQiOiJhY2NvdW50Iiwic3ViIjoiMjBiZDQyMjgtYTg3Zi00MTc1LWEzMGEtMjBmYjI4OTgzYWZiIiwidHlwIjoiQmVhcmVyIiwiYXpwIjoicmVnaXN0cnktZnJvbnRlbmQiLCJzZXNzaW9uX3N0YXRlIjoiZjY0YmI1Y2QtZDdjOC00OGE3LTlhMTQtZWY0MGZjNzg5Zjg0IiwiYWNyIjoiMSIsInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJwYXlvciIsImRlZmF1bHQtcm9sZXMtbmRlYXIiXX0sInJlc291cmNlX2FjY2VzcyI6eyJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50IiwibWFuYWdlLWFjY291bnQtbGlua3MiLCJ2aWV3LXByb2ZpbGUiXX19LCJzY29wZSI6InByb2ZpbGUgZW1haWwiLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsInByZWZlcnJlZF91c2VybmFtZSI6Im5ld3BheW9yMDAzQGdtYWlsLmNvbSIsImVudGl0eSI6WyJPcmdhbmlzYXRpb24iXSwiZW1haWwiOiJuZXdwYXlvcjAwM0BnbWFpbC5jb20ifQ.ATKp9aS4awx8_FTh5PWIqTNDs95xBa9buo1zY8-MlkCW6UKFz24wwbb2D5wHemEqjCy2PxLhvux0IwZwxfV5tpUDpXKh2906wNKZKoDituak2C8xvx4Ds20PmVqiDaLtJxGjZyHIzZxVz0TATDZXYKrr_PmiaJljZP2dRpT0IaC4iWX_7KRgOBaU6XFiv7Svs3FnC-T17_7ZikZ-q0qMT9svFTO3NzvEjISX9fghmQU8ZbkhT_Mnxt4nrOSVSggI2TwHRLItYm72kNrGO-eJy_juNyNgVcQZMy70No1441kxiGSzy1_yI6iSmo2IKEMBQ_iMYXgPZnwglANLhdeZRA";
+    }
+
+    protected String getExpiredProviderToken() {
+        return "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICI3Q1l0Z2VYMzA2NEQ3VUU0czdCQWlJZmUzN3hxczBtNEVSQnpmdzVuMzdNIn0.eyJleHAiOi0xNzgxMDU0Mjg2LCJpYXQiOjE2NDk5MTMwMTAsImp0aSI6ImMzMWUxZTNiLWFlOWQtNDFlMy1hYzFmLThkMTM0ZGY4NWI2YyIsImlzcyI6Imh0dHA6Ly9hZWY4MTAxYzQzMmQwNGE2NTllNjMxN2IzZTUwMzFjZi0xNjc0NTg2MDY4LmFwLXNvdXRoLTEuZWxiLmFtYXpvbmF3cy5jb206ODA4MC9hdXRoL3JlYWxtcy9zd2FzdGgtaGVhbHRoLWNsYWltLWV4Y2hhbmdlIiwiYXVkIjoiYWNjb3VudCIsInN1YiI6ImY3YzBlNzU5LWJlYzMtNDMxYi04YzRmLTZiMjk0ZDEwM2E3NCIsInR5cCI6IkJlYXJlciIsImF6cCI6InJlZ2lzdHJ5LWZyb250ZW5kIiwic2Vzc2lvbl9zdGF0ZSI6ImQ1ZTMxYTMxLTZlOWYtNDYzMi04N2MyLWIyY2M1NmMzNWY0ZCIsImFjciI6IjEiLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsicHJvdmlkZXIiLCJkZWZhdWx0LXJvbGVzLW5kZWFyIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwic2NvcGUiOiJwcm9maWxlIGVtYWlsIiwiZW1haWxfdmVyaWZpZWQiOmZhbHNlLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJkaGFybWF0ZWphODg4QGdtYWlsLmNvbSIsImVudGl0eSI6WyJPcmdhbmlzYXRpb24iXSwiZW1haWwiOiJkaGFybWF0ZWphODg4QGdtYWlsLmNvbSJ9.Q4w_kGv6qbtCqpWpxPZnGHuaM58R_Ruj7JN3naZhUnWAW9fegQQ3AyoNkHH0tCsBFgS8lJTuhntxJEx5wM3D_aIlb-HAw9-10JnIq9uh8dEoDFH3Q17wvxne1Qb27AqKVVhh4UxlDkOcDfUBYxpGnOqtuRbuMmSYxwuEz-F9YsB7kPHpAAcNUBMDmgvN4ZHCLXBouhO4KmjDdEUcrl_v21ZwU23s6lQzSlS6YJ3G3FG0XDM1xF-m5DjVRbWi5umuqs9BrRhwRwE2rqSAU4nlTiwBErCl9Rb3-hinDR9SizFJbW8mNh0SnPl8Pj8IMJKwtrKOv1aTW_2_dpCRmCmdUA";
     }
 
 }
