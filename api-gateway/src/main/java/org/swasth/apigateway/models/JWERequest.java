@@ -1,7 +1,6 @@
 package org.swasth.apigateway.models;
 
 import lombok.Data;
-import org.swasth.apigateway.models.BaseRequest;
 
 import java.util.Map;
 
