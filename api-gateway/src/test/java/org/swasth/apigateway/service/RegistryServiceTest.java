@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest(classes = {RegistryService.class, RedisCache.class})
 @ActiveProfiles("test")
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
-public class RegistryServiceTest {
+class RegistryServiceTest {
 
     private MockWebServer registryServer =  new MockWebServer();
     private RedisServer redisServer;
@@ -45,7 +45,7 @@ public class RegistryServiceTest {
     }
 
     @Test
-    public void check_registry_service_success_scenario() throws Exception {
+    void check_registry_service_success_scenario() throws Exception {
         registryServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("[{\"test\":\"123\"}]")
@@ -56,7 +56,7 @@ public class RegistryServiceTest {
     }
 
     @Test
-    public void check_registry_service_empty_response_scenario() throws Exception {
+    void check_registry_service_empty_response_scenario() throws Exception {
         registryServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("[]")
@@ -67,7 +67,7 @@ public class RegistryServiceTest {
     }
 
     @Test
-    public void check_registry_service_internal_server_exception_scenario() {
+    void check_registry_service_internal_server_exception_scenario() {
         registryServer.enqueue(new MockResponse()
                 .setResponseCode(400)
                 .addHeader("Content-Type", "application/json"));
