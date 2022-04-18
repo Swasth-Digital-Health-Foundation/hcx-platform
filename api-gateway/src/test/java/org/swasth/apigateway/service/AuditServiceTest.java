@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(classes = AuditService.class)
 @ActiveProfiles("test")
-@TestInstance(TestInstance.Lifecycle.PER_METHOD)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class AuditServiceTest{
 
     private MockWebServer auditServer =  new MockWebServer();
@@ -24,12 +24,12 @@ public class AuditServiceTest{
     @Autowired
     private AuditService auditService;
 
-    @BeforeEach
+    @BeforeAll
     public void setup() throws IOException {
         auditServer.start(8080);
     }
 
-    @AfterEach
+    @AfterAll
     public void teardown() throws IOException {
         auditServer.shutdown();
     }
