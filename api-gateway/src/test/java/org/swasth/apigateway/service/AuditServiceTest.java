@@ -6,6 +6,7 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.swasth.apigateway.BaseSpec;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -15,28 +16,12 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest(classes = AuditService.class)
-@ActiveProfiles("test")
-public class AuditServiceTest{
 
-    private MockWebServer auditServer =  new MockWebServer();
-
-    @Autowired
-    private AuditService auditService;
-
-    @BeforeEach
-    public void setup() throws IOException {
-        auditServer.start(InetAddress.getByName("localhost"),8080);
-    }
-
-    @AfterEach
-    public void teardown() throws IOException {
-        auditServer.shutdown();
-    }
+public class AuditServiceTest extends BaseSpec {
 
     @Test
     public void check_audit_server_success_scenario() throws Exception {
-        auditServer.enqueue(new MockResponse()
+        server.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("[{\"test\":\"123\"}]")
                 .addHeader("Content-Type", "application/json"));
