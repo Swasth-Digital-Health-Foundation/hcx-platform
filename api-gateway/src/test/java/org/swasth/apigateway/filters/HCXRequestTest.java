@@ -9,10 +9,7 @@ import org.swasth.apigateway.BaseSpec;
 import org.swasth.apigateway.constants.Constants;
 import org.swasth.apigateway.exception.ErrorCodes;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -104,7 +101,7 @@ public class HCXRequestTest extends BaseSpec {
     }
 
     @Test
-    public void check_hcx_request_invalid_api_access_scenario() throws Exception {
+    public void check_hcx_request_invalid_api_access_scenario() {
         client.post().uri("/v1/paymentnotice/on_request")
                 .header(Constants.AUTHORIZATION, getPayorToken())
                 .header("X-jwt-sub", "20bd4228-a87f-4175-a30a-20fb28983afb")
@@ -439,11 +436,16 @@ public class HCXRequestTest extends BaseSpec {
 
     @Test
     public void check_hcx_forward_request_invalid_correlation_id_scenario() throws Exception {
+        server.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody(new ArrayList<>().toString())
+                .addHeader("Content-Type", "application/json"));
+
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getPayorDetails())
                 .thenReturn(getPayor2Details());
-        Mockito.when(auditService.getAuditLogs(any()))
-                .thenReturn(new ArrayList<>());
+        Mockito.when(auditService.getAuditLogs(any())).thenCallRealMethod();
+        ReflectionTestUtils.setField(auditService, "hcxApiUrl", "http://localhost:8080");
 
         client.post().uri("/v1/coverageeligibility/check")
                 .header(Constants.AUTHORIZATION, getPayorToken())
