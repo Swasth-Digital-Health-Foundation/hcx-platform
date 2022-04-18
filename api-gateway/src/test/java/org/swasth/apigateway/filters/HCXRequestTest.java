@@ -436,16 +436,11 @@ public class HCXRequestTest extends BaseSpec {
 
     @Test
     public void check_hcx_forward_request_invalid_correlation_id_scenario() throws Exception {
-        server.enqueue(new MockResponse()
-                .setResponseCode(200)
-                .setBody(new ArrayList<>().toString())
-                .addHeader("Content-Type", "application/json"));
-
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getPayorDetails())
                 .thenReturn(getPayor2Details());
-        Mockito.when(auditService.getAuditLogs(any())).thenCallRealMethod();
-        ReflectionTestUtils.setField(auditService, "hcxApiUrl", "http://localhost:8080");
+        Mockito.when(auditService.getAuditLogs(any()))
+                .thenReturn(new ArrayList<>());
 
         client.post().uri("/v1/coverageeligibility/check")
                 .header(Constants.AUTHORIZATION, getPayorToken())
