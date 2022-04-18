@@ -46,7 +46,7 @@ class RedisCacheTest {
     }
 
     @Test
-    public void testGetException(){
+    void testGetException(){
         ReflectionTestUtils.setField(redis, "redisPort", 6370);
         Exception exception = assertThrows(Exception.class, () -> {
             redis.get("exception");
@@ -55,7 +55,7 @@ class RedisCacheTest {
     }
 
     @Test
-    public void testSetException() {
+    void testSetException() {
         ReflectionTestUtils.setField(redis, "redisPort", 6370);
         Exception exception = assertThrows(Exception.class, () -> {
             redis.set("exception","123",10000000);
@@ -64,7 +64,7 @@ class RedisCacheTest {
     }
 
     @Test
-    public void testIsExistException() {
+    void testIsExistException() {
         ReflectionTestUtils.setField(redis, "redisPort", 6370);
         Exception exception = assertThrows(Exception.class,() -> {
             redis.isExists("test");
