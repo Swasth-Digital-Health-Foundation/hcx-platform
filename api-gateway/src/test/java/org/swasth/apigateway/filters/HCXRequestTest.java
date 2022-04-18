@@ -4,12 +4,14 @@ import okhttp3.mockwebserver.MockResponse;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.swasth.apigateway.BaseSpec;
 import org.swasth.apigateway.constants.Constants;
 import org.swasth.apigateway.exception.ErrorCodes;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -111,6 +113,28 @@ public class HCXRequestTest extends BaseSpec {
                 .consumeWith(result -> {
                     assertEquals(HttpStatus.UNAUTHORIZED, result.getStatus());
                     assertEquals(ErrorCodes.ERR_ACCESS_DENIED.name(), getResponseErrorCode(result));
+                });
+    }
+
+    @Test
+    public void check_hcx_admin_access_scenario() throws Exception {
+        server.enqueue(new MockResponse()
+                .setResponseCode(202)
+                .addHeader("Content-Type", "application/json"));
+
+        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
+                .thenReturn(getHCXAdminDetails())
+                .thenReturn(getPayorDetails());
+        Mockito.when(auditService.getAuditLogs(any())).thenReturn(new ArrayList<>());
+
+        client.post().uri("/v1/coverageeligibility/check")
+                .header(Constants.AUTHORIZATION, getHCXAdminToken())
+                .header("X-jwt-sub", "f698b521-7409-432d-a5db-d13e51f029a9")
+                .bodyValue(getRequestBody())
+                .exchange()
+                .expectBody(Map.class)
+                .consumeWith(result -> {
+                    assertEquals(HttpStatus.ACCEPTED, result.getStatus());
                 });
     }
 
