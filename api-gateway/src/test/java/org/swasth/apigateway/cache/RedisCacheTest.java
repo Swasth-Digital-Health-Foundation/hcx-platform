@@ -51,7 +51,7 @@ class RedisCacheTest {
         Exception exception = assertThrows(Exception.class, () -> {
             redis.get("exception");
         });
-        assertEquals("Exception Occurred While Fetching Data from Redis Cache for Key : exception| Exception is:redis.clients.jedis.exceptions.JedisConnectionException: java.net.SocketTimeoutException: connect timed out", exception.getMessage());
+        assertTrue(exception.getMessage().contains("Exception Occurred While Fetching Data from Redis Cache for Key : exception"));
     }
 
     @Test
@@ -60,7 +60,7 @@ class RedisCacheTest {
         Exception exception = assertThrows(Exception.class, () -> {
             redis.set("exception","123",10000000);
         });
-        assertEquals("Exception Occurred While Saving Data to Redis Cache for Key : exception| Exception is:redis.clients.jedis.exceptions.JedisConnectionException: java.net.SocketTimeoutException: connect timed out", exception.getMessage());
+        assertTrue(exception.getMessage().contains("Exception Occurred While Saving Data to Redis Cache for Key : exception"));
     }
 
     @Test
@@ -69,7 +69,7 @@ class RedisCacheTest {
         Exception exception = assertThrows(Exception.class,() -> {
             redis.isExists("test");
         });
-        assertEquals("Exception occurred while checking key exist or not in Redis Cache: test| Exception is:redis.clients.jedis.exceptions.JedisConnectionException: java.net.SocketTimeoutException: connect timed out", exception.getMessage());
+        assertTrue(exception.getMessage().contains("Exception occurred while checking key exist or not in Redis Cache: test"));
     }
 
 }
