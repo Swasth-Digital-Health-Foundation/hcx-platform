@@ -8,6 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +17,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(classes = AuditService.class)
 @ActiveProfiles("test")
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class AuditServiceTest{
 
     private MockWebServer auditServer =  new MockWebServer();
@@ -24,12 +24,12 @@ public class AuditServiceTest{
     @Autowired
     private AuditService auditService;
 
-    @BeforeAll
+    @BeforeEach
     public void setup() throws IOException {
-        auditServer.start(8080);
+        auditServer.start(InetAddress.getByName("localhost"),8080);
     }
 
-    @AfterAll
+    @AfterEach
     public void teardown() throws IOException {
         auditServer.shutdown();
     }

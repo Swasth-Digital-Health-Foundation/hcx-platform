@@ -13,6 +13,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.swasth.apigateway.cache.RedisCache;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -33,7 +34,7 @@ class RegistryServiceTest {
 
     @BeforeEach
     public void setup() throws IOException {
-        registryServer.start(8080);
+        registryServer.start(InetAddress.getByName("localhost"),8080);
         redisServer = RedisServer.newRedisServer(6379);
         redisServer.start();
     }
