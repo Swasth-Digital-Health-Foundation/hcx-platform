@@ -1,28 +1,81 @@
 package org.swasth.apigateway.service;
 
+import ai.grakn.redismock.RedisServer;
 import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.test.util.ReflectionTestUtils;
-import org.swasth.apigateway.BaseSpec;
+import org.junit.jupiter.api.TestInstance;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.swasth.apigateway.cache.RedisCache;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
+import java.io.IOException;
+import java.util.Map;
 
-public class RegistryServiceTest extends BaseSpec {
+import static org.junit.jupiter.api.Assertions.*;
+
+@SpringBootTest(classes = {RegistryService.class, RedisCache.class})
+@ActiveProfiles("test")
+@TestInstance(TestInstance.Lifecycle.PER_METHOD)
+public class RegistryServiceTest {
+
+    private MockWebServer registryServer =  new MockWebServer();
+    private RedisServer redisServer;
+
+    @Autowired
+    private RegistryService registryService;
+
+    @Autowired
+    private RedisCache redisCache;
+
+    @BeforeEach
+    public void setup() throws IOException {
+        registryServer.start(8080);
+        redisServer = RedisServer.newRedisServer(6379);
+        redisServer.start();
+    }
+
+    @AfterEach
+    public void teardown() throws IOException {
+        registryServer.shutdown();
+        redisServer.stop();
+    }
 
     @Test
-    public void check_registry_service_internal_server_exception_scenario() throws Exception {
-        server.enqueue(new MockResponse()
+    public void check_registry_service_success_scenario() throws Exception {
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("[{\"test\":\"123\"}]")
+                .addHeader("Content-Type", "application/json"));
+
+        Map<String,Object> result = registryService.fetchDetails("osid", "test_123");
+        assertEquals("123", result.get("test"));
+    }
+
+    @Test
+    public void check_registry_service_empty_response_scenario() throws Exception {
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("[]")
+                .addHeader("Content-Type", "application/json"));
+
+        Map<String,Object> result = registryService.fetchDetails("osid", "test_123");
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    public void check_registry_service_internal_server_exception_scenario() {
+        registryServer.enqueue(new MockResponse()
                 .setResponseCode(400)
                 .addHeader("Content-Type", "application/json"));
 
-        Mockito.when(registryService.getDetails(any(), any())).thenCallRealMethod();
-        ReflectionTestUtils.setField(registryService, "registryUrl", "http://localhost:8080");
         Exception exception = assertThrows(Exception.class, () -> {
-            registryService.getDetails("osid", "1-5e934f90-111d-4f0b-b016-c22d820674e1");
+            registryService.fetchDetails("osid", "test_123");
         });
         assertEquals("Error in fetching the participant details400", exception.getMessage());
     }
+
 }

@@ -16,7 +16,6 @@ import org.swasth.apigateway.service.RegistryService;
 import org.swasth.apigateway.utils.JSONUtils;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.time.Duration;
 import java.util.*;
 

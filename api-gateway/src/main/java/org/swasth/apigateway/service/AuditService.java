@@ -30,7 +30,7 @@ public class AuditService {
             throw new ServerException(ErrorCodes.SERVICE_UNAVAILABLE, "Error connecting to audit service: " + e.getMessage());
         }
         List<Map<String,Object>> details;
-        if (response != null && response.getStatus() == 200) {
+        if (response.getStatus() == 200) {
             details = JSONUtils.deserialize((String) response.getBody(), ArrayList.class);
             System.out.println("Audit filters: " + filters + " Audit data count: " + details.size() + " Audit data: " + details);
         } else {
