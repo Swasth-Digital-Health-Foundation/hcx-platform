@@ -20,7 +20,7 @@ public class JSONRequest extends BaseRequest{
             validateCondition(StringUtils.isEmpty(getRedirectTo()), ErrorCodes.ERR_INVALID_REDIRECT_TO, "Redirect requests must have valid participant code for field " + REDIRECT_TO);
             validateCondition(getSenderCode().equalsIgnoreCase(getRedirectTo()), ErrorCodes.ERR_INVALID_REDIRECT_TO, "Sender can not redirect request to self");
 
-            validateParticipant(redirectDetails, ErrorCodes.ERR_INVALID_REDIRECT_TO, "Redirected");
+            validateParticipant(redirectDetails, ErrorCodes.ERR_INVALID_REDIRECT_TO, "Redirected", getRedirectTo());
             List<String> redirectRoles = (List<String>) redirectDetails.get(ROLES);
             validateCondition(!hasRedirectRole(allowedRoles, redirectRoles), ErrorCodes.ERR_INVALID_REDIRECT_TO, "Redirected participant do not have access to send across callbacks (on_* API calls)");
 
