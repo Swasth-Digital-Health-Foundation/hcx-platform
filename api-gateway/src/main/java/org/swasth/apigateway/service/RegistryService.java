@@ -28,6 +28,9 @@ public class RegistryService {
     @Value("${registry.basePath}")
     private String registryUrl;
 
+    @Value("${redis.expires}")
+    private int redisExpires;
+
     public Map<String,Object> fetchDetails(String filterKey, String filterValue) throws Exception {
         try {
             Map<String,Object> details;
@@ -35,7 +38,7 @@ public class RegistryService {
                 details = JSONUtils.deserialize(redisCache.get(filterValue), HashMap.class);
             } else {
                 details = getDetails(filterKey, filterValue);
-                redisCache.set(filterValue, JSONUtils.serialize(details));
+                redisCache.set(filterValue, JSONUtils.serialize(details), redisExpires);
             }
             return details;
         } catch (ServerException e) {
@@ -54,7 +57,7 @@ public class RegistryService {
             throw new ServerException(ErrorCodes.SERVICE_UNAVAILABLE, "Error connecting to registry service: " + e.getMessage());
         }
         Map<String,Object> details = new HashMap<>();
-        if (response != null && response.getStatus() == 200) {
+        if (response.getStatus() == 200) {
             ArrayList result = JSONUtils.deserialize((String) response.getBody(), ArrayList.class);
             if (!result.isEmpty()) {
                 details = (Map<String, Object>) result.get(0);

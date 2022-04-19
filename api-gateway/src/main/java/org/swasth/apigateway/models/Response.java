@@ -13,10 +13,6 @@ public class Response {
     private String apiCallId;
     private ResponseError error;
 
-    public Response(ResponseError error) {
-        this.error = error;
-    }
-
     public Response(String correlationId, String apiCallId, ResponseError error) {
         this.correlationId = correlationId;
         this.apiCallId = apiCallId;

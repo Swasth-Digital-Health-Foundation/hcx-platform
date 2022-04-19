@@ -41,10 +41,17 @@ protocol:
 headers:
   jose: ${jose_headers:alg, enc}
 
-#elasticsearch config
-elasticsearch:
-  url: ${elasticsearch_url:localhost:9200}
+allowedEntitiesForStatusSearch: ${allowed_entities_for_status_search:coverageeligibility, preauth, claim, predetermination}
 
+#elasticsearch config
+es:
+  host: ${es_host:localhost}
+  port: ${es_port:9200}
+
+#Audit config
+audit:
+  index: ${audit_index:hcx_audit}
+  alias: ${audit_alias:hcx_audit}
 
 #hcx redirect headers
 redirect:
