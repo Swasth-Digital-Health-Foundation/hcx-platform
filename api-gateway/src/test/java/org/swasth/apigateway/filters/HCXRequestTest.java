@@ -4,7 +4,6 @@ import okhttp3.mockwebserver.MockResponse;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.swasth.apigateway.BaseSpec;
 import org.swasth.apigateway.constants.Constants;
 import org.swasth.apigateway.exception.ErrorCodes;
@@ -18,10 +17,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 
-public class HCXRequestTest extends BaseSpec {
+class HCXRequestTest extends BaseSpec {
 
     @Test
-    public void check_health_request_success_scenario() {
+    void check_health_request_success_scenario() {
         server.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .addHeader("Content-Type", "application/json"));
@@ -35,7 +34,7 @@ public class HCXRequestTest extends BaseSpec {
     }
 
     @Test
-    public void check_hcx_request_success_scenario() throws Exception {
+    void check_hcx_request_success_scenario() throws Exception {
         server.enqueue(new MockResponse()
                 .setResponseCode(202)
                 .addHeader("Content-Type", "application/json"));
@@ -57,7 +56,7 @@ public class HCXRequestTest extends BaseSpec {
     }
 
     @Test
-    public void check_hcx_on_action_request_success_scenario() throws Exception {
+    void check_hcx_on_action_request_success_scenario() throws Exception {
         server.enqueue(new MockResponse()
                 .setResponseCode(202)
                 .addHeader("Content-Type", "application/json"));
@@ -82,7 +81,7 @@ public class HCXRequestTest extends BaseSpec {
     }
 
     @Test
-    public void check_hcx_json_request_success_scenario() throws Exception {
+    void check_hcx_json_request_success_scenario() throws Exception {
         server.enqueue(new MockResponse()
                 .setResponseCode(202)
                 .addHeader("Content-Type", "application/json"));
@@ -104,7 +103,7 @@ public class HCXRequestTest extends BaseSpec {
     }
 
     @Test
-    public void check_hcx_request_invalid_api_access_scenario() throws Exception {
+    void check_hcx_request_invalid_api_access_scenario() {
         client.post().uri("/v1/paymentnotice/on_request")
                 .header(Constants.AUTHORIZATION, getPayorToken())
                 .header("X-jwt-sub", "20bd4228-a87f-4175-a30a-20fb28983afb")
@@ -118,7 +117,29 @@ public class HCXRequestTest extends BaseSpec {
     }
 
     @Test
-    public void check_hcx_request_missing_authorization_header_scenario() throws Exception {
+    void check_hcx_admin_access_scenario() throws Exception {
+        server.enqueue(new MockResponse()
+                .setResponseCode(202)
+                .addHeader("Content-Type", "application/json"));
+
+        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
+                .thenReturn(getHCXAdminDetails())
+                .thenReturn(getPayorDetails());
+        Mockito.when(auditService.getAuditLogs(any())).thenReturn(new ArrayList<>());
+
+        client.post().uri("/v1/coverageeligibility/check")
+                .header(Constants.AUTHORIZATION, getHCXAdminToken())
+                .header("X-jwt-sub", "f698b521-7409-432d-a5db-d13e51f029a9")
+                .bodyValue(getRequestBody())
+                .exchange()
+                .expectBody(Map.class)
+                .consumeWith(result -> {
+                    assertEquals(HttpStatus.ACCEPTED, result.getStatus());
+                });
+    }
+
+    @Test
+    void check_hcx_request_missing_authorization_header_scenario() throws Exception {
         client.post().uri("/v1/coverageeligibility/check")
                 .bodyValue(getRequestBody())
                 .exchange()
@@ -130,7 +151,7 @@ public class HCXRequestTest extends BaseSpec {
     }
 
     @Test
-    public void check_hcx_request_malformat_authorization_header_scenario() throws Exception {
+    void check_hcx_request_malformat_authorization_header_scenario() throws Exception {
         client.post().uri("/v1/coverageeligibility/check")
                 .header(Constants.AUTHORIZATION, "Bearer ")
                 .bodyValue(getRequestBody())
@@ -143,7 +164,7 @@ public class HCXRequestTest extends BaseSpec {
     }
 
     @Test
-    public void check_hcx_request_invalid_format_authorization_header_scenario() throws Exception {
+    void check_hcx_request_invalid_format_authorization_header_scenario() throws Exception {
         client.post().uri("/v1/coverageeligibility/check")
                 .header(Constants.AUTHORIZATION, "test token")
                 .bodyValue(getRequestBody())
@@ -156,7 +177,7 @@ public class HCXRequestTest extends BaseSpec {
     }
 
     @Test
-    public void check_hcx_request_expired_jwt_token_scenario() throws Exception {
+    void check_hcx_request_expired_jwt_token_scenario() throws Exception {
         client.post().uri("/v1/coverageeligibility/check")
                 .header(Constants.AUTHORIZATION, getExpiredProviderToken())
                 .bodyValue(getRequestBody())
@@ -169,7 +190,7 @@ public class HCXRequestTest extends BaseSpec {
     }
 
     @Test
-    public void check_hcx_request_audit_service_server_exception_scenario() throws Exception {
+    void check_hcx_request_audit_service_server_exception_scenario() throws Exception {
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getProviderDetails())
                 .thenReturn(getPayorDetails());
@@ -188,7 +209,7 @@ public class HCXRequestTest extends BaseSpec {
     }
 
     @Test
-    public void check_hcx_request_invalid_payload_scenario() {
+    void check_hcx_request_invalid_payload_scenario() {
         client.post().uri("/v1/coverageeligibility/check")
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
@@ -202,7 +223,7 @@ public class HCXRequestTest extends BaseSpec {
     }
 
     @Test
-    public void check_hcx_request_invalid_jwe_payload_scenario() {
+    void check_hcx_request_invalid_jwe_payload_scenario() {
         client.post().uri("/v1/coverageeligibility/check")
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
@@ -216,7 +237,7 @@ public class HCXRequestTest extends BaseSpec {
     }
 
     @Test
-    public void check_hcx_request_payload_parsing_exception_scenario() {
+    void check_hcx_request_payload_parsing_exception_scenario() {
         client.post().uri("/v1/coverageeligibility/check")
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
@@ -230,7 +251,7 @@ public class HCXRequestTest extends BaseSpec {
     }
 
     @Test
-    public void check_hcx_request_missing_mandatory_headers_scenario() throws Exception {
+    void check_hcx_request_missing_mandatory_headers_scenario() throws Exception {
         client.post().uri("/v1/coverageeligibility/check")
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
@@ -244,7 +265,7 @@ public class HCXRequestTest extends BaseSpec {
     }
 
     @Test
-    public void check_hcx_request_invalid_api_call_id_scenario() {
+    void check_hcx_request_invalid_api_call_id_scenario() {
         client.post().uri("/v1/coverageeligibility/check")
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
@@ -263,7 +284,7 @@ public class HCXRequestTest extends BaseSpec {
     }
 
     @Test
-    public void check_hcx_request_invalid_timestamp_scenario() {
+    void check_hcx_request_invalid_timestamp_scenario() {
         client.post().uri("/v1/coverageeligibility/check")
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
@@ -277,7 +298,7 @@ public class HCXRequestTest extends BaseSpec {
     }
 
     @Test
-    public void check_hcx_request_invalid_sender_scenario() {
+    void check_hcx_request_invalid_sender_scenario() {
         client.post().uri("/v1/coverageeligibility/check")
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
@@ -291,7 +312,7 @@ public class HCXRequestTest extends BaseSpec {
     }
 
     @Test
-    public void check_hcx_request_empty_recipient_details_scenario() throws Exception {
+    void check_hcx_request_empty_recipient_details_scenario() throws Exception {
         client.post().uri("/v1/coverageeligibility/check")
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
@@ -305,7 +326,7 @@ public class HCXRequestTest extends BaseSpec {
     }
 
     @Test
-    public void check_hcx_request_blocked_recipient_scenario() throws Exception {
+    void check_hcx_request_blocked_recipient_scenario() throws Exception {
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(new HashMap<>())
                 .thenReturn(getBlockedPayorDetails());
@@ -323,7 +344,7 @@ public class HCXRequestTest extends BaseSpec {
     }
 
     @Test
-    public void check_hcx_request_empty_debug_flag_scenario() throws Exception {
+    void check_hcx_request_empty_debug_flag_scenario() throws Exception {
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getProviderDetails())
                 .thenReturn(getPayorDetails());
@@ -341,7 +362,7 @@ public class HCXRequestTest extends BaseSpec {
     }
 
     @Test
-    public void check_hcx_request_invalid_debug_flag_range_scenario() throws Exception {
+    void check_hcx_request_invalid_debug_flag_range_scenario() throws Exception {
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getProviderDetails())
                 .thenReturn(getPayorDetails());
@@ -359,7 +380,7 @@ public class HCXRequestTest extends BaseSpec {
     }
 
     @Test
-    public void check_hcx_request_empty_error_details_scenario() throws Exception {
+    void check_hcx_request_empty_error_details_scenario() throws Exception {
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getPayorDetails())
                 .thenReturn(getProviderDetails());
@@ -377,7 +398,7 @@ public class HCXRequestTest extends BaseSpec {
     }
 
     @Test
-    public void check_hcx_request_missing_error_details_fields_scenario() throws Exception {
+    void check_hcx_request_missing_error_details_fields_scenario() throws Exception {
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getPayorDetails())
                 .thenReturn(getProviderDetails());
@@ -395,7 +416,7 @@ public class HCXRequestTest extends BaseSpec {
     }
 
     @Test
-    public void check_hcx_request_invalid_error_details_range_scenario() throws Exception {
+    void check_hcx_request_invalid_error_details_range_scenario() throws Exception {
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getPayorDetails())
                 .thenReturn(getProviderDetails());
@@ -413,7 +434,7 @@ public class HCXRequestTest extends BaseSpec {
     }
 
     @Test
-    public void check_hcx_forward_request_success_scenario() throws Exception {
+    void check_hcx_forward_request_success_scenario() throws Exception {
         server.enqueue(new MockResponse()
                 .setResponseCode(202)
                 .addHeader("Content-Type", "application/json"));
@@ -438,7 +459,7 @@ public class HCXRequestTest extends BaseSpec {
     }
 
     @Test
-    public void check_hcx_forward_request_invalid_correlation_id_scenario() throws Exception {
+    void check_hcx_forward_request_invalid_correlation_id_scenario() throws Exception {
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getPayorDetails())
                 .thenReturn(getPayor2Details());
@@ -458,7 +479,7 @@ public class HCXRequestTest extends BaseSpec {
     }
 
     @Test
-    public void check_hcx_forward_request_invalid_recipient_scenario() throws Exception {
+    void check_hcx_forward_request_invalid_recipient_scenario() throws Exception {
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getPayorDetails())
                 .thenReturn(getProviderDetails());
@@ -479,7 +500,7 @@ public class HCXRequestTest extends BaseSpec {
     }
 
     @Test
-    public void check_hcx_redirect_request_success_scenario() throws Exception {
+    void check_hcx_redirect_request_success_scenario() throws Exception {
         server.enqueue(new MockResponse()
                 .setResponseCode(202)
                 .addHeader("Content-Type", "application/json"));
@@ -504,7 +525,7 @@ public class HCXRequestTest extends BaseSpec {
     }
 
     @Test
-    public void check_hcx_redirect_request_invalid_api_scenario() throws Exception {
+    void check_hcx_redirect_request_invalid_api_scenario() throws Exception {
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getPayorDetails())
                 .thenReturn(getProviderDetails());
@@ -522,7 +543,7 @@ public class HCXRequestTest extends BaseSpec {
     }
 
     @Test
-    public void check_hcx_redirect_request_invalid_status_scenario() throws Exception {
+    void check_hcx_redirect_request_invalid_status_scenario() throws Exception {
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getPayorDetails())
                 .thenReturn(getProviderDetails());
@@ -540,7 +561,7 @@ public class HCXRequestTest extends BaseSpec {
     }
 
     @Test
-    public void check_hcx_request_invalid_payload_action_scenario() throws Exception {
+    void check_hcx_request_invalid_payload_action_scenario() throws Exception {
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getProviderDetails())
                 .thenReturn(getPayorDetails());

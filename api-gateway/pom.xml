@@ -119,7 +119,7 @@
         <dependency>
             <groupId>ai.grakn</groupId>
             <artifactId>redis-mock</artifactId>
-            <version>0.1.3</version>
+            <version>0.1.6</version>
         </dependency>
     </dependencies>
     <dependencyManagement>
