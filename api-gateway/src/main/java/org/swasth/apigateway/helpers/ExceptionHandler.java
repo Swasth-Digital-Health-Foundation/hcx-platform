@@ -3,6 +3,7 @@ package org.swasth.apigateway.helpers;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.swasth.apigateway.constants.Constants;
 import org.swasth.apigateway.exception.ClientException;
 import org.swasth.apigateway.exception.ErrorCodes;
 import org.swasth.apigateway.exception.JWTVerificationException;
@@ -22,6 +23,9 @@ import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 public class ExceptionHandler {
@@ -48,6 +52,7 @@ public class ExceptionHandler {
             errorCode = ErrorCodes.ERR_ACCESS_DENIED;
         }
         try {
+            request.setErrorDetails(JSONUtils.decodeBase64String(new ResponseError(errorCode, e.getMessage(), e.getCause()).toString(), Map.class));
             auditService.createAuditLog(request);
         } catch (Exception exception) {
             ex = new ClientException("Error while creating audit log :: Exception : " + exception.getMessage());

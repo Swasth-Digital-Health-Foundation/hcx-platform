@@ -24,12 +24,16 @@ public class BaseRequest {
     private boolean isJSONRequest;
     private String apiAction;
     private Map<String,Object> protocolHeaders;
+    private Map<String,Object> payload;
+    private ArrayList<String> senderRole;
+    private ArrayList<String> recipientRole;
 
     public BaseRequest(){}
 
     public BaseRequest(Map<String, Object> payload,boolean isJSONRequest,String apiAction) throws Exception{
         this.isJSONRequest = isJSONRequest;
         this.apiAction = apiAction;
+        this.payload = payload;
         try {
             if(this.isJSONRequest)
                 this.protocolHeaders = payload;
@@ -60,6 +64,8 @@ public class BaseRequest {
         validateCondition(StringUtils.equals(getSenderCode(), getRecipientCode()), ErrorCodes.ERR_INVALID_SENDER_AND_RECIPIENT, "sender and recipient code cannot be the same");
         validateParticipant(recipientDetails, ErrorCodes.ERR_INVALID_RECIPIENT, "recipient");
         validateParticipant(senderDetails, ErrorCodes.ERR_INVALID_SENDER, "sender");
+        senderRole = (ArrayList<String>) senderDetails.get(ROLES);
+        recipientRole = (ArrayList<String>) recipientDetails.get(ROLES);
         validateCondition(!StringUtils.equals(((ArrayList) senderDetails.get(OS_OWNER)).get(0).toString(), subject), ErrorCodes.ERR_ACCESS_DENIED, "Caller id and sender code is not matched");
 
         if (protocolHeaders.containsKey(DEBUG_FLAG)) {
@@ -201,6 +207,11 @@ public class BaseRequest {
     public Map<String,Object> getDebugDetails(){ return getHeaderMap(DEBUG_DETAILS); }
 
     public String getRedirectTo() { return getHeader(REDIRECT_TO); }
+
+    public Map<String,Object> getPayload(){ return payload; }
+
+    public ArrayList<String> getSenderRole() { return senderRole; }
+    public ArrayList<String> getRecipientRole() { return recipientRole; }
 
     protected String[] validateRequestBody(Map<String, Object> requestBody) throws Exception {
         try {

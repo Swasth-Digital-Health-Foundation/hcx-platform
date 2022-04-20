@@ -1,5 +1,6 @@
 package org.swasth.apigateway.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import kong.unirest.HttpResponse;
 import kong.unirest.UnirestException;
 import org.slf4j.Logger;
@@ -53,7 +54,7 @@ public class AuditService {
         auditIndexer.createDocument(createAuditEvent(request));
     }
 
-    private Map<String,Object> createAuditEvent(BaseRequest request){
+    private Map<String,Object> createAuditEvent(BaseRequest request) throws JsonProcessingException {
         Map<String,Object> event = new HashMap<>();
         event.put(EID, AUDIT);
         event.put(RECIPIENT_CODE, request.getRecipientCode());
@@ -70,10 +71,25 @@ public class AuditService {
         event.put(REQUESTED_TIME, System.currentTimeMillis());
         event.put(UPDATED_TIME, System.currentTimeMillis());
         event.put(AUDIT_TIMESTAMP, System.currentTimeMillis());
-        event.put(SENDER_ROLE, new ArrayList<>());
-        event.put(RECIPIENT_ROLE, new ArrayList<>());
-        event.put(PAYLOAD, "");
+        event.put(SENDER_ROLE, request.getSenderRole());
+        event.put(RECIPIENT_ROLE, request.getRecipientRole());
+        event.put(PAYLOAD, removeEncryptionKey(request));
         return  event;
+    }
+
+    private String removeEncryptionKey(BaseRequest request) throws JsonProcessingException {
+        if(request.isJSONRequest()) {
+            return JSONUtils.serialize(request.getPayload());
+        } else {
+            List<String> modifiedPayload = new ArrayList<>(Arrays.asList(request.getPayload().get(PAYLOAD).toString().split("\\.")));
+            modifiedPayload.remove(1);
+            String[] payloadValues = modifiedPayload.toArray(new String[modifiedPayload.size()]);
+            StringBuilder sb = new StringBuilder();
+            for(String value: payloadValues) {
+                sb.append(value).append(".");
+            }
+            return sb.deleteCharAt(sb.length()-1).toString();
+        }
     }
 
 }
