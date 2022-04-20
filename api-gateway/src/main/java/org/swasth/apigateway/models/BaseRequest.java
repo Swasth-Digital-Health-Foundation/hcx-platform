@@ -107,11 +107,13 @@ public class BaseRequest {
         else if(participantCode.equals(hcxCode)) {
             throw new ClientException(code, participant + " should not be sent as sender/recipient in the incoming requests");
         }
-        else if(roles.contains(hcxRoles)) {
-            throw new ClientException(code, participant + " role is not be sent as sender/recipient in the incoming requests");
-        }
         else if(StringUtils.equals((String) details.get(REGISTRY_STATUS), BLOCKED) || StringUtils.equals((String) details.get(REGISTRY_STATUS), INACTIVE)){
             throw new ClientException(code, participant + "  is blocked or inactive as per the registry");
+        }
+        for (String notAllowRole: roles){
+            if(notAllowRole.equalsIgnoreCase(hcxRoles)) {
+                throw new ClientException(code, participant + " role is not be sent as sender/recipient in the incoming requests");
+            }
         }
     }
 
