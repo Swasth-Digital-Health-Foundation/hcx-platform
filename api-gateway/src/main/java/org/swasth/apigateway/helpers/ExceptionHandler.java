@@ -52,8 +52,10 @@ public class ExceptionHandler {
             errorCode = ErrorCodes.ERR_ACCESS_DENIED;
         }
         try {
-            request.setErrorDetails(JSONUtils.decodeBase64String(new ResponseError(errorCode, e.getMessage(), e.getCause()).toString(), Map.class));
-            auditService.createAuditLog(request);
+            if (Constants.ALLOWED_ENTITIES_ERROR_AUDIT_CREATION.contains(request.getEntity(request.getApiAction()))) {
+                request.setErrorDetails(JSONUtils.decodeBase64String(new ResponseError(errorCode, e.getMessage(), e.getCause()).toString(), Map.class));
+                auditService.createAuditLog(request);
+            }
         } catch (Exception exception) {
             ex = new ClientException("Error while creating audit log :: Exception : " + exception.getMessage());
         }

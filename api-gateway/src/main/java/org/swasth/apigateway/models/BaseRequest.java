@@ -25,8 +25,8 @@ public class BaseRequest {
     private String apiAction;
     private Map<String,Object> protocolHeaders;
     private Map<String,Object> payload;
-    private ArrayList<String> senderRole;
-    private ArrayList<String> recipientRole;
+    private List<String> senderRole;
+    private List<String> recipientRole;
 
     public BaseRequest(){}
 
@@ -210,8 +210,8 @@ public class BaseRequest {
 
     public Map<String,Object> getPayload(){ return payload; }
 
-    public ArrayList<String> getSenderRole() { return senderRole; }
-    public ArrayList<String> getRecipientRole() { return recipientRole; }
+    public List<String> getSenderRole() { return senderRole; }
+    public List<String> getRecipientRole() { return recipientRole; }
 
     protected String[] validateRequestBody(Map<String, Object> requestBody) throws Exception {
         try {

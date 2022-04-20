@@ -93,5 +93,5 @@ public class Constants {
     public static final String COMPLETE_STATUS = "response.complete";
     public static final List<String> EXCLUDE_ENTITIES = Arrays.asList("communication", "payment","notification");
     public static final List<String> RESPONSE_STATUS_VALUES = Arrays.asList(COMPLETE_STATUS, "response.partial", ERROR_RESPONSE, REDIRECT_STATUS);
-    public static final List<String> ERROR_AUDIT_CREATION_ENTITIES = Arrays.asList("coverageeligibility", "preauth", "claim", "payment", "communication", "predetermination", "status", "search");
+    public static final List<String> ALLOWED_ENTITIES_ERROR_AUDIT_CREATION = Arrays.asList("coverageeligibility", "preauth", "claim", "payment", "communication", "predetermination", "status", "search");
 }
