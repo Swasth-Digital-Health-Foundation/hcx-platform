@@ -14,6 +14,14 @@ class ParticipantControllerTests extends BaseSpec{
 
 
     @Test
+    void participant_search_not_found_scenario() throws Exception {
+        MvcResult mvcResult = mockMvc.perform(post("/participant/search").content(getSearchNotFoundFilter()).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        assertEquals(404, status);
+    }
+
+    @Test
     void participant_search_success_scenario() throws Exception {
         MvcResult mvcResult = mockMvc.perform(post("/participant/search").content(getSearchFilter()).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
