@@ -184,7 +184,7 @@ public class BaseRequest {
 
     public String getRecipientCode() { return getHeader(RECIPIENT_CODE); }
 
-    protected String getTimestamp() { return getHeader(TIMESTAMP); }
+    public String getTimestamp() { return getHeader(TIMESTAMP); }
 
     protected String getDebugFlag() { return getHeader(DEBUG_FLAG); }
 
@@ -193,10 +193,12 @@ public class BaseRequest {
     private String getHeader(String key) { return (String) protocolHeaders.getOrDefault(key, null); }
 
     private Map<String,Object> getHeaderMap(String key){ return (Map<String,Object>) protocolHeaders.getOrDefault(key,null); }
+    private void setHeaderMap(String key, Object value){ protocolHeaders.put(key, value); }
 
-    protected Map<String,Object> getErrorDetails(){ return getHeaderMap(ERROR_DETAILS); }
+    public Map<String,Object> getErrorDetails(){ return getHeaderMap(ERROR_DETAILS); }
+    public void setErrorDetails(Map<String,Object> errorDetails){ setHeaderMap(ERROR_DETAILS, errorDetails); }
 
-    protected Map<String,Object> getDebugDetails(){ return getHeaderMap(DEBUG_DETAILS); }
+    public Map<String,Object> getDebugDetails(){ return getHeaderMap(DEBUG_DETAILS); }
 
     public String getRedirectTo() { return getHeader(REDIRECT_TO); }
 

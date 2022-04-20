@@ -62,6 +62,13 @@ public class Constants {
     public static final String ERROR_DETAILS = "x-hcx-error_details";
     public static final List<String> ERROR_DETAILS_VALUES = Arrays.asList("code","message","trace");
     public static final String DEBUG_DETAILS = "x-hcx-debug_details";
+    public static final String EID = "eid";
+    public static final String AUDIT = "AUDIT";
+    public static final String MID = "mid";
+    public static final String ERROR_STATUS = "response.error";
+    public static final String AUDIT_TIMESTAMP = "requestTimeStamp";
+    public static final String UPDATED_TIME = "updatedTimestamp";
+    public static final String REQUESTED_TIME = "auditTimeStamp";
     public static final String BLOCKED = "Blocked";
     public static final String INACTIVE = "Inactive";
     public static final String OS_OWNER = "osOwner";
@@ -86,4 +93,5 @@ public class Constants {
     public static final String COMPLETE_STATUS = "response.complete";
     public static final List<String> EXCLUDE_ENTITIES = Arrays.asList("communication", "payment","notification");
     public static final List<String> RESPONSE_STATUS_VALUES = Arrays.asList(COMPLETE_STATUS, "response.partial", ERROR_RESPONSE, REDIRECT_STATUS);
+    public static final List<String> ERROR_AUDIT_CREATION_ENTITIES = Arrays.asList("coverageeligibility", "preauth", "claim", "payment", "communication", "predetermination", "status", "search");
 }

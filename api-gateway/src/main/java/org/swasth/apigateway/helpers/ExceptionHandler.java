@@ -2,13 +2,16 @@ package org.swasth.apigateway.helpers;
 
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.swasth.apigateway.exception.ClientException;
 import org.swasth.apigateway.exception.ErrorCodes;
 import org.swasth.apigateway.exception.JWTVerificationException;
 import org.swasth.apigateway.exception.ServerException;
 import org.swasth.apigateway.filters.JwtAuthenticationFilter;
+import org.swasth.apigateway.models.BaseRequest;
 import org.swasth.apigateway.models.Response;
 import org.swasth.apigateway.models.ResponseError;
+import org.swasth.apigateway.service.AuditService;
 import org.swasth.apigateway.utils.JSONUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,18 +28,31 @@ public class ExceptionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(ExceptionHandler.class);
 
-    public Mono<Void> errorResponse(Exception e, ServerWebExchange exchange, String correlationId, String apiCallId){
+    @Autowired
+    private AuditService auditService;
+
+    public Mono<Void> errorResponse(Exception e, ServerWebExchange exchange, String correlationId, String apiCallId, BaseRequest request) {
+        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+        ErrorCodes errorCode = null;
+        Exception ex = e;
         if (e instanceof ClientException) {
-            return this.onError(exchange, HttpStatus.BAD_REQUEST, correlationId, apiCallId, ((ClientException) e).getErrCode(), e);
+            status = HttpStatus.BAD_REQUEST;
+            errorCode = ((ClientException) e).getErrCode();
         } else if (e instanceof ServerException) {
-            return this.onError(exchange, HttpStatus.INTERNAL_SERVER_ERROR, correlationId, apiCallId, ((ServerException) e).getErrCode(), e);
+            errorCode = ((ServerException) e).getErrCode();
         } else if (e instanceof JWTVerificationException) {
-            return this.onError(exchange, HttpStatus.UNAUTHORIZED, correlationId, apiCallId, ((JWTVerificationException) e).getErrCode(), e);
+            status = HttpStatus.UNAUTHORIZED;
+            errorCode = ((JWTVerificationException) e).getErrCode();
         } else if (e instanceof TokenExpiredException) {
-            return this.onError(exchange, HttpStatus.UNAUTHORIZED, correlationId, apiCallId, ErrorCodes.ERR_ACCESS_DENIED, e);
-        } else {
-            return this.onError(exchange, HttpStatus.INTERNAL_SERVER_ERROR, correlationId, apiCallId, null, e);
+            status = HttpStatus.UNAUTHORIZED;
+            errorCode = ErrorCodes.ERR_ACCESS_DENIED;
         }
+        try {
+            auditService.createAuditLog(request);
+        } catch (Exception exception) {
+            ex = new ClientException("Error while creating audit log :: Exception : " + exception.getMessage());
+        }
+        return this.onError(exchange, status, correlationId, apiCallId, errorCode, ex);
     }
 
     private Mono<Void> onError(ServerWebExchange exchange, HttpStatus status, String correlationId, String apiCallId, ErrorCodes code, Exception e) {

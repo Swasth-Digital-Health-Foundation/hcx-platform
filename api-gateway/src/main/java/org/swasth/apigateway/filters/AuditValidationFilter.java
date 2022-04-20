@@ -60,7 +60,7 @@ public class AuditValidationFilter extends AbstractGatewayFilterFactory<AuditVal
                     throw new ClientException(ErrorCodes.ERR_INVALID_SENDER, "Sender is not exist in registry");
                 }
             } catch (Exception e) {
-                return exceptionHandler.errorResponse(e, exchange, null, null);
+                return exceptionHandler.errorResponse(e, exchange, null, null, null);
             }
             ModifyRequestBodyGatewayFilterFactory.Config modifyRequestConfig = new ModifyRequestBodyGatewayFilterFactory.Config()
                     .setContentType(ContentType.APPLICATION_JSON.getMimeType())

@@ -13,11 +13,13 @@ import org.springframework.stereotype.Component;
 import org.swasth.apigateway.exception.ClientException;
 import org.swasth.apigateway.exception.ErrorCodes;
 import org.swasth.apigateway.helpers.ExceptionHandler;
+import org.swasth.apigateway.models.BaseRequest;
 import org.swasth.apigateway.models.JSONRequest;
 import org.swasth.apigateway.models.JWERequest;
 import org.swasth.apigateway.service.AuditService;
 import org.swasth.apigateway.service.RegistryService;
 import org.swasth.apigateway.utils.JSONUtils;
+import org.swasth.auditindexer.function.AuditIndexer;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -60,6 +62,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
         return (exchange, chain) -> {
             String correlationId = null;
             String apiCallId = null;
+            BaseRequest requestObj = null;
             try {
                 StringBuilder cachedBody = new StringBuilder(StandardCharsets.UTF_8.decode(((DataBuffer) exchange.getAttribute(CACHED_REQUEST_BODY_ATTR)).asByteBuffer()));
                 ServerHttpRequest request = exchange.getRequest();
@@ -68,6 +71,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                 Map<String, Object> requestBody = JSONUtils.deserialize(cachedBody.toString(), HashMap.class);
                 if (requestBody.containsKey(PAYLOAD)) {
                     JWERequest jweRequest = new JWERequest(requestBody, false, path);
+                    requestObj = jweRequest;
                     correlationId = jweRequest.getCorrelationId();
                     apiCallId = jweRequest.getApiCallId();
                     Map<String,Object> senderDetails = getDetails(jweRequest.getSenderCode());
@@ -79,6 +83,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                         throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, "Request body should be a proper JWE object for action API calls");
                     }
                     JSONRequest jsonRequest = new JSONRequest(requestBody, true, path);
+                    requestObj = jsonRequest;
                     correlationId = jsonRequest.getCorrelationId();
                     apiCallId = jsonRequest.getApiCallId();
                     if (ERROR_RESPONSE.equalsIgnoreCase(jsonRequest.getStatus())) {
@@ -96,7 +101,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                 }
             } catch (Exception e) {
                 logger.error("Exception occurred for request with correlationId: " + correlationId);
-                return exceptionHandler.errorResponse(e, exchange, correlationId, apiCallId);
+                return exceptionHandler.errorResponse(e, exchange, correlationId, apiCallId, requestObj);
             }
             return chain.filter(exchange);
         };

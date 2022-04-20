@@ -3,6 +3,7 @@ package org.swasth.apigateway.filters;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.jayway.jsonpath.JsonPath;
+import lombok.SneakyThrows;
 import org.swasth.apigateway.constants.FilterOrder;
 import org.swasth.apigateway.exception.ErrorCodes;
 import org.swasth.apigateway.exception.JWTVerificationException;
@@ -90,7 +91,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
                 return chain.filter(exchange.mutate().request(request).build());
 
             } catch (Exception e) {
-                return exceptionHandler.errorResponse(e, exchange, null, null);
+                return exceptionHandler.errorResponse(e, exchange, null, null , null);
             }
         } else {
             return chain.filter(exchange);

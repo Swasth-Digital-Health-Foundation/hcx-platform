@@ -96,7 +96,7 @@ public class EventGenerator {
             event.put(STATUS, QUEUED_STATUS);
         else
             event.put(STATUS, request.getStatus());
-        event.put(REQUESTED_TIME, System.currentTimeMillis());
+        event.put(REQUEST_TIME, System.currentTimeMillis());
         event.put(UPDATED_TIME, System.currentTimeMillis());
         event.put(AUDIT_TIMESTAMP, System.currentTimeMillis());
         event.put(SENDER_ROLE, new ArrayList<>());
