@@ -172,7 +172,7 @@ public class BaseSpec {
         Map<String,Object> obj = new HashMap<>();
         obj.put("filters", new HashMap<>() {{
             put("participant_code",new HashMap<>() {{
-                put("eq","1-d2d56996-1b77-4abb-b9e9-0e6e7343c72e");
+                put("eq","1-d2d56996-1b77-4abb-b9e9-0e6e7343c72");
             }});
         }});
         return JSONUtils.serialize(obj);
