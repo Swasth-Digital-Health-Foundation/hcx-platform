@@ -25,8 +25,8 @@ public class BaseRequest {
     private String apiAction;
     private Map<String,Object> protocolHeaders;
     private Map<String,Object> payload;
-    private List<String> senderRole;
-    private List<String> recipientRole;
+    private List<String> senderRole = new ArrayList<>();
+    private List<String> recipientRole = new ArrayList<>();
 
     public BaseRequest(){}
 
