@@ -73,23 +73,8 @@ public class AuditService {
         event.put(AUDIT_TIMESTAMP, System.currentTimeMillis());
         event.put(SENDER_ROLE, request.getSenderRole());
         event.put(RECIPIENT_ROLE, request.getRecipientRole());
-        event.put(PAYLOAD, removeEncryptionKey(request));
+        event.put(PAYLOAD, request.getPayloadWithoutEncryptionKey());
         return  event;
-    }
-
-    private String removeEncryptionKey(BaseRequest request) throws JsonProcessingException {
-        if(request.isJSONRequest()) {
-            return JSONUtils.serialize(request.getPayload());
-        } else {
-            List<String> modifiedPayload = new ArrayList<>(Arrays.asList(request.getPayload().get(PAYLOAD).toString().split("\\.")));
-            modifiedPayload.remove(1);
-            String[] payloadValues = modifiedPayload.toArray(new String[modifiedPayload.size()]);
-            StringBuilder sb = new StringBuilder();
-            for(String value: payloadValues) {
-                sb.append(value).append(".");
-            }
-            return sb.deleteCharAt(sb.length()-1).toString();
-        }
     }
 
 }
