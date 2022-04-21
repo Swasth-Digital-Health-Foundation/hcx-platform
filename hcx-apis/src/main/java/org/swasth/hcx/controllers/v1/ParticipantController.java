@@ -1,4 +1,4 @@
-package org.swasth.hcx.controllers;
+package org.swasth.hcx.controllers.v1;
 
 import kong.unirest.HttpResponse;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,6 +11,7 @@ import org.swasth.common.dto.ResponseError;
 import org.swasth.common.exception.ErrorCodes;
 import org.swasth.common.utils.HttpUtils;
 import org.swasth.common.utils.JSONUtils;
+import org.swasth.hcx.controllers.BaseController;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,7 +21,7 @@ import java.util.Map;
 import static org.swasth.common.utils.Constants.*;
 
 @RestController()
-@RequestMapping(value = "/participant")
+@RequestMapping(value = "/v1/participant")
 public class ParticipantController  extends BaseController {
 
     @Value("${registry.basePath}")
