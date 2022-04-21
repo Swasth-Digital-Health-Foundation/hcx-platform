@@ -43,6 +43,11 @@ public class Constants {
     public static final List<String> ACTION_APIS = Arrays.asList(COVERAGE_ELIGIBILITY_CHECK, PRE_AUTH_SUBMIT, CLAIM_SUBMIT, PAYMENT_NOTICE_REQUEST, HCX_STATUS, HCX_SEARCH, COMMUNICATION_REQUEST, PREDETERMINATION_SUBMIT);
     public static final List<String> ON_ACTION_APIS = Arrays.asList(COVERAGE_ELIGIBILITY_ONCHECK, PRE_AUTH_ONSUBMIT, CLAIM_ONSUBMIT, PAYMENT_NOTICE_ONREQUEST, HCX_ONSTATUS, HCX_ON_SEARCH, COMMUNICATION_ONREQUEST, PREDETERMINATION_ONSUBMIT);
 
+    // Entity types
+    public static final String COMMUNICATION = "communication";
+    public static final String NOTIFICATION = "notification";
+    public static final String PAYMENT = "payment";
+
     public static final int PAYLOAD_LENGTH = 5;
     public static final String AUTH_REQUIRED = "AUTH_REQUIRED";
     public static final String X_JWT_SUB_HEADER = "X-jwt-sub";
@@ -88,10 +93,10 @@ public class Constants {
     public static final String SENDER_ROLE = "senderRole";
     public static final String RECIPIENT_ROLE = "recipientRole";
     public static final String PROVIDER = "provider";
-    public static final List<String> OPERATIONAL_ENTITIES = Arrays.asList("notification", "communication", "status");
+    public static final List<String> OPERATIONAL_ENTITIES = Arrays.asList(NOTIFICATION, COMMUNICATION, "status");
     public static final String REDIRECT_STATUS = "response.redirect";
     public static final String COMPLETE_STATUS = "response.complete";
-    public static final List<String> EXCLUDE_ENTITIES = Arrays.asList("communication", "payment","notification");
+    public static final List<String> EXCLUDE_ENTITIES = Arrays.asList(COMMUNICATION, PAYMENT, NOTIFICATION);
     public static final List<String> RESPONSE_STATUS_VALUES = Arrays.asList(COMPLETE_STATUS, "response.partial", ERROR_RESPONSE, REDIRECT_STATUS);
-    public static final List<String> ALLOWED_ENTITIES_ERROR_AUDIT_CREATION = Arrays.asList("coverageeligibility", "preauth", "claim", "payment", "communication", "predetermination", "status", "search");
+    public static final List<String> ALLOWED_ENTITIES_ERROR_AUDIT_CREATION = Arrays.asList("coverageeligibility", "preauth", "claim", PAYMENT, COMMUNICATION, "predetermination", "status", "search");
 }
