@@ -25,18 +25,17 @@ public class BaseRequest {
     private boolean isJSONRequest;
     private String apiAction;
     private Map<String,Object> protocolHeaders;
-
-    @Value("${registry.hcxCode}")
+    private String hcxRoles;
     private String hcxCode;
 
-    @Value("${registry.hcxRoles}")
-    private String hcxRoles;
 
     public BaseRequest(){}
 
-    public BaseRequest(Map<String, Object> payload,boolean isJSONRequest,String apiAction) throws Exception{
+    public BaseRequest(Map<String, Object> payload,boolean isJSONRequest,String apiAction, String hcxCode, String hcxRoles) throws Exception{
         this.isJSONRequest = isJSONRequest;
         this.apiAction = apiAction;
+        this.hcxRoles = hcxRoles;
+        this.hcxCode  = hcxCode;
         try {
             if(this.isJSONRequest)
                 this.protocolHeaders = payload;

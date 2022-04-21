@@ -51,6 +51,12 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
     @Value("${allowedRolesForForward}")
     private List<String> allowedRolesForForward;
 
+    @Value("${registry.hcxCode}")
+    private String hcxCode;
+
+    @Value("${registry.hcxRoles}")
+    private String hcxRoles;
+
     public HCXValidationFilter() {
         super(Config.class);
     }
@@ -67,7 +73,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                 String subject = request.getHeaders().getFirst("X-jwt-sub");
                 Map<String, Object> requestBody = JSONUtils.deserialize(cachedBody.toString(), HashMap.class);
                 if (requestBody.containsKey(PAYLOAD)) {
-                    JWERequest jweRequest = new JWERequest(requestBody, false, path);
+                    JWERequest jweRequest = new JWERequest(requestBody, false, path, hcxCode, hcxRoles);
                     correlationId = jweRequest.getCorrelationId();
                     apiCallId = jweRequest.getApiCallId();
                     Map<String,Object> senderDetails = getDetails(jweRequest.getSenderCode());
@@ -78,7 +84,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                     if (!path.contains("on_")) {
                         throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, "Request body should be a proper JWE object for action API calls");
                     }
-                    JSONRequest jsonRequest = new JSONRequest(requestBody, true, path);
+                    JSONRequest jsonRequest = new JSONRequest(requestBody, true, path, hcxCode, hcxRoles);
                     correlationId = jsonRequest.getCorrelationId();
                     apiCallId = jsonRequest.getApiCallId();
                     if (ERROR_RESPONSE.equalsIgnoreCase(jsonRequest.getStatus())) {

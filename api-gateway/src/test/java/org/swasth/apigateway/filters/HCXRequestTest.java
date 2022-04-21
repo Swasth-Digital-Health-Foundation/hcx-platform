@@ -116,27 +116,6 @@ class HCXRequestTest extends BaseSpec {
                 });
     }
 
-    @Test
-    void check_hcx_admin_access_scenario() throws Exception {
-        server.enqueue(new MockResponse()
-                .setResponseCode(202)
-                .addHeader("Content-Type", "application/json"));
-
-        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
-                .thenReturn(getHCXAdminDetails())
-                .thenReturn(getPayorDetails());
-        Mockito.when(auditService.getAuditLogs(any())).thenReturn(new ArrayList<>());
-
-        client.post().uri("/v1/coverageeligibility/check")
-                .header(Constants.AUTHORIZATION, getHCXAdminToken())
-                .header("X-jwt-sub", "f698b521-7409-432d-a5db-d13e51f029a9")
-                .bodyValue(getRequestBody())
-                .exchange()
-                .expectBody(Map.class)
-                .consumeWith(result -> {
-                    assertEquals(HttpStatus.ACCEPTED, result.getStatus());
-                });
-    }
 
     @Test
     void check_hcx_request_missing_authorization_header_scenario() throws Exception {
@@ -342,6 +321,43 @@ class HCXRequestTest extends BaseSpec {
                     assertEquals(ErrorCodes.ERR_INVALID_RECIPIENT.name(), getResponseErrorCode(result));
                 });
     }
+
+    @Test
+    void check_hcx_request_not_allowed_participant_code_scenario() throws Exception {
+        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
+                .thenReturn(new HashMap<>())
+                .thenReturn(getNotallowedPayorDetails());
+
+        client.post().uri("/v1/coverageeligibility/check")
+                .header(Constants.AUTHORIZATION, getProviderToken())
+                .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
+                .bodyValue(Collections.singletonMap("payload", "eyJlbmMiOiJBMjU2R0NNIiwKImFsZyI6IlJTQS1PQUVQIiwKIngtaGN4LXNlbmRlcl9jb2RlIjoiMS0zYTNiZDY4YS04NDhhLTRkNTItOWVjMi0wN2E5MmQ3NjVmYjQiLAoieC1oY3gtcmVjaXBpZW50X2NvZGUiOiIxLWQyZDU2OTk2LTFiNzctNGFiYi1iOWU5LTBlNmU3MzQzYzcyZSIsCiJ4LWhjeC1hcGlfY2FsbF9pZCI6IjI2YjEwNjBjLTFlODMtNDYwMC05NjEyLWVhMzFlMGNhNTA5MyIsCiJ4LWhjeC1jb3JyZWxhdGlvbl9pZCI6IjVlOTM0ZjkwLTExMWQtNGYwYi1iMDE2LWMyMmQ4MjA2NzRlMSIsCiJ4LWhjeC10aW1lc3RhbXAiOiIyMDIxLTEwLTI3VDIwOjM1OjUyLjYzNiswNTMwIiwKIngtaGN4LXN0YXR1cyI6InJlcXVlc3QucXVldWVkIiwKIngtaGN4LXdvcmtmbG93X2lkIjoiMjZiMTA2MGMtMWU4My00NjAwLTk2MTItZWEzMWUwY2E1MDk0Igp9.6KB707dM9YTIgHtLvtgWQ8mKwboJW3of9locizkDTHzBC2IlrT1oOQ.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.KDlTtXchhZTGufMYmOYGS4HffxPSUrfmqCHXaI9wOGY.Mz-VPPyU4RlcuYv1IwIvzw"))
+                .exchange()
+                .expectBody(Map.class)
+                .consumeWith(result -> {
+                    assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
+                    assertEquals(ErrorCodes.ERR_INVALID_RECIPIENT.name(), getResponseErrorCode(result));
+                });
+    }
+
+    @Test
+    void check_hcx_request_not_allowed_roles_scenario() throws Exception {
+        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
+                .thenReturn(new HashMap<>())
+                .thenReturn(getNotallowedPayorDetails());
+
+        client.post().uri("/v1/coverageeligibility/check")
+                .header(Constants.AUTHORIZATION, getHCXAdminToken())
+                .header("X-jwt-sub", "f698b521-7409-432d-a5db-d13e51f029a9")
+                .bodyValue(Collections.singletonMap("payload", "eyJlbmMiOiJBMjU2R0NNIiwKImFsZyI6IlJTQS1PQUVQIiwKIngtaGN4LXNlbmRlcl9jb2RlIjoiMS0zYTNiZDY4YS04NDhhLTRkNTItOWVjMi0wN2E5MmQ3NjVmYjQiLAoieC1oY3gtcmVjaXBpZW50X2NvZGUiOiIxLWNlMjNjY2RjLWU2NDUtNGUzNS05N2I4LTBiZDhmZWY0M2VjZCIsCiJ4LWhjeC1hcGlfY2FsbF9pZCI6IjI2YjEwNjBjLTFlODMtNDYwMC05NjEyLWVhMzFlMGNhNTA5MyIsCiJ4LWhjeC1jb3JyZWxhdGlvbl9pZCI6IjVlOTM0ZjkwLTExMWQtNGYwYi1iMDE2LWMyMmQ4MjA2NzRlMSIsCiJ4LWhjeC10aW1lc3RhbXAiOiIyMDIxLTEwLTI3VDIwOjM1OjUyLjYzNiswNTMwIiwKIngtaGN4LXN0YXR1cyI6InJlcXVlc3QucXVldWVkIiwKIngtaGN4LXdvcmtmbG93X2lkIjoiMjZiMTA2MGMtMWU4My00NjAwLTk2MTItZWEzMWUwY2E1MDk0Igp9.6KB707dM9YTIgHtLvtgWQ8mKwboJW3of9locizkDTHzBC2IlrT1oOQ.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.KDlTtXchhZTGufMYmOYGS4HffxPSUrfmqCHXaI9wOGY.Mz-VPPyU4RlcuYv1IwIvzw"))
+                .exchange()
+                .expectBody(Map.class)
+                .consumeWith(result -> {
+                    assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
+                    assertEquals(ErrorCodes.ERR_INVALID_RECIPIENT.name(), getResponseErrorCode(result));
+                });
+    }
+
 
     @Test
     void check_hcx_request_empty_debug_flag_scenario() throws Exception {

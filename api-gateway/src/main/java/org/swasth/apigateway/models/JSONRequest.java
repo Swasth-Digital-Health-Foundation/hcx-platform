@@ -12,8 +12,8 @@ import static org.swasth.apigateway.constants.Constants.*;
 @Data
 public class JSONRequest extends BaseRequest{
 
-    public JSONRequest(Map<String, Object> payload,boolean isJSONRequest,String apiAction) throws Exception{
-        super(payload,isJSONRequest,apiAction);
+    public JSONRequest(Map<String, Object> payload,boolean isJSONRequest,String apiAction,String hcxCode, String hcxRoles) throws Exception{
+        super(payload,isJSONRequest,apiAction,hcxCode,hcxRoles);
     }
 
     public void validateRedirect(List<String> allowedRoles,Map<String, Object> redirectDetails,List<Map<String, Object>> callAuditData,List<Map<String, Object>> correlationAuditData) throws Exception {
