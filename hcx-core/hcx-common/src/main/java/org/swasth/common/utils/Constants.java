@@ -81,9 +81,6 @@ public class Constants {
     public static final String STATUS = "x-hcx-status";
     public static final String ERROR_DETAILS = "x-hcx-error_details";
     public static final String DEBUG_DETAILS = "x-hcx-debug_details";
-    public static final String STATUS_FILTERS = "x-hcx-status_filters";
-    public static final String STATUS_RESPONSE = "x-hcx-status_response";
-    public static final List<String> STATUS_SEARCH_ALLOWED_ENTITIES = Arrays.asList("coverageeligibility", "preauth", "claim","predetermination");
     public static final String SERVICE_MODE = "service.mode";
     public static final String GATEWAY = "gateway";
     public static final String KAFKA_TOPIC_PAYLOAD = "kafka.topic.payload";
@@ -112,6 +109,7 @@ public class Constants {
     public static final String REDIRECT_STATUS = "response.redirect";
     public static final String COMPLETE_STATUS = "response.complete";
     public static final String QUEUED_STATUS = "request.queued";
+    public static final String DISPATCHED_STATUS = "request.dispatched";
     public static final String RETRY_STATUS = "request.retry";
     public static final String RETRY_PROCESSING_STATUS = "request.retry.processing";
 

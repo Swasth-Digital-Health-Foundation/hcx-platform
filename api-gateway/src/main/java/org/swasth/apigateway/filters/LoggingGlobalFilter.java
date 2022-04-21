@@ -15,8 +15,6 @@ import reactor.core.publisher.Mono;
 
 import java.net.URI;
 
-import static org.swasth.apigateway.constants.Constants.CORRELATION_ID;
-
 /**
  * Logs request metadata, headers & response metadata
  */
@@ -61,8 +59,8 @@ public class LoggingGlobalFilter implements Ordered, GlobalFilter {
         HttpHeaders headers = request.getHeaders();
         long startTime = System.currentTimeMillis();
         exchange.getAttributes().put(START_TIME, startTime);
-        log.info("[RequestLogFilter](Request)CorrelationID:{}, Scheme:{},Path:{}, Method:{},IP:{},Host:{}",
-                exchange.getAttributes().get(CORRELATION_ID),scheme,
+        log.info("[RequestLogFilter](Request) Scheme:{},Path:{}, Method:{},IP:{},Host:{}",
+                scheme,
                 requestURI.getPath(),
                 request.getMethod(), getIpAddress(request),requestURI.getHost());
         headers.forEach((key,value)-> log.debug("[RequestLogFilter](Request)Headers:Key->{},Value->{}",key,value));
@@ -81,13 +79,13 @@ public class LoggingGlobalFilter implements Ordered, GlobalFilter {
         }
         ServerHttpResponse response = exchange.getResponse();
         HttpHeaders headers = response.getHeaders();
-        headers.forEach((key,value)-> log.debug("[RequestLogFilter]CorrelationID:{}, Headers:Key->{},Value->{}",
-                exchange.getAttributes().get(CORRELATION_ID), key,
+        headers.forEach((key,value)-> log.debug("[RequestLogFilter] Headers:Key->{},Value->{}",
+                key,
                 value));
         MediaType contentType = headers.getContentType();
         long length = headers.getContentLength();
-        log.info("[RequestLogFilter](Response) CorrelationID:{}, HttpStatus:{},ContentType:{},Content Length:{}",
-                exchange.getAttributes().get(CORRELATION_ID),response.getStatusCode(),contentType,length);
+        log.info("[RequestLogFilter](Response) HttpStatus:{},ContentType:{},Content Length:{}",
+                response.getStatusCode(),contentType,length);
         return Mono.empty();
     }
 

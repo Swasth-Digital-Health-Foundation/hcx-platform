@@ -57,7 +57,7 @@ public class RegistryService {
             throw new ServerException(ErrorCodes.SERVICE_UNAVAILABLE, "Error connecting to registry service: " + e.getMessage());
         }
         Map<String,Object> details = new HashMap<>();
-        if (response != null && response.getStatus() == 200) {
+        if (response.getStatus() == 200) {
             ArrayList result = JSONUtils.deserialize((String) response.getBody(), ArrayList.class);
             if (!result.isEmpty()) {
                 details = (Map<String, Object>) result.get(0);

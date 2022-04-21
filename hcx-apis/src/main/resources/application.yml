@@ -41,6 +41,8 @@ protocol:
 headers:
   jose: ${jose_headers:alg, enc}
 
+allowedEntitiesForStatusSearch: ${allowed_entities_for_status_search:coverageeligibility, preauth, claim, predetermination}
+
 #elasticsearch config
 es:
   host: ${es_host:localhost}
