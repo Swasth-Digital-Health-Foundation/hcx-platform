@@ -2,10 +2,6 @@ package org.swasth.hcx.controllers;
 
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -94,6 +90,42 @@ class ParticipantControllerTests extends BaseSpec{
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         assertEquals(500, status);
+    }
+
+    @Test
+    void participant_create_payor_scenario() throws Exception {
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(400)
+                .setBody("{ \"id\": \"open-saber.registry.invite\", \"ver\": \"1.0\", \"ets\": 1637227738534, \"params\": { \"resmsgid\": \"\", \"msgid\": \"bb355e26-cc12-4aeb-8295-03347c428c62\", \"err\": \"\", \"status\": \"SUCCESSFUL\", \"errmsg\": \"\" }, \"responseCode\": \"OK\", \"result\": { \"Organisation\": { \"osid\": \"1-17f02101-b560-4bc1-b3ab-2dac04668fd2\" } } }")
+                .addHeader("Content-Type", "application/json"));
+        MvcResult mvcResult = mockMvc.perform(post("/participant/create").content(getParticipantPayorBody()).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        assertEquals(400, status);
+    }
+
+    @Test
+    void participant_create_payor_scheme_missing_scenario() throws Exception {
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(400)
+                .setBody("{ \"id\": \"open-saber.registry.invite\", \"ver\": \"1.0\", \"ets\": 1637227738534, \"params\": { \"resmsgid\": \"\", \"msgid\": \"bb355e26-cc12-4aeb-8295-03347c428c62\", \"err\": \"\", \"status\": \"SUCCESSFUL\", \"errmsg\": \"\" }, \"responseCode\": \"OK\", \"result\": { \"Organisation\": { \"osid\": \"1-17f02101-b560-4bc1-b3ab-2dac04668fd2\" } } }")
+                .addHeader("Content-Type", "application/json"));
+        MvcResult mvcResult = mockMvc.perform(post("/participant/create").content(getParticipantPayorSchemeBody()).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        assertEquals(400, status);
+    }
+
+    @Test
+    void participant_create_payor_scheme_not_allowed_scenario() throws Exception {
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(400)
+                .setBody("{ \"id\": \"open-saber.registry.invite\", \"ver\": \"1.0\", \"ets\": 1637227738534, \"params\": { \"resmsgid\": \"\", \"msgid\": \"bb355e26-cc12-4aeb-8295-03347c428c62\", \"err\": \"\", \"status\": \"SUCCESSFUL\", \"errmsg\": \"\" }, \"responseCode\": \"OK\", \"result\": { \"Organisation\": { \"osid\": \"1-17f02101-b560-4bc1-b3ab-2dac04668fd2\" } } }")
+                .addHeader("Content-Type", "application/json"));
+        MvcResult mvcResult = mockMvc.perform(post("/participant/create").content(getParticipantPayorSchemeNotAllowedBody()).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        assertEquals(400, status);
     }
 
     @Test
