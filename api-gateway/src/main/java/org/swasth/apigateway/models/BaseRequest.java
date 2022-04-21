@@ -24,12 +24,17 @@ public class BaseRequest {
     private boolean isJSONRequest;
     private String apiAction;
     private Map<String,Object> protocolHeaders;
+    private String hcxRoles;
+    private String hcxCode;
+
 
     public BaseRequest(){}
 
-    public BaseRequest(Map<String, Object> payload,boolean isJSONRequest,String apiAction) throws Exception{
+    public BaseRequest(Map<String, Object> payload,boolean isJSONRequest,String apiAction, String hcxCode, String hcxRoles) throws Exception{
         this.isJSONRequest = isJSONRequest;
         this.apiAction = apiAction;
+        this.hcxRoles = hcxRoles;
+        this.hcxCode  = hcxCode;
         try {
             if(this.isJSONRequest)
                 this.protocolHeaders = payload;
@@ -58,8 +63,8 @@ public class BaseRequest {
         validateCondition(!DateTimeUtils.validTimestamp(timestampRange, getTimestamp()), ErrorCodes.ERR_INVALID_TIMESTAMP, "Timestamp cannot be more than " + timestampRange + " hours in the past or future time");
         validateCondition(protocolHeaders.containsKey(WORKFLOW_ID) && !Utils.isUUID(getWorkflowId()), ErrorCodes.ERR_INVALID_WORKFLOW_ID, "Workflow id should be a valid UUID");
         validateCondition(StringUtils.equals(getSenderCode(), getRecipientCode()), ErrorCodes.ERR_INVALID_SENDER_AND_RECIPIENT, "sender and recipient code cannot be the same");
-        validateParticipant(recipientDetails, ErrorCodes.ERR_INVALID_RECIPIENT, "recipient");
-        validateParticipant(senderDetails, ErrorCodes.ERR_INVALID_SENDER, "sender");
+        validateParticipant(recipientDetails, ErrorCodes.ERR_INVALID_RECIPIENT, "recipient", getRecipientCode());
+        validateParticipant(senderDetails, ErrorCodes.ERR_INVALID_SENDER, "sender", getSenderCode());
         validateCondition(!StringUtils.equals(((ArrayList) senderDetails.get(OS_OWNER)).get(0).toString(), subject), ErrorCodes.ERR_ACCESS_DENIED, "Caller id and sender code is not matched");
 
         if (protocolHeaders.containsKey(DEBUG_FLAG)) {
@@ -91,11 +96,22 @@ public class BaseRequest {
         }
     }
 
-    protected void validateParticipant(Map<String,Object> details, ErrorCodes code, String participant) throws ClientException {
+    protected void validateParticipant(Map<String,Object> details, ErrorCodes code, String participant, String participantCode) throws ClientException {
+        ArrayList<String> roles = (ArrayList) details.get("roles");
+
         if(details.isEmpty()){
             throw new ClientException(code, participant + " does not exist in registry");
-        } else if(StringUtils.equals((String) details.get("status"), BLOCKED) || StringUtils.equals((String) details.get("status"), INACTIVE)){
+        }
+        else if(participantCode.equals(hcxCode)) {
+            throw new ClientException(code, participant + " should not be sent as sender/recipient in the incoming requests");
+        }
+        else if(StringUtils.equals((String) details.get(REGISTRY_STATUS), BLOCKED) || StringUtils.equals((String) details.get(REGISTRY_STATUS), INACTIVE)){
             throw new ClientException(code, participant + "  is blocked or inactive as per the registry");
+        }
+        for (String notAllowRole: roles){
+            if(notAllowRole.equalsIgnoreCase(hcxRoles)) {
+                throw new ClientException(code, participant + " role is not be sent as sender/recipient in the incoming requests");
+            }
         }
     }
 
