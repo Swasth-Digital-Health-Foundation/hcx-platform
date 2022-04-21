@@ -20,12 +20,12 @@ import static org.swasth.apigateway.constants.Constants.*;
 public class BaseRequest {
 
     private boolean isJSONRequest;
-    private String apiAction = null;
+    private String apiAction;
     private Map<String,Object> protocolHeaders;
     private Map<String,Object> payload;
     private List<String> senderRole = new ArrayList<>();
     private List<String> recipientRole = new ArrayList<>();
-    private String payloadWithoutEncryptionKey = null;
+    private String payloadWithoutEncryptionKey;
     private String hcxRoles;
     private String hcxCode;
 
