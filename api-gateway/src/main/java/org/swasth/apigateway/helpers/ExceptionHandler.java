@@ -2,29 +2,26 @@ package org.swasth.apigateway.helpers;
 
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.buffer.DataBufferFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.server.reactive.ServerHttpResponse;
+import org.springframework.stereotype.Component;
+import org.springframework.web.server.ServerWebExchange;
 import org.swasth.apigateway.constants.Constants;
 import org.swasth.apigateway.exception.ClientException;
 import org.swasth.apigateway.exception.ErrorCodes;
 import org.swasth.apigateway.exception.JWTVerificationException;
 import org.swasth.apigateway.exception.ServerException;
-import org.swasth.apigateway.filters.JwtAuthenticationFilter;
 import org.swasth.apigateway.models.BaseRequest;
 import org.swasth.apigateway.models.Response;
 import org.swasth.apigateway.models.ResponseError;
 import org.swasth.apigateway.service.AuditService;
 import org.swasth.apigateway.utils.JSONUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.io.buffer.DataBufferFactory;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.server.reactive.ServerHttpResponse;
-import org.springframework.stereotype.Component;
-import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @Component
@@ -37,7 +34,7 @@ public class ExceptionHandler {
 
     public Mono<Void> errorResponse(Exception e, ServerWebExchange exchange, String correlationId, String apiCallId, BaseRequest request) {
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
-        ErrorCodes errorCode = null;
+        ErrorCodes errorCode = ErrorCodes.INTERNAL_SERVER_ERROR;
         Exception ex = e;
         if (e instanceof ClientException) {
             status = HttpStatus.BAD_REQUEST;

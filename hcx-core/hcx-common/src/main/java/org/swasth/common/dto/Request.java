@@ -12,6 +12,8 @@ public class Request {
 
     private final Map<String, Object> payload;
     protected Map<String, Object> hcxHeaders = null;
+    private String mid;
+    private String apiAction;
 
     public Request(Map<String, Object> body) throws Exception {
         this.payload = body;
@@ -62,6 +64,8 @@ public class Request {
         return getHeader(STATUS);
     }
 
+    public void  setStatus(String status) { setHeaderMap(STATUS, status);}
+
     public Map<String, Object> getHcxHeaders() {
         return hcxHeaders;
     }
@@ -74,6 +78,8 @@ public class Request {
         return (Map<String, Object>) hcxHeaders.getOrDefault(key, null);
     }
 
+    private void setHeaderMap(String key, Object value){ hcxHeaders.put(key, value); }
+
     public Map<String, Object> getErrorDetails() {
         return getHeaderMap(ERROR_DETAILS);
     }
@@ -82,5 +88,14 @@ public class Request {
         return getHeaderMap(DEBUG_DETAILS);
     }
 
+    public void setMid(String mid) { this.mid = mid; }
+
+    public String getMid() { return mid; }
+
+    public void setApiAction(String apiAction) {
+        this.apiAction = apiAction;
+    }
+
+    public String getApiAction() { return apiAction; }
 }
 
