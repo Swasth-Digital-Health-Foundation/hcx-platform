@@ -5,10 +5,7 @@ import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
 import org.swasth.common.utils.JSONUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.swasth.common.utils.Constants.*;
 
@@ -16,9 +13,9 @@ public class Request {
 
     private final Map<String, Object> payload;
     protected Map<String, Object> hcxHeaders = null;
-    private String mid;
+    private final String mid = UUID.randomUUID().toString();
     private String apiAction;
-    private String payloadWithoutEncryptionKey;
+    private final String payloadWithoutEncryptionKey;
 
     public Request(Map<String, Object> body) throws Exception {
         this.payload = body;
@@ -109,8 +106,6 @@ public class Request {
     public Map<String, Object> getDebugDetails() {
         return getHeaderMap(DEBUG_DETAILS);
     }
-
-    public void setMid(String mid) { this.mid = mid; }
 
     public String getMid() { return mid; }
 

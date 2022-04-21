@@ -59,7 +59,6 @@ public class BaseController {
     }
 
     protected void processAndSendEvent(String metadataTopic, Request request) throws Exception {
-        request.setMid(UUID.randomUUID().toString());
         String serviceMode = env.getProperty(SERVICE_MODE);
         String payloadTopic = env.getProperty(KAFKA_TOPIC_PAYLOAD);
         String key = request.getSenderCode();
