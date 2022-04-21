@@ -33,12 +33,12 @@ public class BaseRequest {
         this.isJSONRequest = isJSONRequest;
         this.apiAction = apiAction;
         this.payload = payload;
-        this.payloadWithoutEncryptionKey = removeEncryptionKey(payload);
         try {
             if(this.isJSONRequest)
                 this.protocolHeaders = payload;
             else
                 this.protocolHeaders = JSONUtils.decodeBase64String(validateRequestBody(payload)[0], Map.class);
+            this.payloadWithoutEncryptionKey = removeEncryptionKey(payload);
         } catch (JsonParseException e) {
             throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, "Error while parsing protected headers");
         }

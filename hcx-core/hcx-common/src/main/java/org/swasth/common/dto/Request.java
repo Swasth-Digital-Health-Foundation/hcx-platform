@@ -19,13 +19,13 @@ public class Request {
 
     public Request(Map<String, Object> body) throws Exception {
         this.payload = body;
-        this.payloadWithoutEncryptionKey = removeEncryptionKey(body);
         try {
             if (body.containsKey(PAYLOAD)) {
                 hcxHeaders = JSONUtils.decodeBase64String(((String) body.get(PAYLOAD)).split("\\.")[0], Map.class);
             } else if (body.containsKey(STATUS)) {
                 hcxHeaders = body;
             }
+            this.payloadWithoutEncryptionKey = removeEncryptionKey(body);
         } catch (Exception e) {
             throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, "Invalid Payload");
         }
