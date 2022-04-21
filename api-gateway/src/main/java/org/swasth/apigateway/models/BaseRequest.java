@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonParseException;
 import lombok.Data;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.swasth.apigateway.exception.ClientException;
 import org.swasth.apigateway.exception.ErrorCodes;
 import org.swasth.apigateway.utils.DateTimeUtils;
