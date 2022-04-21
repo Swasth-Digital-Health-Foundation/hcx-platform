@@ -9,6 +9,7 @@ import org.swasth.apigateway.exception.ErrorCodes;
 import org.swasth.apigateway.exception.JWTVerificationException;
 import org.swasth.apigateway.helpers.ExceptionHandler;
 import org.swasth.apigateway.models.Acl;
+import org.swasth.apigateway.models.BaseRequest;
 import org.swasth.apigateway.security.JwtConfigs;
 import org.swasth.apigateway.service.AuthorizationService;
 import org.swasth.apigateway.utils.Utils;
@@ -91,7 +92,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
                 return chain.filter(exchange.mutate().request(request).build());
 
             } catch (Exception e) {
-                return exceptionHandler.errorResponse(e, exchange, null, null , null);
+                return exceptionHandler.errorResponse(e, exchange, null, null , new BaseRequest());
             }
         } else {
             return chain.filter(exchange);
