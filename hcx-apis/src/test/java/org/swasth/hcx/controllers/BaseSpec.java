@@ -141,6 +141,92 @@ public class BaseSpec {
         return JSONUtils.serialize(obj);
     }
 
+    public String getParticipantPayorBody() throws JsonProcessingException {
+        Map<String,Object> obj = new HashMap<>();
+        obj.put("participant_name","New Teja Hospital888");
+        obj.put("primary_mobile","9493347239");
+        obj.put("primary_email","dharmateja888@gmail.com");
+        obj.put("roles",new ArrayList<String>(Collections.singleton("payor")));
+        obj.put("scheme_code","default");
+        obj.put("address", new HashMap<>() {{
+            put("plot","5-4-199");
+            put("street","road no 12");
+            put("landmark","");
+            put("village","Nampally");
+            put("district","Hyd");
+            put("state","Telangana");
+            put("pincode","500805");
+        }});
+        obj.put("phone",new ArrayList<String>(Collections.singleton("040-387658992")));
+        obj.put("status","Created");
+        obj.put("endpoint_url","http://localhost:8095");
+        obj.put("payment_details", new HashMap<>() {{
+            put("account_number","4707890099809809");
+            put("ifsc_code","ICICLE");
+        }});
+        obj.put("signing_cert_path","urn:isbn:0-476-27557-4");
+        obj.put("linked_registry_codes",new ArrayList<String>(Collections.singleton("22344")));
+        obj.put("encryption_cert","urn:isbn:0-4234");
+        return JSONUtils.serialize(obj);
+    }
+
+    public String getParticipantPayorSchemeBody() throws JsonProcessingException {
+        Map<String,Object> obj = new HashMap<>();
+        obj.put("participant_name","New Teja Hospital888");
+        obj.put("primary_mobile","9493347239");
+        obj.put("primary_email","dharmateja888@gmail.com");
+        obj.put("roles",new ArrayList<String>(Collections.singleton("payor")));
+        obj.put("address", new HashMap<>() {{
+            put("plot","5-4-199");
+            put("street","road no 12");
+            put("landmark","");
+            put("village","Nampally");
+            put("district","Hyd");
+            put("state","Telangana");
+            put("pincode","500805");
+        }});
+        obj.put("phone",new ArrayList<String>(Collections.singleton("040-387658992")));
+        obj.put("status","Created");
+        obj.put("endpoint_url","http://localhost:8095");
+        obj.put("payment_details", new HashMap<>() {{
+            put("account_number","4707890099809809");
+            put("ifsc_code","ICICLE");
+        }});
+        obj.put("signing_cert_path","urn:isbn:0-476-27557-4");
+        obj.put("linked_registry_codes",new ArrayList<String>(Collections.singleton("22344")));
+        obj.put("encryption_cert","urn:isbn:0-4234");
+        return JSONUtils.serialize(obj);
+    }
+
+    public String getParticipantPayorSchemeNotAllowedBody() throws JsonProcessingException {
+        Map<String,Object> obj = new HashMap<>();
+        obj.put("participant_name","New Teja Hospital888");
+        obj.put("primary_mobile","9493347239");
+        obj.put("primary_email","dharmateja888@gmail.com");
+        obj.put("roles",new ArrayList<String>(Collections.singleton("provider")));
+        obj.put("scheme_code","default");
+        obj.put("address", new HashMap<>() {{
+            put("plot","5-4-199");
+            put("street","road no 12");
+            put("landmark","");
+            put("village","Nampally");
+            put("district","Hyd");
+            put("state","Telangana");
+            put("pincode","500805");
+        }});
+        obj.put("phone",new ArrayList<String>(Collections.singleton("040-387658992")));
+        obj.put("status","Created");
+        obj.put("endpoint_url","http://localhost:8095");
+        obj.put("payment_details", new HashMap<>() {{
+            put("account_number","4707890099809809");
+            put("ifsc_code","ICICLE");
+        }});
+        obj.put("signing_cert_path","urn:isbn:0-476-27557-4");
+        obj.put("linked_registry_codes",new ArrayList<String>(Collections.singleton("22344")));
+        obj.put("encryption_cert","urn:isbn:0-4234");
+        return JSONUtils.serialize(obj);
+    }
+
     public String getParticipantUpdateBody() throws JsonProcessingException {
         Map<String,Object> obj = new HashMap<>();
         obj.put("participant_name","New Teja Hospital888");
@@ -167,6 +253,16 @@ public class BaseSpec {
         obj.put("filters", new HashMap<>() {{
             put("primary_email",new HashMap<>() {{
                 put("eq","dharmateja888@gmail.com");
+            }});
+        }});
+        return JSONUtils.serialize(obj);
+    }
+
+    public String getSearchNotFoundFilter() throws JsonProcessingException {
+        Map<String,Object> obj = new HashMap<>();
+        obj.put("filters", new HashMap<>() {{
+            put("participant_code",new HashMap<>() {{
+                put("eq","1-d2d56996-1b77-4abb-b9e9-0e6e7343c72");
             }});
         }});
         return JSONUtils.serialize(obj);
