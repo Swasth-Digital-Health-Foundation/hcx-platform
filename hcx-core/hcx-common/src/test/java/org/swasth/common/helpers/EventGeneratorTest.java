@@ -29,6 +29,14 @@ public class EventGeneratorTest {
     }
 
     @Test
+    public void check_generateMetadataEvent_for_on_action_request() throws Exception {
+        Request request = getRequest();
+        request.setApiAction("/v1/coverageeligibility/on_action");
+        String result = eventGenerator.generateMetadataEvent(request);
+        assertNotNull(result);
+    }
+
+    @Test
     public void check_generateMetadataEvent_JSON() throws Exception {
         String result = eventGenerator.generateMetadataEvent( getJSONRequest("response.error"));
         assertNotNull(result);

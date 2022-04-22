@@ -2,6 +2,7 @@ package org.swasth.common.dto;
 
 import org.junit.Test;
 import org.swasth.common.exception.ClientException;
+import org.swasth.common.utils.Constants;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,6 +13,7 @@ public class RequestTest {
     @Test
     public void check_payload() throws Exception {
         Request request = new Request(getRequestBody());
+        request.setStatus(Constants.COMPLETE_STATUS);
     }
 
     @Test
