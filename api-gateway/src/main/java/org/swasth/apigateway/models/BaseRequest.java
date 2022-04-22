@@ -195,6 +195,39 @@ public class BaseRequest {
         }
     }
 
+    public String getWorkflowId() { return getHeader(WORKFLOW_ID); }
+
+    public String getApiCallId() { return getHeader(API_CALL_ID); }
+
+    public String getCorrelationId() { return getHeader(CORRELATION_ID); }
+
+    public String getSenderCode() { return getHeader(SENDER_CODE); }
+
+    public String getRecipientCode() { return getHeader(RECIPIENT_CODE); }
+
+    public String getTimestamp() { return getHeader(TIMESTAMP); }
+
+    protected String getDebugFlag() { return getHeader(DEBUG_FLAG); }
+
+    public String getStatus() { return getHeader(STATUS); }
+
+    private String getHeader(String key) { return (String) protocolHeaders.getOrDefault(key, null); }
+
+    private Map<String,Object> getHeaderMap(String key){ return (Map<String,Object>) protocolHeaders.getOrDefault(key,null); }
+    private void setHeaderMap(String key, Object value){ protocolHeaders.put(key, value); }
+
+    public Map<String,Object> getErrorDetails(){ return getHeaderMap(ERROR_DETAILS); }
+    public void setErrorDetails(Map<String,Object> errorDetails){ setHeaderMap(ERROR_DETAILS, errorDetails); }
+
+    public Map<String,Object> getDebugDetails(){ return getHeaderMap(DEBUG_DETAILS); }
+
+    public String getRedirectTo() { return getHeader(REDIRECT_TO); }
+
+    public List<String> getSenderRole() { return senderRole; }
+    public List<String> getRecipientRole() { return recipientRole; }
+
+    public String getPayloadWithoutEncryptionKey() { return payloadWithoutEncryptionKey; }
+
     protected String[] validateRequestBody(Map<String, Object> requestBody) throws Exception {
         try {
             String[] payloadValues = ((String) requestBody.get(PAYLOAD)).split("\\.");
@@ -260,38 +293,5 @@ public class BaseRequest {
             return sb.deleteCharAt(sb.length()-1).toString();
         }
     }
-
-    public String getWorkflowId() { return getHeader(WORKFLOW_ID); }
-
-    public String getApiCallId() { return getHeader(API_CALL_ID); }
-
-    public String getCorrelationId() { return getHeader(CORRELATION_ID); }
-
-    public String getSenderCode() { return getHeader(SENDER_CODE); }
-
-    public String getRecipientCode() { return getHeader(RECIPIENT_CODE); }
-
-    public String getTimestamp() { return getHeader(TIMESTAMP); }
-
-    protected String getDebugFlag() { return getHeader(DEBUG_FLAG); }
-
-    public String getStatus() { return getHeader(STATUS); }
-
-    private String getHeader(String key) { return (String) protocolHeaders.getOrDefault(key, null); }
-
-    private Map<String,Object> getHeaderMap(String key){ return (Map<String,Object>) protocolHeaders.getOrDefault(key,null); }
-    private void setHeaderMap(String key, Object value){ protocolHeaders.put(key, value); }
-
-    public Map<String,Object> getErrorDetails(){ return getHeaderMap(ERROR_DETAILS); }
-    public void setErrorDetails(Map<String,Object> errorDetails){ setHeaderMap(ERROR_DETAILS, errorDetails); }
-
-    public Map<String,Object> getDebugDetails(){ return getHeaderMap(DEBUG_DETAILS); }
-
-    public String getRedirectTo() { return getHeader(REDIRECT_TO); }
-
-    public List<String> getSenderRole() { return senderRole; }
-    public List<String> getRecipientRole() { return recipientRole; }
-
-    public String getPayloadWithoutEncryptionKey() { return payloadWithoutEncryptionKey; }
 
 }
