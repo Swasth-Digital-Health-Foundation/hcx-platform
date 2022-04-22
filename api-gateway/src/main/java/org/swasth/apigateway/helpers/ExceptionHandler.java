@@ -49,7 +49,7 @@ public class ExceptionHandler {
             errorCode = ErrorCodes.ERR_ACCESS_DENIED;
         }
         try {
-            if (Constants.ALLOWED_ENTITIES_ERROR_AUDIT_CREATION.contains(request.getEntity(request.getApiAction()))) {
+            if (request.getApiAction() != null && Constants.ALLOWED_ENTITIES_ERROR_AUDIT_CREATION.contains(request.getEntity(request.getApiAction()))) {
                 request.setErrorDetails(JSONUtils.deserialize(JSONUtils.serialize(new ResponseError(errorCode, e.getMessage(), e.getCause())), Map.class));
                 auditService.createAuditLog(request);
             }
