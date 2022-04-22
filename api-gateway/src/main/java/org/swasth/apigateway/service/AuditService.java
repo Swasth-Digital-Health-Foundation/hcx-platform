@@ -54,7 +54,7 @@ public class AuditService {
         auditIndexer.createDocument(createAuditEvent(request));
     }
 
-    private Map<String,Object> createAuditEvent(BaseRequest request) throws JsonProcessingException {
+    public Map<String,Object> createAuditEvent(BaseRequest request) {
         Map<String,Object> event = new HashMap<>();
         event.put(EID, AUDIT);
         event.put(RECIPIENT_CODE, request.getRecipientCode());
