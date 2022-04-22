@@ -88,17 +88,17 @@ public class Constants {
             "ERR_INVALID_ERROR_DETAILS",
             "ERR_INVALID_DEBUG_DETAILS",
             "ERR_INVALID_WORKFLOW_ID");
+    public static final String REGISTRY_STATUS = "status";
     public static final String ROLES = "roles";
     public static final String ACTION = "action";
     public static final String SENDER_ROLE = "senderRole";
     public static final String RECIPIENT_ROLE = "recipientRole";
     public static final String PROVIDER = "provider";
-    public static final List<String> OPERATIONAL_ENTITIES = Arrays.asList(NOTIFICATION, COMMUNICATION, "status");
+    public static final List<String> OPERATIONAL_ENTITIES = Arrays.asList(NOTIFICATION, COMMUNICATION, REGISTRY_STATUS);
     public static final String REDIRECT_STATUS = "response.redirect";
     public static final String COMPLETE_STATUS = "response.complete";
     public static final List<String> EXCLUDE_ENTITIES = Arrays.asList(COMMUNICATION, PAYMENT, NOTIFICATION);
     public static final List<String> RESPONSE_STATUS_VALUES = Arrays.asList(COMPLETE_STATUS, "response.partial", ERROR_RESPONSE, REDIRECT_STATUS);
     public static final List<String> ALLOWED_ENTITIES_ERROR_AUDIT_CREATION = Arrays.asList("coverageeligibility", "preauth", "claim", PAYMENT, COMMUNICATION, "predetermination", "status", "search");
-    public static final String REGISTRY_STATUS = "status";
 
 }

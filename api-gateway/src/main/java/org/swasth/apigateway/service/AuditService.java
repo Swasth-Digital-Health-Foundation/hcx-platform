@@ -1,6 +1,5 @@
 package org.swasth.apigateway.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import kong.unirest.HttpResponse;
 import kong.unirest.UnirestException;
 import org.slf4j.Logger;

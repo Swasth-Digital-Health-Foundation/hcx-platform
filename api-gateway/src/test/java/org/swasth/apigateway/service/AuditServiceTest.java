@@ -24,7 +24,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 
 @SpringBootTest(classes = AuditService.class)
 @ActiveProfiles("test")
-public class AuditServiceTest{
+class AuditServiceTest{
 
     @Autowired
     private AuditService auditService;

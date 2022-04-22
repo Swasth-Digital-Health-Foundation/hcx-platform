@@ -289,8 +289,6 @@ public class BaseRequest {
 
     public String getRedirectTo() { return getHeader(REDIRECT_TO); }
 
-    public Map<String,Object> getPayload(){ return payload; }
-
     public List<String> getSenderRole() { return senderRole; }
     public List<String> getRecipientRole() { return recipientRole; }
 
