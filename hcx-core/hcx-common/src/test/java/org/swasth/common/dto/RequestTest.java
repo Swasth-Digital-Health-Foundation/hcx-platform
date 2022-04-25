@@ -14,6 +14,7 @@ public class RequestTest {
     public void check_payload() throws Exception {
         Request request = new Request(getRequestBody());
         request.setStatus(Constants.COMPLETE_STATUS);
+        request.setMid("test_123");
     }
 
     @Test
