@@ -9,6 +9,7 @@ import org.swasth.apigateway.exception.ErrorCodes;
 import org.swasth.apigateway.utils.DateTimeUtils;
 import org.swasth.apigateway.utils.JSONUtils;
 import org.swasth.apigateway.utils.Utils;
+import org.swasth.common.utils.PayloadUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,19 +23,29 @@ import static org.swasth.apigateway.constants.Constants.*;
 public class BaseRequest {
 
     private boolean isJSONRequest;
-    private String apiAction;
+    private String apiAction = null;
     private Map<String,Object> protocolHeaders;
+    private Map<String,Object> payload;
+    private List<String> senderRole = new ArrayList<>();
+    private List<String> recipientRole = new ArrayList<>();
+    private String payloadWithoutEncryptionKey = null;
+    private String hcxRoles;
+    private String hcxCode;
 
     public BaseRequest(){}
 
-    public BaseRequest(Map<String, Object> payload,boolean isJSONRequest,String apiAction) throws Exception{
+    public BaseRequest(Map<String, Object> payload,boolean isJSONRequest,String apiAction, String hcxCode, String hcxRoles) throws Exception{
         this.isJSONRequest = isJSONRequest;
         this.apiAction = apiAction;
+        this.payload = payload;
+        this.hcxRoles = hcxRoles;
+        this.hcxCode  = hcxCode;
         try {
             if(this.isJSONRequest)
                 this.protocolHeaders = payload;
             else
                 this.protocolHeaders = JSONUtils.decodeBase64String(validateRequestBody(payload)[0], Map.class);
+            this.payloadWithoutEncryptionKey = PayloadUtils.removeEncryptionKey(payload);
         } catch (JsonParseException e) {
             throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, "Error while parsing protected headers");
         }
@@ -58,8 +69,10 @@ public class BaseRequest {
         validateCondition(!DateTimeUtils.validTimestamp(timestampRange, getTimestamp()), ErrorCodes.ERR_INVALID_TIMESTAMP, "Timestamp cannot be more than " + timestampRange + " hours in the past or future time");
         validateCondition(protocolHeaders.containsKey(WORKFLOW_ID) && !Utils.isUUID(getWorkflowId()), ErrorCodes.ERR_INVALID_WORKFLOW_ID, "Workflow id should be a valid UUID");
         validateCondition(StringUtils.equals(getSenderCode(), getRecipientCode()), ErrorCodes.ERR_INVALID_SENDER_AND_RECIPIENT, "sender and recipient code cannot be the same");
-        validateParticipant(recipientDetails, ErrorCodes.ERR_INVALID_RECIPIENT, "recipient");
-        validateParticipant(senderDetails, ErrorCodes.ERR_INVALID_SENDER, "sender");
+        validateParticipant(recipientDetails, ErrorCodes.ERR_INVALID_RECIPIENT, "recipient", getRecipientCode());
+        validateParticipant(senderDetails, ErrorCodes.ERR_INVALID_SENDER, "sender", getSenderCode());
+        senderRole = (ArrayList<String>) senderDetails.get(ROLES);
+        recipientRole = (ArrayList<String>) recipientDetails.get(ROLES);
         validateCondition(!StringUtils.equals(((ArrayList) senderDetails.get(OS_OWNER)).get(0).toString(), subject), ErrorCodes.ERR_ACCESS_DENIED, "Caller id and sender code is not matched");
 
         if (protocolHeaders.containsKey(DEBUG_FLAG)) {
@@ -91,11 +104,22 @@ public class BaseRequest {
         }
     }
 
-    protected void validateParticipant(Map<String,Object> details, ErrorCodes code, String participant) throws ClientException {
+    protected void validateParticipant(Map<String,Object> details, ErrorCodes code, String participant, String participantCode) throws ClientException {
+        ArrayList<String> roles = (ArrayList) details.get("roles");
+
         if(details.isEmpty()){
             throw new ClientException(code, participant + " does not exist in registry");
-        } else if(StringUtils.equals((String) details.get("status"), BLOCKED) || StringUtils.equals((String) details.get("status"), INACTIVE)){
+        }
+        else if(participantCode.equals(hcxCode)) {
+            throw new ClientException(code, participant + " should not be sent as sender/recipient in the incoming requests");
+        }
+        else if(StringUtils.equals((String) details.get(REGISTRY_STATUS), BLOCKED) || StringUtils.equals((String) details.get(REGISTRY_STATUS), INACTIVE)){
             throw new ClientException(code, participant + "  is blocked or inactive as per the registry");
+        }
+        for (String notAllowRole: roles){
+            if(notAllowRole.equalsIgnoreCase(hcxRoles)) {
+                throw new ClientException(code, participant + " role is not be sent as sender/recipient in the incoming requests");
+            }
         }
     }
 
@@ -184,7 +208,7 @@ public class BaseRequest {
 
     public String getRecipientCode() { return getHeader(RECIPIENT_CODE); }
 
-    protected String getTimestamp() { return getHeader(TIMESTAMP); }
+    public String getTimestamp() { return getHeader(TIMESTAMP); }
 
     protected String getDebugFlag() { return getHeader(DEBUG_FLAG); }
 
@@ -193,12 +217,19 @@ public class BaseRequest {
     private String getHeader(String key) { return (String) protocolHeaders.getOrDefault(key, null); }
 
     private Map<String,Object> getHeaderMap(String key){ return (Map<String,Object>) protocolHeaders.getOrDefault(key,null); }
+    private void setHeaderMap(String key, Object value){ protocolHeaders.put(key, value); }
 
-    protected Map<String,Object> getErrorDetails(){ return getHeaderMap(ERROR_DETAILS); }
+    public Map<String,Object> getErrorDetails(){ return getHeaderMap(ERROR_DETAILS); }
+    public void setErrorDetails(Map<String,Object> errorDetails){ setHeaderMap(ERROR_DETAILS, errorDetails); }
 
-    protected Map<String,Object> getDebugDetails(){ return getHeaderMap(DEBUG_DETAILS); }
+    public Map<String,Object> getDebugDetails(){ return getHeaderMap(DEBUG_DETAILS); }
 
     public String getRedirectTo() { return getHeader(REDIRECT_TO); }
+
+    public List<String> getSenderRole() { return senderRole; }
+    public List<String> getRecipientRole() { return recipientRole; }
+
+    public String getPayloadWithoutEncryptionKey() { return payloadWithoutEncryptionKey; }
 
     protected String[] validateRequestBody(Map<String, Object> requestBody) throws Exception {
         try {

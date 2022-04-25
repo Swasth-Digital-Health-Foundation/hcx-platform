@@ -4,6 +4,7 @@ import lombok.experimental.UtilityClass;
 import org.springframework.util.AntPathMatcher;
 
 import java.util.List;
+import java.util.UUID;
 
 @UtilityClass
 public class Utils {
@@ -21,6 +22,10 @@ public class Utils {
 
     public static boolean isUUID(String s){
         return s.matches("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
+    }
+
+    public String getUUID(){
+        return UUID.randomUUID().toString();
     }
 
 }

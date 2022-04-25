@@ -15,7 +15,7 @@ service:
   mode: ${service_mode:gateway}
 
 registry:
-  basePath: ${registry_basePath:http://a65d6a493998b4d0e98bd690a123328b-1532825861.ap-south-1.elb.amazonaws.com:8081}
+  basePath: ${registry_basePath:http://localhost:8082}
 
 #postgres config
 postgres:
@@ -43,3 +43,8 @@ es:
 audit:
   index: ${audit_index:hcx_audit}
   alias: ${audit_alias:hcx_audit}
+
+#hcx not allowed urls
+hcx:
+  urls:
+    notallowed: ${not_allowed_urls:http://localhost:8095}

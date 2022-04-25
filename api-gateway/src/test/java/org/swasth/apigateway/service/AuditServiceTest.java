@@ -1,59 +1,44 @@
-//package org.swasth.apigateway.service;
-//
-//import okhttp3.mockwebserver.MockResponse;
-//import org.junit.jupiter.api.Test;
-//import org.mockito.Mockito;
-//import org.springframework.http.HttpStatus;
-//import org.springframework.test.util.ReflectionTestUtils;
-//import org.swasth.apigateway.BaseSpec;
-//import org.swasth.apigateway.constants.Constants;
-//
-//import java.util.Collections;
-//import java.util.Map;
-//
-//import static org.junit.jupiter.api.Assertions.*;
-//import static org.mockito.ArgumentMatchers.any;
-//import static org.mockito.ArgumentMatchers.anyString;
-//
-//
-//public class AuditServiceTest extends BaseSpec {
-//
-//    @Test
-//    public void check_audit_server_exception_scenario() throws Exception {
-//        server.enqueue(new MockResponse()
-//                .setResponseCode(200)
-//                .setBody("[{\"test\":\"123\"}]")
-//                .addHeader("Content-Type", "application/json"));
-//
-//        Mockito.when(auditService.getAuditLogs(any())).thenCallRealMethod();
-//        ReflectionTestUtils.setField(auditService, "hcxApiUrl", "http://localhost:8080");
-//        Exception exception = assertThrows(Exception.class, () -> {
-//            auditService.getAuditLogs(Collections.singletonMap("x-hcx-correlation_id", "5e934f90-111d-4f0b-b016-c22d820674e1"));
-//        });
-//        assertEquals("Error connecting to audit service: org.apache.http.NoHttpResponseException: localhost:8080 failed to respond", exception.getMessage());
-//    }
-//
-//    @Test
-//    public void check_audit_service_internal_server_exception_scenario() throws Exception {
-//        server.enqueue(new MockResponse()
-//                .setResponseCode(400)
-//                .addHeader("Content-Type", "application/json"));
-//        AuditService audit = new AuditService();
-//        ReflectionTestUtils.setField(auditService, "hcxApiUrl", "http://localhost:8080");
-//        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
-//                .thenReturn(getProviderDetails())
-//                .thenReturn(getPayorDetails());
-//        Mockito.when(auditService.getAuditLogs(any())).thenCallRealMethod();
-//
-//        client.post().uri("/v1/coverageeligibility/check")
-//                .header(Constants.AUTHORIZATION, getProviderToken())
-//                .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
-//                .bodyValue(getRequestBody())
-//                .exchange()
-//                .expectBody(Map.class)
-//                .consumeWith(result -> {
-//                    assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatus());
-//                });
-//    }
-//
-//}
+package org.swasth.apigateway.service;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ActiveProfiles;
+import org.swasth.apigateway.constants.Constants;
+import org.swasth.apigateway.models.BaseRequest;
+import org.swasth.auditindexer.function.AuditIndexer;
+
+import java.util.Collections;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+@SpringBootTest(classes = AuditService.class)
+@ActiveProfiles("test")
+class AuditServiceTest{
+
+    @Autowired
+    private AuditService auditService;
+
+    @MockBean
+    private AuditIndexer auditIndexer;
+
+    @Test
+    void check_audit_event_generation() throws Exception {
+        Map<String,Object> result = auditService.createAuditEvent(getRequest());
+        assertEquals("/v1/coverageeligibility/check", result.get(Constants.ACTION));
+    }
+
+    @Test
+    void check_audit_log_creation() throws Exception {
+        auditService.createAuditLog(getRequest());
+        assertTrue(true);
+    }
+
+    private BaseRequest getRequest() throws Exception {
+        return new BaseRequest(Collections.singletonMap("payload","eyJlbmMiOiJBMjU2R0NNIiwKImFsZyI6IlJTQS1PQUVQIiwKIngtaGN4LXNlbmRlcl9jb2RlIjoiMS0zYTNiZDY4YS04NDhhLTRkNTItOWVjMi0wN2E5MmQ3NjVmYjQiLAoieC1oY3gtcmVjaXBpZW50X2NvZGUiOiIxLWNlMjNjY2RjLWU2NDUtNGUzNS05N2I4LTBiZDhmZWY0M2VjZCIsCiJ4LWhjeC1hcGlfY2FsbF9pZCI6IjI2YjEwNjBjLTFlODMtNDYwMC05NjEyLWVhMzFlMGNhNTA5MyIsCiJ4LWhjeC1jb3JyZWxhdGlvbl9pZCI6IjVlOTM0ZjkwLTExMWQtNGYwYi1iMDE2LWMyMmQ4MjA2NzRlMSIsCiJ4LWhjeC10aW1lc3RhbXAiOiIyMDIxLTEwLTI3VDIwOjM1OjUyLjYzNiswNTMwIiwKIngtaGN4LXN0YXR1cyI6InJlcXVlc3QucXVldWVkIiwKIngtaGN4LXdvcmtmbG93X2lkIjoiMjZiMTA2MGMtMWU4My00NjAwLTk2MTItZWEzMWUwY2E1MDk0IiwKIngtaGN4LWRlYnVnX2ZsYWciOiJJbmZvIiwKIngtaGN4LWRlYnVnX2RldGFpbHMiOnsiY29kZSI6IkVSUl9JTlZBTElEX0VOQ1JZUFRJT04iLCJtZXNzYWdlIjoiUmVjaXBpZW50IEludmFsaWQgRW5jcnlwdGlvbiIsInRyYWNlIjoiIn0KfQ==.6KB707dM9YTIgHtLvtgWQ8mKwboJW3of9locizkDTHzBC2IlrT1oOQ.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.KDlTtXchhZTGufMYmOYGS4HffxPSUrfmqCHXaI9wOGY.Mz-VPPyU4RlcuYv1IwIvzw"), false, "/v1/coverageeligibility/check", "1-d2d56996-1b77-4abb-b9e9-0e6e7343c72e", "HIE/HIO.HCX");
+    }
+
+}

@@ -58,9 +58,9 @@ public class Constants {
     public static final String AUDIT = "AUDIT";
     public static final String SENDER_ROLE = "senderRole";
     public static final String RECIPIENT_ROLE = "recipientRole";
-    public static final String AUDIT_TIMESTAMP = "requestTimeStamp";
+    public static final String AUDIT_TIMESTAMP = "auditTimeStamp";
     public static final String UPDATED_TIME = "updatedTimestamp";
-    public static final String REQUESTED_TIME = "auditTimeStamp";
+    public static final String REQUEST_TIME = "requestTimeStamp";
 
     //Request props
     public static final String PROTOCOL_HEADERS_MANDATORY = "protocol.headers.mandatory";
@@ -84,6 +84,8 @@ public class Constants {
     public static final String SERVICE_MODE = "service.mode";
     public static final String GATEWAY = "gateway";
     public static final String KAFKA_TOPIC_PAYLOAD = "kafka.topic.payload";
+    public static final String ENDPOINT_URL = "endpoint_url";
+    public static final String HCX_NOT_ALLOWED_URLS = "hcx.urls.notallowed";
 
     public static final String HEADER_AUDIT = "hcx_audit";
     public static final String PAYOR = "payor";

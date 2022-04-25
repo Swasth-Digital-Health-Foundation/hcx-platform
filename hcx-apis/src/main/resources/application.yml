@@ -58,3 +58,8 @@ redirect:
   headers:
     mandatory: ${redirect_mandatory_headers:x-hcx-sender_code, x-hcx-recipient_code, x-hcx-api_call_id, x-hcx-timestamp, x-hcx-correlation_id, x-hcx-status, x-hcx-redirect_to}
     optional: ${redirect_optional_headers:x-hcx-workflow_id}
+
+#hcx not allowed urls
+hcx:
+  urls:
+    notallowed: ${not_allowed_urls:http://localhost:8095}
