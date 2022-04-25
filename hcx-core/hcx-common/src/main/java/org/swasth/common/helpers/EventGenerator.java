@@ -23,14 +23,14 @@ public class EventGenerator {
         this.errorHeaders = errorHeaders;
     }
 
-    public String generatePayloadEvent(String mid, Request request) throws JsonProcessingException {
+    public String generatePayloadEvent(Request request) throws JsonProcessingException {
         Map<String,Object> event = new HashMap<>();
-        event.put(MID, mid);
+        event.put(MID, request.getMid());
         event.put(PAYLOAD, request.getPayload());
         return JSONUtils.serialize(event);
     }
 
-    public String generateMetadataEvent(String mid, String apiAction, Request request) throws Exception {
+    public String generateMetadataEvent(Request request) throws Exception {
         Map<String,Object> event = new HashMap<>();
         if (request.getPayload().containsKey(PAYLOAD)) {
             Map<String,Object> protectedHeaders = request.getHcxHeaders();
@@ -45,11 +45,11 @@ public class EventGenerator {
                     filterProtocolHeaders.put(key, protectedHeaders.get(key));
             });
             //Add request.queued status and rewrite the status for action APIs and for on_* API calls use the status sent by the participant
-            if(!apiAction.contains("on_"))
+            if(!request.getApiAction().contains("on_"))
                 filterProtocolHeaders.put(STATUS, QUEUED_STATUS);
-            event.put(MID, mid);
+            event.put(MID, request.getMid());
             event.put(ETS, System.currentTimeMillis());
-            event.put(ACTION, apiAction);
+            event.put(ACTION, request.getApiAction());
             Map<String,Object> headers = new HashMap<>();
             headers.put(JOSE, filterJoseHeaders);
             headers.put(PROTOCOL, filterProtocolHeaders);
@@ -72,14 +72,14 @@ public class EventGenerator {
                 headerMap.put(PROTOCOL, filterHeaders);
                 event.put(HEADERS, headerMap);
             }
-            event.put(MID, mid);
+            event.put(MID, request.getMid());
             event.put(ETS, System.currentTimeMillis());
-            event.put(ACTION, apiAction);
+            event.put(ACTION, request.getApiAction());
         }
         return JSONUtils.serialize(event);
     }
 
-    public Map<String,Object> generateAuditEvent(String mid, String apiAction, Request request) {
+    public Map<String,Object> generateAuditEvent(Request request) {
         Map<String,Object> event = new HashMap<>();
         event.put(EID, AUDIT);
         event.put(RECIPIENT_CODE, request.getRecipientCode());
@@ -90,19 +90,21 @@ public class EventGenerator {
         event.put(TIMESTAMP, request.getTimestamp());
         event.put(ERROR_DETAILS, request.getErrorDetails());
         event.put(DEBUG_DETAILS, request.getDebugDetails());
-        event.put(MID, mid);
-        event.put(ACTION, apiAction);
+        event.put(MID, request.getMid());
+        event.put(ACTION, request.getApiAction());
         if(request.getStatus() == null)
             event.put(STATUS, QUEUED_STATUS);
         else
             event.put(STATUS, request.getStatus());
-        event.put(REQUESTED_TIME, System.currentTimeMillis());
+        event.put(REQUEST_TIME, System.currentTimeMillis());
         event.put(UPDATED_TIME, System.currentTimeMillis());
         event.put(AUDIT_TIMESTAMP, System.currentTimeMillis());
         event.put(SENDER_ROLE, new ArrayList<>());
         event.put(RECIPIENT_ROLE, new ArrayList<>());
-        event.put(PAYLOAD, "");
+        event.put(PAYLOAD, request.getPayloadWithoutEncryptionKey());
         return  event;
     }
+
+
 
 }

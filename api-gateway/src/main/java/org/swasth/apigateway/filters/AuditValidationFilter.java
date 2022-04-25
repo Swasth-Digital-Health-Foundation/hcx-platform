@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import org.swasth.apigateway.exception.ClientException;
 import org.swasth.apigateway.exception.ErrorCodes;
 import org.swasth.apigateway.helpers.ExceptionHandler;
+import org.swasth.apigateway.models.BaseRequest;
 import org.swasth.apigateway.service.RegistryService;
 import org.swasth.apigateway.utils.JSONUtils;
 import reactor.core.publisher.Mono;
@@ -60,7 +61,7 @@ public class AuditValidationFilter extends AbstractGatewayFilterFactory<AuditVal
                     throw new ClientException(ErrorCodes.ERR_INVALID_SENDER, "Sender is not exist in registry");
                 }
             } catch (Exception e) {
-                return exceptionHandler.errorResponse(e, exchange, null, null);
+                return exceptionHandler.errorResponse(e, exchange, null, null, new BaseRequest());
             }
             ModifyRequestBodyGatewayFilterFactory.Config modifyRequestConfig = new ModifyRequestBodyGatewayFilterFactory.Config()
                     .setContentType(ContentType.APPLICATION_JSON.getMimeType())
