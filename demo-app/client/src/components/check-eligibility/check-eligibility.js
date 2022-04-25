@@ -12,7 +12,6 @@ import Table from '../table/table';
 import { useHistory } from "react-router-dom";
 
 const socket = io();
-// const socket = io('http://localhost:8000'); //local
 
 const EligibilityCheck = props => {
     const [current, send] = useMachine(machine);
