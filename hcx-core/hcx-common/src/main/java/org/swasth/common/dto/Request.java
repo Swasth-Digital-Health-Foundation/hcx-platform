@@ -14,7 +14,7 @@ public class Request {
 
     private final Map<String, Object> payload;
     protected Map<String, Object> hcxHeaders = null;
-    private final String mid = UUID.randomUUID().toString();
+    private String mid = UUID.randomUUID().toString();
     private String apiAction;
     private final String payloadWithoutEncryptionKey;
 
@@ -102,5 +102,8 @@ public class Request {
 
     public String getPayloadWithoutEncryptionKey() { return payloadWithoutEncryptionKey; }
 
+    public void setMid(String mid) {
+        this.mid = mid;
+    }
 }
 
