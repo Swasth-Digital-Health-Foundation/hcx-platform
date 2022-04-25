@@ -3,6 +3,7 @@ import axios from 'axios'
 import messages from '../utils/message.json';
 import { get as _get, find as _find } from 'lodash-es';
 
+//machine
 const machine = createMachine({
     id: 'checkEligibility',
     initial: 'initial',
@@ -13,7 +14,8 @@ const machine = createMachine({
         hcxResponse: null,
         error: null,
         timeTakenForResponse: 0,
-        request: null
+        request: null,
+        requestType: null
     },
     states: {
         initial: {
@@ -25,7 +27,8 @@ const machine = createMachine({
                             return event;
                         },
                         message: messages.REQUEST_SUBMITTING,
-                        timeTakenForResponse: () => Date.now()
+                        timeTakenForResponse: () => Date.now(),
+                        requestType: (context, event) => event?.requestType
                     })
                 }
             }

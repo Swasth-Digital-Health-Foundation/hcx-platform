@@ -4,6 +4,6 @@
     "ELIGIBLE_SUCCESS": "Congratulations, you are Eligible",
     "ELIGIBLE_FAILURE": "Unfortunately, Your Request is Rejected",
     "SOMETHING_WENT_WRONG": "Something went wrong.",
-    "CLAIM_SUCCESS": "Your Claimed Amount is xxx",
-    "PRE_AUTH_SUCCESS": "Your pre auth claim amount is xxx"
+    "CLAIM_SUCCESS": "Your claimed amount is xxx INR.",
+    "PRE_AUTH_SUCCESS": "Your pre auth claim amount is xxx INR."
 }

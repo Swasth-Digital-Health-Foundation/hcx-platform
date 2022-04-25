@@ -16,6 +16,8 @@ const socket = io();
 const EligibilityCheck = props => {
     const [current, send] = useMachine(machine);
     const [validated, setValidated] = useState(false);
+    const [showAmount, setShowAmount] = useState(false);
+
     const history = useHistory();
 
     const handleSubmit = (event) => {
@@ -101,7 +103,12 @@ const EligibilityCheck = props => {
     useEffect(() => {
         socket.on('acknowledgement', response => {
             console.log({ response });
-            current.value === 'acknowledged' && send('ACKNOWLEDGEMENT_SUCCESS', { payload: response });
+            if (current.value === 'acknowledged') {
+                send('ACKNOWLEDGEMENT_SUCCESS', { payload: response });
+                if (current.context.requestType === 'ELIGIBILITY') {
+                    setShowAmount(true);
+                }
+            }
         })
     });
 
@@ -172,7 +179,7 @@ const EligibilityCheck = props => {
                                     </div>
                                 </Form.Group>
 
-                                {current.value === 'resolved' && !current.context?.hcxResponse['x-hcx-error_details'] && <Form.Group as={Col}>
+                                {showAmount && !current.context?.hcxResponse['x-hcx-error_details'] && <Form.Group as={Col}>
                                     <Form.Label>Amount</Form.Label>
                                     <Form.Control name="amount" type="number" placeholder="Amount" required id='amount' />
                                     <Form.Control.Feedback type="invalid" >
@@ -182,14 +189,16 @@ const EligibilityCheck = props => {
 
                             </Row>
 
-                            {current.value === 'initial' && <Button variant="primary" type="submit" className='m-2' data-type="ELIGIBILITY" form='hcx-form' value="CLAIM"> Check eligibility </Button>}
-                            {current.value === 'resolved' && !current.context?.hcxResponse['x-hcx-error_details'] && <Button variant="primary" type="submit" className='m-2' data-type="CLAIM" form="hcx-form" value="CLAIM"> Claim </Button>}
-                            {current.value === 'resolved' && !current.context?.hcxResponse['x-hcx-error_details'] && <Button variant="primary" type="submit" className='m-2' data-type="PREAUTH" form="hcx-form" value="PREAUTH"> Pre Auth </Button>}
+                            <div>
+                                {current.value === 'initial' && <Button variant="primary" type="submit" className='m-2' data-type="ELIGIBILITY" form='hcx-form' value="CLAIM"> Check eligibility </Button>}
+                                {current.value === 'resolved' && !current.context?.hcxResponse['x-hcx-error_details'] && <Button variant="primary" type="submit" className='m-2' data-type="PREAUTH" form="hcx-form" value="PREAUTH"> Pre Auth </Button>}
+                                {current.value === 'resolved' && !current.context?.hcxResponse['x-hcx-error_details'] && <Button variant="primary" type="submit" className='m-2' data-type="CLAIM" form="hcx-form" value="CLAIM"> Claim </Button>}
+                            </div>
 
                             {['resolved', 'rejected'].includes(current.value) && <>
-                                <Button variant="primary" type="button" onClick={e => send('RETRY')} className="m-2"> RETRY </Button>
-                                <Button variant="primary" type="button" className="m-2" onClick={e => history.push({ pathname: '/json-viewer', state: current.context.hcxResponse || current.context.error })}> Complete Response  </Button>
-                                {current.context?.request && <Button variant="primary" type="button" className="m-2" onClick={e => history.push({ pathname: '/json-viewer', state: current.context.request })}> Complete Request  </Button>}
+                                <Button variant="success" type="button" onClick={e => { send('RETRY'); setShowAmount(false); }} className="m-2"> RETRY </Button>
+                                <Button variant="success" type="button" className="m-2" onClick={e => history.push({ pathname: '/json-viewer', state: current.context.hcxResponse || current.context.error })}> Complete Response  </Button>
+                                {current.context?.request && <Button variant="success" type="button" className="m-2" onClick={e => history.push({ pathname: '/json-viewer', state: current.context.request })}> Complete Request  </Button>}
                             </>}
 
                             {current.value === 'loading' && <Spinner message={current.context.message} />}
