@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
 import org.swasth.common.utils.JSONUtils;
+import org.swasth.common.utils.PayloadUtils;
 
 import java.util.*;
 
@@ -24,24 +25,9 @@ public class Request {
                 hcxHeaders = JSONUtils.decodeBase64String(((String) body.get(PAYLOAD)).split("\\.")[0], Map.class);
             } else if (body.containsKey(STATUS))
                 hcxHeaders = body;
-            this.payloadWithoutEncryptionKey = removeEncryptionKey(body);
+            this.payloadWithoutEncryptionKey = PayloadUtils.removeEncryptionKey(body);
         } catch (Exception e) {
             throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, "Invalid Payload");
-        }
-    }
-
-    private String removeEncryptionKey(Map<String, Object> payload) throws JsonProcessingException {
-        if(payload.containsKey(PAYLOAD)) {
-            List<String> modifiedPayload = new ArrayList<>(Arrays.asList(payload.get(PAYLOAD).toString().split("\\.")));
-            modifiedPayload.remove(1);
-            String[] payloadValues = modifiedPayload.toArray(new String[modifiedPayload.size()]);
-            StringBuilder sb = new StringBuilder();
-            for(String value: payloadValues) {
-                sb.append(value).append(".");
-            }
-            return sb.deleteCharAt(sb.length()-1).toString();
-        } else {
-            return JSONUtils.serialize(payload);
         }
     }
 

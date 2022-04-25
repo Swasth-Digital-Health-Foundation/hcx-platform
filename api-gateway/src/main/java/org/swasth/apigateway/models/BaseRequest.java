@@ -1,7 +1,6 @@
 package org.swasth.apigateway.models;
 
 import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.Data;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -10,8 +9,12 @@ import org.swasth.apigateway.exception.ErrorCodes;
 import org.swasth.apigateway.utils.DateTimeUtils;
 import org.swasth.apigateway.utils.JSONUtils;
 import org.swasth.apigateway.utils.Utils;
+import org.swasth.common.utils.PayloadUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.swasth.apigateway.constants.Constants.*;
@@ -42,7 +45,7 @@ public class BaseRequest {
                 this.protocolHeaders = payload;
             else
                 this.protocolHeaders = JSONUtils.decodeBase64String(validateRequestBody(payload)[0], Map.class);
-            this.payloadWithoutEncryptionKey = removeEncryptionKey(payload);
+            this.payloadWithoutEncryptionKey = PayloadUtils.removeEncryptionKey(payload);
         } catch (JsonParseException e) {
             throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, "Error while parsing protected headers");
         }
@@ -276,21 +279,6 @@ public class BaseRequest {
         } else {
             String[] str = path.split("/");
             return str[str.length-2];
-        }
-    }
-
-    private String removeEncryptionKey(Map<String, Object> payload) throws JsonProcessingException {
-        if(isJSONRequest()) {
-            return JSONUtils.serialize(payload);
-        } else {
-            List<String> modifiedPayload = new ArrayList<>(Arrays.asList(payload.get(PAYLOAD).toString().split("\\.")));
-            modifiedPayload.remove(1);
-            String[] payloadValues = modifiedPayload.toArray(new String[modifiedPayload.size()]);
-            StringBuilder sb = new StringBuilder();
-            for(String value: payloadValues) {
-                sb.append(value).append(".");
-            }
-            return sb.deleteCharAt(sb.length()-1).toString();
         }
     }
 
