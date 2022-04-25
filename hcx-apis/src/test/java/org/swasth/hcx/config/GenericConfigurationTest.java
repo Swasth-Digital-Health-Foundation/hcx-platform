@@ -6,7 +6,7 @@ import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
-public class GenericConfigurationTest {
+class GenericConfigurationTest {
 
     /*
      * I setup a context runner with the class GenericConfiguration
@@ -17,7 +17,7 @@ public class GenericConfigurationTest {
             .withUserConfiguration(GenericConfiguration.class);
 
     @Test
-    public void should_check_presence_of_generic_configuration_bean() {
+    void should_check_presence_of_generic_configuration_bean() {
         /*
          * We start the context and we will be able to trigger
          * assertions in a lambda receiving a

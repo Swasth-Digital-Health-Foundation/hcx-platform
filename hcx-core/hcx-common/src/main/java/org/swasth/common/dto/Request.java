@@ -1,12 +1,12 @@
 package org.swasth.common.dto;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.utils.PayloadUtils;
 
-import java.util.*;
+import java.util.Map;
+import java.util.UUID;
 
 import static org.swasth.common.utils.Constants.*;
 
