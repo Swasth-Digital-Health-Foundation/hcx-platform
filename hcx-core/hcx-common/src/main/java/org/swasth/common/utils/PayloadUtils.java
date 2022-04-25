@@ -1,6 +1,7 @@
 package org.swasth.common.utils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import lombok.experimental.UtilityClass;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,6 +10,7 @@ import java.util.Map;
 
 import static org.swasth.common.utils.Constants.PAYLOAD;
 
+@UtilityClass
 public class PayloadUtils {
 
     public static String removeEncryptionKey(Map<String, Object> payload) throws JsonProcessingException {
