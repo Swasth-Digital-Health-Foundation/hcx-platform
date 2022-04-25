@@ -14,6 +14,7 @@ import org.swasth.apigateway.cache.RedisCache;
 import org.swasth.apigateway.service.AuditService;
 import org.swasth.apigateway.service.RegistryService;
 import org.swasth.apigateway.utils.JSONUtils;
+import org.swasth.auditindexer.function.AuditIndexer;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -33,6 +34,9 @@ public class BaseSpec {
 
     @MockBean
     protected RedisCache redisCache;
+
+    @MockBean
+    protected AuditIndexer auditIndexer;
 
     @LocalServerPort
     protected int port;

@@ -52,6 +52,16 @@ registry:
 hcx-api:
   basePath: ${HCX_API_BASEPATH:http://localhost:8080}
 
+#elasticsearch config
+es:
+  host: ${es_host:localhost}
+  port: ${es_port:9200}
+
+#audit config
+audit:
+  index: ${audit_index:hcx_audit}
+  alias: ${audit_alias:hcx_audit}
+
 spring:
   main:
     web-application-type: reactive

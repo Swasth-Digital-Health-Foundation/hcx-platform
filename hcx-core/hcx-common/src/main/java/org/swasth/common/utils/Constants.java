@@ -58,9 +58,9 @@ public class Constants {
     public static final String AUDIT = "AUDIT";
     public static final String SENDER_ROLE = "senderRole";
     public static final String RECIPIENT_ROLE = "recipientRole";
-    public static final String AUDIT_TIMESTAMP = "requestTimeStamp";
+    public static final String AUDIT_TIMESTAMP = "auditTimeStamp";
     public static final String UPDATED_TIME = "updatedTimestamp";
-    public static final String REQUESTED_TIME = "auditTimeStamp";
+    public static final String REQUEST_TIME = "requestTimeStamp";
 
     //Request props
     public static final String PROTOCOL_HEADERS_MANDATORY = "protocol.headers.mandatory";
