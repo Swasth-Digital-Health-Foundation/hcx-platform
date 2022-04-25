@@ -13,7 +13,7 @@ const JsonViewer = (props) => {
         <Container>
             <Row>
                 <Col className='m-3'>
-                    <Button variant="primary" type="button" onClick={e => history.push({ pathname: '/eligibility-check' })}> Back  </Button>
+                    <Button variant="primary" type="button" onClick={e => history.push({ pathname: '/root' })}> Back  </Button>
                 </Col>
             </Row>
             <Row>
