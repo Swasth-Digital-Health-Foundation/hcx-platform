@@ -37,6 +37,12 @@ public class Constants {
     public static final String PREDETERMINATION_SUBMIT = VERSION_PREFIX + "/predetermination/submit";
     public static final String PREDETERMINATION_ONSUBMIT = VERSION_PREFIX + "/predetermination/on_submit";
 
+    // Notification APIs
+    public static final String NOTIFICATION_SUBSCRIBE = VERSION_PREFIX + "/notification/subscribe";
+    public static final String NOTIFICATION_UNSUBSCRIBE = VERSION_PREFIX + "/notification/unsubscribe";
+    public static final String NOTIFICATION_LIST = VERSION_PREFIX + "/notification/subscription/list";
+
+
     public static final String HEALTHY = "healthy";
     public static final String NAME = "name";
     public static final String KAFKA = "kafka";
@@ -112,5 +118,13 @@ public class Constants {
     public static final String DISPATCHED_STATUS = "request.dispatched";
     public static final String RETRY_STATUS = "request.retry";
     public static final String RETRY_PROCESSING_STATUS = "request.retry.processing";
+
+    //Notification constants
+    public static final String NOTIFICATION_ID = "notification_id";
+    public static final String ACTIVE = "active";
+    public static final String IN_ACTIVE = "inactive";
+    public static final int ACTIVE_CODE = 1;
+    public static final int INACTIVE_CODE = 0;
+
 
 }

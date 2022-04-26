@@ -26,6 +26,11 @@ postgres:
   user: ${postgres_user:postgres}
   password: ${postgres_password:postgres}
   tablename: ${postgres_tablename:payload}
+  subscription:
+    tablename: ${postgres_subscription_tablename:subscription}
+    insertQuery: ${postgres_subscription_insertQuery:INSERT INTO %s (id,recipientid,notificationid,status,lastupdatedon) VALUES ('%s','%s','%s',%d,%d)}
+    subscriptionQuery: ${postgres_subscription_subscriptionQuery:SELECT notificationid,recipientid,status FROM %s WHERE recipientid = '%s'}
+
 
 #hcx error headers
 plainrequest:
