@@ -3,6 +3,7 @@ package org.swasth.common.dto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -16,6 +17,11 @@ public class Response {
     private String apiCallId;
     private ResponseError error;
     private Map<String, Object> result;
+    private String subscriptionId;
+    private String status;
+    private List<Subscription> subscriptions;
+    @JsonProperty("count")
+    private int subscriptionCount;
 
     public Response() {}
 
@@ -27,6 +33,38 @@ public class Response {
     public Response(String key, Object val) {
         this.result = new HashMap<>();
         this.put(key, val);
+    }
+
+    public String getSubscriptionId() {
+        return subscriptionId;
+    }
+
+    public void setSubscriptionId(String subscriptionId) {
+        this.subscriptionId = subscriptionId;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public List<Subscription> getSubscriptions() {
+        return subscriptions;
+    }
+
+    public void setSubscriptions(List<Subscription> subscriptions) {
+        this.subscriptions = subscriptions;
+    }
+
+    public int getSubscriptionCount() {
+        return subscriptionCount;
+    }
+
+    public void setSubscriptionCount(int subscriptionCount) {
+        this.subscriptionCount = subscriptionCount;
     }
 
     public Long getTimestamp() {

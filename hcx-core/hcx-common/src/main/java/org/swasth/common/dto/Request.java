@@ -105,5 +105,9 @@ public class Request {
     public void setMid(String mid) {
         this.mid = mid;
     }
+
+    public String getParticipantCode() { return (String) payload.getOrDefault(PARTICIPANT_CODE, null);}
+    public String getNotificationId() { return (String) payload.getOrDefault(NOTIFICATION_ID, null);}
+
 }
 

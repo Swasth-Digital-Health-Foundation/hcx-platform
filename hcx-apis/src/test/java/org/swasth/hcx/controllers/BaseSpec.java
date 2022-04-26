@@ -30,7 +30,7 @@ import java.util.Map;
 
 
 
-@WebMvcTest({CoverageEligibilityController.class, PreAuthController.class, ClaimsController.class, PaymentsController.class, AuditController.class, StatusController.class, SearchController.class, CommunicationController.class, PredeterminationController.class, ParticipantController.class})
+@WebMvcTest({CoverageEligibilityController.class, PreAuthController.class, ClaimsController.class, PaymentsController.class, AuditController.class, StatusController.class, SearchController.class, CommunicationController.class, PredeterminationController.class, ParticipantController.class, NotificationController.class})
 @ExtendWith(MockitoExtension.class)
 @ActiveProfiles("test")
 public class BaseSpec {
