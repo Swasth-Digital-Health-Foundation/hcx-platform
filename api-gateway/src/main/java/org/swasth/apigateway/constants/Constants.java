@@ -71,9 +71,9 @@ public class Constants {
     public static final String AUDIT = "AUDIT";
     public static final String MID = "mid";
     public static final String ERROR_STATUS = "response.error";
-    public static final String AUDIT_TIMESTAMP = "requestTimeStamp";
+    public static final String REQUESTED_TIME = "requestTimeStamp";
     public static final String UPDATED_TIME = "updatedTimestamp";
-    public static final String REQUESTED_TIME = "auditTimeStamp";
+    public static final String AUDIT_TIMESTAMP = "auditTimeStamp";
     public static final String BLOCKED = "Blocked";
     public static final String INACTIVE = "Inactive";
     public static final String OS_OWNER = "osOwner";
