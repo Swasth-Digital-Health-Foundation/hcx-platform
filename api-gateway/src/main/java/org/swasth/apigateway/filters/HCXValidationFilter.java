@@ -144,7 +144,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
             if (result.get(STATUS).equals(QUEUED_STATUS)) {
                 result.put(STATUS, DISPATCHED_STATUS);
                 result.put(UPDATED_TIME, System.currentTimeMillis());
-                result.put(REQUESTED_TIME, System.currentTimeMillis());
+                result.put(AUDIT_TIMESTAMP, System.currentTimeMillis());
                 auditService.updateAuditLog(result);
             }
         }
