@@ -1,6 +1,6 @@
 import react from 'react';
 import { Navbar, Container } from 'react-bootstrap';
-import img from '../../assets/hcx.png';
+import logo from '../../assets/hcx.png';
 const Nav = props => {
     return <>
         <Navbar bg="dark" variant="dark">
@@ -8,7 +8,7 @@ const Nav = props => {
                 <Navbar.Brand href="/">
                     <img
                         alt=""
-                        src={img}
+                        src={logo}
                         height="40"
                         className="d-inline-block"
                     /> &nbsp; {'Swasth HCX POC Application'}
