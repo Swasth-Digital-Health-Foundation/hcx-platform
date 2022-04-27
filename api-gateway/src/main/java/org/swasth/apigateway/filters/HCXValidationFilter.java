@@ -141,10 +141,10 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
     private void validateParticipantCtxDetails(List<Map<String, Object>> auditData, String path) throws Exception {
         if ( !auditData.isEmpty() && path.contains("on_")) {
             Map<String, Object> result = auditData.get(0);
-            if (result.get(STATUS).equals("request.queued")) {
-                result.put(STATUS, "request.dispatched");
-                result.put("updatedTimestamp", System.currentTimeMillis());
-                result.put("auditTimeStamp", System.currentTimeMillis());
+            if (result.get(STATUS).equals(QUEUED_STATUS)) {
+                result.put(STATUS, DISPATCHED_STATUS);
+                result.put(UPDATED_TIME, System.currentTimeMillis());
+                result.put(REQUESTED_TIME, System.currentTimeMillis());
                 auditService.updateAuditLog(result);
             }
         }
