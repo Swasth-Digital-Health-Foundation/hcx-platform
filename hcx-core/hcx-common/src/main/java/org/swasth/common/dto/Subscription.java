@@ -6,9 +6,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Subscription {
 
-    @JsonProperty("subscription_id")
+    @JsonProperty("x-hcx-subscription_id")
     private String subscriptionId;
-    @JsonProperty("notification_id")
+    @JsonProperty("x-hcx-notification_id")
     private String notificationId;
     private String status;
 

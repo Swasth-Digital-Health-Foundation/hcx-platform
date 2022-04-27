@@ -7,6 +7,7 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MvcResult;
 import org.swasth.common.dto.Response;
+import org.swasth.common.exception.ErrorCodes;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.hcx.controllers.BaseSpec;
 import org.swasth.hcx.utils.MockResultSet;
@@ -20,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.swasth.common.utils.Constants.*;
 
@@ -54,6 +56,17 @@ public class NotificationControllerTest extends BaseSpec {
         assertEquals(202, status);
         assertTrue(response.getContentAsString().contains("hcx-notification-001:hcx-apollo-12345"));
         assertTrue(response.getContentAsString().contains(IN_ACTIVE));
+    }
+
+    @Test
+    public void testNotificationSubscribeException() throws Exception {
+        doThrow(Exception.class).when(postgreSQLClient).execute(anyString());
+        String requestBody = getNotificationRequest();
+        MvcResult mvcResult = mockMvc.perform(post(NOTIFICATION_SUBSCRIBE).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        assertEquals(500, status);
+        assertTrue(response.getContentAsString().contains(ErrorCodes.INTERNAL_SERVER_ERROR.name()));
     }
 
     @Test
@@ -128,6 +141,17 @@ public class NotificationControllerTest extends BaseSpec {
         assertEquals("hcx-notification-002", resObj.getSubscriptions().get(1).getNotificationId());
         assertEquals(IN_ACTIVE, resObj.getSubscriptions().get(1).getStatus());
 
+    }
+
+    @Test
+    public void testNotificationListException() throws Exception {
+        doThrow(Exception.class).when(postgreSQLClient).executeQuery(anyString());
+        String requestBody = getNotificationListRequest();
+        MvcResult mvcResult = mockMvc.perform(post(NOTIFICATION_LIST).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        assertEquals(500, status);
+        assertTrue(response.getContentAsString().contains(ErrorCodes.INTERNAL_SERVER_ERROR.name()));
     }
 
     private ResultSet getMockResultSet(int status) throws SQLException {
