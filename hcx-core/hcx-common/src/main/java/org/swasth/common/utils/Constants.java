@@ -120,7 +120,7 @@ public class Constants {
     public static final String RETRY_PROCESSING_STATUS = "request.retry.processing";
 
     //Notification constants
-    public static final String NOTIFICATION_ID = "notification_id";
+    public static final String NOTIFICATION_ID = "x-hcx-notification_id";
     public static final String ACTIVE = "active";
     public static final String IN_ACTIVE = "inactive";
     public static final int ACTIVE_CODE = 1;

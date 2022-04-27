@@ -146,7 +146,6 @@ public class BaseController {
             if (StringUtils.equalsIgnoreCase(serviceMode, GATEWAY)) {
                 //Insert record into subscription table in postgres database
                 postgreSQLClient.execute(query);
-                System.out.println(query);
             }
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
@@ -190,9 +189,7 @@ public class BaseController {
                 subscriptionList.add(subscription);
             }
             return subscriptionList;
-        } catch (Exception e) {
-            throw new Exception(e);
-        } finally {
+        }finally {
             if (resultSet != null) resultSet.close();
         }
     }

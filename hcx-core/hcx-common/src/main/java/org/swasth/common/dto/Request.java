@@ -82,7 +82,10 @@ public class Request {
         return (Map<String, Object>) hcxHeaders.getOrDefault(key, null);
     }
 
-    private void setHeaderMap(String key, Object value){ hcxHeaders.put(key, value); }
+    private void setHeaderMap(String key, Object value) {
+        if (hcxHeaders != null)
+            hcxHeaders.put(key, value);
+    }
 
     public Map<String, Object> getErrorDetails() {
         return getHeaderMap(ERROR_DETAILS);
