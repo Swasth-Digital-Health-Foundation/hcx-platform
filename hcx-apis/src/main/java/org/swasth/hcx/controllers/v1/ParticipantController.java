@@ -2,7 +2,6 @@ package org.swasth.hcx.controllers.v1;
 
 import kong.unirest.HttpResponse;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +34,7 @@ public class ParticipantController  extends BaseController {
             return new ResponseEntity<>(errorResponse(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, "unknown property, 'scheme_code' is not allowed", null), HttpStatus.BAD_REQUEST);
         }
 
-        validateParticipant(requestBody);
+        validateEndpointUrl(requestBody);
         String url =  registryUrl + "/api/v1/Organisation/invite";
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put(AUTHORIZATION, header.get(AUTHORIZATION).get(0));
@@ -57,7 +56,6 @@ public class ParticipantController  extends BaseController {
     @RequestMapping(value = "/search", method = RequestMethod.POST)
     public ResponseEntity<Object> participantSearch(@RequestBody Map<String, Object> requestBody) throws Exception {
         String url =  registryUrl + "/api/v1/Organisation/search";
-        validateParticipant(requestBody);
         Map<String,Object> filters = (Map<String, Object>) requestBody.get(FILTERS);
         if (filters.containsKey(PARTICIPANT_CODE)) {
           filters.put(OSID, filters.get(PARTICIPANT_CODE));
@@ -81,7 +79,8 @@ public class ParticipantController  extends BaseController {
     @RequestMapping(value = "/update", method = RequestMethod.POST)
     public ResponseEntity<Object> participantUpdate(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) throws Exception {
       String url = registryUrl + "/api/v1/Organisation/" + requestBody.get(PARTICIPANT_CODE);
-      requestBody.remove(PARTICIPANT_CODE);
+        validateEndpointUrl(requestBody);
+        requestBody.remove(PARTICIPANT_CODE);
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put(AUTHORIZATION,header.get(AUTHORIZATION).get(0));
         HttpResponse response = HttpUtils.put(url, JSONUtils.serialize(requestBody), headersMap);
@@ -111,7 +110,7 @@ public class ParticipantController  extends BaseController {
         return resp;
     }
 
-    private HttpEntity<ParticipantResponse> validateParticipant (Map<String, Object> body) {
+    private ResponseEntity<ParticipantResponse> validateEndpointUrl (Map<String, Object> body) {
         List<String> notAllowedUrls = env.getProperty(HCX_NOT_ALLOWED_URLS, List.class, new ArrayList<String>());
 
         if (notAllowedUrls.contains(body.get(ENDPOINT_URL))){
