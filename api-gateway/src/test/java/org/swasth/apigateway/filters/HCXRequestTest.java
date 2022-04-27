@@ -492,7 +492,6 @@ class HCXRequestTest extends BaseSpec {
                 .exchange()
                 .expectBody(Map.class)
                 .consumeWith(result -> {
-                    System.out.println("result____"+result.toString());
                     assertEquals(HttpStatus.ACCEPTED, result.getStatus());
                 });
     }
