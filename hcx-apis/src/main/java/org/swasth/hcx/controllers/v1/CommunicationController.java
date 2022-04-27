@@ -31,9 +31,10 @@ public class CommunicationController extends BaseController {
     @RequestMapping(value = "/request", method = RequestMethod.POST)
     public ResponseEntity<Object> communicationRequest(@RequestBody Map<String, Object> requestBody) throws Exception {
         Response response = new Response();
+        Request request = new Request(requestBody);
+        request.setApiAction(COMMUNICATION_REQUEST);
         try {
             checkSystemHealth();
-            Request request = new Request(requestBody);
             setResponseParams(request, response);
             Map<String, Object> hcxHeaders = request.getHcxHeaders();
             Map<String, String> filters = new HashMap<>();
@@ -46,10 +47,10 @@ public class CommunicationController extends BaseController {
             if (auditData.getWorkflow_id() != null && (!hcxHeaders.containsKey(WORKFLOW_ID) || !request.getWorkflowId().equals(auditData.getWorkflow_id()))) {
                 throw new ClientException(ErrorCodes.ERR_INVALID_WORKFLOW_ID, "The request contains invalid workflow id");
             }
-            processAndSendEvent(COMMUNICATION_REQUEST, kafkaTopic, request);
+            processAndSendEvent(kafkaTopic, request);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
-            return exceptionHandler(response, e);
+            return exceptionHandler(request, response, e);
         }
     }
 

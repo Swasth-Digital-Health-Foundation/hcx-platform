@@ -31,9 +31,10 @@ public class StatusController extends BaseController {
     @RequestMapping(value = "/status", method = RequestMethod.POST)
     public ResponseEntity<Object> status(@RequestBody Map<String, Object> requestBody) throws Exception {
         Response response = new Response();
+        Request request = new Request(requestBody);
+        request.setApiAction(HCX_STATUS);
         try {
             checkSystemHealth();
-            Request request = new Request(requestBody);
             setResponseParams(request, response);
             Map<String,String> auditFilters = new HashMap<>();
             auditFilters.put(SENDER_CODE, request.getSenderCode());
@@ -53,25 +54,26 @@ public class StatusController extends BaseController {
                 response.setResult(statusResponseMap);
             } else if (auditData.getStatus().equals(DISPATCHED_STATUS)) {
                 response.setResult(statusResponseMap);
-                processAndSendEvent(HCX_STATUS, topic, request);
+                processAndSendEvent(topic, request);
             }
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
-            return exceptionHandler(response, e);
+            return exceptionHandler(request, response, e);
         }
     }
 
     @RequestMapping(value = "/on_status", method = RequestMethod.POST)
-    public ResponseEntity<Object> onStatus(@RequestBody Map<String, Object> requestBody) {
+    public ResponseEntity<Object> onStatus(@RequestBody Map<String, Object> requestBody) throws Exception {
         Response response = new Response();
+        Request request = new Request(requestBody);
+        request.setApiAction(HCX_ONSTATUS);
         try {
             checkSystemHealth();
-            Request request = new Request(requestBody);
             setResponseParams(request, response);
-            processAndSendEvent(HCX_ONSTATUS, topic, request);
+            processAndSendEvent(topic, request);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
-            return exceptionHandler(response, e);
+            return exceptionHandler(request, response, e);
         }
     }
 
