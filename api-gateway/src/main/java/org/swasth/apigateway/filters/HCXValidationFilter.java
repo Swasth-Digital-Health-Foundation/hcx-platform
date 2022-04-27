@@ -147,8 +147,8 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                 result.put("auditTimeStamp", System.currentTimeMillis());
                 auditService.updateAuditLog(result);
             }
-        };
-    };
+        }
+    }
 
     private List<String> getErrorMandatoryHeaders() {
         List<String> mandatoryHeaders = new ArrayList<>();
