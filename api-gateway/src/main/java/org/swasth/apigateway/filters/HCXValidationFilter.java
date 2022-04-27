@@ -19,7 +19,6 @@ import org.swasth.apigateway.models.JWERequest;
 import org.swasth.apigateway.service.AuditService;
 import org.swasth.apigateway.service.RegistryService;
 import org.swasth.apigateway.utils.JSONUtils;
-import org.swasth.auditindexer.function.AuditIndexer;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -82,8 +81,10 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                     apiCallId = jweRequest.getApiCallId();
                     Map<String,Object> senderDetails = getDetails(jweRequest.getSenderCode());
                     Map<String,Object> recipientDetails = getDetails(jweRequest.getRecipientCode());
+                    List<Map<String, Object>> participantCtxAuditDetails = getParticipantCtxAuditData(jweRequest.getSenderCode(), jweRequest.getRecipientCode(), jweRequest.getCorrelationId());
                     jweRequest.validate(getMandatoryHeaders(), subject, timestampRange, senderDetails, recipientDetails);
-                    jweRequest.validateUsingAuditData(allowedEntitiesForForward, allowedRolesForForward, senderDetails, recipientDetails, getCorrelationAuditData(jweRequest.getCorrelationId()), getCallAuditData(jweRequest.getApiCallId()), getParticipantCtxAuditData(jweRequest.getSenderCode(), jweRequest.getRecipientCode(), jweRequest.getCorrelationId()), path);
+                    jweRequest.validateUsingAuditData(allowedEntitiesForForward, allowedRolesForForward, senderDetails, recipientDetails, getCorrelationAuditData(jweRequest.getCorrelationId()), getCallAuditData(jweRequest.getApiCallId()), participantCtxAuditDetails, path);
+                    validateParticipantCtxDetails(participantCtxAuditDetails, path);
                 } else {
                     if (!path.contains("on_")) {
                         throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, "Request body should be a proper JWE object for action API calls");
@@ -104,6 +105,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                         } else
                             throw new ClientException(ErrorCodes.ERR_INVALID_REDIRECT_TO, "Invalid redirect request," + jsonRequest.getApiAction() + " is not allowed for redirect, Allowed APIs are: " + getApisForRedirect());
                     }
+                    validateParticipantCtxDetails(getParticipantCtxAuditData(jsonRequest.getSenderCode(), jsonRequest.getRecipientCode(), jsonRequest.getCorrelationId()), path);
                 }
             } catch (Exception e) {
                 logger.error("Exception occurred for request with correlationId: " + correlationId);
@@ -135,6 +137,18 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
         mandatoryHeaders.addAll(env.getProperty("headers.jose", List.class));
         return mandatoryHeaders;
     }
+
+    private void validateParticipantCtxDetails(List<Map<String, Object>> auditData, String path) throws Exception {
+        if ( !auditData.isEmpty() && path.contains("on_")) {
+            Map<String, Object> result = auditData.get(0);
+            if (result.get(STATUS).equals("request.queued")) {
+                result.put(STATUS, "request.dispatched");
+                result.put("updatedTimestamp", System.currentTimeMillis());
+                result.put("auditTimeStamp", System.currentTimeMillis());
+                auditService.updateAuditLog(result);
+            }
+        };
+    };
 
     private List<String> getErrorMandatoryHeaders() {
         List<String> mandatoryHeaders = new ArrayList<>();
