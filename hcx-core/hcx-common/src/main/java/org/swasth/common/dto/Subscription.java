@@ -3,16 +3,17 @@ package org.swasth.common.dto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import static org.swasth.common.utils.Constants.NOTIFICATION_ID;
+import static org.swasth.common.utils.Constants.SUBSCRIPTION_ID;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Subscription {
 
-    @JsonProperty("x-hcx-subscription_id")
+    @JsonProperty(SUBSCRIPTION_ID)
     private String subscriptionId;
-    @JsonProperty("x-hcx-notification_id")
+    @JsonProperty(NOTIFICATION_ID)
     private String notificationId;
     private String status;
-
-    public Subscription(){}
 
     public String getSubscriptionId() {
         return subscriptionId;

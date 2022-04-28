@@ -129,7 +129,7 @@ public class BaseController {
 
     protected void setNotificationResponse(Request request, Response response, int statusCode) {
         String status = statusCode == 1 ? ACTIVE : IN_ACTIVE;
-        response.setStatus(status);
+        response.setSubscriptionStatus(status);
         response.setSubscriptionId(request.getNotificationId() + ":" + request.getParticipantCode());
     }
 

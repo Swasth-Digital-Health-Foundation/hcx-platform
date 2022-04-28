@@ -25,10 +25,10 @@ import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.swasth.common.utils.Constants.*;
 
-public class NotificationControllerTest extends BaseSpec {
+class NotificationControllerTest extends BaseSpec {
 
     @Test
-    public void testNotificationSubscribeSuccess() throws Exception {
+     void testNotificationSubscribeSuccess() throws Exception {
         doReturn(true).when(postgreSQLClient).execute(anyString());
         String requestBody = getNotificationRequest();
         MvcResult mvcResult = mockMvc.perform(post(NOTIFICATION_SUBSCRIBE).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
@@ -47,7 +47,7 @@ public class NotificationControllerTest extends BaseSpec {
     }
 
     @Test
-    public void testNotificationUnSubscribeSuccess() throws Exception {
+    void testNotificationUnSubscribeSuccess() throws Exception {
         doReturn(true).when(postgreSQLClient).execute(anyString());
         String requestBody = getNotificationRequest();
         MvcResult mvcResult = mockMvc.perform(post(NOTIFICATION_UNSUBSCRIBE).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
@@ -59,7 +59,7 @@ public class NotificationControllerTest extends BaseSpec {
     }
 
     @Test
-    public void testNotificationSubscribeException() throws Exception {
+    void testNotificationSubscribeException() throws Exception {
         doThrow(Exception.class).when(postgreSQLClient).execute(anyString());
         String requestBody = getNotificationRequest();
         MvcResult mvcResult = mockMvc.perform(post(NOTIFICATION_SUBSCRIBE).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
@@ -70,7 +70,7 @@ public class NotificationControllerTest extends BaseSpec {
     }
 
     @Test
-    public void testNotificationListEmpty() throws Exception {
+    void testNotificationListEmpty() throws Exception {
         ResultSet mockResultSet = Mockito.mock(ResultSet.class);
 
         doReturn(mockResultSet).when(postgreSQLClient).executeQuery(anyString());
@@ -81,11 +81,11 @@ public class NotificationControllerTest extends BaseSpec {
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
         assertEquals(202, status);
         assertTrue(resObj.getSubscriptions().isEmpty());
-        assertTrue(resObj.getSubscriptionCount() == 0);
+        assertEquals(0,resObj.getSubscriptionCount());
     }
 
     @Test
-    public void testNotificationListWithOneActiveSubscription() throws Exception {
+    void testNotificationListWithOneActiveSubscription() throws Exception {
         ResultSet mockResultSet = getMockResultSet(1);
 
         doReturn(mockResultSet).when(postgreSQLClient).executeQuery(anyString());
@@ -96,14 +96,14 @@ public class NotificationControllerTest extends BaseSpec {
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
         assertEquals(202, status);
         assertTrue(!resObj.getSubscriptions().isEmpty());
-        assertTrue(resObj.getSubscriptionCount() == 1);
+        assertEquals(1,resObj.getSubscriptionCount());
         assertEquals("hcx-notification-001:hcx-apollo-12345", resObj.getSubscriptions().get(0).getSubscriptionId());
         assertEquals("hcx-notification-001", resObj.getSubscriptions().get(0).getNotificationId());
         assertEquals(ACTIVE, resObj.getSubscriptions().get(0).getStatus());
     }
 
     @Test
-    public void testNotificationListWithOneInActiveSubscription() throws Exception {
+    void testNotificationListWithOneInActiveSubscription() throws Exception {
         ResultSet mockResultSet = getMockResultSet(0);
 
         doReturn(mockResultSet).when(postgreSQLClient).executeQuery(anyString());
@@ -114,7 +114,7 @@ public class NotificationControllerTest extends BaseSpec {
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
         assertEquals(202, status);
         assertTrue(!resObj.getSubscriptions().isEmpty());
-        assertTrue(resObj.getSubscriptionCount() == 1);
+        assertEquals(1,resObj.getSubscriptionCount());
         assertEquals("hcx-notification-001:hcx-apollo-12345", resObj.getSubscriptions().get(0).getSubscriptionId());
         assertEquals("hcx-notification-001", resObj.getSubscriptions().get(0).getNotificationId());
         assertEquals(IN_ACTIVE, resObj.getSubscriptions().get(0).getStatus());
@@ -122,7 +122,7 @@ public class NotificationControllerTest extends BaseSpec {
     }
 
     @Test
-    public void testNotificationListWithBothSubscription() throws Exception {
+    void testNotificationListWithBothSubscription() throws Exception {
         ResultSet mockResultSet = getMockResultSet();
 
         doReturn(mockResultSet).when(postgreSQLClient).executeQuery(anyString());
@@ -133,7 +133,7 @@ public class NotificationControllerTest extends BaseSpec {
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
         assertEquals(202, status);
         assertTrue(!resObj.getSubscriptions().isEmpty());
-        assertTrue(resObj.getSubscriptionCount() == 2);
+        assertEquals(2, resObj.getSubscriptionCount());
         assertEquals("hcx-notification-001:hcx-apollo-12345", resObj.getSubscriptions().get(0).getSubscriptionId());
         assertEquals("hcx-notification-001", resObj.getSubscriptions().get(0).getNotificationId());
         assertEquals(ACTIVE, resObj.getSubscriptions().get(0).getStatus());
@@ -144,7 +144,7 @@ public class NotificationControllerTest extends BaseSpec {
     }
 
     @Test
-    public void testNotificationListException() throws Exception {
+    void testNotificationListException() throws Exception {
         doThrow(Exception.class).when(postgreSQLClient).executeQuery(anyString());
         String requestBody = getNotificationListRequest();
         MvcResult mvcResult = mockMvc.perform(post(NOTIFICATION_LIST).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
