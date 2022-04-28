@@ -5,7 +5,6 @@ import org.mockito.Mockito;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.doReturn;
 
 public class SubscriptionTest {
 
@@ -17,11 +16,19 @@ public class SubscriptionTest {
 
 
     @Test
-    public void testSubscriptionData() throws Exception {
+    public void testSubscriptionMockData() throws Exception {
         Subscription mockSubscription = Mockito.mock(Subscription.class);
-        doReturn("SubscriptionId").when(mockSubscription).getSubscriptionId();
-        doReturn("NotificationId").when(mockSubscription).getNotificationId();
-        doReturn("Status").when(mockSubscription).getStatus();
+        assertEquals(null, mockSubscription.getSubscriptionId());
+        assertEquals(null,mockSubscription.getNotificationId());
+        assertEquals(null,mockSubscription.getStatus());
+    }
+
+    @Test
+    public void testSubscriptionData() throws Exception {
+        Subscription mockSubscription = new Subscription();
+        mockSubscription.setSubscriptionId("SubscriptionId");
+        mockSubscription.setNotificationId("NotificationId");
+        mockSubscription.setStatus("Status");
         assertEquals("SubscriptionId", mockSubscription.getSubscriptionId());
         assertEquals("NotificationId",mockSubscription.getNotificationId());
         assertEquals("Status",mockSubscription.getStatus());

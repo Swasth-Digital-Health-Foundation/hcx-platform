@@ -18,7 +18,8 @@ public class Response {
     private ResponseError error;
     private Map<String, Object> result;
     private String subscriptionId;
-    private String status;
+    @JsonProperty("status")
+    private String subscriptionStatus;
     private List<Subscription> subscriptions;
     @JsonProperty("count")
     private int subscriptionCount;
@@ -43,12 +44,12 @@ public class Response {
         this.subscriptionId = subscriptionId;
     }
 
-    public String getStatus() {
-        return status;
+    public String getSubscriptionStatus() {
+        return subscriptionStatus;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setSubscriptionStatus(String subscriptionStatus) {
+        this.subscriptionStatus = subscriptionStatus;
     }
 
     public List<Subscription> getSubscriptions() {

@@ -17,8 +17,6 @@ public class Notification {
     private String template;
     private String status;
 
-    public Notification(){}
-
     public UUID getId() {
         return id;
     }

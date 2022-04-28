@@ -125,6 +125,7 @@ public class Constants {
     public static final String IN_ACTIVE = "inactive";
     public static final int ACTIVE_CODE = 1;
     public static final int INACTIVE_CODE = 0;
+    public static final String SUBSCRIPTION_ID = "x-hcx-subscription_id";
 
 
 }
