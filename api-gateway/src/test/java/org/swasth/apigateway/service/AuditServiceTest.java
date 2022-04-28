@@ -10,6 +10,7 @@ import org.swasth.apigateway.models.BaseRequest;
 import org.swasth.auditindexer.function.AuditIndexer;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -34,6 +35,12 @@ class AuditServiceTest{
     @Test
     void check_audit_log_creation() throws Exception {
         auditService.createAuditLog(getRequest());
+        assertTrue(true);
+    }
+
+    @Test
+    void check_audit_log_update() throws Exception {
+        auditService.updateAuditLog(new HashMap<>());
         assertTrue(true);
     }
 

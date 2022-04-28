@@ -53,6 +53,10 @@ public class AuditService {
         auditIndexer.createDocument(createAuditEvent(request));
     }
 
+    public void updateAuditLog(Map<String,Object> event) throws Exception {
+        auditIndexer.createDocument(event);
+    }
+
     public Map<String,Object> createAuditEvent(BaseRequest request) {
         Map<String,Object> event = new HashMap<>();
         event.put(EID, AUDIT);
