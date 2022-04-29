@@ -68,3 +68,7 @@ redirect:
 hcx:
   urls:
     notallowed: ${not_allowed_urls:http://localhost:8095}
+
+#Filename of the Notifications master data
+notification:
+  path: ${notification_path:classpath:Notifications.json}

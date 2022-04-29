@@ -1,16 +1,17 @@
 package org.swasth.hcx.controllers;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.swasth.auditindexer.function.AuditIndexer;
-import org.swasth.common.dto.Request;
-import org.swasth.common.dto.Response;
-import org.swasth.common.dto.ResponseError;
-import org.swasth.common.dto.Subscription;
+import org.swasth.common.dto.*;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
 import org.swasth.common.exception.ServerException;
@@ -61,6 +62,14 @@ public class BaseController {
 
     @Value("${postgres.subscription.subscriptionQuery}")
     private String selectSubscription;
+
+    @Autowired
+    private ResourceLoader resourceLoader;
+
+    @Value("${notification.path:classpath:Notifications.json}")
+    private String filename;
+
+    List<Notification> notificationList = null;
 
 
     protected Response errorResponse(Response response, ErrorCodes code, java.lang.Exception e) {
@@ -192,6 +201,28 @@ public class BaseController {
         }finally {
             if (resultSet != null) resultSet.close();
         }
+    }
+
+    public ResponseEntity<Object> getNotifications(Map<String, Object> requestBody) throws Exception {
+        Response response = new Response();
+        Request request = null;
+        try {
+            checkSystemHealth();
+            request = new Request(requestBody);
+            if(notificationList == null)
+            notificationList = loadNotifications();
+            response.setNotifications(notificationList);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            return exceptionHandler(request, response, e);
+        }
+    }
+
+    private List<Notification> loadNotifications() throws Exception {
+        Resource resource = resourceLoader.getResource(filename);
+        ObjectMapper jsonReader = new ObjectMapper(new JsonFactory());
+        List<Notification> notificationList = (List<Notification>) jsonReader.readValue(resource.getInputStream(), List.class);
+        return notificationList;
     }
 
 }

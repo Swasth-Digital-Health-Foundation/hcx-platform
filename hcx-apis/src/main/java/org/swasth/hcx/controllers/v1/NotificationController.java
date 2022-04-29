@@ -26,4 +26,9 @@ public class NotificationController extends BaseController {
         return getSubscriptions(requestBody);
     }
 
+    @PostMapping(value = "/list")
+    public ResponseEntity<Object> getNotificationList(@RequestBody Map<String, Object> requestBody) throws Exception {
+        return getNotifications(requestBody);
+    }
+
 }
