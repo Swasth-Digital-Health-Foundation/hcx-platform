@@ -80,8 +80,10 @@ class BaseJobConfig(val config: Config, val jobName: String) extends Serializabl
   }
 
   //Registry Url
-  val registryUrl = config.getString("registry.endPointUrl")
   val hcxRegistryCode: String = config.getString("registry.hcx.code")
+
+  // HCX-APIs Url
+  val hcxApisUrl = config.getString("hcx-apis.endPointUrl")
 
   // JWT Token
   val privateKey: String = config.getString("jwt-token.privateKey")
