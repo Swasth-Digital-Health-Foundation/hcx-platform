@@ -1,53 +1,21 @@
 package org.swasth.dp.core.util
 
 import org.apache.commons.lang3.StringUtils
-import org.apache.http.client.HttpRequestRetryHandler
-import org.apache.http.client.config.{CookieSpecs, RequestConfig}
 import org.apache.http.client.methods.{CloseableHttpResponse, HttpPost}
 import org.apache.http.entity.StringEntity
-import org.apache.http.impl.client.HttpClientBuilder
-import org.apache.http.protocol.HttpContext
+import org.apache.http.impl.client.CloseableHttpClient
 import org.apache.http.util.EntityUtils
 import org.swasth.dp.core.function.{DispatcherResult, ErrorResponse}
 import org.swasth.dp.core.job.BaseJobConfig
 
-
-import java.io.IOException
 import java.nio.charset.StandardCharsets
 import java.util
-import scala.io.Source
 
 class DispatcherUtil(config: BaseJobConfig) extends Serializable {
 
   val jwtUtil = new JWTUtil(config)
 
-
-  val requestConfig = RequestConfig.custom()
-    .setCookieSpec(CookieSpecs.STANDARD)
-    .setConnectTimeout(5 * 1000) // TODO: load from config
-    .setConnectionRequestTimeout(5 * 1000) // TODO: load from config
-    .setSocketTimeout(60 * 1000) // TODO: load from config
-    .build()
-
-  val retryHandler = new HttpRequestRetryHandler {
-    override def retryRequest(exception: IOException, executionCount: Int, httpContext: HttpContext): Boolean = {
-      Console.println("HTTP retry request execution count", executionCount)
-      if (executionCount > 3) { // TODO: load from config
-        return false
-      } else {
-        // wait a second before retrying again
-        Thread.sleep(1000) // TODO: load from config
-        return true
-      }
-    }
-  }
-
-  val httpClient = HttpClientBuilder
-    .create()
-    .setRetryHandler(retryHandler)
-    .setDefaultRequestConfig(requestConfig)
-    .build()
-
+  val httpClient: CloseableHttpClient = new HttpUtil().getHttpClient()
 
   def dispatch(ctx: util.Map[String, AnyRef], payload: String): DispatcherResult = {
     val url = ctx.get("endpoint_url").asInstanceOf[String]
@@ -91,33 +59,6 @@ class DispatcherUtil(config: BaseJobConfig) extends Serializable {
     val responseBody = EntityUtils.toString(response.getEntity, StandardCharsets.UTF_8)
     val errorResponse = ErrorResponse(Option(Constants.RECIPIENT_ERROR_CODE), Option(Constants.RECIPIENT_ERROR_MESSAGE), Option(responseBody))
     errorResponse
-  }
-
-  def post(url: String, code: String): String= {
-    // payload for registry search
-    val payload = s"""{"entityType":["Organisation"],"filters":{"osid":{"eq":"$code"}}}"""
-    Console.println("registry payload", payload)
-    Console.println("Registry URL", url)
-    val httpPost = new HttpPost(url);
-    httpPost.setEntity(new StringEntity(payload))
-    httpPost.setHeader("Accept", "application/json")
-    httpPost.setHeader("Content-type", "application/json")
-    try {
-      val response = httpClient.execute(httpPost);
-      val statusCode = response.getStatusLine().getStatusCode();
-      Console.println("registryAPI statusCode", statusCode);
-      val entity = response.getEntity
-      val inputStream = entity.getContent
-      val content = Source.fromInputStream(inputStream, "UTF-8").getLines.mkString
-      inputStream.close()
-      response.close()
-      content
-    } catch {
-      case ex: Exception => {
-        ex.printStackTrace()
-        "[{}]"
-      }
-    }
   }
 
 }

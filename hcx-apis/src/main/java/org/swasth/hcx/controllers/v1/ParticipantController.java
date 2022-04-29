@@ -70,7 +70,7 @@ public class ParticipantController  extends BaseController {
           } else {
             for (Object obj: result) {
                 Map<String, Object> objMap = (Map<String, Object>) obj;
-                objMap.put(PARTICIPANT_CODE, objMap.get(OSID));
+                objMap.put(PARTICIPANT_CODE, "1-" + objMap.get(OSID));
                 objMap.remove(OSID);
             }
             return new ResponseEntity<>(new ParticipantResponse(result), HttpStatus.OK);
