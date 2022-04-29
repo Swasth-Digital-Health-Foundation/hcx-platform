@@ -66,8 +66,9 @@ class HCXRequestTest extends BaseSpec {
                 .thenReturn(getProviderDetails());
         Mockito.when(auditService.getAuditLogs(any()))
                 .thenReturn(getAuditLogs())
-                .thenReturn(new ArrayList<>())
-                .thenReturn(getAuditLogs());
+                .thenReturn(getAuditLogs())
+                .thenReturn(new ArrayList<>());
+
 
         client.post().uri("/v1/coverageeligibility/on_check")
                 .header(Constants.AUTHORIZATION, getPayorToken())
@@ -89,7 +90,10 @@ class HCXRequestTest extends BaseSpec {
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getPayorDetails())
                 .thenReturn(getProviderDetails());
-        Mockito.when(auditService.getAuditLogs(any())).thenReturn(new ArrayList<>());
+        Mockito.when(auditService.getAuditLogs(any()))
+                .thenReturn(new ArrayList<>())
+                .thenReturn(getAuditLogs())
+                .thenReturn(getAuditLogs());
 
         client.post().uri("/v1/coverageeligibility/on_check")
                 .header(Constants.AUTHORIZATION, getPayorToken())
@@ -478,8 +482,8 @@ class HCXRequestTest extends BaseSpec {
                 .thenReturn(getPayor2Details());
         Mockito.when(auditService.getAuditLogs(any()))
                 .thenReturn(getAuditLogs())
-                .thenReturn(new ArrayList<>())
-                .thenReturn(getAuditLogs());
+                .thenReturn(getAuditLogs())
+                .thenReturn(new ArrayList<>());
 
         client.post().uri("/v1/coverageeligibility/check")
                 .header(Constants.AUTHORIZATION, getPayorToken())

@@ -1,0 +1,206 @@
+{
+  "resourceType": "Bundle",
+  "id": "9699444a",
+  "meta": {
+    "versionId": "1",
+    "lastUpdated": "2021-12-22T15:32:26.605+05:30"
+  },
+  "timestamp": "2021-12-22T15:32:26.605+05:30",
+  "identifier": {
+    "system": "urn:ietf:rfc:3986",
+    "value": "urn:uuiad:9699444a"
+  },
+  "type": "document",
+  "entry": [
+    {
+      "fullUrl": "Composition/1",
+      "resource": {
+        "resourceType": "Composition",
+        "id": "1",
+        "date": "2021-12-22T15:32:26.605+05:30",
+        "meta": {
+          "versionId": "1",
+          "lastUpdated": "2021-12-22T15:32:26.605+05:30"
+        },
+        "identifier": {
+          "system": "urn:ietf:rfc:3986",
+          "value": "urn:uuid:28b6b35e"
+        },
+        "status": "final",
+        "type": {
+          "coding": [
+            {
+              "system": "https://hcx.org/document-types",
+              "code": "HCXCoverageElibilityResponse",
+              "display": "Coverage Eligibility Response"
+            }
+          ],
+          "text": "Coverage Eligibility Response"
+        },
+        "subject": {
+          "reference": "Patient/1",
+          "display": "Hina Patel"
+        },
+        "author": [
+          {
+            "reference": "Practitioner/1",
+            "display": "Dr. Sudhir Naik (PMJAY Gujrat)"
+          }
+        ],
+        "title": "Coverage Eligibility Request",
+        "attester": [
+          {
+            "mode": "official",
+            "time": "2021-12-22T14:10:14Z",
+            "party": {
+              "reference": "Organization/2",
+              "display": "PMJAY, MoHFW, Govt Of India"
+            }
+          }
+        ],
+        "section": [
+          {
+            "title": "Coverage Eligibility Response",
+            "code": {
+              "coding": [
+                {
+                  "system": "https://www.hl7.org/fhir/valueset-resource-types",
+                  "code": "CoverageEligibilityResponse",
+                  "display": "Coverage Eligibility Response"
+                }
+              ]
+            },
+            "entry": [
+              {
+                "reference": "CoverageEligibilityResponse/res-id-1"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "CoverageEligibilityResponse/ress-id-1",
+      "resource": {
+        "id": "res-id-1",
+        "resourceType": "CoverageEligibilityResponse",
+        "created": "2021-12-22",
+        "identifier": [
+          {
+            "system": "urn:ietf:rfc:3986",
+            "value": "urn:uuiad:581da6a9"
+          }
+        ],
+        "status": "active",
+        "patient": {
+          "reference": "Patient/1",
+          "display": "Hina Patel"
+        },
+        "servicedPeriod": {
+          "start": "2021-12-22",
+          "end": "2021-12-25"
+        },
+        "purpose": [
+          "discovery",
+          "benefits"
+        ]
+      }
+    },
+    {
+      "fullUrl": "Patient/1",
+      "resource": {
+        "resourceType": "Patient",
+        "id": "1",
+        "name": [
+          {
+            "use": "official",
+            "family": "Patel",
+            "given": [
+              "Hina"
+            ]
+          }
+        ],
+        "identifier": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://ndhm.gov.in/ValueSet/identifier-type",
+                  "code": "PHRADDR"
+                }
+              ]
+            },
+            "system": "http://ndhm.gov.in/healthId",
+            "value": "654321"
+          },
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://ndhm.gov.in/ValueSet/identifier-type",
+                  "code": "PMJAYID"
+                }
+              ]
+            },
+            "system": "http://ndhm.gov.in/pmjay",
+            "value": "QWRT12345"
+          }
+        ],
+        "gender": "female",
+        "birthDate": "1974-12-25"
+      }
+    },
+    {
+      "fullUrl": "Organization/MaxSaket01",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "MaxSaket01",
+        "name": "Max Super Speciality Hospital, Saket",
+        "identifier": [
+          {
+            "system": "https://ndhm.gov.in/hfr",
+            "value": "HFR-10000005"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Organization/2",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "2",
+        "name": "PMJAY, MoHFW, Govt Of India",
+        "identifier": [
+          {
+            "system": "https://hcx.org/orgs",
+            "value": "PMJAY"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Practitioner/1",
+      "resource": {
+        "resourceType": "Practitioner",
+        "id": "1",
+        "identifier": [
+          {
+            "system": "https://ndhm.gov.in/npr",
+            "value": "NPR-6897"
+          }
+        ],
+        "name": [
+          {
+            "text": "Sudhir Naik (PMJAY Gujrat)",
+            "prefix": [
+              "Dr"
+            ],
+            "suffix": [
+              "MD"
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
