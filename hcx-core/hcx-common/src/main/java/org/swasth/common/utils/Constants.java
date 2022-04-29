@@ -40,7 +40,8 @@ public class Constants {
     // Notification APIs
     public static final String NOTIFICATION_SUBSCRIBE = VERSION_PREFIX + "/notification/subscribe";
     public static final String NOTIFICATION_UNSUBSCRIBE = VERSION_PREFIX + "/notification/unsubscribe";
-    public static final String NOTIFICATION_LIST = VERSION_PREFIX + "/notification/subscription/list";
+    public static final String NOTIFICATION_SUBSCRIPTION_LIST = VERSION_PREFIX + "/notification/subscription/list";
+    public static final String NOTIFICATION_LIST = VERSION_PREFIX + "/notification/list";
 
 
     public static final String HEALTHY = "healthy";

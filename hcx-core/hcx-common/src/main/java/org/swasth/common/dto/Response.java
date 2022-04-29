@@ -22,7 +22,8 @@ public class Response {
     private String subscriptionStatus;
     private List<Subscription> subscriptions;
     @JsonProperty("count")
-    private int subscriptionCount;
+    private Integer subscriptionCount;
+    private List<Notification> notifications;
 
     public Response() {}
 
@@ -34,6 +35,14 @@ public class Response {
     public Response(String key, Object val) {
         this.result = new HashMap<>();
         this.put(key, val);
+    }
+
+    public List<Notification> getNotifications() {
+        return notifications;
+    }
+
+    public void setNotifications(List<Notification> notifications) {
+        this.notifications = notifications;
     }
 
     public String getSubscriptionId() {
@@ -60,11 +69,11 @@ public class Response {
         this.subscriptions = subscriptions;
     }
 
-    public int getSubscriptionCount() {
+    public Integer getSubscriptionCount() {
         return subscriptionCount;
     }
 
-    public void setSubscriptionCount(int subscriptionCount) {
+    public void setSubscriptionCount(Integer subscriptionCount) {
         this.subscriptionCount = subscriptionCount;
     }
 

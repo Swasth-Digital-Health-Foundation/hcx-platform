@@ -17,8 +17,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -70,12 +69,12 @@ class NotificationControllerTest extends BaseSpec {
     }
 
     @Test
-    void testNotificationListEmpty() throws Exception {
+    void testSubscriptionListEmpty() throws Exception {
         ResultSet mockResultSet = Mockito.mock(ResultSet.class);
 
         doReturn(mockResultSet).when(postgreSQLClient).executeQuery(anyString());
-        String requestBody = getNotificationListRequest();
-        MvcResult mvcResult = mockMvc.perform(post(NOTIFICATION_LIST).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        String requestBody = getSubscriptionListRequest();
+        MvcResult mvcResult = mockMvc.perform(post(NOTIFICATION_SUBSCRIPTION_LIST).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
@@ -85,12 +84,12 @@ class NotificationControllerTest extends BaseSpec {
     }
 
     @Test
-    void testNotificationListWithOneActiveSubscription() throws Exception {
+    void testSubscriptionListWithOneActiveSubscription() throws Exception {
         ResultSet mockResultSet = getMockResultSet(1);
 
         doReturn(mockResultSet).when(postgreSQLClient).executeQuery(anyString());
-        String requestBody = getNotificationListRequest();
-        MvcResult mvcResult = mockMvc.perform(post(NOTIFICATION_LIST).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        String requestBody = getSubscriptionListRequest();
+        MvcResult mvcResult = mockMvc.perform(post(NOTIFICATION_SUBSCRIPTION_LIST).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
@@ -103,12 +102,12 @@ class NotificationControllerTest extends BaseSpec {
     }
 
     @Test
-    void testNotificationListWithOneInActiveSubscription() throws Exception {
+    void testSubscriptionListWithOneInActiveSubscription() throws Exception {
         ResultSet mockResultSet = getMockResultSet(0);
 
         doReturn(mockResultSet).when(postgreSQLClient).executeQuery(anyString());
-        String requestBody = getNotificationListRequest();
-        MvcResult mvcResult = mockMvc.perform(post(NOTIFICATION_LIST).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        String requestBody = getSubscriptionListRequest();
+        MvcResult mvcResult = mockMvc.perform(post(NOTIFICATION_SUBSCRIPTION_LIST).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
@@ -122,12 +121,12 @@ class NotificationControllerTest extends BaseSpec {
     }
 
     @Test
-    void testNotificationListWithBothSubscription() throws Exception {
+    void testSubscriptionListWithBothSubscription() throws Exception {
         ResultSet mockResultSet = getMockResultSet();
 
         doReturn(mockResultSet).when(postgreSQLClient).executeQuery(anyString());
-        String requestBody = getNotificationListRequest();
-        MvcResult mvcResult = mockMvc.perform(post(NOTIFICATION_LIST).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        String requestBody = getSubscriptionListRequest();
+        MvcResult mvcResult = mockMvc.perform(post(NOTIFICATION_SUBSCRIPTION_LIST).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
@@ -144,14 +143,35 @@ class NotificationControllerTest extends BaseSpec {
     }
 
     @Test
-    void testNotificationListException() throws Exception {
+    void testSubscriptionListException() throws Exception {
         doThrow(Exception.class).when(postgreSQLClient).executeQuery(anyString());
-        String requestBody = getNotificationListRequest();
-        MvcResult mvcResult = mockMvc.perform(post(NOTIFICATION_LIST).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        String requestBody = getSubscriptionListRequest();
+        MvcResult mvcResult = mockMvc.perform(post(NOTIFICATION_SUBSCRIPTION_LIST).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         assertEquals(500, status);
         assertTrue(response.getContentAsString().contains(ErrorCodes.INTERNAL_SERVER_ERROR.name()));
+    }
+
+    @Test
+    void testNotificationListEmpty() throws Exception {
+        String requestBody = getNotificationListRequest();
+        MvcResult mvcResult = mockMvc.perform(post(NOTIFICATION_LIST).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        assertEquals(200, status);
+    }
+
+    @Test
+    void testNotificationListData() throws Exception {
+        String requestBody = getNotificationListRequest();
+        MvcResult mvcResult = mockMvc.perform(post(NOTIFICATION_LIST).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        assertEquals(200, status);
+        Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
+        assertNotNull(resObj.getTimestamp());
+        assertFalse(resObj.getNotifications().isEmpty());
     }
 
     private ResultSet getMockResultSet(int status) throws SQLException {
@@ -171,9 +191,14 @@ class NotificationControllerTest extends BaseSpec {
                 });
     }
 
-    private String getNotificationListRequest() throws JsonProcessingException {
+    private String getSubscriptionListRequest() throws JsonProcessingException {
         Map<String,Object> obj = new HashMap<>();
         obj.put(PARTICIPANT_CODE,"hcx-apollo-12345");
+        return JSONUtils.serialize(obj);
+    }
+
+    private String getNotificationListRequest() throws JsonProcessingException {
+        Map<String,Object> obj = new HashMap<>();
         return JSONUtils.serialize(obj);
     }
 
