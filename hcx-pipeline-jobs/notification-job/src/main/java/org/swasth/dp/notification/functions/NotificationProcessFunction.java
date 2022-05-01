@@ -1,12 +1,15 @@
 package org.swasth.dp.notification.functions;
 
 
-
 import org.apache.commons.text.StringSubstitutor;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.util.Collector;
 import org.joda.time.DateTime;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.swasth.dp.core.function.DispatcherResult;
@@ -14,13 +17,7 @@ import org.swasth.dp.core.service.AuditService;
 import org.swasth.dp.core.service.RegistryService;
 import org.swasth.dp.core.util.*;
 import org.swasth.dp.notification.task.NotificationConfig;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.sql.ResultSet;
@@ -60,6 +57,7 @@ public class NotificationProcessFunction extends ProcessFunction<Map<String,Obje
         event = inputEvent;
         String notificationId = getProtocolStringValue(Constants.NOTIFICATION_ID());
         Map<String,Object> notificationMasterData = getNotificationMasterData(notificationId);
+        System.out.println("Notification Master data: " + notificationMasterData);
         String notificationType = (String) notificationMasterData.get(Constants.TYPE());
         // resolving notification message template
         String resolvedTemplate = resolveTemplate(notificationMasterData);
@@ -69,7 +67,9 @@ public class NotificationProcessFunction extends ProcessFunction<Map<String,Obje
             List<String> masterRoles = (ArrayList<String>) notificationMasterData.get(Constants.RECIPIENT());
             List<Map<String,Object>> participantDetails = new ArrayList<>();
             for(String role: masterRoles) {
-                participantDetails.addAll(registryService.getParticipantDetails("{\"roles\":{\"eq\":\"" + role + "\"}}"));
+                List<Map<String,Object>> fetchParticipants = registryService.getParticipantDetails("{\"roles\":{\"eq\":\"" + role + "\"}}");
+                if(!fetchParticipants.isEmpty())
+                  participantDetails.addAll(fetchParticipants);
             }
             // fetching unsubscribed list
             String query = String.format("SELECT " + Constants.RECIPIENT_ID() + " FROM %s WHERE notificationId = '%s' AND status = 0", config.subscriptionTableName, notificationId);
@@ -102,7 +102,7 @@ public class NotificationProcessFunction extends ProcessFunction<Map<String,Obje
 
     private Map<String,Object> getNotificationMasterData(String notificationId) throws IOException, ParseException {
         JSONParser parser = new JSONParser();
-        JSONArray templateData = (JSONArray) parser.parse(new FileReader("notification-master-data.json"));
+        JSONArray templateData = (JSONArray) parser.parse(new FileReader("C:\\Users\\ASUS\\Documents\\GitHub\\HCX\\hcx-platform\\hcx-pipeline-jobs\\notification-job\\src\\main\\resources\\notification-master-data.json"));
         System.out.println("Master data: " + templateData);
         for(Object data: templateData) {
             JSONObject obj = (JSONObject) data;
@@ -115,13 +115,22 @@ public class NotificationProcessFunction extends ProcessFunction<Map<String,Obje
 
     private void notificationDispatcher(Map<String, Object> notificationMasterData, String resolvedTemplate, List<Map<String, Object>> participantDetails) throws Exception {
         Map<String,Object> dispatchResult = new HashMap<>();
+        int successfulDispatches = 0;
+        int failedDispatches = 0;
         for(Map<String,Object> participant: participantDetails) {
-            participant.put(Constants.END_POINT(), participant.get(Constants.END_POINT() + config.notificationDispatchAPI));
+            participant.put(Constants.END_POINT(), participant.get(Constants.END_POINT()) + config.notificationDispatchAPI);
             String payload = getPayload(resolvedTemplate, (String) participant.get(Constants.PARTICIPANT_CODE()), notificationMasterData);
             System.out.println("Recipient Id: " + participant.get(Constants.PARTICIPANT_CODE()) + "Notification payload: " + payload);
             DispatcherResult result = dispatcherUtil.dispatch(participant, payload);
             dispatchResult.put((String) participant.get(Constants.PARTICIPANT_CODE()), result);
+            if(result.success()){
+                successfulDispatches++;
+            } else {
+                failedDispatches++;
+            }
         }
+        int totalDispatches = successfulDispatches+failedDispatches;
+        System.out.println("Total number of notifications dispatched: " + totalDispatches + " :: successful dispatches: " + successfulDispatches + " :: failed dispatches: " + failedDispatches);
         event.put(Constants.NOTIFICATION_DISPATCH_RESULT(), dispatchResult);
         auditService.indexAudit(createNotificationAuditEvent());
     }
@@ -129,7 +138,7 @@ public class NotificationProcessFunction extends ProcessFunction<Map<String,Obje
     private String resolveTemplate(Map<String, Object> notificationMasterData) {
         Map<String,Object> notificationData = getProtocolMapValue(Constants.NOTIFICATION_DATA());
         StringSubstitutor sub = new StringSubstitutor(notificationData);
-        return sub.replace(((Map<String, Object>) notificationMasterData.get(Constants.TEMPLATE())).get(Constants.MESSAGE()));
+        return sub.replace((JSONUtil.deserialize((String) notificationMasterData.get(Constants.TEMPLATE()), Map.class)).get(Constants.MESSAGE()));
     }
 
     private String getPayload(String notificationMessage, String recipientCode, Map<String,Object> notificationMasterData) throws Exception {
@@ -168,12 +177,12 @@ public class NotificationProcessFunction extends ProcessFunction<Map<String,Obje
         audit.put(Constants.ACTION(), config.notificationDispatchAPI);
         audit.put(Constants.STATUS(), getProtocolStringValue(Constants.STATUS()));
         audit.put(Constants.REQUESTED_TIME(), event.get(Constants.ETS()));
-        audit.put(Constants.UPDATED_TIME(), event.getOrDefault(Constants.UPDATED_TIME(), System.currentTimeMillis()));
-        audit.put(Constants.AUDIT_TIMESTAMP(), System.currentTimeMillis());
-        audit.put(Constants.SENDER_ROLE(), getProtocolStringValue(Constants.SENDER_ROLE()).equals(config.hcxRegistryCode())?"HIE/HIO.HCX":"");
+        audit.put(Constants.UPDATED_TIME(), event.getOrDefault(Constants.UPDATED_TIME(), Calendar.getInstance().getTime()));
+        audit.put(Constants.AUDIT_TIMESTAMP(), Calendar.getInstance().getTime());
+        audit.put(Constants.SENDER_ROLE(), getProtocolStringValue(Constants.SENDER_ROLE()).equals(config.hcxRegistryCode())?"HIE/HIO.HCX":" ");
         audit.put(Constants.RECIPIENT_ROLE(), event.getOrDefault(Constants.RECIPIENT_ROLE(), ""));
         audit.put(Constants.NOTIFICATION_ID(), getProtocolStringValue(Constants.NOTIFICATION_ID()));
-        audit.put(Constants.NOTIFICATION_DATA(), getProtocolStringValue(Constants.NOTIFICATION_DATA()));
+        audit.put(Constants.NOTIFICATION_DATA(), getProtocolMapValue(Constants.NOTIFICATION_DATA()));
         audit.put(Constants.NOTIFICATION_DISPATCH_RESULT(), event.get(Constants.NOTIFICATION_DISPATCH_RESULT()));
         audit.put(Constants.PAYLOAD(), "");
         return audit;

@@ -7,13 +7,7 @@
       "HIE/HIO.HCX"
     ],
     "recipient": [
-      "provider",
-      "payer",
-      "agency.tpa",
-      "agency.regulator",
-      "research",
-      "member.isnp",
-      "agency.sponsor",
+      "payor",
       "HIE/HIO.HCX"
     ],
     "type": "Broadcast",
