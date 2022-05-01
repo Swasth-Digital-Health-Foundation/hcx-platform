@@ -16,15 +16,15 @@ class RegistryService(config: BaseJobConfig) {
   def getParticipantDetails(filters: String): util.ArrayList[util.Map[String, AnyRef]]= {
     // payload for registry search
     val payload = s"""{"entityType":["Organisation"],"filters":$filters}"""
-    Console.println("registry payload", payload)
-    val httpPost = new HttpPost(config.hcxApisUrl + "/participant/search")
+    //Console.println("registry payload", payload)
+    val httpPost = new HttpPost(config.hcxApisUrl + "/v1/participant/search")
     httpPost.setEntity(new StringEntity(payload))
     httpPost.setHeader("Accept", "application/json")
     httpPost.setHeader("Content-type", "application/json")
     try {
       val response = httpClient.execute(httpPost)
       val statusCode = response.getStatusLine().getStatusCode()
-      Console.println("registryAPI statusCode", statusCode)
+      //Console.println("registryAPI statusCode", statusCode)
       val entity = response.getEntity
       val inputStream = entity.getContent
       val content = JSONUtil.deserialize[util.Map[String, AnyRef]](Source.fromInputStream(inputStream, "UTF-8").getLines.mkString)

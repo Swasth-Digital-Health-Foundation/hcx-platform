@@ -65,15 +65,19 @@ public class ParticipantController  extends BaseController {
         Map<String,Object> updatedRequestBody = new HashMap<>(Collections.singletonMap(FILTERS, filters));
         HttpResponse response = HttpUtils.post(url, JSONUtils.serialize(updatedRequestBody), new HashMap<>());
         ArrayList<Object> result = JSONUtils.deserialize((String) response.getBody(), ArrayList.class);
-        if(result.isEmpty()) {
-            return new ResponseEntity<>(errorResponse(null,"Resource Not Found",null), HttpStatus.NOT_FOUND);
-          } else {
-            for (Object obj: result) {
-                Map<String, Object> objMap = (Map<String, Object>) obj;
-                objMap.put(PARTICIPANT_CODE, "1-" + objMap.get(OSID));
-                objMap.remove(OSID);
+        if (response.getStatus() == 200) {
+            if (!result.isEmpty()) {
+                for (Object obj: result) {
+                    Map<String, Object> objMap = (Map<String, Object>) obj;
+                    objMap.put(PARTICIPANT_CODE, "1-" + objMap.get(OSID));
+                    objMap.remove(OSID);
+                }
             }
             return new ResponseEntity<>(new ParticipantResponse(result), HttpStatus.OK);
+        } else if(response.getStatus() == 404){
+            return new ResponseEntity<>(getError(response), HttpStatus.NOT_FOUND);
+        } else {
+            return new ResponseEntity<>(getError(response), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
