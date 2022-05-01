@@ -36,7 +36,7 @@ class ParticipantControllerTests extends BaseSpec{
     void participant_search_not_found_scenario() throws Exception {
         registryServer.enqueue(new MockResponse()
                 .setResponseCode(500)
-                .setBody("[ ]")
+                .setBody("{ \"id\": \"open-saber.registry.search\", \"ver\": \"1.0\", \"ets\": 1637227738534, \"params\": { \"resmsgid\": \"\", \"msgid\": \"bb355e26-cc12-4aeb-8295-03347c428c62\", \"err\": \"\", \"status\": \"SUCCESSFUL\", \"errmsg\": \"\" }, \"responseCode\": \"OK\", \"result\": { \"Organisation\": { \"osid\": \"1-17f02101-b560-4bc1-b3ab-2dac04668fd2\" } } }")
                 .addHeader("Content-Type", "application/json"));
         MvcResult mvcResult = mockMvc.perform(post("/v1/participant/search").content(getSearchNotFoundFilter()).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();

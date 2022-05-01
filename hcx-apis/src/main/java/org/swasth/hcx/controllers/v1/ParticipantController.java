@@ -64,8 +64,8 @@ public class ParticipantController  extends BaseController {
         }
         Map<String,Object> updatedRequestBody = new HashMap<>(Collections.singletonMap(FILTERS, filters));
         HttpResponse response = HttpUtils.post(url, JSONUtils.serialize(updatedRequestBody), new HashMap<>());
-        ArrayList<Object> result = JSONUtils.deserialize((String) response.getBody(), ArrayList.class);
         if (response.getStatus() == 200) {
+            ArrayList<Object> result = JSONUtils.deserialize((String) response.getBody(), ArrayList.class);
             if (!result.isEmpty()) {
                 for (Object obj: result) {
                     Map<String, Object> objMap = (Map<String, Object>) obj;
