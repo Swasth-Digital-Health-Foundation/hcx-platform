@@ -32,17 +32,16 @@ class ParticipantControllerTests extends BaseSpec{
         Thread.sleep(2000);
     }
 
-
     @Test
     void participant_search_not_found_scenario() throws Exception {
         registryServer.enqueue(new MockResponse()
-                .setResponseCode(404)
+                .setResponseCode(500)
                 .setBody("[ ]")
                 .addHeader("Content-Type", "application/json"));
         MvcResult mvcResult = mockMvc.perform(post("/v1/participant/search").content(getSearchNotFoundFilter()).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
-        assertEquals(404, status);
+        assertEquals(500, status);
     }
 
     @Test
