@@ -30,7 +30,7 @@ public class NotificationConfig extends BaseJobConfig {
         kafkaInputTopic = config.getString("kafka.input.topic");
         consumerParallelism = config.getInt("task.consumer.parallelism");
         downstreamOperatorsParallelism = config.getInt("task.downstream.operators.parallelism");
-        subscriptionTableName = config.getString("subscription.table");
+        subscriptionTableName = config.getString("postgres.subscription.table");
         notificationDispatchAPI = config.getString("notification.dispatch.api");
     }
 
