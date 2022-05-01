@@ -13,10 +13,14 @@ import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.swasth.dp.core.function.DispatcherResult;
+import org.swasth.dp.core.function.ErrorResponse;
 import org.swasth.dp.core.service.AuditService;
 import org.swasth.dp.core.service.RegistryService;
 import org.swasth.dp.core.util.*;
+import org.swasth.dp.notification.dto.ErrorDetails;
 import org.swasth.dp.notification.task.NotificationConfig;
+import scala.None;
+import scala.Option;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -102,7 +106,7 @@ public class NotificationProcessFunction extends ProcessFunction<Map<String,Obje
 
     private Map<String,Object> getNotificationMasterData(String notificationId) throws IOException, ParseException {
         JSONParser parser = new JSONParser();
-        JSONArray templateData = (JSONArray) parser.parse(new FileReader("C:\\Users\\ASUS\\Documents\\GitHub\\HCX\\hcx-platform\\hcx-pipeline-jobs\\notification-job\\src\\main\\resources\\notification-master-data.json"));
+        JSONArray templateData = (JSONArray) parser.parse(new FileReader("hcx-pipeline-jobs\\notification-job\\src\\main\\resources\\notification-master-data.json"));
         System.out.println("Master data: " + templateData);
         for(Object data: templateData) {
             JSONObject obj = (JSONObject) data;
@@ -114,7 +118,7 @@ public class NotificationProcessFunction extends ProcessFunction<Map<String,Obje
     }
 
     private void notificationDispatcher(Map<String, Object> notificationMasterData, String resolvedTemplate, List<Map<String, Object>> participantDetails) throws Exception {
-        Map<String,Object> dispatchResult = new HashMap<>();
+        List<Object> dispatchResult = new ArrayList<>();
         int successfulDispatches = 0;
         int failedDispatches = 0;
         for(Map<String,Object> participant: participantDetails) {
@@ -122,16 +126,17 @@ public class NotificationProcessFunction extends ProcessFunction<Map<String,Obje
             String payload = getPayload(resolvedTemplate, (String) participant.get(Constants.PARTICIPANT_CODE()), notificationMasterData);
             System.out.println("Recipient Id: " + participant.get(Constants.PARTICIPANT_CODE()) + "Notification payload: " + payload);
             DispatcherResult result = dispatcherUtil.dispatch(participant, payload);
-            dispatchResult.put((String) participant.get(Constants.PARTICIPANT_CODE()), result);
-            if(result.success()){
-                successfulDispatches++;
-            } else {
-                failedDispatches++;
-            }
+            dispatchResult.add(JSONUtil.serialize(new ErrorDetails((String) participant.get(Constants.PARTICIPANT_CODE()), result.success(), createErrorMap(result.error().get()))));
+            if(result.success()) successfulDispatches++; else failedDispatches++;
         }
         int totalDispatches = successfulDispatches+failedDispatches;
         System.out.println("Total number of notifications dispatched: " + totalDispatches + " :: successful dispatches: " + successfulDispatches + " :: failed dispatches: " + failedDispatches);
-        event.put(Constants.NOTIFICATION_DISPATCH_RESULT(), dispatchResult);
+        Map<String,Object> dispatchResultDetails = new HashMap<>();
+        dispatchResultDetails.put(Constants.TOTAL_DISPATCHES(), totalDispatches);
+        dispatchResultDetails.put(Constants.SUCCESSFUL_DISPATCHES(), successfulDispatches);
+        dispatchResultDetails.put(Constants.FAILED_DISPATCHES(), failedDispatches);
+        dispatchResultDetails.put(Constants.RESULT_DETAILS(), dispatchResult);
+        event.put(Constants.NOTIFICATION_DISPATCH_RESULT(), dispatchResultDetails);
         auditService.indexAudit(createNotificationAuditEvent());
     }
 
@@ -186,6 +191,16 @@ public class NotificationProcessFunction extends ProcessFunction<Map<String,Obje
         audit.put(Constants.NOTIFICATION_DISPATCH_RESULT(), event.get(Constants.NOTIFICATION_DISPATCH_RESULT()));
         audit.put(Constants.PAYLOAD(), "");
         return audit;
+    }
+
+    private Map<String,Object> createErrorMap(ErrorResponse error){
+        Map<String,Object> errorMap = new HashMap<>();
+        if (error != null) {
+            errorMap.put(Constants.CODE(), error.code().get());
+            errorMap.put(Constants.MESSAGE(), error.message().get());
+            errorMap.put(Constants.TRACE(), error.trace().get());
+        }
+        return errorMap;
     }
 
 }
