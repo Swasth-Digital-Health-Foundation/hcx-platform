@@ -46,6 +46,10 @@ object Constants {
   val DESCRIPTION = "description"
   val NOTIFICATION_DISPATCH_RESULT = "notificationDispatchResult"
   val AUDIT = "AUDIT"
+  val TOTAL_DISPATCHES = "totalDispatches"
+  val SUCCESSFUL_DISPATCHES = "successfulDispatches"
+  val FAILED_DISPATCHES = "failedDispatches"
+  val RESULT_DETAILS = "resultDetails"
 
   //Event Fields
   val SENDER_CODE = "x-hcx-sender_code"
