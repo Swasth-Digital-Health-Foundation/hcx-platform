@@ -67,15 +67,15 @@ public class RetryFunction {
             int metrics = 0;
             while (result.next()) {
                 Request request = new Request(JSONUtils.deserialize(result.getString("data"), Map.class));
-                String mid = result.getString(Constants.MID);
-                String action = result.getString(Constants.ACTION);
+                request.setMid(result.getString(Constants.MID));
+                request.setApiAction(result.getString(Constants.ACTION));
                 int retryCount = result.getInt(Constants.RETRY_COUNT) + 1 ;
-                String event = eventGenerator.generateMetadataEvent(mid, action, request);
+                String event = eventGenerator.generateMetadataEvent(request);
                 Map<String,Object> eventMap = JSONUtils.deserialize(event, Map.class);
                 eventMap.put(Constants.RETRY_INDEX, retryCount);
                 kafkaClient.send(kafkaOutputTopic, request.getSenderCode(), JSONUtils.serialize(eventMap));
-                System.out.println("Event is pushed to kafka topic :: mid: " + mid + " :: retry count: " + retryCount);
-                String updateQuery = String.format("UPDATE %s SET status = '%s', retryCount = %d, lastUpdatedOn = %d WHERE mid = '%s'", postgresTableName, Constants.RETRY_PROCESSING_STATUS, retryCount, System.currentTimeMillis(), mid);
+                System.out.println("Event is pushed to kafka topic :: mid: " + request.getMid() + " :: retry count: " + retryCount);
+                String updateQuery = String.format("UPDATE %s SET status = '%s', retryCount = %d, lastUpdatedOn = %d WHERE mid = '%s'", postgresTableName, Constants.RETRY_PROCESSING_STATUS, retryCount, System.currentTimeMillis(), request.getMid());
                 createStatement.addBatch(updateQuery);
                 metrics++;
             }

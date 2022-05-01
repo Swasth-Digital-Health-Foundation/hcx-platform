@@ -1,0 +1,35 @@
+[
+    {
+        "index": 0,
+        "label": "Success Scenario",
+        "selected": true,
+        "body": {
+            "recipient_code": "1-29482df3-e875-45ef-a4e9-592b6f565782"
+        }
+    },
+    {
+        "index": 1,
+        "label": "Invalid Payor",
+        "body": {
+            "recipient_code": "123"
+        }
+    },
+    {
+        "index": 2,
+        "label": "Service Unavailable",
+        "body": {
+            "recipient_code": "1-29482df3-e875-45ef-a4e9-592b6f565782",
+            "error_code": "ERR_SERVICE_UNAVAILABLE",
+            "error_code_message": "Recipient service is down"
+        }
+    },
+    {
+        "index": 3,
+        "label": "Invalid Workflow Id",
+        "body": {
+            "recipient_code": "1-29482df3-e875-45ef-a4e9-592b6f565782",
+            "error_code": "ERR_INVALID_WORKFLOW_ID",
+            "error_code_message": "Workflow ID mentioned is invalid"
+        }
+    }
+]
