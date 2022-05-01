@@ -19,8 +19,6 @@ import org.swasth.dp.core.service.RegistryService;
 import org.swasth.dp.core.util.*;
 import org.swasth.dp.notification.dto.ErrorDetails;
 import org.swasth.dp.notification.task.NotificationConfig;
-import scala.None;
-import scala.Option;
 
 import java.io.FileReader;
 import java.io.IOException;
