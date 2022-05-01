@@ -74,8 +74,6 @@ public class ParticipantController  extends BaseController {
                 }
             }
             return new ResponseEntity<>(new ParticipantResponse(result), HttpStatus.OK);
-        } else if(response.getStatus() == 404){
-            return new ResponseEntity<>(getError(response), HttpStatus.NOT_FOUND);
         } else {
             return new ResponseEntity<>(getError(response), HttpStatus.INTERNAL_SERVER_ERROR);
         }
