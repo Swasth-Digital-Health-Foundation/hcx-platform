@@ -35,9 +35,9 @@ public class HeaderAudit {
 	private List<String> recipientRole;
 	private String payload;
 	@JsonProperty("x-hcx-notification_id")
-	private String notification_id;
+	private String notificationId;
 	@JsonProperty("x-hcx-notification_data")
-	private Object notification_data;
+	private Object notificationData;
 	private Object notificationDispatchResult;
 
 	public HeaderAudit() {}
@@ -170,17 +170,17 @@ public class HeaderAudit {
 	public void setPayload(String payload) {
 		this.payload = payload;
 	}
-	public String getNotification_id() {
-		return notification_id;
+	public String getNotificationId() {
+		return notificationId;
 	}
-	public void setNotification_id(String notification_id) {
-		this.notification_id = notification_id;
+	public void setNotificationId(String notificationId) {
+		this.notificationId = notificationId;
 	}
-	public Object getNotification_data() {
-		return notification_data;
+	public Object getNotificationData() {
+		return notificationData;
 	}
-	public void setNotification_data(Object notification_data) {
-		this.notification_data = notification_data;
+	public void setNotificationData(Object notificationData) {
+		this.notificationData = notificationData;
 	}
 	public Object getNotificationDispatchResult() {
 		return notificationDispatchResult;

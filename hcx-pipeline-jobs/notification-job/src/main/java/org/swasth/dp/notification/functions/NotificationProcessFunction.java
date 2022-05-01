@@ -1,10 +1,11 @@
 package org.swasth.dp.notification.functions;
 
+
+
 import org.apache.commons.text.StringSubstitutor;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.util.Collector;
-import org.elasticsearch.common.recycler.Recycler;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,30 +14,38 @@ import org.swasth.dp.core.service.AuditService;
 import org.swasth.dp.core.service.RegistryService;
 import org.swasth.dp.core.util.*;
 import org.swasth.dp.notification.task.NotificationConfig;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.util.*;
 
 public class NotificationProcessFunction extends ProcessFunction<Map<String,Object>, Object> {
 
     private final Logger logger = LoggerFactory.getLogger(NotificationProcessFunction.class);
-    private final NotificationConfig config;
-    private final RegistryService registryService;
-    private final PostgresConnect postgresConnect;
-    private final DispatcherUtil dispatcherUtil;
-    private final AuditService auditService;
+    private NotificationConfig config;
+    private RegistryService registryService;
+    private PostgresConnect postgresConnect;
+    private DispatcherUtil dispatcherUtil;
+    private AuditService auditService;
     private Map<String,Object> event;
 
     public NotificationProcessFunction(NotificationConfig config) {
         this.config = config;
-        this.registryService = new RegistryService(config);
-        this.postgresConnect = new PostgresConnect(new PostgresConnectionConfig(config.postgresUser(), config.postgresPassword(), config.postgresDb(), config.postgresHost(), config.postgresPort(), config.postgresMaxConnections()));
-        this.dispatcherUtil = new DispatcherUtil(config);
-        this.auditService = new AuditService(config);
     }
 
     @Override
     public void open(Configuration parameters) {
+        registryService = new RegistryService(config);
+        dispatcherUtil = new DispatcherUtil(config);
+        auditService = new AuditService(config);
+        postgresConnect = new PostgresConnect(new PostgresConnectionConfig(config.postgresUser(), config.postgresPassword(), config.postgresDb(), config.postgresHost(), config.postgresPort(), config.postgresMaxConnections()));
         postgresConnect.getConnection();
     }
 
@@ -50,7 +59,7 @@ public class NotificationProcessFunction extends ProcessFunction<Map<String,Obje
     public void processElement(Map<String,Object> inputEvent, ProcessFunction<Map<String,Object>, Object>.Context context, Collector<Object> collector) throws Exception {
         event = inputEvent;
         String notificationId = getProtocolStringValue(Constants.NOTIFICATION_ID());
-        Map<String,Object> notificationMasterData = new HashMap<>();
+        Map<String,Object> notificationMasterData = getNotificationMasterData(notificationId);
         String notificationType = (String) notificationMasterData.get(Constants.TYPE());
         // resolving notification message template
         String resolvedTemplate = resolveTemplate(notificationMasterData);
@@ -89,6 +98,19 @@ public class NotificationProcessFunction extends ProcessFunction<Map<String,Obje
             }
             notificationDispatcher(notificationMasterData, resolvedTemplate, participantDetails);
         }
+    }
+
+    private Map<String,Object> getNotificationMasterData(String notificationId) throws IOException, ParseException {
+        JSONParser parser = new JSONParser();
+        JSONArray templateData = (JSONArray) parser.parse(new FileReader("notification-master-data.json"));
+        System.out.println("Master data: " + templateData);
+        for(Object data: templateData) {
+            JSONObject obj = (JSONObject) data;
+            if(obj.get("id").equals(notificationId)){
+                return obj;
+            }
+        }
+        return new HashMap<>();
     }
 
     private void notificationDispatcher(Map<String, Object> notificationMasterData, String resolvedTemplate, List<Map<String, Object>> participantDetails) throws Exception {

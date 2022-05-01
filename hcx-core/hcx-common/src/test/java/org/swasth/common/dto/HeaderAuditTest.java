@@ -20,12 +20,12 @@ public class HeaderAuditTest {
     public void check_header_audit_dto_payload_scenario() {
         HeaderAudit audit = new HeaderAudit();
         audit.setPayload("test_payload");
-        audit.setNotification_id("notification-123");
-        audit.setNotification_data(Collections.singletonMap("amount", 30000));
+        audit.setNotificationId("notification-123");
+        audit.setNotificationData(Collections.singletonMap("amount", 30000));
         audit.setNotificationDispatchResult(Collections.singletonMap("recipient-123", "success"));
         assertEquals("test_payload", audit.getPayload());
-        assertEquals("notification-123", audit.getNotification_id());
-        assertFalse(((Map<String, Object>) audit.getNotification_data()).isEmpty());
+        assertEquals("notification-123", audit.getNotificationId());
+        assertFalse(((Map<String, Object>) audit.getNotificationData()).isEmpty());
         assertFalse(((Map<String, Object>) audit.getNotificationDispatchResult()).isEmpty());
     }
 
