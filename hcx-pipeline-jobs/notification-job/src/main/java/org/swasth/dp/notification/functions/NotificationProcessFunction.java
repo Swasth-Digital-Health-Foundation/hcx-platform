@@ -182,8 +182,8 @@ public class NotificationProcessFunction extends ProcessFunction<Map<String,Obje
         audit.put(Constants.REQUESTED_TIME(), event.get(Constants.ETS()));
         audit.put(Constants.UPDATED_TIME(), event.getOrDefault(Constants.UPDATED_TIME(), Calendar.getInstance().getTime()));
         audit.put(Constants.AUDIT_TIMESTAMP(), Calendar.getInstance().getTime());
-        audit.put(Constants.SENDER_ROLE(), getProtocolStringValue(Constants.SENDER_ROLE()).equals(config.hcxRegistryCode())?"HIE/HIO.HCX":" ");
-        audit.put(Constants.RECIPIENT_ROLE(), event.getOrDefault(Constants.RECIPIENT_ROLE(), ""));
+        audit.put(Constants.SENDER_ROLE(), getProtocolStringValue(Constants.SENDER_ROLE()).equals(config.hcxRegistryCode())? Collections.singletonList("HIE/HIO.HCX") : Collections.emptyList());
+        audit.put(Constants.RECIPIENT_ROLE(), event.getOrDefault(Constants.RECIPIENT_ROLE(), Collections.emptyList()));
         audit.put(Constants.NOTIFICATION_ID(), getProtocolStringValue(Constants.NOTIFICATION_ID()));
         audit.put(Constants.NOTIFICATION_DATA(), getProtocolMapValue(Constants.NOTIFICATION_DATA()));
         audit.put(Constants.NOTIFICATION_DISPATCH_RESULT(), event.get(Constants.NOTIFICATION_DISPATCH_RESULT()));
