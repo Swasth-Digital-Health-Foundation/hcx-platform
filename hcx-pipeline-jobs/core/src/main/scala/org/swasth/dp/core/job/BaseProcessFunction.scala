@@ -6,6 +6,7 @@ import org.apache.flink.configuration.Configuration
 import org.apache.flink.streaming.api.functions.ProcessFunction
 import org.apache.flink.util.Collector
 import org.swasth.dp.core.cache.{DataCache, RedisConnect}
+import org.swasth.dp.core.service.RegistryService
 import org.swasth.dp.core.util.{Constants, DispatcherUtil, JSONUtil}
 
 import java.util
@@ -36,6 +37,7 @@ abstract class BaseProcessFunction[T, R](config: BaseJobConfig) extends ProcessF
   private val metrics: Metrics = registerMetrics(metricsList())
   private var registryDataCache: DataCache = _
   var dispatcherUtil: DispatcherUtil = _
+  var registryService: RegistryService = _
 
 
   override def open(parameters: Configuration): Unit = {
@@ -48,6 +50,7 @@ abstract class BaseProcessFunction[T, R](config: BaseJobConfig) extends ProcessF
         config.redisAssetStore, config.senderReceiverFields)
     registryDataCache.init()
     dispatcherUtil = new DispatcherUtil(config)
+    registryService = new RegistryService(config)
   }
 
   def processElement(event: T, context: ProcessFunction[T, R]#Context, metrics: Metrics): Unit
@@ -135,10 +138,10 @@ abstract class BaseProcessFunction[T, R](config: BaseJobConfig) extends ProcessF
   }
 
   def getDetails(code: String): util.Map[String, AnyRef] = {
-    val responseBody: String = dispatcherUtil.post(config.registryUrl, code)
-    val responseArr = JSONUtil.deserialize[util.ArrayList[util.HashMap[String, AnyRef]]](responseBody)
-    if (!responseArr.isEmpty) {
-      val collectionMap = responseArr.get(0)
+    val key = Constants.PARTICIPANT_CODE
+    val responseBody = registryService.getParticipantDetails(s"""{"$key":{"eq":"$code"}}""")
+    if (!responseBody.isEmpty) {
+      val collectionMap = responseBody.get(0)
       collectionMap
     } else {
       new util.HashMap[String, AnyRef]

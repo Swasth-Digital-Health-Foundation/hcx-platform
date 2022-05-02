@@ -6,10 +6,11 @@ import org.apache.flink.streaming.api.functions.ProcessFunction
 import org.slf4j.LoggerFactory
 import org.swasth.dp.core.exception.PipelineException
 import org.swasth.dp.core.job.{BaseJobConfig, BaseProcessFunction, Metrics}
+import org.swasth.dp.core.service.AuditService
 import org.swasth.dp.core.util._
 
 import java.util
-import java.util.{Calendar, Date, TimeZone, UUID}
+import java.util.{Calendar, UUID}
 
 case class Response(timestamp: Long, correlation_id: String, error: Option[ErrorResponse])
 case class ErrorResponse(code: Option[String], message: Option[String], trace: Option[String]);
@@ -21,21 +22,20 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
 
   private[this] val logger = LoggerFactory.getLogger(classOf[BaseDispatcherFunction])
 
-  var postgresConnect: PostgresConnect = null
-  var esUtil: ElasticSearchUtil = null
+  var postgresConnect: PostgresConnect = _
+  var auditService: AuditService = _
   var payload: util.Map[String, AnyRef] = _
 
 
   override def open(parameters: Configuration): Unit = {
     super.open(parameters)
     postgresConnect = new PostgresConnect(PostgresConnectionConfig(config.postgresUser, config.postgresPassword, config.postgresDb, config.postgresHost, config.postgresPort, config.postgresMaxConnections))
-    esUtil = new ElasticSearchUtil(config.esUrl, config.auditIndex, config.batchSize)
+    auditService = new AuditService(config)
   }
 
   override def close(): Unit = {
     super.close()
     postgresConnect.closeConnection()
-    esUtil.close()
   }
 
   def validate(event: util.Map[String, AnyRef]):ValidationResult
@@ -64,7 +64,7 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
 
   @throws(classOf[Exception])
   def audit(event: util.Map[String, AnyRef], context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
-    indexAudit(createAuditRecord(event,"AUDIT"))
+    auditService.indexAudit(createAuditRecord(event))
     metrics.incCounter(config.auditEventsCount)
   }
 
@@ -206,9 +206,9 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
     List(config.dispatcherSuccessCount, config.dispatcherFailedCount, config.dispatcherRetryCount, config.dispatcherValidationFailedCount, config.dispatcherValidationSuccessCount, config.auditEventsCount)
   }
 
-  def createAuditRecord(event: util.Map[String, AnyRef], auditName: String): util.Map[String, AnyRef] = {
+  def createAuditRecord(event: util.Map[String, AnyRef]): util.Map[String, AnyRef] = {
     val audit = new util.HashMap[String, AnyRef]();
-    audit.put(Constants.AUDIT_ID, auditName)
+    audit.put(Constants.EID, Constants.AUDIT)
     audit.put(Constants.RECIPIENT_CODE,getProtocolStringValue(event,Constants.RECIPIENT_CODE))
     audit.put(Constants.SENDER_CODE,getProtocolStringValue(event,Constants.SENDER_CODE))
     audit.put(Constants.API_CALL_ID,getProtocolStringValue(event,Constants.API_CALL_ID))
@@ -241,24 +241,6 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
       sb.deleteCharAt(sb.length() - 1).toString
     } else {
       JSONUtil.serialize(payload)
-    }
-  }
-
-  def indexAudit(auditEvent: util.Map[String, AnyRef]): Unit ={
-    try {
-      val settings = "{ \"index\": { } }"
-      val mappings = "{ \"properties\": { \"eid\": { \"type\": \"text\" }, \"x-hcx-sender_code\": { \"type\": \"keyword\" }, \"x-hcx-recipient_code\": { \"type\": \"keyword\" }, \"x-hcx-api_call_id\": { \"type\": \"keyword\" }, \"x-hcx-correlation_id\": { \"type\": \"keyword\" }, \"x-hcx-workflow_id\": { \"type\": \"keyword\" }, \"x-hcx-timestamp\": { \"type\": \"keyword\" }, \"mid\": { \"type\": \"keyword\" }, \"action\": { \"type\": \"keyword\" }, \"x-hcx-status\": { \"type\": \"keyword\" }, \"auditTimeStamp\": { \"type\": \"keyword\" }, \"requestTimeStamp\": { \"type\": \"keyword\" }, \"updatedTimestamp\": { \"type\": \"keyword\" }, \"x-hcx-error_details\": { \"type\": \"object\" }, \"x-hcx-debug_details\": { \"type\": \"object\" }, \"senderRole\": { \"type\": \"keyword\" }, \"recipientRole\": { \"type\": \"keyword\" }, \"payload\": { \"type\": \"text\" } } }"
-      val cal = Calendar.getInstance(TimeZone.getTimeZone(config.timeZone))
-      cal.setTime(auditEvent.get(Constants.AUDIT_TIMESTAMP).asInstanceOf[Date])
-      val indexName = config.auditIndex + "_" + cal.get(Calendar.YEAR) + "_" + cal.get(Calendar.WEEK_OF_YEAR)
-      val mid = auditEvent.get(Constants.MID).asInstanceOf[String]
-      esUtil.addIndex(settings, mappings, indexName, config.auditAlias)
-      esUtil.addDocumentWithIndex(JSONUtil.serialize(auditEvent), indexName, mid)
-      Console.println("Audit document created for mid: " + mid)
-    } catch {
-      case e: Exception =>
-        logger.error("Error while processing event :: " + auditEvent + " :: " + e.getMessage)
-        throw e
     }
   }
 

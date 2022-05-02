@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 
+
 public class HeaderAudit {
 
 	private String eid;
@@ -33,6 +34,11 @@ public class HeaderAudit {
 	private List<String> senderRole;
 	private List<String> recipientRole;
 	private String payload;
+	@JsonProperty("x-hcx-notification_id")
+	private String notificationId;
+	@JsonProperty("x-hcx-notification_data")
+	private Object notificationData;
+	private Object notificationDispatchResult;
 
 	public HeaderAudit() {}
 
@@ -163,5 +169,23 @@ public class HeaderAudit {
 	}
 	public void setPayload(String payload) {
 		this.payload = payload;
+	}
+	public String getNotificationId() {
+		return notificationId;
+	}
+	public void setNotificationId(String notificationId) {
+		this.notificationId = notificationId;
+	}
+	public Object getNotificationData() {
+		return notificationData;
+	}
+	public void setNotificationData(Object notificationData) {
+		this.notificationData = notificationData;
+	}
+	public Object getNotificationDispatchResult() {
+		return notificationDispatchResult;
+	}
+	public void setNotificationDispatchResult(Object notificationDispatchResult) {
+		this.notificationDispatchResult = notificationDispatchResult;
 	}
 }

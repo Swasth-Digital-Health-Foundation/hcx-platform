@@ -3,8 +3,10 @@ package org.swasth.common.dto;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class HeaderAuditTest {
 
@@ -18,7 +20,13 @@ public class HeaderAuditTest {
     public void check_header_audit_dto_payload_scenario() {
         HeaderAudit audit = new HeaderAudit();
         audit.setPayload("test_payload");
+        audit.setNotificationId("notification-123");
+        audit.setNotificationData(Collections.singletonMap("amount", 30000));
+        audit.setNotificationDispatchResult(Collections.singletonMap("recipient-123", "success"));
         assertEquals("test_payload", audit.getPayload());
+        assertEquals("notification-123", audit.getNotificationId());
+        assertFalse(((Map<String, Object>) audit.getNotificationData()).isEmpty());
+        assertFalse(((Map<String, Object>) audit.getNotificationDispatchResult()).isEmpty());
     }
 
 }
