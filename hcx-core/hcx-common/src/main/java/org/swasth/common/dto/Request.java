@@ -23,7 +23,7 @@ public class Request {
         try {
             if (body.containsKey(PAYLOAD)) {
                 hcxHeaders = JSONUtils.decodeBase64String(((String) body.get(PAYLOAD)).split("\\.")[0], Map.class);
-            } else if (body.containsKey(STATUS))
+            } else //FIXME  No need of this check here, as all JSON request bodies will have proper body structure post validations if (body.containsKey(STATUS))
                 hcxHeaders = body;
             this.payloadWithoutEncryptionKey = PayloadUtils.removeEncryptionKey(body);
         } catch (Exception e) {
@@ -83,7 +83,6 @@ public class Request {
     }
 
     private void setHeaderMap(String key, Object value) {
-        if (hcxHeaders != null)
             hcxHeaders.put(key, value);
     }
 
@@ -109,8 +108,8 @@ public class Request {
         this.mid = mid;
     }
 
-    public String getParticipantCode() { return (String) payload.getOrDefault(PARTICIPANT_CODE, null);}
-    public String getNotificationId() { return (String) payload.getOrDefault(NOTIFICATION_ID, null);}
+    public String getNotificationId() { return getHeader(NOTIFICATION_ID);}
+    public Map<String, Object> getNotificationData(){ return getHeaderMap(NOTIFICATION_DATA);}
 
 }
 

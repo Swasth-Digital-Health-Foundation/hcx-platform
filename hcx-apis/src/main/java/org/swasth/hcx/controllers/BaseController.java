@@ -23,11 +23,9 @@ import org.swasth.hcx.service.HeaderAuditService;
 import org.swasth.kafka.client.IEventService;
 import org.swasth.postgresql.IDatabaseService;
 
+import java.io.IOException;
 import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static org.swasth.common.utils.Constants.*;
 
@@ -69,8 +67,10 @@ public class BaseController {
     @Value("${notification.path:classpath:Notifications.json}")
     private String filename;
 
-    List<Notification> notificationList = null;
+    @Value("${registry.hcxcode}")
+    private String hcxRegistryCode;
 
+    protected List<Notification> notificationList = null;
 
     protected Response errorResponse(Response response, ErrorCodes code, java.lang.Exception e) {
         ResponseError error = new ResponseError(code, e.getMessage(), e.getCause());
@@ -136,43 +136,43 @@ public class BaseController {
         return new ResponseEntity<>(errorResponse(response, errorCode, e), status);
     }
 
-    protected void setNotificationResponse(Request request, Response response, int statusCode) {
-        String status = statusCode == 1 ? ACTIVE : IN_ACTIVE;
-        response.setSubscriptionStatus(status);
-        response.setSubscriptionId(request.getNotificationId() + ":" + request.getParticipantCode());
-    }
-
-    public ResponseEntity<Object> processNotification(Map<String, Object> requestBody, int statusCode) throws Exception {
+    protected ResponseEntity<Object> processNotification(Map<String, Object> requestBody, int statusCode) throws Exception {
         Response response = new Response();
         Request request = null;
         try {
             checkSystemHealth();
             request = new Request(requestBody);
-            setNotificationResponse(request, response, statusCode);
-            String serviceMode = env.getProperty(SERVICE_MODE);
-            String id = UUID.randomUUID().toString();
-            String query = String.format(insertSubscription, postgresSubscription, id, request.getParticipantCode(), request.getNotificationId(), statusCode, System.currentTimeMillis());
-            if (StringUtils.equalsIgnoreCase(serviceMode, GATEWAY)) {
-                //Insert record into subscription table in postgres database
-                postgreSQLClient.execute(query);
+            setResponseParams(request, response);
+            //If recipient is HCX, then status is 200 and insert into subscription table
+            if(hcxRegistryCode.equalsIgnoreCase(request.getRecipientCode())){
+                String serviceMode = env.getProperty(SERVICE_MODE);
+                String id = UUID.randomUUID().toString();
+                String query = String.format(insertSubscription, postgresSubscription, id, request.getSenderCode(), request.getNotificationId(), statusCode, System.currentTimeMillis());
+                if (StringUtils.equalsIgnoreCase(serviceMode, GATEWAY)) {
+                    //Insert record into subscription table in postgres database
+                    postgreSQLClient.execute(query);
+                }
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            }else{ // For other recipients, status is 202 and process the request asynchronously
+                //TODO write logic to create kafka topic for pipeline jobs to process in next sprint
+                return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
             }
-            return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
             return exceptionHandler(request, response, e);
         }
     }
 
-    public ResponseEntity<Object> getSubscriptions(Map<String, Object> requestBody) throws Exception {
+    protected ResponseEntity<Object> getSubscriptions(Map<String, Object> requestBody) throws Exception {
         Response response = new Response();
         Request request = null;
         List<Subscription> subscriptionList = null;
         try {
             checkSystemHealth();
             request = new Request(requestBody);
-            subscriptionList = fetchSubscriptions(request.getParticipantCode());
+            subscriptionList = fetchSubscriptions(request.getSenderCode());
             response.setSubscriptions(subscriptionList);
             response.setSubscriptionCount(subscriptionList.size());
-            return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
+            return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             return exceptionHandler(request, response, e);
         }
@@ -203,14 +203,14 @@ public class BaseController {
         }
     }
 
-    public ResponseEntity<Object> getNotifications(Map<String, Object> requestBody) throws Exception {
+    protected ResponseEntity<Object> getNotifications(Map<String, Object> requestBody) throws Exception {
         Response response = new Response();
         Request request = null;
         try {
             checkSystemHealth();
             request = new Request(requestBody);
-            if(notificationList == null)
-            notificationList = loadNotifications();
+            if (notificationList == null)
+                 loadNotifications();
             response.setNotifications(notificationList);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
@@ -218,11 +218,22 @@ public class BaseController {
         }
     }
 
-    private List<Notification> loadNotifications() throws Exception {
+    protected void loadNotifications() throws IOException {
         Resource resource = resourceLoader.getResource(filename);
         ObjectMapper jsonReader = new ObjectMapper(new JsonFactory());
-        List<Notification> notificationList = (List<Notification>) jsonReader.readValue(resource.getInputStream(), List.class);
-        return notificationList;
+        notificationList =  (List<Notification>) jsonReader.readValue(resource.getInputStream(), List.class);
+    }
+
+    protected boolean isValidNotificaitonId(String notificationId){
+        boolean isValid = false;
+        List<LinkedHashMap<String, Object>> linkedHashMapList = (List) notificationList;
+        for (LinkedHashMap<String, Object> notification: linkedHashMapList) {
+            if(notification.get("id").toString().equals(notificationId)){
+                isValid = true;
+                break;
+            }
+        }
+        return isValid;
     }
 
 }

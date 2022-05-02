@@ -55,7 +55,7 @@ public class RetryFunction {
     @Scheduled(fixedDelayString = "${fixedDelay.in.milliseconds}")
     public void process() throws Exception {
         KafkaClient kafkaClient = new KafkaClient(kafkaUrl);
-        EventGenerator eventGenerator = new EventGenerator(getProtocolHeaders(), getJoseHeaders(), getRedirectHeaders(), getErrorHeaders());
+        EventGenerator eventGenerator = new EventGenerator(getProtocolHeaders(), getJoseHeaders(), getRedirectHeaders(), getErrorHeaders(), getNotificationHeaders());
         PostgreSQLClient postgreSQLClient = new PostgreSQLClient(postgresUrl, postgresUser, postgresPassword);
         System.out.println("Retry batch job is started");
         ResultSet result = null;
@@ -113,6 +113,12 @@ public class RetryFunction {
         List<String> errorHeaders = env.getProperty(ERROR_HEADERS_MANDATORY, List.class, new ArrayList<String>());
         errorHeaders.addAll(env.getProperty(ERROR_HEADERS_OPTIONAL, List.class, new ArrayList<String>()));
         return errorHeaders;
+    }
+
+    private List<String> getNotificationHeaders(){
+        List<String> notificationHeaders = env.getProperty(NOTIFICATION_HEADERS_MANDATORY, List.class, new ArrayList<String>());
+        notificationHeaders.addAll(env.getProperty(NOTIFICATION_HEADERS_OPTIONAL, List.class, new ArrayList<String>()));
+        return notificationHeaders;
     }
 
 }
