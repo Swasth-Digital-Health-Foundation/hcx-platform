@@ -16,6 +16,7 @@ rbac:
       - /v1/audit/search
       - /v1/participant/search
       - /v1/participant/update
+      - /v1/notification/request
   - role: payor
     paths:
       - /v1/coverageeligibility/check
@@ -32,6 +33,7 @@ rbac:
       - /v1/audit/search
       - /v1/participant/search
       - /v1/participant/update
+      - /v1/notification/request
   - role: agency.tpa
     paths:
       - /v1/coverageeligibility/check

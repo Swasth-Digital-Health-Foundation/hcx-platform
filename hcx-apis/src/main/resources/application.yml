@@ -13,12 +13,14 @@ kafka:
     searchresponse: ${kafka_search_response_topic:hcx.response.search}
     communication: ${kafka_communication_topic:hcx.request.communication}
     predetermination: ${kafka_predetermination_topic:hcx.request.predetermination}
+    notification: ${kafka_notification_topic:hcx.request.notification}
 
 service:
   mode: ${service_mode:gateway}
 
 registry:
   basePath: ${registry_basePath:http://a65d6a493998b4d0e98bd690a123328b-1532825861.ap-south-1.elb.amazonaws.com:8081}
+  hcxcode: ${registry_hcxcode:hcx-registry-code}
 
 #postgres config
 postgres:
@@ -26,6 +28,11 @@ postgres:
   user: ${postgres_user:postgres}
   password: ${postgres_password:postgres}
   tablename: ${postgres_tablename:payload}
+  subscription:
+    tablename: ${postgres_subscription_tablename:subscription}
+    insertQuery: ${postgres_subscription_insertQuery:INSERT INTO %s (id,recipientid,notificationid,status,lastupdatedon) VALUES ('%s','%s','%s',%d,%d)}
+    subscriptionQuery: ${postgres_subscription_subscriptionQuery:SELECT notificationid,recipientid,status FROM %s WHERE recipientid = '%s'}
+
 
 #hcx error headers
 plainrequest:
@@ -63,3 +70,10 @@ redirect:
 hcx:
   urls:
     notallowed: ${not_allowed_urls:http://localhost:8095}
+
+#Notifications related configurations
+notification:
+  path: ${notification_path:classpath:Notifications.json}
+  headers:
+    mandatory: ${notification_mandatory_headers:x-hcx-notification_id,x-hcx-notification_data,x-hcx-sender_code, x-hcx-recipient_code, x-hcx-api_call_id, x-hcx-timestamp, x-hcx-correlation_id}
+    optional: ${notification_optional_headers:x-hcx-workflow_id,x-hcx-status}

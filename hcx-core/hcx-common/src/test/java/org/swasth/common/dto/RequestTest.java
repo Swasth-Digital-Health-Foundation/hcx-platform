@@ -7,24 +7,29 @@ import org.swasth.common.utils.Constants;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.swasth.common.utils.Constants.*;
 
-public class RequestTest {
+ public class RequestTest {
 
     @Test
     public void check_payload() throws Exception {
         Request request = new Request(getRequestBody());
         request.setStatus(Constants.COMPLETE_STATUS);
         request.setMid("test_123");
+        assertEquals(COMPLETE_STATUS,request.getStatus());
     }
 
     @Test
     public void check_plain_payload() throws Exception {
         Request request = new Request(getPlainRequestBody());
+        assertNotNull(request);
     }
 
     @Test(expected = ClientException.class)
     public void check_exception_payload() throws Exception {
-        Request request = new Request(null);
+        new Request(null);
     }
 
     public Map<String, Object> getRequestBody() {
@@ -47,4 +52,19 @@ public class RequestTest {
         }});
         return obj;
     }
+
+    @Test
+    public void testNotificationPayload() throws Exception {
+        Request request = new Request(getNotificationRequest());
+        assertEquals("hcx-notification-001",request.getNotificationId());
+        assertEquals("hcx-apollo-12345", request.getSenderCode());
+    }
+
+    private Map<String,Object> getNotificationRequest() {
+        Map<String,Object> obj = new HashMap<>();
+        obj.put(SENDER_CODE,"hcx-apollo-12345");
+        obj.put(NOTIFICATION_ID,"hcx-notification-001");
+        return obj;
+    }
+
 }

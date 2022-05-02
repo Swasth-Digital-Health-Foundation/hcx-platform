@@ -51,7 +51,7 @@ public class BaseRequest {
         }
     }
 
-    public void validate(List<String> mandatoryHeaders,String subject, int timestampRange,Map<String,Object> senderDetails,Map<String,Object> recipientDetails) throws Exception {
+    public void validate(List<String> mandatoryHeaders,String subject, int timestampRange,Map<String,Object> senderDetails,Map<String,Object> recipientDetails,boolean isNotificationRequest) throws Exception {
         for (Map.Entry<String, ClientException> entry : getResponseParamErrors().entrySet()) {
             validateHeader(protocolHeaders, entry.getKey(), entry.getValue());
         }
@@ -69,8 +69,16 @@ public class BaseRequest {
         validateCondition(!DateTimeUtils.validTimestamp(timestampRange, getTimestamp()), ErrorCodes.ERR_INVALID_TIMESTAMP, "Timestamp cannot be more than " + timestampRange + " hours in the past or future time");
         validateCondition(protocolHeaders.containsKey(WORKFLOW_ID) && !Utils.isUUID(getWorkflowId()), ErrorCodes.ERR_INVALID_WORKFLOW_ID, "Workflow id should be a valid UUID");
         validateCondition(StringUtils.equals(getSenderCode(), getRecipientCode()), ErrorCodes.ERR_INVALID_SENDER_AND_RECIPIENT, "sender and recipient code cannot be the same");
-        validateParticipant(recipientDetails, ErrorCodes.ERR_INVALID_RECIPIENT, "recipient", getRecipientCode());
-        validateParticipant(senderDetails, ErrorCodes.ERR_INVALID_SENDER, "sender", getSenderCode());
+        // Notification related validations
+        if(isNotificationRequest){
+            validateNotificationParticipant(recipientDetails, ErrorCodes.ERR_INVALID_RECIPIENT, "recipient");
+            validateNotificationParticipant(senderDetails, ErrorCodes.ERR_INVALID_SENDER, "sender");
+            validateCondition(!Utils.isUUID(getNotificationId()), ErrorCodes.ERR_INVALID_NOTIFICATION_ID, "Notification id should be a valid UUID");
+            validateCondition(MapUtils.isEmpty(getNotificationData()), ErrorCodes.ERR_INVALID_NOTIFICATION_DATA, "Notification Data cannot be null, empty and other than 'JSON Object'");
+        }else {
+            validateParticipant(recipientDetails, ErrorCodes.ERR_INVALID_RECIPIENT, "recipient", getRecipientCode());
+            validateParticipant(senderDetails, ErrorCodes.ERR_INVALID_SENDER, "sender", getSenderCode());
+        }
         senderRole = (ArrayList<String>) senderDetails.get(ROLES);
         recipientRole = (ArrayList<String>) recipientDetails.get(ROLES);
         validateCondition(!StringUtils.equals(((ArrayList) senderDetails.get(OS_OWNER)).get(0).toString(), subject), ErrorCodes.ERR_ACCESS_DENIED, "Caller id and sender code is not matched");
@@ -79,7 +87,7 @@ public class BaseRequest {
             validateValues(getDebugFlag(), ErrorCodes.ERR_INVALID_DEBUG_FLAG, "Debug flag cannot be null, empty and other than 'String'", DEBUG_FLAG_VALUES, "Debug flag cannot be other than Error, Info or Debug");
         }
 
-        if (apiAction.contains("on_")) {
+        if (apiAction.contains("on_") && !isNotificationRequest) {
             validateCondition(!protocolHeaders.containsKey(STATUS), ErrorCodes.ERR_MANDATORY_HEADERFIELD_MISSING, "Mandatory headers are missing: " + STATUS);
             validateValues(getStatus(), ErrorCodes.ERR_INVALID_STATUS, "Status cannot be null, empty and other than 'String'", RESPONSE_STATUS_VALUES, "Status value for on_* API calls can be only: ");
         } else {
@@ -121,6 +129,15 @@ public class BaseRequest {
                 throw new ClientException(code, participant + " role is not be sent as sender/recipient in the incoming requests");
             }
         }
+    }
+
+    protected void validateNotificationParticipant(Map<String,Object> details, ErrorCodes code, String participant) throws ClientException {
+        if(details.isEmpty()){
+            throw new ClientException(code, participant + " does not exist in registry");
+        } else if(StringUtils.equals((String) details.get(REGISTRY_STATUS), BLOCKED) || StringUtils.equals((String) details.get(REGISTRY_STATUS), INACTIVE)){
+            throw new ClientException(code, participant + "  is blocked or inactive as per the registry");
+        }
+
     }
 
     protected void validateDetails(Map<String, Object> inputMap, ErrorCodes errorCode, String msg, List<String> rangeValues, String rangeMsg) throws ClientException {
@@ -229,6 +246,10 @@ public class BaseRequest {
     public List<String> getSenderRole() { return senderRole; }
     public List<String> getRecipientRole() { return recipientRole; }
 
+    public String getNotificationId() { return getHeader(NOTIFICATION_ID); }
+
+    public Map<String,Object> getNotificationData() { return getHeaderMap(NOTIFICATION_DATA);}
+
     public String getPayloadWithoutEncryptionKey() { return payloadWithoutEncryptionKey; }
 
     protected String[] validateRequestBody(Map<String, Object> requestBody) throws Exception {
@@ -281,5 +302,4 @@ public class BaseRequest {
             return str[str.length-2];
         }
     }
-
 }

@@ -3,6 +3,7 @@ package org.swasth.common.dto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -16,6 +17,13 @@ public class Response {
     private String apiCallId;
     private ResponseError error;
     private Map<String, Object> result;
+    private String subscriptionId;
+    @JsonProperty("status")
+    private String subscriptionStatus;
+    private List<Subscription> subscriptions;
+    @JsonProperty("count")
+    private Integer subscriptionCount;
+    private List<Notification> notifications;
 
     public Response() {}
 
@@ -27,6 +35,46 @@ public class Response {
     public Response(String key, Object val) {
         this.result = new HashMap<>();
         this.put(key, val);
+    }
+
+    public List<Notification> getNotifications() {
+        return notifications;
+    }
+
+    public void setNotifications(List<Notification> notifications) {
+        this.notifications = notifications;
+    }
+
+    public String getSubscriptionId() {
+        return subscriptionId;
+    }
+
+    public void setSubscriptionId(String subscriptionId) {
+        this.subscriptionId = subscriptionId;
+    }
+
+    public String getSubscriptionStatus() {
+        return subscriptionStatus;
+    }
+
+    public void setSubscriptionStatus(String subscriptionStatus) {
+        this.subscriptionStatus = subscriptionStatus;
+    }
+
+    public List<Subscription> getSubscriptions() {
+        return subscriptions;
+    }
+
+    public void setSubscriptions(List<Subscription> subscriptions) {
+        this.subscriptions = subscriptions;
+    }
+
+    public Integer getSubscriptionCount() {
+        return subscriptionCount;
+    }
+
+    public void setSubscriptionCount(Integer subscriptionCount) {
+        this.subscriptionCount = subscriptionCount;
     }
 
     public Long getTimestamp() {
