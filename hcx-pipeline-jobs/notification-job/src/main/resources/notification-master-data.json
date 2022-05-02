@@ -23,7 +23,7 @@
     "name": "Claim Cycle Completion",
     "description": "A notification about the Claim Cycle Completion. This information will be useful for providers.",
     "sender": [
-      "payer"
+      "payor"
     ],
     "recipient": [
       "provider"
@@ -40,9 +40,9 @@
   {
     "id": "fa55cbb2-53bb-437a-ac72-466af457fa4c",
     "name": "Payment Cycle Completion",
-    "description": "A notification about the Payment Cycle Completion. This information will be useful for payers.",
+    "description": "A notification about the Payment Cycle Completion. This information will be useful for payors.",
     "sender": [
-      "payer"
+      "payor"
     ],
     "recipient": [
       "provider"
@@ -58,10 +58,10 @@
   },
   {
     "id": "be0e578d-b391-42f9-96f7-1e6bacd91c20",
-    "name": "Payer Downtime",
-    "description": "A notification about the Payer System Downtime. This information will be useful for all participants.",
+    "name": "payor Downtime",
+    "description": "A notification about the payor System Downtime. This information will be useful for all participants.",
     "sender": [
-      "payer"
+      "payor"
     ],
     "recipient": [
       "provider"
@@ -83,7 +83,7 @@
       "provider"
     ],
     "recipient": [
-      "payer"
+      "payor"
     ],
     "type": "Broadcast",
     "category": "Business",
