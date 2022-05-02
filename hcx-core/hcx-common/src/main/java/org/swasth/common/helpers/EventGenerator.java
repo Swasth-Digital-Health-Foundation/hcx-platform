@@ -15,12 +15,14 @@ public class EventGenerator {
     private List<String> joseHeaders;
     private List<String> redirectHeaders;
     private List<String> errorHeaders;
+    private List<String> notificationHeaders;
 
-    public EventGenerator(List<String> protocolHeaders, List<String> joseHeaders, List<String> redirectHeaders, List<String> errorHeaders) {
+    public EventGenerator(List<String> protocolHeaders, List<String> joseHeaders, List<String> redirectHeaders, List<String> errorHeaders,List<String> notificationHeaders) {
         this.protocolHeaders = protocolHeaders;
         this.joseHeaders = joseHeaders;
         this.redirectHeaders = redirectHeaders;
         this.errorHeaders = errorHeaders;
+        this.notificationHeaders = notificationHeaders;
     }
 
     public String generatePayloadEvent(Request request) throws JsonProcessingException {
@@ -56,11 +58,17 @@ public class EventGenerator {
             event.put(HEADERS, headers);
         } else {
             List<String> headers;
-            if(REDIRECT_STATUS.equalsIgnoreCase(request.getStatus())) {
+            if (REDIRECT_STATUS.equalsIgnoreCase(request.getStatus())) {
                 headers = redirectHeaders;
-            }else {
+            } else if (ERROR_STATUS.equalsIgnoreCase(request.getStatus())) {
                 headers = errorHeaders;
+            } else if (NOTIFICATION_REQUEST.equalsIgnoreCase(request.getApiAction())) {
+                headers = notificationHeaders;
+                event.put(TRIGGER_TYPE, TRIGGER_VALUE);
+            } else {
+                headers = null;
             }
+
             Map<String, Object> protectedHeaders = request.getHcxHeaders();
             Map<String, Object> filterHeaders = new HashMap<>();
             if(headers != null) {
@@ -69,6 +77,9 @@ public class EventGenerator {
                         filterHeaders.put(key, protectedHeaders.get(key));
                 });
                 Map<String, Object> headerMap = new HashMap<>();
+                if(!filterHeaders.containsKey(STATUS)){
+                    filterHeaders.put(STATUS, QUEUED_STATUS);
+                }
                 headerMap.put(PROTOCOL, filterHeaders);
                 event.put(HEADERS, headerMap);
             }
@@ -90,6 +101,8 @@ public class EventGenerator {
         event.put(TIMESTAMP, request.getTimestamp());
         event.put(ERROR_DETAILS, request.getErrorDetails());
         event.put(DEBUG_DETAILS, request.getDebugDetails());
+        event.put(NOTIFICATION_ID, request.getNotificationId());
+        event.put(NOTIFICATION_DATA, request.getNotificationData());
         event.put(MID, request.getMid());
         event.put(ACTION, request.getApiAction());
         if(request.getStatus() == null)

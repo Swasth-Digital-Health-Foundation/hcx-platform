@@ -40,6 +40,9 @@ public class Constants {
     public static final String PREDETERMINATION_SUBMIT = VERSION_PREFIX + "/predetermination/submit";
     public static final String PREDETERMINATION_ONSUBMIT = VERSION_PREFIX + "/predetermination/on_submit";
 
+    // Notification APIs
+    public static final String NOTIFICATION_REQUEST = VERSION_PREFIX + "/notification/request";
+
     public static final List<String> ACTION_APIS = Arrays.asList(COVERAGE_ELIGIBILITY_CHECK, PRE_AUTH_SUBMIT, CLAIM_SUBMIT, PAYMENT_NOTICE_REQUEST, HCX_STATUS, HCX_SEARCH, COMMUNICATION_REQUEST, PREDETERMINATION_SUBMIT);
     public static final List<String> ON_ACTION_APIS = Arrays.asList(COVERAGE_ELIGIBILITY_ONCHECK, PRE_AUTH_ONSUBMIT, CLAIM_ONSUBMIT, PAYMENT_NOTICE_ONREQUEST, HCX_ONSTATUS, HCX_ON_SEARCH, COMMUNICATION_ONREQUEST, PREDETERMINATION_ONSUBMIT);
 
@@ -102,5 +105,9 @@ public class Constants {
     public static final List<String> ALLOWED_ENTITIES_ERROR_AUDIT_CREATION = Arrays.asList("coverageeligibility", "preauth", "claim", PAYMENT, COMMUNICATION, "predetermination", REGISTRY_STATUS, "search");
     public static final String QUEUED_STATUS = "request.queued";
     public static final String DISPATCHED_STATUS = "request.dispatched";
+
+    //Notification Details
+    public static final String NOTIFICATION_ID = "x-hcx-notification_id";
+    public static final String NOTIFICATION_DATA = "x-hcx-notification_data";
 
 }

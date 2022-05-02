@@ -1,6 +1,5 @@
 package org.swasth.common.dto;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.Test;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.utils.Constants;
@@ -58,12 +57,12 @@ import static org.swasth.common.utils.Constants.*;
     public void testNotificationPayload() throws Exception {
         Request request = new Request(getNotificationRequest());
         assertEquals("hcx-notification-001",request.getNotificationId());
-        assertEquals("hcx-apollo-12345", request.getParticipantCode());
+        assertEquals("hcx-apollo-12345", request.getSenderCode());
     }
 
     private Map<String,Object> getNotificationRequest() {
         Map<String,Object> obj = new HashMap<>();
-        obj.put(PARTICIPANT_CODE,"hcx-apollo-12345");
+        obj.put(SENDER_CODE,"hcx-apollo-12345");
         obj.put(NOTIFICATION_ID,"hcx-notification-001");
         return obj;
     }

@@ -18,6 +18,8 @@ import org.swasth.auditindexer.function.AuditIndexer;
 import java.util.*;
 
 import static org.swasth.apigateway.constants.Constants.*;
+import static org.swasth.common.utils.Constants.NOTIFICATION_DATA;
+import static org.swasth.common.utils.Constants.NOTIFICATION_ID;
 
 
 @Service
@@ -77,6 +79,8 @@ public class AuditService {
         event.put(SENDER_ROLE, request.getSenderRole());
         event.put(RECIPIENT_ROLE, request.getRecipientRole());
         event.put(PAYLOAD, request.getPayloadWithoutEncryptionKey());
+        event.put(NOTIFICATION_ID, request.getNotificationId());
+        event.put(NOTIFICATION_DATA, request.getNotificationData());
         return  event;
     }
 

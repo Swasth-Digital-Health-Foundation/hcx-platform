@@ -48,3 +48,9 @@ audit:
 hcx:
   urls:
     notallowed: ${not_allowed_urls:http://localhost:8095}
+
+#Notifications related configurations
+notification:
+  headers:
+    mandatory: ${notification_mandatory_headers:x-hcx-notification_id,x-hcx-notification_data,x-hcx-sender_code, x-hcx-recipient_code, x-hcx-api_call_id, x-hcx-timestamp, x-hcx-correlation_id}
+    optional: ${notification_optional_headers:x-hcx-workflow_id,x-hcx-status}

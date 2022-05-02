@@ -13,12 +13,14 @@ kafka:
     searchresponse: ${kafka_search_response_topic:hcx.response.search}
     communication: ${kafka_communication_topic:hcx.request.communication}
     predetermination: ${kafka_predetermination_topic:hcx.request.predetermination}
+    notification: ${kafka_notification_topic:hcx.request.notification}
 
 service:
   mode: ${service_mode:gateway}
 
 registry:
   basePath: ${registry_basePath:http://a65d6a493998b4d0e98bd690a123328b-1532825861.ap-south-1.elb.amazonaws.com:8081}
+  hcxcode: ${registry_hcxcode:hcx-registry-code}
 
 #postgres config
 postgres:
@@ -69,6 +71,9 @@ hcx:
   urls:
     notallowed: ${not_allowed_urls:http://localhost:8095}
 
-#Filename of the Notifications master data
+#Notifications related configurations
 notification:
   path: ${notification_path:classpath:Notifications.json}
+  headers:
+    mandatory: ${notification_mandatory_headers:x-hcx-notification_id,x-hcx-notification_data,x-hcx-sender_code, x-hcx-recipient_code, x-hcx-api_call_id, x-hcx-timestamp, x-hcx-correlation_id}
+    optional: ${notification_optional_headers:x-hcx-workflow_id,x-hcx-status}

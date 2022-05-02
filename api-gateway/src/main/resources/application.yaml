@@ -26,6 +26,11 @@ redirect:
     mandatory: ${redirect_mandatory_headers:x-hcx-sender_code, x-hcx-recipient_code, x-hcx-api_call_id, x-hcx-timestamp, x-hcx-correlation_id, x-hcx-status, x-hcx-redirect_to}
     optional: ${redirect_optional_headers:x-hcx-workflow_id}
 
+notification:
+  headers:
+    mandatory: ${notification_mandatory_headers:x-hcx-notification_id,x-hcx-notification_data,x-hcx-sender_code, x-hcx-recipient_code, x-hcx-api_call_id, x-hcx-timestamp, x-hcx-correlation_id}
+    optional: ${notification_optional_headers:x-hcx-workflow_id,x-hcx-status}
+
 timestamp:
   range: ${timestamp_range:10000}
 
@@ -79,7 +84,7 @@ spring:
             - CachingRequestBodyFilter
             - HCXValidationFilter
           predicates:
-            - Path=/v1/coverageeligibility/**, /v1/preauth/**, /v1/claim/**, /v1/paymentnotice/**, /v1/hcx/**, /v1/predetermination/**, /v1/communication/**
+            - Path=/v1/coverageeligibility/**, /v1/preauth/**, /v1/claim/**, /v1/paymentnotice/**, /v1/hcx/**, /v1/predetermination/**, /v1/communication/**, /v1/notification/subscribe, /v1/notification/unsubscribe, /v1/notification/request
 
         - id: hcx-api-route-audit
           uri: ${HCX_API_BASEPATH:http://localhost:8080}

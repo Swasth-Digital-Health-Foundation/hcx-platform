@@ -42,6 +42,7 @@ public class Constants {
     public static final String NOTIFICATION_UNSUBSCRIBE = VERSION_PREFIX + "/notification/unsubscribe";
     public static final String NOTIFICATION_SUBSCRIPTION_LIST = VERSION_PREFIX + "/notification/subscription/list";
     public static final String NOTIFICATION_LIST = VERSION_PREFIX + "/notification/list";
+    public static final String NOTIFICATION_REQUEST = VERSION_PREFIX + "/notification/request";
 
 
     public static final String HEALTHY = "healthy";
@@ -68,6 +69,7 @@ public class Constants {
     public static final String AUDIT_TIMESTAMP = "auditTimeStamp";
     public static final String UPDATED_TIME = "updatedTimestamp";
     public static final String REQUEST_TIME = "requestTimeStamp";
+    public static  final String TRIGGER_TYPE = "triggerType";
 
     //Request props
     public static final String PROTOCOL_HEADERS_MANDATORY = "protocol.headers.mandatory";
@@ -127,6 +129,10 @@ public class Constants {
     public static final int ACTIVE_CODE = 1;
     public static final int INACTIVE_CODE = 0;
     public static final String SUBSCRIPTION_ID = "x-hcx-subscription_id";
+    public static final String NOTIFICATION_HEADERS_MANDATORY = "notification.headers.mandatory";
+    public static final String NOTIFICATION_HEADERS_OPTIONAL = "notification.headers.optional";
+    public static final String NOTIFICATION_DATA = "x-hcx-notification_data";
+    public static final String TRIGGER_VALUE = "API";
 
 
 }
