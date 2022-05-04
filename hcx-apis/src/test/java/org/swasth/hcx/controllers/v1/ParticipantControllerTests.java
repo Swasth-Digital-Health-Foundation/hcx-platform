@@ -122,7 +122,14 @@ class ParticipantControllerTests extends BaseSpec{
         MvcResult mvcResult = mockMvc.perform(post("/v1/participant/create").content(getParticipantPayorSchemeNotAllowedBody()).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
-        System.out.println("Testing " + response.getContentAsString());
+        assertEquals(400, status);
+    }
+
+    @Test
+    void participant_create_endpoint_url_not_allowed_scenario() throws Exception {
+        MvcResult mvcResult = mockMvc.perform(post("/v1/participant/create").content(getParticipantUrlNotAllowedBody()).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
         assertEquals(400, status);
     }
 
@@ -173,4 +180,13 @@ class ParticipantControllerTests extends BaseSpec{
         int status = response.getStatus();
         assertEquals(500, status);
     }
+
+    @Test
+    void participant_update_endpoint_url_not_allowed_scenario() throws Exception {
+        MvcResult mvcResult = mockMvc.perform(post("/v1/participant/update").content(getParticipantUrlNotAllowedBody()).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        assertEquals(400, status);
+    }
+
 }
