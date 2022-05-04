@@ -216,7 +216,6 @@ public class BaseSpec {
         obj.put("primary_mobile","9493347239");
         obj.put("primary_email","dharmateja888@gmail.com");
         obj.put("roles",new ArrayList<String>(Collections.singleton("provider")));
-        obj.put("scheme_code","default");
         obj.put("address", new HashMap<>() {{
             put("plot","5-4-199");
             put("street","road no 12");

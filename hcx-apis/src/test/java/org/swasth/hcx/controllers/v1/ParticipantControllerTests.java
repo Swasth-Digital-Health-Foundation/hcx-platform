@@ -119,13 +119,10 @@ class ParticipantControllerTests extends BaseSpec{
 
     @Test
     void participant_create_payor_scheme_not_allowed_scenario() throws Exception {
-        registryServer.enqueue(new MockResponse()
-                .setResponseCode(400)
-                .setBody("{ \"id\": \"open-saber.registry.invite\", \"ver\": \"1.0\", \"ets\": 1637227738534, \"params\": { \"resmsgid\": \"\", \"msgid\": \"bb355e26-cc12-4aeb-8295-03347c428c62\", \"err\": \"\", \"status\": \"SUCCESSFUL\", \"errmsg\": \"\" }, \"responseCode\": \"OK\", \"result\": { \"Organisation\": { \"osid\": \"1-17f02101-b560-4bc1-b3ab-2dac04668fd2\" } } }")
-                .addHeader("Content-Type", "application/json"));
         MvcResult mvcResult = mockMvc.perform(post("/v1/participant/create").content(getParticipantPayorSchemeNotAllowedBody()).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
+        System.out.println("Testing " + response.getContentAsString());
         assertEquals(400, status);
     }
 
