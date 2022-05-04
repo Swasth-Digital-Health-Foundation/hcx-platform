@@ -114,10 +114,7 @@ public class ParticipantController  extends BaseController {
 
     private boolean validateEndpointUrl(@RequestBody Map<String, Object> requestBody) {
         List<String> notAllowedUrls = env.getProperty(HCX_NOT_ALLOWED_URLS, List.class, new ArrayList<String>());
-        if (notAllowedUrls.contains(requestBody.get(ENDPOINT_URL))) {
-            return true;
-        }
-        return false;
+        return notAllowedUrls.contains(requestBody.get(ENDPOINT_URL));
     }
 
 }
