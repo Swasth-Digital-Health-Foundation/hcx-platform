@@ -5,7 +5,7 @@ const Nav = props => {
     return <>
         <Navbar bg="dark" variant="dark">
             <Container>
-                <Navbar.Brand href="/">
+                <Navbar.Brand href={process.env.PUBLIC_URL}>
                     <img
                         alt=""
                         src={logo}
