@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.swasth.common.dto.Notification;
 import org.swasth.common.dto.Request;
 import org.swasth.common.dto.Response;
 import org.swasth.common.exception.ClientException;
@@ -14,9 +13,7 @@ import org.swasth.common.exception.ErrorCodes;
 import org.swasth.common.utils.Constants;
 import org.swasth.hcx.controllers.BaseController;
 
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController()
 @RequestMapping(value = "/v1/notification")
@@ -47,12 +44,12 @@ public class NotificationController extends BaseController {
 
     @PostMapping(value = "/subscribe")
     public ResponseEntity<Object> notificationSubscribe(@RequestBody Map<String, Object> requestBody) throws Exception {
-       return processNotification(requestBody, ACTIVE_CODE);
+       return processSubscription(requestBody, ACTIVE_CODE);
     }
 
     @PostMapping(value = "/unsubscribe")
     public ResponseEntity<Object> notificationUnSubscribe(@RequestBody Map<String, Object> requestBody) throws Exception {
-        return processNotification(requestBody,INACTIVE_CODE);
+        return processSubscription(requestBody,INACTIVE_CODE);
     }
 
     @PostMapping(value = "/subscription/list")

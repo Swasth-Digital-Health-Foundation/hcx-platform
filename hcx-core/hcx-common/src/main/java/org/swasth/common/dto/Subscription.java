@@ -14,6 +14,11 @@ public class Subscription {
     @JsonProperty(NOTIFICATION_ID)
     private String notificationId;
     private String status;
+    private String mode;
+
+    public String getMode() { return mode; }
+
+    public void setMode(String mode) { this.mode = mode; }
 
     public String getSubscriptionId() {
         return subscriptionId;
