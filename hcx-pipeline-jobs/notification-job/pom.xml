@@ -176,7 +176,7 @@
 							</filters>
 							<transformers>
 								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-									<mainClass>org.swasth.dp.status.task.NotificationStreamTask</mainClass>
+									<mainClass>org.swasth.dp.notification.task.NotificationStreamTask</mainClass>
 								</transformer>
 							</transformers>
 						</configuration>
