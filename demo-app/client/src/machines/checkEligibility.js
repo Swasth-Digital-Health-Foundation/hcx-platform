@@ -134,17 +134,17 @@ const machine = createMachine({
             const { payload, requestType } = event;
             switch (requestType) {
                 case 'ELIGIBILITY': {
-                    return axios.post('/v1/coverageeligibility/check', payload)
+                    return axios.post(`${process.env.PUBLIC_URL}/v1/coverageeligibility/check`, payload)
                         .then(response => response.data);
                 }
 
                 case 'CLAIM': {
-                    return axios.post('/v1/claim/submit', payload)
+                    return axios.post(`${process.env.PUBLIC_URL}/v1/claim/submit`, payload)
                         .then(response => response.data);
                 }
 
                 case 'PREAUTH': {
-                    return axios.post('/v1/preauth/submit', payload)
+                    return axios.post(`${process.env.PUBLIC_URL}/v1/preauth/submit`, payload)
                         .then(response => response.data);
                 }
             }
