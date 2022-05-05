@@ -21,6 +21,7 @@ public class SubscriptionTest {
         assertEquals(null, mockSubscription.getSubscriptionId());
         assertEquals(null,mockSubscription.getNotificationId());
         assertEquals(null,mockSubscription.getStatus());
+        assertEquals(null,mockSubscription.getMode());
     }
 
     @Test
@@ -29,8 +30,10 @@ public class SubscriptionTest {
         mockSubscription.setSubscriptionId("SubscriptionId");
         mockSubscription.setNotificationId("NotificationId");
         mockSubscription.setStatus("Status");
+        mockSubscription.setMode("API");
         assertEquals("SubscriptionId", mockSubscription.getSubscriptionId());
         assertEquals("NotificationId",mockSubscription.getNotificationId());
         assertEquals("Status",mockSubscription.getStatus());
+        assertEquals("API",mockSubscription.getMode());
     }
 }

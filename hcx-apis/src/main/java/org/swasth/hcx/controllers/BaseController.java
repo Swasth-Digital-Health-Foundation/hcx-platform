@@ -136,7 +136,7 @@ public class BaseController {
         return new ResponseEntity<>(errorResponse(response, errorCode, e), status);
     }
 
-    protected ResponseEntity<Object> processNotification(Map<String, Object> requestBody, int statusCode) throws Exception {
+    protected ResponseEntity<Object> processSubscription(Map<String, Object> requestBody, int statusCode) throws Exception {
         Response response = new Response();
         Request request = null;
         try {
@@ -147,7 +147,8 @@ public class BaseController {
             if(hcxRegistryCode.equalsIgnoreCase(request.getRecipientCode())){
                 String serviceMode = env.getProperty(SERVICE_MODE);
                 String id = UUID.randomUUID().toString();
-                String query = String.format(insertSubscription, postgresSubscription, id, request.getSenderCode(), request.getNotificationId(), statusCode, System.currentTimeMillis());
+                //TODO modify the hardcoded mode here from the query
+                String query = String.format(insertSubscription, postgresSubscription, id, request.getSenderCode(), request.getNotificationId(), statusCode, System.currentTimeMillis(),"API");
                 if (StringUtils.equalsIgnoreCase(serviceMode, GATEWAY)) {
                     //Insert record into subscription table in postgres database
                     postgreSQLClient.execute(query);
@@ -188,13 +189,15 @@ public class BaseController {
             subscriptionList = new ArrayList<>();
             while (resultSet.next()) {
                 subscription = new Subscription();
-                String notificationId = resultSet.getString("notificationid");
-                String recipientId = resultSet.getString("recipientid");
+                String notificationId = resultSet.getString("notificationId");
+                String recipientId = resultSet.getString("recipientId");
+                String mode = resultSet.getString("mode");
                 int statusCode = resultSet.getInt("status");
                 String status = statusCode == 1 ? ACTIVE : IN_ACTIVE;
                 subscription.setNotificationId(notificationId);
                 subscription.setSubscriptionId(notificationId + ":" + recipientId);
                 subscription.setStatus(status);
+                subscription.setMode(mode);
                 subscriptionList.add(subscription);
             }
             return subscriptionList;
