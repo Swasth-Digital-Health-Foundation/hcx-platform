@@ -196,18 +196,18 @@ class NotificationControllerTest extends BaseSpec {
 
     private ResultSet getMockResultSet(int status) throws SQLException {
         return MockResultSet.create(
-                new String[]{"notificationid", "recipientid", "status"}, //columns
+                new String[]{"notificationId", "recipientId", "status","mode"}, //columns
                 new Object[][]{ // data
-                        {"hcx-notification-001", "hcx-apollo-12345", status}
+                        {"hcx-notification-001", "hcx-apollo-12345", status,"API"}
                 });
     }
 
     private ResultSet getMockResultSet() throws SQLException {
         return MockResultSet.create(
-                new String[]{"notificationid", "recipientid", "status"}, //columns
+                new String[]{"notificationId", "recipientId", "status","mode"}, //columns
                 new Object[][]{ // data
-                        {"hcx-notification-001", "hcx-apollo-12345", 1},
-                        {"hcx-notification-002", "hcx-apollo-12345", 0}
+                        {"hcx-notification-001", "hcx-apollo-12345", 1,"API"},
+                        {"hcx-notification-002", "hcx-apollo-12345", 0,"API"}
                 });
     }
 
