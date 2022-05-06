@@ -19,9 +19,11 @@ import org.swasth.dp.core.service.RegistryService;
 import org.swasth.dp.core.util.*;
 import org.swasth.dp.notification.dto.ErrorDetails;
 import org.swasth.dp.notification.task.NotificationConfig;
+import sun.applet.Main;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.URL;
 import java.sql.ResultSet;
 import java.util.*;
 
@@ -105,7 +107,7 @@ public class NotificationProcessFunction extends ProcessFunction<Map<String,Obje
     private Map<String,Object> getNotificationMasterData(String notificationId) throws IOException, ParseException {
         JSONParser parser = new JSONParser();
         // use this path(hcx-pipeline-jobs\notification-job\src\main\resources\notification-master-data.json) while running in local machine
-        JSONArray templateData = (JSONArray) parser.parse(new FileReader("./notification-master-data.json"));
+        JSONArray templateData = (JSONArray) parser.parse(new FileReader("/data/flink/conf/master_data/notification_master_data.json"));
         System.out.println("Master data: " + templateData);
         for(Object data: templateData) {
             JSONObject obj = (JSONObject) data;
