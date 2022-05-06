@@ -6,10 +6,8 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.util.Collector;
 import org.joda.time.DateTime;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.swasth.dp.core.function.DispatcherResult;
@@ -20,7 +18,6 @@ import org.swasth.dp.core.util.*;
 import org.swasth.dp.notification.dto.ErrorDetails;
 import org.swasth.dp.notification.task.NotificationConfig;
 
-import java.io.FileReader;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.util.*;
@@ -102,15 +99,13 @@ public class NotificationProcessFunction extends ProcessFunction<Map<String,Obje
         }
     }
 
-    private Map<String,Object> getNotificationMasterData(String notificationId) throws IOException, ParseException {
-        JSONParser parser = new JSONParser();
-        // use this path(hcx-pipeline-jobs\notification-job\src\main\resources\notification-master-data.json) while running in local machine
-        JSONArray templateData = (JSONArray) parser.parse(new FileReader("notification_master_data.json"));
+    private Map<String,Object> getNotificationMasterData(String notificationId) {
+        JSONArray templateData = new JSONArray("[ { \"id\": \"24e975d1-054d-45fa-968e-c91b1043d0a5\", \"name\": \"Organisation status update\", \"description\": \"A notification about the organisation status update in registry. This information will be useful acknowledge the current status of a given organisation and send requests.\", \"sender\": [ \"HIE/HIO.HCX\" ], \"recipient\": [ \"payor\" ], \"type\": \"Broadcast\", \"category\": \"System\", \"trigger\": \"Event\", \"eventType\": [ \"ORGANISATION_STATUS_CHANGE\" ], \"template\": \"{\\\"message\\\": \\\"${participant_name} status changed to ${status}\\\",\\n\\\"participant_code\\\": \\\"${participant_code}\\\", \\\"endpoint_url\\\": \\\"${endpoint_url}\\\"}\", \"status\": \"active\" }, { \"id\": \"e7f6fb71-e19d-4c9e-94a6-d63f2786844f\", \"name\": \"Claim Cycle Completion\", \"description\": \"A notification about the Claim Cycle Completion. This information will be useful for providers.\", \"sender\": [ \"payor\" ], \"recipient\": [ \"provider\" ], \"type\": \"Targeted\", \"category\": \"System\", \"trigger\": \"Event\", \"eventType\": [ \"CYCLE_COMPLETION\" ], \"template\": \"{\\\"message\\\": \\\"${participant_name} has approved claim request with correlation id: ${correlationId}\\\"\", \"status\": \"active\" }, { \"id\": \"fa55cbb2-53bb-437a-ac72-466af457fa4c\", \"name\": \"Payment Cycle Completion\", \"description\": \"A notification about the Payment Cycle Completion. This information will be useful for payors.\", \"sender\": [ \"payor\" ], \"recipient\": [ \"provider\" ], \"type\": \"Targeted\", \"category\": \"System\", \"trigger\": \"Event\", \"eventType\": [ \"CYCLE_COMPLETION\" ], \"template\": \"{\\\"message\\\": \\\"${participant_name} has approved paymentnotice request with correlation id: ${correlationId}\\\"\", \"status\": \"active\" }, { \"id\": \"be0e578d-b391-42f9-96f7-1e6bacd91c20\", \"name\": \"payor Downtime\", \"description\": \"A notification about the payor System Downtime. This information will be useful for all participants.\", \"sender\": [ \"payor\" ], \"recipient\": [ \"provider\" ], \"type\": \"Broadcast\", \"category\": \"Business\", \"trigger\": \"Explicit\", \"eventType\": [ \"CYCLE_COMPLETION\" ], \"template\": \"{\\\"message\\\": \\\"${participant_name} system will not be available from ${startTime} for a duration of ${duration} on ${date}\\\",\\n\\\"participant_code\\\": \\\"${participant_code}\\\", \\\"endpoint_url\\\": \\\"${endpoint_url}\\\"}\", \"status\": \"active\" }, { \"id\": \"b5e01af4-a14d-48a8-8bea-fdea61204c5a\", \"name\": \"Provider Cycle Completion\", \"description\": \"A notification about the Provider System Downtime. This information will be useful for all participants.\", \"sender\": [ \"provider\" ], \"recipient\": [ \"payor\" ], \"type\": \"Broadcast\", \"category\": \"Business\", \"trigger\": \"Explicit\", \"eventType\": [ \"CYCLE_COMPLETION\" ], \"template\": null, \"status\": \"active\" } ]");
         System.out.println("Master data: " + templateData);
         for(Object data: templateData) {
             JSONObject obj = (JSONObject) data;
             if(obj.get("id").equals(notificationId)){
-                return obj;
+                return JSONUtil.deserialize(obj.toString(), Map.class);
             }
         }
         return new HashMap<>();
