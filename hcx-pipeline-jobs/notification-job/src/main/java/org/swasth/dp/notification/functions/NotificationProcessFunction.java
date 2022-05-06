@@ -20,6 +20,7 @@ import org.swasth.dp.notification.task.NotificationConfig;
 
 import java.io.IOException;
 import java.sql.ResultSet;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class NotificationProcessFunction extends ProcessFunction<Map<String,Object>, Object> {
@@ -146,7 +147,7 @@ public class NotificationProcessFunction extends ProcessFunction<Map<String,Obje
         request.put(Constants.RECIPIENT_CODE(), recipientCode);
         request.put(Constants.API_CALL_ID(), UUID.randomUUID());
         request.put(Constants.CORRELATION_ID(), getProtocolStringValue(Constants.CORRELATION_ID()));
-        request.put(Constants.TIMESTAMP(), DateTime.now());
+        request.put(Constants.TIMESTAMP(), new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").format(new Date()));
         request.put(Constants.NOTIFICATION_DATA(), Collections.singletonMap(Constants.MESSAGE(), notificationMessage));
         request.put(Constants.NOTIFICATION_TITLE(), notificationMasterData.get(Constants.NAME()));
         request.put(Constants.NOTIFICATION_DESC(), notificationMasterData.get(Constants.DESCRIPTION()));
