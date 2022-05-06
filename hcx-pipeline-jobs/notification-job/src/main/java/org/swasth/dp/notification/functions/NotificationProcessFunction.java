@@ -17,9 +17,11 @@ import org.swasth.dp.core.service.RegistryService;
 import org.swasth.dp.core.util.*;
 import org.swasth.dp.notification.dto.ErrorDetails;
 import org.swasth.dp.notification.task.NotificationConfig;
+import scala.None;
 
 import java.io.IOException;
 import java.sql.ResultSet;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class NotificationProcessFunction extends ProcessFunction<Map<String,Object>, Object> {
@@ -120,7 +122,7 @@ public class NotificationProcessFunction extends ProcessFunction<Map<String,Obje
             String payload = getPayload(resolvedTemplate, (String) participant.get(Constants.PARTICIPANT_CODE()), notificationMasterData);
             System.out.println("Recipient Id: " + participant.get(Constants.PARTICIPANT_CODE()) + "Notification payload: " + payload);
             DispatcherResult result = dispatcherUtil.dispatch(participant, payload);
-            dispatchResult.add(JSONUtil.serialize(new ErrorDetails((String) participant.get(Constants.PARTICIPANT_CODE()), result.success(), createErrorMap(result.error().get()))));
+            dispatchResult.add(JSONUtil.serialize(new ErrorDetails((String) participant.get(Constants.PARTICIPANT_CODE()), result.success(), createErrorMap(result))));
             if(result.success()) successfulDispatches++; else failedDispatches++;
         }
         int totalDispatches = successfulDispatches+failedDispatches;
@@ -146,7 +148,7 @@ public class NotificationProcessFunction extends ProcessFunction<Map<String,Obje
         request.put(Constants.RECIPIENT_CODE(), recipientCode);
         request.put(Constants.API_CALL_ID(), UUID.randomUUID());
         request.put(Constants.CORRELATION_ID(), getProtocolStringValue(Constants.CORRELATION_ID()));
-        request.put(Constants.TIMESTAMP(), DateTime.now());
+        request.put(Constants.TIMESTAMP(), new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").format(new Date()));
         request.put(Constants.NOTIFICATION_DATA(), Collections.singletonMap(Constants.MESSAGE(), notificationMessage));
         request.put(Constants.NOTIFICATION_TITLE(), notificationMasterData.get(Constants.NAME()));
         request.put(Constants.NOTIFICATION_DESC(), notificationMasterData.get(Constants.DESCRIPTION()));
@@ -187,9 +189,10 @@ public class NotificationProcessFunction extends ProcessFunction<Map<String,Obje
         return audit;
     }
 
-    private Map<String,Object> createErrorMap(ErrorResponse error){
+    private Map<String,Object> createErrorMap(DispatcherResult result){
         Map<String,Object> errorMap = new HashMap<>();
-        if (error != null) {
+        if (result.error() != null) {
+            ErrorResponse error = result.error().get();
             errorMap.put(Constants.CODE(), error.code().get());
             errorMap.put(Constants.MESSAGE(), error.message().get());
             errorMap.put(Constants.TRACE(), error.trace().get());
