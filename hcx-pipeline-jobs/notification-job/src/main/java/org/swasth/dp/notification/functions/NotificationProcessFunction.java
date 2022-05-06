@@ -104,7 +104,8 @@ public class NotificationProcessFunction extends ProcessFunction<Map<String,Obje
 
     private Map<String,Object> getNotificationMasterData(String notificationId) throws IOException, ParseException {
         JSONParser parser = new JSONParser();
-        JSONArray templateData = (JSONArray) parser.parse(new FileReader("hcx-pipeline-jobs\\notification-job\\src\\main\\resources\\notification-master-data.json"));
+        // use this path(hcx-pipeline-jobs\notification-job\src\main\resources\notification-master-data.json) while running in local machine
+        JSONArray templateData = (JSONArray) parser.parse(new FileReader("./notification-master-data.json"));
         System.out.println("Master data: " + templateData);
         for(Object data: templateData) {
             JSONObject obj = (JSONObject) data;
