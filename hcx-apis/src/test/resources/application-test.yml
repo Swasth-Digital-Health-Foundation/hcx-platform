@@ -16,6 +16,7 @@ service:
 
 registry:
   basePath: ${registry_basePath:http://localhost:8082}
+  hcxcode: ${registry_hcxcode:hcx-registry-code}
 
 #postgres config
 postgres:
