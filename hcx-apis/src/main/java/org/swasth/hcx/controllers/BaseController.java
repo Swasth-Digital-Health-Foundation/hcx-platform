@@ -148,7 +148,7 @@ public class BaseController {
                 String serviceMode = env.getProperty(SERVICE_MODE);
                 String id = UUID.randomUUID().toString();
                 //TODO modify the hardcoded mode here from the query
-                String query = String.format(insertSubscription, postgresSubscription, id, request.getSenderCode(), request.getNotificationId(), statusCode, System.currentTimeMillis(),"API");
+                String query = String.format(insertSubscription, postgresSubscription, id, request.getSenderCode(), request.getNotificationId(), statusCode, System.currentTimeMillis(),"API",statusCode,System.currentTimeMillis(),request.getSenderCode(),request.getNotificationId());
                 if (StringUtils.equalsIgnoreCase(serviceMode, GATEWAY)) {
                     //Insert record into subscription table in postgres database
                     postgreSQLClient.execute(query);
@@ -231,7 +231,7 @@ public class BaseController {
         boolean isValid = false;
         List<LinkedHashMap<String, Object>> linkedHashMapList = (List) notificationList;
         for (LinkedHashMap<String, Object> notification: linkedHashMapList) {
-            if(notification.get("id").toString().equals(notificationId)){
+            if(notificationId.equals((String) notification.get("id"))){
                 isValid = true;
                 break;
             }
