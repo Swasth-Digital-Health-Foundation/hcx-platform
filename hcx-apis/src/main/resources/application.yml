@@ -30,7 +30,7 @@ postgres:
   tablename: ${postgres_tablename:payload}
   subscription:
     tablename: ${postgres_subscription_tablename:subscription}
-    insertQuery: ${postgres_subscription_insertQuery:INSERT INTO %s (id,recipientId,notificationId,status,lastUpdatedOn,mode) VALUES ('%s','%s','%s',%d,%d,'%s') ON CONFLICT ON CONSTRAINT subscription_pkey DO UPDATE SET status=%d,lastUpdatedOn=%d WHERE recipientId='%s' AND notificationId='%s'}
+    insertQuery: ${postgres_subscription_insertQuery:INSERT INTO %s as sub(id,recipientId,notificationId,status,lastUpdatedOn,mode) VALUES ('%s','%s','%s',%d,%d,'%s') ON CONFLICT ON CONSTRAINT subscription_pkey DO UPDATE SET status=%d,lastUpdatedOn=%d WHERE sub.recipientId=EXCLUDED.recipientId AND sub.notificationId=EXCLUDED.notificationId}
     subscriptionQuery: ${postgres_subscription_subscriptionQuery:SELECT notificationId,recipientId,status,mode FROM %s WHERE recipientId = '%s'}
 
 

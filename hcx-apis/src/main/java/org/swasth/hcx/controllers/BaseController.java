@@ -142,13 +142,18 @@ public class BaseController {
         try {
             checkSystemHealth();
             request = new Request(requestBody);
+            //TODO load from MasterDataUtils
+            if(notificationList == null) loadNotifications();
+            if (!isValidNotificaitonId(request.getNotificationId())) {
+                throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_ID, "Invalid NotificationId." + request.getNotificationId() + " is not present in the master list of notifications");
+            }
             setResponseParams(request, response);
             //If recipient is HCX, then status is 200 and insert into subscription table
             if(hcxRegistryCode.equalsIgnoreCase(request.getRecipientCode())){
                 String serviceMode = env.getProperty(SERVICE_MODE);
                 String id = UUID.randomUUID().toString();
                 //TODO modify the hardcoded mode here from the query
-                String query = String.format(insertSubscription, postgresSubscription, id, request.getSenderCode(), request.getNotificationId(), statusCode, System.currentTimeMillis(),"API",statusCode,System.currentTimeMillis(),request.getSenderCode(),request.getNotificationId());
+                String query = String.format(insertSubscription, postgresSubscription, id, request.getSenderCode(), request.getNotificationId(), statusCode, System.currentTimeMillis(),"API",statusCode,System.currentTimeMillis());
                 if (StringUtils.equalsIgnoreCase(serviceMode, GATEWAY)) {
                     //Insert record into subscription table in postgres database
                     postgreSQLClient.execute(query);

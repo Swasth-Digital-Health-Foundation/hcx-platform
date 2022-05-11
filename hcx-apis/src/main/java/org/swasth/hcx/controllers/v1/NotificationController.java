@@ -30,6 +30,7 @@ public class NotificationController extends BaseController {
             checkSystemHealth();
             request = new Request(requestBody);
             request.setApiAction(Constants.NOTIFICATION_REQUEST);
+            //TODO load from MasterDataUtils
             if(notificationList == null) loadNotifications();
             if (!isValidNotificaitonId(request.getNotificationId())) {
                 throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_ID, "Invalid NotificationId." + request.getNotificationId() + " is not present in the master list of notifications");

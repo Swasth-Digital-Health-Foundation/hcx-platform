@@ -55,7 +55,7 @@ class NotificationControllerTest extends BaseSpec {
 
     private String getSubscriptionRequest(String recipientCode) throws JsonProcessingException {
         Map<String,Object> obj = new HashMap<>();
-        obj.put(NOTIFICATION_ID,"hcx-notification-001");
+        obj.put(NOTIFICATION_ID,"24e975d1-054d-45fa-968e-c91b1043d0a5");
         obj.put(SENDER_CODE,"hcx-apollo-12345");
         obj.put(RECIPIENT_CODE,recipientCode);
         obj.put(API_CALL_ID,"1fa85f64-5717-4562-b3fc-2c963f66afa6");
