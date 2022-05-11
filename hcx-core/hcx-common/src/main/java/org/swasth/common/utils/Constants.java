@@ -42,7 +42,7 @@ public class Constants {
     public static final String NOTIFICATION_UNSUBSCRIBE = VERSION_PREFIX + "/notification/unsubscribe";
     public static final String NOTIFICATION_SUBSCRIPTION_LIST = VERSION_PREFIX + "/notification/subscription/list";
     public static final String NOTIFICATION_LIST = VERSION_PREFIX + "/notification/list";
-    public static final String NOTIFICATION_REQUEST = VERSION_PREFIX + "/notification/request";
+    public static final String NOTIFICATION_REQUEST = VERSION_PREFIX + "/notification/notify";
 
 
     public static final String HEALTHY = "healthy";

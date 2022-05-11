@@ -22,7 +22,7 @@ public class NotificationController extends BaseController {
     @Value("${kafka.topic.notification}")
     private String kafkaTopic;
 
-    @PostMapping(value = "/request")
+    @PostMapping(value = "/notify")
     public ResponseEntity<Object> notificationRequest(@RequestBody Map<String, Object> requestBody) throws Exception {
         Response response = new Response();
         Request request = null;

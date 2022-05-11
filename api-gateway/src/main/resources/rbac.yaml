@@ -20,7 +20,7 @@ rbac:
       - /v1/notification/unsubscribe
       - /v1/notification/subscription/list
       - /v1/notification/list
-      - /v1/notification/request
+      - /v1/notification/notify
   - role: payor
     paths:
       - /v1/coverageeligibility/check
@@ -41,7 +41,7 @@ rbac:
       - /v1/notification/unsubscribe
       - /v1/notification/subscription/list
       - /v1/notification/list
-      - /v1/notification/request
+      - /v1/notification/notify
   - role: agency.tpa
     paths:
       - /v1/coverageeligibility/check
