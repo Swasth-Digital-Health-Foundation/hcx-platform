@@ -46,7 +46,9 @@ public class NotificationStreamTask {
     private void process(BaseJobConfig baseJobConfig) throws Exception {
         StreamExecutionEnvironment env = FlinkUtil.getExecutionContext(baseJobConfig);
         SourceFunction<Map<String,Object>> kafkaConsumer = kafkaConnector.kafkaMapSource(config.kafkaInputTopic);
-
+        env.enableCheckpointing(config.checkpointingInterval());
+        env.getCheckpointConfig().setCheckpointTimeout(config.checkpointingTimeout());
+        env.getCheckpointConfig().setMinPauseBetweenCheckpoints(config.checkpointingPauseSeconds());
         env.addSource(kafkaConsumer, config.notificationConsumer)
                 .uid(config.notificationConsumer).setParallelism(config.consumerParallelism)
                 .rebalance()
