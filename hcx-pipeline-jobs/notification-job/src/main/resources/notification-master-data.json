@@ -34,7 +34,7 @@
     "eventType": [
       "CYCLE_COMPLETION"
     ],
-    "template": "{\"message\": \"${participant_name} has approved claim request with correlation id: ${correlationId}\"",
+    "template": "{\"message\": \"${participant_name} has approved claim request with correlation id: ${correlationId}\"}",
     "status": "active"
   },
   {
@@ -53,7 +53,7 @@
     "eventType": [
       "CYCLE_COMPLETION"
     ],
-    "template": "{\"message\": \"${participant_name} has approved paymentnotice request with correlation id: ${correlationId}\"",
+    "template": "{\"message\": \"${participant_name} has approved paymentnotice request with correlation id: ${correlationId}\"}",
     "status": "active"
   },
   {
@@ -73,25 +73,6 @@
       "CYCLE_COMPLETION"
     ],
     "template": "{\"message\": \"${participant_name} system will not be available from ${startTime} for a duration of ${duration} on ${date}\",\n\"participant_code\": \"${participant_code}\", \"endpoint_url\": \"${endpoint_url}\"}",
-    "status": "active"
-  },
-  {
-    "id": "b5e01af4-a14d-48a8-8bea-fdea61204c5a",
-    "name": "Provider Cycle Completion",
-    "description": "A notification about the Provider System Downtime. This information will be useful for all participants.",
-    "sender": [
-      "provider"
-    ],
-    "recipient": [
-      "payor"
-    ],
-    "type": "Broadcast",
-    "category": "Business",
-    "trigger": "Explicit",
-    "eventType": [
-      "CYCLE_COMPLETION"
-    ],
-    "template": null,
     "status": "active"
   }
 ]
