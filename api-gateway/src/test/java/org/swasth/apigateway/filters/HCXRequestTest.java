@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.swasth.common.utils.Constants.*;
@@ -677,6 +678,61 @@ class HCXRequestTest extends BaseSpec {
                 .expectBody(Map.class)
                 .consumeWith(result -> {
                     assertEquals(HttpStatus.ACCEPTED, result.getStatus());
+                });
+    }
+
+    @Test
+    void testNotificationSubscribeSuccess() throws Exception {
+        server.enqueue(new MockResponse()
+                .setResponseCode(202)
+                .addHeader("Content-Type", "application/json"));
+
+        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
+                .thenReturn(getProviderDetails())
+                .thenReturn(getPayorDetails());
+        Mockito.when(auditService.getAuditLogs(any())).thenReturn(new ArrayList<>());
+        client.post().uri(Constants.NOTIFICATION_SUBSCRIBE)
+                .header(Constants.AUTHORIZATION, getProviderToken())
+                .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
+                .bodyValue(getSubscriptionRequest("hcx-registry-code","24e975d1-054d-45fa-968e-c91b1043d0a5"))
+                .exchange()
+                .expectBody(Map.class)
+                .consumeWith(result -> {
+                    assertEquals(HttpStatus.ACCEPTED, result.getStatus());
+                });
+    }
+
+    private String getSubscriptionRequest(String recipientCode, String notificationId) throws JsonProcessingException {
+        Map<String,Object> obj = new HashMap<>();
+        obj.put(NOTIFICATION_ID,notificationId);
+        obj.put(SENDER_CODE,"hcx-apollo-12345");
+        obj.put(RECIPIENT_CODE,recipientCode);
+        obj.put(API_CALL_ID,"1fa85f64-5717-4562-b3fc-2c963f66afa6");
+        obj.put(CORRELATION_ID,"2fa85f64-5717-4562-b3fc-2c963f66afa6");
+        obj.put(WORKFLOW_ID,"3fa85f64-5717-4562-b3fc-2c963f66afa6");
+        obj.put(TIMESTAMP,"2021-10-27T20:35:52.636+0530");
+        obj.put(STATUS,"request.queued");
+        return JSONUtils.serialize(obj);
+    }
+
+    @Test
+    void testNotificationSubscribeFailure() throws Exception {
+        server.enqueue(new MockResponse()
+                .setResponseCode(400)
+                .addHeader("Content-Type", "application/json"));
+
+        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
+                .thenReturn(getProviderDetails())
+                .thenReturn(getPayorDetails());
+        Mockito.when(auditService.getAuditLogs(any())).thenReturn(new ArrayList<>());
+        client.post().uri(Constants.NOTIFICATION_SUBSCRIBE)
+                .header(Constants.AUTHORIZATION, getProviderToken())
+                .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
+                .bodyValue(getSubscriptionRequest("hcx-registry-code",null))
+                .exchange()
+                .expectBody(Map.class)
+                .consumeWith(result -> {
+                    assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
                 });
     }
 
