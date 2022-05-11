@@ -117,7 +117,7 @@ public class NotificationProcessFunction extends ProcessFunction<Map<String,Obje
         for(Map<String,Object> participant: participantDetails) {
             String participantCode = (String) participant.get(Constants.PARTICIPANT_CODE());
             String endpointUrl = (String) participant.get(Constants.END_POINT());
-            if (!(participantCode).contains("null") && !(endpointUrl).contains("null")) {
+            if (!(participantCode).contains("null") && endpointUrl != null) {
                 participant.put(Constants.END_POINT(), endpointUrl + event.get(Constants.ACTION()));
                 String payload = getPayload(resolvedTemplate, participantCode, notificationMasterData);
                 System.out.println("Recipient Id: " + participantCode + " :: Notification payload: " + payload);
