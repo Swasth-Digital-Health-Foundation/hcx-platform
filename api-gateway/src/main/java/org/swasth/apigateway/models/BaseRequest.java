@@ -70,12 +70,13 @@ public class BaseRequest {
         validateCondition(protocolHeaders.containsKey(WORKFLOW_ID) && !Utils.isUUID(getWorkflowId()), ErrorCodes.ERR_INVALID_WORKFLOW_ID, "Workflow id should be a valid UUID");
         validateCondition(StringUtils.equals(getSenderCode(), getRecipientCode()), ErrorCodes.ERR_INVALID_SENDER_AND_RECIPIENT, "sender and recipient code cannot be the same");
         // Notification related validations
-        if(isNotificationRequest){
+        if (isNotificationRequest) {
             validateNotificationParticipant(recipientDetails, ErrorCodes.ERR_INVALID_RECIPIENT, "recipient");
             validateNotificationParticipant(senderDetails, ErrorCodes.ERR_INVALID_SENDER, "sender");
-            validateCondition(!Utils.isUUID(getNotificationId()), ErrorCodes.ERR_INVALID_NOTIFICATION_ID, "Notification id should be a valid UUID");
-            validateCondition(MapUtils.isEmpty(getNotificationData()), ErrorCodes.ERR_INVALID_NOTIFICATION_DATA, "Notification Data cannot be null, empty and other than 'JSON Object'");
-        }else {
+            validateCondition(StringUtils.isEmpty(getNotificationId()), ErrorCodes.ERR_INVALID_NOTIFICATION_ID, "NotificationId cannot be null, empty and other than 'String'");
+            if (protocolHeaders.containsKey(NOTIFICATION_DATA))
+                validateCondition(MapUtils.isEmpty(getNotificationData()), ErrorCodes.ERR_INVALID_NOTIFICATION_DATA, "Notification Data cannot be null, empty and other than 'JSON Object'");
+        } else {
             validateParticipant(recipientDetails, ErrorCodes.ERR_INVALID_RECIPIENT, "recipient", getRecipientCode());
             validateParticipant(senderDetails, ErrorCodes.ERR_INVALID_SENDER, "sender", getSenderCode());
         }

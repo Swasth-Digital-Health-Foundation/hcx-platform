@@ -41,7 +41,8 @@ public class Constants {
     public static final String PREDETERMINATION_ONSUBMIT = VERSION_PREFIX + "/predetermination/on_submit";
 
     // Notification APIs
-    public static final String NOTIFICATION_REQUEST = VERSION_PREFIX + "/notification/request";
+    public static final String NOTIFICATION_REQUEST = VERSION_PREFIX + "/notification/notify";
+    public static final String NOTIFICATION_SUBSCRIBE = VERSION_PREFIX + "/notification/subscribe";
 
     public static final List<String> ACTION_APIS = Arrays.asList(COVERAGE_ELIGIBILITY_CHECK, PRE_AUTH_SUBMIT, CLAIM_SUBMIT, PAYMENT_NOTICE_REQUEST, HCX_STATUS, HCX_SEARCH, COMMUNICATION_REQUEST, PREDETERMINATION_SUBMIT);
     public static final List<String> ON_ACTION_APIS = Arrays.asList(COVERAGE_ELIGIBILITY_ONCHECK, PRE_AUTH_ONSUBMIT, CLAIM_ONSUBMIT, PAYMENT_NOTICE_ONREQUEST, HCX_ONSTATUS, HCX_ON_SEARCH, COMMUNICATION_ONREQUEST, PREDETERMINATION_ONSUBMIT);

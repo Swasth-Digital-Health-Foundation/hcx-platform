@@ -4,10 +4,8 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.util.ArrayList;
-import java.util.UUID;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 public class NotificationTest {
 
@@ -19,19 +17,19 @@ public class NotificationTest {
 
 
     @Test
-    public void testNotificationMockData() throws Exception {
+    public void testNotificationMockData() {
         Notification mockNotification = Mockito.mock(Notification.class);
-        assertEquals(null, mockNotification.getCategory());
-        assertEquals(null,mockNotification.getDescription());
+        assertNull(mockNotification.getCategory());
+        assertNull(mockNotification.getDescription());
         assertEquals(new ArrayList<>(), mockNotification.getEventType());
-        assertEquals(null,mockNotification.getStatus());
-        assertEquals(null, mockNotification.getId());
-        assertEquals(null,mockNotification.getName());
+        assertNull(mockNotification.getStatus());
+        assertNull(mockNotification.getId());
+        assertNull(mockNotification.getName());
         assertEquals(new ArrayList<>(), mockNotification.getRecipient());
         assertEquals(new ArrayList<>(),mockNotification.getSender());
-        assertEquals(null, mockNotification.getTemplate());
-        assertEquals(null,mockNotification.getTrigger());
-        assertEquals(null,mockNotification.getType());
+        assertNull(mockNotification.getTemplate());
+        assertNull(mockNotification.getTrigger());
+        assertNull(mockNotification.getType());
     }
 
     @Test
@@ -40,7 +38,7 @@ public class NotificationTest {
         notification.setCategory("Category");
         notification.setDescription("Description");
         notification.setEventType(null);
-        notification.setId(UUID.randomUUID());
+        notification.setId("Id");
         notification.setName("Name");
         notification.setRecipient(null);
         notification.setSender(null);
@@ -51,12 +49,12 @@ public class NotificationTest {
 
         assertEquals("Category", notification.getCategory());
         assertEquals("Description",notification.getDescription());
-        assertEquals(null, notification.getEventType());
+        assertNull(notification.getEventType());
         assertEquals("Status",notification.getStatus());
-        assertNotNull(notification.getId());
+        assertEquals("Id",notification.getId());
         assertEquals("Name",notification.getName());
-        assertEquals(null, notification.getRecipient());
-        assertEquals(null,notification.getSender());
+        assertNull(notification.getRecipient());
+        assertNull(notification.getSender());
         assertEquals("Template", notification.getTemplate());
         assertEquals("Trigger",notification.getTrigger());
         assertEquals("Type",notification.getType());
