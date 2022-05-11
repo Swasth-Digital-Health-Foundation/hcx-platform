@@ -231,7 +231,7 @@ public class BaseController {
         boolean isValid = false;
         List<LinkedHashMap<String, Object>> linkedHashMapList = (List) notificationList;
         for (LinkedHashMap<String, Object> notification: linkedHashMapList) {
-            if(notificationId.equals((String) notification.get("id"))){
+            if(notificationId.equals(notification.get("id"))){
                 isValid = true;
                 break;
             }
