@@ -73,7 +73,7 @@ public class BaseRequest {
         if (isNotificationRequest) {
             validateNotificationParticipant(recipientDetails, ErrorCodes.ERR_INVALID_RECIPIENT, "recipient");
             validateNotificationParticipant(senderDetails, ErrorCodes.ERR_INVALID_SENDER, "sender");
-            validateCondition(!Utils.isUUID(getNotificationId()), ErrorCodes.ERR_INVALID_NOTIFICATION_ID, "Notification id should be a valid UUID");
+            validateCondition(StringUtils.isEmpty(getNotificationId()), ErrorCodes.ERR_INVALID_NOTIFICATION_ID, "NotificationId cannot be null, empty and other than 'String'");
             if (protocolHeaders.containsKey(NOTIFICATION_DATA))
                 validateCondition(MapUtils.isEmpty(getNotificationData()), ErrorCodes.ERR_INVALID_NOTIFICATION_DATA, "Notification Data cannot be null, empty and other than 'JSON Object'");
         } else {
