@@ -20,7 +20,7 @@ service:
 
 registry:
   basePath: ${registry_basePath:http://a65d6a493998b4d0e98bd690a123328b-1532825861.ap-south-1.elb.amazonaws.com:8081}
-  hcxcode: ${registry_hcxcode:hcx-registry-code}
+  hcxcode: ${registry_hcxcode:1-d2d56996-1b77-4abb-b9e9-0e6e7343c72e}
 
 #postgres config
 postgres:
@@ -75,5 +75,5 @@ hcx:
 notification:
   path: ${notification_path:classpath:Notifications.json}
   headers:
-    mandatory: ${notification_mandatory_headers:x-hcx-notification_id,x-hcx-notification_data,x-hcx-sender_code, x-hcx-recipient_code, x-hcx-api_call_id, x-hcx-timestamp, x-hcx-correlation_id}
-    optional: ${notification_optional_headers:x-hcx-workflow_id,x-hcx-status}
+    mandatory: ${notification_mandatory_headers:x-hcx-notification_id,x-hcx-sender_code, x-hcx-recipient_code, x-hcx-api_call_id, x-hcx-timestamp, x-hcx-correlation_id}
+    optional: ${notification_optional_headers:x-hcx-workflow_id,x-hcx-status,x-hcx-notification_data}
