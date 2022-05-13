@@ -66,7 +66,7 @@ public class BaseRequest {
             validateHeader(protocolHeaders, entry.getKey(), entry.getValue());
         }
 
-        validateCondition(!DateTimeUtils.validTimestamp(timestampRange, getTimestamp()), ErrorCodes.ERR_INVALID_TIMESTAMP, "Timestamp cannot be more than " + timestampRange + " hours in the past or future time");
+        validateCondition(!DateTimeUtils.validTimestamp(timestampRange, getTimestamp()), ErrorCodes.ERR_INVALID_TIMESTAMP, "Timestamp cannot be in future or cross more than " + timestampRange + " hours in past");
         validateCondition(protocolHeaders.containsKey(WORKFLOW_ID) && !Utils.isUUID(getWorkflowId()), ErrorCodes.ERR_INVALID_WORKFLOW_ID, "Workflow id should be a valid UUID");
         validateCondition(StringUtils.equals(getSenderCode(), getRecipientCode()), ErrorCodes.ERR_INVALID_SENDER_AND_RECIPIENT, "sender and recipient code cannot be the same");
         // Notification related validations
@@ -279,7 +279,7 @@ public class BaseRequest {
     }
 
     private void validateWorkflowId(Map<String, Object> auditEvent) throws ClientException {
-        if (auditEvent.containsKey(WORKFLOW_ID)) {
+        if (auditEvent.containsKey(WORKFLOW_ID) && !((String) auditEvent.get(WORKFLOW_ID)).isEmpty()) {
             validateCondition(!protocolHeaders.containsKey(WORKFLOW_ID) || !getWorkflowId().equals(auditEvent.get(WORKFLOW_ID)), ErrorCodes.ERR_INVALID_WORKFLOW_ID, "The request contains invalid workflow id");
         }
     }
