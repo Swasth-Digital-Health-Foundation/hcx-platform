@@ -69,7 +69,7 @@ redirect:
 #hcx not allowed urls
 hcx:
   urls:
-    notallowed: ${not_allowed_urls:http://localhost:8095}
+    notallowed: ${not_allowed_urls:http://dev-hcx.swasth.app/api,http://staging-hcx.swasth.app/api}
 
 #Notifications related configurations
 notification:

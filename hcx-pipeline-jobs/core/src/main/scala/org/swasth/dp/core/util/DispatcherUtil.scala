@@ -34,7 +34,7 @@ class DispatcherUtil(config: BaseJobConfig) extends Serializable {
         val statusCode = response.getStatusLine().getStatusCode();
         Console.println("statusCode", statusCode);
         if (config.successCodes.contains(statusCode)) {
-          DispatcherResult(true, statusCode, None, false)
+          DispatcherResult(true, statusCode, null, false)
         } else if (config.errorCodes.contains(statusCode)) {
           val errorResponse: ErrorResponse = errorMessageProcess(response)
           DispatcherResult(false, statusCode, Option(errorResponse), false)
@@ -43,7 +43,7 @@ class DispatcherUtil(config: BaseJobConfig) extends Serializable {
           DispatcherResult(false, statusCode, Option(errorResponse), true)
         }
       } else  //As url is null, no need to retry
-        DispatcherResult(false, 0, None, false)
+        DispatcherResult(false, 0, null, false)
     } catch {
       case ex: Exception =>
         val errorResponse: ErrorResponse = ErrorResponse(Option(Constants.RECIPIENT_ERROR_CODE), Option(Constants.RECIPIENT_ERROR_MESSAGE), Option(""))

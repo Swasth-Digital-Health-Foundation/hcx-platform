@@ -5,11 +5,8 @@ import org.apache.commons.text.StringSubstitutor;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.util.Collector;
-import org.joda.time.DateTime;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.swasth.dp.core.function.DispatcherResult;
@@ -20,9 +17,8 @@ import org.swasth.dp.core.util.*;
 import org.swasth.dp.notification.dto.ErrorDetails;
 import org.swasth.dp.notification.task.NotificationConfig;
 
-import java.io.FileReader;
-import java.io.IOException;
 import java.sql.ResultSet;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class NotificationProcessFunction extends ProcessFunction<Map<String,Object>, Object> {
@@ -59,7 +55,7 @@ public class NotificationProcessFunction extends ProcessFunction<Map<String,Obje
         event = inputEvent;
         String notificationId = getProtocolStringValue(Constants.NOTIFICATION_ID());
         Map<String,Object> notificationMasterData = getNotificationMasterData(notificationId);
-        System.out.println("Notification Master data: " + notificationMasterData);
+        System.out.println("Notification Master data template: " + notificationMasterData);
         String notificationType = (String) notificationMasterData.get(Constants.TYPE());
         // resolving notification message template
         String resolvedTemplate = resolveTemplate(notificationMasterData);
@@ -73,6 +69,7 @@ public class NotificationProcessFunction extends ProcessFunction<Map<String,Obje
                 if(!fetchParticipants.isEmpty())
                   participantDetails.addAll(fetchParticipants);
             }
+            System.out.println("Total number of participants: " + participantDetails.size());
             // fetching unsubscribed list
             String query = String.format("SELECT " + Constants.RECIPIENT_ID() + " FROM %s WHERE notificationId = '%s' AND status = 0", config.subscriptionTableName, notificationId);
             ResultSet resultSet = postgresConnect.executeQuery(query);
@@ -102,14 +99,12 @@ public class NotificationProcessFunction extends ProcessFunction<Map<String,Obje
         }
     }
 
-    private Map<String,Object> getNotificationMasterData(String notificationId) throws IOException, ParseException {
-        JSONParser parser = new JSONParser();
-        JSONArray templateData = (JSONArray) parser.parse(new FileReader("hcx-pipeline-jobs\\notification-job\\src\\main\\resources\\notification-master-data.json"));
-        System.out.println("Master data: " + templateData);
+    private Map<String,Object> getNotificationMasterData(String notificationId) {
+        JSONArray templateData = new JSONArray("[ { \"id\": \"24e975d1-054d-45fa-968e-c91b1043d0a5\", \"name\": \"Organisation status update\", \"description\": \"A notification about the organisation status update in registry. This information will be useful acknowledge the current status of a given organisation and send requests.\", \"sender\": [ \"HIE/HIO.HCX\" ], \"recipient\": [ \"payor\" ], \"type\": \"Broadcast\", \"category\": \"System\", \"trigger\": \"Event\", \"eventType\": [ \"ORGANISATION_STATUS_CHANGE\" ], \"template\": \"{\\\"message\\\": \\\"${participant_name} status changed to ${status}\\\",\\n\\\"participant_code\\\": \\\"${participant_code}\\\", \\\"endpoint_url\\\": \\\"${endpoint_url}\\\"}\", \"status\": \"active\" }, { \"id\": \"e7f6fb71-e19d-4c9e-94a6-d63f2786844f\", \"name\": \"Claim Cycle Completion\", \"description\": \"A notification about the Claim Cycle Completion. This information will be useful for providers.\", \"sender\": [ \"payor\" ], \"recipient\": [ \"provider\" ], \"type\": \"Targeted\", \"category\": \"System\", \"trigger\": \"Event\", \"eventType\": [ \"CYCLE_COMPLETION\" ], \"template\": \"{\\\"message\\\": \\\"${participant_name} has approved claim request with correlation id: ${correlationId}\\\"}\", \"status\": \"active\" }, { \"id\": \"fa55cbb2-53bb-437a-ac72-466af457fa4c\", \"name\": \"Payment Cycle Completion\", \"description\": \"A notification about the Payment Cycle Completion. This information will be useful for payors.\", \"sender\": [ \"payor\" ], \"recipient\": [ \"provider\" ], \"type\": \"Targeted\", \"category\": \"System\", \"trigger\": \"Event\", \"eventType\": [ \"CYCLE_COMPLETION\" ], \"template\": \"{\\\"message\\\": \\\"${participant_name} has approved paymentnotice request with correlation id: ${correlationId}\\\"}\", \"status\": \"active\" }, { \"id\": \"be0e578d-b391-42f9-96f7-1e6bacd91c20\", \"name\": \"payor Downtime\", \"description\": \"A notification about the payor System Downtime. This information will be useful for all participants.\", \"sender\": [ \"payor\" ], \"recipient\": [ \"provider\" ], \"type\": \"Broadcast\", \"category\": \"Business\", \"trigger\": \"Explicit\", \"eventType\": [ \"CYCLE_COMPLETION\" ], \"template\": \"{\\\"message\\\": \\\"${participant_name} system will not be available from ${startTime} for a duration of ${duration} on ${date}\\\",\\n\\\"participant_code\\\": \\\"${participant_code}\\\", \\\"endpoint_url\\\": \\\"${endpoint_url}\\\"}\", \"status\": \"active\" } ]");
         for(Object data: templateData) {
             JSONObject obj = (JSONObject) data;
             if(obj.get("id").equals(notificationId)){
-                return obj;
+                return JSONUtil.deserialize(obj.toString(), Map.class);
             }
         }
         return new HashMap<>();
@@ -120,12 +115,16 @@ public class NotificationProcessFunction extends ProcessFunction<Map<String,Obje
         int successfulDispatches = 0;
         int failedDispatches = 0;
         for(Map<String,Object> participant: participantDetails) {
-            participant.put(Constants.END_POINT(), participant.get(Constants.END_POINT()) + config.notificationDispatchAPI);
-            String payload = getPayload(resolvedTemplate, (String) participant.get(Constants.PARTICIPANT_CODE()), notificationMasterData);
-            System.out.println("Recipient Id: " + participant.get(Constants.PARTICIPANT_CODE()) + "Notification payload: " + payload);
-            DispatcherResult result = dispatcherUtil.dispatch(participant, payload);
-            dispatchResult.add(JSONUtil.serialize(new ErrorDetails((String) participant.get(Constants.PARTICIPANT_CODE()), result.success(), createErrorMap(result.error().get()))));
-            if(result.success()) successfulDispatches++; else failedDispatches++;
+            String participantCode = (String) participant.get(Constants.PARTICIPANT_CODE());
+            String endpointUrl = (String) participant.get(Constants.END_POINT());
+            if (!(participantCode).contains("null") && endpointUrl != null) {
+                participant.put(Constants.END_POINT(), endpointUrl + event.get(Constants.ACTION()));
+                String payload = getPayload(resolvedTemplate, participantCode, notificationMasterData);
+                System.out.println("Recipient Id: " + participantCode + " :: Notification payload: " + payload);
+                DispatcherResult result = dispatcherUtil.dispatch(participant, payload);
+                dispatchResult.add(JSONUtil.serialize(new ErrorDetails(participantCode, result.success(), createErrorMap(result))));
+                if(result.success()) successfulDispatches++; else failedDispatches++;
+            }
         }
         int totalDispatches = successfulDispatches+failedDispatches;
         System.out.println("Total number of notifications dispatched: " + totalDispatches + " :: successful dispatches: " + successfulDispatches + " :: failed dispatches: " + failedDispatches);
@@ -150,7 +149,7 @@ public class NotificationProcessFunction extends ProcessFunction<Map<String,Obje
         request.put(Constants.RECIPIENT_CODE(), recipientCode);
         request.put(Constants.API_CALL_ID(), UUID.randomUUID());
         request.put(Constants.CORRELATION_ID(), getProtocolStringValue(Constants.CORRELATION_ID()));
-        request.put(Constants.TIMESTAMP(), DateTime.now());
+        request.put(Constants.TIMESTAMP(), new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").format(new Date()));
         request.put(Constants.NOTIFICATION_DATA(), Collections.singletonMap(Constants.MESSAGE(), notificationMessage));
         request.put(Constants.NOTIFICATION_TITLE(), notificationMasterData.get(Constants.NAME()));
         request.put(Constants.NOTIFICATION_DESC(), notificationMasterData.get(Constants.DESCRIPTION()));
@@ -177,7 +176,7 @@ public class NotificationProcessFunction extends ProcessFunction<Map<String,Obje
         audit.put(Constants.WORKFLOW_ID(), getProtocolStringValue(Constants.WORKFLOW_ID()));
         audit.put(Constants.TIMESTAMP(), getProtocolStringValue(Constants.TIMESTAMP()));
         audit.put(Constants.MID(), event.get(Constants.MID()));
-        audit.put(Constants.ACTION(), config.notificationDispatchAPI);
+        audit.put(Constants.ACTION(), event.get(Constants.ACTION()));
         audit.put(Constants.STATUS(), getProtocolStringValue(Constants.STATUS()));
         audit.put(Constants.REQUESTED_TIME(), event.get(Constants.ETS()));
         audit.put(Constants.UPDATED_TIME(), event.getOrDefault(Constants.UPDATED_TIME(), Calendar.getInstance().getTime()));
@@ -191,9 +190,10 @@ public class NotificationProcessFunction extends ProcessFunction<Map<String,Obje
         return audit;
     }
 
-    private Map<String,Object> createErrorMap(ErrorResponse error){
+    private Map<String,Object> createErrorMap(DispatcherResult result){
         Map<String,Object> errorMap = new HashMap<>();
-        if (error != null) {
+        if (result.error() != null) {
+            ErrorResponse error = result.error().get();
             errorMap.put(Constants.CODE(), error.code().get());
             errorMap.put(Constants.MESSAGE(), error.message().get());
             errorMap.put(Constants.TRACE(), error.trace().get());
