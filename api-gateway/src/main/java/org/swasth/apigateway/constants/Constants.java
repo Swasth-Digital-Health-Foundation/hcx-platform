@@ -50,7 +50,7 @@ public class Constants {
     // Entity types
     public static final String COMMUNICATION = "communication";
     public static final String NOTIFICATION = "notification";
-    public static final String PAYMENT = "payment";
+    public static final String PAYMENT = "paymentnotice";
 
     public static final int PAYLOAD_LENGTH = 5;
     public static final String AUTH_REQUIRED = "AUTH_REQUIRED";
