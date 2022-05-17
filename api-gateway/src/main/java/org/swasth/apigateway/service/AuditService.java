@@ -81,7 +81,7 @@ public class AuditService {
         event.put(PAYLOAD, request.getPayloadWithoutSensitiveData());
         event.put(NOTIFICATION_ID, request.getNotificationId());
         event.put(NOTIFICATION_DATA, request.getNotificationData());
-        return  event;
+        return event;
     }
 
 }
