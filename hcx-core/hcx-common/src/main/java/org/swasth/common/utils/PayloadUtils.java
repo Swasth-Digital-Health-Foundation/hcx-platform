@@ -13,10 +13,13 @@ import static org.swasth.common.utils.Constants.PAYLOAD;
 @UtilityClass
 public class PayloadUtils {
 
-    public static String removeEncryptionKey(Map<String, Object> payload) throws JsonProcessingException {
+    public static String removeSensitiveData(Map<String, Object> payload) throws JsonProcessingException {
         if(payload.containsKey(PAYLOAD)) {
             List<String> modifiedPayload = new ArrayList<>(Arrays.asList(payload.get(PAYLOAD).toString().split("\\.")));
+            // remove encryption key
             modifiedPayload.remove(1);
+            // remove ciphertext
+            modifiedPayload.remove(2);
             String[] payloadValues = modifiedPayload.toArray(new String[modifiedPayload.size()]);
             StringBuilder sb = new StringBuilder();
             for(String value: payloadValues) {

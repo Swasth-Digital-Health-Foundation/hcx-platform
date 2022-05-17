@@ -225,14 +225,17 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
     audit.put(Constants.AUDIT_TIMESTAMP, Calendar.getInstance().getTime())
     audit.put(Constants.SENDER_ROLE, getCDataListValue(event, Constants.SENDER, Constants.ROLES))
     audit.put(Constants.RECIPIENT_ROLE, getCDataListValue(event, Constants.RECIPIENT, Constants.ROLES))
-    audit.put(Constants.PAYLOAD, removeEncryptionKey(payload))
+    audit.put(Constants.PAYLOAD, removeSensitiveData(payload))
     audit
   }
 
-  def removeEncryptionKey(payload: util.Map[String, AnyRef]): String = {
+  def removeSensitiveData(payload: util.Map[String, AnyRef]): String = {
     if (payload.containsKey(Constants.PAYLOAD)) {
       val modifiedPayload = payload.get(Constants.PAYLOAD).asInstanceOf[String].split("\\.").toBuffer
+      // remove encryption key
       modifiedPayload.remove(1)
+      // remove ciphertext
+      modifiedPayload.remove(2)
       val payloadValues: Array[String] = modifiedPayload.toArray
       val sb = new StringBuffer()
       for (value <- payloadValues) {

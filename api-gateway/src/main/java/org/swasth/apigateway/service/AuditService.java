@@ -78,10 +78,10 @@ public class AuditService {
         event.put(AUDIT_TIMESTAMP, System.currentTimeMillis());
         event.put(SENDER_ROLE, request.getSenderRole());
         event.put(RECIPIENT_ROLE, request.getRecipientRole());
-        event.put(PAYLOAD, request.getPayloadWithoutEncryptionKey());
+        event.put(PAYLOAD, request.getPayloadWithoutSensitiveData());
         event.put(NOTIFICATION_ID, request.getNotificationId());
         event.put(NOTIFICATION_DATA, request.getNotificationData());
-        return  event;
+        return event;
     }
 
 }
