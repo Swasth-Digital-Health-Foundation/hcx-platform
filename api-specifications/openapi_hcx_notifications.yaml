@@ -1,0 +1,383 @@
+openapi: 3.0.1
+info:
+  title: HCX Notification APIs
+  description: >-
+    The Health Claims Exchange (HCX) is a digital infrastructure designed to
+    enable automated, data-driven management of health insurance claims in an
+    open ecosystem. These API specifications enable all actors to consume, subscribe or unsubscribe and send notifications in the ecosystem.
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+  version: 0.7.0
+externalDocs:
+  description: HCX Specifications
+  url: >-
+    https://docs.swasth.app/hcx-specifications/
+tags:
+  - name: Notification APIs
+    description: >-
+      APIs for notification subscription management and send and and receive the callback requests
+  - name: HCX Operation APIs
+    description: >-
+      APIs covering the Coverage Eligibility request & response use cases
+      
+paths:
+  /notification/subscribe:
+    post:
+      tags:
+        - Notification APIs
+      description: >-
+        This API is for the participants in the network to check the master list of notifications available and subscribe to them.
+
+
+        The participant should send the below details in the request body while making a call for notification subscription.
+          1. The protocol headers defined and used by all the other APIs to understand the sender, recipient, status etc,.
+          2. The notification id (as x-hcx-notification_id) to understand the notification to which the participant want to subscribe.
+        
+        The response to this API could be one of the following:
+          1. A successful accepted (202) response from the HCX gateway if the strucuture of the request is valid and the validation of open attributes (protocol headers) is successful. Upon successful validation, HCX gateway forwards the same request to the intended recipient asynchronously.
+          2. A  successful OK (200) response from the HCX gateway if the strucuture of the request is valid and the validation of open attributes (protocol headers) is successful and the recipient is HCX gateway. There is no callback expected in this case.
+          3. An error response if any of the validations fail.
+        
+        If the request is validated and accepted by HCX gateway, based on recipient it will be processed. If it recipient is not HCX gateway, the request will be forwarded to recipient and the participant should expect a response via callback API from recipient.
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/NotificationHeaders'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/SuccessResponse'
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/SuccessResponse'
+        '400':
+          description: Request Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/ErrorResponse'
+        '404':
+          description: Requested resource was not found
+          content:
+            application/json:
+              schema:
+                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/ErrorResponse'
+        '500':
+          description: Downstream systems down/unhandled exceptions.
+          content:
+            application/json:
+              schema:
+                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/ErrorResponse'
+      security:
+      - bearer_auth: []
+  /notification/on_subscribe:
+    post:
+      tags:
+        - Notification APIs
+      description: >-
+        This is a callback API is for participents to send the response for a subscription request from the originator.
+        
+        Participant should send the following details as the request payload in this callback API:
+
+        - The responder shall send a NotificationHeaders object (derived from ProtocolHeader) as the request payload in the following scenarios:
+
+            - If there are any protocol related errors in processing the corresponding Notification Subscription request (see error handling section in the HCX specifications). The x-hcx-status header value in the ProtocolResponse must be "response.error" while responding with an error.
+      
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/NotificationHeaders'
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/SuccessResponse'
+        '400':
+          description: Request Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/ErrorResponse'
+        '404':
+          description: Requested resource was not found
+          content:
+            application/json:
+              schema:
+                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/ErrorResponse'
+        '500':
+          description: Downstream systems down/unhandled exceptions.
+          content:
+            application/json:
+              schema:
+                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/ErrorResponse'
+      security:
+      - bearer_auth: []
+  /notification/unsubscribe:
+    post:
+      tags:
+        - Notification APIs
+      description: >-
+        This API is for the participants in the network to check the subscription list and unsubscribe to them.
+        
+        The participant should send the below details in the request body while making a call for notification unsubscription.
+          1. The protocol headers defined and used by all the other APIs to understand the sender, recipient, status etc,.
+          2. The notification id (as x-hcx-notification_id) to understand the notification to which the participant want to unsubscribe.
+        
+        The response to this API could be one of the following:
+          1. A successful accepted (202) response from the HCX gateway if the strucuture of the request is valid and the validation of open attributes (protocol headers) is successful. Upon successful validation, HCX gateway forwards the same request to the intended recipient asynchronously.
+          2. A  successful OK (200) response from the HCX gateway if the strucuture of the request is valid and the validation of open attributes (protocol headers) is successful and the recipient is HCX gateway. There is no callback API call expected in this case.
+          3. An error response if any of the validations fail.
+        
+        If the request is validated and accepted by HCX gateway, based on recipient it will be processed. If it recipient is not HCX gateway, the request will be forwarded to recipient and the participant should expect a response via callback API from recipient.
+      
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/NotificationHeaders'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/SuccessResponse'
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/SuccessResponse'
+        '400':
+          description: Request Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/ErrorResponse'
+        '404':
+          description: Requested resource was not found
+          content:
+            application/json:
+              schema:
+                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/ErrorResponse'
+        '500':
+          description: Downstream systems down/unhandled exceptions.
+          content:
+            application/json:
+              schema:
+                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/ErrorResponse'
+      security:
+      - bearer_auth: []
+  /notification/on_unsubscribe:
+    post:
+      tags:
+        - Notification APIs
+      description: >-
+        This callback API is for participents to send the response for a unsubscription request from the originator.
+        
+        Participant should send the following details as the request payload in this callback API:
+
+        - The responder shall send a NotificationHeaders object (derived from ProtocolHeader) as the request payload in the following scenarios:
+
+            - If there are any protocol related errors in processing the corresponding Notification Subscription request (see error handling section in the HCX specifications). The x-hcx-status header value in the ProtocolResponse must be "response.error" while responding with an error.
+      
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/NotificationHeaders'
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/SuccessResponse'
+        '400':
+          description: Request Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/ErrorResponse'
+        '404':
+          description: Requested resource was not found
+          content:
+            application/json:
+              schema:
+                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/ErrorResponse'
+        '500':
+          description: Downstream systems down/unhandled exceptions.
+          content:
+            application/json:
+              schema:
+                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/ErrorResponse'
+      security:
+      - bearer_auth: []      
+  /notification/notify:
+    post:
+      tags:
+        - Notification APIs
+      description: >-
+        This API is for the participants to explicitly send the notification to recipients via HCX gateway.
+      
+        The participant should send the below details in the request body while making a call to send notification.
+          1. The protocol headers defined and used by all the other APIs to understand the sender, recipient, status etc,.
+          2. The notification id (as x-hcx-notification_id), title  (x-hcx-notification_title), description (x-hcx-notification_desc) and data (x-hcx-notification_data) to understand the notification to which the participant want to send the notification.
+          
+        
+        The response to this API could be one of the following:
+          1. A successful accepted (202) response from the HCX gateway if the strucuture of the request is valid and the validation of open attributes (protocol headers) is successful. Upon successful validation, HCX gateway forwards the same request to the intended recipient asynchronously.
+          3. An error response if any of the validations fail.
+          
+        The HCX gateway will send the notification to all the recipients of the notification if the x-hcx-recipient_id is HCX gateway identifier.
+      
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/NotificationRequestHeaders'
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/SuccessResponse'
+        '400':
+          description: Request Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/ErrorResponse'
+        '404':
+          description: Requested resource was not found
+          content:
+            application/json:
+              schema:
+                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/ErrorResponse'
+        '500':
+          description: Downstream systems down/unhandled exceptions.
+          content:
+            application/json:
+              schema:
+                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/ErrorResponse'
+      security:
+      - bearer_auth: []
+  /notification/on_notify:
+    post:
+      tags:
+        - Notification APIs
+      description: >-
+        This is a callback API for the recipients to send response for the notification.
+      
+        The originator should send the below details in the request body while making a call for to callback for the notification.
+          1. The protocol headers defined and used by all the other APIs to understand the sender, recipient, status etc,.
+          2. The notification id (as x-hcx-notification_id) to understand the notification to which the participant want to send the notification.
+          
+        
+        The response to this API could be one of the following:
+          1. A successful accepted (202) response from the HCX gateway if the strucuture of the request is valid and the validation of open attributes (protocol headers) is successful. Upon successful validation, HCX gateway forwards the same request to the intended recipient asynchronously.
+          3. An error response if any of the validations fail.
+      
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationHeaders'
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/SuccessResponse'
+        '400':
+          description: Request Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/ErrorResponse'
+        '404':
+          description: Requested resource was not found
+          content:
+            application/json:
+              schema:
+                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/ErrorResponse'
+        '500':
+          description: Downstream systems down/unhandled exceptions.
+          content:
+            application/json:
+              schema:
+                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/ErrorResponse'
+      security:
+      - bearer_auth: []
+
+components:
+  schemas:
+    NotificationHeaders:
+      required:
+        - x-hcx-notification_id
+        - x-hcx-sender_code
+        - x-hcx-recipient_code
+        - x-hcx-api_call_id
+        - x-hcx-correlation_id
+        - x-hcx-timestamp
+      type: object
+      description: JSON object
+      allOf:
+        - properties:
+            x-hcx-notification_id:
+              type: string
+              description: Unique notification identifier from HCX gateway using the master list.
+              example: "NOTIFICATION@HCX01"
+        - $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/ProtocolHeader'
+        
+    NotificationRequestHeaders:
+      required:
+        - x-hcx-notification_id
+        - x-hcx-sender_code
+        - x-hcx-recipient_code
+        - x-hcx-api_call_id
+        - x-hcx-correlation_id
+        - x-hcx-timestamp
+      type: object
+      description: JSON object
+      allOf:
+        - properties:
+            x-hcx-notification_title:
+              type: string
+              description: Name of the notification
+              example: Payor system downtime notification
+            x-hcx-notification_desc:
+              type: string
+              example: Details about the system downtime.
+              description: Description of the notification
+            x-hcx-notification_data:
+              type: object
+              description: JSON object containing the details of the notification to send.
+              example: {"message": "Payor system down for sometime","duration": 2hrs,"startTime": 9PM, "date": 26th April 2022 IST}
+        - $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/ProtocolHeader'
+    
+  securitySchemes:
+    bearer_auth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      
