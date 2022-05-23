@@ -283,7 +283,7 @@ public class BaseSpec {
             put("state","Telangana");
             put("pincode","500805");
         }});
-        obj.put("phone", new ArrayList<>(Collections.singleton("040-387658992")));
+        obj.put("phone", new ArrayList<>(Collections.singleton("040-38765899")));
         obj.put("status","Created");
         obj.put("endpoint_url","http://a4a175528daf949a2af3cd141af93de2-1466580421.ap-south-1.elb.amazonaws.com:8080");
         return JSONUtils.serialize(obj);
