@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ParticipantResponse implements Serializable {
+public class ParticipantResponse {
     private Long timestamp;
     private ResponseError error;
     @JsonProperty("participant_code")

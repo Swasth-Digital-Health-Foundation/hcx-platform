@@ -10,7 +10,7 @@ import java.util.Map;
 
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class Response implements Serializable {
+public class Response {
 
     private long timestamp = System.currentTimeMillis();
     @JsonProperty("correlation_id")

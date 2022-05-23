@@ -18,6 +18,7 @@ import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.utils.SlugUtils;
 import org.swasth.hcx.controllers.BaseController;
 
+import java.security.SecureRandom;
 import java.util.*;
 
 import static org.swasth.common.utils.Constants.*;
@@ -37,7 +38,7 @@ public class ParticipantController  extends BaseController {
             String participantCode = SlugUtils.makeSlug(((ArrayList<String>) requestBody.get(ROLES)).get(0) + " " + requestBody.get(PARTICIPANT_NAME));
             String updatedParticipantCode = participantCode;
             while(isParticipantCodeExists(updatedParticipantCode)){
-                updatedParticipantCode = participantCode + "-" + RandomStringUtils.randomNumeric(3);
+                updatedParticipantCode = participantCode + "-" + new SecureRandom().nextInt(1000);
             }
             requestBody.put(PARTICIPANT_CODE, updatedParticipantCode);
             String url =  registryUrl + "/api/v1/Organisation/invite";
