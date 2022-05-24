@@ -224,7 +224,6 @@ public class BaseSpec {
         obj.put("address", new HashMap<>() {{
             put("plot","5-4-199");
             put("street","road no 12");
-            put("landmark","");
             put("village","Nampally");
             put("district","Hyd");
             put("state","Telangana");
