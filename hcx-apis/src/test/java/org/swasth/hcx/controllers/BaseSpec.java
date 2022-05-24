@@ -15,9 +15,9 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.swasth.auditindexer.function.AuditIndexer;
 import org.swasth.common.dto.Response;
+import org.swasth.common.helpers.EventGenerator;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.hcx.controllers.v1.*;
-import org.swasth.common.helpers.EventGenerator;
 import org.swasth.hcx.managers.HealthCheckManager;
 import org.swasth.hcx.service.HeaderAuditService;
 import org.swasth.kafka.client.IEventService;
@@ -68,6 +68,10 @@ public class BaseSpec {
 
     public String getResponseErrorMessage(Map<String,Object> responseBody){
         return (String) ((Map<String,Object>) responseBody.get("error")).get("message");
+    }
+
+    public String getResponseErrorCode(Map<String,Object> responseBody){
+        return (String) ((Map<String,Object>) responseBody.get("error")).get("code");
     }
 
     public String getRequestBody() throws JsonProcessingException {
@@ -130,7 +134,7 @@ public class BaseSpec {
         obj.put("participant_name","New Teja Hospital888");
         obj.put("primary_mobile","9493347239");
         obj.put("primary_email","dharmateja888@gmail.com");
-        obj.put("roles",new ArrayList<String>(Collections.singleton("provider")));
+        obj.put("roles",new ArrayList<>(Collections.singleton("provider")));
         obj.put("address", new HashMap<>() {{
             put("plot","5-4-199");
             put("street","road no 12");
@@ -140,7 +144,7 @@ public class BaseSpec {
             put("state","Telangana");
             put("pincode","500805");
         }});
-        obj.put("phone",new ArrayList<String>(Collections.singleton("040-387658992")));
+        obj.put("phone",new ArrayList<>(Collections.singleton("040-387658992")));
         obj.put("status","Created");
         obj.put("endpoint_url","http://a4a175528daf949a2af3cd141af93de2-1466580421.ap-south-1.elb.amazonaws.com:8080");
         obj.put("payment_details", new HashMap<>() {{
@@ -148,7 +152,7 @@ public class BaseSpec {
             put("ifsc_code","ICICLE");
         }});
         obj.put("signing_cert_path","urn:isbn:0-476-27557-4");
-        obj.put("linked_registry_codes",new ArrayList<String>(Collections.singleton("22344")));
+        obj.put("linked_registry_codes",new ArrayList<>(Collections.singleton("22344")));
         obj.put("encryption_cert","urn:isbn:0-4234");
         return JSONUtils.serialize(obj);
     }
@@ -158,7 +162,7 @@ public class BaseSpec {
         obj.put("participant_name","New Teja Hospital888");
         obj.put("primary_mobile","9493347239");
         obj.put("primary_email","dharmateja888@gmail.com");
-        obj.put("roles",new ArrayList<String>(Collections.singleton("payor")));
+        obj.put("roles",new ArrayList<>(Collections.singleton("payor")));
         obj.put("scheme_code","default");
         obj.put("address", new HashMap<>() {{
             put("plot","5-4-199");
@@ -169,7 +173,7 @@ public class BaseSpec {
             put("state","Telangana");
             put("pincode","500805");
         }});
-        obj.put("phone",new ArrayList<String>(Collections.singleton("040-387658992")));
+        obj.put("phone",new ArrayList<>(Collections.singleton("040-387658992")));
         obj.put("status","Created");
         obj.put("endpoint_url","http://localhost:8095");
         obj.put("payment_details", new HashMap<>() {{
@@ -177,7 +181,7 @@ public class BaseSpec {
             put("ifsc_code","ICICLE");
         }});
         obj.put("signing_cert_path","urn:isbn:0-476-27557-4");
-        obj.put("linked_registry_codes",new ArrayList<String>(Collections.singleton("22344")));
+        obj.put("linked_registry_codes",new ArrayList<>(Collections.singleton("22344")));
         obj.put("encryption_cert","urn:isbn:0-4234");
         return JSONUtils.serialize(obj);
     }
@@ -187,7 +191,7 @@ public class BaseSpec {
         obj.put("participant_name","New Teja Hospital888");
         obj.put("primary_mobile","9493347239");
         obj.put("primary_email","dharmateja888@gmail.com");
-        obj.put("roles",new ArrayList<String>(Collections.singleton("payor")));
+        obj.put("roles",new ArrayList<>(Collections.singleton("payor")));
         obj.put("address", new HashMap<>() {{
             put("plot","5-4-199");
             put("street","road no 12");
@@ -197,7 +201,7 @@ public class BaseSpec {
             put("state","Telangana");
             put("pincode","500805");
         }});
-        obj.put("phone",new ArrayList<String>(Collections.singleton("040-387658992")));
+        obj.put("phone",new ArrayList<>(Collections.singleton("040-387658992")));
         obj.put("status","Created");
         obj.put("endpoint_url","http://localhost:8095");
         obj.put("payment_details", new HashMap<>() {{
@@ -205,7 +209,7 @@ public class BaseSpec {
             put("ifsc_code","ICICLE");
         }});
         obj.put("signing_cert_path","urn:isbn:0-476-27557-4");
-        obj.put("linked_registry_codes",new ArrayList<String>(Collections.singleton("22344")));
+        obj.put("linked_registry_codes",new ArrayList<>(Collections.singleton("22344")));
         obj.put("encryption_cert","urn:isbn:0-4234");
         return JSONUtils.serialize(obj);
     }
@@ -215,18 +219,17 @@ public class BaseSpec {
         obj.put("participant_name","New Teja Hospital888");
         obj.put("primary_mobile","9493347239");
         obj.put("primary_email","dharmateja888@gmail.com");
-        obj.put("roles",new ArrayList<String>(Collections.singleton("provider")));
+        obj.put("roles",new ArrayList<>(Collections.singleton("provider")));
         obj.put("scheme_code","default");
         obj.put("address", new HashMap<>() {{
             put("plot","5-4-199");
             put("street","road no 12");
-            put("landmark","");
             put("village","Nampally");
             put("district","Hyd");
             put("state","Telangana");
             put("pincode","500805");
         }});
-        obj.put("phone",new ArrayList<String>(Collections.singleton("040-387658992")));
+        obj.put("phone",new ArrayList<>(Collections.singleton("040-387658992")));
         obj.put("status","Created");
         obj.put("endpoint_url","http://localhost:8095");
         obj.put("payment_details", new HashMap<>() {{
@@ -234,7 +237,7 @@ public class BaseSpec {
             put("ifsc_code","ICICLE");
         }});
         obj.put("signing_cert_path","urn:isbn:0-476-27557-4");
-        obj.put("linked_registry_codes",new ArrayList<String>(Collections.singleton("22344")));
+        obj.put("linked_registry_codes",new ArrayList<>(Collections.singleton("22344")));
         obj.put("encryption_cert","urn:isbn:0-4234");
         return JSONUtils.serialize(obj);
     }
@@ -244,7 +247,7 @@ public class BaseSpec {
         obj.put("participant_name","New Teja Hospital888");
         obj.put("primary_mobile","9493347239");
         obj.put("primary_email","dharmateja888@gmail.com");
-        obj.put("roles",new ArrayList<String>(Collections.singleton("provider")));
+        obj.put("roles",new ArrayList<>(Collections.singleton("provider")));
         obj.put("address", new HashMap<>() {{
             put("plot","5-4-199");
             put("street","road no 12");
@@ -254,7 +257,7 @@ public class BaseSpec {
             put("state","Telangana");
             put("pincode","500805");
         }});
-        obj.put("phone",new ArrayList<String>(Collections.singleton("040-387658992")));
+        obj.put("phone", new ArrayList<>(Collections.singleton("040-387658992")));
         obj.put("status","Created");
         obj.put("endpoint_url","http://localhost:8095");
         obj.put("payment_details", new HashMap<>() {{
@@ -262,7 +265,7 @@ public class BaseSpec {
             put("ifsc_code","ICICLE");
         }});
         obj.put("signing_cert_path","urn:isbn:0-476-27557-4");
-        obj.put("linked_registry_codes",new ArrayList<String>(Collections.singleton("22344")));
+        obj.put("linked_registry_codes", new ArrayList<>(Collections.singleton("22344")));
         obj.put("encryption_cert","urn:isbn:0-4234");
         return JSONUtils.serialize(obj);
     }
@@ -272,6 +275,7 @@ public class BaseSpec {
         obj.put("participant_name","New Teja Hospital888");
         obj.put("primary_mobile","9493347232");
         obj.put("primary_email","dharmateja888@gmail.com");
+        obj.put("roles", new ArrayList<>(Collections.singleton("provider")));
         obj.put("participant_code","1-68c5deca-8299-4feb-b441-923bb649a9a3");
         obj.put("address", new HashMap<>() {{
             put("plot","5-4-199");
@@ -282,7 +286,7 @@ public class BaseSpec {
             put("state","Telangana");
             put("pincode","500805");
         }});
-        obj.put("phone",new ArrayList<String>(Collections.singleton("040-387658992")));
+        obj.put("phone", new ArrayList<>(Collections.singleton("040-38765899")));
         obj.put("status","Created");
         obj.put("endpoint_url","http://a4a175528daf949a2af3cd141af93de2-1466580421.ap-south-1.elb.amazonaws.com:8080");
         return JSONUtils.serialize(obj);

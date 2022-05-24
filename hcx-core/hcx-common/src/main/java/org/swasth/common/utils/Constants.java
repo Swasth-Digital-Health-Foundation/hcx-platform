@@ -102,6 +102,9 @@ public class Constants {
     public static final String ROLES = "roles";
     public static final String SCHEME_CODE = "scheme_code";
     public static final String PARTICIPANT_CODE = "participant_code";
+    public static final String PARTICIPANT_NAME = "participant_name";
+    public static final String PRIMARY_EMAIL = "primary_email";
+    public static final String EQUAL_OPERATION = "eq";
     public static final String OSID = "osid";
     public static final String AUTHORIZATION = "Authorization";
     public static final String FILTERS = "filters";
