@@ -1,7 +1,6 @@
 package org.swasth.hcx.controllers.v1;
 
 import kong.unirest.HttpResponse;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -9,10 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.swasth.common.dto.ParticipantResponse;
 import org.swasth.common.dto.Response;
-import org.swasth.common.exception.AuthorizationException;
-import org.swasth.common.exception.ClientException;
-import org.swasth.common.exception.ErrorCodes;
-import org.swasth.common.exception.ResourceNotFoundException;
+import org.swasth.common.exception.*;
 import org.swasth.common.utils.HttpUtils;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.utils.SlugUtils;
@@ -44,14 +40,14 @@ public class ParticipantController  extends BaseController {
             String url =  registryUrl + "/api/v1/Organisation/invite";
             Map<String, String> headersMap = new HashMap<>();
             headersMap.put(AUTHORIZATION, header.get(AUTHORIZATION).get(0));
-            HttpResponse response = HttpUtils.post(url, JSONUtils.serialize(requestBody), headersMap);
+            HttpResponse<String> response = HttpUtils.post(url, JSONUtils.serialize(requestBody), headersMap);
             if (response != null && response.getStatus() == 200) {
                 ParticipantResponse resp = new ParticipantResponse(updatedParticipantCode);
                 return new ResponseEntity<>(resp, HttpStatus.OK);
             } else if(response.getStatus() == 400) {
                 throw new ClientException(getErrorMessage(response));
             } else {
-                throw new Exception(getErrorMessage(response));
+                throw new ServerException(getErrorMessage(response));
             }
         } catch (Exception e) {
             return exceptionHandler(null, new Response(), e);
@@ -60,12 +56,16 @@ public class ParticipantController  extends BaseController {
 
     private boolean isParticipantCodeExists(String participantCode) throws Exception {
         ResponseEntity<Object> searchResponse = participantSearch(JSONUtils.deserialize("{ \"filters\": { \"participant_code\": { \"eq\": \" " + participantCode + "\" } } }", Map.class));
-        if(searchResponse.getBody() instanceof Response){
-            Response response = (Response) searchResponse.getBody();
-            throw new Exception("Error in creating participant :: Exception: " + response.getError().getMessage());
+        if (searchResponse != null) {
+            if(searchResponse.getBody() instanceof Response){
+                Response response = (Response) searchResponse.getBody();
+                throw new ServerException("Error in creating participant :: Exception: " + response.getError().getMessage());
+            } else {
+                ParticipantResponse participantResponse = (ParticipantResponse) searchResponse.getBody();
+                return !participantResponse.getParticipants().isEmpty();
+            }
         } else {
-            ParticipantResponse participantResponse = (ParticipantResponse) searchResponse.getBody();
-            return !participantResponse.getParticipants().isEmpty();
+            throw new ServerException("Error in creating participant, invalid response from registry");
         }
     }
 
@@ -79,7 +79,7 @@ public class ParticipantController  extends BaseController {
               filters.remove(PARTICIPANT_CODE);
             }
             Map<String,Object> updatedRequestBody = new HashMap<>(Collections.singletonMap(FILTERS, filters));
-            HttpResponse response = HttpUtils.post(url, JSONUtils.serialize(updatedRequestBody), new HashMap<>());
+            HttpResponse<String> response = HttpUtils.post(url, JSONUtils.serialize(updatedRequestBody), new HashMap<>());
             if (response.getStatus() == 200) {
                 ArrayList<Object> result = JSONUtils.deserialize((String) response.getBody(), ArrayList.class);
                 if (!result.isEmpty()) {
@@ -91,7 +91,7 @@ public class ParticipantController  extends BaseController {
                 }
                 return new ResponseEntity<>(new ParticipantResponse(result), HttpStatus.OK);
             } else {
-                throw new Exception(getErrorMessage(response));
+                throw new ServerException(getErrorMessage(response));
             }
         } catch (Exception e) {
             return exceptionHandler(null, new Response(), e);
@@ -106,7 +106,7 @@ public class ParticipantController  extends BaseController {
             requestBody.remove(PARTICIPANT_CODE);
             Map<String, String> headersMap = new HashMap<>();
             headersMap.put(AUTHORIZATION, header.get(AUTHORIZATION).get(0));
-            HttpResponse response = HttpUtils.put(url, JSONUtils.serialize(requestBody), headersMap);
+            HttpResponse<String> response = HttpUtils.put(url, JSONUtils.serialize(requestBody), headersMap);
             if (response.getStatus() == 200) {
                 return new ResponseEntity<>(HttpStatus.OK);
             } else if (response.getStatus() == 401) {
@@ -114,7 +114,7 @@ public class ParticipantController  extends BaseController {
             } else if (response.getStatus() == 404) {
                 throw new ResourceNotFoundException(getErrorMessage(response));
             } else {
-                throw new Exception(getErrorMessage(response));
+                throw new ServerException(getErrorMessage(response));
             }
         } catch (Exception e) {
             return exceptionHandler(null, new Response(), e);
@@ -135,8 +135,8 @@ public class ParticipantController  extends BaseController {
             throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, "participant_name property cannot be null, empty or other than 'String'");
     }
 
-    private String getErrorMessage(HttpResponse response) throws Exception {
-        Map<String, Object> result = JSONUtils.deserialize((String) response.getBody(), HashMap.class);
+    private String getErrorMessage(HttpResponse<String> response) throws Exception {
+        Map<String, Object> result = JSONUtils.deserialize(response.getBody(), HashMap.class);
         return (String) ((Map<String, Object>) result.get("params")).get("errmsg");
     }
 
