@@ -56,12 +56,13 @@ public class ParticipantController  extends BaseController {
 
     private boolean isParticipantCodeExists(String participantCode) throws Exception {
         ResponseEntity<Object> searchResponse = participantSearch(JSONUtils.deserialize("{ \"filters\": { \"participant_code\": { \"eq\": \" " + participantCode + "\" } } }", Map.class));
-        if (searchResponse != null) {
-            if(searchResponse.getBody() instanceof Response){
-                Response response = (Response) searchResponse.getBody();
+        Object responseBody = searchResponse.getBody();
+        if (responseBody != null) {
+            if(responseBody instanceof Response){
+                Response response = (Response) responseBody;
                 throw new ServerException("Error in creating participant :: Exception: " + response.getError().getMessage());
             } else {
-                ParticipantResponse participantResponse = (ParticipantResponse) searchResponse.getBody();
+                ParticipantResponse participantResponse = (ParticipantResponse) responseBody;
                 return !participantResponse.getParticipants().isEmpty();
             }
         } else {
@@ -81,7 +82,7 @@ public class ParticipantController  extends BaseController {
             Map<String,Object> updatedRequestBody = new HashMap<>(Collections.singletonMap(FILTERS, filters));
             HttpResponse<String> response = HttpUtils.post(url, JSONUtils.serialize(updatedRequestBody), new HashMap<>());
             if (response.getStatus() == 200) {
-                ArrayList<Object> result = JSONUtils.deserialize((String) response.getBody(), ArrayList.class);
+                ArrayList<Object> result = JSONUtils.deserialize(response.getBody(), ArrayList.class);
                 if (!result.isEmpty()) {
                     for (Object obj: result) {
                         Map<String, Object> objMap = (Map<String, Object>) obj;
