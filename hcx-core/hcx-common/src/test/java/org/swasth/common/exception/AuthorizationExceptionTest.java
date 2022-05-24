@@ -5,7 +5,7 @@ import org.junit.Test;
 public class AuthorizationExceptionTest {
 
     @Test(expected = AuthorizationException.class)
-    void testAuthorizationException() throws AuthorizationException {
+    public void testAuthorizationException() throws AuthorizationException {
         throw new AuthorizationException("Invalid authorization");
     }
 }
