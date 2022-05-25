@@ -18,7 +18,6 @@ const privateKey = fs.readFileSync(path.join(__dirname, '..', 'resources', 'keys
  * @return {*} 
  */
 const coverageCheck = async (req, res, next) => {
-
     const { name, gender, recipient_code, error_code, error_code_message, sender_code = process.env.SENDER_CODE } = req.body;
     if (!recipient_code) return next(createError(400, 'Recipient Code is mandatory'));
 
@@ -54,7 +53,6 @@ const coverageCheck = async (req, res, next) => {
 
     const payload = await encrypt({ headers, payload: checkPayload, cert: privateKey });
     const data = JSON.stringify({ payload })
-
     var config = { method: 'post', url: 'api/v1/coverageeligibility/check', data };
     debug('coverageCheck-payload', config);
 
