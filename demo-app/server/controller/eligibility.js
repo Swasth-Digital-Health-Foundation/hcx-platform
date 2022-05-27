@@ -7,6 +7,7 @@ var createError = require('http-errors');
 const { hcxInstance } = require('../util/axios');
 const { encrypt, decrypt } = require('../util/jose');
 const checkPayload = require('../resources/jsons/coverage_eligibility_check.json');
+const { default: axios } = require('axios');
 
 const privateKey = fs.readFileSync(path.join(__dirname, '..', 'resources', 'keys', 'x509-private-key.pem'), { encoding: 'utf-8' });
 
@@ -53,6 +54,34 @@ const coverageCheck = async (req, res, next) => {
 
     const payload = await encrypt({ headers, payload: checkPayload, cert: privateKey });
     const data = JSON.stringify({ payload })
+
+    //GETTING THE TOKEN
+    var axios = require('axios');
+    var qs = require('qs');
+    var data1 = qs.stringify({
+        'client_id': 'registry-frontend',
+        'username': process.env.hcx_username,
+        'password': process.env.hcx_password,
+        'grant_type': 'password' 
+    });
+    var config = {
+        method: 'post',
+        url: 'http://a9dd63de91ee94d59847a1225da8b111-273954130.ap-south-1.elb.amazonaws.com:8080/auth/realms/swasth-health-claim-exchange/protocol/openid-connect/token',
+        headers: { 
+            'content-type': 'application/x-www-form-urlencoded'
+        },
+        data : data1
+    };
+
+    await axios(config)
+    .then(function (response) {
+    hcxInstance.defaults.headers['Authorization'] = "Bearer " + response.data.access_token;
+    })
+    .catch(function (error) {
+    console.log(error);
+    });
+    
+    
     var config = { method: 'post', url: 'api/v1/coverageeligibility/check', data };
     debug('coverageCheck-payload', config);
 
