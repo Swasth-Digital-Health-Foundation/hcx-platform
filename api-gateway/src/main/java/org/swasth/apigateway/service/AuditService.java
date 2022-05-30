@@ -14,6 +14,7 @@ import org.swasth.apigateway.utils.HttpUtils;
 import org.swasth.apigateway.utils.JSONUtils;
 import org.swasth.apigateway.utils.Utils;
 import org.swasth.auditindexer.function.AuditIndexer;
+import org.swasth.common.utils.Constants;
 
 import java.util.*;
 
@@ -34,7 +35,7 @@ public class AuditService {
     private AuditIndexer auditIndexer;
 
     public List<Map<String, Object>> getAuditLogs(Map<String,String> filters) throws Exception {
-        String url = hcxApiUrl + "/v1/audit/search";
+        String url = hcxApiUrl + Constants.AUDIT_SEARCH;
         HttpResponse response;
         try {
             response = HttpUtils.post(url, JSONUtils.serialize(Collections.singletonMap("filters", filters)));

@@ -9,6 +9,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.swasth.common.dto.Response;
+import org.swasth.common.utils.Constants;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
@@ -30,7 +31,7 @@ public class HealthControllerTests extends BaseSpec {
 
     @Test
     public void testServiceHealth() throws Exception {
-        MvcResult mvcResult = mockMvc.perform(get("/service/health")).andReturn();
+        MvcResult mvcResult = mockMvc.perform(get(Constants.SERVICE_HEALTH)).andReturn();
         int status = mvcResult.getResponse().getStatus();
         assertEquals(200, status);
     }
@@ -38,7 +39,7 @@ public class HealthControllerTests extends BaseSpec {
     @Test
     public void testHealth() throws Exception {
         when(healthCheckManager.checkAllSystemHealth()).thenReturn(validHealthResponse());
-        MvcResult mvcResult = mockMvc.perform(get("/health")).andReturn();
+        MvcResult mvcResult = mockMvc.perform(get(Constants.HEALTH)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         JSONObject resp= new JSONObject(response.getContentAsString());
@@ -51,7 +52,7 @@ public class HealthControllerTests extends BaseSpec {
     @Test
     public void testHealth_failure_scenario() throws Exception {
         when(healthCheckManager.checkAllSystemHealth()).thenReturn(new Response("healthy",false));
-        MvcResult mvcResult = mockMvc.perform(get("/health")).andReturn();
+        MvcResult mvcResult = mockMvc.perform(get(Constants.HEALTH)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         JSONObject resp= new JSONObject(response.getContentAsString());

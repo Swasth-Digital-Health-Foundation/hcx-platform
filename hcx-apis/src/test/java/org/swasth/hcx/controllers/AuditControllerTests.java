@@ -1,4 +1,4 @@
-package org.swasth.hcx.controllers.v1;
+package org.swasth.hcx.controllers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -21,6 +21,7 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.dto.SearchRequestDTO;
 import org.swasth.hcx.controllers.BaseSpec;
@@ -29,7 +30,7 @@ public class AuditControllerTests extends BaseSpec{
 
     @Test
     public void audit_search_success_scenario() throws Exception {
-        String uri = "/v1/audit/search";
+        String uri = Constants.AUDIT_SEARCH;
         SearchRequestDTO searchrequest = new SearchRequestDTO();
         HashMap<String,String> filters = new HashMap<String, String>();
         filters.put("status","submitted");

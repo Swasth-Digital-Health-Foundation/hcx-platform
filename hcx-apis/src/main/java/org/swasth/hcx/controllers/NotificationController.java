@@ -1,28 +1,28 @@
-package org.swasth.hcx.controllers.v1;
-
-import static org.swasth.common.utils.Constants.*;
+package org.swasth.hcx.controllers;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 import org.swasth.common.dto.Request;
 import org.swasth.common.dto.Response;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
 import org.swasth.common.utils.Constants;
-import org.swasth.hcx.controllers.BaseController;
 
 import java.util.Map;
 
+import static org.swasth.common.utils.Constants.*;
+
 @RestController()
-@RequestMapping(value = "/v1/notification")
 public class NotificationController extends BaseController {
 
     @Value("${kafka.topic.notification}")
     private String kafkaTopic;
 
-    @PostMapping(value = "/notify")
+    @PostMapping(Constants.NOTIFICATION_REQUEST)
     public ResponseEntity<Object> notificationRequest(@RequestBody Map<String, Object> requestBody) throws Exception {
         Response response = new Response();
         Request request = null;
@@ -43,22 +43,22 @@ public class NotificationController extends BaseController {
         }
     }
 
-    @PostMapping(value = "/subscribe")
+    @PostMapping(NOTIFICATION_SUBSCRIBE)
     public ResponseEntity<Object> notificationSubscribe(@RequestBody Map<String, Object> requestBody) throws Exception {
        return processSubscription(requestBody, ACTIVE_CODE);
     }
 
-    @PostMapping(value = "/unsubscribe")
+    @PostMapping(NOTIFICATION_UNSUBSCRIBE)
     public ResponseEntity<Object> notificationUnSubscribe(@RequestBody Map<String, Object> requestBody) throws Exception {
         return processSubscription(requestBody,INACTIVE_CODE);
     }
 
-    @PostMapping(value = "/subscription/list")
+    @PostMapping(NOTIFICATION_SUBSCRIPTION_LIST)
     public ResponseEntity<Object> getSubscriptionList(@RequestBody Map<String, Object> requestBody) throws Exception {
         return getSubscriptions(requestBody);
     }
 
-    @PostMapping(value = "/list")
+    @PostMapping(NOTIFICATION_LIST)
     public ResponseEntity<Object> getNotificationList(@RequestBody Map<String, Object> requestBody) throws Exception {
         return getNotifications(requestBody);
     }

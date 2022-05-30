@@ -1,18 +1,20 @@
-package org.swasth.hcx.controllers.v1;
+package org.swasth.hcx.controllers;
 
 import kong.unirest.HttpResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RestController;
 import org.swasth.common.dto.ParticipantResponse;
 import org.swasth.common.dto.Response;
 import org.swasth.common.exception.*;
 import org.swasth.common.utils.HttpUtils;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.utils.SlugUtils;
-import org.swasth.hcx.controllers.BaseController;
 
 import java.security.SecureRandom;
 import java.util.*;
@@ -20,13 +22,12 @@ import java.util.*;
 import static org.swasth.common.utils.Constants.*;
 
 @RestController()
-@RequestMapping(value = "/v1/participant")
 public class ParticipantController  extends BaseController {
 
     @Value("${registry.basePath}")
     private String registryUrl;
 
-    @RequestMapping(value = "/create", method = RequestMethod.POST)
+    @PostMapping(PARTICIPANT_CREATE)
     public ResponseEntity<Object> participantCreate(@RequestHeader HttpHeaders header,
         @RequestBody Map<String, Object> requestBody) throws Exception {
         try {
@@ -70,7 +71,7 @@ public class ParticipantController  extends BaseController {
         }
     }
 
-    @RequestMapping(value = "/search", method = RequestMethod.POST)
+    @PostMapping(PARTICIPANT_SEARCH)
     public ResponseEntity<Object> participantSearch(@RequestBody Map<String, Object> requestBody) throws Exception {
         try {
             String url =  registryUrl + "/api/v1/Organisation/search";
@@ -99,7 +100,7 @@ public class ParticipantController  extends BaseController {
         }
     }
 
-    @RequestMapping(value = "/update", method = RequestMethod.POST)
+    @PostMapping(PARTICIPANT_UPDATE)
     public ResponseEntity<Object> participantUpdate(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) throws Exception {
         try {
             validateParticipant(requestBody);

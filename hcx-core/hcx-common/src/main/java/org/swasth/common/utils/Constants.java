@@ -5,7 +5,11 @@ import java.util.List;
 
 public class Constants {
 
-    public static final String VERSION_PREFIX = "/v1";
+    public static final String VERSION_PREFIX = "/v0.7";
+
+    // Health APIs
+    public static final String HEALTH = "/health";
+    public static final String SERVICE_HEALTH = "/service/health";
 
     // Coverage Eligibility APIs
     public static final String COVERAGE_ELIGIBILITY_CHECK = VERSION_PREFIX + "/coverageeligibility/check";
@@ -44,6 +48,13 @@ public class Constants {
     public static final String NOTIFICATION_LIST = VERSION_PREFIX + "/notification/list";
     public static final String NOTIFICATION_REQUEST = VERSION_PREFIX + "/notification/notify";
 
+    // Audit APIs
+    public static final String AUDIT_SEARCH = VERSION_PREFIX + "/audit/search";
+
+    // Registry Participant APIs
+    public static final String PARTICIPANT_CREATE = VERSION_PREFIX + "/participant/create";
+    public static final String PARTICIPANT_SEARCH = VERSION_PREFIX + "/participant/search";
+    public static final String PARTICIPANT_UPDATE = VERSION_PREFIX + "/participant/update";
 
     public static final String HEALTHY = "healthy";
     public static final String NAME = "name";

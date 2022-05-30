@@ -24,7 +24,7 @@ public class AuditRequestTest extends BaseSpec {
         Mockito.when(registryService.getDetails(anyString(), anyString()))
                 .thenReturn(getProviderDetails());
 
-        client.post().uri("/v1/audit/search")
+        client.post().uri(Constants.AUDIT_SEARCH)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
                 .bodyValue(getAuditRequestBody())
@@ -40,7 +40,7 @@ public class AuditRequestTest extends BaseSpec {
         Mockito.when(registryService.getDetails(anyString(), anyString()))
                 .thenReturn(new HashMap<>());
 
-        client.post().uri("/v1/audit/search")
+        client.post().uri(Constants.AUDIT_SEARCH)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "test")
                 .bodyValue(getAuditRequestBody())
