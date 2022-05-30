@@ -17,7 +17,7 @@ class RegistryService(config: BaseJobConfig) {
     // payload for registry search
     val payload = s"""{"entityType":["Organisation"],"filters":$filters}"""
     //Console.println("registry payload", payload)
-    val httpPost = new HttpPost(config.hcxApisUrl + "/v1/participant/search")
+    val httpPost = new HttpPost(config.hcxApisUrl + Constants.PARTICIPANT_SEARCH)
     httpPost.setEntity(new StringEntity(payload))
     httpPost.setHeader("Accept", "application/json")
     httpPost.setHeader("Content-type", "application/json")

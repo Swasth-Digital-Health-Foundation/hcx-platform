@@ -17,7 +17,6 @@ import org.swasth.auditindexer.function.AuditIndexer;
 import org.swasth.common.dto.Response;
 import org.swasth.common.helpers.EventGenerator;
 import org.swasth.common.utils.JSONUtils;
-import org.swasth.hcx.controllers.v1.*;
 import org.swasth.hcx.managers.HealthCheckManager;
 import org.swasth.hcx.service.HeaderAuditService;
 import org.swasth.kafka.client.IEventService;

@@ -17,7 +17,7 @@ plainrequest:
     optional: ${error_optional_headers:x-hcx-workflow_id}
 
 redirect:
-  apis: ${redirect_apis:/v1/coverageeligibility/on_check, /v1/preauth/on_submit, /v1/claim/on_submit}
+  apis: ${redirect_apis:/v0.7/coverageeligibility/on_check, /v0.7/preauth/on_submit, /v0.7/claim/on_submit}
   roles: ${redirect_roles:payor, agency.tpa}
   headers:
     mandatory: ${redirect_mandatory_headers:x-hcx-sender_code, x-hcx-recipient_code, x-hcx-api_call_id, x-hcx-timestamp, x-hcx-correlation_id}
@@ -75,7 +75,7 @@ spring:
             - CachingRequestBodyFilter
             - HCXValidationFilter
           predicates:
-            - Path=/v1/coverageeligibility/**, /v1/preauth/**, /v1/claim/**, /v1/paymentnotice/**, /v1/hcx/**, /v1/predetermination/**, /v1/communication/**, /v1/notification/subscribe, /v1/notification/unsubscribe, /v1/notification/notify
+            - Path=/v0.7/coverageeligibility/**, /v0.7/preauth/**, /v0.7/claim/**, /v0.7/paymentnotice/**, /v0.7/hcx/**, /v0.7/predetermination/**, /v0.7/communication/**, /v0.7/notification/subscribe, /v0.7/notification/unsubscribe, /v0.7/notification/notify
 
         - id: hcx-api-route-audit
           uri: ${HCX_API_BASEPATH:http://localhost:8080}
@@ -87,7 +87,7 @@ spring:
             - CachingRequestBodyFilter
             - AuditValidationFilter
           predicates:
-            - Path=/v1/audit/search
+            - Path=/v0.7/audit/search
 
         - id: hcx-registry-api-route
           uri: ${HCX_API_BASEPATH:http://localhost:8080}

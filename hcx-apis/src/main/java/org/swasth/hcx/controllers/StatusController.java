@@ -1,16 +1,14 @@
-package org.swasth.hcx.controllers.v1;
+package org.swasth.hcx.controllers;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.swasth.common.dto.*;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.utils.JSONUtils;
-import org.swasth.hcx.controllers.BaseController;
 
 import java.util.HashMap;
 import java.util.List;
@@ -19,7 +17,6 @@ import java.util.Map;
 import static org.swasth.common.utils.Constants.*;
 
 @RestController()
-@RequestMapping(value = "/v1/hcx")
 public class StatusController extends BaseController {
 
     @Value("${kafka.topic.status}")
@@ -28,7 +25,7 @@ public class StatusController extends BaseController {
     @Value("${allowedEntitiesForStatusSearch}")
     private List<String> allowedEntitiesForStatusSearch;
 
-    @RequestMapping(value = "/status", method = RequestMethod.POST)
+    @PostMapping(HCX_STATUS)
     public ResponseEntity<Object> status(@RequestBody Map<String, Object> requestBody) throws Exception {
         Response response = new Response();
         Request request = new Request(requestBody);
@@ -62,7 +59,7 @@ public class StatusController extends BaseController {
         }
     }
 
-    @RequestMapping(value = "/on_status", method = RequestMethod.POST)
+    @PostMapping(HCX_ONSTATUS)
     public ResponseEntity<Object> onStatus(@RequestBody Map<String, Object> requestBody) throws Exception {
         Response response = new Response();
         Request request = new Request(requestBody);

@@ -1,22 +1,18 @@
-package org.swasth.hcx.controllers.v1;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+package org.swasth.hcx.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.swasth.common.dto.HeaderAudit;
 import org.swasth.common.dto.SearchRequestDTO;
+import org.swasth.common.utils.Constants;
 import org.swasth.hcx.service.HeaderAuditService;
+
+import java.util.List;
 
 
 @RestController
-@RequestMapping("/v1/audit")
 public class AuditController {
 
 	private final HeaderAuditService service;
@@ -26,7 +22,7 @@ public class AuditController {
 		this.service =  service;
 	}
 
-    @PostMapping("/search")
+    @PostMapping(Constants.AUDIT_SEARCH)
     public List<HeaderAudit> search(@RequestBody final SearchRequestDTO dto) {
         return service.search(dto);
     }

@@ -1,19 +1,17 @@
-package org.swasth.hcx.controllers.v1;
+package org.swasth.hcx.controllers;
 
 import org.apache.commons.collections.MapUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.swasth.common.dto.Response;
 import org.swasth.common.dto.SearchRequest;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
 import org.swasth.common.utils.Constants;
-import org.swasth.hcx.controllers.BaseController;
 
 import java.util.List;
 import java.util.Map;
@@ -22,7 +20,6 @@ import static org.swasth.common.utils.Constants.HCX_ON_SEARCH;
 import static org.swasth.common.utils.Constants.HCX_SEARCH;
 
 @RestController
-@RequestMapping(value = "/v1/hcx")
 public class SearchController extends BaseController {
 
     @Value("${kafka.topic.search}")
@@ -31,7 +28,7 @@ public class SearchController extends BaseController {
     @Value("${kafka.topic.searchresponse}")
     private String responseTopic;
 
-    @RequestMapping(value = "/search", method = RequestMethod.POST)
+    @PostMapping(HCX_SEARCH)
     public ResponseEntity<Object> search (@RequestBody Map<String, Object> requestBody) throws Exception {
         Response response = new Response();
         SearchRequest request = new SearchRequest(requestBody);
@@ -53,7 +50,7 @@ public class SearchController extends BaseController {
         }
     }
 
-    @RequestMapping(value = "/on_search", method = RequestMethod.POST)
+    @PostMapping(HCX_ON_SEARCH)
     public ResponseEntity<Object> onSearch (@RequestBody Map<String, Object> requestBody) throws Exception {
         Response response = new Response();
         SearchRequest request = new SearchRequest(requestBody);
