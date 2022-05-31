@@ -40,9 +40,9 @@ public class ParticipantController  extends BaseController {
             requestBody.put(PARTICIPANT_CODE, updatedParticipantCode);
             String url =  registryUrl + "/api/v1/Organisation/invite";
             Map<String, String> headersMap = new HashMap<>();
-            headersMap.put(AUTHORIZATION, header.get(AUTHORIZATION).get(0));
+            headersMap.put(AUTHORIZATION, Objects.requireNonNull(header.get(AUTHORIZATION)).get(0));
             HttpResponse<String> response = HttpUtils.post(url, JSONUtils.serialize(requestBody), headersMap);
-            if (response != null && response.getStatus() == 200) {
+            if (response.getStatus() == 200) {
                 ParticipantResponse resp = new ParticipantResponse(updatedParticipantCode);
                 return new ResponseEntity<>(resp, HttpStatus.OK);
             } else if(response.getStatus() == 400) {
@@ -107,7 +107,7 @@ public class ParticipantController  extends BaseController {
             String url = registryUrl + "/api/v1/Organisation/" + requestBody.get(PARTICIPANT_CODE);
             requestBody.remove(PARTICIPANT_CODE);
             Map<String, String> headersMap = new HashMap<>();
-            headersMap.put(AUTHORIZATION, header.get(AUTHORIZATION).get(0));
+            headersMap.put(AUTHORIZATION, Objects.requireNonNull(header.get(AUTHORIZATION)).get(0));
             HttpResponse<String> response = HttpUtils.put(url, JSONUtils.serialize(requestBody), headersMap);
             if (response.getStatus() == 200) {
                 return new ResponseEntity<>(HttpStatus.OK);
