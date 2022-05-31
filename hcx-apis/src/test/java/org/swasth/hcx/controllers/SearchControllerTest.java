@@ -1,4 +1,4 @@
-package org.swasth.hcx.controllers.v1;
+package org.swasth.hcx.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.Test;
