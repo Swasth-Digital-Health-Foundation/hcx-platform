@@ -12,10 +12,6 @@ node('java11') {
               // Building jar
               sh """
                 java --version
-                cd hcx-core
-                pwd
-                mvn clean install
-                cd ../demo-app
                 pwd
                 mvn clean install
               """
