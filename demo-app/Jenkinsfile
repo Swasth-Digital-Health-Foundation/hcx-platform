@@ -28,7 +28,7 @@ node('java11') {
                 cd ${env.WORKSPACE}/demo-app
                 pwd
                 /kaniko/executor --dockerfile Dockerfile --context `pwd` --destination ${env.DOCKER_HUB_URL}/demo-app:${build_tag}
-                echo {\\"image_name\\" : \\"api-gateway\\", \\"image_tag\\" : \\"${build_tag}\\"} > ${env.WORKSPACE}/metadata.json
+                echo {\\"image_name\\" : \\"demo-app\\", \\"image_tag\\" : \\"${build_tag}\\"} > ${env.WORKSPACE}/metadata.json
               """
               archiveArtifacts "metadata.json"
             }
