@@ -31,6 +31,9 @@ public class RegistryServiceTest {
     @Autowired
     private RegistryService registryService;
 
+    @MockBean
+    private RedisCache redisCache;
+
     @BeforeEach
     public void setup() throws IOException {
         registryServer.start(InetAddress.getByName("localhost"),8080);
