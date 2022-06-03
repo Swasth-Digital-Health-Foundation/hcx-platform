@@ -1,8 +1,8 @@
 // vim: ft=groovy et ts=2 sw=2:
-node('ansible') {
+node('java11') {
     ansiColor('xterm') {
       stage("Building app") {
-            container('ansible') {
+            container('java11') {
               // Checkout repo
               checkout scm
               // Generating build info
