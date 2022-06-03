@@ -1,12 +1,7 @@
 // vim: ft=groovy et ts=2 sw=2:
 
 node {
-   try{
     ansiColor('xterm') {
-      stage("SCM Checkout"){
-            checkout scm
-            echo pwd 
-}
 
       stage("Building container") {
             container('kaniko') {
@@ -15,7 +10,6 @@ node {
                 
                 cd ${env.WORKSPACE}/demo-app
                 pwd
-                echo pwd
                 /kaniko/executor --dockerfile Dockerfile --context `pwd` --destination ${env.DOCKER_HUB_URL}/demo-app:${build_tag}
                 echo {\\"image_name\\" : \\"demo-app\\", \\"image_tag\\" : \\"${build_tag}\\"} > ${env.WORKSPACE}/metadata.json
               """
@@ -23,8 +17,5 @@ node {
             }
 
         }
-    }}
-catch (err){
-throw err
 }
 }
