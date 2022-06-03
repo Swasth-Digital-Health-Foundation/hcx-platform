@@ -11,7 +11,6 @@ node {
     }
 
     stage('Deploy'){
-      if(env.BRANCH_NAME == 'demo-app'){
 container('kaniko'){
 sh """
 /kaniko/executor --dockerfile Dockerfile --context `pwd` --destination ${env.DOCKER_HUB_URL}/demo-app:${build_tag}
@@ -22,7 +21,6 @@ archiveArtifacts "metadata.json"
 }
       
 }
-    }
   }
   catch (err) {
     throw err
