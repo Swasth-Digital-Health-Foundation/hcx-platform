@@ -13,8 +13,13 @@ node {
 
     stage('Deploy'){
       if(env.BRANCH_NAME == 'demo-app'){
-        sh 'docker build -t react-app --no-cache .'
-      }
+contaner('kaniko'){
+/kaniko/executor --dockerfile Dockerfile --context `pwd` --destination ${env.DOCKER_HUB_URL}/api-gateway:${build_tag}
+                echo {\\"image_name\\" : \\"api-gateway\\", \\"image_tag\\" : \\"${build_tag}\\"} > ${env.WORKSPACE}/metadata.json
+archiveArtifacts "metadata.json"
+}
+      
+}
     }
   }
   catch (err) {
