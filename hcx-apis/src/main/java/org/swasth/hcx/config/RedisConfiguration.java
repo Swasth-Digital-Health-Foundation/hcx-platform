@@ -8,10 +8,10 @@ import org.swasth.redis.cache.RedisCache;
 @Configuration
 public class RedisConfiguration {
 
-    @Value("${redis.host}")
+    @Value("${redis.host:localhost}")
     private String redisHost;
 
-    @Value("${redis.port}")
+    @Value("${redis.port:6379}")
     private int redisPort;
 
     @Bean

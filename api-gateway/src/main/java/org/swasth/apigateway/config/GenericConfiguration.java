@@ -9,22 +9,22 @@ import org.swasth.redis.cache.RedisCache;
 @Configuration
 public class GenericConfiguration {
 
-    @Value("${es.host}")
+    @Value("${es.host:localhost}")
     private String esHost;
 
-    @Value("${es.port}")
+    @Value("${es.port:9200}")
     private int esPort;
 
-    @Value("${audit.index}")
+    @Value("${audit.index:hcx_audit}")
     private String auditIndex;
 
-    @Value("${audit.alias}")
+    @Value("${audit.alias:hcx_audit}")
     private String auditAlias;
 
-    @Value("${redis.host}")
+    @Value("${redis.host:localhost}")
     private String redisHost;
 
-    @Value("${redis.port}")
+    @Value("${redis.port:9200}")
     private int redisPort;
 
     @Bean
