@@ -1,29 +1,31 @@
 // vim: ft=groovy et ts=2 sw=2:
-node {
-  try {
-    stage('Checkout') {
-      checkout scm
-    }
-    stage('Environment') {
-      sh 'git --version'
-      echo "Branch: ${env.BRANCH_NAME}"
-      sh 'printenv'
-    }
 
-    stage('Deploy'){
-container('kaniko'){
-sh """
-/kaniko/executor --dockerfile Dockerfile --context `pwd` --destination ${env.DOCKER_HUB_URL}/demo-app:${build_tag}
- echo {\\"image_name\\" : \\"api-gateway\\", \\"image_tag\\" : \\"${build_tag}\\"} 
-                echo {\\"image_name\\" : \\"api-gateway\\", \\"image_tag\\" : \\"${build_tag}\\"} > ${env.WORKSPACE}/metadata.json
-"""
-archiveArtifacts "metadata.json"
+node() {
+    ansiColor('xterm') {
+              // Checkout repo
+              checkout scm
+              // Generating build info
+              commit_hash = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+              build_tag = commit_hash + "_" + env.BUILD_NUMBER
+         
+          
+      stage("Building container") {
+            container('kaniko') {
+              // Checkout repo
+              checkout scm
+              // Generating build info 
+              commit_hash = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+              build_tag = commit_hash + "_" + env.BUILD_NUMBER
+              // Building and pushing the container
+              sh """
+                cd ${env.WORKSPACE}/demo-app
+                pwd
+                /kaniko/executor --dockerfile Dockerfile --context `pwd` --destination ${env.DOCKER_HUB_URL}/demo-app:${build_tag}
+                echo {\\"image_name\\" : \\"demo-app\\", \\"image_tag\\" : \\"${build_tag}\\"} > ${env.WORKSPACE}/metadata.json
+              """
+              archiveArtifacts "metadata.json"
+            }
 
-}
-      
-}
-  }
-  catch (err) {
-    throw err
-  }
+        }
+    }
 }
