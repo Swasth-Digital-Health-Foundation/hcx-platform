@@ -2,15 +2,11 @@ package org.swasth.redis.cache;
 
 
 import com.github.fppt.jedismock.RedisServer;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.*;
 
 import java.io.IOException;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class RedisCacheTest {
@@ -19,13 +15,13 @@ class RedisCacheTest {
 
     RedisCache redis;
 
-    @BeforeEach
+    @BeforeAll
     void setup() throws IOException {
         redisServer = RedisServer.newRedisServer().start();
         redis = new RedisCache(redisServer.getHost(), redisServer.getBindPort());
     }
 
-    @AfterEach
+    @AfterAll
     void shutdown() throws IOException {
         redisServer.stop();
     }
@@ -38,6 +34,12 @@ class RedisCacheTest {
     @Test
     void testGet() throws Exception {
         redis.get("test");
+    }
+
+    @Test
+    void testIsExist() throws Exception {
+        redis.set("123", "test", 10000000);
+        assertTrue(redis.isExists("123"));
     }
 
     @Test
