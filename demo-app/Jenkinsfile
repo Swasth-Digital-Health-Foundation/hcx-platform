@@ -1,6 +1,6 @@
 // vim: ft=groovy et ts=2 sw=2:
 
-node {
+node('java11') {
     ansiColor('xterm') {
 
       stage("Building container") {
