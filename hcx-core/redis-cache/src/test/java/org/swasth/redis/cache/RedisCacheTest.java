@@ -13,35 +13,35 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class RedisCacheTest {
+class RedisCacheTest {
 
     RedisServer redisServer;
 
     RedisCache redis;
 
     @BeforeEach
-    public void setup() throws IOException {
+    void setup() throws IOException {
         redisServer = RedisServer.newRedisServer().start();
         redis = new RedisCache(redisServer.getHost(), redisServer.getBindPort());
     }
 
     @AfterEach
-    public void shutdown() throws IOException {
+    void shutdown() throws IOException {
         redisServer.stop();
     }
 
     @Test
-    public void testSet() throws Exception {
+    void testSet() throws Exception {
         redis.set("test", "test", 10000000);
     }
 
     @Test
-    public void testGet() throws Exception {
+    void testGet() throws Exception {
         redis.get("test");
     }
 
     @Test
-    public void testGetException() {
+    void testGetException() {
         RedisCache redisCache = new RedisCache("redisPort", 6370);
         Exception exception = assertThrows(Exception.class, () -> {
             redisCache.get("exception");
@@ -50,7 +50,7 @@ public class RedisCacheTest {
     }
 
     @Test
-    public void testSetException() {
+    void testSetException() {
         RedisCache redisCache = new RedisCache("redisPort", 6370);
         Exception exception = assertThrows(Exception.class, () -> {
             redisCache.set("exception","123",10000000);
@@ -59,7 +59,7 @@ public class RedisCacheTest {
     }
 
     @Test
-    public void testIsExistException() {
+    void testIsExistException() {
         RedisCache redisCache = new RedisCache("redisPort", 6370);
         Exception exception = assertThrows(Exception.class,() -> {
             redisCache.isExists("test");

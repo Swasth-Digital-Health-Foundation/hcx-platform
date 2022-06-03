@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest(classes = {RegistryService.class, RedisCache.class})
 @ActiveProfiles("test")
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
-public class RegistryServiceTest {
+class RegistryServiceTest {
 
     private final MockWebServer registryServer =  new MockWebServer();
     private RedisServer redisServer;
