@@ -5,6 +5,7 @@ node {
     ansiColor('xterm') {
       stage("SCM Checkout"){
             checkout scm
+            echo ${env.WORKSPACE}
 }
 
       stage("Building container") {
