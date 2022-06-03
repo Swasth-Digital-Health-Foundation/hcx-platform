@@ -39,6 +39,7 @@ jwt:
 redis:
   host: ${REDIS_HOST:localhost}
   port: ${REDIS_PORT:6379}
+  expires: ${REDIS_EXPIRES:3600}
 
 registry:
   basePath: ${REGISTRY_BASE_PATH:http://localhost:8080}

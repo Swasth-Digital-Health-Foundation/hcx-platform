@@ -1,6 +1,7 @@
 package org.swasth.hcx.controllers;
 
 import kong.unirest.HttpResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -15,6 +16,7 @@ import org.swasth.common.exception.*;
 import org.swasth.common.utils.HttpUtils;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.utils.SlugUtils;
+import org.swasth.redis.cache.RedisCache;
 
 import java.security.SecureRandom;
 import java.util.*;
@@ -26,6 +28,12 @@ public class ParticipantController  extends BaseController {
 
     @Value("${registry.basePath}")
     private String registryUrl;
+
+    @Value("${redis.expires}")
+    private int redisExpires;
+
+    @Autowired
+    private RedisCache redisCache;
 
     @PostMapping(PARTICIPANT_CREATE)
     public ResponseEntity<Object> participantCreate(@RequestHeader HttpHeaders header,
@@ -110,6 +118,7 @@ public class ParticipantController  extends BaseController {
             headersMap.put(AUTHORIZATION, Objects.requireNonNull(header.get(AUTHORIZATION)).get(0));
             HttpResponse<String> response = HttpUtils.put(url, JSONUtils.serialize(requestBody), headersMap);
             if (response.getStatus() == 200) {
+                redisCache.set((String) requestBody.get(PARTICIPANT_CODE), JSONUtils.serialize(requestBody), redisExpires);
                 return new ResponseEntity<>(HttpStatus.OK);
             } else if (response.getStatus() == 401) {
                 throw new AuthorizationException(getErrorMessage(response));

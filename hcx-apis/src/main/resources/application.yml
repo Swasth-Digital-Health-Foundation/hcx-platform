@@ -55,6 +55,12 @@ es:
   host: ${es_host:localhost}
   port: ${es_port:9200}
 
+#redis config
+redis:
+  host: ${REDIS_HOST:localhost}
+  port: ${REDIS_PORT:6379}
+  expires: ${REDIS_EXPIRES:3600}
+
 #Audit config
 audit:
   index: ${audit_index:hcx_audit}
