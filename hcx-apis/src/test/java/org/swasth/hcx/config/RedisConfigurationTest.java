@@ -6,7 +6,7 @@ import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
-public class RedisConfigurationTest {
+class RedisConfigurationTest {
 
     ApplicationContextRunner context = new ApplicationContextRunner()
             .withUserConfiguration(RedisConfiguration.class);
