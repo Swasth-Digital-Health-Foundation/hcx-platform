@@ -7,7 +7,7 @@ node('java11') {
             container('kaniko') {
               // Building and pushing the container
               sh """
-                cd ${env.WORKSPACE}
+                cd ${env.WORKSPACE}/demo-app
                 /kaniko/executor --dockerfile Dockerfile --context `pwd` --destination ${env.DOCKER_HUB_URL}/demo-app:${build_tag}
                 echo {\\"image_name\\" : \\"demo-app\\", \\"image_tag\\" : \\"${build_tag}\\"} > ${env.WORKSPACE}/metadata.json
               """
