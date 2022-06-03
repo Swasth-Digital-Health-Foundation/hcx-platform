@@ -2,6 +2,10 @@
 
 node {
     ansiColor('xterm') {
+      stage("SCM Checkout"){
+            checkout scm
+}
+
       stage("Building container") {
             container('kaniko') {
               // Checkout repo
