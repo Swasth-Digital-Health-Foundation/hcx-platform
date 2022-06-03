@@ -1,16 +1,17 @@
 // vim: ft=groovy et ts=2 sw=2:
-
 node('ansible') {
     ansiColor('xterm') {
-         
-          
-      stage("Building container") {
-            container('kaniko') {
+      stage("Building app") {
+            container('ansible') {
               // Checkout repo
               checkout scm
-              // Generating build info 
+              // Generating build info
               commit_hash = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
               build_tag = commit_hash + "_" + env.BUILD_NUMBER
+            }
+          }
+      stage("Building container") {
+            container('kaniko') {
               // Building and pushing the container
               sh """
                 cd ${env.WORKSPACE}/demo-app
@@ -20,7 +21,6 @@ node('ansible') {
               """
               archiveArtifacts "metadata.json"
             }
-
         }
     }
 }
