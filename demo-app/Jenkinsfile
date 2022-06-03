@@ -8,11 +8,9 @@ node {
 
       stage("Building container") {
             container('kaniko') {
-              // Checkout repo
-              checkout scm
-              // Generating build info
               // Building and pushing the container
               sh """
+                echo ${env.WORKSPACE}
                 cd ${env.WORKSPACE}/demo-app
                 pwd
                 /kaniko/executor --dockerfile Dockerfile --context `pwd` --destination ${env.DOCKER_HUB_URL}/demo-app:${build_tag}
