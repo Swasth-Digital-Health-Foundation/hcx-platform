@@ -2,11 +2,6 @@
 
 node('java11') {
     ansiColor('xterm') {
-              // Checkout repo
-              checkout scm
-              // Generating build info
-              commit_hash = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
-              build_tag = commit_hash + "_" + env.BUILD_NUMBER
          
           
       stage("Building container") {
