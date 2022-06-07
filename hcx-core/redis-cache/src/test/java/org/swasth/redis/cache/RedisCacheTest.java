@@ -1,6 +1,5 @@
 package org.swasth.redis.cache;
 
-
 import com.github.fppt.jedismock.RedisServer;
 import org.junit.jupiter.api.*;
 
@@ -11,14 +10,17 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class RedisCacheTest {
 
-    RedisServer redisServer;
+    private RedisServer redisServer;
 
-    RedisCache redis;
+    private RedisCache redis;
+
+    private RedisCache invalidRedis;
 
     @BeforeAll
     void setup() throws IOException {
         redisServer = RedisServer.newRedisServer().start();
         redis = new RedisCache(redisServer.getHost(), redisServer.getBindPort());
+        invalidRedis = new RedisCache("redisPort", 6370);
     }
 
     @AfterAll
@@ -44,28 +46,19 @@ class RedisCacheTest {
 
     @Test
     void testGetException() {
-        RedisCache redisCache = new RedisCache("redisPort", 6370);
-        Exception exception = assertThrows(Exception.class, () -> {
-            redisCache.get("exception");
-        });
+        Exception exception = assertThrows(Exception.class, () -> invalidRedis.get("exception"));
         assertTrue(exception.getMessage().contains("Exception Occurred While Fetching Data from Redis Cache for Key : exception"));
     }
 
     @Test
     void testSetException() {
-        RedisCache redisCache = new RedisCache("redisPort", 6370);
-        Exception exception = assertThrows(Exception.class, () -> {
-            redisCache.set("exception","123",10000000);
-        });
+        Exception exception = assertThrows(Exception.class, () -> invalidRedis.set("exception","123",10000000));
         assertTrue(exception.getMessage().contains("Exception Occurred While Saving Data to Redis Cache for Key : exception"));
     }
 
     @Test
     void testIsExistException() {
-        RedisCache redisCache = new RedisCache("redisPort", 6370);
-        Exception exception = assertThrows(Exception.class,() -> {
-            redisCache.isExists("test");
-        });
+        Exception exception = assertThrows(Exception.class,() -> invalidRedis.isExists("test"));
         assertTrue(exception.getMessage().contains("Exception occurred while checking key exist or not in Redis Cache: test"));
     }
 

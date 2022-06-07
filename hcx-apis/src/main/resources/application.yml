@@ -57,9 +57,9 @@ es:
 
 #redis config
 redis:
-  host: ${REDIS_HOST:localhost}
-  port: ${REDIS_PORT:6379}
-  expires: ${REDIS_EXPIRES:3600}
+  host: ${redis_host:localhost}
+  port: ${redis_port:6379}
+  expires: ${redis_expires:3600}
 
 #Audit config
 audit:
