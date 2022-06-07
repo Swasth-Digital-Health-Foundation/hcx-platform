@@ -16,17 +16,17 @@
       "type":"object",
       "title":"The User Schema",
       "required":[
-        "userId",
-        "userName",
+        "user_id",
+        "user_name",
         "roles",
         "tenant",
-        "organisationDetails"
+        "organisation_details"
       ],
       "properties":{
-        "userId":{
+        "user_id":{
           "type":"string"
         },
-        "userName":{
+        "user_name":{
           "type":"string"
         },
         "pin":{
@@ -40,31 +40,34 @@
           "format":"email"
         },
         "roles":{
-          "type":"string"
+          "type":"array",
+          "items":{
+            "type":"string"
+          }
         },
         "tenant":{
           "type":"string"
         },
-        "linkedUserId":{
+        "linked_user_id":{
           "type":"string"
         },
-        "organisationDetails":{
-          "$ref":"#/definitions/organisationDetails"
+        "organisation_details":{
+          "$ref":"#/definitions/organisation_details"
         }
       }
     },
-    "organisationDetails":{
-      "title":"organisationDetails",
+    "organisation_details":{
+      "title":"organisation_details",
       "type":"object",
       "required":[
-        "organisationName",
-        "organisationOSID"
+        "organisation_name",
+        "organisation_osid"
       ],
       "properties":{
-        "organisationName":{
+        "organisation_name":{
           "type":"string"
         },
-        "organisationOSID":{
+        "organisation_osid":{
           "type":"string"
         }
       }
@@ -75,24 +78,24 @@
       {
         "email":"/email",
         "mobile":"/mobile",
-        "userId":"/userId"
+        "userId":"/email"
       }
     ],
     "uniqueIndexFields":[
-      "userId"
+      "email"
     ],
-    "subjectJsonPath":"userId",
+    "subjectJsonPath":"email",
     "attestationAttributes": [
-      "organisationDetails"
+      "organisation_details"
     ],
     "attestationPolicies":[
       {
-        "property": "organisationDetails",
+        "property": "organisation_details",
         "paths": [
-          "organisationDetails"
+          "organisation_details"
         ],
         "attestorEntity": "Organisation",
-        "conditions": "(ATTESTOR#$.osid#.contains(REQUESTER#$.organisationOSID#) && ATTESTOR#$.participantName#.contains(REQUESTER#$.organisationName#))"
+        "conditions": "(ATTESTOR#$.osid#.contains(REQUESTER#$.organisation_osid#) && ATTESTOR#$.participant_name#.contains(REQUESTER#$.organisation_name#))"
       }
     ]
   }

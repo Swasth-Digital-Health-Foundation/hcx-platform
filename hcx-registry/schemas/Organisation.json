@@ -16,35 +16,46 @@
          "type":"object",
          "title":"The Organisation Schema",
          "required":[
-            "participantCode",
-            "participantName",
+            "participant_code",
+            "participant_name",
             "roles",
-            "primaryMobile",
+            "primary_mobile",
             "status",
-            "encryptionCert",
-            "endpointUrl"
+            "encryption_cert",
+            "endpoint_url"
          ],
          "properties":{
-            "participantCode":{
+            "participant_code":{
                "type":"string"
             },
-            "hfrCode":{
-               "type":"string"
-            },
-            "participantName":{
+            "participant_name":{
                "type":"string"
             },
             "roles":{
-               "type":"string"
+               "type":"array",
+               "items":{
+                  "type":"string",
+                  "enum" :["provider", "payor", "agency.tpa", "agency.regulator", "research", "member.isnp", "agency.sponsor", "HIE/HIO.HCX"]
+               }
+            },
+            "linked_registry_codes":{
+               "type":"array",
+               "items":{
+                  "type":"string"
+               }
+            },
+            "scheme_code":{
+               "type":"string",
+               "default": "default"
             },
             "address":{
-               "$ref":"#/definitions/Address"
+               "$ref":"#/definitions/address"
             },
-            "primaryEmail":{
+            "primary_email":{
                "type":"string",
                "format":"email"
             },
-            "additionalEmail":{
+            "additional_email":{
                "type":"array",
                "items":{
                   "type":"string",
@@ -59,10 +70,10 @@
                },
                "maxItems":3
             },
-            "primaryMobile":{
+            "primary_mobile":{
                "type":"string"
             },
-            "additionalMobile":{
+            "additional_mobile":{
                "type":"array",
                "items":{
                   "type":"string"
@@ -78,25 +89,51 @@
                   "Blocked"
                ]
             },
-            "signingCertPath":{
+            "signing_cert_path":{
                "type":"string",
                "format":"uri"
             },
-            "encryptionCert":{
+            "encryption_cert":{
                "type":"string",
                "format":"uri"
             },
-            "endpointUrl":{
+            "endpoint_url":{
                "type":"string",
                "format":"url"
             },
-            "paymentDetails":{
-               "$ref":"#/definitions/paymentDetails"
+            "payment_details":{
+               "type":"object",
+               "required":[
+
+               ],
+               "properties":{
+                  "upi_id":{
+                     "type":"string"
+                  },
+                  "account_number":{
+                     "type":"string"
+                  },
+                  "ifsc_code":{
+                     "type":"string"
+                  }
+               },
+               "oneOf":[
+                  {
+                     "required":[
+                        "upi_id"
+                     ]
+                  },
+                  {
+                     "required":[
+                        "account_number",
+                        "ifsc_code"
+                     ]
+                  }
+               ]
             }
          }
       },
-      "Address":{
-         "title": "Address",
+      "address":{
          "type":"object",
          "required":[
 
@@ -109,9 +146,6 @@
                "type":"string"
             },
             "landmark":{
-               "type":"string"
-            },
-            "locality":{
                "type":"string"
             },
             "village":{
@@ -127,51 +161,19 @@
                "type":"string"
             }
          }
-      },
-      "paymentDetails":{
-         "title": "PaymentDetails",
-         "type":"object",
-         "required":[
-
-         ],
-         "properties":{
-            "upiId":{
-               "type":"string"
-            },
-            "accountNumber":{
-               "type":"string"
-            },
-            "ifscCode":{
-               "type":"string"
-            }
-         },
-         "oneOf":[
-            {
-               "required":[
-                  "upiId"
-               ]
-            },
-            {
-               "required":[
-                  "accountNumber",
-                  "ifscCode"
-               ]
-            }
-         ]
       }
    },
    "_osConfig":{
       "ownershipAttributes": [
          {
-            "email": "/primaryEmail",
-            "mobile": "/primaryMobile",
-            "userId": "/participantCode"
+            "email": "/primary_email",
+            "mobile": "/primary_mobile",
+            "userId": "/primary_email"
          }
       ],
       "uniqueIndexFields":[
-         "participantName",
-         "participantCode"
-      ],
-      "subjectJsonPath": "participantName"
+         "participant_code",
+         "primary_email"
+      ]
    }
 }
