@@ -21,6 +21,7 @@ import org.swasth.hcx.managers.HealthCheckManager;
 import org.swasth.hcx.service.HeaderAuditService;
 import org.swasth.kafka.client.IEventService;
 import org.swasth.postgresql.IDatabaseService;
+import org.swasth.redis.cache.RedisCache;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -59,6 +60,9 @@ public class BaseSpec {
 
     @MockBean
     protected AuditIndexer auditIndexer;
+
+    @MockBean
+    protected RedisCache redisCache;
 
     @BeforeEach
     public void setup() {

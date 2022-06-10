@@ -1,10 +1,5 @@
 package org.swasth.apigateway.service;
 
-import org.swasth.apigateway.cache.RedisCache;
-import org.swasth.apigateway.exception.ErrorCodes;
-import org.swasth.apigateway.exception.ServerException;
-import org.swasth.apigateway.utils.HttpUtils;
-import org.swasth.apigateway.utils.JSONUtils;
 import kong.unirest.HttpResponse;
 import kong.unirest.UnirestException;
 import org.slf4j.Logger;
@@ -12,6 +7,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.swasth.apigateway.exception.ErrorCodes;
+import org.swasth.apigateway.exception.ServerException;
+import org.swasth.apigateway.utils.HttpUtils;
+import org.swasth.apigateway.utils.JSONUtils;
+import org.swasth.redis.cache.RedisCache;
 
 import java.util.ArrayList;
 import java.util.HashMap;
