@@ -73,8 +73,10 @@ const coverageCheck = async (req, res, next) => {
         data : data1
     };
 
+    console.log("token generation call  ", config);
     await axios(config)
     .then(function (response) {
+    console.log("Bearer " + response.data.access_token);    
     hcxInstance.defaults.headers['Authorization'] = "Bearer " + response.data.access_token;
     })
     .catch(function (error) {
@@ -84,7 +86,7 @@ const coverageCheck = async (req, res, next) => {
     
     var config = { method: 'post', url: 'api/v1/coverageeligibility/check', data };
     debug('coverageCheck-payload', config);
-
+    console.log("hcx api calls ", hcxInstance);
     try {
         const response = await hcxInstance(config);
         debug('coverageCheck-success', response?.data);
