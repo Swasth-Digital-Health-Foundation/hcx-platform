@@ -118,7 +118,8 @@ public class ParticipantController  extends BaseController {
             headersMap.put(AUTHORIZATION, Objects.requireNonNull(header.get(AUTHORIZATION)).get(0));
             HttpResponse<String> response = HttpUtils.put(url, JSONUtils.serialize(requestBody), headersMap);
             if (response.getStatus() == 200) {
-                redisCache.set((String) requestBody.get(PARTICIPANT_CODE), JSONUtils.serialize(requestBody), redisExpires);
+                if(redisCache.isExists((String) requestBody.get(PARTICIPANT_CODE)))
+                  redisCache.set((String) requestBody.get(PARTICIPANT_CODE), JSONUtils.serialize(requestBody), redisExpires);
                 return new ResponseEntity<>(HttpStatus.OK);
             } else if (response.getStatus() == 401) {
                 throw new AuthorizationException(getErrorMessage(response));
