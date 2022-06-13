@@ -42,7 +42,7 @@ object Constants {
   val PARTICIPANT_CODE = "participant_code"
   val TEMPLATE = "template"
   val PARTICIPANTS = "participants"
-  val PARTICIPANT_SEARCH = "/v0.7/participant/search"
+  val PARTICIPANT_SEARCH = "/v1/participant/search"
   val NAME = "name"
   val DESCRIPTION = "description"
   val NOTIFICATION_DISPATCH_RESULT = "notificationDispatchResult"

@@ -5,7 +5,7 @@ import java.util.List;
 
 public class Constants {
 
-    public static final String VERSION_PREFIX = "/v0.7";
+    public static final String VERSION_PREFIX = "/v1";
 
     // Health APIs
     public static final String HEALTH = "/health";
