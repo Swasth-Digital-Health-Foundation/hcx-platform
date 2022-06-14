@@ -112,13 +112,15 @@ public class ParticipantController  extends BaseController {
     public ResponseEntity<Object> participantUpdate(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) throws Exception {
         try {
             validateParticipant(requestBody);
-            String url = registryUrl + "/api/v1/Organisation/" + requestBody.get(PARTICIPANT_CODE);
+            String participantCode = (String) requestBody.get(PARTICIPANT_CODE);
+            String url = registryUrl + "/api/v1/Organisation/" + participantCode;
             requestBody.remove(PARTICIPANT_CODE);
             Map<String, String> headersMap = new HashMap<>();
             headersMap.put(AUTHORIZATION, Objects.requireNonNull(header.get(AUTHORIZATION)).get(0));
             HttpResponse<String> response = HttpUtils.put(url, JSONUtils.serialize(requestBody), headersMap);
             if (response.getStatus() == 200) {
-                redisCache.set((String) requestBody.get(PARTICIPANT_CODE), JSONUtils.serialize(requestBody), redisExpires);
+                if(redisCache.isExists(participantCode))
+                  redisCache.set(participantCode, JSONUtils.serialize(requestBody), redisExpires);
                 return new ResponseEntity<>(HttpStatus.OK);
             } else if (response.getStatus() == 401) {
                 throw new AuthorizationException(getErrorMessage(response));
