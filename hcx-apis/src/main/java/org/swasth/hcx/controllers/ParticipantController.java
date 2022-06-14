@@ -112,8 +112,8 @@ public class ParticipantController  extends BaseController {
     public ResponseEntity<Object> participantUpdate(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) throws Exception {
         try {
             validateParticipant(requestBody);
-            String url = registryUrl + "/api/v1/Organisation/" + requestBody.get(PARTICIPANT_CODE);
             String participantCode = (String) requestBody.get(PARTICIPANT_CODE);
+            String url = registryUrl + "/api/v1/Organisation/" + participantCode;
             requestBody.remove(PARTICIPANT_CODE);
             Map<String, String> headersMap = new HashMap<>();
             headersMap.put(AUTHORIZATION, Objects.requireNonNull(header.get(AUTHORIZATION)).get(0));
