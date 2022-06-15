@@ -1,4 +1,4 @@
-package org.swasth.hcx.controllers;
+package org.swasth.hcx.controllers.v1;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -30,7 +30,7 @@ public class AuditControllerTests extends BaseSpec{
 
     @Test
     public void audit_search_success_scenario() throws Exception {
-        String uri = Constants.AUDIT_SEARCH;
+        String uri = Constants.VERSION_PREFIX + Constants.AUDIT_SEARCH;
         SearchRequestDTO searchrequest = new SearchRequestDTO();
         HashMap<String,String> filters = new HashMap<String, String>();
         filters.put("status","submitted");

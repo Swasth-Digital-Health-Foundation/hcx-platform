@@ -1,15 +1,13 @@
-package org.swasth.hcx.controllers;
+package org.swasth.hcx.controllers.v1;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MvcResult;
-import org.swasth.common.dto.HeaderAudit;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.hcx.controllers.BaseSpec;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,10 +15,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.swasth.common.utils.Constants.HCX_ON_SEARCH;
-import static org.swasth.common.utils.Constants.HCX_SEARCH;
+import static org.swasth.common.utils.Constants.*;
 
 public class SearchControllerTest extends BaseSpec {
 
@@ -28,7 +24,7 @@ public class SearchControllerTest extends BaseSpec {
     public void searchBadRequest() throws Exception {
         doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
         String requestBody = getSearchBadRequest();
-        MvcResult mvcResult = mockMvc.perform(post(HCX_SEARCH).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + HCX_SEARCH).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         assertEquals(400, status);
@@ -44,7 +40,7 @@ public class SearchControllerTest extends BaseSpec {
     public void searchSuccess() throws Exception {
         doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
         String requestBody = getSearchRequest();
-        MvcResult mvcResult = mockMvc.perform(post(HCX_SEARCH).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + HCX_SEARCH).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         assertEquals(202, status);
@@ -60,7 +56,7 @@ public class SearchControllerTest extends BaseSpec {
     public void onSearchBadRequest() throws Exception {
         doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
         String requestBody = getOnSearchBadRequest();
-        MvcResult mvcResult = mockMvc.perform(post(HCX_ON_SEARCH).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + HCX_ON_SEARCH).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         assertEquals(400, status);
@@ -76,7 +72,7 @@ public class SearchControllerTest extends BaseSpec {
     public void onSearchSuccess() throws Exception {
         doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
         String requestBody = getOnSearchRequest();
-        MvcResult mvcResult = mockMvc.perform(post(HCX_ON_SEARCH).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + HCX_ON_SEARCH).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         assertEquals(202, status);

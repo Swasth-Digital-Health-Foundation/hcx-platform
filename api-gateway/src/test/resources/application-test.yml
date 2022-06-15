@@ -73,10 +73,20 @@ spring:
               args:
                 redis-rate-limiter.replenishRate: 10
                 redis-rate-limiter.burstCapacity: 20
+            - RewritePath=/v0.7/coverageeligibility/(?<segment>/?.*), /v1/coverageeligibility/$\{segment}
+            - RewritePath=/v0.7/preauth/(?<segment>/?.*), /v1/preauth/$\{segment}
+            - RewritePath=/v0.7/claim/(?<segment>/?.*), /v1/claim/$\{segment}
+            - RewritePath=/v0.7/paymentnotice/(?<segment>/?.*), /v1/paymentnotice/$\{segment}
+            - RewritePath=/v0.7/hcx/(?<segment>/?.*), /v1/hcx/$\{segment}
+            - RewritePath=/v0.7/predetermination/(?<segment>/?.*), /v1/predetermination/$\{segment}
+            - RewritePath=/v0.7/communication/(?<segment>/?.*), /v1/communication/$\{segment}
+            - RewritePath=/v0.7/notification/subscribe, /v1/notification/subscribe
+            - RewritePath=/v0.7/notification/unsubscribe, /v1/notification/unsubscribe
+            - RewritePath=/v0.7/notification/notify, /v1/notification/notify
             - CachingRequestBodyFilter
             - HCXValidationFilter
           predicates:
-            - Path=/v1/coverageeligibility/**, /v1/preauth/**, /v1/claim/**, /v1/paymentnotice/**, /v1/hcx/**, /v1/predetermination/**, /v1/communication/**, /v1/notification/subscribe, /v1/notification/unsubscribe, /v1/notification/notify
+            - Path=/v0.7/coverageeligibility/**, /v0.7/preauth/**, /v0.7/claim/**, /v0.7/paymentnotice/**, /v0.7/hcx/**, /v0.7/predetermination/**, /v0.7/communication/**, /v0.7/notification/subscribe, /v0.7/notification/unsubscribe, /v0.7/notification/notify
 
         - id: hcx-api-route-audit
           uri: ${HCX_API_BASEPATH:http://localhost:8080}
@@ -85,10 +95,11 @@ spring:
               args:
                 redis-rate-limiter.replenishRate: 10
                 redis-rate-limiter.burstCapacity: 20
+            - RewritePath=/v0.7/audit/search, /v1/audit/search
             - CachingRequestBodyFilter
             - AuditValidationFilter
           predicates:
-            - Path=/v1/audit/search
+            - Path=/v0.7/audit/search
 
         - id: hcx-registry-api-route
           uri: ${HCX_API_BASEPATH:http://localhost:8080}
@@ -97,5 +108,9 @@ spring:
               args:
                 redis-rate-limiter.replenishRate: 10
                 redis-rate-limiter.burstCapacity: 20
+            - RewritePath=/v0.7/participant/(?<segment>/?.*), /v1/participant/$\{segment}
+            - RewritePath=/v0.7/notification/subscription/list, /v1/notification/subscription/list
+            - RewritePath=/v0.7/notification/list, /v1/notification/list
           predicates:
-            - Path=/participant/**, /health, /service/health
+            - Path=/v0.7/participant/**, /health, /service/health, /v0.7/notification/subscription/list, /v0.7/notification/list
+

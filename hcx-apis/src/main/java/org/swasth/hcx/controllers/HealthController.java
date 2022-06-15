@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.swasth.common.dto.Response;
 import org.swasth.common.utils.Constants;
+import org.swasth.hcx.controllers.BaseController;
 import org.swasth.hcx.managers.HealthCheckManager;
 
 @RestController
