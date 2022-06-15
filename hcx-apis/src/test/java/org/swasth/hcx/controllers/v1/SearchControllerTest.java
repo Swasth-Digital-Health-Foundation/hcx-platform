@@ -18,10 +18,10 @@ import static org.mockito.Mockito.doNothing;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.swasth.common.utils.Constants.*;
 
-public class SearchControllerTest extends BaseSpec {
+class SearchControllerTest extends BaseSpec {
 
     @Test
-    public void searchBadRequest() throws Exception {
+    void searchBadRequest() throws Exception {
         doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
         String requestBody = getSearchBadRequest();
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + HCX_SEARCH).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
@@ -37,7 +37,7 @@ public class SearchControllerTest extends BaseSpec {
     }
 
     @Test
-    public void searchSuccess() throws Exception {
+    void searchSuccess() throws Exception {
         doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
         String requestBody = getSearchRequest();
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + HCX_SEARCH).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
@@ -53,7 +53,7 @@ public class SearchControllerTest extends BaseSpec {
     }
 
     @Test
-    public void onSearchBadRequest() throws Exception {
+    void onSearchBadRequest() throws Exception {
         doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
         String requestBody = getOnSearchBadRequest();
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + HCX_ON_SEARCH).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
@@ -69,7 +69,7 @@ public class SearchControllerTest extends BaseSpec {
     }
 
     @Test
-    public void onSearchSuccess() throws Exception {
+    void onSearchSuccess() throws Exception {
         doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
         String requestBody = getOnSearchRequest();
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + HCX_ON_SEARCH).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();

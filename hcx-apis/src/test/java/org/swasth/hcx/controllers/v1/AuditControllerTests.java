@@ -26,18 +26,18 @@ import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.dto.SearchRequestDTO;
 import org.swasth.hcx.controllers.BaseSpec;
 
-public class AuditControllerTests extends BaseSpec{
+class AuditControllerTests extends BaseSpec {
 
     @Test
-    public void audit_search_success_scenario() throws Exception {
+    void audit_search_success_scenario() throws Exception {
         String uri = Constants.VERSION_PREFIX + Constants.AUDIT_SEARCH;
         SearchRequestDTO searchrequest = new SearchRequestDTO();
-        HashMap<String,String> filters = new HashMap<String, String>();
-        filters.put("status","submitted");
+        HashMap<String, String> filters = new HashMap<String, String>();
+        filters.put("status", "submitted");
         searchrequest.setFilters(filters);
         searchrequest.setLimit(10);
         searchrequest.setOffset(0);
-        MvcResult mvcResult =  mockMvc.perform(post(uri).content(JSONUtils.serialize(searchrequest)).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MvcResult mvcResult = mockMvc.perform(post(uri).content(JSONUtils.serialize(searchrequest)).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         assertEquals(200, status);

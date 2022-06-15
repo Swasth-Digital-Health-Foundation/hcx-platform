@@ -18,10 +18,10 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 
-public class PreAuthTests extends BaseSpec {
+class PreAuthTests extends BaseSpec {
 
     @Test
-    public void check_preauth_submit_success_scenario() throws Exception {
+    void check_preauth_submit_success_scenario() throws Exception {
         doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
         String requestBody = getRequestBody();
         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PRE_AUTH_SUBMIT).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
@@ -31,7 +31,7 @@ public class PreAuthTests extends BaseSpec {
     }
 
     @Test
-    public void check_preauth_submit_exception_scenario() throws Exception {
+    void check_preauth_submit_exception_scenario() throws Exception {
         String requestBody = getExceptionRequestBody();
         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PRE_AUTH_SUBMIT).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -40,7 +40,7 @@ public class PreAuthTests extends BaseSpec {
     }
 
     @Test
-    public void check_preauth_on_submit_success_scenario() throws Exception {
+    void check_preauth_on_submit_success_scenario() throws Exception {
         doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
         String requestBody = getRequestBody();
         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PRE_AUTH_ONSUBMIT).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
@@ -50,7 +50,7 @@ public class PreAuthTests extends BaseSpec {
     }
 
     @Test
-    public void check_preauth_on_submit_exception_scenario() throws Exception {
+    void check_preauth_on_submit_exception_scenario() throws Exception {
         String requestBody = getExceptionRequestBody();
         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PRE_AUTH_ONSUBMIT).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();

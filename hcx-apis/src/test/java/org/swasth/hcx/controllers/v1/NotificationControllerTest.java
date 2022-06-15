@@ -243,7 +243,7 @@ class NotificationControllerTest extends BaseSpec {
     }
 
     @Test
-    public void testNotificationRequestSuccess() throws Exception {
+    void testNotificationRequestSuccess() throws Exception {
         doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
         String requestBody = getNotificationRequest("24e975d1-054d-45fa-968e-c91b1043d0a5");
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_REQUEST).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
@@ -257,7 +257,7 @@ class NotificationControllerTest extends BaseSpec {
     }
 
     @Test
-    public void testNotificationRequestFailure() throws Exception {
+    void testNotificationRequestFailure() throws Exception {
         doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
         String requestBody = getNotificationRequest("hcx-notification-001");
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_REQUEST).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
