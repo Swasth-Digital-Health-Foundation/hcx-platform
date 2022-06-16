@@ -43,19 +43,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: Requested resource was not found
           content:
             application/json:
               schema:
-                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Downstream systems down/unhandled exceptions.
           content:
             application/json:
               schema:
-                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponse'
       security:
       - bearer_auth: []
   /notification/subscribe:
@@ -96,7 +96,7 @@ paths:
             application/json:
               schema:
                 allOf:
-                  - $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/SuccessResponse'
+                  - $ref: '#/components/schemas/SuccessResponse'
                   - properties:
                       subscription_id:
                         type: string
@@ -112,19 +112,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: Requested resource was not found
           content:
             application/json:
               schema:
-                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Downstream systems down/unhandled exceptions.
           content:
             application/json:
               schema:
-                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponse'
       security:
       - bearer_auth: []
   /notification/unsubscribe:
@@ -165,7 +165,7 @@ paths:
             application/json:
               schema:
                 allOf:
-                  - $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/SuccessResponse'
+                  - $ref: '#/components/schemas/SuccessResponse'
                   - properties:
                       subscription_id:
                         type: string
@@ -180,19 +180,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: Requested resource was not found
           content:
             application/json:
               schema:
-                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Downstream systems down/unhandled exceptions.
           content:
             application/json:
               schema:
-                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponse'
       security:
       - bearer_auth: []
   /notification/subscription/list:
@@ -221,19 +221,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: Requested resource was not found
           content:
             application/json:
               schema:
-                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Downstream systems down/unhandled exceptions.
           content:
             application/json:
               schema:
-                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponse'
   /notification/notify:
     post:
       tags:
@@ -263,25 +263,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/SuccessResponse'
+                $ref: '#/components/schemas/SuccessResponse'
         '400':
           description: Request Validation failed
           content:
             application/json:
               schema:
-                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: Requested resource was not found
           content:
             application/json:
               schema:
-                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Downstream systems down/unhandled exceptions.
           content:
             application/json:
               schema:
-                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponse'
       security:
       - bearer_auth: []
 
@@ -443,6 +443,49 @@ components:
           type: number
           description: Total number of master list notifications defined at HCX gateway with the given request filter.
           example: 1
+    ErrorResponse:
+      required:
+        - error
+        - timestamp
+      type: object
+      properties:
+        timestamp:
+          type: string
+          description: Unix timestamp when the response is sent.
+          example: "1629057611000"
+        error:
+          $ref: '#/components/schemas/Error'
+    SuccessResponse:
+      required:
+        - timestamp
+      type: object
+      properties:
+        timestamp:
+          type: string
+          description: Unix timestamp when the response is sent.
+          example: "1629057611000"
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+          description: error code from the system - expected to be namespaced for better readability
+          enum:
+            - ERR_ACCESS_DENIED
+            - ERR_INVALID_PAYLOAD
+            - ERR_INVALID_SENDER
+            - ERR_INVALID_RECIPIENT
+            - ERR_INVALID_TOPIC_CODE
+            - ERR_INVALID_NOTIFICATION_DATA
+            - ERR_INVALID_SUBSCRIPTION
+            - ERR_INVALID_RECIPIENT_ROLES
+            - ERR_SERVICE_UNAVAILABLE 
+        message:
+          type: string
+          description: Short description of the error
+        trace:
+          type: string
+          description: Long description supporting the Code
 
   securitySchemes:
     bearer_auth:
