@@ -19,7 +19,7 @@ tags:
       APIs for notification subscription management and send and receive the callback requests.
       
 paths:
-  /notification/list:
+  /notification/topic/list:
     post:
       tags:
         - Notification APIs
@@ -83,11 +83,7 @@ paths:
         content:
           application/json:
             schema:
-              required:
-                - topic_code
-                - sender_list
-              oneOf:
-                - $ref: '#/components/schemas/SubscriptionRequest'
+              $ref: '#/components/schemas/SubscriptionRequest'
                 
       responses:
         '200':
@@ -106,7 +102,76 @@ paths:
                         type: number
                         description: Status of the subscription. 1 - active, 0 - inactive, -1 - pending for approval.
                         example: 1
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      subscription_id:
+                        type: string
+                        description: Unique identifier of the notification subscription.
+                        example: "SUBSCRIPTION01@HCX01"
+                      subscription_status:
+                        type: number
+                        description: Status of the subscription. 1 - active, 0 - inactive, -1 - pending for approval.
+                        example: -1
                 
+        '400':
+          description: Request Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Requested resource was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Downstream systems down/unhandled exceptions.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - bearer_auth: []
+  /notification/on_subscribe:
+    post:
+      tags:
+        - Notification APIs
+      description: >- 
+        The callback API is for the senders to respond for the subscription request.
+      
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                subscription_id:
+                  type: string
+                  description: Unique identifier of the notification subscription.
+                  example: "SUBSCRIPTION01@HCX01"
+                subscription_status:
+                        type: number
+                        description: Status of the subscription. 1 - active, 0 - inactive, -1 - pending for approval.
+                        example: 1
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      subscription_id:
+                        type: string
+                        description: Unique identifier of the notification subscription.
+                        example: "SUBSCRIPTION01@HCX01"
         '400':
           description: Request Validation failed
           content:
@@ -153,11 +218,7 @@ paths:
         content:
           application/json:
             schema:
-              required:
-                - topic_code
-                - sender_list
-              oneOf:
-                - $ref: '#/components/schemas/SubscriptionRequest'
+              $ref: '#/components/schemas/SubscriptionRequest'
       responses:
         '200':
           description: OK
@@ -234,6 +295,79 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearer_auth: []
+
+  /notification/subscription/update:
+    post:
+      tags:
+        - Notification APIs
+      description: >-
+        This API is for only sender of the notification to update the existing subscription.
+        In this case, the HCX gateway will capture the impacted participant and send an network notification about update in subscription to the targeted participants.
+      
+        This API is work in progress. We need to analyse and validate most of the possible scenarios and update the API accordingly.
+      
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubscriptionRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      subscription_id:
+                        type: string
+                        description: Unique identifier of the notification subscription.
+                        example: "SUBSCRIPTION01@HCX01"
+                      subscription_status:
+                        type: number
+                        description: Status of the subscription. 1 - active, 0 - inactive, -1 - pending for approval.
+                        example: 1
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      subscription_id:
+                        type: string
+                        description: Unique identifier of the notification subscription.
+                        example: "SUBSCRIPTION01@HCX01"
+                      subscription_status:
+                        type: number
+                        description: Status of the subscription. 1 - active, 0 - inactive, -1 - pending for approval.
+                        example: -1
+                
+        '400':
+          description: Request Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Requested resource was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Downstream systems down/unhandled exceptions.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - bearer_auth: []      
+      
   /notification/notify:
     post:
       tags:
@@ -263,7 +397,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessResponse'
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      notification_id:
+                        type: string
+                        description: Unique identifer of the notification. This will be useful to check the status of notify.
         '400':
           description: Request Validation failed
           content:
@@ -318,6 +457,9 @@ components:
           example: 1
     SubscriptionRequest:
       type: object
+      required:
+        - topic_code
+        - sender_list
       properties:
         topic_code:
           type: string
@@ -353,7 +495,7 @@ components:
           type: array
           items:
             type: string
-          description: list of subscription_ids (at least one) is mandatory for use_case category notifications.
+          description: list of subscription_ids (at least one) is mandatory for workflow category notifications.
         notification_data:
           type: object
           description: JSON object containing the details of the notification to send.
@@ -388,13 +530,13 @@ components:
           example: "NOTIFICATION@HCX01"
         category:
           type: string
-          description: Category of the notification as detailed above - network (broadcast & target), participant, use_case
+          description: Category of the notification as detailed above - network, participant, workflow
           enum: ["network", "participant", "workflow"]
           example: network
         priority:
           type: number
-          description: Default priority assigned to the topic. 0 means highest, positive integer would carry the respective relative priority. Negative would be that the topic is disabled. Relative order of category for different message categories is recommended to be use_case > participant > network
-          enum: [0,1,2]
+          description: Default priority assigned to the topic. 0 means highest, positive integer would carry the respective relative priority. Negative would be that the topic is disabled. Relative order of category for different message categories is recommended to be workflow > participant > network
+          enum: [-1,0,1,2]
     Subscription:
       type: object
       allOf:
