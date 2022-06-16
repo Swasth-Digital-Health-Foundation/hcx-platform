@@ -29,8 +29,7 @@ paths:
         content:
           application/json:
             schema:
-              oneOf:
-                - $ref: '#/components/schemas/NotificationListRequest'
+              $ref: '#/components/schemas/TopicListRequest'
       
       responses:
         '200':
@@ -38,25 +37,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotificationTopicListResponse'
+                $ref: '#/components/schemas/TopicListResponse'
         '400':
           description: Request Validation failed
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StandardErrorResponse'
+                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/ErrorResponse'
         '404':
           description: Requested resource was not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StandardErrorResponse'
+                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/ErrorResponse'
         '500':
           description: Downstream systems down/unhandled exceptions.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StandardErrorResponse'
+                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/ErrorResponse'
       security:
       - bearer_auth: []
   /notification/subscribe:
@@ -88,7 +87,7 @@ paths:
                 - topic_code
                 - sender_list
               oneOf:
-                - $ref: '#/components/schemas/NotificationSubscriptionRequest'
+                - $ref: '#/components/schemas/SubscriptionRequest'
                 
       responses:
         '200':
@@ -97,27 +96,35 @@ paths:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/StandardSuccessResponse'
-                  - $ref: '#/components/schemas/SubscriptionID'
+                  - $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/SuccessResponse'
+                  - properties:
+                      subscription_id:
+                        type: string
+                        description: Unique identifier of the notification subscription.
+                        example: "SUBSCRIPTION01@HCX01"
+                      subscription_status:
+                        type: number
+                        description: Status of the subscription. 1 - active, 0 - inactive, -1 - pending for approval.
+                        example: 1
                 
         '400':
           description: Request Validation failed
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StandardErrorResponse'
+                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/ErrorResponse'
         '404':
           description: Requested resource was not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StandardErrorResponse'
+                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/ErrorResponse'
         '500':
           description: Downstream systems down/unhandled exceptions.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StandardErrorResponse'
+                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/ErrorResponse'
       security:
       - bearer_auth: []
   /notification/unsubscribe:
@@ -150,7 +157,7 @@ paths:
                 - topic_code
                 - sender_list
               oneOf:
-                - $ref: '#/components/schemas/NotificationSubscriptionRequest'
+                - $ref: '#/components/schemas/SubscriptionRequest'
       responses:
         '200':
           description: OK
@@ -158,26 +165,34 @@ paths:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/StandardSuccessResponse'
-                  - $ref: '#/components/schemas/SubscriptionID'
+                  - $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/SuccessResponse'
+                  - properties:
+                      subscription_id:
+                        type: string
+                        description: Unique identifier of the notification subscription.
+                        example: "SUBSCRIPTION01@HCX01"
+                      subscription_status:
+                        type: number
+                        description: Status of the subscription. 1 - active, 0 - inactive, -1 - pending for approval.
+                        example: 1
         '400':
           description: Request Validation failed
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StandardErrorResponse'
+                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/ErrorResponse'
         '404':
           description: Requested resource was not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StandardErrorResponse'
+                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/ErrorResponse'
         '500':
           description: Downstream systems down/unhandled exceptions.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StandardErrorResponse'
+                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/ErrorResponse'
       security:
       - bearer_auth: []
   /notification/subscription/list:
@@ -192,34 +207,33 @@ paths:
         content:
           application/json:
             schema:
-              oneOf:
-                - $ref: '#/components/schemas/NotificationListRequest'
-                
+              $ref: '#/components/schemas/TopicListRequest'
+
       responses:
         '202':
           description: Accepted
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotificationSubscriptionListResponse'
+                $ref: '#/components/schemas/SubscriptionList'
         '400':
           description: Request Validation failed
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StandardErrorResponse'
+                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/ErrorResponse'
         '404':
           description: Requested resource was not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StandardErrorResponse'
+                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/ErrorResponse'
         '500':
           description: Downstream systems down/unhandled exceptions.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StandardErrorResponse'
+                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/ErrorResponse'
   /notification/notify:
     post:
       tags:
@@ -242,39 +256,38 @@ paths:
         content:
           application/json:
             schema:
-              oneOf:
-                - $ref: '#/components/schemas/NotifyRequest'
+                $ref: '#/components/schemas/NotifyRequest'
       responses:
         '202':
           description: Accepted
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StandardSuccessResponse'
+                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/SuccessResponse'
         '400':
           description: Request Validation failed
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StandardErrorResponse'
+                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/ErrorResponse'
         '404':
           description: Requested resource was not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StandardErrorResponse'
+                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/ErrorResponse'
         '500':
           description: Downstream systems down/unhandled exceptions.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StandardErrorResponse'
+                $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/ErrorResponse'
       security:
       - bearer_auth: []
 
 components:
   schemas:
-    NotificationListRequest:
+    TopicListRequest:
       type: object
       description: JSON object explaining about the request filters, limits of the notification list.
       properties:
@@ -287,7 +300,7 @@ components:
           example: 10
         offset:
           type: number
-    NotificationTopicListResponse:
+    TopicListResponse:
       type: object
       description: The notification master list response object.
       properties:
@@ -303,7 +316,7 @@ components:
           type: number
           description: Total number of master list notifications defined at HCX gateway with the given request filter.
           example: 1
-    NotificationSubscriptionRequest:
+    SubscriptionRequest:
       type: object
       properties:
         topic_code:
@@ -316,22 +329,6 @@ components:
           items:
             type: string
             example: "PAYOR01@HCX01"
-    NotificationSubscriptionListResponse:
-      type: object
-      description: The notification subscription list response object.
-      properties:
-        timestamp:
-          type: string
-          description: Unix timestamp when the response is sent.
-          example: "1629057611000"
-        notifications:
-          type: array
-          items:
-            $ref: '#/components/schemas/NotificationSubscription'
-        count:
-          type: number
-          description: Total number of master list notifications defined at HCX gateway with the given request filter.
-          example: 1
     NotifyRequest:
       type: object
       properties:
@@ -361,28 +358,6 @@ components:
           type: object
           description: JSON object containing the details of the notification to send.
           example: {"message": "Payor system down for sometime","duration": 2hrs,"startTime": 9PM, "date": 26th April 2022 IST}
-    
-    StandardErrorResponse:
-      required:
-        - error
-        - timestamp
-      type: object
-      properties:
-        timestamp:
-          type: string
-          description: Unix timestamp when the response is sent.
-          example: "1629057611000"
-        error:
-          $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/Error'
-    StandardSuccessResponse:
-      required:
-        - timestamp
-      type: object
-      properties:
-        timestamp:
-          type: string
-          description: Unix timestamp when the response is sent.
-          example: "1629057611000"
 
     NotificationTopic:
       type: object
@@ -395,13 +370,13 @@ components:
           type: string
           description: The details about the notification.
           example: "A notification about the Payer System Downtime. This information will be useful for all participants."
-        sender:
+        allowed_senders:
           type: array
           description: List of roles who can send this notification.
           items:
             type: string
           example: ["payor"]
-        recipient:
+        allowed_reciepients:
           type: array
           description: List of roles who can subscribe to this notification.
           items:
@@ -414,42 +389,60 @@ components:
         category:
           type: string
           description: Category of the notification as detailed above - network (broadcast & target), participant, use_case
+          enum: ["network", "participant", "workflow"]
           example: network
         priority:
           type: number
           description: Default priority assigned to the topic. 0 means highest, positive integer would carry the respective relative priority. Negative would be that the topic is disabled. Relative order of category for different message categories is recommended to be use_case > participant > network
-    SubscriptionID:
-      type: object
-      description: The notification subscription details
-      properties:
-        subscription_id:
-          type: string
-          description: Unique identifier of the notification subscription.
-          example: "SUBSCRIPTION01@HCX01"
-        status:
-          type: number
-          description: Status of the subscription. 1 - active, 0 - inactive, -1 - pending for approval.
-          example: 1
-    NotificationSubscription:
+          enum: [0,1,2]
+    Subscription:
       type: object
       allOf:
-        - $ref: '#/components/schemas/SubscriptionID'
         - properties:
+            subscription_id:
+              type: string
+              description: Unique identifier of the notification subscription.
+              example: "SUBSCRIPTION01@HCX01"
+            subscription_status:
+              type: number
+              description: Status of the subscription. 1 - active, 0 - inactive, -1 - pending for approval.
+              example: 1
             topic_code:
               type: string
               description: Unique code for the notification topic
               example: "NOTIFICATION@HCX01"
             category:
               type: string
-              description: Category of the notification as detailed above - network (broadcast & target), participant, use_case
+              description: Category of the notification as detailed above - network, participant, workflow
+              enum: ["network", "participant", "workflow"]
               example: network
-            participant_code:
+            recipient_code:
               type: string
               description: Identifier of the subscriber.
             sender_code:
               type: string
               description: Identifier of the participant to who the notification subscription is made or quested for.
-
+            is_delegated:
+              type: boolean
+              description: This property will be used to delegate the notification trigger to HCX. The default value is false.
+              enum: [true, false]
+              example: false
+    SubscriptionList:
+      type: object
+      description: The notification subscription list response object.
+      properties:
+        timestamp:
+          type: string
+          description: Unix timestamp when the response is sent.
+          example: "1629057611000"
+        subscriptions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Subscription'
+        count:
+          type: number
+          description: Total number of master list notifications defined at HCX gateway with the given request filter.
+          example: 1
 
   securitySchemes:
     bearer_auth:
