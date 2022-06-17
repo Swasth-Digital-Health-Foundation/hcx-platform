@@ -37,8 +37,8 @@ class NotificationControllerTest extends BaseSpec {
         int status = response.getStatus();
         assertEquals(200, status);
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
-        assertEquals(resObj.getApiCallId(),"1fa85f64-5717-4562-b3fc-2c963f66afa6");
-        assertEquals(resObj.getCorrelationId(),"2fa85f64-5717-4562-b3fc-2c963f66afa6");
+        assertEquals("1fa85f64-5717-4562-b3fc-2c963f66afa6", resObj.getApiCallId());
+        assertEquals("2fa85f64-5717-4562-b3fc-2c963f66afa6", resObj.getCorrelationId());
     }
 
     @Test
@@ -50,8 +50,8 @@ class NotificationControllerTest extends BaseSpec {
         int status = response.getStatus();
         assertEquals(202, status);
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
-        assertEquals(resObj.getApiCallId(),"1fa85f64-5717-4562-b3fc-2c963f66afa6");
-        assertEquals(resObj.getCorrelationId(),"2fa85f64-5717-4562-b3fc-2c963f66afa6");
+        assertEquals("1fa85f64-5717-4562-b3fc-2c963f66afa6", resObj.getApiCallId());
+        assertEquals("2fa85f64-5717-4562-b3fc-2c963f66afa6", resObj.getCorrelationId());
     }
 
     private String getSubscriptionRequest(String recipientCode) throws JsonProcessingException {
@@ -76,8 +76,8 @@ class NotificationControllerTest extends BaseSpec {
         int status = response.getStatus();
         assertEquals(200, status);
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
-        assertEquals(resObj.getApiCallId(),"1fa85f64-5717-4562-b3fc-2c963f66afa6");
-        assertEquals(resObj.getCorrelationId(),"2fa85f64-5717-4562-b3fc-2c963f66afa6");
+        assertEquals("1fa85f64-5717-4562-b3fc-2c963f66afa6", resObj.getApiCallId());
+        assertEquals("2fa85f64-5717-4562-b3fc-2c963f66afa6", resObj.getCorrelationId());
     }
 
     @Test
@@ -89,8 +89,8 @@ class NotificationControllerTest extends BaseSpec {
         int status = response.getStatus();
         assertEquals(400, status);
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
-        assertEquals(resObj.getError().getCode(),ErrorCodes.INTERNAL_SERVER_ERROR);
-        assertEquals(resObj.getError().getMessage(),"Test Internal Server Error");
+        assertEquals(ErrorCodes.INTERNAL_SERVER_ERROR, resObj.getError().getCode());
+        assertEquals("Test Internal Server Error", resObj.getError().getMessage());
     }
 
     @Test
@@ -266,7 +266,7 @@ class NotificationControllerTest extends BaseSpec {
         assertEquals(400, status);
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
         assertNotNull(resObj.getTimestamp());
-        assertEquals(resObj.getError().getCode(),ErrorCodes.ERR_INVALID_NOTIFICATION_ID);
+        assertEquals(ErrorCodes.ERR_INVALID_NOTIFICATION_ID, resObj.getError().getCode());
         assertTrue(resObj.getError().getMessage().contains("Invalid NotificationId."));
     }
 
