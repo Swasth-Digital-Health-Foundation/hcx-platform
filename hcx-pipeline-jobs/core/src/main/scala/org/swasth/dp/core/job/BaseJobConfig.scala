@@ -16,6 +16,7 @@ class BaseJobConfig(val config: Config, val jobName: String) extends Serializabl
 
   implicit val metricTypeInfo: TypeInformation[String] = TypeExtractor.getForClass(classOf[String])
   implicit val mapTypeInfo: TypeInformation[util.Map[String, AnyRef]] = TypeExtractor.getForClass(classOf[util.Map[String, AnyRef]])
+  implicit val objectTypeInfo: TypeInformation[Object] = TypeExtractor.getForClass(classOf[Object])
 
   val kafkaBrokerServers: String = config.getString("kafka.broker-servers")
   val zookeeper: String = config.getString("kafka.zookeeper")
@@ -52,6 +53,7 @@ class BaseJobConfig(val config: Config, val jobName: String) extends Serializabl
 
   // Default output configurations
   val enrichedOutputTag: OutputTag[util.Map[String, AnyRef]] = OutputTag[util.Map[String, AnyRef]]("enriched-events")
+  val dispatcherOutputTag: OutputTag[util.Map[String, AnyRef]] = OutputTag[util.Map[String, AnyRef]]("dispatched-events")
 
   // Default job metrics
   val dispatcherSuccessCount = "dispatcher-success-count"

@@ -69,6 +69,10 @@ object Constants {
   val DISPATCH_STATUS = "request.dispatched"
   val QUEUED_STATUS = "request.queued"
   val REQ_RETRY = "request.retry"
+  val INPUT_EVENT = "inputEvent"
+  val MASTER_DATA = "masterData"
+  val RESOLVED_TEMPLATE = "resolvedTemplate"
+  val PARTICIPANT_DETAILS = "participantDetails"
 
   //Search Fields
   val SEARCH_REQUEST = "x-hcx-search"
