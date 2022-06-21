@@ -62,4 +62,16 @@ class RedisCacheTest {
         assertTrue(exception.getMessage().contains("Exception occurred while checking key exist or not in Redis Cache: test"));
     }
 
+    @Test
+    void testDelete() throws Exception {
+        redis.set("123", "test", 10000000);
+        assertEquals(Long.valueOf(1), redis.delete("123"));
+    }
+
+    @Test
+    void testDeleteException() {
+        Exception exception = assertThrows(Exception.class,() -> invalidRedis.delete("test"));
+        assertTrue(exception.getMessage().contains("Exception occurred while deleting the record in redis cache for Key : test"));
+    }
+
 }

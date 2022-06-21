@@ -120,7 +120,7 @@ public class ParticipantController  extends BaseController {
             HttpResponse<String> response = HttpUtils.put(url, JSONUtils.serialize(requestBody), headersMap);
             if (response.getStatus() == 200) {
                 if(redisCache.isExists(participantCode))
-                  redisCache.set(participantCode, JSONUtils.serialize(requestBody), redisExpires);
+                  redisCache.delete(participantCode);
                 return new ResponseEntity<>(HttpStatus.OK);
             } else if (response.getStatus() == 401) {
                 throw new AuthorizationException(getErrorMessage(response));
