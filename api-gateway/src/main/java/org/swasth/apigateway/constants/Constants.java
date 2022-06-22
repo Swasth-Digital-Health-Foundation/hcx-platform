@@ -8,52 +8,6 @@ import java.util.List;
 @UtilityClass
 public class Constants {
 
-    public static final String VERSION_PREFIX = "/v1";
-
-    // Health APIs
-    public static final String HEALTH = "/health";
-    public static final String SERVICE_HEALTH = "/service/health";
-
-    // Coverage Eligibility APIs
-    public static final String COVERAGE_ELIGIBILITY_CHECK = VERSION_PREFIX + "/coverageeligibility/check";
-    public static final String COVERAGE_ELIGIBILITY_ONCHECK = VERSION_PREFIX + "/coverageeligibility/on_check";
-
-    // Claims APIs
-    public static final String PRE_AUTH_SUBMIT = VERSION_PREFIX + "/preauth/submit";
-    public static final String PRE_AUTH_ONSUBMIT = VERSION_PREFIX + "/preauth/on_submit";
-    public static final String CLAIM_SUBMIT = VERSION_PREFIX + "/claim/submit";
-    public static final String CLAIM_ONSUBMIT = VERSION_PREFIX + "/claim/on_submit";
-
-    //Payment Notice APIs
-    public static final String PAYMENT_NOTICE_REQUEST = VERSION_PREFIX + "/paymentnotice/request";
-    public static final String PAYMENT_NOTICE_ONREQUEST = VERSION_PREFIX + "/paymentnotice/on_request";
-
-    //Status Search APIs
-    public static final String HCX_STATUS = VERSION_PREFIX + "/hcx/status";
-    public static final String HCX_ONSTATUS = VERSION_PREFIX + "/hcx/on_status";
-
-    // Search APIs
-    public static final String HCX_SEARCH = VERSION_PREFIX + "/hcx/search";
-    public static final String HCX_ON_SEARCH = VERSION_PREFIX + "/hcx/on_search";
-
-    //Communication APIs
-    public static final String COMMUNICATION_REQUEST = VERSION_PREFIX + "/communication/request";
-    public static final String COMMUNICATION_ONREQUEST = VERSION_PREFIX + "/communication/on_request";
-
-    //Predetermination APIs
-    public static final String PREDETERMINATION_SUBMIT = VERSION_PREFIX + "/predetermination/submit";
-    public static final String PREDETERMINATION_ONSUBMIT = VERSION_PREFIX + "/predetermination/on_submit";
-
-    // Notification APIs
-    public static final String NOTIFICATION_REQUEST = VERSION_PREFIX + "/notification/notify";
-    public static final String NOTIFICATION_SUBSCRIBE = VERSION_PREFIX + "/notification/subscribe";
-
-    // Audit APIs
-    public static final String AUDIT_SEARCH = VERSION_PREFIX + "/audit/search";
-
-    public static final List<String> ACTION_APIS = Arrays.asList(COVERAGE_ELIGIBILITY_CHECK, PRE_AUTH_SUBMIT, CLAIM_SUBMIT, PAYMENT_NOTICE_REQUEST, HCX_STATUS, HCX_SEARCH, COMMUNICATION_REQUEST, PREDETERMINATION_SUBMIT);
-    public static final List<String> ON_ACTION_APIS = Arrays.asList(COVERAGE_ELIGIBILITY_ONCHECK, PRE_AUTH_ONSUBMIT, CLAIM_ONSUBMIT, PAYMENT_NOTICE_ONREQUEST, HCX_ONSTATUS, HCX_ON_SEARCH, COMMUNICATION_ONREQUEST, PREDETERMINATION_ONSUBMIT);
-
     // Entity types
     public static final String COMMUNICATION = "communication";
     public static final String NOTIFICATION = "notification";

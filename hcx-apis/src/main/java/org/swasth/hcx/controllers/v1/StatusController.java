@@ -1,14 +1,17 @@
-package org.swasth.hcx.controllers;
+package org.swasth.hcx.controllers.v1;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.swasth.common.dto.*;
 import org.swasth.common.exception.ClientException;
+import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
+import org.swasth.hcx.controllers.BaseController;
 
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +20,7 @@ import java.util.Map;
 import static org.swasth.common.utils.Constants.*;
 
 @RestController()
+@RequestMapping(Constants.VERSION_PREFIX)
 public class StatusController extends BaseController {
 
     @Value("${kafka.topic.status}")
@@ -41,7 +45,7 @@ public class StatusController extends BaseController {
                 throw new ClientException("Invalid correlation id, details do not exist");
             }
             HeaderAudit auditData = auditResponse.get(auditResponse.size()-1);
-            String entityType = auditData.getAction().split("/")[2];
+            String entityType = auditData.getAction().split("/")[1];
             if (!allowedEntitiesForStatusSearch.contains(entityType)) {
                 throw new ClientException("Invalid entity, status search allowed only for entities: " + allowedEntitiesForStatusSearch);
             }

@@ -175,7 +175,7 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
     else if (path.contains("search")) "search"
     else {
       val str = path.split("/")
-      str(str.length - 2)
+      str(str.length - 1)
     }
   }
 

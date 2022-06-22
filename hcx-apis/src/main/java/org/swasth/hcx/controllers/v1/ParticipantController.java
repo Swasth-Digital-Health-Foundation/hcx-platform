@@ -1,4 +1,4 @@
-package org.swasth.hcx.controllers;
+package org.swasth.hcx.controllers.v1;
 
 import kong.unirest.HttpResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -6,16 +6,15 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.swasth.common.dto.ParticipantResponse;
 import org.swasth.common.dto.Response;
 import org.swasth.common.exception.*;
+import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.HttpUtils;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.utils.SlugUtils;
+import org.swasth.hcx.controllers.BaseController;
 import org.swasth.redis.cache.RedisCache;
 
 import java.security.SecureRandom;
@@ -24,6 +23,7 @@ import java.util.*;
 import static org.swasth.common.utils.Constants.*;
 
 @RestController()
+@RequestMapping(Constants.VERSION_PREFIX)
 public class ParticipantController  extends BaseController {
 
     @Value("${registry.basePath}")

@@ -1,8 +1,9 @@
-package org.swasth.hcx.controllers;
+package org.swasth.hcx.controllers.v1;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.swasth.common.dto.HeaderAudit;
 import org.swasth.common.dto.SearchRequestDTO;
@@ -13,6 +14,7 @@ import java.util.List;
 
 
 @RestController
+@RequestMapping(Constants.VERSION_PREFIX)
 public class AuditController {
 
 	private final HeaderAuditService service;
