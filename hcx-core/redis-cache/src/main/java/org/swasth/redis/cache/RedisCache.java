@@ -58,4 +58,16 @@ public class RedisCache {
             jedis.close();
         }
     }
+
+    public Long delete(String key) throws Exception {
+        Jedis jedis = getConnection();
+        try{
+            return jedis.del(key);
+        } catch (Exception e) {
+            throw new ServerException(ErrorCodes.INTERNAL_SERVER_ERROR, "Exception occurred while deleting the record in redis cache for Key : " + key + "| Exception is:" + e);
+        }
+        finally {
+            jedis.close();
+        }
+    }
 }
