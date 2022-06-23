@@ -64,6 +64,10 @@ class ParticipantControllerTests extends BaseSpec{
     void participant_create_success_scenario() throws Exception {
         registryServer.enqueue(new MockResponse()
                 .setResponseCode(200)
+                .setBody("[{\"paticipant_name\":\"test user\"}]")
+                .addHeader("Content-Type", "application/json"));
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
                 .setBody("[]")
                 .addHeader("Content-Type", "application/json"));
         registryServer.enqueue(new MockResponse()

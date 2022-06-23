@@ -32,6 +32,12 @@ public class ParticipantController  extends BaseController {
     @Value("${redis.expires}")
     private int redisExpires;
 
+    @Value("${participantCode.fieldSeparator}")
+    private String fieldSeparator;
+
+    @Value("${hcx.instanceName}")
+    private String hcxInstanceName;
+
     @Autowired
     private RedisCache redisCache;
 
@@ -40,10 +46,11 @@ public class ParticipantController  extends BaseController {
         @RequestBody Map<String, Object> requestBody) throws Exception {
         try {
             validateParticipant(requestBody);
-            String participantCode = SlugUtils.makeSlug(((ArrayList<String>) requestBody.get(ROLES)).get(0) + " " + requestBody.get(PARTICIPANT_NAME));
-            String updatedParticipantCode = participantCode;
+            String sluggifiedParticipantName = SlugUtils.makeSlug((String) requestBody.get(PARTICIPANT_NAME));
+            String role = ((ArrayList<String>) requestBody.get(ROLES)).get(0).toLowerCase();
+            String updatedParticipantCode = generateParticipantCode(role, sluggifiedParticipantName);
             while(isParticipantCodeExists(updatedParticipantCode)){
-                updatedParticipantCode = participantCode + "-" + new SecureRandom().nextInt(1000);
+                updatedParticipantCode = generateParticipantCode(role, sluggifiedParticipantName+ "-" + new SecureRandom().nextInt(1000));
             }
             requestBody.put(PARTICIPANT_CODE, updatedParticipantCode);
             String url =  registryUrl + "/api/v1/Organisation/invite";
@@ -61,6 +68,10 @@ public class ParticipantController  extends BaseController {
         } catch (Exception e) {
             return exceptionHandler(null, new Response(), e);
         }
+    }
+
+    private String generateParticipantCode(String role, String participantName){
+        return role + fieldSeparator + participantName + "@" + hcxInstanceName;
     }
 
     private boolean isParticipantCodeExists(String participantCode) throws Exception {
