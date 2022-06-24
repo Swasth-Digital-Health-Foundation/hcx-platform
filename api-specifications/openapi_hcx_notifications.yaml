@@ -312,7 +312,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SubscriptionRequest'
+              $ref: '#/components/schemas/SubscriptionUpdate'
       responses:
         '200':
           description: OK
@@ -585,6 +585,29 @@ components:
           type: number
           description: Total number of master list notifications defined at HCX gateway with the given request filter.
           example: 1
+    SubscriptionUpdate:
+      type: object
+      allOf:
+        - properties:
+            subscription_status:
+              type: number
+              description: Status of the subscription. 1 - active, 0 - inactive, -1 - pending for approval.
+              example: 1
+            topic_code:
+              type: string
+              description: Unique code for the notification topic
+              example: "NOTIFICATION@HCX01"
+            recipient_code:
+              type: string
+              description: Identifier of the subscriber.
+            sender_code:
+              type: string
+              description: Identifier of the participant to who the notification subscription is made or quested for.
+            is_delegated:
+              type: boolean
+              description: This property will be used to delegate the notification trigger to HCX. The default value is false.
+              enum: [true, false]
+              example: false
     ErrorResponse:
       required:
         - error
