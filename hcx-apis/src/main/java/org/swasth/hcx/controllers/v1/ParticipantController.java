@@ -94,22 +94,9 @@ public class ParticipantController  extends BaseController {
     public ResponseEntity<Object> participantSearch(@RequestBody Map<String, Object> requestBody) throws Exception {
         try {
             String url =  registryUrl + "/api/v1/Organisation/search";
-            Map<String,Object> filters = (Map<String, Object>) requestBody.get(FILTERS);
-            if (filters.containsKey(PARTICIPANT_CODE)) {
-              filters.put(OSID, filters.get(PARTICIPANT_CODE));
-              filters.remove(PARTICIPANT_CODE);
-            }
-            Map<String,Object> updatedRequestBody = new HashMap<>(Collections.singletonMap(FILTERS, filters));
-            HttpResponse<String> response = HttpUtils.post(url, JSONUtils.serialize(updatedRequestBody), new HashMap<>());
+            HttpResponse<String> response = HttpUtils.post(url, JSONUtils.serialize(requestBody), new HashMap<>());
             if (response.getStatus() == 200) {
                 ArrayList<Object> result = JSONUtils.deserialize(response.getBody(), ArrayList.class);
-                if (!result.isEmpty()) {
-                    for (Object obj: result) {
-                        Map<String, Object> objMap = (Map<String, Object>) obj;
-                        objMap.put(PARTICIPANT_CODE, objMap.get(OSID));
-                        objMap.remove(OSID);
-                    }
-                }
                 return new ResponseEntity<>(new ParticipantResponse(result), HttpStatus.OK);
             } else {
                 throw new ServerException(getErrorMessage(response));
@@ -124,8 +111,11 @@ public class ParticipantController  extends BaseController {
         try {
             validateParticipant(requestBody);
             String participantCode = (String) requestBody.get(PARTICIPANT_CODE);
-            String url = registryUrl + "/api/v1/Organisation/" + participantCode;
-            requestBody.remove(PARTICIPANT_CODE);
+            ResponseEntity<Object> searchResponse = participantSearch(JSONUtils.deserialize("{ \"filters\": { \"participant_code\": { \"eq\": \" " + participantCode + "\" } } }", Map.class));
+            ParticipantResponse participantResponse = (ParticipantResponse) searchResponse.getBody();
+            if(participantResponse.getParticipants().isEmpty())
+                throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_CODE, "Please provide valid participant code");
+            String url = registryUrl + "/api/v1/Organisation/" + ((Map<String,Object>) participantResponse.getParticipants().get(0)).get(OSID);
             Map<String, String> headersMap = new HashMap<>();
             headersMap.put(AUTHORIZATION, Objects.requireNonNull(header.get(AUTHORIZATION)).get(0));
             HttpResponse<String> response = HttpUtils.put(url, JSONUtils.serialize(requestBody), headersMap);

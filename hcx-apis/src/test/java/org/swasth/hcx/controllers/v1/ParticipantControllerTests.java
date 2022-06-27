@@ -176,6 +176,10 @@ class ParticipantControllerTests extends BaseSpec{
     void participant_update_success_scenario() throws Exception {
         registryServer.enqueue(new MockResponse()
                 .setResponseCode(200)
+                .setBody("[{\"osid\":\"1-68c5deca-8299-4feb-b441-923bb649a9a3\"}]")
+                .addHeader("Content-Type", "application/json"));
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
                 .setBody("{ \"message\": \"success\" }")
                 .addHeader("Content-Type", "application/json"));
         Mockito.when(redisCache.isExists(any())).thenReturn(true);
@@ -188,6 +192,10 @@ class ParticipantControllerTests extends BaseSpec{
     @Test
     void participant_update_not_found_scenario() throws Exception {
         registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("[{\"osid\":\"1-68c5deca-8299-4feb-b441-923bb649a9a3\"}]")
+                .addHeader("Content-Type", "application/json"));
+        registryServer.enqueue(new MockResponse()
                 .setResponseCode(404)
                 .setBody("{ \"params\": { \"msgid\": \"bb355e26-cc12-4aeb-8295-03347c428c62\",\"errmsg\": \"NOT_FOUND\" } } }")
                 .addHeader("Content-Type", "application/json"));
@@ -199,6 +207,10 @@ class ParticipantControllerTests extends BaseSpec{
 
     @Test
     void participant_update_un_authorize_scenario() throws Exception {
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("[{\"osid\":\"1-68c5deca-8299-4feb-b441-923bb649a9a3\"}]")
+                .addHeader("Content-Type", "application/json"));
         registryServer.enqueue(new MockResponse()
                 .setResponseCode(401)
                 .setBody("{ \"params\": { \"msgid\": \"bb355e26-cc12-4aeb-8295-03347c428c62\",\"errmsg\": \"UN AUTHORIZED\" } } }")
