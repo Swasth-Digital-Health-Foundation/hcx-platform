@@ -107,7 +107,7 @@ public class ParticipantController  extends BaseController {
                 else
                     return getSuccessResponse(new ParticipantResponse(participantCode));
             }
-        } else if(response.getStatus() == 400) {
+        } else if (response.getStatus() == 400) {
             throw new ClientException(getErrorMessage(response));
         } else if (response.getStatus() == 401) {
             throw new AuthorizationException(getErrorMessage(response));
