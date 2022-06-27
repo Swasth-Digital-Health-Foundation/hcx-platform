@@ -100,13 +100,12 @@ public class ParticipantController  extends BaseController {
     private ResponseEntity<Object> responseHandler(HttpResponse<String> response, String participantCode) throws Exception {
         if (response.getStatus() == 200) {
             if (response.getBody().isEmpty()) {
-                return new ResponseEntity<>(HttpStatus.OK);
-            }
-            else {
+                return getSuccessResponse("");
+            } else {
                 if (response.getBody().startsWith("["))
-                  return new ResponseEntity<>(new ParticipantResponse(JSONUtils.deserialize(response.getBody(), ArrayList.class)), HttpStatus.OK);
+                    return getSuccessResponse(new ParticipantResponse(JSONUtils.deserialize(response.getBody(), ArrayList.class)));
                 else
-                    return new ResponseEntity<>(new ParticipantResponse(participantCode), HttpStatus.OK);
+                    return getSuccessResponse(new ParticipantResponse(participantCode));
             }
         } else if(response.getStatus() == 400) {
             throw new ClientException(getErrorMessage(response));
@@ -117,6 +116,10 @@ public class ParticipantController  extends BaseController {
         } else {
             throw new ServerException(getErrorMessage(response));
         }
+    }
+
+    private ResponseEntity<Object> getSuccessResponse(Object response){
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     private String generateParticipantCode(String role, String participantName){
