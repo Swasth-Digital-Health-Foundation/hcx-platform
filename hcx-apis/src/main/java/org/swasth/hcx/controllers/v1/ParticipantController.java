@@ -112,7 +112,7 @@ public class ParticipantController  extends BaseController {
             validateParticipant(requestBody);
             String participantCode = (String) requestBody.get(PARTICIPANT_CODE);
             ResponseEntity<Object> searchResponse = participantSearch(JSONUtils.deserialize("{ \"filters\": { \"participant_code\": { \"eq\": \" " + participantCode + "\" } } }", Map.class));
-            ParticipantResponse participantResponse = (ParticipantResponse) searchResponse.getBody();
+            ParticipantResponse participantResponse = (ParticipantResponse) Objects.requireNonNull(searchResponse.getBody());
             if(participantResponse.getParticipants().isEmpty())
                 throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_CODE, "Please provide valid participant code");
             String url = registryUrl + "/api/v1/Organisation/" + ((Map<String,Object>) participantResponse.getParticipants().get(0)).get(OSID);
