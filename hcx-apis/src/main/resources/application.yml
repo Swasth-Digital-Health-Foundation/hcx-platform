@@ -77,7 +77,7 @@ redirect:
 
 #hcx config
 hcx:
-  instanceName: ${hcx_instance_name:hcx}
+  instanceName: ${hcx_instance_name:swasth-hcx}
   urls:
     notallowed: ${not_allowed_urls:http://dev-hcx.swasth.app/api,http://staging-hcx.swasth.app/api}
 

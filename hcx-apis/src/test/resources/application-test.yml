@@ -56,7 +56,7 @@ audit:
 
 #hcx config
 hcx:
-  instanceName: ${hcx_instance_name:hcx}
+  instanceName: ${hcx_instance_name:swasth-hcx}
   urls:
     notallowed: ${not_allowed_urls:http://localhost:8095}
 
