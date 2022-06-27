@@ -188,6 +188,7 @@ class ParticipantControllerTests extends BaseSpec{
         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_UPDATE).content(getParticipantUpdateBody()).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
+        System.out.println("--------------------" + response.getContentAsString());
         assertEquals(200, status);
     }
 

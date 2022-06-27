@@ -1,6 +1,6 @@
 package org.swasth.hcx.controllers.v1;
 
-import kong.unirest.HttpResponse;
+import kong.unirest.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -57,36 +57,9 @@ public class ParticipantController  extends BaseController {
             Map<String, String> headersMap = new HashMap<>();
             headersMap.put(AUTHORIZATION, Objects.requireNonNull(header.get(AUTHORIZATION)).get(0));
             HttpResponse<String> response = HttpUtils.post(url, JSONUtils.serialize(requestBody), headersMap);
-            if (response.getStatus() == 200) {
-                ParticipantResponse resp = new ParticipantResponse(updatedParticipantCode);
-                return new ResponseEntity<>(resp, HttpStatus.OK);
-            } else if(response.getStatus() == 400) {
-                throw new ClientException(getErrorMessage(response));
-            } else {
-                throw new ServerException(getErrorMessage(response));
-            }
+            return responseHandler(response, updatedParticipantCode);
         } catch (Exception e) {
             return exceptionHandler(null, new Response(), e);
-        }
-    }
-
-    private String generateParticipantCode(String role, String participantName){
-        return role + fieldSeparator + participantName + "@" + hcxInstanceName;
-    }
-
-    private boolean isParticipantCodeExists(String participantCode) throws Exception {
-        ResponseEntity<Object> searchResponse = participantSearch(JSONUtils.deserialize("{ \"filters\": { \"participant_code\": { \"eq\": \" " + participantCode + "\" } } }", Map.class));
-        Object responseBody = searchResponse.getBody();
-        if (responseBody != null) {
-            if(responseBody instanceof Response){
-                Response response = (Response) responseBody;
-                throw new ServerException("Error in creating participant :: Exception: " + response.getError().getMessage());
-            } else {
-                ParticipantResponse participantResponse = (ParticipantResponse) responseBody;
-                return !participantResponse.getParticipants().isEmpty();
-            }
-        } else {
-            throw new ServerException("Error in creating participant, invalid response from registry");
         }
     }
 
@@ -95,12 +68,7 @@ public class ParticipantController  extends BaseController {
         try {
             String url =  registryUrl + "/api/v1/Organisation/search";
             HttpResponse<String> response = HttpUtils.post(url, JSONUtils.serialize(requestBody), new HashMap<>());
-            if (response.getStatus() == 200) {
-                ArrayList<Object> result = JSONUtils.deserialize(response.getBody(), ArrayList.class);
-                return new ResponseEntity<>(new ParticipantResponse(result), HttpStatus.OK);
-            } else {
-                throw new ServerException(getErrorMessage(response));
-            }
+            return responseHandler(response, null);
         } catch (Exception e) {
             return exceptionHandler(null, new Response(), e);
         }
@@ -121,17 +89,53 @@ public class ParticipantController  extends BaseController {
             HttpResponse<String> response = HttpUtils.put(url, JSONUtils.serialize(requestBody), headersMap);
             if (response.getStatus() == 200) {
                 if(redisCache.isExists(participantCode))
-                  redisCache.delete(participantCode);
-                return new ResponseEntity<>(HttpStatus.OK);
-            } else if (response.getStatus() == 401) {
-                throw new AuthorizationException(getErrorMessage(response));
-            } else if (response.getStatus() == 404) {
-                throw new ResourceNotFoundException(getErrorMessage(response));
-            } else {
-                throw new ServerException(getErrorMessage(response));
+                    redisCache.delete(participantCode);
             }
+            return responseHandler(response, null);
         } catch (Exception e) {
             return exceptionHandler(null, new Response(), e);
+        }
+    }
+
+    private ResponseEntity<Object> responseHandler(HttpResponse<String> response, String participantCode) throws Exception {
+        if (response.getStatus() == 200) {
+            if (response.getBody().isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.OK);
+            }
+            else {
+                if (response.getBody().startsWith("["))
+                  return new ResponseEntity<>(new ParticipantResponse(JSONUtils.deserialize(response.getBody(), ArrayList.class)), HttpStatus.OK);
+                else
+                    return new ResponseEntity<>(new ParticipantResponse(participantCode), HttpStatus.OK);
+            }
+        } else if(response.getStatus() == 400) {
+            throw new ClientException(getErrorMessage(response));
+        } else if (response.getStatus() == 401) {
+            throw new AuthorizationException(getErrorMessage(response));
+        } else if (response.getStatus() == 404) {
+            throw new ResourceNotFoundException(getErrorMessage(response));
+        } else {
+            throw new ServerException(getErrorMessage(response));
+        }
+    }
+
+    private String generateParticipantCode(String role, String participantName){
+        return role + fieldSeparator + participantName + "@" + hcxInstanceName;
+    }
+
+    private boolean isParticipantCodeExists(String participantCode) throws Exception {
+        ResponseEntity<Object> searchResponse = participantSearch(JSONUtils.deserialize("{ \"filters\": { \"participant_code\": { \"eq\": \" " + participantCode + "\" } } }", Map.class));
+        Object responseBody = searchResponse.getBody();
+        if (responseBody != null) {
+            if(responseBody instanceof Response){
+                Response response = (Response) responseBody;
+                throw new ServerException("Error in creating participant :: Exception: " + response.getError().getMessage());
+            } else {
+                ParticipantResponse participantResponse = (ParticipantResponse) responseBody;
+                return !participantResponse.getParticipants().isEmpty();
+            }
+        } else {
+            throw new ServerException("Error in creating participant, invalid response from registry");
         }
     }
 
