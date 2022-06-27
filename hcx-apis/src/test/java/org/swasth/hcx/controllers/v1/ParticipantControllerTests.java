@@ -10,6 +10,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MvcResult;
+import org.swasth.common.dto.Response;
 import org.swasth.common.exception.ErrorCodes;
 import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
@@ -20,6 +21,7 @@ import java.net.InetAddress;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
@@ -187,6 +189,22 @@ class ParticipantControllerTests extends BaseSpec{
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         assertEquals(200, status);
+    }
+
+    @Test
+    void participant_update_invalid_participant_code() throws Exception {
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("[]")
+                .addHeader("Content-Type", "application/json"));
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_UPDATE).content(getParticipantUpdateBody()).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
+        assertNotNull(resObj.getTimestamp());
+        assertEquals(400, status);
+        assertEquals(ErrorCodes.ERR_INVALID_PARTICIPANT_CODE, resObj.getError().getCode());
+        assertEquals("Please provide valid participant code", resObj.getError().getMessage());
     }
 
     @Test
