@@ -196,6 +196,16 @@ class NotificationControllerTest extends BaseSpec {
         assertFalse(resObj.getNotifications().isEmpty());
     }
 
+    @Test
+    void testInvalidNotificationListFilters() throws Exception {
+        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_LIST).content(JSONUtils.serialize(new HashMap<>())).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
+        assertEquals(400, status);
+        assertEquals("Notification filters is missing or empty", resObj.getError().getMessage());
+    }
+
     private ResultSet getMockResultSet(int status) throws SQLException {
         return MockResultSet.create(
                 new String[]{"notificationId", "recipientId", "status","mode"}, //columns
