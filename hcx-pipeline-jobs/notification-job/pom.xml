@@ -97,7 +97,27 @@
 			<artifactId>json-simple</artifactId>
 			<version>1.1</version>
 		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-streaming-java_2.12</artifactId>
+			<version>${flink.version}</version>
+			<scope>test</scope>
+			<classifier>tests</classifier>
+        </dependency>
+		<dependency>
+			<groupId>org.swasth</groupId>
+			<artifactId>core</artifactId>
+			<version>1.0.0</version>
+			<type>test-jar</type>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.13.2</version>
+			<scope>test</scope>
+		</dependency>
+    </dependencies>
 
 	<build>
 		<plugins>
