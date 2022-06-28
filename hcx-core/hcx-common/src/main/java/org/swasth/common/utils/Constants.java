@@ -45,7 +45,7 @@ public class Constants {
     public static final String NOTIFICATION_SUBSCRIBE = "/notification/subscribe";
     public static final String NOTIFICATION_UNSUBSCRIBE = "/notification/unsubscribe";
     public static final String NOTIFICATION_SUBSCRIPTION_LIST = "/notification/subscription/list";
-    public static final String NOTIFICATION_LIST = "/notification/list";
+    public static final String NOTIFICATION_LIST = "/notification/topic/list";
     public static final String NOTIFICATION_REQUEST = "/notification/notify";
 
     // Audit APIs
@@ -147,6 +147,12 @@ public class Constants {
     public static final String NOTIFICATION_HEADERS_OPTIONAL = "notification.headers.optional";
     public static final String NOTIFICATION_DATA = "x-hcx-notification_data";
     public static final String TRIGGER_VALUE = "API";
-
+    public static final List<String> ALLOWED_NOTIFICATION_FILTER_PROPS = Arrays.asList("category", "priority");
+    public static final String PRIORITY = "priority";
+    public static final String CATEGORY = "category";
+    public static final String BROADCAST = "Broadcast";
+    public static final String WORKFLOW = "Workflow";
+    public static final String TOPIC_CODE = "topic_code";
+    public static final List<String> ALLOWED_NOTIFICATION_HEADERS = Arrays.asList("topic_code", "topic", "recipient_codes", "recipient_roles", "subscriptions", "notification_data");
 
 }

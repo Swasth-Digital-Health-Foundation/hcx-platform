@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -23,8 +24,8 @@ public class Response {
     private String subscriptionStatus;
     private List<Subscription> subscriptions;
     @JsonProperty("count")
-    private Integer subscriptionCount;
-    private List<Notification> notifications;
+    private Integer count;
+    private List<Map<String,Object>> notifications;
 
     public Response() {}
 
@@ -38,11 +39,11 @@ public class Response {
         this.put(key, val);
     }
 
-    public List<Notification> getNotifications() {
+    public List<Map<String,Object>> getNotifications() {
         return notifications;
     }
 
-    public void setNotifications(List<Notification> notifications) {
+    public void setNotifications(List<Map<String,Object>> notifications) {
         this.notifications = notifications;
     }
 
@@ -70,12 +71,12 @@ public class Response {
         this.subscriptions = subscriptions;
     }
 
-    public Integer getSubscriptionCount() {
-        return subscriptionCount;
+    public Integer getCount() {
+        return count;
     }
 
-    public void setSubscriptionCount(Integer subscriptionCount) {
-        this.subscriptionCount = subscriptionCount;
+    public void setCount(Integer count) {
+        this.count = count;
     }
 
     public Long getTimestamp() {

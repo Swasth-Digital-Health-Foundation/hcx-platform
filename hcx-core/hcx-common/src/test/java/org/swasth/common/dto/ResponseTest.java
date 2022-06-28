@@ -25,9 +25,9 @@ public class ResponseTest {
         Response response = new Response();
         List<Subscription> subscriptionList = getSubscriptionList();
         response.setSubscriptions(subscriptionList);
-        response.setSubscriptionCount(subscriptionList.size());
+        response.setCount(subscriptionList.size());
         assertEquals(2,response.getSubscriptions().size());
-        assertEquals(2,response.getSubscriptionCount().intValue());
+        assertEquals(2,response.getCount().intValue());
         assertEquals(ACTIVE, response.getSubscriptions().get(0).getStatus());
         assertEquals(IN_ACTIVE, response.getSubscriptions().get(1).getStatus());
     }

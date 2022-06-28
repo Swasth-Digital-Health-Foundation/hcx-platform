@@ -16,6 +16,7 @@ import org.swasth.hcx.utils.MockResultSet;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -104,7 +105,7 @@ class NotificationControllerTest extends BaseSpec {
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
         assertEquals(200, status);
         assertTrue(resObj.getSubscriptions().isEmpty());
-        assertEquals(0,resObj.getSubscriptionCount());
+        assertEquals(0,resObj.getCount());
     }
 
     @Test
@@ -118,7 +119,7 @@ class NotificationControllerTest extends BaseSpec {
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
         assertEquals(200, status);
         assertTrue(!resObj.getSubscriptions().isEmpty());
-        assertEquals(1,resObj.getSubscriptionCount());
+        assertEquals(1,resObj.getCount());
         assertEquals("hcx-notification-001:hcx-apollo-12345", resObj.getSubscriptions().get(0).getSubscriptionId());
         assertEquals("hcx-notification-001", resObj.getSubscriptions().get(0).getNotificationId());
         assertEquals(ACTIVE, resObj.getSubscriptions().get(0).getStatus());
@@ -135,7 +136,7 @@ class NotificationControllerTest extends BaseSpec {
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
         assertEquals(200, status);
         assertTrue(!resObj.getSubscriptions().isEmpty());
-        assertEquals(1,resObj.getSubscriptionCount());
+        assertEquals(1,resObj.getCount());
         assertEquals("hcx-notification-001:hcx-apollo-12345", resObj.getSubscriptions().get(0).getSubscriptionId());
         assertEquals("hcx-notification-001", resObj.getSubscriptions().get(0).getNotificationId());
         assertEquals(IN_ACTIVE, resObj.getSubscriptions().get(0).getStatus());
@@ -153,7 +154,7 @@ class NotificationControllerTest extends BaseSpec {
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
         assertEquals(200, status);
         assertTrue(!resObj.getSubscriptions().isEmpty());
-        assertEquals(2, resObj.getSubscriptionCount());
+        assertEquals(2, resObj.getCount());
         assertEquals("hcx-notification-001:hcx-apollo-12345", resObj.getSubscriptions().get(0).getSubscriptionId());
         assertEquals("hcx-notification-001", resObj.getSubscriptions().get(0).getNotificationId());
         assertEquals(ACTIVE, resObj.getSubscriptions().get(0).getStatus());
@@ -219,8 +220,9 @@ class NotificationControllerTest extends BaseSpec {
     }
 
     private String getNotificationListRequest() throws JsonProcessingException {
-        Map<String,Object> obj = new HashMap<>();
-        return JSONUtils.serialize(obj);
+        Map<String,Object> filters = new HashMap<>();
+        filters.put(PRIORITY, 0);
+        return JSONUtils.serialize(Collections.singletonMap(FILTERS, filters));
     }
 
     private String getNotificationRequest(String notificationId) throws JsonProcessingException {

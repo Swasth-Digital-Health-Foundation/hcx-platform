@@ -120,4 +120,4 @@ spring:
             - RewritePath=/v0.7/notification/subscription/list, /v1/notification/subscription/list
             - RewritePath=/v0.7/notification/list, /v1/notification/list
           predicates:
-            - Path=/v0.7/participant/**, /health, /service/health, /v0.7/notification/subscription/list, /v0.7/notification/list
+            - Path=/v0.7/participant/**, /health, /service/health, /v0.7/notification/subscription/list, /v0.7/notification/topic/list

@@ -2,6 +2,7 @@ package org.swasth.hcx.controllers;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -116,7 +117,7 @@ public class BaseController {
         response.setApiCallId(request.getApiCallId());
     }
 
-    protected ResponseEntity<Object> exceptionHandler(Request request, Response response, Exception e) throws Exception {
+    protected ResponseEntity<Object> exceptionHandler(Object request, Response response, Exception e) throws Exception {
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         ErrorCodes errorCode = ErrorCodes.INTERNAL_SERVER_ERROR;
         if (e instanceof ClientException) {
@@ -132,9 +133,9 @@ public class BaseController {
         } else if (e instanceof ResourceNotFoundException) {
             status = HttpStatus.NOT_FOUND;
         }
-        if (request != null) {
-            request.setStatus(ERROR_STATUS);
-            auditIndexer.createDocument(eventGenerator.generateAuditEvent(request));
+        if (request != null && request instanceof Request) {
+            ((Request) request).setStatus(ERROR_STATUS);
+            auditIndexer.createDocument(eventGenerator.generateAuditEvent((Request) request));
         }
         return new ResponseEntity<>(errorResponse(response, errorCode, e), status);
     }
@@ -147,7 +148,7 @@ public class BaseController {
             request = new Request(requestBody);
             //TODO load from MasterDataUtils
             if(notificationList == null) loadNotifications();
-            if (!isValidNotificaitonId(request.getNotificationId())) {
+            if (!isValidNotificationId(request.getNotificationId())) {
                 throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_ID, "Invalid NotificationId." + request.getNotificationId() + " is not present in the master list of notifications");
             }
             setResponseParams(request, response);
@@ -180,7 +181,7 @@ public class BaseController {
             request = new Request(requestBody);
             subscriptionList = fetchSubscriptions(request.getSenderCode());
             response.setSubscriptions(subscriptionList);
-            response.setSubscriptionCount(subscriptionList.size());
+            response.setCount(subscriptionList.size());
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             return exceptionHandler(request, response, e);
@@ -216,13 +217,36 @@ public class BaseController {
 
     protected ResponseEntity<Object> getNotifications(Map<String, Object> requestBody) throws Exception {
         Response response = new Response();
-        Request request = null;
+        NotificationListRequest request = null;
         try {
             checkSystemHealth();
-            request = new Request(requestBody);
+            if(!requestBody.containsKey(FILTERS) || MapUtils.isEmpty((Map<String,Object>) requestBody.get(FILTERS))) {
+                throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Notification filters is missing or empty");
+            }
+            request = new NotificationListRequest(requestBody);
+            for(String key: request.getFilters().keySet()){
+                if(!ALLOWED_NOTIFICATION_FILTER_PROPS.contains(key)){
+                    throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Invalid notifications filters, allowed properties are: " + ALLOWED_NOTIFICATION_FILTER_PROPS);
+                }
+            }
             if (notificationList == null)
                  loadNotifications();
-            response.setNotifications(notificationList);
+            List<Map<String, Object>> filteredNotificationList = null;
+            if (!notificationList.isEmpty()) {
+                filteredNotificationList = (List) notificationList;
+                Iterator<Map<String, Object>> iterator = filteredNotificationList.iterator();
+                while(iterator.hasNext()){
+                    Map<String, Object> notification = iterator.next();
+                    for(String key: request.getFilters().keySet()) {
+                        if(!notification.get(key).equals(request.getFilters().get(key))){
+                            iterator.remove();
+                            break;
+                        }
+                    }
+                }
+            }
+            response.setNotifications(filteredNotificationList);
+            response.setCount(filteredNotificationList.size());
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             return exceptionHandler(request, response, e);
@@ -235,11 +259,11 @@ public class BaseController {
         notificationList =  (List<Notification>) jsonReader.readValue(resource.getInputStream(), List.class);
     }
 
-    protected boolean isValidNotificaitonId(String notificationId){
+    protected boolean isValidNotificationId(String notificationId){
         boolean isValid = false;
         List<LinkedHashMap<String, Object>> linkedHashMapList = (List) notificationList;
         for (LinkedHashMap<String, Object> notification: linkedHashMapList) {
-            if(notificationId.equals(notification.get("id"))){
+            if(notificationId.equals(notification.get(TOPIC_CODE))){
                 isValid = true;
                 break;
             }
