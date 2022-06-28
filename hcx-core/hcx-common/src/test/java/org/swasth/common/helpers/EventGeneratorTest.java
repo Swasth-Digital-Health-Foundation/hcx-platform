@@ -32,7 +32,7 @@ public class EventGeneratorTest {
     @Test
     public void check_generateMetadataEvent_for_on_action_request() throws Exception {
         Request request = getRequest();
-        request.setApiAction("/v1/coverageeligibility/on_action");
+        request.setApiAction( Constants.COVERAGE_ELIGIBILITY_ONCHECK);
         String result = eventGenerator.generateMetadataEvent(request);
         assertNotNull(result);
     }

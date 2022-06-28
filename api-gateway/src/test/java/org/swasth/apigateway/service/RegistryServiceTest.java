@@ -9,8 +9,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
-import org.swasth.apigateway.cache.RedisCache;
+import org.swasth.redis.cache.RedisCache;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -18,18 +19,19 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+
 @SpringBootTest(classes = {RegistryService.class, RedisCache.class})
 @ActiveProfiles("test")
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 class RegistryServiceTest {
 
-    private MockWebServer registryServer =  new MockWebServer();
+    private final MockWebServer registryServer =  new MockWebServer();
     private RedisServer redisServer;
 
     @Autowired
     private RegistryService registryService;
 
-    @Autowired
+    @MockBean
     private RedisCache redisCache;
 
     @BeforeEach
@@ -73,9 +75,7 @@ class RegistryServiceTest {
                 .setResponseCode(400)
                 .addHeader("Content-Type", "application/json"));
 
-        Exception exception = assertThrows(Exception.class, () -> {
-            registryService.fetchDetails("osid", "test_123");
-        });
+        Exception exception = assertThrows(Exception.class, () -> registryService.fetchDetails("osid", "test_123"));
         assertEquals("Error in fetching the participant details400", exception.getMessage());
     }
 

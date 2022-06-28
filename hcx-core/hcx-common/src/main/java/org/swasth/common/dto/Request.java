@@ -16,7 +16,7 @@ public class Request {
     protected Map<String, Object> hcxHeaders = null;
     private String mid = UUID.randomUUID().toString();
     private String apiAction;
-    private final String payloadWithoutEncryptionKey;
+    private final String payloadWithoutSensitiveData;
 
     public Request(Map<String, Object> body) throws Exception {
         this.payload = body;
@@ -25,7 +25,7 @@ public class Request {
                 hcxHeaders = JSONUtils.decodeBase64String(((String) body.get(PAYLOAD)).split("\\.")[0], Map.class);
             } else //FIXME  No need of this check here, as all JSON request bodies will have proper body structure post validations if (body.containsKey(STATUS))
                 hcxHeaders = body;
-            this.payloadWithoutEncryptionKey = PayloadUtils.removeEncryptionKey(body);
+            this.payloadWithoutSensitiveData = PayloadUtils.removeSensitiveData(body);
         } catch (Exception e) {
             throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, "Invalid Payload");
         }
@@ -102,7 +102,7 @@ public class Request {
 
     public String getApiAction() { return apiAction; }
 
-    public String getPayloadWithoutEncryptionKey() { return payloadWithoutEncryptionKey; }
+    public String getPayloadWithoutSensitiveData() { return payloadWithoutSensitiveData; }
 
     public void setMid(String mid) {
         this.mid = mid;

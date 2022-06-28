@@ -80,13 +80,13 @@ const machine = createMachine({
 
                                 case 'CLAIM': {
                                     const claimResponse = _find(entry, e => e?.resource?.resourceType === 'ClaimResponse');
-                                    const amount = _get(claimResponse, 'resource.item[0].adjudication[0].amount.value');
+                                    const amount = _get(claimResponse, 'resource.payment.amount.value');
                                     return messages.CLAIM_SUCCESS.replace('xxx', amount ?? 0)
                                 }
 
                                 case 'PREAUTH': {
                                     const preAuthResponse = _find(entry, e => e?.resource?.resourceType === 'PreauthResponse');
-                                    const amount = _get(preAuthResponse, 'resource.item[0].adjudication[0].amount.value');
+                                    const amount = _get(preAuthResponse, 'resource.payment.amount.value');
                                     return messages.PRE_AUTH_SUCCESS.replace('xxx', amount ?? 0);
                                 }
                             }

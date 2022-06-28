@@ -12,10 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.swasth.auditindexer.function.AuditIndexer;
 import org.swasth.common.dto.*;
-import org.swasth.common.exception.ClientException;
-import org.swasth.common.exception.ErrorCodes;
-import org.swasth.common.exception.ServerException;
-import org.swasth.common.exception.ServiceUnavailbleException;
+import org.swasth.common.exception.*;
 import org.swasth.common.helpers.EventGenerator;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.hcx.managers.HealthCheckManager;
@@ -130,9 +127,15 @@ public class BaseController {
             errorCode = ((ServiceUnavailbleException) e).getErrCode();
         } else if (e instanceof ServerException) {
             errorCode = ((ServerException) e).getErrCode();
+        } else if (e instanceof AuthorizationException) {
+            status = HttpStatus.UNAUTHORIZED;
+        } else if (e instanceof ResourceNotFoundException) {
+            status = HttpStatus.NOT_FOUND;
         }
-        request.setStatus(ERROR_STATUS);
-        auditIndexer.createDocument(eventGenerator.generateAuditEvent(request));
+        if (request != null) {
+            request.setStatus(ERROR_STATUS);
+            auditIndexer.createDocument(eventGenerator.generateAuditEvent(request));
+        }
         return new ResponseEntity<>(errorResponse(response, errorCode, e), status);
     }
 

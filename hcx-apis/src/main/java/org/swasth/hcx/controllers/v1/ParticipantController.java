@@ -1,122 +1,156 @@
 package org.swasth.hcx.controllers.v1;
 
 import kong.unirest.HttpResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.swasth.common.dto.ParticipantResponse;
-import org.swasth.common.dto.ResponseError;
-import org.swasth.common.exception.ErrorCodes;
+import org.swasth.common.dto.Response;
+import org.swasth.common.exception.*;
+import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.HttpUtils;
 import org.swasth.common.utils.JSONUtils;
+import org.swasth.common.utils.SlugUtils;
 import org.swasth.hcx.controllers.BaseController;
+import org.swasth.redis.cache.RedisCache;
 
+import java.security.SecureRandom;
 import java.util.*;
 
 import static org.swasth.common.utils.Constants.*;
 
 @RestController()
-@RequestMapping(value = "/v1/participant")
+@RequestMapping(Constants.VERSION_PREFIX)
 public class ParticipantController  extends BaseController {
 
     @Value("${registry.basePath}")
     private String registryUrl;
 
-    @RequestMapping(value = "/create", method = RequestMethod.POST)
+    @Value("${redis.expires}")
+    private int redisExpires;
+
+    @Autowired
+    private RedisCache redisCache;
+
+    @PostMapping(PARTICIPANT_CREATE)
     public ResponseEntity<Object> participantCreate(@RequestHeader HttpHeaders header,
         @RequestBody Map<String, Object> requestBody) throws Exception {
-        if(((ArrayList) requestBody.get(ROLES)).contains(PAYOR) && !requestBody.containsKey(SCHEME_CODE)) {
-            return new ResponseEntity<>(errorResponse(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, "scheme_code is missing", null), HttpStatus.BAD_REQUEST);
-        }
-        if (!((ArrayList) requestBody.get(ROLES)).contains(PAYOR) && requestBody.containsKey(SCHEME_CODE)) {
-            return new ResponseEntity<>(errorResponse(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, "unknown property, 'scheme_code' is not allowed", null), HttpStatus.BAD_REQUEST);
-        }
-        if (validateEndpointUrl(requestBody))
-            return new ResponseEntity<>(errorResponse(ErrorCodes.ERR_INVALID_PAYLOAD, "end point url should not be the HCX Gateway/APIs URL", null), HttpStatus.BAD_REQUEST);
-
-        String url =  registryUrl + "/api/v1/Organisation/invite";
-        Map<String, String> headersMap = new HashMap<>();
-        headersMap.put(AUTHORIZATION, header.get(AUTHORIZATION).get(0));
-        HttpResponse response = HttpUtils.post(url, JSONUtils.serialize(requestBody), headersMap);
-        if (response != null && response.getStatus() == 200) {
-            Map<String, Object> result = JSONUtils.deserialize((String) response.getBody(), HashMap.class);
-            String participantCode = (String) ((Map<String, Object>) ((Map<String, Object>) result.get("result"))
-                .get("Organisation")).get(OSID);
-            ParticipantResponse resp = new ParticipantResponse(participantCode);
-            return new ResponseEntity<>(resp, HttpStatus.OK);
-        } else if(response.getStatus() == 400) {
-            return new ResponseEntity<>(getError(response), HttpStatus.BAD_REQUEST);
-        }
-        else {
-            return new ResponseEntity<>(getError(response), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @RequestMapping(value = "/search", method = RequestMethod.POST)
-    public ResponseEntity<Object> participantSearch(@RequestBody Map<String, Object> requestBody) throws Exception {
-        String url =  registryUrl + "/api/v1/Organisation/search";
-        Map<String,Object> filters = (Map<String, Object>) requestBody.get(FILTERS);
-        if (filters.containsKey(PARTICIPANT_CODE)) {
-          filters.put(OSID, filters.get(PARTICIPANT_CODE));
-          filters.remove(PARTICIPANT_CODE);
-        }
-        Map<String,Object> updatedRequestBody = new HashMap<>(Collections.singletonMap(FILTERS, filters));
-        HttpResponse response = HttpUtils.post(url, JSONUtils.serialize(updatedRequestBody), new HashMap<>());
-        if (response.getStatus() == 200) {
-            ArrayList<Object> result = JSONUtils.deserialize((String) response.getBody(), ArrayList.class);
-            if (!result.isEmpty()) {
-                for (Object obj: result) {
-                    Map<String, Object> objMap = (Map<String, Object>) obj;
-                    objMap.put(PARTICIPANT_CODE, "1-" + objMap.get(OSID));
-                    objMap.remove(OSID);
-                }
+        try {
+            validateParticipant(requestBody);
+            String participantCode = SlugUtils.makeSlug(((ArrayList<String>) requestBody.get(ROLES)).get(0) + " " + requestBody.get(PARTICIPANT_NAME));
+            String updatedParticipantCode = participantCode;
+            while(isParticipantCodeExists(updatedParticipantCode)){
+                updatedParticipantCode = participantCode + "-" + new SecureRandom().nextInt(1000);
             }
-            return new ResponseEntity<>(new ParticipantResponse(result), HttpStatus.OK);
+            requestBody.put(PARTICIPANT_CODE, updatedParticipantCode);
+            String url =  registryUrl + "/api/v1/Organisation/invite";
+            Map<String, String> headersMap = new HashMap<>();
+            headersMap.put(AUTHORIZATION, Objects.requireNonNull(header.get(AUTHORIZATION)).get(0));
+            HttpResponse<String> response = HttpUtils.post(url, JSONUtils.serialize(requestBody), headersMap);
+            if (response.getStatus() == 200) {
+                ParticipantResponse resp = new ParticipantResponse(updatedParticipantCode);
+                return new ResponseEntity<>(resp, HttpStatus.OK);
+            } else if(response.getStatus() == 400) {
+                throw new ClientException(getErrorMessage(response));
+            } else {
+                throw new ServerException(getErrorMessage(response));
+            }
+        } catch (Exception e) {
+            return exceptionHandler(null, new Response(), e);
+        }
+    }
+
+    private boolean isParticipantCodeExists(String participantCode) throws Exception {
+        ResponseEntity<Object> searchResponse = participantSearch(JSONUtils.deserialize("{ \"filters\": { \"participant_code\": { \"eq\": \" " + participantCode + "\" } } }", Map.class));
+        Object responseBody = searchResponse.getBody();
+        if (responseBody != null) {
+            if(responseBody instanceof Response){
+                Response response = (Response) responseBody;
+                throw new ServerException("Error in creating participant :: Exception: " + response.getError().getMessage());
+            } else {
+                ParticipantResponse participantResponse = (ParticipantResponse) responseBody;
+                return !participantResponse.getParticipants().isEmpty();
+            }
         } else {
-            return new ResponseEntity<>(getError(response), HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ServerException("Error in creating participant, invalid response from registry");
         }
     }
 
-    @RequestMapping(value = "/update", method = RequestMethod.POST)
+    @PostMapping(PARTICIPANT_SEARCH)
+    public ResponseEntity<Object> participantSearch(@RequestBody Map<String, Object> requestBody) throws Exception {
+        try {
+            String url =  registryUrl + "/api/v1/Organisation/search";
+            Map<String,Object> filters = (Map<String, Object>) requestBody.get(FILTERS);
+            if (filters.containsKey(PARTICIPANT_CODE)) {
+              filters.put(OSID, filters.get(PARTICIPANT_CODE));
+              filters.remove(PARTICIPANT_CODE);
+            }
+            Map<String,Object> updatedRequestBody = new HashMap<>(Collections.singletonMap(FILTERS, filters));
+            HttpResponse<String> response = HttpUtils.post(url, JSONUtils.serialize(updatedRequestBody), new HashMap<>());
+            if (response.getStatus() == 200) {
+                ArrayList<Object> result = JSONUtils.deserialize(response.getBody(), ArrayList.class);
+                if (!result.isEmpty()) {
+                    for (Object obj: result) {
+                        Map<String, Object> objMap = (Map<String, Object>) obj;
+                        objMap.put(PARTICIPANT_CODE, objMap.get(OSID));
+                        objMap.remove(OSID);
+                    }
+                }
+                return new ResponseEntity<>(new ParticipantResponse(result), HttpStatus.OK);
+            } else {
+                throw new ServerException(getErrorMessage(response));
+            }
+        } catch (Exception e) {
+            return exceptionHandler(null, new Response(), e);
+        }
+    }
+
+    @PostMapping(PARTICIPANT_UPDATE)
     public ResponseEntity<Object> participantUpdate(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) throws Exception {
-      String url = registryUrl + "/api/v1/Organisation/" + requestBody.get(PARTICIPANT_CODE);
-        if (validateEndpointUrl(requestBody))
-            return new ResponseEntity<>(errorResponse(ErrorCodes.ERR_INVALID_PAYLOAD, "end point url should not be the HCX Gateway/APIs URL", null), HttpStatus.BAD_REQUEST);
-        requestBody.remove(PARTICIPANT_CODE);
-        Map<String, String> headersMap = new HashMap<>();
-        headersMap.put(AUTHORIZATION,header.get(AUTHORIZATION).get(0));
-        HttpResponse response = HttpUtils.put(url, JSONUtils.serialize(requestBody), headersMap);
-        if (response.getStatus() == 200) {
-            return new ResponseEntity<>(HttpStatus.OK);
-        }
-        else if(response.getStatus() == 401){
-            return new ResponseEntity<>(getError(response), HttpStatus.UNAUTHORIZED);
-        }
-        else if(response.getStatus() == 404){
-            return new ResponseEntity<>(getError(response), HttpStatus.NOT_FOUND);
-        }
-        else {
-            return new ResponseEntity<>(getError(response), HttpStatus.INTERNAL_SERVER_ERROR);
+        try {
+            validateParticipant(requestBody);
+            String participantCode = (String) requestBody.get(PARTICIPANT_CODE);
+            String url = registryUrl + "/api/v1/Organisation/" + participantCode;
+            requestBody.remove(PARTICIPANT_CODE);
+            Map<String, String> headersMap = new HashMap<>();
+            headersMap.put(AUTHORIZATION, Objects.requireNonNull(header.get(AUTHORIZATION)).get(0));
+            HttpResponse<String> response = HttpUtils.put(url, JSONUtils.serialize(requestBody), headersMap);
+            if (response.getStatus() == 200) {
+                if(redisCache.isExists(participantCode))
+                  redisCache.delete(participantCode);
+                return new ResponseEntity<>(HttpStatus.OK);
+            } else if (response.getStatus() == 401) {
+                throw new AuthorizationException(getErrorMessage(response));
+            } else if (response.getStatus() == 404) {
+                throw new ResourceNotFoundException(getErrorMessage(response));
+            } else {
+                throw new ServerException(getErrorMessage(response));
+            }
+        } catch (Exception e) {
+            return exceptionHandler(null, new Response(), e);
         }
     }
 
-    private ParticipantResponse getError(HttpResponse response) throws Exception {
-        Map<String, Object> result = JSONUtils.deserialize((String) response.getBody(), HashMap.class);
-        String message = (String) ((Map<String, Object>) result.get("params")).get("errmsg");
-        return errorResponse(null, message, null);
-    }
-
-    private ParticipantResponse errorResponse(ErrorCodes code, String message, Throwable trace){
-        ResponseError error = new ResponseError(code, message, trace);
-        ParticipantResponse resp = new ParticipantResponse(error);
-        return resp;
-    }
-
-    private boolean validateEndpointUrl(@RequestBody Map<String, Object> requestBody) {
+    private void validateParticipant(Map<String, Object> requestBody) throws ClientException {
         List<String> notAllowedUrls = env.getProperty(HCX_NOT_ALLOWED_URLS, List.class, new ArrayList<String>());
-        return notAllowedUrls.contains(requestBody.get(ENDPOINT_URL));
+        if (!requestBody.containsKey(ROLES) || !(requestBody.get(ROLES) instanceof ArrayList) || ((ArrayList<String>) requestBody.get(ROLES)).isEmpty())
+            throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, "roles property cannot be null, empty or other than 'ArrayList'");
+        else if(((ArrayList<String>) requestBody.get(ROLES)).contains(PAYOR) && !requestBody.containsKey(SCHEME_CODE))
+            throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, "scheme_code property is missing");
+        else if (!((ArrayList<String>) requestBody.get(ROLES)).contains(PAYOR) && requestBody.containsKey(SCHEME_CODE))
+            throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, "unknown property, 'scheme_code' is not allowed");
+        else if (notAllowedUrls.contains(requestBody.get(ENDPOINT_URL)))
+            throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, "end point url should not be the HCX Gateway/APIs URL");
+        else if (!requestBody.containsKey(PARTICIPANT_NAME) || !(requestBody.get(PARTICIPANT_NAME) instanceof String) || ((String) requestBody.get(PARTICIPANT_NAME)).isEmpty())
+            throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, "participant_name property cannot be null, empty or other than 'String'");
+    }
+
+    private String getErrorMessage(HttpResponse<String> response) throws Exception {
+        Map<String, Object> result = JSONUtils.deserialize(response.getBody(), HashMap.class);
+        return (String) ((Map<String, Object>) result.get("params")).get("errmsg");
     }
 
 }

@@ -86,10 +86,10 @@ const EligibilityCheck = props => {
                     policyEnd: _get(coverageEligibilityResponse, 'resource.servicedPeriod.end'),
                 }),
                 ...(claimResponse && {
-                    amount: `${_get(claimResponse, 'resource.item[0].adjudication[0].amount.value') || 0} ${_get(claimResponse, 'resource.item[0].adjudication[0].amount.currency')} `,
+                    amount: `${_get(claimResponse, 'resource.payment.amount.value') || 0} ${_get(claimResponse, 'resource.item[0].adjudication[0].amount.currency')} `,
                 }),
                 ...(preAuthResponse && {
-                    amount: `${_get(preAuthResponse, 'resource.item[0].adjudication[0].amount.value') || 0} ${_get(preAuthResponse, 'resource.item[0].adjudication[0].amount.currency')} `,
+                    amount: `${_get(preAuthResponse, 'resource.payment.amount.value') || 0} ${_get(preAuthResponse, 'resource.item[0].adjudication[0].amount.currency')} `,
                 }),
             }),
             ...(errorDetails && {

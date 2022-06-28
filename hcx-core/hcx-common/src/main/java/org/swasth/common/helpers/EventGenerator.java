@@ -114,7 +114,7 @@ public class EventGenerator {
         event.put(AUDIT_TIMESTAMP, System.currentTimeMillis());
         event.put(SENDER_ROLE, new ArrayList<>());
         event.put(RECIPIENT_ROLE, new ArrayList<>());
-        event.put(PAYLOAD, request.getPayloadWithoutEncryptionKey());
+        event.put(PAYLOAD, request.getPayloadWithoutSensitiveData());
         return  event;
     }
 

@@ -2,25 +2,28 @@ package org.swasth.hcx.controllers.v1;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.swasth.hcx.controllers.BaseController;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.swasth.common.utils.Constants;
+import org.swasth.hcx.controllers.BaseController;
 
 import java.util.Map;
 
 @RestController()
-@RequestMapping(value = "/v1/paymentnotice")
+@RequestMapping(Constants.VERSION_PREFIX)
 public class PaymentsController extends BaseController {
 
     @Value("${kafka.topic.payment}")
     private String kafkaTopic;
 
-    @RequestMapping(value = "/request", method = RequestMethod.POST)
+    @PostMapping(Constants.PAYMENT_NOTICE_REQUEST)
     public ResponseEntity<Object> paymentNoticeRequest(@RequestBody Map<String, Object> requestBody) throws Exception {
         return validateReqAndPushToKafka(requestBody, Constants.PAYMENT_NOTICE_REQUEST, kafkaTopic);
     }
 
-    @RequestMapping(value = "/on_request", method = RequestMethod.POST)
+    @PostMapping(Constants.PAYMENT_NOTICE_ONREQUEST)
     public ResponseEntity<Object> paymentNoticeOnRequest(@RequestBody Map<String, Object> requestBody) throws Exception {
         return validateReqAndPushToKafka(requestBody, Constants.PAYMENT_NOTICE_ONREQUEST, kafkaTopic);
     }

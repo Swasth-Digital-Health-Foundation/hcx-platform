@@ -3,12 +3,13 @@ package org.swasth.hcx.controllers.v1;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.swasth.common.dto.*;
 import org.swasth.common.exception.ClientException;
+import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.hcx.controllers.BaseController;
 
@@ -19,7 +20,7 @@ import java.util.Map;
 import static org.swasth.common.utils.Constants.*;
 
 @RestController()
-@RequestMapping(value = "/v1/hcx")
+@RequestMapping(Constants.VERSION_PREFIX)
 public class StatusController extends BaseController {
 
     @Value("${kafka.topic.status}")
@@ -28,7 +29,7 @@ public class StatusController extends BaseController {
     @Value("${allowedEntitiesForStatusSearch}")
     private List<String> allowedEntitiesForStatusSearch;
 
-    @RequestMapping(value = "/status", method = RequestMethod.POST)
+    @PostMapping(HCX_STATUS)
     public ResponseEntity<Object> status(@RequestBody Map<String, Object> requestBody) throws Exception {
         Response response = new Response();
         Request request = new Request(requestBody);
@@ -44,7 +45,7 @@ public class StatusController extends BaseController {
                 throw new ClientException("Invalid correlation id, details do not exist");
             }
             HeaderAudit auditData = auditResponse.get(auditResponse.size()-1);
-            String entityType = auditData.getAction().split("/")[2];
+            String entityType = auditData.getAction().split("/")[1];
             if (!allowedEntitiesForStatusSearch.contains(entityType)) {
                 throw new ClientException("Invalid entity, status search allowed only for entities: " + allowedEntitiesForStatusSearch);
             }
@@ -62,7 +63,7 @@ public class StatusController extends BaseController {
         }
     }
 
-    @RequestMapping(value = "/on_status", method = RequestMethod.POST)
+    @PostMapping(HCX_ONSTATUS)
     public ResponseEntity<Object> onStatus(@RequestBody Map<String, Object> requestBody) throws Exception {
         Response response = new Response();
         Request request = new Request(requestBody);

@@ -28,7 +28,7 @@ public class BaseRequest {
     private Map<String,Object> payload;
     private List<String> senderRole = new ArrayList<>();
     private List<String> recipientRole = new ArrayList<>();
-    private String payloadWithoutEncryptionKey = null;
+    private String payloadWithoutSensitiveData = null;
     private String hcxRoles;
     private String hcxCode;
 
@@ -45,7 +45,7 @@ public class BaseRequest {
                 this.protocolHeaders = payload;
             else
                 this.protocolHeaders = JSONUtils.decodeBase64String(validateRequestBody(payload)[0], Map.class);
-            this.payloadWithoutEncryptionKey = PayloadUtils.removeEncryptionKey(payload);
+            this.payloadWithoutSensitiveData = PayloadUtils.removeSensitiveData(payload);
         } catch (JsonParseException e) {
             throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, "Error while parsing protected headers");
         }
@@ -251,7 +251,7 @@ public class BaseRequest {
 
     public Map<String,Object> getNotificationData() { return getHeaderMap(NOTIFICATION_DATA);}
 
-    public String getPayloadWithoutEncryptionKey() { return payloadWithoutEncryptionKey; }
+    public String getPayloadWithoutSensitiveData() { return payloadWithoutSensitiveData; }
 
     protected String[] validateRequestBody(Map<String, Object> requestBody) throws Exception {
         try {

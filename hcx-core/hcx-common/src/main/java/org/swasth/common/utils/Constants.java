@@ -7,43 +7,54 @@ public class Constants {
 
     public static final String VERSION_PREFIX = "/v1";
 
+    // Health APIs
+    public static final String HEALTH = "/health";
+    public static final String SERVICE_HEALTH = "/service/health";
+
     // Coverage Eligibility APIs
-    public static final String COVERAGE_ELIGIBILITY_CHECK = VERSION_PREFIX + "/coverageeligibility/check";
-    public static final String COVERAGE_ELIGIBILITY_ONCHECK = VERSION_PREFIX + "/coverageeligibility/on_check";
+    public static final String COVERAGE_ELIGIBILITY_CHECK = "/coverageeligibility/check";
+    public static final String COVERAGE_ELIGIBILITY_ONCHECK = "/coverageeligibility/on_check";
 
     // Claims APIs
-    public static final String PRE_AUTH_SUBMIT = VERSION_PREFIX + "/preauth/submit";
-    public static final String PRE_AUTH_ONSUBMIT = VERSION_PREFIX + "/preauth/on_submit";
-    public static final String CLAIM_SUBMIT = VERSION_PREFIX + "/claim/submit";
-    public static final String CLAIM_ONSUBMIT = VERSION_PREFIX + "/claim/on_submit";
+    public static final String PRE_AUTH_SUBMIT = "/preauth/submit";
+    public static final String PRE_AUTH_ONSUBMIT = "/preauth/on_submit";
+    public static final String CLAIM_SUBMIT = "/claim/submit";
+    public static final String CLAIM_ONSUBMIT = "/claim/on_submit";
 
     //Payment Notice APIs
-    public static final String PAYMENT_NOTICE_REQUEST = VERSION_PREFIX + "/paymentnotice/request";
-    public static final String PAYMENT_NOTICE_ONREQUEST = VERSION_PREFIX + "/paymentnotice/on_request";
+    public static final String PAYMENT_NOTICE_REQUEST = "/paymentnotice/request";
+    public static final String PAYMENT_NOTICE_ONREQUEST = "/paymentnotice/on_request";
 
     //Status Search APIs
-    public static final String HCX_STATUS = VERSION_PREFIX + "/hcx/status";
-    public static final String HCX_ONSTATUS = VERSION_PREFIX + "/hcx/on_status";
+    public static final String HCX_STATUS = "/hcx/status";
+    public static final String HCX_ONSTATUS = "/hcx/on_status";
 
     // Search APIs
-    public static final String HCX_SEARCH = VERSION_PREFIX + "/hcx/search";
-    public static final String HCX_ON_SEARCH = VERSION_PREFIX + "/hcx/on_search";
+    public static final String HCX_SEARCH = "/hcx/search";
+    public static final String HCX_ON_SEARCH = "/hcx/on_search";
 
     //Communication APIs
-    public static final String COMMUNICATION_REQUEST = VERSION_PREFIX + "/communication/request";
-    public static final String COMMUNICATION_ONREQUEST = VERSION_PREFIX + "/communication/on_request";
+    public static final String COMMUNICATION_REQUEST = "/communication/request";
+    public static final String COMMUNICATION_ONREQUEST = "/communication/on_request";
 
     //Predetermination APIs
-    public static final String PREDETERMINATION_SUBMIT = VERSION_PREFIX + "/predetermination/submit";
-    public static final String PREDETERMINATION_ONSUBMIT = VERSION_PREFIX + "/predetermination/on_submit";
+    public static final String PREDETERMINATION_SUBMIT = "/predetermination/submit";
+    public static final String PREDETERMINATION_ONSUBMIT = "/predetermination/on_submit";
 
     // Notification APIs
-    public static final String NOTIFICATION_SUBSCRIBE = VERSION_PREFIX + "/notification/subscribe";
-    public static final String NOTIFICATION_UNSUBSCRIBE = VERSION_PREFIX + "/notification/unsubscribe";
-    public static final String NOTIFICATION_SUBSCRIPTION_LIST = VERSION_PREFIX + "/notification/subscription/list";
-    public static final String NOTIFICATION_LIST = VERSION_PREFIX + "/notification/list";
-    public static final String NOTIFICATION_REQUEST = VERSION_PREFIX + "/notification/notify";
+    public static final String NOTIFICATION_SUBSCRIBE = "/notification/subscribe";
+    public static final String NOTIFICATION_UNSUBSCRIBE = "/notification/unsubscribe";
+    public static final String NOTIFICATION_SUBSCRIPTION_LIST = "/notification/subscription/list";
+    public static final String NOTIFICATION_LIST = "/notification/list";
+    public static final String NOTIFICATION_REQUEST = "/notification/notify";
 
+    // Audit APIs
+    public static final String AUDIT_SEARCH = "/audit/search";
+
+    // Registry Participant APIs
+    public static final String PARTICIPANT_CREATE = "/participant/create";
+    public static final String PARTICIPANT_SEARCH = "/participant/search";
+    public static final String PARTICIPANT_UPDATE = "/participant/update";
 
     public static final String HEALTHY = "healthy";
     public static final String NAME = "name";
@@ -102,6 +113,9 @@ public class Constants {
     public static final String ROLES = "roles";
     public static final String SCHEME_CODE = "scheme_code";
     public static final String PARTICIPANT_CODE = "participant_code";
+    public static final String PARTICIPANT_NAME = "participant_name";
+    public static final String PRIMARY_EMAIL = "primary_email";
+    public static final String EQUAL_OPERATION = "eq";
     public static final String OSID = "osid";
     public static final String AUTHORIZATION = "Authorization";
     public static final String FILTERS = "filters";

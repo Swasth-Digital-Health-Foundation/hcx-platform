@@ -10,11 +10,11 @@ import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.swasth.apigateway.cache.RedisCache;
 import org.swasth.apigateway.service.AuditService;
 import org.swasth.apigateway.service.RegistryService;
 import org.swasth.apigateway.utils.JSONUtils;
 import org.swasth.auditindexer.function.AuditIndexer;
+import org.swasth.redis.cache.RedisCache;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -25,6 +25,8 @@ import java.util.*;
 public class BaseSpec {
 
     protected MockWebServer server =  new MockWebServer();
+
+    public final String versionPrefix = "/v0.7";
 
     @MockBean
     protected RegistryService registryService;
