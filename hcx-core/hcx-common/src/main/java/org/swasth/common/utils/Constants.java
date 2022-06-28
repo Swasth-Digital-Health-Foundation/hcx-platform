@@ -153,6 +153,5 @@ public class Constants {
     public static final String BROADCAST = "Broadcast";
     public static final String WORKFLOW = "Workflow";
     public static final String TOPIC_CODE = "topic_code";
-    public static final List<String> ALLOWED_NOTIFICATION_HEADERS = Arrays.asList("topic_code", "topic", "recipient_codes", "recipient_roles", "subscriptions", "notification_data");
 
 }

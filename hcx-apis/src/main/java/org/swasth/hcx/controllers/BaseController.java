@@ -133,7 +133,7 @@ public class BaseController {
         } else if (e instanceof ResourceNotFoundException) {
             status = HttpStatus.NOT_FOUND;
         }
-        if (request != null && request instanceof Request) {
+        if (request instanceof Request) {
             ((Request) request).setStatus(ERROR_STATUS);
             auditIndexer.createDocument(eventGenerator.generateAuditEvent((Request) request));
         }
@@ -231,7 +231,7 @@ public class BaseController {
             }
             if (notificationList == null)
                  loadNotifications();
-            List<Map<String, Object>> filteredNotificationList = null;
+            List<Map<String, Object>> filteredNotificationList = new ArrayList<>();
             if (!notificationList.isEmpty()) {
                 filteredNotificationList = (List) notificationList;
                 Iterator<Map<String, Object>> iterator = filteredNotificationList.iterator();

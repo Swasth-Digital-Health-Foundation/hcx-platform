@@ -45,6 +45,7 @@ public class NotificationTest {
         notification.setTrigger("Trigger");
         notification.setType("Type");
         notification.setStatus("Status");
+        notification.setPriority(0);
 
         assertEquals("Category", notification.getCategory());
         assertEquals("Description",notification.getDescription());
@@ -56,6 +57,7 @@ public class NotificationTest {
         assertEquals("Template", notification.getTemplate());
         assertEquals("Trigger",notification.getTrigger());
         assertEquals("Type",notification.getType());
+        assertEquals(0,notification.getPriority());
     }
 
 
