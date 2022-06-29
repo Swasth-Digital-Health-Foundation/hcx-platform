@@ -2,9 +2,11 @@ package org.swasth.common.dto;
 
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.swasth.common.utils.Constants;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Set;
 
 import static org.junit.Assert.*;
 
@@ -39,8 +41,8 @@ public class NotificationTest {
         notification.setDescription("Description");
         notification.setTopicCode("Id");
         notification.setTitle("Name");
-        notification.setAllowedRecipients(null);
-        notification.setAllowedSenders(null);
+        notification.setAllowedRecipients(Set.of(Constants.PROVIDER, Constants.AGENCY_TPA));
+        notification.setAllowedSenders(Set.of(Constants.PAYOR));
         notification.setTemplate("Template");
         notification.setTrigger("Trigger");
         notification.setType("Type");
@@ -52,8 +54,8 @@ public class NotificationTest {
         assertEquals("Status",notification.getStatus());
         assertEquals("Id",notification.getTopicCode());
         assertEquals("Name",notification.getTitle());
-        assertNull(notification.getAllowedRecipients());
-        assertNull(notification.getAllowedSenders());
+        assertTrue(notification.getAllowedRecipients().contains(Constants.PROVIDER));
+        assertTrue(notification.getAllowedSenders().contains(Constants.PAYOR));
         assertEquals("Template", notification.getTemplate());
         assertEquals("Trigger",notification.getTrigger());
         assertEquals("Type",notification.getType());

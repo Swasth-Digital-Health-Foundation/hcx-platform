@@ -5,16 +5,18 @@ import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.swasth.common.dto.SearchRequestDTO;
 import org.swasth.hcx.controllers.BaseSpec;
+import org.swasth.hcx.service.NotificationService;
 
 import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 
-@ContextConfiguration(classes=SearchUtil.class)
+@ContextConfiguration(classes={SearchUtil.class,NotificationService.class})
 class SearchUtilsTests extends BaseSpec {
 
     @Test

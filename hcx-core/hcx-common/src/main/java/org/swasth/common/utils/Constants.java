@@ -110,6 +110,7 @@ public class Constants {
     public static final String HEADER_AUDIT = "hcx_audit";
     public static final String PAYOR = "payor";
     public static final String PROVIDER = "provider";
+    public static final String AGENCY_TPA = "agency.tpa";
     public static final String ROLES = "roles";
     public static final String SCHEME_CODE = "scheme_code";
     public static final String PARTICIPANT_CODE = "participant_code";

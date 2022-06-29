@@ -20,6 +20,7 @@ import org.swasth.common.utils.JSONUtils;
 import org.swasth.hcx.controllers.v1.*;
 import org.swasth.hcx.managers.HealthCheckManager;
 import org.swasth.hcx.service.HeaderAuditService;
+import org.swasth.hcx.service.NotificationService;
 import org.swasth.kafka.client.IEventService;
 import org.swasth.postgresql.IDatabaseService;
 import org.swasth.redis.cache.RedisCache;
@@ -31,7 +32,7 @@ import java.util.Map;
 
 
 
-@WebMvcTest({CoverageEligibilityController.class, PreAuthController.class, ClaimsController.class, PaymentsController.class, AuditController.class, StatusController.class, SearchController.class, CommunicationController.class, PredeterminationController.class, ParticipantController.class, NotificationController.class})
+@WebMvcTest({CoverageEligibilityController.class, PreAuthController.class, ClaimsController.class, PaymentsController.class, AuditController.class, StatusController.class, SearchController.class, CommunicationController.class, PredeterminationController.class, ParticipantController.class, NotificationController.class, NotificationService.class})
 @ExtendWith(MockitoExtension.class)
 @ActiveProfiles("test")
 public class BaseSpec {
@@ -64,6 +65,9 @@ public class BaseSpec {
 
     @MockBean
     protected RedisCache redisCache;
+
+    @Autowired
+    protected NotificationService notificationService;
 
     @BeforeEach
     public void setup() {

@@ -203,7 +203,7 @@ class NotificationControllerTest extends BaseSpec {
         int status = response.getStatus();
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
         assertEquals(400, status);
-        assertEquals("Notification filters is missing or empty", resObj.getError().getMessage());
+        assertEquals("Notification filters property is missing", resObj.getError().getMessage());
     }
 
     private ResultSet getMockResultSet(int status) throws SQLException {
