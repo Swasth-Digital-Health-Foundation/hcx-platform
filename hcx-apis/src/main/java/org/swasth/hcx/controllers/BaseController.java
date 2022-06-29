@@ -45,9 +45,6 @@ public class BaseController {
     @Value("${postgres.tablename}")
     private String postgresTableName;
 
-    @Value("${registry.hcxcode}")
-    protected String hcxRegistryCode;
-
     protected Response errorResponse(Response response, ErrorCodes code, java.lang.Exception e) {
         ResponseError error = new ResponseError(code, e.getMessage(), e.getCause());
         response.setError(error);

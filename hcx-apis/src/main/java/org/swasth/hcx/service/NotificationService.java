@@ -41,6 +41,9 @@ public class NotificationService extends BaseController {
     @Value("${notification.path:classpath:Notifications.json}")
     private String filename;
 
+    @Value("${registry.hcxcode}")
+    private String hcxRegistryCode;
+
     @Autowired
     private IDatabaseService postgreSQLClient;
 
