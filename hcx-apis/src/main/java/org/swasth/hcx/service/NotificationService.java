@@ -97,7 +97,7 @@ public class NotificationService extends BaseController {
         }
     }
 
-    public List<Subscription> fetchSubscriptions(String participantCode) throws Exception {
+    private List<Subscription> fetchSubscriptions(String participantCode) throws Exception {
         ResultSet resultSet = null;
         List<Subscription> subscriptionList = null;
         Subscription subscription = null;
@@ -157,7 +157,7 @@ public class NotificationService extends BaseController {
         }
     }
 
-    public void loadNotifications() throws IOException {
+    private void loadNotifications() throws IOException {
         Resource resource = resourceLoader.getResource(filename);
         ObjectMapper jsonReader = new ObjectMapper(new JsonFactory());
         notificationList =  (List<Notification>) jsonReader.readValue(resource.getInputStream(), List.class);
