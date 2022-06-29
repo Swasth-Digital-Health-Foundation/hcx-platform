@@ -14,6 +14,7 @@ public class NotificationConfig extends BaseJobConfig {
     public String notificationConsumer = "notification-consumer";
     public int consumerParallelism;
     public int downstreamOperatorsParallelism;
+    public int dispatcherParallelism;
 
     // Postgres
     public String subscriptionTableName;
@@ -29,6 +30,7 @@ public class NotificationConfig extends BaseJobConfig {
         consumerParallelism = config.getInt("task.consumer.parallelism");
         downstreamOperatorsParallelism = config.getInt("task.downstream.operators.parallelism");
         subscriptionTableName = config.getString("postgres.subscription.table");
+        dispatcherParallelism = config.getInt("task.downstream.operators.dispatcher.parallelism");
     }
 
 }

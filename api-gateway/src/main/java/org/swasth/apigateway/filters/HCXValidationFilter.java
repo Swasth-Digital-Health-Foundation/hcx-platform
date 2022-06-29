@@ -89,6 +89,8 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                     validateParticipantCtxDetails(participantCtxAuditDetails, path);
                 } else if (path.contains("notification")) { //for validating /notification/subscribe, /notification/unsubscribe, /notification/request
                     JSONRequest jsonRequest = new JSONRequest(requestBody, true, path, hcxCode, hcxRoles);
+                    correlationId = jsonRequest.getCorrelationId();
+                    apiCallId = jsonRequest.getApiCallId();
                     jsonRequest.validate(getNotificationMandatoryHeaders(), subject, timestampRange, getDetails(jsonRequest.getSenderCode()), getDetails(jsonRequest.getRecipientCode()),true);
                 } else { //for validating redirect and error plain JSON on_check calls
                     if (!path.contains("on_")) {
