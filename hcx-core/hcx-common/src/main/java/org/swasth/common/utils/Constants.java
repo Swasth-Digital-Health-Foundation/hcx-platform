@@ -148,11 +148,11 @@ public class Constants {
     public static final String NOTIFICATION_HEADERS_OPTIONAL = "notification.headers.optional";
     public static final String NOTIFICATION_DATA = "x-hcx-notification_data";
     public static final String TRIGGER_VALUE = "API";
-    public static final List<String> ALLOWED_NOTIFICATION_FILTER_PROPS = Arrays.asList("category", "priority");
     public static final String PRIORITY = "priority";
     public static final String CATEGORY = "category";
     public static final String BROADCAST = "Broadcast";
     public static final String WORKFLOW = "Workflow";
     public static final String TOPIC_CODE = "topic_code";
+    public static final List<String> ALLOWED_NOTIFICATION_FILTER_PROPS = Arrays.asList(CATEGORY, PRIORITY);
 
 }
