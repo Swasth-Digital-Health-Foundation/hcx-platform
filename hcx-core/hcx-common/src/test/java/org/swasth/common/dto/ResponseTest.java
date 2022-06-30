@@ -4,9 +4,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.Test;
 import org.swasth.common.exception.ErrorCodes;
 import org.swasth.common.utils.Constants;
-import org.swasth.common.utils.JSONUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.swasth.common.utils.Constants.ACTIVE;
