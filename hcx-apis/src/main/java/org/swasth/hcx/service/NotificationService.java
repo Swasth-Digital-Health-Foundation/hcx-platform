@@ -2,21 +2,21 @@ package org.swasth.hcx.service;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.swasth.common.dto.*;
+import org.swasth.common.dto.NotificationListRequest;
+import org.swasth.common.dto.Request;
+import org.swasth.common.dto.Response;
+import org.swasth.common.dto.Subscription;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
-import org.swasth.common.utils.Constants;
-import org.swasth.hcx.controllers.BaseController;
+import org.swasth.hcx.handlers.EventHandler;
 import org.swasth.postgresql.IDatabaseService;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.util.*;
@@ -24,7 +24,7 @@ import java.util.*;
 import static org.swasth.common.utils.Constants.*;
 
 @Service
-public class NotificationService extends BaseController {
+public class NotificationService {
 
     @Value("${postgres.subscription.tablename}")
     private String postgresSubscription;
@@ -35,9 +35,6 @@ public class NotificationService extends BaseController {
     @Value("${postgres.subscription.subscriptionQuery}")
     private String selectSubscription;
 
-    @Autowired
-    private ResourceLoader resourceLoader;
-
     @Value("${notification.path:classpath:Notifications.json}")
     private String filename;
 
@@ -45,56 +42,69 @@ public class NotificationService extends BaseController {
     private String hcxRegistryCode;
 
     @Autowired
+    private ResourceLoader resourceLoader;
+
+    @Autowired
     private IDatabaseService postgreSQLClient;
 
-    public List<Notification> notificationList = null;
+    @Autowired
+    protected EventHandler eventHandler;
 
-    public ResponseEntity<Object> processSubscription(Map<String, Object> requestBody, int statusCode) throws Exception {
-        Response response = new Response();
-        Request request = null;
-        try {
-            checkSystemHealth();
-            request = new Request(requestBody);
-            //TODO load from MasterDataUtils
-            if(notificationList == null) loadNotifications();
-            if (!isValidNotificationId(request.getNotificationId())) {
-                throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_ID, "Invalid NotificationId." + request.getNotificationId() + " is not present in the master list of notifications");
-            }
-            setResponseParams(request, response);
-            //If recipient is HCX, then status is 200 and insert into subscription table
-            if(hcxRegistryCode.equalsIgnoreCase(request.getRecipientCode())){
-                String serviceMode = env.getProperty(SERVICE_MODE);
-                String id = UUID.randomUUID().toString();
-                //TODO modify the hardcoded mode here from the query
-                String query = String.format(insertSubscription, postgresSubscription, id, request.getSenderCode(), request.getNotificationId(), statusCode, System.currentTimeMillis(),"API",statusCode,System.currentTimeMillis());
-                if (StringUtils.equalsIgnoreCase(serviceMode, GATEWAY)) {
-                    //Insert record into subscription table in postgres database
-                    postgreSQLClient.execute(query);
-                }
-                return new ResponseEntity<>(response, HttpStatus.OK);
-            }else{ // For other recipients, status is 202 and process the request asynchronously
-                //TODO write logic to create kafka topic for pipeline jobs to process in next sprint
-                return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
-            }
-        } catch (Exception e) {
-            return exceptionHandler(request, response, e);
-        }
+    private List<Map<String, Object>> notificationList = null;
+
+    @PostConstruct
+    public void init() throws IOException {
+        loadNotifications();
     }
 
-    public ResponseEntity<Object> getSubscriptions(Map<String, Object> requestBody) throws Exception {
-        Response response = new Response();
-        Request request = null;
-        List<Subscription> subscriptionList = null;
-        try {
-            checkSystemHealth();
-            request = new Request(requestBody);
-            subscriptionList = fetchSubscriptions(request.getSenderCode());
-            response.setSubscriptions(subscriptionList);
-            response.setCount(subscriptionList.size());
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        } catch (Exception e) {
-            return exceptionHandler(request, response, e);
+    public void processSubscription(Request request, int statusCode) throws Exception {
+        isValidNotificationId(request.getNotificationId());
+        String query = String.format(insertSubscription, postgresSubscription, UUID.randomUUID(), request.getSenderCode(),
+                request.getNotificationId(), statusCode, System.currentTimeMillis(), "API", statusCode,
+                System.currentTimeMillis());
+        postgreSQLClient.execute(query);
+    }
+
+    public void getSubscriptions(Request request, Response response) throws Exception {
+        List<Subscription> subscriptionList = fetchSubscriptions(request.getSenderCode());
+        response.setSubscriptions(subscriptionList);
+        response.setCount(subscriptionList.size());
+    }
+
+    public void notify(Request request, Response response, String kafkaTopic) throws Exception {
+        isValidNotificationId(request.getNotificationId());
+        eventHandler.processAndSendEvent(kafkaTopic, request);
+    }
+
+    public void getNotifications(NotificationListRequest request, Response response) throws Exception {
+        for (String key : request.getFilters().keySet()) {
+            if(!ALLOWED_NOTIFICATION_FILTER_PROPS.contains(key))
+                throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Invalid notifications filters, allowed properties are: " + ALLOWED_NOTIFICATION_FILTER_PROPS);
         }
+        // TODO: add filter limit condition
+        Set<Map<String, Object>> removeNotificationList = new HashSet<>();
+        notificationList.forEach(notification -> request.getFilters().keySet().forEach(key -> {
+            if (!notification.get(key).equals(request.getFilters().get(key)))
+                removeNotificationList.add(notification);
+        }));
+        notificationList.removeAll(removeNotificationList);
+        response.setNotifications(notificationList);
+        response.setCount(notificationList.size());
+    }
+
+    private void loadNotifications() throws IOException {
+        Resource resource = resourceLoader.getResource(filename);
+        ObjectMapper jsonReader = new ObjectMapper(new JsonFactory());
+        notificationList = (List<Map<String, Object>>) jsonReader.readValue(resource.getInputStream(), List.class);
+    }
+
+    private void isValidNotificationId(String notificationId) throws ClientException {
+        boolean isValid = false;
+        for (Map<String, Object> notification: notificationList) {
+            if(notificationId.equals(notification.get(TOPIC_CODE)))
+                isValid = true;
+        }
+        if(!isValid) throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_TOPIC_CODE, "Invalid NotificationId." + notificationId + " is not present in the master list of notifications");
     }
 
     private List<Subscription> fetchSubscriptions(String participantCode) throws Exception {
@@ -108,91 +118,15 @@ public class NotificationService extends BaseController {
             while (resultSet.next()) {
                 subscription = new Subscription();
                 String notificationId = resultSet.getString("notificationId");
-                String recipientId = resultSet.getString("recipientId");
-                String mode = resultSet.getString("mode");
-                int statusCode = resultSet.getInt("status");
-                String status = statusCode == 1 ? ACTIVE : IN_ACTIVE;
                 subscription.setNotificationId(notificationId);
-                subscription.setSubscriptionId(notificationId + ":" + recipientId);
-                subscription.setStatus(status);
-                subscription.setMode(mode);
+                subscription.setSubscriptionId(notificationId + ":" + resultSet.getString("recipientId"));
+                subscription.setStatus(resultSet.getInt("status") == 1 ? ACTIVE : IN_ACTIVE);
+                subscription.setMode(resultSet.getString("mode"));
                 subscriptionList.add(subscription);
             }
             return subscriptionList;
         }finally {
             if (resultSet != null) resultSet.close();
-        }
-    }
-
-    public ResponseEntity<Object> getNotifications(Map<String, Object> requestBody) throws Exception {
-        Response response = new Response();
-        NotificationListRequest request = null;
-        try {
-            checkSystemHealth();
-            if (!requestBody.containsKey(FILTERS)) {
-                throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Notification filters property is missing");
-            }
-            request = new NotificationListRequest(requestBody);
-            for (String key : request.getFilters().keySet()) {
-                if (!ALLOWED_NOTIFICATION_FILTER_PROPS.contains(key)) {
-                    throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Invalid notifications filters, allowed properties are: " + ALLOWED_NOTIFICATION_FILTER_PROPS);
-                }
-            }
-            if (notificationList == null)
-                loadNotifications();
-            // TODO: add filter limit condition
-            List<Map<String, Object>> filteredNotificationList = (List) notificationList;
-            Set<Map<String, Object>> removeNotificationList = new HashSet<>();
-            NotificationListRequest finalRequest = request;
-            filteredNotificationList.stream().forEach(notification -> finalRequest.getFilters().keySet().forEach(key -> {
-                if (!notification.get(key).equals(finalRequest.getFilters().get(key)))
-                    removeNotificationList.add(notification);
-            }));
-            filteredNotificationList.removeAll(removeNotificationList);
-            response.setNotifications(filteredNotificationList);
-            response.setCount(filteredNotificationList.size());
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        } catch (Exception e) {
-            return exceptionHandler(request, response, e);
-        }
-    }
-
-    private void loadNotifications() throws IOException {
-        Resource resource = resourceLoader.getResource(filename);
-        ObjectMapper jsonReader = new ObjectMapper(new JsonFactory());
-        notificationList =  (List<Notification>) jsonReader.readValue(resource.getInputStream(), List.class);
-    }
-
-    private boolean isValidNotificationId(String notificationId){
-        boolean isValid = false;
-        List<LinkedHashMap<String, Object>> linkedHashMapList = (List) notificationList;
-        for (LinkedHashMap<String, Object> notification: linkedHashMapList) {
-            if(notificationId.equals(notification.get(TOPIC_CODE))){
-                isValid = true;
-                break;
-            }
-        }
-        return isValid;
-    }
-
-    public ResponseEntity<Object> notify(Map<String, Object> requestBody, String kafkaTopic) throws Exception {
-        Response response = new Response();
-        Request request = null;
-        try {
-            checkSystemHealth();
-            request = new Request(requestBody);
-            request.setApiAction(Constants.NOTIFICATION_REQUEST);
-            //TODO load from MasterDataUtils
-            if(notificationList == null)
-                loadNotifications();
-            if (!isValidNotificationId(request.getNotificationId())) {
-                throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_ID, "Invalid NotificationId." + request.getNotificationId() + " is not present in the master list of notifications");
-            }
-            setResponseParams(request, response);
-            processAndSendEvent(kafkaTopic, request);
-            return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
-        } catch (Exception e) {
-            return exceptionHandler(request, response, e);
         }
     }
 }

@@ -2,7 +2,7 @@ server:
   port: ${SERVER_PORT:8095}
 
 version:
-  exposed: ${version_exposed:v0.7}
+  external: ${version_external:v0.7}
   internal: ${version_internal:v1}
 
 #hcx headers
@@ -85,20 +85,20 @@ spring:
               args:
                 redis-rate-limiter.replenishRate: 10
                 redis-rate-limiter.burstCapacity: 20
-            - RewritePath=/${version.exposed}/coverageeligibility/(?<segment>/?.*), /${version.internal}/coverageeligibility/$\{segment}
-            - RewritePath=/${version.exposed}/preauth/(?<segment>/?.*), /${version.internal}/preauth/$\{segment}
-            - RewritePath=/${version.exposed}/claim/(?<segment>/?.*), /${version.internal}/claim/$\{segment}
-            - RewritePath=/${version.exposed}/paymentnotice/(?<segment>/?.*), /${version.internal}/paymentnotice/$\{segment}
-            - RewritePath=/${version.exposed}/hcx/(?<segment>/?.*), /${version.internal}/hcx/$\{segment}
-            - RewritePath=/${version.exposed}/predetermination/(?<segment>/?.*), /${version.internal}/predetermination/$\{segment}
-            - RewritePath=/${version.exposed}/communication/(?<segment>/?.*), /${version.internal}/communication/$\{segment}
-            - RewritePath=/${version.exposed}/notification/subscribe, /${version.internal}/notification/subscribe
-            - RewritePath=/${version.exposed}/notification/unsubscribe, /${version.internal}/notification/unsubscribe
-            - RewritePath=/${version.exposed}/notification/notify, /${version.internal}/notification/notify
+            - RewritePath=/${version.external}/coverageeligibility/(?<segment>/?.*), /${version.internal}/coverageeligibility/$\{segment}
+            - RewritePath=/${version.external}/preauth/(?<segment>/?.*), /${version.internal}/preauth/$\{segment}
+            - RewritePath=/${version.external}/claim/(?<segment>/?.*), /${version.internal}/claim/$\{segment}
+            - RewritePath=/${version.external}/paymentnotice/(?<segment>/?.*), /${version.internal}/paymentnotice/$\{segment}
+            - RewritePath=/${version.external}/hcx/(?<segment>/?.*), /${version.internal}/hcx/$\{segment}
+            - RewritePath=/${version.external}/predetermination/(?<segment>/?.*), /${version.internal}/predetermination/$\{segment}
+            - RewritePath=/${version.external}/communication/(?<segment>/?.*), /${version.internal}/communication/$\{segment}
+            - RewritePath=/${version.external}/notification/subscribe, /${version.internal}/notification/subscribe
+            - RewritePath=/${version.external}/notification/unsubscribe, /${version.internal}/notification/unsubscribe
+            - RewritePath=/${version.external}/notification/notify, /${version.internal}/notification/notify
             - CachingRequestBodyFilter
             - HCXValidationFilter
           predicates:
-            - Path=/${version.exposed}/coverageeligibility/**, /${version.exposed}/preauth/**, /${version.exposed}/claim/**, /${version.exposed}/paymentnotice/**, /${version.exposed}/hcx/**, /${version.exposed}/predetermination/**, /${version.exposed}/communication/**, /${version.exposed}/notification/subscribe, /${version.exposed}/notification/unsubscribe, /${version.exposed}/notification/notify
+            - Path=/${version.external}/coverageeligibility/**, /${version.external}/preauth/**, /${version.external}/claim/**, /${version.external}/paymentnotice/**, /${version.external}/hcx/**, /${version.external}/predetermination/**, /${version.external}/communication/**, /${version.external}/notification/subscribe, /${version.external}/notification/unsubscribe, /${version.external}/notification/notify
 
         - id: hcx-api-route-audit
           uri: ${HCX_API_BASEPATH:http://localhost:8080}
@@ -107,11 +107,11 @@ spring:
               args:
                 redis-rate-limiter.replenishRate: 10
                 redis-rate-limiter.burstCapacity: 20
-            - RewritePath=/${version.exposed}/audit/search, /${version.internal}/audit/search
+            - RewritePath=/${version.external}/audit/search, /${version.internal}/audit/search
             - CachingRequestBodyFilter
             - AuditValidationFilter
           predicates:
-            - Path=/${version.exposed}/audit/search
+            - Path=/${version.external}/audit/search
 
         - id: hcx-registry-api-route
           uri: ${HCX_API_BASEPATH:http://localhost:8080}
@@ -120,8 +120,8 @@ spring:
               args:
                 redis-rate-limiter.replenishRate: 10
                 redis-rate-limiter.burstCapacity: 20
-            - RewritePath=/${version.exposed}/participant/(?<segment>/?.*), /${version.internal}/participant/$\{segment}
-            - RewritePath=/${version.exposed}/notification/subscription/list, /${version.internal}/notification/subscription/list
-            - RewritePath=/${version.exposed}/notification/list, /${version.internal}/notification/list
+            - RewritePath=/${version.external}/participant/(?<segment>/?.*), /${version.internal}/participant/$\{segment}
+            - RewritePath=/${version.external}/notification/subscription/list, /${version.internal}/notification/subscription/list
+            - RewritePath=/${version.external}/notification/list, /${version.internal}/notification/list
           predicates:
-            - Path=/${version.exposed}/participant/**, /health, /service/health, /${version.exposed}/notification/subscription/list, /${version.exposed}/notification/topic/list
+            - Path=/${version.external}/participant/**, /health, /service/health, /${version.external}/notification/subscription/list, /${version.external}/notification/topic/list

@@ -9,7 +9,6 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.swasth.common.dto.Response;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
-import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.hcx.controllers.BaseSpec;
 import org.swasth.hcx.utils.MockResultSet;
@@ -36,7 +35,7 @@ class NotificationControllerTest extends BaseSpec {
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIBE).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
-        assertEquals(200, status);
+        assertEquals(202, status);
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
         assertEquals("1fa85f64-5717-4562-b3fc-2c963f66afa6", resObj.getApiCallId());
         assertEquals("2fa85f64-5717-4562-b3fc-2c963f66afa6", resObj.getCorrelationId());
@@ -75,7 +74,7 @@ class NotificationControllerTest extends BaseSpec {
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_UNSUBSCRIBE).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
-        assertEquals(200, status);
+        assertEquals(202, status);
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
         assertEquals("1fa85f64-5717-4562-b3fc-2c963f66afa6", resObj.getApiCallId());
         assertEquals("2fa85f64-5717-4562-b3fc-2c963f66afa6", resObj.getCorrelationId());
@@ -196,16 +195,6 @@ class NotificationControllerTest extends BaseSpec {
         assertFalse(resObj.getNotifications().isEmpty());
     }
 
-    @Test
-    void testInvalidNotificationListFilters() throws Exception {
-        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_LIST).content(JSONUtils.serialize(new HashMap<>())).contentType(MediaType.APPLICATION_JSON)).andReturn();
-        MockHttpServletResponse response = mvcResult.getResponse();
-        int status = response.getStatus();
-        Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
-        assertEquals(400, status);
-        assertEquals("Notification filters property is missing", resObj.getError().getMessage());
-    }
-
     private ResultSet getMockResultSet(int status) throws SQLException {
         return MockResultSet.create(
                 new String[]{"notificationId", "recipientId", "status","mode"}, //columns
@@ -278,7 +267,7 @@ class NotificationControllerTest extends BaseSpec {
         assertEquals(400, status);
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
         assertNotNull(resObj.getTimestamp());
-        assertEquals(ErrorCodes.ERR_INVALID_NOTIFICATION_ID, resObj.getError().getCode());
+        assertEquals(ErrorCodes.ERR_INVALID_NOTIFICATION_TOPIC_CODE, resObj.getError().getCode());
         assertTrue(resObj.getError().getMessage().contains("Invalid NotificationId."));
     }
 

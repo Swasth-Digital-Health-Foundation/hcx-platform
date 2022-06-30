@@ -33,6 +33,15 @@ public class Response {
         this.apiCallId = apiCallId;
     }
 
+    public Response(Request request){
+        this.setCorrelationId(request.getCorrelationId());
+        this.setApiCallId(request.getApiCallId());
+    }
+
+    public Response(ResponseError error){
+        this.error = error;
+    }
+
     public Response(String key, Object val) {
         this.result = new HashMap<>();
         this.put(key, val);
