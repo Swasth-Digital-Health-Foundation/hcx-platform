@@ -34,7 +34,7 @@ public class NotificationController extends BaseController {
         Request request = new Request(requestBody, NOTIFICATION_REQUEST);
         Response response = new Response(request);
         try {
-            notificationService.notify(request, response, kafkaTopic);
+            notificationService.notify(request, kafkaTopic);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
             return exceptionHandler(request, response, e);

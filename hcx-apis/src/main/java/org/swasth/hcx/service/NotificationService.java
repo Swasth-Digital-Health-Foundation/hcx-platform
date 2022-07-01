@@ -73,7 +73,7 @@ public class NotificationService {
         response.setCount(subscriptionList.size());
     }
 
-    public void notify(Request request, Response response, String kafkaTopic) throws Exception {
+    public void notify(Request request, String kafkaTopic) throws Exception {
         isValidCode(request.getNotificationId());
         eventHandler.processAndSendEvent(kafkaTopic, request);
     }

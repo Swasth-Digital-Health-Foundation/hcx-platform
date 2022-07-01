@@ -1,7 +1,6 @@
 package org.swasth.hcx.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,9 +33,6 @@ public class BaseController {
 
     @Autowired
     protected EventHandler eventHandler;
-
-    @Value("${postgres.tablename}")
-    private String postgresTableName;
 
     protected Response errorResponse(Response response, ErrorCodes code, java.lang.Exception e) {
         response.setError(new ResponseError(code, e.getMessage(), e.getCause()));

@@ -30,7 +30,7 @@ public class HealthCheckAspect {
             Response healthResp = healthCheckManager.checkAllSystemHealth();
             if(!(boolean) healthResp.get(Constants.HEALTHY)) {
                 logger.error("Health check is failed : " + JSONUtils.serialize(healthResp.get(Constants.CHECKS)));
-                throw new ServiceUnavailbleException(ErrorCodes.ERR_SERVICE_UNAVAILABLE, "Internal service is unreachable");
+                throw new ServiceUnavailbleException(ErrorCodes.ERR_SERVICE_UNAVAILABLE, "The server is temporarily unable to service your request. Please try again later.");
             } else getSuccessLogger();
         } else getSuccessLogger();
     }
