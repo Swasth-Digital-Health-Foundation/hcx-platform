@@ -85,7 +85,7 @@ public class NotificationController extends BaseController {
             notificationService.getNotifications(request, response);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
-            return exceptionHandler(request, response, e);
+            return getErrorResponseEntity(response, e);
         }
     }
 

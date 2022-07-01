@@ -54,7 +54,13 @@ public class BaseController {
         }
     }
 
-    protected ResponseEntity<Object> exceptionHandler(Object request, Response response, Exception e) throws Exception {
+    protected ResponseEntity<Object> exceptionHandler(Request request, Response response, Exception e) throws Exception {
+        request.setStatus(ERROR_STATUS);
+        auditIndexer.createDocument(eventGenerator.generateAuditEvent(request));
+        return getErrorResponseEntity(response, e);
+    }
+
+    protected ResponseEntity<Object> getErrorResponseEntity(Response response, Exception e){
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         ErrorCodes errorCode = ErrorCodes.INTERNAL_SERVER_ERROR;
         if (e instanceof ClientException) {
@@ -70,11 +76,9 @@ public class BaseController {
         } else if (e instanceof ResourceNotFoundException) {
             status = HttpStatus.NOT_FOUND;
         }
-        if (request instanceof Request) {
-            ((Request) request).setStatus(ERROR_STATUS);
-            auditIndexer.createDocument(eventGenerator.generateAuditEvent((Request) request));
-        }
         return new ResponseEntity<>(errorResponse(response, errorCode, e), status);
     }
+
+
 
 }
