@@ -52,7 +52,7 @@ public class NotificationService {
 
     private List<Map<String, Object>> notificationList = null;
 
-    private List<String> topicCodeList = null;
+    private List<String> topicCodeList = new ArrayList<>();
 
     @PostConstruct
     public void init() throws IOException {
