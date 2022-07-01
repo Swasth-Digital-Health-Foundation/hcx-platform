@@ -59,7 +59,7 @@ public class ParticipantController  extends BaseController {
                 throw new ServerException(getErrorMessage(response));
             }
         } catch (Exception e) {
-            return exceptionHandler(null, new Response(), e);
+            return getErrorResponseEntity(new Response(), e);
         }
     }
 
@@ -104,7 +104,7 @@ public class ParticipantController  extends BaseController {
                 throw new ServerException(getErrorMessage(response));
             }
         } catch (Exception e) {
-            return exceptionHandler(null, new Response(), e);
+            return getErrorResponseEntity(new Response(), e);
         }
     }
 
@@ -130,7 +130,7 @@ public class ParticipantController  extends BaseController {
                 throw new ServerException(getErrorMessage(response));
             }
         } catch (Exception e) {
-            return exceptionHandler(null, new Response(), e);
+            return getErrorResponseEntity(new Response(), e);
         }
     }
 

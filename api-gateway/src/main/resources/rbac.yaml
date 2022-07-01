@@ -19,7 +19,7 @@ rbac:
       - /v0.7/notification/subscribe
       - /v0.7/notification/unsubscribe
       - /v0.7/notification/subscription/list
-      - /v0.7/notification/list
+      - /v0.7/notification/topic/list
       - /v0.7/notification/notify
   - role: payor
     paths:
@@ -40,7 +40,7 @@ rbac:
       - /v0.7/notification/subscribe
       - /v0.7/notification/unsubscribe
       - /v0.7/notification/subscription/list
-      - /v0.7/notification/list
+      - /v0.7/notification/topic/list
       - /v0.7/notification/notify
   - role: agency.tpa
     paths:
