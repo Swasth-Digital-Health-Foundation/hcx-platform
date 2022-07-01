@@ -1,5 +1,7 @@
 package org.swasth.hcx.handlers;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
@@ -16,6 +18,8 @@ import static org.swasth.common.utils.Constants.QUEUED_STATUS;
 
 @Component
 public class EventHandler {
+
+    private static final Logger logger = LoggerFactory.getLogger(EventHandler.class);
 
     @Autowired
     protected Environment env;
@@ -42,7 +46,7 @@ public class EventHandler {
         String payloadEvent = eventGenerator.generatePayloadEvent(request);
         String metadataEvent = eventGenerator.generateMetadataEvent(request);
         String query = String.format("INSERT INTO %s (mid,data,action,status,retrycount,lastupdatedon) VALUES ('%s','%s','%s','%s',%d,%d)", postgresTableName, request.getMid(), JSONUtils.serialize(request.getPayload()), request.getApiAction(), QUEUED_STATUS, 0, System.currentTimeMillis());
-        System.out.println("Mid: " + request.getMid() + " :: Event: " + metadataEvent);
+        logger.debug("Mid: " + request.getMid() + " :: Event: " + metadataEvent);
         postgreSQLClient.execute(query);
         kafkaClient.send(payloadTopic, key, payloadEvent);
         kafkaClient.send(metadataTopic, key, metadataEvent);

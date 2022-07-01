@@ -13,6 +13,7 @@ import org.swasth.common.dto.Response;
 import org.swasth.common.dto.Subscription;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
+import org.swasth.common.utils.Constants;
 import org.swasth.hcx.handlers.EventHandler;
 import org.swasth.postgresql.IDatabaseService;
 
@@ -35,7 +36,7 @@ public class NotificationService {
     @Value("${postgres.subscription.subscriptionQuery}")
     private String selectSubscription;
 
-    @Value("${notification.path:classpath:Notifications.json}")
+    @Value("${notification.path:classpath:notifications.json}")
     private String filename;
 
     @Value("${registry.hcxcode}")
@@ -52,13 +53,15 @@ public class NotificationService {
 
     private List<Map<String, Object>> notificationList = null;
 
+    private List<String> topicCodeList = null;
+
     @PostConstruct
     public void init() throws IOException {
         loadNotifications();
     }
 
     public void processSubscription(Request request, int statusCode) throws Exception {
-        isValidNotificationId(request.getNotificationId());
+        isValidCode(request.getNotificationId());
         String query = String.format(insertSubscription, postgresSubscription, UUID.randomUUID(), request.getSenderCode(),
                 request.getNotificationId(), statusCode, System.currentTimeMillis(), "API", statusCode,
                 System.currentTimeMillis());
@@ -72,7 +75,7 @@ public class NotificationService {
     }
 
     public void notify(Request request, Response response, String kafkaTopic) throws Exception {
-        isValidNotificationId(request.getNotificationId());
+        isValidCode(request.getNotificationId());
         eventHandler.processAndSendEvent(kafkaTopic, request);
     }
 
@@ -82,29 +85,27 @@ public class NotificationService {
                 throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Invalid notifications filters, allowed properties are: " + ALLOWED_NOTIFICATION_FILTER_PROPS);
         }
         // TODO: add filter limit condition
+        List<Map<String, Object>> list = notificationList;
         Set<Map<String, Object>> removeNotificationList = new HashSet<>();
-        notificationList.forEach(notification -> request.getFilters().keySet().forEach(key -> {
+        list.forEach(notification -> request.getFilters().keySet().forEach(key -> {
             if (!notification.get(key).equals(request.getFilters().get(key)))
                 removeNotificationList.add(notification);
         }));
-        notificationList.removeAll(removeNotificationList);
-        response.setNotifications(notificationList);
-        response.setCount(notificationList.size());
+        list.removeAll(removeNotificationList);
+        response.setNotifications(list);
+        response.setCount(list.size());
     }
 
     private void loadNotifications() throws IOException {
         Resource resource = resourceLoader.getResource(filename);
         ObjectMapper jsonReader = new ObjectMapper(new JsonFactory());
         notificationList = (List<Map<String, Object>>) jsonReader.readValue(resource.getInputStream(), List.class);
+        notificationList.forEach(obj -> topicCodeList.add((String) obj.get(TOPIC_CODE)));
     }
 
-    private void isValidNotificationId(String notificationId) throws ClientException {
-        boolean isValid = false;
-        for (Map<String, Object> notification: notificationList) {
-            if(notificationId.equals(notification.get(TOPIC_CODE)))
-                isValid = true;
-        }
-        if(!isValid) throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_TOPIC_CODE, "Invalid NotificationId." + notificationId + " is not present in the master list of notifications");
+    private void isValidCode(String code) throws ClientException {
+        if (!topicCodeList.contains(code))
+            throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_TOPIC_CODE, "Invalid topic code(" + code + ") is not present in the master list of notifications");
     }
 
     private List<Subscription> fetchSubscriptions(String participantCode) throws Exception {
@@ -116,12 +117,10 @@ public class NotificationService {
             resultSet = (ResultSet) postgreSQLClient.executeQuery(query);
             subscriptionList = new ArrayList<>();
             while (resultSet.next()) {
-                subscription = new Subscription();
                 String notificationId = resultSet.getString("notificationId");
-                subscription.setNotificationId(notificationId);
-                subscription.setSubscriptionId(notificationId + ":" + resultSet.getString("recipientId"));
-                subscription.setStatus(resultSet.getInt("status") == 1 ? ACTIVE : IN_ACTIVE);
-                subscription.setMode(resultSet.getString("mode"));
+                subscription = new Subscription(notificationId + ":" + resultSet.getString("recipientId"),
+                        notificationId, resultSet.getInt("status") == 1 ? ACTIVE : IN_ACTIVE,
+                        resultSet.getString("mode"));
                 subscriptionList.add(subscription);
             }
             return subscriptionList;

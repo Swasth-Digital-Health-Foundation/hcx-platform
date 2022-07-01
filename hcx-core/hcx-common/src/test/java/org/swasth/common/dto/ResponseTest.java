@@ -58,16 +58,8 @@ public class ResponseTest {
 
     private List<Subscription> getSubscriptionList()  {
         List<Subscription> subscriptionList = new ArrayList<>();
-        Subscription subscription = new Subscription();
-        subscription.setSubscriptionId("hcx-notification-001:hcx-apollo-12345");
-        subscription.setStatus(ACTIVE);
-        subscription.setNotificationId("hcx-notification-001");
-
-        Subscription inActiveSubscription = new Subscription();
-        inActiveSubscription.setSubscriptionId("hcx-notification-002:hcx-apollo-12345");
-        inActiveSubscription.setStatus(IN_ACTIVE);
-        inActiveSubscription.setNotificationId("hcx-notification-002");
-
+        Subscription subscription = new Subscription("hcx-notification-001:hcx-apollo-12345", "hcx-notification-001", ACTIVE, "API");
+        Subscription inActiveSubscription = new Subscription("hcx-notification-001:hcx-apollo-12345", "hcx-notification-001", IN_ACTIVE, "API");
         subscriptionList.add(subscription);
         subscriptionList.add(inActiveSubscription);
         return subscriptionList;
