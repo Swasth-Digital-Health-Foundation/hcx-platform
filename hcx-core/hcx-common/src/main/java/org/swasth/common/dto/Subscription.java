@@ -16,6 +16,8 @@ public class Subscription {
     private String status;
     private String mode;
 
+    public Subscription() {}
+
     public Subscription(String subscriptionId, String notificationId, String status, String mode) {
       this.subscriptionId = subscriptionId;
       this.notificationId = notificationId;

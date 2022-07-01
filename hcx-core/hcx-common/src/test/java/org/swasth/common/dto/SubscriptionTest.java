@@ -27,7 +27,11 @@ public class SubscriptionTest {
 
     @Test
     public void testSubscriptionData() {
-        Subscription mockSubscription = new Subscription("hcx-notification-001:hcx-apollo-12345", "hcx-notification-001", Constants.ACTIVE, "API");
+        Subscription mockSubscription = new Subscription();
+        mockSubscription.setSubscriptionId("hcx-notification-001:hcx-apollo-12345");
+        mockSubscription.setNotificationId("hcx-notification-001");
+        mockSubscription.setStatus(Constants.ACTIVE);
+        mockSubscription.setMode("API");
         assertEquals("hcx-notification-001:hcx-apollo-12345", mockSubscription.getSubscriptionId());
         assertEquals("hcx-notification-001",mockSubscription.getNotificationId());
         assertEquals(Constants.ACTIVE,mockSubscription.getStatus());

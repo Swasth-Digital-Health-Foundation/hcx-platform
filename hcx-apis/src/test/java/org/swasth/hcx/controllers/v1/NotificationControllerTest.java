@@ -268,7 +268,7 @@ class NotificationControllerTest extends BaseSpec {
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
         assertNotNull(resObj.getTimestamp());
         assertEquals(ErrorCodes.ERR_INVALID_NOTIFICATION_TOPIC_CODE, resObj.getError().getCode());
-        assertTrue(resObj.getError().getMessage().contains("Invalid NotificationId."));
+        assertTrue(resObj.getError().getMessage().contains("Invalid topic code"));
     }
 
 }
