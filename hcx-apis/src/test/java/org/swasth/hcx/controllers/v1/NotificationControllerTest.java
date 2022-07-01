@@ -68,6 +68,19 @@ class NotificationControllerTest extends BaseSpec {
     }
 
     @Test
+    void testNotificationUnSubscribeException() throws Exception {
+        doThrow(new ClientException(ErrorCodes.INTERNAL_SERVER_ERROR,"Test Internal Server Error")).when(postgreSQLClient).execute(anyString());
+        String requestBody = getSubscriptionRequest("hcx-registry-code");
+        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_UNSUBSCRIBE).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        assertEquals(400, status);
+        Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
+        assertEquals(ErrorCodes.INTERNAL_SERVER_ERROR, resObj.getError().getCode());
+        assertEquals("Test Internal Server Error", resObj.getError().getMessage());
+    }
+
+    @Test
     void testNotificationUnSubscribeSuccess() throws Exception {
         doReturn(true).when(postgreSQLClient).execute(anyString());
         String requestBody = getSubscriptionRequest("hcx-registry-code");
