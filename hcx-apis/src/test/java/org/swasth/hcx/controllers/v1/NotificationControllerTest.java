@@ -185,14 +185,24 @@ class NotificationControllerTest extends BaseSpec {
 
     @Test
     void testNotificationListData() throws Exception {
-        String requestBody = getNotificationListRequest();
-        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_LIST).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_LIST).content(getNotificationListRequest()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         assertEquals(200, status);
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
         assertNotNull(resObj.getTimestamp());
         assertFalse(resObj.getNotifications().isEmpty());
+    }
+
+    @Test
+    void testNotificationInvalidFilterProperties() throws Exception {
+        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_LIST).content(getInvalidFilterRequest()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        assertEquals(400, status);
+        Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
+        assertEquals(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, resObj.getError().getCode());
+        assertTrue(resObj.getError().getMessage().contains("Invalid notifications filters"));
     }
 
     private ResultSet getMockResultSet(int status) throws SQLException {
@@ -221,6 +231,12 @@ class NotificationControllerTest extends BaseSpec {
     private String getNotificationListRequest() throws JsonProcessingException {
         Map<String,Object> filters = new HashMap<>();
         filters.put(PRIORITY, 0);
+        return JSONUtils.serialize(Collections.singletonMap(FILTERS, filters));
+    }
+
+    private String getInvalidFilterRequest() throws JsonProcessingException {
+        Map<String,Object> filters = new HashMap<>();
+        filters.put("test", "123");
         return JSONUtils.serialize(Collections.singletonMap(FILTERS, filters));
     }
 
