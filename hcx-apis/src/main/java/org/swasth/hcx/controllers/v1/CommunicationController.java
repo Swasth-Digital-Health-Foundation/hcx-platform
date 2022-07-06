@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.swasth.common.dto.HeaderAudit;
 import org.swasth.common.dto.Request;
 import org.swasth.common.dto.Response;
 import org.swasth.common.dto.SearchRequestDTO;
@@ -37,12 +36,12 @@ public class CommunicationController extends BaseController {
             Map<String, Object> hcxHeaders = request.getHcxHeaders();
             Map<String, String> filters = new HashMap<>();
             filters.put(CORRELATION_ID,request.getCorrelationId());
-            List<HeaderAudit> auditResponse = auditService.search(new SearchRequestDTO(filters));
+            List<Map<String,Object>> auditResponse = auditService.search(new SearchRequestDTO(filters));
             if(auditResponse.isEmpty()){
                 throw new ClientException(ErrorCodes.ERR_INVALID_CORRELATION_ID,"Invalid Correlation Id");
             }
-            HeaderAudit auditData = auditResponse.get(0);
-            if (auditData.getWorkflow_id() != null && (!hcxHeaders.containsKey(WORKFLOW_ID) || !request.getWorkflowId().equals(auditData.getWorkflow_id()))) {
+            Map<String,Object> auditData = auditResponse.get(0);
+            if (auditData.get(WORKFLOW_ID) != null && (!hcxHeaders.containsKey(WORKFLOW_ID) || !request.getWorkflowId().equals(auditData.get(WORKFLOW_ID)))) {
                 throw new ClientException(ErrorCodes.ERR_INVALID_WORKFLOW_ID, "The request contains invalid workflow id");
             }
             eventHandler.processAndSendEvent(kafkaTopic, request);

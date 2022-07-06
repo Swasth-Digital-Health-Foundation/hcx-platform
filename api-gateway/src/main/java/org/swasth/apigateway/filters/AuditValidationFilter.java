@@ -9,6 +9,7 @@ import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFac
 import org.springframework.cloud.gateway.filter.factory.rewrite.ModifyRequestBodyGatewayFilterFactory;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.stereotype.Component;
+import org.swasth.apigateway.constants.Constants;
 import org.swasth.apigateway.exception.ClientException;
 import org.swasth.apigateway.exception.ErrorCodes;
 import org.swasth.apigateway.helpers.ExceptionHandler;
@@ -20,6 +21,7 @@ import reactor.core.publisher.Mono;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.CACHED_REQUEST_BODY_ATTR;
@@ -47,15 +49,17 @@ public class AuditValidationFilter extends AbstractGatewayFilterFactory<AuditVal
                 String sub = exchange.getRequest().getHeaders().getFirst("X-jwt-sub");
                 StringBuilder cachedBody = new StringBuilder(StandardCharsets.UTF_8.decode(((DataBuffer) exchange.getAttribute(CACHED_REQUEST_BODY_ATTR)).asByteBuffer()));
                 filterMap = JSONUtils.deserialize(cachedBody.toString(), HashMap.class);
-                Map<String, Object> participant = registryService.getDetails("osOwner", sub);
-                if (!participant.isEmpty()) {
+                String searchRequest = "{\"filters\":{\"" + Constants.OS_OWNER + "\":{\"eq\":\"" + sub + "\"}}}";
+                List<Map<String, Object>> searchResult = registryService.getDetails(searchRequest);
+                if (!searchResult.isEmpty()) {
+                    Map<String, Object> participant = searchResult.get(0);
                     ArrayList<String> roles = (ArrayList<String>) participant.get("roles");
                     String code = (String) participant.get("osid");
                     Map<String, String> filters = (Map<String, String>) filterMap.get("filters");
                     if(roles.contains("payor") || roles.contains("provider")) {
                         filters.put("x-hcx-sender_code", code);
                         filterMap.put("filters", filters);
-                        System.out.println("updated filters" + filterMap);
+                        logger.debug("updated filters: {}", filterMap);
                     }
                 } else {
                     throw new ClientException(ErrorCodes.ERR_INVALID_SENDER, "Sender is not exist in registry");

@@ -1,10 +1,7 @@
 package org.swasth.hcx.service;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 import org.swasth.common.dto.NotificationListRequest;
@@ -13,11 +10,10 @@ import org.swasth.common.dto.Response;
 import org.swasth.common.dto.Subscription;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
+import org.swasth.common.utils.NotificationUtils;
 import org.swasth.hcx.handlers.EventHandler;
 import org.swasth.postgresql.IDatabaseService;
 
-import javax.annotation.PostConstruct;
-import java.io.IOException;
 import java.sql.ResultSet;
 import java.util.*;
 
@@ -35,34 +31,17 @@ public class NotificationService {
     @Value("${postgres.subscription.subscriptionQuery}")
     private String selectSubscription;
 
-    @Value("${notification.path:classpath:notifications.json}")
-    private String filename;
-
-    @Value("${registry.hcxcode}")
-    private String hcxRegistryCode;
-
-    @Autowired
-    private ResourceLoader resourceLoader;
-
     @Autowired
     private IDatabaseService postgreSQLClient;
 
     @Autowired
     protected EventHandler eventHandler;
 
-    private List<Map<String, Object>> notificationList = null;
-
-    private List<String> topicCodeList = new ArrayList<>();
-
-    @PostConstruct
-    public void init() throws IOException {
-        loadNotifications();
-    }
-
     public void processSubscription(Request request, int statusCode) throws Exception {
-        isValidCode(request.getNotificationId());
+        if (!NotificationUtils.isValidCode(request.getTopicCode()))
+            throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_TOPIC_CODE, "Invalid topic code(" + request.getTopicCode() + ") is not present in the master list of notifications");
         String query = String.format(insertSubscription, postgresSubscription, UUID.randomUUID(), request.getSenderCode(),
-                request.getNotificationId(), statusCode, System.currentTimeMillis(), "API", statusCode,
+                request.getTopicCode(), statusCode, System.currentTimeMillis(), "API", statusCode,
                 System.currentTimeMillis());
         postgreSQLClient.execute(query);
     }
@@ -73,8 +52,14 @@ public class NotificationService {
         response.setCount(subscriptionList.size());
     }
 
-    public void notify(Request request, String kafkaTopic) throws Exception {
-        isValidCode(request.getNotificationId());
+    /**
+     * validates and process the notify request
+     */
+    public void notify(Request request, Response response, String kafkaTopic) throws Exception {
+        if(!request.getSubscriptions().isEmpty())
+          isValidSubscriptions(request.getSubscriptions());
+        request.setNotificationId(UUID.randomUUID().toString());
+        response.setNotificationId(request.getNotificationId());
         eventHandler.processAndSendEvent(kafkaTopic, request);
     }
 
@@ -84,7 +69,7 @@ public class NotificationService {
                 throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Invalid notifications filters, allowed properties are: " + ALLOWED_NOTIFICATION_FILTER_PROPS);
         }
         // TODO: add filter limit condition
-        List<Map<String, Object>> list = notificationList;
+        List<Map<String, Object>> list = NotificationUtils.notificationList;
         Set<Map<String, Object>> removeNotificationList = new HashSet<>();
         list.forEach(notification -> request.getFilters().keySet().forEach(key -> {
             if (!notification.get(key).equals(request.getFilters().get(key)))
@@ -95,16 +80,22 @@ public class NotificationService {
         response.setCount(list.size());
     }
 
-    private void loadNotifications() throws IOException {
-        Resource resource = resourceLoader.getResource(filename);
-        ObjectMapper jsonReader = new ObjectMapper(new JsonFactory());
-        notificationList = (List<Map<String, Object>>) jsonReader.readValue(resource.getInputStream(), List.class);
-        notificationList.forEach(obj -> topicCodeList.add((String) obj.get(TOPIC_CODE)));
-    }
-
-    private void isValidCode(String code) throws ClientException {
-        if (!topicCodeList.contains(code))
-            throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_TOPIC_CODE, "Invalid topic code(" + code + ") is not present in the master list of notifications");
+    /**
+     * checks the given list of subscriptions are valid and active
+     */
+    private void isValidSubscriptions(List<String> subscriptions) throws Exception {
+        ResultSet resultSet = null;
+        try {
+            String query = String.format("SELECT subscriptionId FROM %s WHERE status = 1 AND subscriptionID IN %s", postgresSubscription, subscriptions.toString().replace("[","(").replace("]",")"));
+            resultSet = (ResultSet) postgreSQLClient.executeQuery(query);
+            while(resultSet.next()){
+              subscriptions.remove(resultSet.getString("subscriptionId"));
+            }
+            if(!subscriptions.isEmpty())
+                throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Invalid subscriptions list: " + subscriptions);
+        } finally {
+            if (resultSet != null) resultSet.close();
+        }
     }
 
     private List<Subscription> fetchSubscriptions(String participantCode) throws Exception {

@@ -1,6 +1,5 @@
 package org.swasth.apigateway.filters;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import okhttp3.mockwebserver.MockResponse;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -8,7 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.swasth.apigateway.BaseSpec;
 import org.swasth.apigateway.exception.ErrorCodes;
 import org.swasth.common.utils.Constants;
-import org.swasth.common.utils.JSONUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,7 +16,6 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.swasth.common.utils.Constants.*;
 
 class HCXRequestTest extends BaseSpec {
 
@@ -616,122 +613,6 @@ class HCXRequestTest extends BaseSpec {
                 .consumeWith(result -> {
                     assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
                     assertEquals(ErrorCodes.ERR_INVALID_PAYLOAD.name(), getResponseErrorCode(result));
-                });
-    }
-
-    private String getNotificationRequest(String notificationId) throws JsonProcessingException {
-        Map<String,Object> obj = new HashMap<>();
-        obj.put(NOTIFICATION_ID,notificationId);
-        obj.put(SENDER_CODE,"hcx-apollo-12345");
-        obj.put(RECIPIENT_CODE,"hcx-star-insurance-001");
-        obj.put(API_CALL_ID,"1fa85f64-5717-4562-b3fc-2c963f66afa6");
-        obj.put(CORRELATION_ID,"2fa85f64-5717-4562-b3fc-2c963f66afa6");
-        obj.put(WORKFLOW_ID,"3fa85f64-5717-4562-b3fc-2c963f66afa6");
-        obj.put(TIMESTAMP,"2021-10-27T20:35:52.636+0530");
-        obj.put(STATUS,"request.queued");
-        Map<String,Object> notificationData = new HashMap<>();
-        notificationData.put("message","Payor system down for sometime");
-        notificationData.put("duration","2hrs");
-        notificationData.put("startTime","9PM");
-        notificationData.put("date","26th April 2022 IST");
-        obj.put(NOTIFICATION_DATA,notificationData);
-        return JSONUtils.serialize(obj);
-    }
-
-    @Test
-    void testNotificationFailure() throws Exception {
-        server.enqueue(new MockResponse()
-                .setResponseCode(400)
-                .addHeader("Content-Type", "application/json"));
-
-        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
-                .thenReturn(getProviderDetails())
-                .thenReturn(getPayorDetails());
-        Mockito.when(auditService.getAuditLogs(any())).thenReturn(new ArrayList<>());
-        client.post().uri(versionPrefix + Constants.NOTIFICATION_REQUEST)
-                .header(Constants.AUTHORIZATION, getProviderToken())
-                .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
-                .bodyValue(getNotificationRequest("hcx-notification-001"))
-                .exchange()
-                .expectBody(Map.class)
-                .consumeWith(result -> {
-                    assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
-                });
-    }
-
-    @Test
-    void testNotificationSuccess() throws Exception {
-        server.enqueue(new MockResponse()
-                .setResponseCode(202)
-                .addHeader("Content-Type", "application/json"));
-
-        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
-                .thenReturn(getProviderDetails())
-                .thenReturn(getPayorDetails());
-        Mockito.when(auditService.getAuditLogs(any())).thenReturn(new ArrayList<>());
-        client.post().uri(versionPrefix + Constants.NOTIFICATION_REQUEST)
-                .header(Constants.AUTHORIZATION, getProviderToken())
-                .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
-                .bodyValue(getNotificationRequest("24e975d1-054d-45fa-968e-c91b1043d0a5"))
-                .exchange()
-                .expectBody(Map.class)
-                .consumeWith(result -> {
-                    assertEquals(HttpStatus.ACCEPTED, result.getStatus());
-                });
-    }
-
-    @Test
-    void testNotificationSubscribeSuccess() throws Exception {
-        server.enqueue(new MockResponse()
-                .setResponseCode(202)
-                .addHeader("Content-Type", "application/json"));
-
-        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
-                .thenReturn(getProviderDetails())
-                .thenReturn(getPayorDetails());
-        Mockito.when(auditService.getAuditLogs(any())).thenReturn(new ArrayList<>());
-        client.post().uri(versionPrefix + Constants.NOTIFICATION_SUBSCRIBE)
-                .header(Constants.AUTHORIZATION, getProviderToken())
-                .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
-                .bodyValue(getSubscriptionRequest("hcx-registry-code","24e975d1-054d-45fa-968e-c91b1043d0a5"))
-                .exchange()
-                .expectBody(Map.class)
-                .consumeWith(result -> {
-                    assertEquals(HttpStatus.ACCEPTED, result.getStatus());
-                });
-    }
-
-    private String getSubscriptionRequest(String recipientCode, String notificationId) throws JsonProcessingException {
-        Map<String,Object> obj = new HashMap<>();
-        obj.put(NOTIFICATION_ID,notificationId);
-        obj.put(SENDER_CODE,"hcx-apollo-12345");
-        obj.put(RECIPIENT_CODE,recipientCode);
-        obj.put(API_CALL_ID,"1fa85f64-5717-4562-b3fc-2c963f66afa6");
-        obj.put(CORRELATION_ID,"2fa85f64-5717-4562-b3fc-2c963f66afa6");
-        obj.put(WORKFLOW_ID,"3fa85f64-5717-4562-b3fc-2c963f66afa6");
-        obj.put(TIMESTAMP,"2021-10-27T20:35:52.636+0530");
-        obj.put(STATUS,"request.queued");
-        return JSONUtils.serialize(obj);
-    }
-
-    @Test
-    void testNotificationSubscribeFailure() throws Exception {
-        server.enqueue(new MockResponse()
-                .setResponseCode(400)
-                .addHeader("Content-Type", "application/json"));
-
-        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
-                .thenReturn(getProviderDetails())
-                .thenReturn(getPayorDetails());
-        Mockito.when(auditService.getAuditLogs(any())).thenReturn(new ArrayList<>());
-        client.post().uri(versionPrefix + Constants.NOTIFICATION_SUBSCRIBE)
-                .header(Constants.AUTHORIZATION, getProviderToken())
-                .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
-                .bodyValue(getSubscriptionRequest("hcx-registry-code",null))
-                .exchange()
-                .expectBody(Map.class)
-                .consumeWith(result -> {
-                    assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
                 });
     }
 

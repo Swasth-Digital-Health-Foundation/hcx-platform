@@ -127,7 +127,7 @@ public class NotificationDispatcherFunction extends ProcessFunction<Map<String, 
         audit.put(Constants.STATUS(), getProtocolStringValue(Constants.STATUS(),event));
         audit.put(Constants.REQUESTED_TIME(), event.get(Constants.ETS()));
         audit.put(Constants.UPDATED_TIME(), event.getOrDefault(Constants.UPDATED_TIME(), Calendar.getInstance().getTime()));
-        audit.put(Constants.AUDIT_TIMESTAMP(), Calendar.getInstance().getTime());
+        audit.put(Constants.ETS(), Calendar.getInstance().getTime());
         audit.put(Constants.SENDER_ROLE(), getProtocolStringValue(Constants.SENDER_ROLE(),event).equals(config.hcxRegistryCode())? Collections.singletonList("HIE/HIO.HCX") : Collections.emptyList());
         audit.put(Constants.RECIPIENT_ROLE(), event.getOrDefault(Constants.RECIPIENT_ROLE(), Collections.emptyList()));
         audit.put(Constants.NOTIFICATION_ID(), getProtocolStringValue(Constants.NOTIFICATION_ID(),event));

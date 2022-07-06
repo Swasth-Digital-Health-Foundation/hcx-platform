@@ -8,6 +8,9 @@ import java.util.List;
 @UtilityClass
 public class Constants {
 
+    //APIs
+    public static final String NOTIFICATION_NOTIFY = "/notification/notify";
+
     // Entity types
     public static final String COMMUNICATION = "communication";
     public static final String NOTIFICATION = "notification";
@@ -38,9 +41,10 @@ public class Constants {
     public static final String ERROR_STATUS = "response.error";
     public static final String REQUESTED_TIME = "requestTimeStamp";
     public static final String UPDATED_TIME = "updatedTimestamp";
-    public static final String AUDIT_TIMESTAMP = "auditTimeStamp";
+    public static final String ETS = "ets";
     public static final String BLOCKED = "Blocked";
     public static final String INACTIVE = "Inactive";
+    public static final String PARTICIPANT_CODE = "participant_code";
     public static final String OS_OWNER = "osOwner";
     public static final String ERROR_RESPONSE = "response.error";
     public static final List<String> RECIPIENT_ERROR_VALUES = Arrays.asList("ERR_INVALID_ENCRYPTION", "ERR_INVALID_PAYLOAD", "ERR_WRONG_DOMAIN_PAYLOAD", "ERR_INVALID_DOMAIN_PAYLOAD", "ERR_SENDER_NOT_SUPPORTED", "ERR_SERVICE_UNAVAILABLE", "ERR_DOMAIN_PROCESSING","ERR_MANDATORY_HEADER_MISSING",
@@ -58,6 +62,8 @@ public class Constants {
     public static final String ACTION = "action";
     public static final String SENDER_ROLE = "senderRole";
     public static final String RECIPIENT_ROLE = "recipientRole";
+    public static final String RECIPIENT = "Recipient";
+    public static final String SENDER = "Sender";
     public static final String PROVIDER = "provider";
     public static final List<String> OPERATIONAL_ENTITIES = Arrays.asList(NOTIFICATION, COMMUNICATION, REGISTRY_STATUS);
     public static final String REDIRECT_STATUS = "response.redirect";
@@ -67,9 +73,5 @@ public class Constants {
     public static final List<String> ALLOWED_ENTITIES_ERROR_AUDIT_CREATION = Arrays.asList("coverageeligibility", "preauth", "claim", PAYMENT, COMMUNICATION, "predetermination", REGISTRY_STATUS, "search");
     public static final String QUEUED_STATUS = "request.queued";
     public static final String DISPATCHED_STATUS = "request.dispatched";
-
-    //Notification Details
-    public static final String NOTIFICATION_ID = "x-hcx-notification_id";
-    public static final String NOTIFICATION_DATA = "x-hcx-notification_data";
 
 }

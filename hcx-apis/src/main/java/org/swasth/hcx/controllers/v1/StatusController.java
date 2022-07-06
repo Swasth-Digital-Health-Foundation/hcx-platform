@@ -37,20 +37,20 @@ public class StatusController extends BaseController {
             Map<String,String> auditFilters = new HashMap<>();
             auditFilters.put(SENDER_CODE, request.getSenderCode());
             auditFilters.put(CORRELATION_ID, request.getCorrelationId());
-            List<HeaderAudit> auditResponse = auditService.search(new SearchRequestDTO(auditFilters));
+            List<Map<String,Object>> auditResponse = auditService.search(new SearchRequestDTO(auditFilters));
             if(auditResponse.isEmpty()){
                 throw new ClientException("Invalid correlation id, details do not exist");
             }
-            HeaderAudit auditData = auditResponse.get(auditResponse.size()-1);
-            String entityType = auditData.getAction().split("/")[1];
+            Map<String,Object> auditData = auditResponse.get(auditResponse.size()-1);
+            String entityType = ((String) auditData.get(ACTION)).split("/")[1];
             if (!allowedEntitiesForStatusSearch.contains(entityType)) {
                 throw new ClientException("Invalid entity, status search allowed only for entities: " + allowedEntitiesForStatusSearch);
             }
-            StatusResponse statusResponse = new StatusResponse(entityType, auditData.getSender_code(), auditData.getRecipient_code(), auditData.getStatus());
+            StatusResponse statusResponse = new StatusResponse(entityType, (String) auditData.get(SENDER_CODE), (String) auditData.get(RECIPIENT_CODE), (String) auditData.get(STATUS));
             Map<String,Object> statusResponseMap = JSONUtils.convert(statusResponse, HashMap.class);
-            if (auditData.getStatus().equals(QUEUED_STATUS)) {
+            if (auditData.get(STATUS).equals(QUEUED_STATUS)) {
                 response.setResult(statusResponseMap);
-            } else if (auditData.getStatus().equals(DISPATCHED_STATUS)) {
+            } else if (auditData.get(STATUS).equals(DISPATCHED_STATUS)) {
                 response.setResult(statusResponseMap);
                 eventHandler.processAndSendEvent(topic, request);
             }

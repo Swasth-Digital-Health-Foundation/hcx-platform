@@ -29,12 +29,12 @@ public class NotificationController extends BaseController {
     @Autowired
     private NotificationService notificationService;
 
-    @PostMapping(Constants.NOTIFICATION_REQUEST)
+    @PostMapping(Constants.NOTIFICATION_NOTIFY)
     public ResponseEntity<Object> notificationRequest(@RequestBody Map<String, Object> requestBody) throws Exception {
-        Request request = new Request(requestBody, NOTIFICATION_REQUEST);
+        Request request = new Request(requestBody, NOTIFICATION_NOTIFY);
         Response response = new Response(request);
         try {
-            notificationService.notify(request, kafkaTopic);
+            notificationService.notify(request, response, kafkaTopic);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
             return exceptionHandler(request, response, e);

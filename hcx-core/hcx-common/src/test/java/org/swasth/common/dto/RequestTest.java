@@ -56,7 +56,6 @@ import static org.swasth.common.utils.Constants.*;
     @Test
     public void testNotificationPayload() throws Exception {
         Request request = new Request(getNotificationRequest(), COVERAGE_ELIGIBILITY_CHECK);
-        assertEquals("hcx-notification-001",request.getNotificationId());
         assertEquals("hcx-apollo-12345", request.getSenderCode());
     }
 

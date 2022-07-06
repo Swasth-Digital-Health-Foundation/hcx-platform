@@ -5,12 +5,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.swasth.common.dto.HeaderAudit;
 import org.swasth.common.dto.SearchRequestDTO;
 import org.swasth.common.utils.Constants;
 import org.swasth.hcx.service.HeaderAuditService;
 
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -25,7 +25,7 @@ public class AuditController {
 	}
 
     @PostMapping(Constants.AUDIT_SEARCH)
-    public List<HeaderAudit> search(@RequestBody final SearchRequestDTO dto) {
+    public List<Map<String, Object>> search(@RequestBody final SearchRequestDTO dto) {
         return service.search(dto);
     }
 

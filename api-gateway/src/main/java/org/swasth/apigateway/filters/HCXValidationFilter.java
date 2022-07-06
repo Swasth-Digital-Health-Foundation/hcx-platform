@@ -19,6 +19,7 @@ import org.swasth.apigateway.models.JWERequest;
 import org.swasth.apigateway.service.AuditService;
 import org.swasth.apigateway.service.RegistryService;
 import org.swasth.apigateway.utils.JSONUtils;
+import org.swasth.common.utils.NotificationUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -58,6 +59,9 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
     @Value("${registry.hcxRoles}")
     private String hcxRoles;
 
+    @Value("${notify.network.allowedCodes}")
+    private List<String> allowedNetworkCodes;
+
     public HCXValidationFilter() {
         super(Config.class);
     }
@@ -82,14 +86,19 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                     Map<String,Object> senderDetails = getDetails(jweRequest.getSenderCode());
                     Map<String,Object> recipientDetails = getDetails(jweRequest.getRecipientCode());
                     List<Map<String, Object>> participantCtxAuditDetails = getParticipantCtxAuditData(jweRequest.getSenderCode(), jweRequest.getRecipientCode(), jweRequest.getCorrelationId());
-                    jweRequest.validate(getMandatoryHeaders(), subject, timestampRange, senderDetails, recipientDetails, false);
+                    jweRequest.validate(getMandatoryHeaders(), subject, timestampRange, senderDetails, recipientDetails);
                     jweRequest.validateUsingAuditData(allowedEntitiesForForward, allowedRolesForForward, senderDetails, recipientDetails, getCorrelationAuditData(jweRequest.getCorrelationId()), getCallAuditData(jweRequest.getApiCallId()), participantCtxAuditDetails, path);
                     validateParticipantCtxDetails(participantCtxAuditDetails, path);
-                } else if (path.contains("notification")) { //for validating /notification/subscribe, /notification/unsubscribe, /notification/request
+                } else if (path.contains(NOTIFICATION_NOTIFY)) { //for validating notify api request
                     JSONRequest jsonRequest = new JSONRequest(requestBody, true, path, hcxCode, hcxRoles);
-                    correlationId = jsonRequest.getCorrelationId();
-                    apiCallId = jsonRequest.getApiCallId();
-                    jsonRequest.validate(getNotificationMandatoryHeaders(), subject, timestampRange, getDetails(jsonRequest.getSenderCode()), getDetails(jsonRequest.getRecipientCode()),true);
+                    Map<String,Object> senderDetails =  registryService.fetchDetails(OS_OWNER, subject);
+                    jsonRequest.validateNotificationParticipant(senderDetails, ErrorCodes.ERR_INVALID_SENDER, SENDER);
+                    List<Map<String,Object>> recipientsDetails = new ArrayList<>();
+                    if(!jsonRequest.getRecipientCodes().isEmpty()){
+                        String searchRequest = "{\"filters\":{\"" + PARTICIPANT_CODE + "\":{\"or\":\"" + jsonRequest.getRecipientCodes() + "\"}}}";
+                        recipientsDetails = registryService.getDetails(searchRequest);
+                    }
+                    jsonRequest.validateNotificationReq(getNotificationHeaders(), senderDetails, recipientsDetails, allowedNetworkCodes);
                 } else { //for validating redirect and error plain JSON on_check calls
                     if (!path.contains("on_")) {
                         throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, "Request body should be a proper JWE object for action API calls");
@@ -99,9 +108,9 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                     correlationId = jsonRequest.getCorrelationId();
                     apiCallId = jsonRequest.getApiCallId();
                     if (ERROR_RESPONSE.equalsIgnoreCase(jsonRequest.getStatus())) {
-                        jsonRequest.validate(getErrorMandatoryHeaders(), subject, timestampRange, getDetails(jsonRequest.getSenderCode()), getDetails(jsonRequest.getRecipientCode()),false);
+                        jsonRequest.validate(getErrorMandatoryHeaders(), subject, timestampRange, getDetails(jsonRequest.getSenderCode()), getDetails(jsonRequest.getRecipientCode()));
                     } else {
-                        jsonRequest.validate(getRedirectMandatoryHeaders(), subject, timestampRange, getDetails(jsonRequest.getSenderCode()), getDetails(jsonRequest.getRecipientCode()),false);
+                        jsonRequest.validate(getRedirectMandatoryHeaders(), subject, timestampRange, getDetails(jsonRequest.getSenderCode()), getDetails(jsonRequest.getRecipientCode()));
                         if (getApisForRedirect().contains(path)) {
                             if (REDIRECT_STATUS.equalsIgnoreCase(jsonRequest.getStatus()))
                                 jsonRequest.validateRedirect(getRolesForRedirect(), getDetails(jsonRequest.getRedirectTo()), getCallAuditData(jsonRequest.getApiCallId()), getCorrelationAuditData(jsonRequest.getCorrelationId()));
@@ -149,7 +158,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
             if (result.get(STATUS).equals(QUEUED_STATUS)) {
                 result.put(STATUS, DISPATCHED_STATUS);
                 result.put(UPDATED_TIME, System.currentTimeMillis());
-                result.put(AUDIT_TIMESTAMP, System.currentTimeMillis());
+                result.put(ETS, System.currentTimeMillis());
                 auditService.updateAuditLog(result);
             }
         }
@@ -190,10 +199,11 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
         return allowedRoles;
     }
 
-    private List<String> getNotificationMandatoryHeaders() {
-        List<String> notificationMandatoryHeaders = new ArrayList<>();
-        notificationMandatoryHeaders.addAll(env.getProperty("notification.headers.mandatory", List.class));
-        return notificationMandatoryHeaders;
+    private List<String> getNotificationHeaders() {
+        List<String> headers = new ArrayList<>();
+        headers.addAll(env.getProperty("notification.headers.mandatory", List.class));
+        headers.addAll(env.getProperty("notification.headers.optional", List.class));
+        return headers;
     }
 
 }

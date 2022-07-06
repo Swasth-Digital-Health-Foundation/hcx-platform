@@ -20,4 +20,8 @@ class GenericConfigurationTest {
         context.run(it -> assertThat(it).hasBean("redisCache"));
     }
 
+    @Test
+    void should_check_presence_of_notification_utils_bean() {
+        context.run(it -> assertThat(it).hasBean("notificationUtils"));
+    }
 }

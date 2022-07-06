@@ -2,11 +2,11 @@ package org.swasth.common.dto;
 
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
+import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.utils.PayloadUtils;
 
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static org.swasth.common.utils.Constants.*;
 
@@ -16,6 +16,7 @@ public class Request {
     protected Map<String, Object> hcxHeaders = null;
     private String mid = UUID.randomUUID().toString();
     private String apiAction;
+    private String notificationId;
     private final String payloadWithoutSensitiveData;
 
     public Request(Map<String, Object> body, String apiAction) throws Exception {
@@ -79,6 +80,10 @@ public class Request {
         return (String) hcxHeaders.getOrDefault(key, null);
     }
 
+    protected List<String> getHeaderList(String key) {
+        return (List<String>) hcxHeaders.getOrDefault(key, new ArrayList<>());
+    }
+
     protected Map<String, Object> getHeaderMap(String key) {
         return (Map<String, Object>) hcxHeaders.getOrDefault(key, null);
     }
@@ -109,8 +114,23 @@ public class Request {
         this.mid = mid;
     }
 
-    public String getNotificationId() { return getHeader(NOTIFICATION_ID);}
-    public Map<String, Object> getNotificationData(){ return getHeaderMap(NOTIFICATION_DATA);}
+    public void setNotificationId(String notificationId) {
+        this.notificationId = notificationId;
+    }
+
+    public String getNotificationId() {
+        return notificationId;
+    }
+
+    public String getTopicCode() { return getHeader(Constants.TOPIC_CODE);}
+
+    public List<String> getRecipientCodes() { return getHeaderList(Constants.RECIPIENT_CODES);}
+
+    public List<String> getRecipientRoles() { return getHeaderList(Constants.RECIPIENT_ROLES);}
+
+    public List<String> getSubscriptions() { return getHeaderList(Constants.SUBSCRIPTIONS);}
+
+    public Map<String,Object> getNotificationData() { return getHeaderMap(Constants.NOTIFICATION_DATA);}
 
 }
 

@@ -148,13 +148,13 @@ public class EventGeneratorTest {
         notificationData.put("startTime","9PM");
         notificationData.put("date","26th April 2022 IST");
         obj.put(NOTIFICATION_DATA,notificationData);
-        return new Request(obj, NOTIFICATION_REQUEST);
+        return new Request(obj, NOTIFICATION_NOTIFY);
     }
 
     @Test
     public void testGenerateMetadataEventNotificationSuccess() throws Exception {
         Request notificationReq = getNotificationRequest();
-        notificationReq.setApiAction(NOTIFICATION_REQUEST);
+        notificationReq.setApiAction(NOTIFICATION_NOTIFY);
         String result = eventGenerator.generateMetadataEvent(notificationReq);
         assertNotNull(result);
         //HCX should add status if the status is not present in the request

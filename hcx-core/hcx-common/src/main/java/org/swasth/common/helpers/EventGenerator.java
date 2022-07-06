@@ -62,9 +62,10 @@ public class EventGenerator {
                 headers = redirectHeaders;
             } else if (ERROR_STATUS.equalsIgnoreCase(request.getStatus())) {
                 headers = errorHeaders;
-            } else if (NOTIFICATION_REQUEST.equalsIgnoreCase(request.getApiAction())) {
+            } else if (NOTIFICATION_NOTIFY.equalsIgnoreCase(request.getApiAction())) {
                 headers = notificationHeaders;
                 event.put(TRIGGER_TYPE, TRIGGER_VALUE);
+                event.put(NOTIFICATION_ID, request.getNotificationId());
             } else {
                 headers = null;
             }
@@ -101,8 +102,6 @@ public class EventGenerator {
         event.put(TIMESTAMP, request.getTimestamp());
         event.put(ERROR_DETAILS, request.getErrorDetails());
         event.put(DEBUG_DETAILS, request.getDebugDetails());
-        event.put(NOTIFICATION_ID, request.getNotificationId());
-        event.put(NOTIFICATION_DATA, request.getNotificationData());
         event.put(MID, request.getMid());
         event.put(ACTION, request.getApiAction());
         if(request.getStatus() == null)
@@ -111,13 +110,27 @@ public class EventGenerator {
             event.put(STATUS, request.getStatus());
         event.put(REQUEST_TIME, System.currentTimeMillis());
         event.put(UPDATED_TIME, System.currentTimeMillis());
-        event.put(AUDIT_TIMESTAMP, System.currentTimeMillis());
+        event.put(ETS, System.currentTimeMillis());
         event.put(SENDER_ROLE, new ArrayList<>());
         event.put(RECIPIENT_ROLE, new ArrayList<>());
         event.put(PAYLOAD, request.getPayloadWithoutSensitiveData());
         return  event;
     }
 
-
+    public Map<String,Object> generateNotificationAudit(Request request) {
+        Map<String,Object> event = new HashMap<>();
+        event.put(EID, AUDIT);
+        event.put(MID, request.getMid());
+        event.put(NOTIFICATION_ID, request.getNotificationId());
+        event.put(ACTION, request.getApiAction());
+        event.put(TOPIC_CODE, request.getTopicCode());
+        event.put(RECIPIENT_CODES, request.getRecipientCodes());
+        event.put(RECIPIENT_ROLES, request.getRecipientRoles());
+        event.put(SUBSCRIPTIONS, request.getSubscriptions());
+        event.put(NOTIFICATION_DATA, request.getNotificationData());
+        event.put(ERROR_DETAILS, request.getErrorDetails());
+        event.put(ETS, System.currentTimeMillis());
+        return event;
+    }
 
 }

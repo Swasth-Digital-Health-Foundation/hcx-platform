@@ -66,9 +66,10 @@ public class RetryFunction {
             result = postgreSQLClient.executeQuery(selectQuery);
             int metrics = 0;
             while (result.next()) {
-                Request request = new Request(JSONUtils.deserialize(result.getString("data"), Map.class));
+                String action = result.getString(Constants.ACTION);
+                Request request = new Request(JSONUtils.deserialize(result.getString("data"), Map.class), action);
                 request.setMid(result.getString(Constants.MID));
-                request.setApiAction(result.getString(Constants.ACTION));
+                request.setApiAction(action);
                 int retryCount = result.getInt(Constants.RETRY_COUNT) + 1 ;
                 String event = eventGenerator.generateMetadataEvent(request);
                 Map<String,Object> eventMap = JSONUtils.deserialize(event, Map.class);

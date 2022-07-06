@@ -7,9 +7,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.swasth.apigateway.config.GenericConfiguration;
 import org.swasth.apigateway.service.AuditService;
 import org.swasth.apigateway.service.RegistryService;
 import org.swasth.apigateway.utils.JSONUtils;
@@ -22,6 +24,7 @@ import java.util.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
+@Import(GenericConfiguration.class)
 public class BaseSpec {
 
     protected MockWebServer server =  new MockWebServer();
