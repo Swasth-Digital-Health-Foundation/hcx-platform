@@ -12,7 +12,8 @@ import org.springframework.stereotype.Component;
 import org.swasth.apigateway.constants.Constants;
 import org.swasth.apigateway.exception.ClientException;
 import org.swasth.apigateway.exception.ErrorCodes;
-import org.swasth.apigateway.helpers.ExceptionHandler;
+import org.swasth.apigateway.handlers.ExceptionHandler;
+import org.swasth.apigateway.handlers.RequestHandler;
 import org.swasth.apigateway.models.BaseRequest;
 import org.swasth.apigateway.service.RegistryService;
 import org.swasth.apigateway.utils.JSONUtils;
@@ -37,6 +38,9 @@ public class AuditValidationFilter extends AbstractGatewayFilterFactory<AuditVal
     @Autowired
     ExceptionHandler exceptionHandler;
 
+    @Autowired
+    RequestHandler requestHandler;
+
     public AuditValidationFilter() {
         super(Config.class);
     }
@@ -44,7 +48,7 @@ public class AuditValidationFilter extends AbstractGatewayFilterFactory<AuditVal
     @Override
     public GatewayFilter apply(Config config) {
         return (exchange, chain) -> {
-            Map filterMap;
+            Map<String,Object> filterMap;
             try {
                 String sub = exchange.getRequest().getHeaders().getFirst("X-jwt-sub");
                 StringBuilder cachedBody = new StringBuilder(StandardCharsets.UTF_8.decode(((DataBuffer) exchange.getAttribute(CACHED_REQUEST_BODY_ATTR)).asByteBuffer()));
@@ -67,10 +71,7 @@ public class AuditValidationFilter extends AbstractGatewayFilterFactory<AuditVal
             } catch (Exception e) {
                 return exceptionHandler.errorResponse(e, exchange, null, null, new BaseRequest());
             }
-            ModifyRequestBodyGatewayFilterFactory.Config modifyRequestConfig = new ModifyRequestBodyGatewayFilterFactory.Config()
-                    .setContentType(ContentType.APPLICATION_JSON.getMimeType())
-                    .setRewriteFunction(String.class, Map.class, (exchange1, cachedBody) -> Mono.just(filterMap));
-            return new ModifyRequestBodyGatewayFilterFactory().apply(modifyRequestConfig).filter(exchange, chain);
+            return requestHandler.getUpdatedBody(exchange, chain, filterMap);
         };
     }
 
