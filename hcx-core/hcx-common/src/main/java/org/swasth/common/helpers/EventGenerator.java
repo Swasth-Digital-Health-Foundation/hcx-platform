@@ -121,6 +121,7 @@ public class EventGenerator {
         Map<String,Object> event = new HashMap<>();
         event.put(EID, AUDIT);
         event.put(MID, request.getMid());
+        event.put(ETS, System.currentTimeMillis());
         event.put(NOTIFICATION_ID, request.getNotificationId());
         event.put(ACTION, request.getApiAction());
         event.put(TOPIC_CODE, request.getTopicCode());
@@ -129,7 +130,6 @@ public class EventGenerator {
         event.put(SUBSCRIPTIONS, request.getSubscriptions());
         event.put(NOTIFICATION_DATA, request.getNotificationData());
         event.put(ERROR_DETAILS, request.getErrorDetails());
-        event.put(ETS, System.currentTimeMillis());
         return event;
     }
 
