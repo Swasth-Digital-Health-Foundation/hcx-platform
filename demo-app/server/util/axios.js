@@ -1,5 +1,5 @@
 const axios = require('axios');
-console.log("pppp",process.env.HCX_UPSTREAM, process.env.AUTH_TOKEN);
+console.log("pppp",process.env.HCX_UPSTREAM);
 const hcxInstance = axios.create({
     baseURL: process.env.HCX_UPSTREAM,
     headers: {

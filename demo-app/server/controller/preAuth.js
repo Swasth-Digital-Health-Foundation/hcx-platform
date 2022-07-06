@@ -12,7 +12,7 @@ const privateKey = fs.readFileSync(path.join(__dirname, '..', 'resources', 'keys
 
 const preAuthSubmit = async (req, res, next) => {
 
-    const { name, gender, recipient_code, error_code, error_code_message, sender_code = process.env.SENDER_CODE, amount } = req.body;
+    const { name, gender, recipient_code =process.env.recipient_code, error_code, error_code_message, sender_code = process.env.SENDER_CODE, amount } = req.body;
     if (!recipient_code) return next(createError(400, 'Recipient Code is mandatory'));
 
     const headers = {

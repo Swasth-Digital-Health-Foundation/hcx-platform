@@ -19,7 +19,7 @@ const privateKey = fs.readFileSync(path.join(__dirname, '..', 'resources', 'keys
  * @return {*} 
  */
 const coverageCheck = async (req, res, next) => {
-    const { name, gender, recipient_code, error_code, error_code_message, sender_code = process.env.SENDER_CODE } = req.body;
+    const { name, gender, error_code, error_code_message, sender_code = process.env.SENDER_CODE , recipient_code =process.env.recipient_code} = req.body;
     if (!recipient_code) return next(createError(400, 'Recipient Code is mandatory'));
 
     const headers = {
@@ -66,14 +66,14 @@ const coverageCheck = async (req, res, next) => {
     });
     var config = {
         method: 'post',
-        url: 'http://a9dd63de91ee94d59847a1225da8b111-273954130.ap-south-1.elb.amazonaws.com:8080/auth/realms/swasth-health-claim-exchange/protocol/openid-connect/token',
+        url: process.env.token_url,
         headers: { 
             'content-type': 'application/x-www-form-urlencoded'
         },
         data : data1
     };
 
-    console.log("token generation call  ", config);
+    console.log("token generation call  ", process.env.token_url);
     await axios(config)
     .then(function (response) {
     console.log("Bearer " + response.data.access_token);    
@@ -86,7 +86,6 @@ const coverageCheck = async (req, res, next) => {
     
     var config = { method: 'post', url: 'api/v1/coverageeligibility/check', data };
     debug('coverageCheck-payload', config);
-    console.log("hcx api calls ", hcxInstance);
     try {
         const response = await hcxInstance(config);
         debug('coverageCheck-success', response?.data);
