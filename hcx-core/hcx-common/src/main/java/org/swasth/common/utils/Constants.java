@@ -92,7 +92,7 @@ public class Constants {
     public static final String REDIRECT_HEADERS_OPTIONAL = "redirect.headers.optional";
     public static final String JOSE_HEADERS = "headers.jose";
     public static final String DOMAIN_HEADERS = "headers.domain";
-    public static final String SENDER_CODE = "x-hcx-sender_code";
+    public static final String HCX_SENDER_CODE = "x-hcx-sender_code";
     public static final String RECIPIENT_CODE = "x-hcx-recipient_code";
     public static final String API_CALL_ID = "x-hcx-api_call_id";
     public static final String CORRELATION_ID = "x-hcx-correlation_id";
@@ -162,6 +162,7 @@ public class Constants {
     public static final String NOTIFICATION_DATA = "notification_data";
     public static final String ALLOWED_RECIPIENTS = "allowed_recipients";
     public static final String ALLOWED_SENDERS = "allowed_senders";
-
+    public static final String SENDER_CODE = "sender_code";
+    public static final String MESSAGE = "message";
 
 }

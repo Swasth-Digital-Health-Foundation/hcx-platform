@@ -35,7 +35,7 @@ public class StatusController extends BaseController {
         Response response = new Response(request);
         try {
             Map<String,String> auditFilters = new HashMap<>();
-            auditFilters.put(SENDER_CODE, request.getSenderCode());
+            auditFilters.put(HCX_SENDER_CODE, request.getHcxSenderCode());
             auditFilters.put(CORRELATION_ID, request.getCorrelationId());
             List<Map<String,Object>> auditResponse = auditService.search(new SearchRequestDTO(auditFilters));
             if(auditResponse.isEmpty()){
@@ -46,7 +46,7 @@ public class StatusController extends BaseController {
             if (!allowedEntitiesForStatusSearch.contains(entityType)) {
                 throw new ClientException("Invalid entity, status search allowed only for entities: " + allowedEntitiesForStatusSearch);
             }
-            StatusResponse statusResponse = new StatusResponse(entityType, (String) auditData.get(SENDER_CODE), (String) auditData.get(RECIPIENT_CODE), (String) auditData.get(STATUS));
+            StatusResponse statusResponse = new StatusResponse(entityType, (String) auditData.get(HCX_SENDER_CODE), (String) auditData.get(RECIPIENT_CODE), (String) auditData.get(STATUS));
             Map<String,Object> statusResponseMap = JSONUtils.convert(statusResponse, HashMap.class);
             if (auditData.get(STATUS).equals(QUEUED_STATUS)) {
                 response.setResult(statusResponseMap);

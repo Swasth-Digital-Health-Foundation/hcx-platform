@@ -5,10 +5,10 @@ import org.swasth.common.exception.ClientException;
 import org.swasth.common.utils.Constants;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 import static org.swasth.common.utils.Constants.*;
 
  public class RequestTest {
@@ -55,14 +55,30 @@ import static org.swasth.common.utils.Constants.*;
 
     @Test
     public void testNotificationPayload() throws Exception {
-        Request request = new Request(getNotificationRequest(), COVERAGE_ELIGIBILITY_CHECK);
+        Request request = new Request(getNotificationRequest(), NOTIFICATION_NOTIFY);
+        request.setNotificationId("f07250bf-a64b-4537-9182-c233e78d2847");
         assertEquals("hcx-apollo-12345", request.getSenderCode());
+        assertEquals("f07250bf-a64b-4537-9182-c233e78d2847", request.getNotificationId());
+        assertEquals("notification-123", request.getTopicCode());
+        assertTrue(request.getRecipientCodes().contains("test-user@hcx"));
+        assertTrue(request.getRecipientRoles().contains("payor"));
+        assertTrue(request.getSubscriptions().contains("hcx-notification-001:hcx-apollo-12345"));
+        assertTrue(((String) request.getNotificationData().get(MESSAGE)).contains("Payor system down for sometime"));
     }
 
     private Map<String,Object> getNotificationRequest() {
         Map<String,Object> obj = new HashMap<>();
         obj.put(SENDER_CODE,"hcx-apollo-12345");
-        obj.put(NOTIFICATION_ID,"hcx-notification-001");
+        obj.put(TOPIC_CODE, "notification-123");
+        obj.put(RECIPIENT_ROLES, List.of("payor"));
+        obj.put(RECIPIENT_CODES, List.of("test-user@hcx"));
+        obj.put(SUBSCRIPTIONS, List.of("hcx-notification-001:hcx-apollo-12345"));
+        Map<String,Object> notificationData = new HashMap<>();
+        notificationData.put("message","Payor system down for sometime");
+        notificationData.put("duration","2hrs");
+        notificationData.put("startTime","9PM");
+        notificationData.put("date","26th April 2022 IST");
+        obj.put(NOTIFICATION_DATA,notificationData);
         return obj;
     }
 

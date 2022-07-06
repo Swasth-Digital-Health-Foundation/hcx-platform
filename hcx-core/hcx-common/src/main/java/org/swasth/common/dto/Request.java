@@ -50,8 +50,8 @@ public class Request {
         return getHeader(CORRELATION_ID);
     }
 
-    public String getSenderCode() {
-        return getHeader(SENDER_CODE);
+    public String getHcxSenderCode() {
+        return getHeader(HCX_SENDER_CODE);
     }
 
     public String getRecipientCode() {
@@ -123,6 +123,8 @@ public class Request {
     }
 
     public String getTopicCode() { return getHeader(Constants.TOPIC_CODE);}
+
+    public String getSenderCode() { return getHeader(SENDER_CODE); }
 
     public List<String> getRecipientCodes() { return getHeaderList(Constants.RECIPIENT_CODES);}
 

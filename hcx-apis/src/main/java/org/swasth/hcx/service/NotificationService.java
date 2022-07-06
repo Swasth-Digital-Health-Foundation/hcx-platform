@@ -39,14 +39,14 @@ public class NotificationService {
     public void processSubscription(Request request, int statusCode) throws Exception {
         if (!NotificationUtils.isValidCode(request.getTopicCode()))
             throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_TOPIC_CODE, "Invalid topic code(" + request.getTopicCode() + ") is not present in the master list of notifications");
-        String query = String.format(insertSubscription, postgresSubscription, UUID.randomUUID(), request.getSenderCode(),
+        String query = String.format(insertSubscription, postgresSubscription, UUID.randomUUID(), request.getHcxSenderCode(),
                 request.getTopicCode(), statusCode, System.currentTimeMillis(), "API", statusCode,
                 System.currentTimeMillis());
         postgreSQLClient.execute(query);
     }
 
     public void getSubscriptions(Request request, Response response) throws Exception {
-        List<Subscription> subscriptionList = fetchSubscriptions(request.getSenderCode());
+        List<Subscription> subscriptionList = fetchSubscriptions(request.getHcxSenderCode());
         response.setSubscriptions(subscriptionList);
         response.setCount(subscriptionList.size());
     }

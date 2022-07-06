@@ -19,7 +19,6 @@ import org.swasth.common.dto.Response;
 import org.swasth.common.helpers.EventGenerator;
 import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
-import org.swasth.common.utils.NotificationUtils;
 import org.swasth.hcx.config.GenericConfiguration;
 import org.swasth.hcx.controllers.v1.*;
 import org.swasth.hcx.handlers.EventHandler;
@@ -154,7 +153,7 @@ public class BaseSpec {
         obj.put(Constants.ERROR_DETAILS, new Object());
         obj.put(Constants.DEBUG_DETAILS, new Object());
         obj.put(Constants.RECIPIENT_CODE, "1-2799b6a4-cf2d-45fe-a5e1-5f1c82979e0d");
-        obj.put(Constants.SENDER_CODE, "93f908ba");
+        obj.put(Constants.HCX_SENDER_CODE, "93f908ba");
         obj.put(Constants.API_CALL_ID, "26b1060c-1e83-4600-9612-ea31e0ca5091");
         obj.put(Constants.WORKFLOW_ID, "1e83-460a-4f0b-b016-c22d820674e1");
         obj.put(Constants.CORRELATION_ID, "5e934f90-111d-4f0b-b016-c22d820674e1");
