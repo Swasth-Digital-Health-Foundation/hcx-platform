@@ -1,9 +1,7 @@
 package org.swasth.common.utils;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.swasth.common.utils.Constants.TOPIC_CODE;
 
@@ -27,7 +25,10 @@ public class NotificationUtils {
     }
 
     public static Map<String,Object> getNotification(String code) {
-        return notificationList.stream().filter(obj -> obj.get(TOPIC_CODE).equals(code)).findFirst().get();
+        Map<String,Object> notification = new HashMap<>();
+        Optional<Map<String,Object>> result = notificationList.stream().filter(obj -> obj.get(TOPIC_CODE).equals(code)).findFirst();
+        if(result.isPresent()) notification = result.get();
+        return notification;
     }
 
 }
