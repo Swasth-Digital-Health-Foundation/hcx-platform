@@ -234,7 +234,7 @@ class NotificationControllerTest extends BaseSpec {
 
     private ResultSet getSubscriptionsResultSet() throws SQLException {
         return MockResultSet.createStringMock(
-                new String[]{"subscriptionId"}, //columns
+                new String[]{"subscription_id"}, //columns
                 new Object[][]{ // data
                         {"subscription-123"}
                 });

@@ -85,10 +85,10 @@ public class NotificationService {
     private void isValidSubscriptions(List<String> subscriptions) throws Exception {
         ResultSet resultSet = null;
         try {
-            String query = String.format("SELECT subscriptionId FROM %s WHERE status = 1 AND subscriptionID IN %s", postgresSubscription, subscriptions.toString().replace("[","(").replace("]",")"));
+            String query = String.format("SELECT subscription_id FROM %s WHERE status = 1 AND subscription_id IN %s", postgresSubscription, subscriptions.toString().replace("[","(").replace("]",")"));
             resultSet = (ResultSet) postgreSQLClient.executeQuery(query);
             while(resultSet.next()){
-              subscriptions.remove(resultSet.getString("subscriptionId"));
+              subscriptions.remove(resultSet.getString("subscription_id"));
             }
             if(!subscriptions.isEmpty())
                 throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Invalid subscriptions list: " + subscriptions);
