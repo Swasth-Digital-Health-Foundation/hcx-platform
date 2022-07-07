@@ -47,7 +47,7 @@ public class CommunicationController extends BaseController {
             eventHandler.processAndSendEvent(kafkaTopic, request);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
-            return exceptionHandler(request, response, e);
+            return exceptionHandlerWithAudit(request, response, e);
         }
     }
 

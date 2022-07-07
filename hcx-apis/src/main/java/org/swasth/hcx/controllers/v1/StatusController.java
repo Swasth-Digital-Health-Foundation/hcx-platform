@@ -56,7 +56,7 @@ public class StatusController extends BaseController {
             }
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
-            return exceptionHandler(request, response, e);
+            return exceptionHandlerWithAudit(request, response, e);
         }
     }
 
@@ -68,7 +68,7 @@ public class StatusController extends BaseController {
             eventHandler.processAndSendEvent(topic, request);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
-            return exceptionHandler(request, response, e);
+            return exceptionHandlerWithAudit(request, response, e);
         }
     }
 
