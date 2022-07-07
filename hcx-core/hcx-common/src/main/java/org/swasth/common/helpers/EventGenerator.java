@@ -117,20 +117,4 @@ public class EventGenerator {
         return  event;
     }
 
-    public Map<String,Object> generateNotificationAudit(Request request) {
-        Map<String,Object> event = new HashMap<>();
-        event.put(EID, AUDIT);
-        event.put(MID, request.getMid());
-        event.put(ETS, System.currentTimeMillis());
-        event.put(NOTIFICATION_ID, request.getNotificationId());
-        event.put(ACTION, request.getApiAction());
-        event.put(TOPIC_CODE, request.getTopicCode());
-        event.put(RECIPIENT_CODES, request.getRecipientCodes());
-        event.put(RECIPIENT_ROLES, request.getRecipientRoles());
-        event.put(SUBSCRIPTIONS, request.getSubscriptions());
-        event.put(NOTIFICATION_DATA, request.getNotificationData());
-        event.put(ERROR_DETAILS, request.getErrorDetails());
-        return event;
-    }
-
 }
