@@ -102,6 +102,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                     validateParticipantCtxDetails(participantCtxAuditDetails, path);
                 } else if (path.contains(NOTIFICATION_NOTIFY)) { //for validating notify api request
                     JSONRequest jsonRequest = new JSONRequest(requestBody, true, path, hcxCode, hcxRoles);
+                    requestObj = jsonRequest;
                     Map<String,Object> senderDetails =  registryService.fetchDetails(OS_OWNER, subject);
                     List<Map<String,Object>> recipientsDetails = new ArrayList<>();
                     if(!jsonRequest.getRecipientCodes().isEmpty()){

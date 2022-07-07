@@ -67,7 +67,7 @@ public class JSONRequest extends BaseRequest{
     public void validateNotificationReq(List<String> headers, Map<String,Object> senderDetails, List<Map<String,Object>> recipientsDetails, List<String> allowedNetworkCodes) throws ClientException {
         validateNotificationParticipant(senderDetails, ErrorCodes.ERR_INVALID_SENDER, SENDER);
         for(String header: getProtocolHeaders().keySet()){
-            validateCondition(!headers.contains(header), ErrorCodes.ERR_INVALID_PAYLOAD, "Notification request contains invalid field: " + header);
+            validateCondition(!headers.contains(header), ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Notification request contains invalid field: " + header);
         }
         validateCondition(StringUtils.isEmpty(getTopicCode()), ErrorCodes.ERR_INVALID_NOTIFICATION_TOPIC_CODE, "Notification topic code cannot be null, empty and other than 'String'");
         validateCondition(!NotificationUtils.isValidCode(getTopicCode()), ErrorCodes.ERR_INVALID_NOTIFICATION_TOPIC_CODE, "Invalid topic code(" + getTopicCode() + ") is not present in the master list of notifications");
@@ -76,14 +76,14 @@ public class JSONRequest extends BaseRequest{
         validateCondition(notification.get("status").equals(Constants.IN_ACTIVE), ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Notification status is inactive");
         if(notification.get(Constants.CATEGORY).equals(Constants.NETWORK)){
             validateCondition(!hasRole((List<String>) notification.get(Constants.ALLOWED_SENDERS), (List<String>) senderDetails.get(Constants.ROLES)) || !allowedNetworkCodes.contains(senderDetails.get(Constants.PARTICIPANT_CODE)),
-                    ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Participant is not authorized to trigger the notification: " + getTopicCode());
+                    ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Participant is not authorized to trigger this notification: " + getTopicCode());
         }
         // validate recipient codes
         if(!recipientsDetails.isEmpty()){
-            List<String> invalidRecipients = recipientsDetails.stream().filter(obj -> getRecipientCodes().contains((String) obj.get(Constants.PARTICIPANT_CODE)))
-                    .map(obj -> obj.get(Constants.PARTICIPANT_CODE).toString()).collect(Collectors.toList());
+            List<String> fetchedCodes = recipientsDetails.stream().map(obj -> obj.get(Constants.PARTICIPANT_CODE).toString()).collect(Collectors.toList());
+            List<String> invalidRecipients =  getRecipientCodes().stream().filter(code -> !fetchedCodes.contains(code)).collect(Collectors.toList());
             if(!invalidRecipients.isEmpty())
-                throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Invalid recipient codes: " + invalidRecipients);
+                throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Recipients does not exist in the registry: " + invalidRecipients);
             for(Map<String,Object> recipient: recipientsDetails){
                 validateNotificationParticipant(recipient, ErrorCodes.ERR_INVALID_RECIPIENT, Constants.RECIPIENT);
                 validateCondition(!hasRole((List<String>) notification.get(Constants.ALLOWED_RECIPIENTS), (List<String>) recipient.get(Constants.ROLES)),
@@ -94,7 +94,8 @@ public class JSONRequest extends BaseRequest{
         if(!getRecipientRoles().isEmpty()){
             List<String> allowedRecipients = (List<String>) notification.get(Constants.ALLOWED_RECIPIENTS);
             for (String role : getRecipientRoles()) {
-                validateCondition(!allowedRecipients.contains(role), ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Invalid recipient roles");
+                validateCondition(!allowedRecipients.contains(role), ErrorCodes.ERR_INVALID_NOTIFICATION_REQ,
+                        "Recipient roles are out of range, allowed recipients for this notification: " + notification.get(Constants.ALLOWED_RECIPIENTS));
             }
         }
     }
