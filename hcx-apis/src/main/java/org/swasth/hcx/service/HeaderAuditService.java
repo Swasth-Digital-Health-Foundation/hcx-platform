@@ -55,11 +55,11 @@ public class HeaderAuditService {
         try {
             final SearchResponse response = client.search(request, RequestOptions.DEFAULT);
             final SearchHit[] searchHits = response.getHits().getHits();
-            final List<Map<String,Object>> searchResult = new ArrayList<>(searchHits.length);
+            final List<Map<String,Object>> headeraudit = new ArrayList<>(searchHits.length);
             for (SearchHit hit : searchHits) {
-                searchResult.add(hit.getSourceAsMap());
+                headeraudit.add(hit.getSourceAsMap());
             }
-            return searchResult;
+            return headeraudit;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             return Collections.emptyList();
