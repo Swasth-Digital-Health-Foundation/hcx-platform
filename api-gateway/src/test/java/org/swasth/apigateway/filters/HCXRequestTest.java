@@ -636,6 +636,25 @@ class HCXRequestTest extends BaseSpec {
     }
 
     @Test
+    void test_notification_notify_with_valid_allowed_sender() throws Exception {
+        server.enqueue(new MockResponse()
+                .setResponseCode(202)
+                .addHeader("Content-Type", "application/json"));
+
+        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
+                .thenReturn(getHCXAdminDetails());
+        client.post().uri(versionPrefix + Constants.NOTIFICATION_NOTIFY)
+                .header(Constants.AUTHORIZATION, getProviderToken())
+                .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
+                .bodyValue(getNotificationRequest("24e975d1-054d-45fa-968e-c91b1043d0a5", Arrays.asList("payor", "agency.tpa"), Collections.emptyList(), Arrays.asList("subscription-123")))
+                .exchange()
+                .expectBody(Map.class)
+                .consumeWith(result -> {
+                    assertEquals(HttpStatus.ACCEPTED, result.getStatus());
+                });
+    }
+
+    @Test
     void test_notification_notify_with_empty_recipient_codes() throws Exception {
         server.enqueue(new MockResponse()
                 .setResponseCode(202)

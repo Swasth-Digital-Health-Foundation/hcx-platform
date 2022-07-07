@@ -281,8 +281,20 @@ class NotificationControllerTest extends BaseSpec {
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_NOTIFY).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
-        assertEquals(202, status);
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
+        assertEquals(202, status);
+        assertNotNull(resObj.getNotificationId());
+    }
+
+    @Test
+    void testNotifyWithEmptySubscriptions() throws Exception {
+        doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
+        String requestBody = getNotificationRequest("notification-123", Collections.EMPTY_LIST);
+        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_NOTIFY).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
+        assertEquals(202, status);
         assertNotNull(resObj.getNotificationId());
     }
 
@@ -294,8 +306,8 @@ class NotificationControllerTest extends BaseSpec {
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_NOTIFY).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
-        assertEquals(400, status);
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
+        assertEquals(400, status);
         assertNotNull(resObj.getTimestamp());
         assertEquals(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, resObj.getError().getCode());
         assertTrue(resObj.getError().getMessage().contains("Invalid subscriptions list"));
