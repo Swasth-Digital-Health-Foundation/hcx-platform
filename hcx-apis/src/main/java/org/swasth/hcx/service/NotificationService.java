@@ -56,7 +56,7 @@ public class NotificationService {
      */
     public void notify(Request request, Response response, String kafkaTopic) throws Exception {
         if(!request.getSubscriptions().isEmpty())
-          isValidSubscriptions(request.getSubscriptions());
+          isValidSubscriptions(request);
         request.setNotificationId(UUID.randomUUID().toString());
         response.setNotificationId(request.getNotificationId());
         eventHandler.processAndSendEvent(kafkaTopic, request);
@@ -82,10 +82,12 @@ public class NotificationService {
     /**
      * checks the given list of subscriptions are valid and active
      */
-    private void isValidSubscriptions(List<String> subscriptions) throws Exception {
+    private void isValidSubscriptions(Request request) throws Exception {
+        List<String> subscriptions = request.getSubscriptions();
         ResultSet resultSet = null;
         try {
-            String query = String.format("SELECT subscription_id FROM %s WHERE status = 1 AND subscription_id IN %s", postgresSubscription, subscriptions.toString().replace("[","(").replace("]",")"));
+            String query = String.format("SELECT subscription_id FROM %s WHERE topic_code = '%s' AND sender_code = '%s' subscription_status = 1 AND subscription_id IN %s",
+                    postgresSubscription, request.getTopicCode(), request.getSenderCode(), subscriptions.toString().replace("[","(").replace("]",")"));
             resultSet = (ResultSet) postgreSQLClient.executeQuery(query);
             while(resultSet.next()){
               subscriptions.remove(resultSet.getString("subscription_id"));
