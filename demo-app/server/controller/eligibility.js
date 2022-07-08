@@ -19,7 +19,8 @@ const privateKey = fs.readFileSync(path.join(__dirname, '..', 'resources', 'keys
  * @return {*} 
  */
 const coverageCheck = async (req, res, next) => {
-    const { name, gender, error_code, error_code_message, sender_code = process.env.SENDER_CODE , recipient_code =process.env.recipient_code} = req.body;
+    console.log("RECIPIENT_CODE and SENDER_CODE",process.env.RECIPIENT_CODE, process.env.SENDER_CODE);
+    const { name, gender, error_code, error_code_message, sender_code = process.env.SENDER_CODE , recipient_code=process.env.RECIPIENT_CODE } = req.body;
     if (!recipient_code) return next(createError(400, 'Recipient Code is mandatory'));
 
     const headers = {
