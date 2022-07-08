@@ -40,6 +40,7 @@ const EligibilityCheck = props => {
                 policyId: policyId.value,
                 name: `${name.value}`,
                 gender: gender.value,
+                index : index,
                 ...(scenarioObject && {
                     ...scenarioObject.body
                 }),

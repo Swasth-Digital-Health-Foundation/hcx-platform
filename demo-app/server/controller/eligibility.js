@@ -20,9 +20,9 @@ const privateKey = fs.readFileSync(path.join(__dirname, '..', 'resources', 'keys
  */
 const coverageCheck = async (req, res, next) => {
     console.log("RECIPIENT_CODE and SENDER_CODE",process.env.RECIPIENT_CODE, process.env.SENDER_CODE);
-    const { name, gender, error_code, error_code_message, sender_code = process.env.SENDER_CODE , recipient_code=process.env.RECIPIENT_CODE } = req.body;
+    const { name, gender, index, error_code, error_code_message, sender_code = process.env.SENDER_CODE , recipient_code } = req.body;
     if (!recipient_code) return next(createError(400, 'Recipient Code is mandatory'));
-
+    console.log("sender code", recipient_code," " ,index);
     const headers = {
         "x-hcx-recipient_code": recipient_code,
         "x-hcx-request_id": "059020c7-ec9a-43c3-88cb-63979db3e58d",
@@ -40,6 +40,12 @@ const coverageCheck = async (req, res, next) => {
             "x-hcx-error_details_test": { code: error_code, message: error_code_message || error_code, trace: '' }
         })
     }
+
+    if(index !== 1){
+        headers["x-hcx-recipient_code"] = process.env.RECIPIENT_CODE;
+    }
+
+    console.log("headers",headers);
 
     // map the name and gender to the HCXRequest
     const patientResource = checkPayload.entry.find(e => e.resource.resourceType === 'Patient');
