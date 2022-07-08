@@ -55,7 +55,7 @@ const preAuthSubmit = async (req, res, next) => {
     const payload = await encrypt({ headers, payload: preAuthPayload, cert: privateKey });
     const data = JSON.stringify({ payload })
 
-    var config = { method: 'post', url: 'api/v1/preauth/submit', data };
+    var config = { method: 'post', url: 'v1/preauth/submit', data };
     debug('preAuth-payload', config);
 
     try {
