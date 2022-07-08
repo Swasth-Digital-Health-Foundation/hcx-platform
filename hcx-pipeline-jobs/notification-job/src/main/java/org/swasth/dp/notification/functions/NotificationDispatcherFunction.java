@@ -11,7 +11,6 @@ import org.swasth.dp.core.service.AuditService;
 import org.swasth.dp.core.util.Constants;
 import org.swasth.dp.core.util.DispatcherUtil;
 import org.swasth.dp.core.util.JSONUtil;
-import org.swasth.dp.notification.dto.ErrorDetails;
 import org.swasth.dp.notification.task.NotificationConfig;
 
 import java.text.SimpleDateFormat;
@@ -39,19 +38,16 @@ public class NotificationDispatcherFunction extends ProcessFunction<Map<String, 
         super.close();
     }
 
-
-
     @Override
     public void processElement(Map<String, Object> inputEvent, ProcessFunction<Map<String, Object>, Object>.Context context, Collector<Object> collector) throws Exception {
         Map<String,Object> actualEvent = (Map<String, Object>) inputEvent.get(Constants.INPUT_EVENT());
-        Map<String,Object> notificationMasterData = (Map<String, Object>) inputEvent.get(Constants.MASTER_DATA());
+        Map<String,Object> notification = (Map<String, Object>) inputEvent.get(Constants.MASTER_DATA());
         String resolvedTemplate = (String) inputEvent.get(Constants.RESOLVED_TEMPLATE());
         List<Map<String, Object>> participantDetails = (List<Map<String, Object>>) inputEvent.get(Constants.PARTICIPANT_DETAILS());
-        notificationDispatcher(notificationMasterData,resolvedTemplate,participantDetails,actualEvent);
+        notificationDispatcher(notification,resolvedTemplate,participantDetails,actualEvent);
     }
 
     private void notificationDispatcher(Map<String, Object> notificationMasterData, String resolvedTemplate, List<Map<String, Object>> participantDetails,Map<String,Object> event) throws Exception {
-        List<Object> dispatchResult = new ArrayList<>();
         int successfulDispatches = 0;
         int failedDispatches = 0;
         for(Map<String,Object> participant: participantDetails) {
@@ -60,37 +56,27 @@ public class NotificationDispatcherFunction extends ProcessFunction<Map<String, 
             if (!(participantCode).contains("null") && endpointUrl != null) {
                 participant.put(Constants.END_POINT(), endpointUrl + event.get(Constants.ACTION()));
                 String payload = getPayload(resolvedTemplate, participantCode, notificationMasterData,event);
-                System.out.println("Recipient Id: " + participantCode + " :: Notification payload: " + payload);
-                logger.info("Recipient Id: " + participantCode + " :: Notification payload: " + payload);
                 DispatcherResult result = dispatcherUtil.dispatch(participant, payload);
-                dispatchResult.add(JSONUtil.serialize(new ErrorDetails(participantCode, result.success(), createErrorMap(result))));
+                System.out.println("Recipient code: " + participantCode + " :: Dispatch status: " + result.success());
+                logger.info("Recipient code: " + participantCode + " :: Dispatch status: " + result.success());
+                auditService.indexAudit(createNotificationAuditEvent(event, participantCode, createErrorMap(result)));
                 if(result.success()) successfulDispatches++; else failedDispatches++;
             }
         }
         int totalDispatches = successfulDispatches+failedDispatches;
         System.out.println("Total number of notifications dispatched: " + totalDispatches + " :: successful dispatches: " + successfulDispatches + " :: failed dispatches: " + failedDispatches);
         logger.info("Total number of notifications dispatched: " + totalDispatches + " :: successful dispatches: " + successfulDispatches + " :: failed dispatches: " + failedDispatches);
-        Map<String,Object> dispatchResultDetails = new HashMap<>();
-        dispatchResultDetails.put(Constants.TOTAL_DISPATCHES(), totalDispatches);
-        dispatchResultDetails.put(Constants.SUCCESSFUL_DISPATCHES(), successfulDispatches);
-        dispatchResultDetails.put(Constants.FAILED_DISPATCHES(), failedDispatches);
-        dispatchResultDetails.put(Constants.RESULT_DETAILS(), dispatchResult);
-        event.put(Constants.NOTIFICATION_DISPATCH_RESULT(), dispatchResultDetails);
-        auditService.indexAudit(createNotificationAuditEvent(event));
     }
 
     private String getPayload(String notificationMessage, String recipientCode, Map<String,Object> notificationMasterData,Map<String,Object> event) throws Exception {
         Map<String, Object> request = new HashMap<>();
-        request.put(Constants.SENDER_CODE(), config.hcxRegistryCode());
+        request.put(Constants.SENDER_CODE(), getProtocolStringValue(Constants.SENDER_CODE(),event));
         request.put(Constants.RECIPIENT_CODE(), recipientCode);
-        request.put(Constants.API_CALL_ID(), UUID.randomUUID());
-        request.put(Constants.CORRELATION_ID(), getProtocolStringValue(Constants.CORRELATION_ID(),event));
+        request.put(Constants.NOTIFICATION_ID(), getProtocolStringValue(Constants.NOTIFICATION_ID(),event));
         request.put(Constants.TIMESTAMP(), new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").format(new Date()));
         request.put(Constants.NOTIFICATION_DATA(), Collections.singletonMap(Constants.MESSAGE(), notificationMessage));
-        request.put(Constants.NOTIFICATION_TITLE(), notificationMasterData.get(Constants.NAME()));
-        request.put(Constants.NOTIFICATION_DESC(), notificationMasterData.get(Constants.DESCRIPTION()));
-        if(!getProtocolStringValue(Constants.WORKFLOW_ID(),event).isEmpty())
-            request.put(Constants.WORKFLOW_ID(), getProtocolStringValue(Constants.WORKFLOW_ID(),event));
+        request.put(Constants.TITLE(), notificationMasterData.get(Constants.NAME()));
+        request.put(Constants.DESCRIPTION(), notificationMasterData.get(Constants.DESCRIPTION()));
         return JSONUtil.serialize(request);
     }
 
@@ -113,27 +99,22 @@ public class NotificationDispatcherFunction extends ProcessFunction<Map<String, 
         return errorMap;
     }
 
-    private Map<String,Object> createNotificationAuditEvent(Map<String,Object> event){
+    private Map<String,Object> createNotificationAuditEvent(Map<String,Object> event, String recipientCode, Map<String,Object> errorDetails){
         Map<String,Object> audit = new HashMap<>();
         audit.put(Constants.EID(), Constants.AUDIT());
-        audit.put(Constants.SENDER_CODE(), getProtocolStringValue(Constants.SENDER_CODE(),event));
-        audit.put(Constants.RECIPIENT_CODE(), getProtocolStringValue(Constants.RECIPIENT_CODE(),event));
-        audit.put(Constants.API_CALL_ID(), getProtocolStringValue(Constants.API_CALL_ID(),event));
-        audit.put(Constants.CORRELATION_ID(), getProtocolStringValue(Constants.CORRELATION_ID(),event));
-        audit.put(Constants.WORKFLOW_ID(), getProtocolStringValue(Constants.WORKFLOW_ID(),event));
-        audit.put(Constants.TIMESTAMP(), getProtocolStringValue(Constants.TIMESTAMP(),event));
         audit.put(Constants.MID(), event.get(Constants.MID()));
         audit.put(Constants.ACTION(), event.get(Constants.ACTION()));
-        audit.put(Constants.STATUS(), getProtocolStringValue(Constants.STATUS(),event));
-        audit.put(Constants.REQUESTED_TIME(), event.get(Constants.ETS()));
-        audit.put(Constants.UPDATED_TIME(), event.getOrDefault(Constants.UPDATED_TIME(), Calendar.getInstance().getTime()));
-        audit.put(Constants.AUDIT_TIMESTAMP(), Calendar.getInstance().getTime());
-        audit.put(Constants.SENDER_ROLE(), getProtocolStringValue(Constants.SENDER_ROLE(),event).equals(config.hcxRegistryCode())? Collections.singletonList("HIE/HIO.HCX") : Collections.emptyList());
-        audit.put(Constants.RECIPIENT_ROLE(), event.getOrDefault(Constants.RECIPIENT_ROLE(), Collections.emptyList()));
+        audit.put(Constants.ETS(), Calendar.getInstance().getTime());
+        audit.put(Constants.SENDER_CODE(), getProtocolStringValue(Constants.HCX_SENDER_CODE(),event));
+        audit.put(Constants.RECIPIENT_CODE(), recipientCode);
         audit.put(Constants.NOTIFICATION_ID(), getProtocolStringValue(Constants.NOTIFICATION_ID(),event));
-        audit.put(Constants.NOTIFICATION_DATA(), getProtocolMapValue(Constants.NOTIFICATION_DATA(),event));
-        audit.put(Constants.NOTIFICATION_DISPATCH_RESULT(), event.get(Constants.NOTIFICATION_DISPATCH_RESULT()));
-        audit.put(Constants.PAYLOAD(), "");
+        audit.put(Constants.TOPIC_CODE(), getProtocolStringValue(Constants.TOPIC_CODE(),event));
+        if(!errorDetails.isEmpty()) {
+            audit.put(Constants.ERROR_DETAILS(), errorDetails);
+            audit.put(Constants.STATUS(), Constants.ERROR_STATUS());
+        } else {
+            audit.put(Constants.STATUS(), Constants.DISPATCH_STATUS());
+        }
         return audit;
     }
 

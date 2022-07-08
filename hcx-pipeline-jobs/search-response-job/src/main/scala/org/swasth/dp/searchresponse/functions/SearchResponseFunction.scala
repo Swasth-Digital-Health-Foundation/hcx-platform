@@ -46,7 +46,7 @@ class SearchResponseFunction(config: SearchResponseConfig)(implicit val stringTy
     val action = event.get(Constants.ACTION).asInstanceOf[String]
     val apiCallId = getProtocolStringValue(event,Constants.API_CALL_ID)
     val baseRecord = getBaseRecord(correlationId)
-    val senderCode = getProtocolStringValue(event,Constants.SENDER_CODE) //1-93f908ba-b579-453e-8b2a-56022afad275
+    val senderCode = getProtocolStringValue(event,Constants.HCX_SENDER_CODE) //1-93f908ba-b579-453e-8b2a-56022afad275
     if (!Constants.CLOSE_STATUS.equalsIgnoreCase(baseRecord.responseStatus)) {
       val payloadRefId = event.get(Constants.MID).asInstanceOf[String]
       val payloadMap = getPayload(payloadRefId)
@@ -60,8 +60,8 @@ class SearchResponseFunction(config: SearchResponseConfig)(implicit val stringTy
       //Add protected payload values to mutable map
       protectedMap.forEach((k, v) => mutableMap.put(k, v))
 
-      mutableMap.asJava.put(Constants.SENDER_CODE, config.hcxRegistryCode)
-      mutableMap.asJava.put(Constants.RECIPIENT_CODE, baseRecord.senderCode)
+      mutableMap.asJava.put(Constants.HCX_SENDER_CODE, config.hcxRegistryCode)
+      mutableMap.asJava.put(Constants.HCX_RECIPIENT_CODE, baseRecord.senderCode)
       mutableMap.asJava.put(Constants.API_CALL_ID, baseRecord.apiCallId)
       mutableMap.asJava.put(Constants.HCX_STATUS, Constants.PARTIAL_RESPONSE)
 

@@ -8,16 +8,15 @@ import org.apache.flink.streaming.util.OneInputStreamOperatorTestHarness;
 import org.apache.flink.streaming.util.ProcessFunctionTestHarnesses;
 import org.junit.Test;
 import org.swasth.dp.notification.task.NotificationConfig;
-import org.swasth.fixture.EventFixture;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class NotificationProcessFunctionTest {
+public class NotificationFilterFunctionTest {
 
     Config config  = ConfigFactory.load("notification-test.conf");
     NotificationConfig notificationConfig = new NotificationConfig(config,"NotificationTestJob");
-    NotificationProcessFunction processFunction = new NotificationProcessFunction(notificationConfig);
+    NotificationFilterFunction processFunction = new NotificationFilterFunction(notificationConfig);
     Gson gson = new Gson();
 
 
