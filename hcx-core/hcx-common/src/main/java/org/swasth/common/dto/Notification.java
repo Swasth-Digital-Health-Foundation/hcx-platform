@@ -1,35 +1,35 @@
 package org.swasth.common.dto;
 
-import java.util.List;
+import java.util.Set;
 
 public class Notification {
 
-    private String id;
-    private String name;
+    private String topicCode;
+    private String title;
     private String description;
-    private List<String> sender;
-    private List<String> recipient;
+    private Set<String> allowedSenders;
+    private Set<String> allowedRecipients;
     private String type;
     private String category;
     private String trigger;
-    private List<String> eventType;
     private String template;
     private String status;
+    private int priority;
 
-    public String getId() {
-        return id;
+    public String getTopicCode() {
+        return topicCode;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setTopicCode(String topicCode) {
+        this.topicCode = topicCode;
     }
 
-    public String getName() {
-        return name;
+    public String getTitle() {
+        return title;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getDescription() {
@@ -40,20 +40,20 @@ public class Notification {
         this.description = description;
     }
 
-    public List<String> getSender() {
-        return sender;
+    public Set<String> getAllowedSenders() {
+        return allowedSenders;
     }
 
-    public void setSender(List<String> sender) {
-        this.sender = sender;
+    public void setAllowedSenders(Set<String> allowedSenders) {
+        this.allowedSenders = allowedSenders;
     }
 
-    public List<String> getRecipient() {
-        return recipient;
+    public Set<String> getAllowedRecipients() {
+        return allowedRecipients;
     }
 
-    public void setRecipient(List<String> recipient) {
-        this.recipient = recipient;
+    public void setAllowedRecipients(Set<String> allowedRecipients) {
+        this.allowedRecipients = allowedRecipients;
     }
 
     public String getType() {
@@ -80,14 +80,6 @@ public class Notification {
         this.trigger = trigger;
     }
 
-    public List<String> getEventType() {
-        return eventType;
-    }
-
-    public void setEventType(List<String> eventType) {
-        this.eventType = eventType;
-    }
-
     public String getTemplate() {
         return template;
     }
@@ -102,5 +94,13 @@ public class Notification {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public int getPriority() {
+        return priority;
+    }
+
+    public void setPriority(int priority) {
+        this.priority = priority;
     }
 }

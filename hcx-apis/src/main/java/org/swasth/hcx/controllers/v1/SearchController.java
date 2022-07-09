@@ -33,12 +33,9 @@ public class SearchController extends BaseController {
 
     @PostMapping(HCX_SEARCH)
     public ResponseEntity<Object> search (@RequestBody Map<String, Object> requestBody) throws Exception {
-        Response response = new Response();
-        SearchRequest request = new SearchRequest(requestBody);
-        request.setApiAction(HCX_SEARCH);
+        SearchRequest request = new SearchRequest(requestBody, HCX_SEARCH);
+        Response response = new Response(request);
         try {
-            checkSystemHealth();
-            setResponseParams(request, response);
             // Validations
             validateRegistryCode(request);
             Map<String,Object> requestMap = request.getSearchRequest();
@@ -46,7 +43,7 @@ public class SearchController extends BaseController {
             if(requestMap.containsKey(Constants.SEARCH_FILTERS)){
                 validateSearchFilters(request);
             }
-            processAndSendEvent(topic, request);
+            eventHandler.processAndSendEvent(topic, request);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
             return exceptionHandler(request, response, e);
@@ -55,17 +52,14 @@ public class SearchController extends BaseController {
 
     @PostMapping(HCX_ON_SEARCH)
     public ResponseEntity<Object> onSearch (@RequestBody Map<String, Object> requestBody) throws Exception {
-        Response response = new Response();
-        SearchRequest request = new SearchRequest(requestBody);
-        request.setApiAction(HCX_ON_SEARCH);
+        SearchRequest request = new SearchRequest(requestBody, HCX_ON_SEARCH);
+        Response response = new Response(request);
         try {
-            checkSystemHealth();
-            setResponseParams(request, response);
             // Validations
             validateRegistryCode(request);
-            Map<String,Object> responseMap = request.getSearchResponse();
+            Map<String, Object> responseMap = request.getSearchResponse();
             validateSearch(responseMap, "Search response details cannot be null, empty and should be 'JSON Object'", Constants.SEARCH_RES_KEYS, "Search response details should contain only: ");
-            processAndSendEvent(responseTopic, request);
+            eventHandler.processAndSendEvent(responseTopic, request);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
             return exceptionHandler(request, response, e);

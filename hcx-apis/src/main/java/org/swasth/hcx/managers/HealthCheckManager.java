@@ -7,6 +7,7 @@ import org.swasth.common.utils.Constants;
 import org.swasth.kafka.client.IEventService;
 import org.swasth.postgresql.IDatabaseService;
 
+import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,6 +22,11 @@ public class HealthCheckManager {
     private IDatabaseService postgreSQLClient;
 
     public static boolean allSystemHealthResult = true;
+
+    @PostConstruct
+    public void init() {
+        checkAllSystemHealth();
+    }
 
     public Response checkAllSystemHealth(){
         List<Map<String,Object>> allChecks = new ArrayList<>();

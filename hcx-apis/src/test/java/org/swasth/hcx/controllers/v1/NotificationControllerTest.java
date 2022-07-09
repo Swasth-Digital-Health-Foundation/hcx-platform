@@ -9,13 +9,13 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.swasth.common.dto.Response;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
-import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.hcx.controllers.BaseSpec;
 import org.swasth.hcx.utils.MockResultSet;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,7 +35,7 @@ class NotificationControllerTest extends BaseSpec {
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIBE).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
-        assertEquals(200, status);
+        assertEquals(202, status);
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
         assertEquals("1fa85f64-5717-4562-b3fc-2c963f66afa6", resObj.getApiCallId());
         assertEquals("2fa85f64-5717-4562-b3fc-2c963f66afa6", resObj.getCorrelationId());
@@ -68,13 +68,26 @@ class NotificationControllerTest extends BaseSpec {
     }
 
     @Test
+    void testNotificationUnSubscribeException() throws Exception {
+        doThrow(new ClientException(ErrorCodes.INTERNAL_SERVER_ERROR,"Test Internal Server Error")).when(postgreSQLClient).execute(anyString());
+        String requestBody = getSubscriptionRequest("hcx-registry-code");
+        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_UNSUBSCRIBE).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        assertEquals(400, status);
+        Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
+        assertEquals(ErrorCodes.INTERNAL_SERVER_ERROR, resObj.getError().getCode());
+        assertEquals("Test Internal Server Error", resObj.getError().getMessage());
+    }
+
+    @Test
     void testNotificationUnSubscribeSuccess() throws Exception {
         doReturn(true).when(postgreSQLClient).execute(anyString());
         String requestBody = getSubscriptionRequest("hcx-registry-code");
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_UNSUBSCRIBE).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
-        assertEquals(200, status);
+        assertEquals(202, status);
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
         assertEquals("1fa85f64-5717-4562-b3fc-2c963f66afa6", resObj.getApiCallId());
         assertEquals("2fa85f64-5717-4562-b3fc-2c963f66afa6", resObj.getCorrelationId());
@@ -104,7 +117,7 @@ class NotificationControllerTest extends BaseSpec {
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
         assertEquals(200, status);
         assertTrue(resObj.getSubscriptions().isEmpty());
-        assertEquals(0,resObj.getSubscriptionCount());
+        assertEquals(0,resObj.getCount());
     }
 
     @Test
@@ -118,7 +131,7 @@ class NotificationControllerTest extends BaseSpec {
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
         assertEquals(200, status);
         assertTrue(!resObj.getSubscriptions().isEmpty());
-        assertEquals(1,resObj.getSubscriptionCount());
+        assertEquals(1,resObj.getCount());
         assertEquals("hcx-notification-001:hcx-apollo-12345", resObj.getSubscriptions().get(0).getSubscriptionId());
         assertEquals("hcx-notification-001", resObj.getSubscriptions().get(0).getNotificationId());
         assertEquals(ACTIVE, resObj.getSubscriptions().get(0).getStatus());
@@ -135,7 +148,7 @@ class NotificationControllerTest extends BaseSpec {
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
         assertEquals(200, status);
         assertTrue(!resObj.getSubscriptions().isEmpty());
-        assertEquals(1,resObj.getSubscriptionCount());
+        assertEquals(1,resObj.getCount());
         assertEquals("hcx-notification-001:hcx-apollo-12345", resObj.getSubscriptions().get(0).getSubscriptionId());
         assertEquals("hcx-notification-001", resObj.getSubscriptions().get(0).getNotificationId());
         assertEquals(IN_ACTIVE, resObj.getSubscriptions().get(0).getStatus());
@@ -153,7 +166,7 @@ class NotificationControllerTest extends BaseSpec {
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
         assertEquals(200, status);
         assertTrue(!resObj.getSubscriptions().isEmpty());
-        assertEquals(2, resObj.getSubscriptionCount());
+        assertEquals(2, resObj.getCount());
         assertEquals("hcx-notification-001:hcx-apollo-12345", resObj.getSubscriptions().get(0).getSubscriptionId());
         assertEquals("hcx-notification-001", resObj.getSubscriptions().get(0).getNotificationId());
         assertEquals(ACTIVE, resObj.getSubscriptions().get(0).getStatus());
@@ -185,14 +198,24 @@ class NotificationControllerTest extends BaseSpec {
 
     @Test
     void testNotificationListData() throws Exception {
-        String requestBody = getNotificationListRequest();
-        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_LIST).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_LIST).content(getNotificationListRequest()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         assertEquals(200, status);
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
         assertNotNull(resObj.getTimestamp());
         assertFalse(resObj.getNotifications().isEmpty());
+    }
+
+    @Test
+    void testNotificationInvalidFilterProperties() throws Exception {
+        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_LIST).content(getInvalidFilterRequest()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        assertEquals(400, status);
+        Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
+        assertEquals(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, resObj.getError().getCode());
+        assertTrue(resObj.getError().getMessage().contains("Invalid notifications filters"));
     }
 
     private ResultSet getMockResultSet(int status) throws SQLException {
@@ -219,8 +242,15 @@ class NotificationControllerTest extends BaseSpec {
     }
 
     private String getNotificationListRequest() throws JsonProcessingException {
-        Map<String,Object> obj = new HashMap<>();
-        return JSONUtils.serialize(obj);
+        Map<String,Object> filters = new HashMap<>();
+        filters.put(PRIORITY, 0);
+        return JSONUtils.serialize(Collections.singletonMap(FILTERS, filters));
+    }
+
+    private String getInvalidFilterRequest() throws JsonProcessingException {
+        Map<String,Object> filters = new HashMap<>();
+        filters.put("test", "123");
+        return JSONUtils.serialize(Collections.singletonMap(FILTERS, filters));
     }
 
     private String getNotificationRequest(String notificationId) throws JsonProcessingException {
@@ -266,8 +296,8 @@ class NotificationControllerTest extends BaseSpec {
         assertEquals(400, status);
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
         assertNotNull(resObj.getTimestamp());
-        assertEquals(ErrorCodes.ERR_INVALID_NOTIFICATION_ID, resObj.getError().getCode());
-        assertTrue(resObj.getError().getMessage().contains("Invalid NotificationId."));
+        assertEquals(ErrorCodes.ERR_INVALID_NOTIFICATION_TOPIC_CODE, resObj.getError().getCode());
+        assertTrue(resObj.getError().getMessage().contains("Invalid topic code"));
     }
 
 }
