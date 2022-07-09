@@ -74,7 +74,12 @@ public class NotificationFilterFunction extends ProcessFunction<Map<String,Objec
                 List<Map<String, Object>> fetchParticipants = registryService.getParticipantDetails("{\"roles\":{\"or\":" + recipientRoles + "}}");
                 recipientCodes = fetchParticipants.stream().map(obj -> (String) obj.get(Constants.PARTICIPANT_CODE())).collect(Collectors.toList());
             }
-            participantCodes = getParticipantCodes(topicCode, senderCode, Constants.RECIPIENT_CODE(), recipientCodes);
+            if(notification.get(Constants.CATEGORY()).equals(Constants.NETWORK())) {
+                participantCodes = recipientCodes;
+            } else {
+                // check recipients have active subscription
+                participantCodes = getParticipantCodes(topicCode, senderCode, Constants.RECIPIENT_CODE(), recipientCodes);;
+            }
         }
         List<Map<String, Object>> participantDetails = registryService.getParticipantDetails("{\"participant_code\":{\"or\":" + participantCodes + "}}");
         System.out.println("Total number of participants: " + participantDetails.size());
