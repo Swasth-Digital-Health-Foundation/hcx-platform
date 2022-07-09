@@ -30,7 +30,7 @@
     "x-hcx-status":{
       "type":"keyword"
     },
-    "auditTimeStamp":{
+    "ets":{
       "type":"keyword"
     },
     "requestTimeStamp":{
@@ -53,6 +53,21 @@
     },
     "payload":{
       "type":"text"
+    },
+    "topic_code":{
+      "type":"keyword"
+    },
+    "sender_code":{
+      "type":"keyword"
+    },
+    "recipient_code":{
+      "type":"keyword"
+    },
+    "notification_id":{
+      "type":"keyword"
+    },
+    "status":{
+      "type":"keyword"
     }
   }
 }
