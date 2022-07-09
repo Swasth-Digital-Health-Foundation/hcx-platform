@@ -1,6 +1,6 @@
 package org.swasth.hcx.controllers.v1;
 
-import kong.unirest.*;
+import kong.unirest.HttpResponse;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,6 +20,7 @@ import org.swasth.redis.cache.RedisCache;
 
 import java.security.SecureRandom;
 import java.util.*;
+import java.util.regex.Pattern;
 
 import static org.swasth.common.utils.Constants.*;
 
@@ -152,7 +153,8 @@ public class ParticipantController  extends BaseController {
             throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, "unknown property, 'scheme_code' is not allowed");
         else if (notAllowedUrls.contains(requestBody.get(ENDPOINT_URL)))
             throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, "end point url should not be the HCX Gateway/APIs URL");
-        else if (!requestBody.containsKey(PRIMARY_EMAIL) || !(requestBody.get(PRIMARY_EMAIL) instanceof String) || EmailValidator.getInstance().isValid((String) requestBody.get(PRIMARY_EMAIL)))
+        else if (!requestBody.containsKey(PRIMARY_EMAIL) || !(requestBody.get(PRIMARY_EMAIL) instanceof String)
+                || !EmailValidator.getInstance().isValid((String) requestBody.get(PRIMARY_EMAIL)))
             throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, "primary_email does not exist or invalid");
     }
 

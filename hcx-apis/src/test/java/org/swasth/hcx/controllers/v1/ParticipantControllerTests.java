@@ -164,14 +164,14 @@ class ParticipantControllerTests extends BaseSpec{
     }
 
     @Test
-    void participant_create_invalid_participant_name_scenario() throws Exception {
-        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_CREATE).content("{ \"participant_name\": \"\", \"primary_mobile\": \"6300009626\", \"primary_email\": \"Apollohospital@gmail.com\", \"roles\": [ \"provider\" ], \"address\": { \"plot\": \"5-4-199\", \"street\": \"road no 12\", \"landmark\": \"Jawaharlal Nehru Road\", \"locality\": \"Nampally\", \"village\": \"Nampally\", \"district\": \"Hyderabad\", \"state\": \"Telangana\", \"pincode\": \"500805\" }, \"phone\": [ \"040-387658992\" ], \"status\": \"Created\", \"endpoint_url\": \"https://677e6fd9-57cc-466c-80f6-ae0462762872.mock.pstmn.io\", \"payment_details\": { \"account_number\": \"4707890099809809\", \"ifsc_code\": \"ICICI\" }, \"signing_cert_path\": \"urn:isbn:0-476-27557-4\", \"linked_registry_codes\": [ \"22344\" ], \"encryption_cert\": \"urn:isbn:0-4234\" }").header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+    void participant_create_invalid_primary_email_scenario() throws Exception {
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_CREATE).content("{ \"participant_name\": \"test-user\", \"primary_mobile\": \"6300009626\", \"primary_email\": \"\", \"roles\": [ \"provider\" ], \"address\": { \"plot\": \"5-4-199\", \"street\": \"road no 12\", \"landmark\": \"Jawaharlal Nehru Road\", \"locality\": \"Nampally\", \"village\": \"Nampally\", \"district\": \"Hyderabad\", \"state\": \"Telangana\", \"pincode\": \"500805\" }, \"phone\": [ \"040-387658992\" ], \"status\": \"Created\", \"endpoint_url\": \"https://677e6fd9-57cc-466c-80f6-ae0462762872.mock.pstmn.io\", \"payment_details\": { \"account_number\": \"4707890099809809\", \"ifsc_code\": \"ICICI\" }, \"signing_cert_path\": \"urn:isbn:0-476-27557-4\", \"linked_registry_codes\": [ \"22344\" ], \"encryption_cert\": \"urn:isbn:0-4234\" }").header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         Map<String,Object> responseBody = JSONUtils.deserialize(response.getContentAsString(), Map.class);
         int status = response.getStatus();
         assertEquals(400, status);
         assertEquals(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS.name(), getResponseErrorCode(responseBody));
-        assertEquals("participant_name property cannot be null, empty or other than 'String'", getResponseErrorMessage(responseBody));
+        assertEquals("primary_email does not exist or invalid", getResponseErrorMessage(responseBody));
     }
 
     @Test
