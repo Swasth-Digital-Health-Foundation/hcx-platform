@@ -7,18 +7,8 @@ public class SlugUtilsTest {
 
     @Test
     public void testMakeSlug() {
-        String sluggified =  SlugUtils.makeSlug("-provider--apollo hospital-");
-        Assert.assertEquals("provider-apollo-hospital", sluggified);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testMakeSlugException() throws Exception {
-        SlugUtils.makeSlug(null);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testMakeSlugInvalidOutput() throws Exception {
-        SlugUtils.makeSlug("--");
+        String sluggified =  SlugUtils.makeSlug("settlements@hospital.com" , "", ".", "swasth-hcx");
+        Assert.assertEquals("settlements.hospital@swasth-hcx", sluggified);
     }
 
 }

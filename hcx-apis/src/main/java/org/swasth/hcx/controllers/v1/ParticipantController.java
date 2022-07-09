@@ -1,6 +1,7 @@
 package org.swasth.hcx.controllers.v1;
 
 import kong.unirest.*;
+import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -46,18 +47,17 @@ public class ParticipantController  extends BaseController {
         @RequestBody Map<String, Object> requestBody) throws Exception {
         try {
             validateParticipant(requestBody);
-            String sluggifiedParticipantName = SlugUtils.makeSlug((String) requestBody.get(PARTICIPANT_NAME));
-            String role = ((ArrayList<String>) requestBody.get(ROLES)).get(0).toLowerCase();
-            String updatedParticipantCode = generateParticipantCode(role, sluggifiedParticipantName);
-            while(isParticipantCodeExists(updatedParticipantCode)){
-                updatedParticipantCode = generateParticipantCode(role, sluggifiedParticipantName+ "-" + new SecureRandom().nextInt(1000));
+            String primaryEmail = (String) requestBody.get(PRIMARY_EMAIL);
+            String participantCode = SlugUtils.makeSlug(primaryEmail, "", fieldSeparator, hcxInstanceName);
+            while(isParticipantCodeExists(participantCode)){
+                participantCode = SlugUtils.makeSlug(primaryEmail, String.valueOf(new SecureRandom().nextInt(1000)), fieldSeparator, hcxInstanceName);
             }
-            requestBody.put(PARTICIPANT_CODE, updatedParticipantCode);
+            requestBody.put(PARTICIPANT_CODE, participantCode);
             String url =  registryUrl + "/api/v1/Organisation/invite";
             Map<String, String> headersMap = new HashMap<>();
             headersMap.put(AUTHORIZATION, Objects.requireNonNull(header.get(AUTHORIZATION)).get(0));
             HttpResponse<String> response = HttpUtils.post(url, JSONUtils.serialize(requestBody), headersMap);
-            return responseHandler(response, updatedParticipantCode);
+            return responseHandler(response, participantCode);
         } catch (Exception e) {
             return exceptionHandler(null, new Response(), e);
         }
@@ -152,8 +152,8 @@ public class ParticipantController  extends BaseController {
             throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, "unknown property, 'scheme_code' is not allowed");
         else if (notAllowedUrls.contains(requestBody.get(ENDPOINT_URL)))
             throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, "end point url should not be the HCX Gateway/APIs URL");
-        else if (!requestBody.containsKey(PARTICIPANT_NAME) || !(requestBody.get(PARTICIPANT_NAME) instanceof String) || ((String) requestBody.get(PARTICIPANT_NAME)).isEmpty())
-            throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, "participant_name property cannot be null, empty or other than 'String'");
+        else if (!requestBody.containsKey(PRIMARY_EMAIL) || !(requestBody.get(PRIMARY_EMAIL) instanceof String) || EmailValidator.getInstance().isValid((String) requestBody.get(PRIMARY_EMAIL)))
+            throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, "primary_email does not exist or invalid");
     }
 
     private String getErrorMessage(HttpResponse<String> response) throws Exception {
