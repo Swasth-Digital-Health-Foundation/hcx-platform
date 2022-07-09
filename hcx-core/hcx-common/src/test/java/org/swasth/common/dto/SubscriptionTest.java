@@ -2,6 +2,7 @@ package org.swasth.common.dto;
 
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.swasth.common.utils.Constants;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -25,15 +26,15 @@ public class SubscriptionTest {
     }
 
     @Test
-    public void testSubscriptionData() throws Exception {
+    public void testSubscriptionData() {
         Subscription mockSubscription = new Subscription();
-        mockSubscription.setSubscriptionId("SubscriptionId");
-        mockSubscription.setNotificationId("NotificationId");
-        mockSubscription.setStatus("Status");
+        mockSubscription.setSubscriptionId("hcx-notification-001:hcx-apollo-12345");
+        mockSubscription.setNotificationId("hcx-notification-001");
+        mockSubscription.setStatus(Constants.ACTIVE);
         mockSubscription.setMode("API");
-        assertEquals("SubscriptionId", mockSubscription.getSubscriptionId());
-        assertEquals("NotificationId",mockSubscription.getNotificationId());
-        assertEquals("Status",mockSubscription.getStatus());
+        assertEquals("hcx-notification-001:hcx-apollo-12345", mockSubscription.getSubscriptionId());
+        assertEquals("hcx-notification-001",mockSubscription.getNotificationId());
+        assertEquals(Constants.ACTIVE,mockSubscription.getStatus());
         assertEquals("API",mockSubscription.getMode());
     }
 }

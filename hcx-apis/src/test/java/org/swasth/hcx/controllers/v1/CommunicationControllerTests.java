@@ -61,7 +61,7 @@ class CommunicationControllerTests extends BaseSpec {
         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.COMMUNICATION_REQUEST).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
-        assertEquals(500, status);
+        assertEquals(400, status);
     }
 
     @Test

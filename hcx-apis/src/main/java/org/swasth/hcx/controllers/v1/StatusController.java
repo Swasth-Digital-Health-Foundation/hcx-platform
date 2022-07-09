@@ -31,12 +31,9 @@ public class StatusController extends BaseController {
 
     @PostMapping(HCX_STATUS)
     public ResponseEntity<Object> status(@RequestBody Map<String, Object> requestBody) throws Exception {
-        Response response = new Response();
-        Request request = new Request(requestBody);
-        request.setApiAction(HCX_STATUS);
+        Request request = new Request(requestBody, HCX_STATUS);
+        Response response = new Response(request);
         try {
-            checkSystemHealth();
-            setResponseParams(request, response);
             Map<String,String> auditFilters = new HashMap<>();
             auditFilters.put(SENDER_CODE, request.getSenderCode());
             auditFilters.put(CORRELATION_ID, request.getCorrelationId());
@@ -55,7 +52,7 @@ public class StatusController extends BaseController {
                 response.setResult(statusResponseMap);
             } else if (auditData.getStatus().equals(DISPATCHED_STATUS)) {
                 response.setResult(statusResponseMap);
-                processAndSendEvent(topic, request);
+                eventHandler.processAndSendEvent(topic, request);
             }
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
@@ -65,13 +62,10 @@ public class StatusController extends BaseController {
 
     @PostMapping(HCX_ONSTATUS)
     public ResponseEntity<Object> onStatus(@RequestBody Map<String, Object> requestBody) throws Exception {
-        Response response = new Response();
-        Request request = new Request(requestBody);
-        request.setApiAction(HCX_ONSTATUS);
+        Request request = new Request(requestBody, HCX_ONSTATUS);
+        Response response = new Response(request);
         try {
-            checkSystemHealth();
-            setResponseParams(request, response);
-            processAndSendEvent(topic, request);
+            eventHandler.processAndSendEvent(topic, request);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
             return exceptionHandler(request, response, e);

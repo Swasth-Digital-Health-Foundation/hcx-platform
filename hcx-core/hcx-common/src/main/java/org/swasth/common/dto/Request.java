@@ -18,7 +18,8 @@ public class Request {
     private String apiAction;
     private final String payloadWithoutSensitiveData;
 
-    public Request(Map<String, Object> body) throws Exception {
+    public Request(Map<String, Object> body, String apiAction) throws Exception {
+        this.apiAction = apiAction;
         this.payload = body;
         try {
             if (body.containsKey(PAYLOAD)) {

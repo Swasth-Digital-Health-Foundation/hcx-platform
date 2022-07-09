@@ -15,7 +15,7 @@ import static org.swasth.common.utils.Constants.*;
 
     @Test
     public void check_payload() throws Exception {
-        Request request = new Request(getRequestBody());
+        Request request = new Request(getRequestBody(), COVERAGE_ELIGIBILITY_CHECK);
         request.setStatus(Constants.COMPLETE_STATUS);
         request.setMid("test_123");
         assertEquals(COMPLETE_STATUS,request.getStatus());
@@ -23,13 +23,13 @@ import static org.swasth.common.utils.Constants.*;
 
     @Test
     public void check_plain_payload() throws Exception {
-        Request request = new Request(getPlainRequestBody());
+        Request request = new Request(getPlainRequestBody(), COVERAGE_ELIGIBILITY_CHECK);
         assertNotNull(request);
     }
 
     @Test(expected = ClientException.class)
     public void check_exception_payload() throws Exception {
-        new Request(null);
+        new Request(null, COVERAGE_ELIGIBILITY_CHECK);
     }
 
     public Map<String, Object> getRequestBody() {
@@ -55,7 +55,7 @@ import static org.swasth.common.utils.Constants.*;
 
     @Test
     public void testNotificationPayload() throws Exception {
-        Request request = new Request(getNotificationRequest());
+        Request request = new Request(getNotificationRequest(), COVERAGE_ELIGIBILITY_CHECK);
         assertEquals("hcx-notification-001",request.getNotificationId());
         assertEquals("hcx-apollo-12345", request.getSenderCode());
     }

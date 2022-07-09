@@ -6,8 +6,8 @@ import java.util.Map;
 
 public class SearchRequest extends Request {
 
-    public SearchRequest(Map<String, Object> body) throws Exception {
-        super(body);
+    public SearchRequest(Map<String, Object> body, String apiAction) throws Exception {
+        super(body, apiAction);
     }
 
     public Map<String,Object> getSearchRequest(){

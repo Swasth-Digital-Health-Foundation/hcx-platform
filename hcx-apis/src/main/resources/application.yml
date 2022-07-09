@@ -15,9 +15,6 @@ kafka:
     predetermination: ${kafka_predetermination_topic:hcx.request.predetermination}
     notification: ${kafka_notification_topic:hcx.request.notification}
 
-service:
-  mode: ${service_mode:gateway}
-
 registry:
   basePath: ${registry_basePath:http://a65d6a493998b4d0e98bd690a123328b-1532825861.ap-south-1.elb.amazonaws.com:8081}
   hcxcode: ${registry_hcxcode:1-d2d56996-1b77-4abb-b9e9-0e6e7343c72e}
@@ -83,7 +80,7 @@ hcx:
 
 #Notifications related configurations
 notification:
-  path: ${notification_path:classpath:Notifications.json}
+  path: ${notification_path:classpath:notifications.json}
   headers:
     mandatory: ${notification_mandatory_headers:x-hcx-notification_id,x-hcx-sender_code, x-hcx-recipient_code, x-hcx-api_call_id, x-hcx-timestamp, x-hcx-correlation_id}
     optional: ${notification_optional_headers:x-hcx-workflow_id,x-hcx-status,x-hcx-notification_data}
