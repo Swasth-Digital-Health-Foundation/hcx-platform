@@ -15,7 +15,6 @@ import org.swasth.apigateway.handlers.RequestHandler;
 import org.swasth.apigateway.models.BaseRequest;
 import org.swasth.apigateway.service.RegistryService;
 import org.swasth.apigateway.utils.JSONUtils;
-
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -55,7 +54,7 @@ public class AuditValidationFilter extends AbstractGatewayFilterFactory<AuditVal
                 if (!searchResult.isEmpty()) {
                     Map<String, Object> participant = searchResult.get(0);
                     ArrayList<String> roles = (ArrayList<String>) participant.get("roles");
-                    String code = (String) participant.get("osid");
+                    String code = (String) participant.get(Constants.PARTICIPANT_CODE);
                     Map<String, String> filters = (Map<String, String>) filterMap.get("filters");
                     if(roles.contains("payor") || roles.contains("provider")) {
                         filters.put("x-hcx-sender_code", code);

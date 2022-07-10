@@ -172,9 +172,9 @@ public class BaseSpec {
 
     public String getParticipantCreateBody() throws JsonProcessingException {
         Map<String,Object> obj = new HashMap<>();
-        obj.put("participant_name","New Teja Hospital888");
+        obj.put("participant_name","test user");
         obj.put("primary_mobile","9493347239");
-        obj.put("primary_email","dharmateja888@gmail.com");
+        obj.put("primary_email","testuser@gmail.com");
         obj.put("roles",new ArrayList<>(Collections.singleton("provider")));
         obj.put("address", new HashMap<>() {{
             put("plot","5-4-199");

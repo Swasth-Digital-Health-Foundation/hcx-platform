@@ -25,7 +25,7 @@ import org.swasth.apigateway.service.AuditService;
 import org.swasth.apigateway.service.RegistryService;
 import org.swasth.apigateway.utils.JSONUtils;
 import reactor.core.publisher.Mono;
-
+import javax.validation.spi.ConfigurationState;
 import java.nio.charset.StandardCharsets;
 import java.rmi.registry.RegistryHandler;
 import java.util.*;
@@ -189,7 +189,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
     }
 
     private Map<String, Object> getDetails(String code) throws Exception {
-        return registryService.fetchDetails("osid", code);
+        return registryService.fetchDetails(Constants.PARTICIPANT_CODE, code);
     }
 
     private List<Map<String, Object>> getAuditData(Map<String,String> filters) throws Exception {
