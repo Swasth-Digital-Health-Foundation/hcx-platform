@@ -1,4 +1,4 @@
-package org.swasth.apigateway.helpers;
+package org.swasth.apigateway.handlers;
 
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.fasterxml.jackson.core.JsonProcessingException;

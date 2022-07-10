@@ -29,15 +29,15 @@ public class NotificationController extends BaseController {
     @Autowired
     private NotificationService notificationService;
 
-    @PostMapping(Constants.NOTIFICATION_REQUEST)
+    @PostMapping(Constants.NOTIFICATION_NOTIFY)
     public ResponseEntity<Object> notificationRequest(@RequestBody Map<String, Object> requestBody) throws Exception {
-        Request request = new Request(requestBody, NOTIFICATION_REQUEST);
+        Request request = new Request(requestBody, NOTIFICATION_NOTIFY);
         Response response = new Response(request);
         try {
-            notificationService.notify(request, kafkaTopic);
+            notificationService.notify(request, response, kafkaTopic);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
-            return exceptionHandler(request, response, e);
+            return exceptionHandler(response, e);
         }
     }
 
@@ -49,7 +49,7 @@ public class NotificationController extends BaseController {
             notificationService.processSubscription(request, ACTIVE_CODE);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
-            return exceptionHandler(request, response, e);
+            return exceptionHandler(response, e);
         }
     }
 
@@ -61,7 +61,7 @@ public class NotificationController extends BaseController {
             notificationService.processSubscription(request, INACTIVE_CODE);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
-            return exceptionHandler(request, response, e);
+            return exceptionHandler(response, e);
         }
     }
 
@@ -73,7 +73,7 @@ public class NotificationController extends BaseController {
             notificationService.getSubscriptions(request, response);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
-            return exceptionHandler(request, response, e);
+            return exceptionHandler(response, e);
         }
     }
 
@@ -85,7 +85,7 @@ public class NotificationController extends BaseController {
             notificationService.getNotifications(request, response);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
-            return getErrorResponseEntity(response, e);
+            return exceptionHandler(response, e);
         }
     }
 

@@ -15,6 +15,7 @@ import org.swasth.redis.cache.RedisCache;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -32,36 +33,37 @@ public class RegistryService {
     private int redisExpires;
 
     public Map<String,Object> fetchDetails(String filterKey, String filterValue) throws Exception {
+        String requestBody = "{\"filters\":{\"" + filterKey + "\":{\"eq\":\"" + filterValue + "\"}}}";
         try {
             Map<String,Object> details;
             if(redisCache.isExists(filterValue) == true) {
                 details = JSONUtils.deserialize(redisCache.get(filterValue), HashMap.class);
             } else {
-                details = getDetails(filterKey, filterValue);
+                details = getParticipant(getDetails(requestBody));
                 redisCache.set(filterValue, JSONUtils.serialize(details), redisExpires);
             }
             return details;
         } catch (ServerException e) {
             logger.info("Redis cache is down, fetching participant details from the registry.");
-            return getDetails(filterKey, filterValue);
+            return getParticipant(getDetails(requestBody));
         }
     }
 
-    public Map<String,Object> getDetails(String filterKey, String filterValue) throws Exception {
+    private Map<String,Object> getParticipant(List<Map<String,Object>> searchResult){
+        return !searchResult.isEmpty() ? searchResult.get(0):new HashMap<>();
+    }
+
+    public List<Map<String,Object>> getDetails(String requestBody) throws Exception {
         String url = registryUrl + "/api/v1/Organisation/search";
-        String requestBody = "{\"filters\":{\"" + filterKey + "\":{\"eq\":\"" + filterValue + "\"}}}";
         HttpResponse response = null;
         try {
             response = HttpUtils.post(url, requestBody);
         } catch (UnirestException e) {
             throw new ServerException(ErrorCodes.SERVICE_UNAVAILABLE, "Error connecting to registry service: " + e.getMessage());
         }
-        Map<String,Object> details = new HashMap<>();
+        List<Map<String,Object>> details;
         if (response.getStatus() == 200) {
-            ArrayList result = JSONUtils.deserialize((String) response.getBody(), ArrayList.class);
-            if (!result.isEmpty()) {
-                details = (Map<String, Object>) result.get(0);
-            }
+            details = JSONUtils.deserialize((String) response.getBody(), ArrayList.class);
         } else {
             throw new Exception("Error in fetching the participant details" + response.getStatus());
         }

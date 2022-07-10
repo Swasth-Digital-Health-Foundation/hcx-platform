@@ -15,9 +15,7 @@ import org.swasth.hcx.utils.MockResultSet;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -31,7 +29,7 @@ class NotificationControllerTest extends BaseSpec {
     @Test
      void testNotificationSubscribeSuccessForHCX() throws Exception {
         doReturn(true).when(postgreSQLClient).execute(anyString());
-        String requestBody = getSubscriptionRequest("hcx-registry-code");
+        String requestBody = getSubscriptionRequest("hcx-registry-code", "24e975d1-054d-45fa-968e-c91b1043d0a5");
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIBE).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
@@ -44,7 +42,7 @@ class NotificationControllerTest extends BaseSpec {
     @Test
     void testNotificationSubscribeSuccessForOthers() throws Exception {
         doReturn(true).when(postgreSQLClient).execute(anyString());
-        String requestBody = getSubscriptionRequest("hcx-star-insurance-001");
+        String requestBody = getSubscriptionRequest("hcx-star-insurance-001", "24e975d1-054d-45fa-968e-c91b1043d0a5");
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIBE).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
@@ -54,10 +52,10 @@ class NotificationControllerTest extends BaseSpec {
         assertEquals("2fa85f64-5717-4562-b3fc-2c963f66afa6", resObj.getCorrelationId());
     }
 
-    private String getSubscriptionRequest(String recipientCode) throws JsonProcessingException {
+    private String getSubscriptionRequest(String recipientCode, String topicCode) throws JsonProcessingException {
         Map<String,Object> obj = new HashMap<>();
-        obj.put(NOTIFICATION_ID,"24e975d1-054d-45fa-968e-c91b1043d0a5");
-        obj.put(SENDER_CODE,"hcx-apollo-12345");
+        obj.put(TOPIC_CODE, topicCode);
+        obj.put(HCX_SENDER_CODE,"hcx-apollo-12345");
         obj.put(RECIPIENT_CODE,recipientCode);
         obj.put(API_CALL_ID,"1fa85f64-5717-4562-b3fc-2c963f66afa6");
         obj.put(CORRELATION_ID,"2fa85f64-5717-4562-b3fc-2c963f66afa6");
@@ -70,7 +68,7 @@ class NotificationControllerTest extends BaseSpec {
     @Test
     void testNotificationUnSubscribeException() throws Exception {
         doThrow(new ClientException(ErrorCodes.INTERNAL_SERVER_ERROR,"Test Internal Server Error")).when(postgreSQLClient).execute(anyString());
-        String requestBody = getSubscriptionRequest("hcx-registry-code");
+        String requestBody = getSubscriptionRequest("hcx-registry-code", "24e975d1-054d-45fa-968e-c91b1043d0a5");
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_UNSUBSCRIBE).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
@@ -83,7 +81,7 @@ class NotificationControllerTest extends BaseSpec {
     @Test
     void testNotificationUnSubscribeSuccess() throws Exception {
         doReturn(true).when(postgreSQLClient).execute(anyString());
-        String requestBody = getSubscriptionRequest("hcx-registry-code");
+        String requestBody = getSubscriptionRequest("hcx-registry-code", "24e975d1-054d-45fa-968e-c91b1043d0a5");
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_UNSUBSCRIBE).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
@@ -95,15 +93,14 @@ class NotificationControllerTest extends BaseSpec {
 
     @Test
     void testNotificationSubscribeException() throws Exception {
-        doThrow(new ClientException(ErrorCodes.INTERNAL_SERVER_ERROR,"Test Internal Server Error")).when(postgreSQLClient).execute(anyString());
-        String requestBody = getSubscriptionRequest("hcx-registry-code");
+        String requestBody = getSubscriptionRequest("hcx-registry-code", "test-notification-123");
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIBE).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         assertEquals(400, status);
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
-        assertEquals(ErrorCodes.INTERNAL_SERVER_ERROR, resObj.getError().getCode());
-        assertEquals("Test Internal Server Error", resObj.getError().getMessage());
+        assertEquals(ErrorCodes.ERR_INVALID_NOTIFICATION_TOPIC_CODE, resObj.getError().getCode());
+        assertTrue(resObj.getError().getMessage().contains("Invalid topic code"));
     }
 
     @Test
@@ -235,9 +232,17 @@ class NotificationControllerTest extends BaseSpec {
                 });
     }
 
+    private ResultSet getSubscriptionsResultSet() throws SQLException {
+        return MockResultSet.createStringMock(
+                new String[]{"subscription_id"}, //columns
+                new Object[][]{ // data
+                        {"subscription-123"}
+                });
+    }
+
     private String getSubscriptionListRequest() throws JsonProcessingException {
         Map<String,Object> obj = new HashMap<>();
-        obj.put(SENDER_CODE,"hcx-apollo-12345");
+        obj.put(HCX_SENDER_CODE,"hcx-apollo-12345");
         return JSONUtils.serialize(obj);
     }
 
@@ -253,16 +258,12 @@ class NotificationControllerTest extends BaseSpec {
         return JSONUtils.serialize(Collections.singletonMap(FILTERS, filters));
     }
 
-    private String getNotificationRequest(String notificationId) throws JsonProcessingException {
+    private String getNotificationRequest(String topicCode, List<String> subscriptions) throws JsonProcessingException {
         Map<String,Object> obj = new HashMap<>();
-        obj.put(NOTIFICATION_ID,notificationId);
-        obj.put(SENDER_CODE,"hcx-apollo-12345");
-        obj.put(RECIPIENT_CODE,"hcx-star-insurance-001");
-        obj.put(API_CALL_ID,"1fa85f64-5717-4562-b3fc-2c963f66afa6");
-        obj.put(CORRELATION_ID,"2fa85f64-5717-4562-b3fc-2c963f66afa6");
-        obj.put(WORKFLOW_ID,"3fa85f64-5717-4562-b3fc-2c963f66afa6");
-        obj.put(TIMESTAMP,"1629057611000");
-        obj.put(STATUS,"request.queued");
+        obj.put(TOPIC_CODE, topicCode);
+        obj.put(RECIPIENT_ROLES, List.of("provider","payor"));
+        obj.put(RECIPIENT_CODES, List.of("test-user@hcx"));
+        obj.put(SUBSCRIPTIONS, subscriptions);
         Map<String,Object> notificationData = new HashMap<>();
         notificationData.put("message","Payor system down for sometime");
         notificationData.put("duration","2hrs");
@@ -273,31 +274,43 @@ class NotificationControllerTest extends BaseSpec {
     }
 
     @Test
-    void testNotificationRequestSuccess() throws Exception {
+    void testNotifySuccess() throws Exception {
+        doReturn(getSubscriptionsResultSet()).when(postgreSQLClient).executeQuery(anyString());
         doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
-        String requestBody = getNotificationRequest("24e975d1-054d-45fa-968e-c91b1043d0a5");
-        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_REQUEST).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        String requestBody = getNotificationRequest("notification-123", List.of("subscription-123"));
+        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_NOTIFY).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
-        assertEquals(202, status);
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
-        assertNotNull(resObj.getTimestamp());
-        assertEquals("1fa85f64-5717-4562-b3fc-2c963f66afa6",resObj.getApiCallId());
-        assertEquals("2fa85f64-5717-4562-b3fc-2c963f66afa6",resObj.getCorrelationId());
+        assertEquals(202, status);
+        assertNotNull(resObj.getNotificationId());
     }
 
     @Test
-    void testNotificationRequestFailure() throws Exception {
+    void testNotifyWithEmptySubscriptions() throws Exception {
         doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
-        String requestBody = getNotificationRequest("hcx-notification-001");
-        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_REQUEST).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        String requestBody = getNotificationRequest("notification-123", Collections.EMPTY_LIST);
+        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_NOTIFY).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
-        assertEquals(400, status);
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
+        assertEquals(202, status);
+        assertNotNull(resObj.getNotificationId());
+    }
+
+    @Test
+    void testNotifyFailure() throws Exception {
+        doReturn(getSubscriptionsResultSet()).when(postgreSQLClient).executeQuery(anyString());
+        doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
+        String requestBody = getNotificationRequest("hcx-notification-001", List.of("subscription-124"));
+        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_NOTIFY).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
+        assertEquals(400, status);
         assertNotNull(resObj.getTimestamp());
-        assertEquals(ErrorCodes.ERR_INVALID_NOTIFICATION_TOPIC_CODE, resObj.getError().getCode());
-        assertTrue(resObj.getError().getMessage().contains("Invalid topic code"));
+        assertEquals(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, resObj.getError().getCode());
+        assertTrue(resObj.getError().getMessage().contains("Invalid subscriptions list"));
     }
 
 }

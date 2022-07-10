@@ -3,9 +3,9 @@ package org.swasth.common.utils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
 
 public class JSONUtils {
 
@@ -28,4 +28,9 @@ public class JSONUtils {
     public static <T> T convert(Object obj, Class<T> clazz) {
         return mapper.convertValue(obj, clazz);
     }
+
+    public static <T> T convertJson(InputStream input, Class<T> clazz) throws IOException {
+        return mapper.readValue(input, clazz);
+    }
+
 }

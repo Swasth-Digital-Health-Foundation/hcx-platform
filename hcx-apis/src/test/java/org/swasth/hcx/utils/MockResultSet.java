@@ -33,28 +33,43 @@ public class MockResultSet {
 
     private ResultSet buildMock() throws SQLException {
         final var rs = mock(ResultSet.class);
+        getNextMock(rs);
+        getStringMock(rs);
+        getIntMock(rs);
+        return rs;
+    }
 
+    private ResultSet buildStringMock() throws SQLException {
+        final var rs = mock(ResultSet.class);
+        getNextMock(rs);
+        getStringMock(rs);
+        return rs;
+    }
+
+    private void getNextMock(ResultSet rs) throws SQLException {
         // mock rs.next()
         doAnswer(invocation -> {
             rowIndex++;
             return rowIndex < data.length;
         }).when(rs).next();
+    }
 
+    private void getStringMock(ResultSet rs) throws SQLException {
         // mock rs.getString(columnName)
         doAnswer(invocation -> {
             final var columnName = invocation.getArgument(0, String.class);
             final var columnIndex = columnIndices.get(columnName);
-            return (String)data[rowIndex][columnIndex];
+            return data[rowIndex][columnIndex];
         }).when(rs).getString(anyString());
+    }
 
+    private void getIntMock(ResultSet rs) throws SQLException {
         // mock rs.getInt(columnName)
         doAnswer(invocation -> {
             final var columnName = invocation.getArgument(0, String.class);
             final var columnIndex = columnIndices.get(columnName);
-            return  (Integer) data[rowIndex][columnIndex];
+            return data[rowIndex][columnIndex];
         }).when(rs).getInt(anyString());
-
-        return rs;
     }
 
     /**
@@ -69,5 +84,14 @@ public class MockResultSet {
             throws SQLException {
         return new MockResultSet(columnNames, data).buildMock();
     }
+
+    public static ResultSet createStringMock(
+            final String[] columnNames,
+            final Object[][] data)
+            throws SQLException {
+        return new MockResultSet(columnNames, data).buildStringMock();
+    }
+
+
 }
 

@@ -27,6 +27,15 @@ redirect:
     mandatory: ${redirect_mandatory_headers:x-hcx-sender_code, x-hcx-recipient_code, x-hcx-api_call_id, x-hcx-timestamp, x-hcx-correlation_id}
     optional: ${redirect_optional_headers:x-hcx-workflow_id, x-hcx-status, x-hcx-redirect_to}
 
+notification:
+  headers:
+    mandatory: ${notification_mandatory_headers:topic_code, notification_data}
+    optional: ${notification_optional_headers:recipient_codes, recipient_roles, subscriptions}
+
+notify:
+  network:
+    allowedCodes: ${notify_network_allowedCodes:${registry.hcxCode}}
+
 timestamp:
   range: ${timestamp_range:10000}
 

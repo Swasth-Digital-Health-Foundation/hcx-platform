@@ -46,7 +46,8 @@ public class Constants {
     public static final String NOTIFICATION_UNSUBSCRIBE = "/notification/unsubscribe";
     public static final String NOTIFICATION_SUBSCRIPTION_LIST = "/notification/subscription/list";
     public static final String NOTIFICATION_LIST = "/notification/topic/list";
-    public static final String NOTIFICATION_REQUEST = "/notification/notify";
+    public static final String NOTIFICATION_NOTIFY = "/notification/notify";
+
 
     // Audit APIs
     public static final String AUDIT_SEARCH = "/audit/search";
@@ -91,7 +92,7 @@ public class Constants {
     public static final String REDIRECT_HEADERS_OPTIONAL = "redirect.headers.optional";
     public static final String JOSE_HEADERS = "headers.jose";
     public static final String DOMAIN_HEADERS = "headers.domain";
-    public static final String SENDER_CODE = "x-hcx-sender_code";
+    public static final String HCX_SENDER_CODE = "x-hcx-sender_code";
     public static final String RECIPIENT_CODE = "x-hcx-recipient_code";
     public static final String API_CALL_ID = "x-hcx-api_call_id";
     public static final String CORRELATION_ID = "x-hcx-correlation_id";
@@ -138,21 +139,30 @@ public class Constants {
     public static final String RETRY_PROCESSING_STATUS = "request.retry.processing";
 
     //Notification constants
-    public static final String NOTIFICATION_ID = "x-hcx-notification_id";
-    public static final String ACTIVE = "active";
-    public static final String IN_ACTIVE = "inactive";
+    public static final String NOTIFICATION_ID = "notification_id";
+    public static final String ACTIVE = "Active";
+    public static final String IN_ACTIVE = "Inactive";
     public static final int ACTIVE_CODE = 1;
     public static final int INACTIVE_CODE = 0;
     public static final String SUBSCRIPTION_ID = "x-hcx-subscription_id";
     public static final String NOTIFICATION_HEADERS_MANDATORY = "notification.headers.mandatory";
     public static final String NOTIFICATION_HEADERS_OPTIONAL = "notification.headers.optional";
-    public static final String NOTIFICATION_DATA = "x-hcx-notification_data";
     public static final String TRIGGER_VALUE = "API";
     public static final String PRIORITY = "priority";
     public static final String CATEGORY = "category";
     public static final String BROADCAST = "Broadcast";
     public static final String WORKFLOW = "Workflow";
+    public static final String NETWORK = "Network";
     public static final String TOPIC_CODE = "topic_code";
     public static final List<String> ALLOWED_NOTIFICATION_FILTER_PROPS = Arrays.asList(CATEGORY, PRIORITY);
+    public static final String RECIPIENT = "Recipient";
+    public static final String RECIPIENT_CODES = "recipient_codes";
+    public static final String RECIPIENT_ROLES = "recipient_roles";
+    public static final String SUBSCRIPTIONS = "subscriptions";
+    public static final String NOTIFICATION_DATA = "notification_data";
+    public static final String ALLOWED_RECIPIENTS = "allowed_recipients";
+    public static final String ALLOWED_SENDERS = "allowed_senders";
+    public static final String SENDER_CODE = "sender_code";
+    public static final String MESSAGE = "message";
 
 }

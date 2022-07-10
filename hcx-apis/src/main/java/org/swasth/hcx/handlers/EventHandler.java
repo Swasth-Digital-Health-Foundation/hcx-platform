@@ -41,7 +41,7 @@ public class EventHandler {
 
     public void processAndSendEvent(String metadataTopic, Request request) throws Exception {
         String payloadTopic = env.getProperty(KAFKA_TOPIC_PAYLOAD);
-        String key = request.getSenderCode();
+        String key = request.getHcxSenderCode();
         // TODO: check and remove writing payload event to kafka
         String payloadEvent = eventGenerator.generatePayloadEvent(request);
         String metadataEvent = eventGenerator.generateMetadataEvent(request);

@@ -15,6 +15,9 @@ registry:
   basePath: ${registry_basePath:http://localhost:8082}
   hcxcode: ${registry_hcxcode:hcx-registry-code}
 
+participantCode:
+  fieldSeparator: ${participant_code_field_separator:.}
+
 #postgres config
 postgres:
   url: ${postgres_url:jdbc:postgresql://localhost:5432/postgres}
@@ -48,8 +51,9 @@ audit:
   index: ${audit_index:hcx_audit}
   alias: ${audit_alias:hcx_audit}
 
-#hcx not allowed urls
+#hcx config
 hcx:
+  instanceName: ${hcx_instance_name:swasth-hcx}
   urls:
     notallowed: ${not_allowed_urls:http://localhost:8095}
 
@@ -57,5 +61,5 @@ hcx:
 notification:
   path: ${notification_path:classpath:notifications.json}
   headers:
-    mandatory: ${notification_mandatory_headers:x-hcx-notification_id,x-hcx-sender_code, x-hcx-recipient_code, x-hcx-api_call_id, x-hcx-timestamp, x-hcx-correlation_id}
-    optional: ${notification_optional_headers:x-hcx-workflow_id,x-hcx-status,x-hcx-notification_data}
+    mandatory: ${notification_mandatory_headers:topic_code, notification_data}
+    optional: ${notification_optional_headers:topic, recipient_codes, recipient_roles, subscriptions}

@@ -26,7 +26,6 @@ object Constants {
   val MESSAGE = "message"
   val TRACE = "trace"
   val SUBMITTED = "submitted"
-  val AUDIT_TIMESTAMP = "auditTimeStamp"
   val EID = "eid"
   val END_POINT = "endpoint_url"
   val STATUS = "status"
