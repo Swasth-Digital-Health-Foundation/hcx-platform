@@ -53,7 +53,7 @@ public class BaseSpec {
     @BeforeEach
     public void setup() throws IOException {
         client = WebTestClient.bindToServer().baseUrl("http://localhost:" + port).responseTimeout(Duration.ofSeconds(30)).build();
-        server.start(8080);
+        server.start(8081);
     }
 
     @AfterEach
@@ -127,7 +127,7 @@ public class BaseSpec {
     }
 
     protected Map<String,Object> getProviderDetails() throws Exception {
-        return JSONUtils.deserialize("{ \"participant_name\": \"New Teja Hospital888\", \"primary_mobile\": \"9493347239\", \"primary_email\": \"dharmateja888@gmail.com\", \"roles\": [ \"provider\" ], \"address\": { \"plot\": \"5-4-199\", \"street\": \"road no 12\", \"landmark\": \"Jawaharlal Nehru Road\", \"village\": \"Nampally\", \"district\": \"Hyderabad\", \"state\": \"Telangana\", \"pincode\": \"500805\", \"osid\": \"f901ba37-e09f-4d84-a75f-5e203f8ad4da\", \"@type\": \"address\", \"locality\": \"Nampally\" }, \"phone\": [ \"040-387658992\" ], \"status\": \"Created\", \"endpoint_url\": \"https://677e6fd9-57cc-466c-80f6-ae0462762872.mock.pstmn.io\", \"payment_details\": { \"account_number\": \"4707890099809809\", \"ifsc_code\": \"ICICI\", \"osid\": \"da192c1e-5ad4-47bc-b425-de4f7bbc9bd0\" }, \"signing_cert_path\": \"urn:isbn:0-476-27557-4\", \"linked_registry_codes\": [ \"22344\" ], \"encryption_cert\": \"urn:isbn:0-4234\", \"osOwner\": [ \"f7c0e759-bec3-431b-8c4f-6b294d103a74\" ], \"osid\": \"68c5deca-8299-4feb-b441-923bb649a9a3\", \"@type\": \"Organisation\", \"payment\": { \"ifsc_code\": \"ICICI\", \"account_number\": \"4707890099809809\", \"@type\": \"payment_details\", \"osid\": \"3a3bd68a-848a-4d52-9ec2-07a92d765fb4\" } }", Map.class);
+        return JSONUtils.deserialize("{ \"participant_code\":\"f7c0e759-bec3-431b-8c4f-6b294d103a74\",\"participant_name\": \"New Teja Hospital888\", \"primary_mobile\": \"9493347239\", \"primary_email\": \"dharmateja888@gmail.com\", \"roles\": [ \"provider\" ], \"address\": { \"plot\": \"5-4-199\", \"street\": \"road no 12\", \"landmark\": \"Jawaharlal Nehru Road\", \"village\": \"Nampally\", \"district\": \"Hyderabad\", \"state\": \"Telangana\", \"pincode\": \"500805\", \"osid\": \"f901ba37-e09f-4d84-a75f-5e203f8ad4da\", \"@type\": \"address\", \"locality\": \"Nampally\" }, \"phone\": [ \"040-387658992\" ], \"status\": \"Created\", \"endpoint_url\": \"https://677e6fd9-57cc-466c-80f6-ae0462762872.mock.pstmn.io\", \"payment_details\": { \"account_number\": \"4707890099809809\", \"ifsc_code\": \"ICICI\", \"osid\": \"da192c1e-5ad4-47bc-b425-de4f7bbc9bd0\" }, \"signing_cert_path\": \"urn:isbn:0-476-27557-4\", \"linked_registry_codes\": [ \"22344\" ], \"encryption_cert\": \"urn:isbn:0-4234\", \"osOwner\": [ \"f7c0e759-bec3-431b-8c4f-6b294d103a74\" ], \"osid\": \"68c5deca-8299-4feb-b441-923bb649a9a3\", \"@type\": \"Organisation\", \"payment\": { \"ifsc_code\": \"ICICI\", \"account_number\": \"4707890099809809\", \"@type\": \"payment_details\", \"osid\": \"3a3bd68a-848a-4d52-9ec2-07a92d765fb4\" } }", Map.class);
     }
 
     protected Map<String,Object> getBlockedProviderDetails() throws Exception {
@@ -181,6 +181,37 @@ public class BaseSpec {
 
     protected String getHCXAdminToken() {
         return "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICI3Q1l0Z2VYMzA2NEQ3VUU0czdCQWlJZmUzN3hxczBtNEVSQnpmdzVuMzdNIn0.eyJleHAiOjE4MjMwOTQ2MTYsImlhdCI6MTY1MDI5NDYxNiwianRpIjoiOTAyZTdhZDAtYjM1NS00YjJkLTlkMjYtZTA1Y2Q0NDg3NzY0IiwiaXNzIjoiaHR0cDovL2FlZjgxMDFjNDMyZDA0YTY1OWU2MzE3YjNlNTAzMWNmLTE2NzQ1ODYwNjguYXAtc291dGgtMS5lbGIuYW1hem9uYXdzLmNvbTo4MDgwL2F1dGgvcmVhbG1zL3N3YXN0aC1oZWFsdGgtY2xhaW0tZXhjaGFuZ2UiLCJhdWQiOiJhY2NvdW50Iiwic3ViIjoiZjY5OGI1MjEtNzQwOS00MzJkLWE1ZGItZDEzZTUxZjAyOWE5IiwidHlwIjoiQmVhcmVyIiwiYXpwIjoicmVnaXN0cnktZnJvbnRlbmQiLCJzZXNzaW9uX3N0YXRlIjoiYTA5MzZjNDQtNTA3Ny00NWIxLWIyNWYtMmRjZTk3YzFmMWQxIiwiYWNyIjoiMSIsInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJISUUvSElPLkhDWCIsImRlZmF1bHQtcm9sZXMtbmRlYXIiXX0sInJlc291cmNlX2FjY2VzcyI6eyJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50IiwibWFuYWdlLWFjY291bnQtbGlua3MiLCJ2aWV3LXByb2ZpbGUiXX19LCJzY29wZSI6InByb2ZpbGUgZW1haWwiLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsInByZWZlcnJlZF91c2VybmFtZSI6ImhjeGdhdGV3YXlAZ21haWwuY29tIiwiZW50aXR5IjpbIk9yZ2FuaXNhdGlvbiJdLCJlbWFpbCI6ImhjeGdhdGV3YXlAZ21haWwuY29tIn0.e7XBiFff9zeyzZtU4GStZBlS7YZFK11y1O_Uzd7InJ7wp6x5mo5d5pV988Lyxn3hcWUE8Bsn66lQJknCCU6KhmAE5n60SOgz9lR_fnaqW1vQsV2D3oLt4eNuKKs5xbOtEyFL_J4qlMpBDAxotAAZbCiueW8i_KWfQpRjeTVJwOx5TmbmuTBa5yNYrPMhXTKu_IMI6jyTOtta7JSC3Gz7qdx7O9wbYEZgUHM5s6Ve5OpigxCf4Cra697m39yjJk6xPHVKM7_I_gHM-7U95KOWoOaQ_M7x3QsijEORwyeJfDsZVE6hOf4EE7LzQObD9H8UYwEPubjjclNQRVu1JkN2_A";
+    }
+
+    protected String getSubscriptionRequest(String topicCode,List<String> sendersList) throws JsonProcessingException {
+        Map<String,Object> obj = new HashMap<>();
+        obj.put(TOPIC_CODE,topicCode);
+        obj.put(SENDER_LIST,sendersList);
+        return JSONUtils.serialize(obj);
+    }
+
+    protected String getInvalidSubscriptionRequest(boolean hasTopic) throws JsonProcessingException {
+        Map<String,Object> obj = new HashMap<>();
+        if(hasTopic)
+        obj.put(TOPIC_CODE,"topicCode");
+        else obj.put(SENDER_LIST,Arrays.asList("new-payor-3"));
+        return JSONUtils.serialize(obj);
+    }
+
+    protected String getInvalidSubscriptionRequest() throws JsonProcessingException {
+        Map<String,Object> obj = new HashMap<>();
+        obj.put(TOPIC_CODE,"topicCode");
+        obj.put(SENDER_LIST,Arrays.asList("new-payor-3"));
+        obj.put(NOTIFICATION_DATA,Arrays.asList("new-payor-3"));
+        return JSONUtils.serialize(obj);
+    }
+
+    protected String getSubscriptionListRequest() throws JsonProcessingException {
+        Map<String,Object> obj = new HashMap<>();
+        obj.put(FILTERS,new HashMap<>());
+        obj.put(LIMIT, 1);
+        obj.put(OFFSET,0);
+        return JSONUtils.serialize(obj);
     }
 
 }

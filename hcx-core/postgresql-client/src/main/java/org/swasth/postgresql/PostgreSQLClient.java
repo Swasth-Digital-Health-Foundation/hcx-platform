@@ -51,6 +51,22 @@ public class PostgreSQLClient implements IDatabaseService {
         }
     }
 
+    public void addBatch(String query) throws ClientException {
+        try {
+             statement.addBatch(query);
+        } catch (Exception e) {
+            throw new ClientException("Error while performing database operation: " + e.getMessage());
+        }
+    }
+
+    public int[] executeBatch() throws ClientException {
+        try {
+            return statement.executeBatch();
+        } catch (Exception e) {
+            throw new ClientException("Error while performing database operation: " + e.getMessage());
+        }
+    }
+
     public boolean isHealthy() {
         try {
             Connection conn = getConnection();

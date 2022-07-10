@@ -4,6 +4,7 @@ import org.junit.Test;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.utils.Constants;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -81,5 +82,25 @@ import static org.swasth.common.utils.Constants.*;
         obj.put(NOTIFICATION_DATA,notificationData);
         return obj;
     }
+
+     @Test
+     public void testSubscriptionPayload() throws Exception {
+         Request request = new Request(getSubscriptionRequest(), NOTIFICATION_SUBSCRIBE);
+         assertEquals("hcx-notification-001",request.getTopicCode());
+         assertEquals("hcx-apollo-12345", request.getNotificationRecipientCode());
+         assertEquals(2,request.getSenderList().size());
+         assertEquals("Payor1",request.getSenderList().get(0));
+         assertEquals("Payor2",request.getSenderList().get(1));
+     }
+
+     private Map<String,Object> getSubscriptionRequest() {
+         Map<String,Object> obj = new HashMap<>();
+         obj.put(RECIPIENT_CODE,"hcx-apollo-12345");
+         obj.put(TOPIC_CODE,"hcx-notification-001");
+         obj.put(SENDER_LIST,new ArrayList<>(){
+             { add("Payor1"); add("Payor2");}
+         });
+         return obj;
+     }
 
 }

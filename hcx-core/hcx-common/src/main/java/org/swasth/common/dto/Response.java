@@ -18,15 +18,13 @@ public class Response {
     private String apiCallId;
     private ResponseError error;
     private Map<String, Object> result;
-    private String subscriptionId;
-    @JsonProperty("status")
-    private String subscriptionStatus;
     private List<Subscription> subscriptions;
     @JsonProperty("count")
     private Integer count;
     private List<Map<String,Object>> notifications;
     @JsonProperty("notification_id")
     private String notificationId;
+    private List<String> subscription_list;
 
     public Response() {}
 
@@ -55,22 +53,6 @@ public class Response {
 
     public void setNotifications(List<Map<String,Object>> notifications) {
         this.notifications = notifications;
-    }
-
-    public String getSubscriptionId() {
-        return subscriptionId;
-    }
-
-    public void setSubscriptionId(String subscriptionId) {
-        this.subscriptionId = subscriptionId;
-    }
-
-    public String getSubscriptionStatus() {
-        return subscriptionStatus;
-    }
-
-    public void setSubscriptionStatus(String subscriptionStatus) {
-        this.subscriptionStatus = subscriptionStatus;
     }
 
     public List<Subscription> getSubscriptions() {
@@ -142,10 +124,12 @@ public class Response {
         return this;
     }
 
-    public Response putAll(Map<String, Object> resultMap) {
-        result.putAll(resultMap);
-        return this;
+    public List<String> getSubscription_list() {
+        return subscription_list;
     }
 
+    public void setSubscription_list(List<String> subscription_list) {
+        this.subscription_list = subscription_list;
+    }
 }
 

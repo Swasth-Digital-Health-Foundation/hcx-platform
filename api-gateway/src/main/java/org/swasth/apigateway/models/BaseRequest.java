@@ -10,11 +10,11 @@ import org.swasth.apigateway.utils.DateTimeUtils;
 import org.swasth.apigateway.utils.JSONUtils;
 import org.swasth.apigateway.utils.Utils;
 import org.swasth.common.utils.PayloadUtils;
-
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.swasth.apigateway.constants.Constants.*;
+import static org.swasth.common.utils.Constants.*;
+
 
 @Data
 public class BaseRequest {

@@ -93,7 +93,7 @@ public class Constants {
     public static final String JOSE_HEADERS = "headers.jose";
     public static final String DOMAIN_HEADERS = "headers.domain";
     public static final String HCX_SENDER_CODE = "x-hcx-sender_code";
-    public static final String RECIPIENT_CODE = "x-hcx-recipient_code";
+    public static final String HCX_RECIPIENT_CODE = "x-hcx-recipient_code";
     public static final String API_CALL_ID = "x-hcx-api_call_id";
     public static final String CORRELATION_ID = "x-hcx-correlation_id";
     public static final String WORKFLOW_ID = "x-hcx-workflow_id";
@@ -121,6 +121,8 @@ public class Constants {
     public static final String OSID = "osid";
     public static final String AUTHORIZATION = "Authorization";
     public static final String FILTERS = "filters";
+    public static final String LIMIT = "limit";
+    public static final String OFFSET = "offset";
 
     public static final String SEARCH_REQ ="x-hcx-search";
     public static final String SEARCH_RESP = "x-hcx-search_response";
@@ -144,7 +146,7 @@ public class Constants {
     public static final String IN_ACTIVE = "Inactive";
     public static final int ACTIVE_CODE = 1;
     public static final int INACTIVE_CODE = 0;
-    public static final String SUBSCRIPTION_ID = "x-hcx-subscription_id";
+    public static final String SUBSCRIPTION_ID = "subscription_id";
     public static final String NOTIFICATION_HEADERS_MANDATORY = "notification.headers.mandatory";
     public static final String NOTIFICATION_HEADERS_OPTIONAL = "notification.headers.optional";
     public static final String TRIGGER_VALUE = "API";
@@ -164,5 +166,48 @@ public class Constants {
     public static final String ALLOWED_SENDERS = "allowed_senders";
     public static final String SENDER_CODE = "sender_code";
     public static final String MESSAGE = "message";
+    public static final String SENDER_LIST = "sender_list";
+    public static final int PENDING_CODE = -1;
+    public static final String SUBSCRIPTION_STATUS = "subscription_status";
+    public static final String RECIPIENT_CODE = "recipient_code";
+    public static final String NOTIFY_STATUS = "status";
+    public static final String IS_DELEGATED = "is_delegated";
+    public static final String EXPIRY = "expiry";
 
+    //Constants from api-gateway
+    // Entity types
+    public static final String COMMUNICATION = "communication";
+    public static final String NOTIFICATION = "notification";
+    public static final String PAYMENT = "paymentnotice";
+
+    public static final int PAYLOAD_LENGTH = 5;
+    public static final String AUTH_REQUIRED = "AUTH_REQUIRED";
+    public static final String X_JWT_SUB_HEADER = "X-jwt-sub";
+    public static final String REDIRECT_TO = "x-hcx-redirect_to";
+    public static final List<String> DEBUG_FLAG_VALUES = Arrays.asList("Error","Info","Debug");
+    public static final List<String> REQUEST_STATUS_VALUES = Arrays.asList("request.queued", "request.dispatched");
+    public static final List<String> ERROR_DETAILS_VALUES = Arrays.asList("code","message","trace");
+    public static final String REQUESTED_TIME = "requestTimeStamp";
+    public static final String BLOCKED = "Blocked";
+    public static final String INACTIVE = "Inactive";
+    public static final String OS_OWNER = "osOwner";
+    public static final String ERROR_RESPONSE = "response.error";
+    public static final List<String> RECIPIENT_ERROR_VALUES = Arrays.asList("ERR_INVALID_ENCRYPTION", "ERR_INVALID_PAYLOAD", "ERR_WRONG_DOMAIN_PAYLOAD", "ERR_INVALID_DOMAIN_PAYLOAD", "ERR_SENDER_NOT_SUPPORTED", "ERR_SERVICE_UNAVAILABLE", "ERR_DOMAIN_PROCESSING","ERR_MANDATORY_HEADER_MISSING",
+            "ERR_INVALID_API_CALL_ID",
+            "ERR_INVALID_CORRELATION_ID",
+            "ERR_INVALID_TIMESTAMP",
+            "ERR_INVALID_REDIRECT_TO",
+            "ERR_INVALID_STATUS",
+            "ERR_INVALID_DEBUG_FLAG",
+            "ERR_INVALID_ERROR_DETAILS",
+            "ERR_INVALID_DEBUG_DETAILS",
+            "ERR_INVALID_WORKFLOW_ID");
+    public static final String REGISTRY_STATUS = "status";
+    public static final String SENDER = "Sender";
+    public static final List<String> OPERATIONAL_ENTITIES = Arrays.asList(NOTIFICATION, COMMUNICATION, REGISTRY_STATUS);
+    public static final List<String> EXCLUDE_ENTITIES = Arrays.asList(COMMUNICATION, PAYMENT, NOTIFICATION);
+    public static final List<String> RESPONSE_STATUS_VALUES = Arrays.asList(COMPLETE_STATUS, "response.partial", ERROR_RESPONSE, REDIRECT_STATUS);
+    public static final List<String> ALLOWED_ENTITIES_ERROR_AUDIT_CREATION = Arrays.asList("coverageeligibility", "preauth", "claim", PAYMENT, COMMUNICATION, "predetermination", REGISTRY_STATUS, "search");
+    //Notification Details
+    public static final String NOTIFY_RECIPIENT_CODE = "recipient_code";
 }

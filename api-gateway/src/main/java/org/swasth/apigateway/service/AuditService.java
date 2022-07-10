@@ -15,12 +15,8 @@ import org.swasth.apigateway.utils.JSONUtils;
 import org.swasth.apigateway.utils.Utils;
 import org.swasth.auditindexer.function.AuditIndexer;
 import org.swasth.common.utils.Constants;
-
 import java.util.*;
-
-import static org.swasth.apigateway.constants.Constants.*;
-import static org.swasth.common.utils.Constants.NOTIFICATION_DATA;
-import static org.swasth.common.utils.Constants.NOTIFICATION_ID;
+import static org.swasth.common.utils.Constants.*;
 
 
 @Service

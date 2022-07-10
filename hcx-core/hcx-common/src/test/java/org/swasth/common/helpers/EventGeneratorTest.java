@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.swasth.common.dto.Request;
 import org.swasth.common.utils.Constants;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -137,7 +138,7 @@ public class EventGeneratorTest {
         Map<String,Object> obj = new HashMap<>();
         obj.put(NOTIFICATION_ID,"hcx-notification-001");
         obj.put(HCX_SENDER_CODE,"hcx-apollo-12345");
-        obj.put(RECIPIENT_CODE,"hcx-star-insurance-001");
+        obj.put(HCX_RECIPIENT_CODE,"hcx-star-insurance-001");
         obj.put(API_CALL_ID,"1fa85f64-5717-4562-b3fc-2c963f66afa6");
         obj.put(CORRELATION_ID,"2fa85f64-5717-4562-b3fc-2c963f66afa6");
         obj.put(WORKFLOW_ID,"3fa85f64-5717-4562-b3fc-2c963f66afa6");
@@ -162,6 +163,41 @@ public class EventGeneratorTest {
         //HCX should add triggerType as API
         assertTrue(result.contains(TRIGGER_VALUE));
 
+    }
+
+    @Test
+    public void testGenerateSubscriptionEvent() throws Exception {
+        String result = eventGenerator.generateSubscriptionEvent("sub-mid-001",NOTIFICATION_SUBSCRIBE,"hcx-apollo-12345","icici-67890");
+        assertNotNull(result);
+        assertTrue(result.contains(QUEUED_STATUS));
+        assertTrue(result.contains("sub-mid-001"));
+        assertTrue(result.contains(NOTIFICATION_SUBSCRIBE));
+        assertTrue(result.contains("hcx-apollo-12345"));
+        assertTrue(result.contains("icici-67890"));
+    }
+
+    @Test
+    public void testGenerateSubscriptionAuditEvent() throws Exception {
+        Request subscriptionReq = getSubscriptionRequest();
+        Map<String,Object> resultMap = eventGenerator.generateSubscriptionAuditEvent(subscriptionReq,"1fa85f64-5717-4562-b3fc-2c963f66afa6",QUEUED_STATUS,"icici-67890");
+        assertNotNull(resultMap);
+        assertEquals(AUDIT,resultMap.get(EID));
+        assertNotNull(resultMap.get(MID));
+        assertEquals(NOTIFICATION_SUBSCRIBE,resultMap.get(ACTION));
+        assertEquals("hcx-notification-001",resultMap.get(TOPIC_CODE));
+        assertEquals("hcx-apollo-12345",resultMap.get(RECIPIENT_CODE));
+        assertEquals("icici-67890",resultMap.get(Constants.SENDER_CODE));
+        assertEquals("1fa85f64-5717-4562-b3fc-2c963f66afa6",resultMap.get(SUBSCRIPTION_ID));
+    }
+
+    private Request getSubscriptionRequest() throws Exception {
+        Map<String,Object> obj = new HashMap<>();
+        obj.put(RECIPIENT_CODE,"hcx-apollo-12345");
+        obj.put(TOPIC_CODE,"hcx-notification-001");
+        obj.put(SENDER_LIST,new ArrayList<>(){
+            { add("Payor1"); add("Payor2");}
+        });
+        return new Request(obj,NOTIFICATION_SUBSCRIBE);
     }
 
 }

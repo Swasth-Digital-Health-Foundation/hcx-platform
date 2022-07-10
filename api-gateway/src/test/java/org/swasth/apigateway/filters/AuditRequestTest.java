@@ -6,11 +6,7 @@ import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 import org.swasth.apigateway.BaseSpec;
 import org.swasth.common.utils.Constants;
-
-import java.lang.reflect.Array;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
