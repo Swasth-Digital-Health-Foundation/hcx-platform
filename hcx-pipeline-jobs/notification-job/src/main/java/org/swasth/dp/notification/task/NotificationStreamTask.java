@@ -3,7 +3,6 @@ package org.swasth.dp.notification.task;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.apache.flink.api.java.utils.ParameterTool;
-import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
@@ -13,7 +12,7 @@ import org.swasth.dp.core.job.BaseJobConfig;
 import org.swasth.dp.core.job.FlinkKafkaConnector;
 import org.swasth.dp.core.util.FlinkUtil;
 import org.swasth.dp.notification.functions.NotificationDispatcherFunction;
-import org.swasth.dp.notification.functions.NotificationProcessFunction;
+import org.swasth.dp.notification.functions.NotificationFilterFunction;
 import scala.Option;
 import scala.Some;
 
@@ -55,7 +54,7 @@ public class NotificationStreamTask {
         SingleOutputStreamOperator<Map<String,Object>> dispatchedStream = env.addSource(kafkaConsumer, config.notificationConsumer)
                 .uid(config.notificationConsumer).setParallelism(config.consumerParallelism)
                 .rebalance()
-                .process(new NotificationProcessFunction(config)).setParallelism(config.downstreamOperatorsParallelism);
+                .process(new NotificationFilterFunction(config)).setParallelism(config.downstreamOperatorsParallelism);
 
         dispatchedStream.getSideOutput(config.dispatcherOutputTag())
                 .process(new NotificationDispatcherFunction(config)).setParallelism(config.dispatcherParallelism);
