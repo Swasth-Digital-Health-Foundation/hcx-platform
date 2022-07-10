@@ -1,6 +1,7 @@
 package org.swasth.common.exception;
 
 public enum ErrorCodes {
+    ERR_INVALID_PARTICIPANT_CODE,
     ERR_INVALID_PARTICIPANT_DETAILS,
     ERR_SERVICE_UNAVAILABLE,
     INTERNAL_SERVER_ERROR,

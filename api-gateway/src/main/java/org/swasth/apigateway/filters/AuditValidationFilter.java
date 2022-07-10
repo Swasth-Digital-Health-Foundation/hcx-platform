@@ -15,6 +15,7 @@ import org.swasth.apigateway.helpers.ExceptionHandler;
 import org.swasth.apigateway.models.BaseRequest;
 import org.swasth.apigateway.service.RegistryService;
 import org.swasth.apigateway.utils.JSONUtils;
+import org.swasth.common.utils.Constants;
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
@@ -50,7 +51,7 @@ public class AuditValidationFilter extends AbstractGatewayFilterFactory<AuditVal
                 Map<String, Object> participant = registryService.getDetails("osOwner", sub);
                 if (!participant.isEmpty()) {
                     ArrayList<String> roles = (ArrayList<String>) participant.get("roles");
-                    String code = (String) participant.get("osid");
+                    String code = (String) participant.get(Constants.PARTICIPANT_CODE);
                     Map<String, String> filters = (Map<String, String>) filterMap.get("filters");
                     if(roles.contains("payor") || roles.contains("provider")) {
                         filters.put("x-hcx-sender_code", code);
