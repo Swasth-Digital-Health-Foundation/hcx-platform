@@ -7,6 +7,9 @@ import org.springframework.http.HttpStatus;
 import org.swasth.apigateway.BaseSpec;
 import org.swasth.common.utils.Constants;
 
+import java.lang.reflect.Array;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,8 +24,8 @@ public class AuditRequestTest extends BaseSpec {
                 .setResponseCode(202)
                 .addHeader("Content-Type", "application/json"));
 
-        Mockito.when(registryService.getDetails(anyString(), anyString()))
-                .thenReturn(getProviderDetails());
+        Mockito.when(registryService.getDetails(anyString()))
+                .thenReturn(Collections.singletonList(getProviderDetails()));
 
         client.post().uri(versionPrefix + Constants.AUDIT_SEARCH)
                 .header(Constants.AUTHORIZATION, getProviderToken())
@@ -37,8 +40,8 @@ public class AuditRequestTest extends BaseSpec {
 
     @Test
     public void check_audit_request_invalid_sender_scenario() throws Exception {
-        Mockito.when(registryService.getDetails(anyString(), anyString()))
-                .thenReturn(new HashMap<>());
+        Mockito.when(registryService.getDetails(anyString()))
+                .thenReturn(Collections.EMPTY_LIST);
 
         client.post().uri(versionPrefix + Constants.AUDIT_SEARCH)
                 .header(Constants.AUTHORIZATION, getProviderToken())

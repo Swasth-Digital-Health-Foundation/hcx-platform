@@ -136,7 +136,7 @@ public class EventGeneratorTest {
     private Request getNotificationRequest() throws Exception {
         Map<String,Object> obj = new HashMap<>();
         obj.put(NOTIFICATION_ID,"hcx-notification-001");
-        obj.put(SENDER_CODE,"hcx-apollo-12345");
+        obj.put(HCX_SENDER_CODE,"hcx-apollo-12345");
         obj.put(RECIPIENT_CODE,"hcx-star-insurance-001");
         obj.put(API_CALL_ID,"1fa85f64-5717-4562-b3fc-2c963f66afa6");
         obj.put(CORRELATION_ID,"2fa85f64-5717-4562-b3fc-2c963f66afa6");
@@ -148,13 +148,13 @@ public class EventGeneratorTest {
         notificationData.put("startTime","9PM");
         notificationData.put("date","26th April 2022 IST");
         obj.put(NOTIFICATION_DATA,notificationData);
-        return new Request(obj, NOTIFICATION_REQUEST);
+        return new Request(obj, NOTIFICATION_NOTIFY);
     }
 
     @Test
     public void testGenerateMetadataEventNotificationSuccess() throws Exception {
         Request notificationReq = getNotificationRequest();
-        notificationReq.setApiAction(NOTIFICATION_REQUEST);
+        notificationReq.setApiAction(NOTIFICATION_NOTIFY);
         String result = eventGenerator.generateMetadataEvent(notificationReq);
         assertNotNull(result);
         //HCX should add status if the status is not present in the request

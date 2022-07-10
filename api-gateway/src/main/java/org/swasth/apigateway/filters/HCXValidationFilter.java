@@ -1,30 +1,35 @@
 package org.swasth.apigateway.filters;
 
+import kong.unirest.ContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
+import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
+import org.springframework.cloud.gateway.filter.factory.rewrite.ModifyRequestBodyGatewayFilterFactory;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
+import org.springframework.web.server.ServerWebExchange;
 import org.swasth.apigateway.exception.ClientException;
 import org.swasth.apigateway.exception.ErrorCodes;
-import org.swasth.apigateway.helpers.ExceptionHandler;
+import org.swasth.apigateway.handlers.ExceptionHandler;
+import org.swasth.apigateway.handlers.RequestHandler;
 import org.swasth.apigateway.models.BaseRequest;
 import org.swasth.apigateway.models.JSONRequest;
 import org.swasth.apigateway.models.JWERequest;
 import org.swasth.apigateway.service.AuditService;
 import org.swasth.apigateway.service.RegistryService;
 import org.swasth.apigateway.utils.JSONUtils;
-import org.swasth.common.utils.Constants;
-
+import reactor.core.publisher.Mono;
 import javax.validation.spi.ConfigurationState;
 import java.nio.charset.StandardCharsets;
+import java.rmi.registry.RegistryHandler;
 import java.util.*;
-
+import org.swasth.common.utils.Constants;
 import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.CACHED_REQUEST_BODY_ATTR;
 import static org.swasth.apigateway.constants.Constants.*;
 
@@ -41,6 +46,9 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
 
     @Autowired
     ExceptionHandler exceptionHandler;
+
+    @Autowired
+    RequestHandler requestHandler;
 
     @Autowired
     private Environment env;
@@ -60,6 +68,9 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
     @Value("${registry.hcxRoles}")
     private String hcxRoles;
 
+    @Value("${notify.network.allowedCodes}")
+    private List<String> allowedNetworkCodes;
+
     public HCXValidationFilter() {
         super(Config.class);
     }
@@ -70,12 +81,14 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
             String correlationId = null;
             String apiCallId = null;
             BaseRequest requestObj = null;
+            String path;
+            Map<String, Object> requestBody;
             try {
                 StringBuilder cachedBody = new StringBuilder(StandardCharsets.UTF_8.decode(((DataBuffer) exchange.getAttribute(CACHED_REQUEST_BODY_ATTR)).asByteBuffer()));
                 ServerHttpRequest request = exchange.getRequest();
-                String path = request.getPath().value();
+                path = request.getPath().value();
                 String subject = request.getHeaders().getFirst("X-jwt-sub");
-                Map<String, Object> requestBody = JSONUtils.deserialize(cachedBody.toString(), HashMap.class);
+                requestBody = JSONUtils.deserialize(cachedBody.toString(), HashMap.class);
                 if (requestBody.containsKey(PAYLOAD)) {
                     JWERequest jweRequest = new JWERequest(requestBody, false, path, hcxCode, hcxRoles);
                     requestObj = jweRequest;
@@ -84,14 +97,20 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                     Map<String,Object> senderDetails = getDetails(jweRequest.getSenderCode());
                     Map<String,Object> recipientDetails = getDetails(jweRequest.getRecipientCode());
                     List<Map<String, Object>> participantCtxAuditDetails = getParticipantCtxAuditData(jweRequest.getSenderCode(), jweRequest.getRecipientCode(), jweRequest.getCorrelationId());
-                    jweRequest.validate(getMandatoryHeaders(), subject, timestampRange, senderDetails, recipientDetails, false);
+                    jweRequest.validate(getMandatoryHeaders(), subject, timestampRange, senderDetails, recipientDetails);
                     jweRequest.validateUsingAuditData(allowedEntitiesForForward, allowedRolesForForward, senderDetails, recipientDetails, getCorrelationAuditData(jweRequest.getCorrelationId()), getCallAuditData(jweRequest.getApiCallId()), participantCtxAuditDetails, path);
                     validateParticipantCtxDetails(participantCtxAuditDetails, path);
-                } else if (path.contains("notification")) { //for validating /notification/subscribe, /notification/unsubscribe, /notification/request
+                } else if (path.contains(NOTIFICATION_NOTIFY)) { //for validating notify api request
                     JSONRequest jsonRequest = new JSONRequest(requestBody, true, path, hcxCode, hcxRoles);
-                    correlationId = jsonRequest.getCorrelationId();
-                    apiCallId = jsonRequest.getApiCallId();
-                    jsonRequest.validate(getNotificationMandatoryHeaders(), subject, timestampRange, getDetails(jsonRequest.getSenderCode()), getDetails(jsonRequest.getRecipientCode()),true);
+                    requestObj = jsonRequest;
+                    Map<String,Object> senderDetails =  registryService.fetchDetails(OS_OWNER, subject);
+                    List<Map<String,Object>> recipientsDetails = new ArrayList<>();
+                    if(!jsonRequest.getRecipientCodes().isEmpty()){
+                        String searchRequest = "{\"filters\":{\"" + PARTICIPANT_CODE + "\":{\"or\":\"" + jsonRequest.getRecipientCodes() + "\"}}}";
+                        recipientsDetails = registryService.getDetails(searchRequest);
+                    }
+                    jsonRequest.validateNotificationReq(getNotificationHeaders(), senderDetails, recipientsDetails, allowedNetworkCodes);
+                    requestBody.put("sender_code", senderDetails.get(PARTICIPANT_CODE));
                 } else { //for validating redirect and error plain JSON on_check calls
                     if (!path.contains("on_")) {
                         throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, "Request body should be a proper JWE object for action API calls");
@@ -101,9 +120,9 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                     correlationId = jsonRequest.getCorrelationId();
                     apiCallId = jsonRequest.getApiCallId();
                     if (ERROR_RESPONSE.equalsIgnoreCase(jsonRequest.getStatus())) {
-                        jsonRequest.validate(getErrorMandatoryHeaders(), subject, timestampRange, getDetails(jsonRequest.getSenderCode()), getDetails(jsonRequest.getRecipientCode()),false);
+                        jsonRequest.validate(getErrorMandatoryHeaders(), subject, timestampRange, getDetails(jsonRequest.getSenderCode()), getDetails(jsonRequest.getRecipientCode()));
                     } else {
-                        jsonRequest.validate(getRedirectMandatoryHeaders(), subject, timestampRange, getDetails(jsonRequest.getSenderCode()), getDetails(jsonRequest.getRecipientCode()),false);
+                        jsonRequest.validate(getRedirectMandatoryHeaders(), subject, timestampRange, getDetails(jsonRequest.getSenderCode()), getDetails(jsonRequest.getRecipientCode()));
                         if (getApisForRedirect().contains(path)) {
                             if (REDIRECT_STATUS.equalsIgnoreCase(jsonRequest.getStatus()))
                                 jsonRequest.validateRedirect(getRolesForRedirect(), getDetails(jsonRequest.getRedirectTo()), getCallAuditData(jsonRequest.getApiCallId()), getCorrelationAuditData(jsonRequest.getCorrelationId()));
@@ -118,9 +137,15 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                 logger.error("Exception occurred for request with correlationId: " + correlationId);
                 return exceptionHandler.errorResponse(e, exchange, correlationId, apiCallId, requestObj);
             }
-            return chain.filter(exchange);
+            if(path.contains(NOTIFICATION_NOTIFY)){
+                return requestHandler.getUpdatedBody(exchange, chain, requestBody);
+            } else {
+                return chain.filter(exchange);
+            }
         };
     }
+
+
 
     private List<Map<String, Object>> getCallAuditData(String apiCallId) throws Exception {
         return getAuditData(Collections.singletonMap(API_CALL_ID, apiCallId));
@@ -151,7 +176,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
             if (result.get(STATUS).equals(QUEUED_STATUS)) {
                 result.put(STATUS, DISPATCHED_STATUS);
                 result.put(UPDATED_TIME, System.currentTimeMillis());
-                result.put(AUDIT_TIMESTAMP, System.currentTimeMillis());
+                result.put(ETS, System.currentTimeMillis());
                 auditService.updateAuditLog(result);
             }
         }
@@ -192,10 +217,11 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
         return allowedRoles;
     }
 
-    private List<String> getNotificationMandatoryHeaders() {
-        List<String> notificationMandatoryHeaders = new ArrayList<>();
-        notificationMandatoryHeaders.addAll(env.getProperty("notification.headers.mandatory", List.class));
-        return notificationMandatoryHeaders;
+    private List<String> getNotificationHeaders() {
+        List<String> headers = new ArrayList<>();
+        headers.addAll(env.getProperty("notification.headers.mandatory", List.class));
+        headers.addAll(env.getProperty("notification.headers.optional", List.class));
+        return headers;
     }
 
 }

@@ -46,17 +46,17 @@ public class BaseController {
             eventHandler.processAndSendEvent(kafkaTopic, request);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
-            return exceptionHandler(request, response, e);
+            return exceptionHandlerWithAudit(request, response, e);
         }
     }
 
-    protected ResponseEntity<Object> exceptionHandler(Request request, Response response, Exception e) throws Exception {
+    protected ResponseEntity<Object> exceptionHandlerWithAudit(Request request, Response response, Exception e) throws Exception {
         request.setStatus(ERROR_STATUS);
         auditIndexer.createDocument(eventGenerator.generateAuditEvent(request));
-        return getErrorResponseEntity(response, e);
+        return exceptionHandler(response, e);
     }
 
-    protected ResponseEntity<Object> getErrorResponseEntity(Response response, Exception e){
+    protected ResponseEntity<Object> exceptionHandler(Response response, Exception e){
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         ErrorCodes errorCode = ErrorCodes.INTERNAL_SERVER_ERROR;
         if (e instanceof ClientException) {

@@ -7,9 +7,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.swasth.apigateway.config.GenericConfiguration;
 import org.swasth.apigateway.service.AuditService;
 import org.swasth.apigateway.service.RegistryService;
 import org.swasth.apigateway.utils.JSONUtils;
@@ -20,8 +22,11 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.*;
 
+import static org.swasth.common.utils.Constants.*;
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
+@Import(GenericConfiguration.class)
 public class BaseSpec {
 
     protected MockWebServer server =  new MockWebServer();
@@ -60,6 +65,10 @@ public class BaseSpec {
         return (String) ((Map<String,Object>) result.getResponseBody().get("error")).get("code");
     }
 
+    protected String getResponseErrorMessage(EntityExchangeResult<Map> result){
+        return (String) ((Map<String,Object>) result.getResponseBody().get("error")).get("message");
+    }
+
     protected Map<String,Object> getRequestBody() {
         return Collections.singletonMap("payload","eyJlbmMiOiJBMjU2R0NNIiwKImFsZyI6IlJTQS1PQUVQIiwKIngtaGN4LXNlbmRlcl9jb2RlIjoiMS0zYTNiZDY4YS04NDhhLTRkNTItOWVjMi0wN2E5MmQ3NjVmYjQiLAoieC1oY3gtcmVjaXBpZW50X2NvZGUiOiIxLWNlMjNjY2RjLWU2NDUtNGUzNS05N2I4LTBiZDhmZWY0M2VjZCIsCiJ4LWhjeC1hcGlfY2FsbF9pZCI6IjI2YjEwNjBjLTFlODMtNDYwMC05NjEyLWVhMzFlMGNhNTA5MyIsCiJ4LWhjeC1jb3JyZWxhdGlvbl9pZCI6IjVlOTM0ZjkwLTExMWQtNGYwYi1iMDE2LWMyMmQ4MjA2NzRlMSIsCiJ4LWhjeC10aW1lc3RhbXAiOiIyMDIxLTEwLTI3VDIwOjM1OjUyLjYzNiswNTMwIiwKIngtaGN4LXN0YXR1cyI6InJlcXVlc3QucXVldWVkIiwKIngtaGN4LXdvcmtmbG93X2lkIjoiMjZiMTA2MGMtMWU4My00NjAwLTk2MTItZWEzMWUwY2E1MDk0IiwKIngtaGN4LWRlYnVnX2ZsYWciOiJJbmZvIiwKIngtaGN4LWRlYnVnX2RldGFpbHMiOnsiY29kZSI6IkVSUl9JTlZBTElEX0VOQ1JZUFRJT04iLCJtZXNzYWdlIjoiUmVjaXBpZW50IEludmFsaWQgRW5jcnlwdGlvbiIsInRyYWNlIjoiIn0KfQ==.6KB707dM9YTIgHtLvtgWQ8mKwboJW3of9locizkDTHzBC2IlrT1oOQ.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.KDlTtXchhZTGufMYmOYGS4HffxPSUrfmqCHXaI9wOGY.Mz-VPPyU4RlcuYv1IwIvzw");
     }
@@ -92,12 +101,41 @@ public class BaseSpec {
         return JSONUtils.serialize(obj);
     }
 
+    protected String getNotificationRequest(String topicCode, List<String> recipientRoles, List<String> recipientCodes, List<String> subscriptions) throws JsonProcessingException {
+        Map<String,Object> obj = new HashMap<>();
+        obj.put(TOPIC_CODE, topicCode);
+        obj.put(RECIPIENT_ROLES, recipientRoles);
+        obj.put(RECIPIENT_CODES, recipientCodes);
+        obj.put(SUBSCRIPTIONS, subscriptions);
+        Map<String,Object> notificationData = new HashMap<>();
+        notificationData.put("message","Payor system down for sometime");
+        notificationData.put("duration","2hrs");
+        notificationData.put("startTime","9PM");
+        notificationData.put("date","26th April 2022 IST");
+        obj.put(NOTIFICATION_DATA,notificationData);
+        return JSONUtils.serialize(obj);
+    }
+
+    protected String getInvalidNotificationRequest() throws JsonProcessingException {
+        Map<String,Object> obj = new HashMap<>();
+        obj.put(TOPIC_CODE, "be0e578d-b391-42f9-96f7-1e6bacd91c20");
+        obj.put(RECIPIENT_ROLES, Arrays.asList("provider","payor"));
+        obj.put(RECIPIENT_CODES, Arrays.asList("test-user@hcx"));
+        obj.put(SUBSCRIPTIONS, Collections.EMPTY_LIST);
+        obj.put("invalidProperty", "test-123");
+        return JSONUtils.serialize(obj);
+    }
+
     protected Map<String,Object> getProviderDetails() throws Exception {
         return JSONUtils.deserialize("{ \"participant_name\": \"New Teja Hospital888\", \"primary_mobile\": \"9493347239\", \"primary_email\": \"dharmateja888@gmail.com\", \"roles\": [ \"provider\" ], \"address\": { \"plot\": \"5-4-199\", \"street\": \"road no 12\", \"landmark\": \"Jawaharlal Nehru Road\", \"village\": \"Nampally\", \"district\": \"Hyderabad\", \"state\": \"Telangana\", \"pincode\": \"500805\", \"osid\": \"f901ba37-e09f-4d84-a75f-5e203f8ad4da\", \"@type\": \"address\", \"locality\": \"Nampally\" }, \"phone\": [ \"040-387658992\" ], \"status\": \"Created\", \"endpoint_url\": \"https://677e6fd9-57cc-466c-80f6-ae0462762872.mock.pstmn.io\", \"payment_details\": { \"account_number\": \"4707890099809809\", \"ifsc_code\": \"ICICI\", \"osid\": \"da192c1e-5ad4-47bc-b425-de4f7bbc9bd0\" }, \"signing_cert_path\": \"urn:isbn:0-476-27557-4\", \"linked_registry_codes\": [ \"22344\" ], \"encryption_cert\": \"urn:isbn:0-4234\", \"osOwner\": [ \"f7c0e759-bec3-431b-8c4f-6b294d103a74\" ], \"osid\": \"68c5deca-8299-4feb-b441-923bb649a9a3\", \"@type\": \"Organisation\", \"payment\": { \"ifsc_code\": \"ICICI\", \"account_number\": \"4707890099809809\", \"@type\": \"payment_details\", \"osid\": \"3a3bd68a-848a-4d52-9ec2-07a92d765fb4\" } }", Map.class);
     }
 
+    protected Map<String,Object> getBlockedProviderDetails() throws Exception {
+        return JSONUtils.deserialize("{ \"participant_name\": \"New Teja Hospital888\", \"primary_mobile\": \"9493347239\", \"primary_email\": \"dharmateja888@gmail.com\", \"roles\": [ \"provider\" ], \"address\": { \"plot\": \"5-4-199\", \"street\": \"road no 12\", \"landmark\": \"Jawaharlal Nehru Road\", \"village\": \"Nampally\", \"district\": \"Hyderabad\", \"state\": \"Telangana\", \"pincode\": \"500805\", \"osid\": \"f901ba37-e09f-4d84-a75f-5e203f8ad4da\", \"@type\": \"address\", \"locality\": \"Nampally\" }, \"phone\": [ \"040-387658992\" ], \"status\": \"Blocked\", \"endpoint_url\": \"https://677e6fd9-57cc-466c-80f6-ae0462762872.mock.pstmn.io\", \"payment_details\": { \"account_number\": \"4707890099809809\", \"ifsc_code\": \"ICICI\", \"osid\": \"da192c1e-5ad4-47bc-b425-de4f7bbc9bd0\" }, \"signing_cert_path\": \"urn:isbn:0-476-27557-4\", \"linked_registry_codes\": [ \"22344\" ], \"encryption_cert\": \"urn:isbn:0-4234\", \"osOwner\": [ \"f7c0e759-bec3-431b-8c4f-6b294d103a74\" ], \"osid\": \"68c5deca-8299-4feb-b441-923bb649a9a3\", \"@type\": \"Organisation\", \"payment\": { \"ifsc_code\": \"ICICI\", \"account_number\": \"4707890099809809\", \"@type\": \"payment_details\", \"osid\": \"3a3bd68a-848a-4d52-9ec2-07a92d765fb4\" } }", Map.class);
+    }
+
     protected Map<String,Object> getPayorDetails() throws Exception {
-        return JSONUtils.deserialize("{ \"participant_name\": \"New payor 3\", \"primary_mobile\": \"9493347003\", \"primary_email\": \"newpayor003@gmail.com\", \"roles\": [ \"payor\" ], \"scheme_code\": \"Default\", \"address\": { \"plot\": \"5-4-199\", \"street\": \"road no 12\", \"landmark\": \"Jawaharlal Nehru Road\", \"village\": \"Nampally\", \"district\": \"Hyderabad\", \"state\": \"Telangana\", \"pincode\": \"500805\", \"osid\": \"929d9a60-1fe3-49a5-bae7-4b49970cebbb\" }, \"phone\": [ \"040-387658992\" ], \"status\": \"Created\", \"endpoint_url\": \"http://a07c089412c1b46f2b49946c59267d03-2070772031.ap-south-1.elb.amazonaws.com:8080\", \"payment_details\": { \"account_number\": \"4707890099809809\", \"ifsc_code\": \"ICICI\", \"osid\": \"68a27687-b8c8-4271-97a1-0af3f53c3f3c\" }, \"signing_cert_path\": \"urn:isbn:0-476-27557-4\", \"linked_registry_codes\": [ \"22344\" ], \"encryption_cert\": \"urn:isbn:0-4234\", \"osOwner\": [ \"20bd4228-a87f-4175-a30a-20fb28983afb\" ], \"osid\": \"ce23ccdc-e645-4e35-97b8-0bd8fef43ecd\" }", Map.class);
+        return JSONUtils.deserialize("{ \"participant_code\": \"new-payor-3\", \"participant_name\": \"New payor 3\", \"primary_mobile\": \"9493347003\", \"primary_email\": \"newpayor003@gmail.com\", \"roles\": [ \"payor\" ], \"scheme_code\": \"Default\", \"address\": { \"plot\": \"5-4-199\", \"street\": \"road no 12\", \"landmark\": \"Jawaharlal Nehru Road\", \"village\": \"Nampally\", \"district\": \"Hyderabad\", \"state\": \"Telangana\", \"pincode\": \"500805\", \"osid\": \"929d9a60-1fe3-49a5-bae7-4b49970cebbb\" }, \"phone\": [ \"040-387658992\" ], \"status\": \"Created\", \"endpoint_url\": \"http://a07c089412c1b46f2b49946c59267d03-2070772031.ap-south-1.elb.amazonaws.com:8080\", \"payment_details\": { \"account_number\": \"4707890099809809\", \"ifsc_code\": \"ICICI\", \"osid\": \"68a27687-b8c8-4271-97a1-0af3f53c3f3c\" }, \"signing_cert_path\": \"urn:isbn:0-476-27557-4\", \"linked_registry_codes\": [ \"22344\" ], \"encryption_cert\": \"urn:isbn:0-4234\", \"osOwner\": [ \"20bd4228-a87f-4175-a30a-20fb28983afb\" ], \"osid\": \"ce23ccdc-e645-4e35-97b8-0bd8fef43ecd\" }", Map.class);
     }
 
     protected Map<String,Object> getPayor2Details() throws Exception {
@@ -118,7 +156,7 @@ public class BaseSpec {
 
 
     protected Map<String,Object> getHCXAdminDetails() throws Exception {
-        return JSONUtils.deserialize("{ \"participant_name\": \"HCX Gateway\", \"primary_mobile\": \"\", \"primary_email\": \"hcxgateway@gmail.com\", \"roles\": [ \"HIE/HIO.HCX\" ], \"status\": \"Created\", \"endpoint_url\": \"http://a54c5bc648f1a41b8871b77ac01060ed-1840123973.ap-south-1.elb.amazonaws.com:8080\", \"encryption_cert\": \"urn:isbn:0-4234\", \"osOwner\": [ \"f698b521-7409-432d-a5db-d13e51f029a9\" ], \"osid\": \"d2d56996-1b77-4abb-b9e9-0e6e7343c72e\" }", Map.class);
+        return JSONUtils.deserialize("{ \"participant_code\": \"1-d2d56996-1b77-4abb-b9e9-0e6e7343c72e\", \"participant_name\": \"HCX Gateway\", \"primary_mobile\": \"\", \"primary_email\": \"hcxgateway@gmail.com\", \"roles\": [ \"HIE/HIO.HCX\" ], \"status\": \"Created\", \"endpoint_url\": \"http://a54c5bc648f1a41b8871b77ac01060ed-1840123973.ap-south-1.elb.amazonaws.com:8080\", \"encryption_cert\": \"urn:isbn:0-4234\", \"osOwner\": [ \"f698b521-7409-432d-a5db-d13e51f029a9\" ], \"osid\": \"d2d56996-1b77-4abb-b9e9-0e6e7343c72e\" }", Map.class);
     }
 
     protected List<Map<String,Object>> getAuditLogs() throws Exception {

@@ -60,7 +60,7 @@ public class ParticipantController  extends BaseController {
             HttpResponse<String> response = HttpUtils.post(url, JSONUtils.serialize(requestBody), headersMap);
             return responseHandler(response, participantCode);
         } catch (Exception e) {
-            return getErrorResponseEntity(new Response(), e);
+            return exceptionHandler(new Response(), e);
         }
     }
 
@@ -71,7 +71,7 @@ public class ParticipantController  extends BaseController {
             HttpResponse<String> response = HttpUtils.post(url, JSONUtils.serialize(requestBody), new HashMap<>());
             return responseHandler(response, null);
         } catch (Exception e) {
-            return getErrorResponseEntity(new Response(), e);
+            return exceptionHandler(new Response(), e);
         }
     }
 
@@ -94,7 +94,7 @@ public class ParticipantController  extends BaseController {
             }
             return responseHandler(response, null);
         } catch (Exception e) {
-            return getErrorResponseEntity(new Response(), e);
+            return exceptionHandler(new Response(), e);
         }
     }
 

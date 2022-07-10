@@ -28,10 +28,12 @@
     "title": "Payer Downtime",
     "description": "A notification about the Payer System Downtime. This information will be useful for all participants.",
     "allowed_senders": [
-      "payor"
+      "provider"
     ],
     "allowed_recipients": [
-      "provider"
+      "payor",
+      "agency.tpa",
+      "agency.regulator"
     ],
     "type": "Broadcast",
     "category": "Participant",
