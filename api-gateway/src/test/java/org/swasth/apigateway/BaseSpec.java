@@ -53,7 +53,7 @@ public class BaseSpec {
     @BeforeEach
     public void setup() throws IOException {
         client = WebTestClient.bindToServer().baseUrl("http://localhost:" + port).responseTimeout(Duration.ofSeconds(30)).build();
-        server.start(8081);
+        server.start(8080);
     }
 
     @AfterEach

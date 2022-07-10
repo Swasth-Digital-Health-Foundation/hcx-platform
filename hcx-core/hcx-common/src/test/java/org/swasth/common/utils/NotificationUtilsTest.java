@@ -14,7 +14,7 @@ public class NotificationUtilsTest {
 
     @Test
     public void testLoadNotification() {
-        assertEquals(2, NotificationUtils.notificationList.size());
+        assertEquals(3, NotificationUtils.notificationList.size());
         assertTrue(NotificationUtils.topicCodeList.contains("24e975d1-054d-45fa-968e-c91b1043d0a5"));
     }
 
