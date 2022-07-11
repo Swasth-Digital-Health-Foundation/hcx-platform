@@ -1,5 +1,6 @@
 package org.swasth.apigateway.filters;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,7 @@ import org.swasth.common.utils.Constants;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.CACHED_REQUEST_BODY_ATTR;
 import static org.swasth.common.utils.Constants.*;
@@ -101,7 +103,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                     Map<String,Object> senderDetails =  registryService.fetchDetails(OS_OWNER, subject);
                     List<Map<String,Object>> recipientsDetails = new ArrayList<>();
                     if(!jsonRequest.getRecipientCodes().isEmpty()){
-                        String searchRequest = "{\"filters\":{\"" + PARTICIPANT_CODE + "\":{\"or\":\"" + jsonRequest.getRecipientCodes() + "\"}}}";
+                        String searchRequest = createSearchRequest(jsonRequest.getRecipientCodes());
                         recipientsDetails = registryService.getDetails(searchRequest);
                     }
                     jsonRequest.validateNotificationReq(getNotificationHeaders(), senderDetails, recipientsDetails, allowedNetworkCodes);
@@ -112,7 +114,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                     Map<String,Object> recipientDetails =  registryService.fetchDetails(OS_OWNER, subject);
                     List<Map<String,Object>> senderListDetails = new ArrayList<>();
                     if(!jsonRequest.getSenderList().isEmpty()){
-                        String searchRequest = "{\"filters\":{\"" + PARTICIPANT_CODE + "\":{\"or\":\"" + jsonRequest.getSenderList() + "\"}}}";
+                        String searchRequest = createSearchRequest(jsonRequest.getSenderList());
                         senderListDetails = registryService.getDetails(searchRequest);
                     }
                     jsonRequest.validateSubscriptionRequests(jsonRequest.getTopicCode(),senderListDetails,recipientDetails,getSubscriptionMandatoryHeaders());
@@ -154,6 +156,14 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                 return chain.filter(exchange);
             }
         };
+    }
+
+    private String createSearchRequest(List<String> jsonRequest) {
+        String wrappedList = jsonRequest.stream()
+                .map(plain ->  StringUtils.wrap(plain, "\""))
+                .collect(Collectors.joining(", "));
+        String searchRequest = "{\"filters\":{\"" + PARTICIPANT_CODE + "\":{\"or\":[" +  wrappedList + "]}}}";
+        return searchRequest;
     }
 
     private List<Map<String, Object>> getCallAuditData(String apiCallId) throws Exception {

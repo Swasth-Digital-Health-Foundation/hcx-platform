@@ -45,6 +45,9 @@ public class NotificationService {
     @Value("${kafka.topic.subscription}")
     private String subscriptionTopic;
 
+    @Value("${notification.subscription.expiry}")
+    private int subscriptionExpiry;
+
     @Autowired
     private IDatabaseService postgreSQLClient;
 
@@ -92,12 +95,14 @@ public class NotificationService {
     private Map<String, String> insertRecords(String topicCode, int statusCode, List<String> senderList, String notificationRecipientCode) throws Exception {
         //subscription_id,topic_code,sender_code,recipient_code,subscription_status,lastUpdatedOn,createdOn,expiry,is_delegated
         Map<String, String> subscriptionMap = new HashMap<>();
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH,subscriptionExpiry);
         senderList.stream().forEach(senderCode -> {
             int status = senderCode.equalsIgnoreCase(hcxRegistryCode) ? statusCode : PENDING_CODE;
             UUID subscriptionId = UUID.randomUUID();
             subscriptionMap.put(senderCode, subscriptionId.toString());
             String query = String.format(insertSubscription, postgresSubscription, subscriptionId, topicCode, senderCode,
-                    notificationRecipientCode, status, System.currentTimeMillis(), System.currentTimeMillis(), 0, false, status, System.currentTimeMillis(), 0, false);
+                    notificationRecipientCode, status, System.currentTimeMillis(), System.currentTimeMillis(), cal.getTimeInMillis(), false, status, System.currentTimeMillis(), cal.getTimeInMillis(), false);
             try {
                 postgreSQLClient.addBatch(query);
             } catch (Exception e) {
