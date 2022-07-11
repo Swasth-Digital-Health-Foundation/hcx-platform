@@ -43,7 +43,7 @@ public class JSONRequest extends BaseRequest {
                     validateCondition(COMPLETE_STATUS.equals(auditEvent.get(STATUS)), ErrorCodes.ERR_INVALID_REDIRECT_TO, "The redirected request has been closed with status as response.complete");
                 }
                 //validate the redirected has any one of request initiators
-                validateCondition(getRedirectTo().equalsIgnoreCase((String) auditEventData.get(SENDER_CODE)), ErrorCodes.ERR_INVALID_REDIRECT_TO, "Redirect request can not be redirected to one of the initiators");
+                validateCondition(getRedirectTo().equalsIgnoreCase((String) auditEventData.get(HCX_SENDER_CODE)), ErrorCodes.ERR_INVALID_REDIRECT_TO, "Redirect request can not be redirected to one of the initiators");
             }
         }
     }

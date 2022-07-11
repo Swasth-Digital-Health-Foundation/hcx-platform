@@ -79,9 +79,9 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
   def dispatchErrorResponse(event: util.Map[String, AnyRef], error: Option[ErrorResponse], correlationId: String, payloadRefId: String, senderCtx: util.Map[String, AnyRef], context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
     val protectedMap = new util.HashMap[String, AnyRef]
     //Update sender code
-    protectedMap.put(Constants.SENDER_CODE, config.hcxRegistryCode)
+    protectedMap.put(Constants.HCX_SENDER_CODE, config.hcxRegistryCode)
     //Update recipient code
-    protectedMap.put(Constants.RECIPIENT_CODE, getProtocolStringValue(event,Constants.SENDER_CODE))
+    protectedMap.put(Constants.HCX_RECIPIENT_CODE, getProtocolStringValue(event,Constants.HCX_SENDER_CODE))
     //Keep same correlationId
     protectedMap.put(Constants.CORRELATION_ID, getProtocolStringValue(event,Constants.CORRELATION_ID))
     //Generate new UUID for each request processed by HCX Gateway
@@ -209,8 +209,8 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
   def createAuditRecord(event: util.Map[String, AnyRef]): util.Map[String, AnyRef] = {
     val audit = new util.HashMap[String, AnyRef]();
     audit.put(Constants.EID, Constants.AUDIT)
-    audit.put(Constants.RECIPIENT_CODE,getProtocolStringValue(event,Constants.RECIPIENT_CODE))
-    audit.put(Constants.SENDER_CODE,getProtocolStringValue(event,Constants.SENDER_CODE))
+    audit.put(Constants.HCX_RECIPIENT_CODE,getProtocolStringValue(event,Constants.HCX_RECIPIENT_CODE))
+    audit.put(Constants.HCX_SENDER_CODE,getProtocolStringValue(event,Constants.HCX_SENDER_CODE))
     audit.put(Constants.API_CALL_ID,getProtocolStringValue(event,Constants.API_CALL_ID))
     audit.put(Constants.CORRELATION_ID,getProtocolStringValue(event,Constants.CORRELATION_ID))
     audit.put(Constants.WORKFLOW_ID,getProtocolStringValue(event,Constants.WORKFLOW_ID))

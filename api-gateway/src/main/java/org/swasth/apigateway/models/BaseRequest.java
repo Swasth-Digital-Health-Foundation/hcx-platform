@@ -187,7 +187,7 @@ public class BaseRequest {
             validateWorkflowId(correlationAuditData.get(0));
             if(!apiAction.contains("on_")){
                 for (Map<String, Object> audit : correlationAuditData) {
-                    validateCondition(getHcxRecipientCode().equals(audit.get(SENDER_CODE)), ErrorCodes.ERR_INVALID_FORWARD_REQ, "Request cannot be forwarded to the forward initiators");
+                    validateCondition(getHcxRecipientCode().equals(audit.get(HCX_SENDER_CODE)), ErrorCodes.ERR_INVALID_FORWARD_REQ, "Request cannot be forwarded to the forward initiators");
                 }
             }
         } else if( !EXCLUDE_ENTITIES.contains(getEntity(path)) && !apiAction.contains("on_") && checkParticipantRole(allowedRolesForForward, senderRoles) && recipientRoles.contains(PROVIDER)) {
