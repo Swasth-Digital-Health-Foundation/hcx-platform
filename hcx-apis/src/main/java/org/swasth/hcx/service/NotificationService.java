@@ -97,7 +97,7 @@ public class NotificationService {
             UUID subscriptionId = UUID.randomUUID();
             subscriptionMap.put(senderCode, subscriptionId.toString());
             String query = String.format(insertSubscription, postgresSubscription, subscriptionId, topicCode, senderCode,
-                    notificationRecipientCode, status, System.currentTimeMillis(), System.currentTimeMillis(), 0, false, status, System.currentTimeMillis(), null, false);
+                    notificationRecipientCode, status, System.currentTimeMillis(), System.currentTimeMillis(), 0, false, status, System.currentTimeMillis(), 0, false);
             try {
                 postgreSQLClient.addBatch(query);
             } catch (Exception e) {
