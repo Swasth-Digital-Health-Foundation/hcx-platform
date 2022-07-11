@@ -1,6 +1,7 @@
 package org.swasth.hcx.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import org.swasth.postgresql.IDatabaseService;
 
 import java.sql.ResultSet;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.swasth.common.utils.Constants.*;
 
@@ -153,8 +155,11 @@ public class NotificationService {
         List<String> subscriptions = request.getSubscriptions();
         ResultSet resultSet = null;
         try {
-            String query = String.format("SELECT subscription_id FROM %s WHERE topic_code = '%s' AND sender_code = '%s' subscription_status = 1 AND subscription_id IN %s",
-                    postgresSubscription, request.getTopicCode(), request.getSenderCode(), subscriptions.toString().replace("[", "(").replace("]", ")"));
+            String joined = subscriptions.stream()
+                    .map(plain ->  StringUtils.wrap(plain, "'"))
+                    .collect(Collectors.joining(","));
+            String query = String.format("SELECT subscription_id FROM %s WHERE topic_code = '%s' AND sender_code = '%s' AND subscription_status = 1 AND subscription_id IN (%s)",
+                    postgresSubscription, request.getTopicCode(), request.getSenderCode(), joined);
             resultSet = (ResultSet) postgreSQLClient.executeQuery(query);
             while (resultSet.next()) {
                 subscriptions.remove(resultSet.getString("subscription_id"));

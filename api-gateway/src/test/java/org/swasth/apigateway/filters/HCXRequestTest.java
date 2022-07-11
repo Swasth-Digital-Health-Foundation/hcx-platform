@@ -817,7 +817,7 @@ class HCXRequestTest extends BaseSpec {
                 .exchange()
                 .expectBody(Map.class)
                 .consumeWith(result -> {
-                    assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatus());
+                    assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
                 });
     }
 
