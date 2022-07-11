@@ -105,7 +105,7 @@ public class NotificationDispatcherFunction extends ProcessFunction<Map<String, 
         audit.put(Constants.MID(), event.get(Constants.MID()));
         audit.put(Constants.ACTION(), event.get(Constants.ACTION()));
         audit.put(Constants.ETS(), Calendar.getInstance().getTime());
-        audit.put(Constants.SENDER_CODE(), getProtocolStringValue(Constants.HCX_SENDER_CODE(),event));
+        audit.put(Constants.SENDER_CODE(), getProtocolStringValue(Constants.SENDER_CODE(),event));
         audit.put(Constants.RECIPIENT_CODE(), recipientCode);
         audit.put(Constants.NOTIFICATION_ID(), getProtocolStringValue(Constants.NOTIFICATION_ID(),event));
         audit.put(Constants.TOPIC_CODE(), getProtocolStringValue(Constants.TOPIC_CODE(),event));
