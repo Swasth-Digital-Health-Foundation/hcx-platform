@@ -839,7 +839,7 @@ class HCXRequestTest extends BaseSpec {
                 .consumeWith(result -> {
                     assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
                     assertEquals(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ.name(), getResponseErrorCode(result));
-                    assertTrue(getResponseErrorMessage(result).contains("Notification request does not have any one of mandatory headers"));
+                    assertTrue(getResponseErrorMessage(result).contains("Notification request does not have mandatory headers"));
                 });
     }
 
