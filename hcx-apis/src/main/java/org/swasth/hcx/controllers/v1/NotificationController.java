@@ -14,9 +14,7 @@ import org.swasth.common.dto.Response;
 import org.swasth.common.utils.Constants;
 import org.swasth.hcx.controllers.BaseController;
 import org.swasth.hcx.service.NotificationService;
-
 import java.util.Map;
-
 import static org.swasth.common.utils.Constants.*;
 
 @RestController()
@@ -44,9 +42,9 @@ public class NotificationController extends BaseController {
     @PostMapping(NOTIFICATION_SUBSCRIBE)
     public ResponseEntity<Object> notificationSubscribe(@RequestBody Map<String, Object> requestBody) throws Exception {
         Request request = new Request(requestBody, NOTIFICATION_SUBSCRIBE);
-        Response response = new Response(request);
+        Response response = new Response();
         try {
-            notificationService.processSubscription(request, ACTIVE_CODE);
+            notificationService.processSubscription(request, ACTIVE_CODE, response);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
             return exceptionHandler(response, e);
@@ -56,9 +54,9 @@ public class NotificationController extends BaseController {
     @PostMapping(NOTIFICATION_UNSUBSCRIBE)
     public ResponseEntity<Object> notificationUnSubscribe(@RequestBody Map<String, Object> requestBody) throws Exception {
         Request request = new Request(requestBody, NOTIFICATION_UNSUBSCRIBE);
-        Response response = new Response(request);
+        Response response = new Response();
         try {
-            notificationService.processSubscription(request, INACTIVE_CODE);
+            notificationService.processSubscription(request, INACTIVE_CODE, response);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
             return exceptionHandler(response, e);
@@ -66,8 +64,8 @@ public class NotificationController extends BaseController {
     }
 
     @PostMapping(NOTIFICATION_SUBSCRIPTION_LIST)
-    public ResponseEntity<Object> getSubscriptionList(@RequestBody Map<String, Object> requestBody) throws Exception {
-        Request request = new Request(requestBody, NOTIFICATION_SUBSCRIPTION_LIST);
+    public ResponseEntity<Object> getSubscriptionList(@RequestBody Map<String, Object> requestBody) {
+        NotificationListRequest request = new NotificationListRequest(requestBody);
         Response response = new Response();
         try {
             notificationService.getSubscriptions(request, response);
@@ -78,7 +76,7 @@ public class NotificationController extends BaseController {
     }
 
     @PostMapping(NOTIFICATION_LIST)
-    public ResponseEntity<Object> getNotificationList(@RequestBody Map<String, Object> requestBody) throws Exception {
+    public ResponseEntity<Object> getNotificationList(@RequestBody Map<String, Object> requestBody) {
         NotificationListRequest request = new NotificationListRequest(requestBody);
         Response response = new Response();
         try {

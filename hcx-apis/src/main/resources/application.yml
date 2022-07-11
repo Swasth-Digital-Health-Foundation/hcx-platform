@@ -14,6 +14,7 @@ kafka:
     communication: ${kafka_communication_topic:hcx.request.communication}
     predetermination: ${kafka_predetermination_topic:hcx.request.predetermination}
     notification: ${kafka_notification_topic:hcx.request.notification}
+    subscription: ${kafka_subscription_topic:hcx.request.subscription}
 
 registry:
   basePath: ${registry_basePath:http://a65d6a493998b4d0e98bd690a123328b-1532825861.ap-south-1.elb.amazonaws.com:8081}
@@ -30,8 +31,8 @@ postgres:
   tablename: ${postgres_tablename:payload}
   subscription:
     tablename: ${postgres_subscription_tablename:subscription}
-    insertQuery: ${postgres_subscription_insertQuery:INSERT INTO %s as sub(id,recipientId,notificationId,status,lastUpdatedOn,mode) VALUES ('%s','%s','%s',%d,%d,'%s') ON CONFLICT ON CONSTRAINT subscription_pkey DO UPDATE SET status=%d,lastUpdatedOn=%d WHERE sub.recipientId=EXCLUDED.recipientId AND sub.notificationId=EXCLUDED.notificationId}
-    subscriptionQuery: ${postgres_subscription_subscriptionQuery:SELECT notificationId,recipientId,status,mode FROM %s WHERE recipientId = '%s'}
+    insertQuery: ${postgres_subscription_insertQuery:INSERT INTO %s as sub(subscription_id,topic_code,sender_code,recipient_code,subscription_status,lastUpdatedOn,createdOn,expiry,is_delegated) VALUES ('%s','%s','%s','%s',%d,%d,%d,%d,%s) ON CONFLICT ON CONSTRAINT subscription_pkey DO UPDATE SET subscription_status=%d,lastUpdatedOn=%d,expiry=%d,is_delegated=%s WHERE sub.sender_code=EXCLUDED.sender_code AND sub.topic_code=EXCLUDED.topic_code AND sub.recipient_code=EXCLUDED.recipient_code}
+    subscriptionQuery: ${postgres_subscription_subscriptionQuery:SELECT subscription_id,subscription_status,topic_code,sender_code,recipient_code,expiry,is_delegated FROM %s WHERE recipient_code = '%s'}
 
 
 #hcx error headers
@@ -80,7 +81,6 @@ hcx:
 
 #Notifications related configurations
 notification:
-  path: ${notification_path:classpath:notifications.json}
   headers:
     mandatory: ${notification_mandatory_headers:topic_code, notification_data}
     optional: ${notification_optional_headers:recipient_codes, recipient_roles, subscriptions, sender_code, notification_id}

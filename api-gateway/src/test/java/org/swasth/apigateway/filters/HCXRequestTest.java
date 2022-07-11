@@ -800,4 +800,291 @@ class HCXRequestTest extends BaseSpec {
                     assertTrue(getResponseErrorMessage(result).contains("Recipient roles are out of range"));
                 });
     }
+
+    @Test
+    void test_notification_subscription_invalid_Request_no_sender_list() throws Exception {
+        server.enqueue(new MockResponse()
+                .setResponseCode(202)
+                .addHeader("Content-Type", "application/json"));
+
+        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
+                .thenReturn(getProviderDetails());
+
+        client.post().uri(versionPrefix + Constants.NOTIFICATION_SUBSCRIBE)
+                .header(Constants.AUTHORIZATION, getProviderToken())
+                .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
+                .bodyValue(getInvalidSubscriptionRequest(true))
+                .exchange()
+                .expectBody(Map.class)
+                .consumeWith(result -> {
+                    assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatus());
+                });
+    }
+
+    @Test
+    void test_notification_subscription_invalid_Request_no_topic_code() throws Exception {
+        server.enqueue(new MockResponse()
+                .setResponseCode(202)
+                .addHeader("Content-Type", "application/json"));
+
+        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
+                .thenReturn(getProviderDetails());
+
+        client.post().uri(versionPrefix + Constants.NOTIFICATION_SUBSCRIBE)
+                .header(Constants.AUTHORIZATION, getProviderToken())
+                .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
+                .bodyValue(getInvalidSubscriptionRequest(false))
+                .exchange()
+                .expectBody(Map.class)
+                .consumeWith(result -> {
+                    assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
+                    assertEquals(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ.name(), getResponseErrorCode(result));
+                    assertTrue(getResponseErrorMessage(result).contains("Notification request does not have mandatory headers"));
+                });
+    }
+
+    @Test
+    void test_notification_subscription_invalid_Request_extra_field() throws Exception {
+        server.enqueue(new MockResponse()
+                .setResponseCode(202)
+                .addHeader("Content-Type", "application/json"));
+
+        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
+                .thenReturn(getProviderDetails());
+
+        client.post().uri(versionPrefix + Constants.NOTIFICATION_SUBSCRIBE)
+                .header(Constants.AUTHORIZATION, getProviderToken())
+                .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
+                .bodyValue(getInvalidSubscriptionRequest())
+                .exchange()
+                .expectBody(Map.class)
+                .consumeWith(result -> {
+                    assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
+                    assertEquals(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ.name(), getResponseErrorCode(result));
+                    assertTrue(getResponseErrorMessage(result).contains("Notification request contains invalid field"));
+                });
+    }
+
+    @Test
+    void test_notification_subscription_sender_not_in_registry() throws Exception {
+        server.enqueue(new MockResponse()
+                .setResponseCode(202)
+                .addHeader("Content-Type", "application/json"));
+
+        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
+                .thenReturn(getProviderDetails());
+
+        client.post().uri(versionPrefix + Constants.NOTIFICATION_SUBSCRIBE)
+                .header(Constants.AUTHORIZATION, getProviderToken())
+                .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
+                .bodyValue(getSubscriptionRequest("de0e578d-b391-42f9-96f7-1e6bacd91c20", Arrays.asList("new-payor-3")))
+                .exchange()
+                .expectBody(Map.class)
+                .consumeWith(result -> {
+                    assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
+                    assertEquals(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ.name(), getResponseErrorCode(result));
+                    assertTrue(getResponseErrorMessage(result).contains("Senders does not exist in the registry"));
+                });
+    }
+
+    @Test
+    void test_notification_subscription_sender_blocked() throws Exception {
+        server.enqueue(new MockResponse()
+                .setResponseCode(202)
+                .addHeader("Content-Type", "application/json"));
+
+        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
+                .thenReturn(getBlockedProviderDetails());
+        client.post().uri(versionPrefix + Constants.NOTIFICATION_NOTIFY)
+                .header(Constants.AUTHORIZATION, getProviderToken())
+                .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
+                .bodyValue(getSubscriptionRequest("de0e578d-b391-42f9-96f7-1e6bacd91c20", Arrays.asList("new-payor-3")))
+                .exchange()
+                .expectBody(Map.class)
+                .consumeWith(result -> {
+                    assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
+                    assertEquals(ErrorCodes.ERR_INVALID_SENDER.name(), getResponseErrorCode(result));
+                    assertTrue(getResponseErrorMessage(result).contains("blocked or inactive as per the registry"));
+                });
+    }
+
+    @Test
+    void test_notification_subscription_invalid_topic_code() throws Exception {
+        server.enqueue(new MockResponse()
+                .setResponseCode(202)
+                .addHeader("Content-Type", "application/json"));
+
+        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
+                .thenReturn(getProviderDetails());
+
+        client.post().uri(versionPrefix + Constants.NOTIFICATION_SUBSCRIBE)
+                .header(Constants.AUTHORIZATION, getProviderToken())
+                .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
+                .bodyValue(getSubscriptionRequest("test-topic", Arrays.asList("new-payor-3")))
+                .exchange()
+                .expectBody(Map.class)
+                .consumeWith(result -> {
+                    assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
+                    assertEquals(ErrorCodes.ERR_INVALID_NOTIFICATION_TOPIC_CODE.name(), getResponseErrorCode(result));
+                    assertTrue(getResponseErrorMessage(result).contains("Invalid topic code"));
+                });
+    }
+
+    @Test
+    void test_notification_subscription_empty_topic_code() throws Exception {
+        server.enqueue(new MockResponse()
+                .setResponseCode(202)
+                .addHeader("Content-Type", "application/json"));
+
+        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
+                .thenReturn(getProviderDetails());
+
+        client.post().uri(versionPrefix + Constants.NOTIFICATION_SUBSCRIBE)
+                .header(Constants.AUTHORIZATION, getProviderToken())
+                .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
+                .bodyValue(getSubscriptionRequest("", Arrays.asList("new-payor-3")))
+                .exchange()
+                .expectBody(Map.class)
+                .consumeWith(result -> {
+                    assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
+                    assertEquals(ErrorCodes.ERR_INVALID_NOTIFICATION_TOPIC_CODE.name(), getResponseErrorCode(result));
+                    assertTrue(getResponseErrorMessage(result).contains("Notification topic code cannot be null, empty and other than 'String'"));
+                });
+    }
+
+    @Test
+    void test_notification_subscription_inactive() throws Exception {
+        server.enqueue(new MockResponse()
+                .setResponseCode(202)
+                .addHeader("Content-Type", "application/json"));
+
+        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
+                .thenReturn(getProviderDetails());
+
+        Mockito.when(registryService.getDetails(anyString()))
+                .thenReturn(Arrays.asList(getPayorDetails()));
+
+        client.post().uri(versionPrefix + Constants.NOTIFICATION_SUBSCRIBE)
+                .header(Constants.AUTHORIZATION, getProviderToken())
+                .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
+                .bodyValue(getSubscriptionRequest("ab0e578d-b391-42f9-96f7-1e6bacd91c20", Arrays.asList("new-payor-3")))
+                .exchange()
+                .expectBody(Map.class)
+                .consumeWith(result -> {
+                    assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
+                    assertEquals(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ.name(), getResponseErrorCode(result));
+                    assertTrue(getResponseErrorMessage(result).contains("Notification status is inactive"));
+                });
+    }
+
+    @Test
+    void test_notification_subscription_invalid_role() throws Exception {
+        server.enqueue(new MockResponse()
+                .setResponseCode(202)
+                .addHeader("Content-Type", "application/json"));
+
+        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
+                .thenReturn(getPayorDetails());
+
+        Mockito.when(registryService.getDetails(anyString()))
+                .thenReturn(Arrays.asList(getProviderDetails()));
+
+        client.post().uri(versionPrefix + Constants.NOTIFICATION_SUBSCRIBE)
+                .header(Constants.AUTHORIZATION, getPayorToken())
+                .header("X-jwt-sub", "20bd4228-a87f-4175-a30a-20fb28983afb")
+                .bodyValue(getSubscriptionRequest("de0e578d-b391-42f9-96f7-1e6bacd91c20", Arrays.asList("new-payor-3")))
+                .exchange()
+                .expectBody(Map.class)
+                .consumeWith(result -> {
+                    assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
+                    assertEquals(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ.name(), getResponseErrorCode(result));
+                    assertTrue(getResponseErrorMessage(result).contains("Participant is not allowed to receive this notification"));
+                });
+    }
+
+    @Test
+    void test_notification_subscription_invalid_participant() throws Exception {
+        server.enqueue(new MockResponse()
+                .setResponseCode(202)
+                .addHeader("Content-Type", "application/json"));
+
+        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
+                .thenReturn(getProviderDetails());
+
+        Mockito.when(registryService.getDetails(anyString()))
+                .thenReturn(Arrays.asList(getPayorDetails()));
+
+        client.post().uri(versionPrefix + Constants.NOTIFICATION_SUBSCRIBE)
+                .header(Constants.AUTHORIZATION, getProviderToken())
+                .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
+                .bodyValue(getSubscriptionRequest("de0e578d-b391-42f9-96f7-1e6bacd91c20", Arrays.asList("new-payor-3","test-payor")))
+                .exchange()
+                .expectBody(Map.class)
+                .consumeWith(result -> {
+                    assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
+                    assertEquals(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ.name(), getResponseErrorCode(result));
+                    assertTrue(getResponseErrorMessage(result).contains("Senders does not exist in the registry"));
+                });
+    }
+
+    @Test
+    void test_notification_subscription_participant_success() throws Exception {
+        server.enqueue(new MockResponse()
+                .setResponseCode(202)
+                .addHeader("Content-Type", "application/json"));
+
+        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
+                .thenReturn(getProviderDetails());
+        Mockito.when(registryService.getDetails(anyString()))
+                .thenReturn(Arrays.asList(getPayorDetails()));
+        client.post().uri(versionPrefix + Constants.NOTIFICATION_SUBSCRIBE)
+                .header(Constants.AUTHORIZATION, getProviderToken())
+                .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
+                .bodyValue(getSubscriptionRequest("de0e578d-b391-42f9-96f7-1e6bacd91c20", Arrays.asList("new-payor-3")))
+                .exchange()
+                .expectBody(Map.class)
+                .consumeWith(result -> {
+                    assertEquals(HttpStatus.ACCEPTED, result.getStatus());
+                });
+    }
+
+    @Test
+    void test_notification_unsubscribe_participant_success() throws Exception {
+        server.enqueue(new MockResponse()
+                .setResponseCode(202)
+                .addHeader("Content-Type", "application/json"));
+
+        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
+                .thenReturn(getProviderDetails());
+        Mockito.when(registryService.getDetails(anyString()))
+                .thenReturn(Arrays.asList(getPayorDetails()));
+        client.post().uri(versionPrefix + Constants.NOTIFICATION_UNSUBSCRIBE)
+                .header(Constants.AUTHORIZATION, getProviderToken())
+                .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
+                .bodyValue(getSubscriptionRequest("de0e578d-b391-42f9-96f7-1e6bacd91c20", Arrays.asList("new-payor-3")))
+                .exchange()
+                .expectBody(Map.class)
+                .consumeWith(result -> {
+                    assertEquals(HttpStatus.ACCEPTED, result.getStatus());
+                });
+    }
+
+    @Test
+    void test_notification_subscription_list() throws Exception {
+        server.enqueue(new MockResponse()
+                .setResponseCode(202)
+                .addHeader("Content-Type", "application/json"));
+
+        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
+                .thenReturn(getProviderDetails());
+        client.post().uri(versionPrefix + Constants.NOTIFICATION_SUBSCRIPTION_LIST)
+                .header(Constants.AUTHORIZATION, getProviderToken())
+                .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
+                .bodyValue(getSubscriptionListRequest())
+                .exchange()
+                .expectBody(Map.class)
+                .consumeWith(result -> {
+                    assertEquals(HttpStatus.ACCEPTED, result.getStatus());
+                });
+    }
 }

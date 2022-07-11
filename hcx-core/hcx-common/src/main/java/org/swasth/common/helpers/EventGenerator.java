@@ -2,6 +2,7 @@ package org.swasth.common.helpers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.swasth.common.dto.Request;
+import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
 
 import java.util.*;
@@ -93,7 +94,7 @@ public class EventGenerator {
     public Map<String,Object> generateAuditEvent(Request request) {
         Map<String,Object> event = new HashMap<>();
         event.put(EID, AUDIT);
-        event.put(RECIPIENT_CODE, request.getRecipientCode());
+        event.put(HCX_RECIPIENT_CODE, request.getRecipientCode());
         event.put(HCX_SENDER_CODE, request.getHcxSenderCode());
         event.put(API_CALL_ID, request.getApiCallId());
         event.put(CORRELATION_ID, request.getCorrelationId());
@@ -113,6 +114,31 @@ public class EventGenerator {
         event.put(SENDER_ROLE, new ArrayList<>());
         event.put(RECIPIENT_ROLE, new ArrayList<>());
         event.put(PAYLOAD, request.getPayloadWithoutSensitiveData());
+        return  event;
+    }
+
+    public String generateSubscriptionEvent(String mid, String apiAction,String recipientCode,String senderCode) throws JsonProcessingException {
+        Map<String,Object> event = new HashMap<>();
+        event.put(MID, mid);
+        event.put(ETS, System.currentTimeMillis());
+        event.put(ACTION, apiAction);
+        event.put(HCX_RECIPIENT_CODE,recipientCode);
+        event.put(HCX_SENDER_CODE, senderCode);
+        event.put(NOTIFY_STATUS, QUEUED_STATUS);
+        return JSONUtils.serialize(event);
+    }
+
+    public Map<String,Object> generateSubscriptionAuditEvent(Request request,String subscriptionId,String status,String senderCode) {
+        Map<String,Object> event = new HashMap<>();
+        event.put(EID, AUDIT);
+        event.put(MID, request.getMid());
+        event.put(ACTION, request.getApiAction());
+        event.put(SUBSCRIPTION_ID, subscriptionId);
+        event.put(TOPIC_CODE,request.getTopicCode());
+        event.put(Constants.SENDER_CODE,senderCode);
+        event.put(RECIPIENT_CODE,request.getNotificationRecipientCode());
+        event.put(ETS,System.currentTimeMillis());
+        event.put(NOTIFY_STATUS, status);
         return  event;
     }
 
