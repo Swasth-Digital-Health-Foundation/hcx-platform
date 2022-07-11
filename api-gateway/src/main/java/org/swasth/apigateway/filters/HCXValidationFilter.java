@@ -176,8 +176,8 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
 
     private List<Map<String, Object>> getParticipantCtxAuditData(String senderCode, String recipientCode, String correlationId) throws Exception {
         Map<String,String> filters = new HashMap<>();
-        filters.put(SENDER_CODE, recipientCode);
-        filters.put(RECIPIENT_CODE, senderCode);
+        filters.put(HCX_SENDER_CODE, recipientCode);
+        filters.put(HCX_RECIPIENT_CODE, senderCode);
         filters.put(CORRELATION_ID, correlationId);
         return getAuditData(filters);
     }

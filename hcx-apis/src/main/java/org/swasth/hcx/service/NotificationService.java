@@ -7,10 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.swasth.auditindexer.function.AuditIndexer;
-import org.swasth.common.dto.NotificationListRequest;
-import org.swasth.common.dto.Request;
-import org.swasth.common.dto.Response;
-import org.swasth.common.dto.Subscription;
+import org.swasth.common.dto.*;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
 import org.swasth.common.utils.Constants;
@@ -138,7 +135,7 @@ public class NotificationService {
                 throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Invalid notifications filters, allowed properties are: " + ALLOWED_NOTIFICATION_FILTER_PROPS);
         }
         // TODO: add filter limit condition
-        List<Map<String, Object>> list = NotificationUtils.notificationList;
+        List<Map<String, Object>> list = new ArrayList<>(NotificationUtils.notificationList);
         Set<Map<String, Object>> removeNotificationList = new HashSet<>();
         list.forEach(notification -> request.getFilters().keySet().forEach(key -> {
             if (!notification.get(key).equals(request.getFilters().get(key)))
