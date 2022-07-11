@@ -101,7 +101,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                     Map<String,Object> senderDetails =  registryService.fetchDetails(OS_OWNER, subject);
                     List<Map<String,Object>> recipientsDetails = new ArrayList<>();
                     if(!jsonRequest.getRecipientCodes().isEmpty()){
-                        String searchRequest = "{\"filters\":{\"" + PARTICIPANT_CODE + "\":{\"or\":\"" + jsonRequest.getRecipientCodes() + "\"}}}";
+                        String searchRequest = "{\"filters\":{\"" + PARTICIPANT_CODE + "\":{\"or\":" + jsonRequest.getRecipientCodes() + "}}}";
                         recipientsDetails = registryService.getDetails(searchRequest);
                     }
                     jsonRequest.validateNotificationReq(getNotificationHeaders(), senderDetails, recipientsDetails, allowedNetworkCodes);
@@ -112,7 +112,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                     Map<String,Object> recipientDetails =  registryService.fetchDetails(OS_OWNER, subject);
                     List<Map<String,Object>> senderListDetails = new ArrayList<>();
                     if(!jsonRequest.getSenderList().isEmpty()){
-                        String searchRequest = "{\"filters\":{\"" + PARTICIPANT_CODE + "\":{\"or\":\"" + jsonRequest.getSenderList() + "\"}}}";
+                        String searchRequest = "{\"filters\":{\"" + PARTICIPANT_CODE + "\":{\"or\":" + jsonRequest.getSenderList() + "}}}";
                         senderListDetails = registryService.getDetails(searchRequest);
                     }
                     jsonRequest.validateSubscriptionRequests(jsonRequest.getTopicCode(),senderListDetails,recipientDetails,getSubscriptionMandatoryHeaders());
