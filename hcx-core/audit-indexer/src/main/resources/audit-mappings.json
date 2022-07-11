@@ -68,6 +68,9 @@
     },
     "status":{
       "type":"keyword"
+    },
+    "subscription_id":{
+      "type":"keyword"
     }
   }
 }
