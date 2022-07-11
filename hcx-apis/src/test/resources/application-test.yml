@@ -59,7 +59,6 @@ hcx:
 
 #Notifications related configurations
 notification:
-  path: ${notification_path:classpath:notifications.json}
   headers:
     mandatory: ${notification_mandatory_headers:topic_code, notification_data}
     optional: ${notification_optional_headers:topic, recipient_codes, recipient_roles, subscriptions}

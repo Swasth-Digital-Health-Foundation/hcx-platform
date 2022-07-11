@@ -5,7 +5,6 @@ import org.swasth.common.exception.ErrorCodes;
 import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.utils.PayloadUtils;
-
 import java.util.*;
 
 import static org.swasth.common.utils.Constants.*;
@@ -55,7 +54,7 @@ public class Request {
     }
 
     public String getRecipientCode() {
-        return getHeader(RECIPIENT_CODE);
+        return getHeader(HCX_RECIPIENT_CODE);
     }
 
     public String getTimestamp() {
@@ -133,6 +132,10 @@ public class Request {
     public List<String> getSubscriptions() { return getHeaderList(Constants.SUBSCRIPTIONS);}
 
     public Map<String,Object> getNotificationData() { return getHeaderMap(Constants.NOTIFICATION_DATA);}
+
+    public List<String> getSenderList() { return (List<String>) payload.get(SENDER_LIST); }
+
+    public String getNotificationRecipientCode() { return (String) payload.get(RECIPIENT_CODE); }
 
 }
 

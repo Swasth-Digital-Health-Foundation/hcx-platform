@@ -31,9 +31,13 @@ redirect:
     optional: ${redirect_optional_headers:x-hcx-workflow_id}
 
 notification:
-  headers:
-    mandatory: ${notification_mandatory_headers:topic_code, notification_data}
-    optional: ${notification_optional_headers:recipient_codes, recipient_roles, subscriptions}
+  notify:
+    headers:
+      mandatory: ${notification_mandatory_headers:topic_code, notification_data}
+      optional: ${notification_optional_headers:recipient_codes, recipient_roles, subscriptions}
+  subscription:
+    headers:
+      mandatory: ${notification_subscription_mandatory_headers:topic_code,sender_list}
 
 notify:
   network:
@@ -49,7 +53,7 @@ jwt:
   enabled: ${JWT_ENABLED:true}
   issuer: ${JWT_ISSUER:}
   audience: ${JWT_AUDIENCE:}
-  jwkUrl: ${JWT_JWK_URL:http://localhost:8080/auth/realms/sunbird-rc/protocol/openid-connect/certs}
+  jwkUrl: ${JWT_JWK_URL:http://aef8101c432d04a659e6317b3e5031cf-1674586068.ap-south-1.elb.amazonaws.com:8080/auth/realms/swasth-health-claim-exchange/protocol/openid-connect/certs}
   claimsNamespacePath: ${JWT_NS_PATH:$.realm_access.roles}
 
 redis:
@@ -99,10 +103,11 @@ spring:
             - RewritePath=/${version.external}/notification/subscribe, /${version.internal}/notification/subscribe
             - RewritePath=/${version.external}/notification/unsubscribe, /${version.internal}/notification/unsubscribe
             - RewritePath=/${version.external}/notification/notify, /${version.internal}/notification/notify
+            - RewritePath=/${version.external}/notification/subscription/list, /${version.internal}/notification/subscription/list
             - CachingRequestBodyFilter
             - HCXValidationFilter
           predicates:
-            - Path=/${version.external}/coverageeligibility/**, /${version.external}/preauth/**, /${version.external}/claim/**, /${version.external}/paymentnotice/**, /${version.external}/hcx/**, /${version.external}/predetermination/**, /${version.external}/communication/**, /${version.external}/notification/subscribe, /${version.external}/notification/unsubscribe, /${version.external}/notification/notify
+            - Path=/${version.external}/coverageeligibility/**, /${version.external}/preauth/**, /${version.external}/claim/**, /${version.external}/paymentnotice/**, /${version.external}/hcx/**, /${version.external}/predetermination/**, /${version.external}/communication/**, /${version.external}/notification/subscribe, /${version.external}/notification/unsubscribe, /${version.external}/notification/subscription/list, /${version.external}/notification/notify
 
         - id: hcx-api-route-audit
           uri: ${HCX_API_BASEPATH:http://localhost:8080}
@@ -125,7 +130,6 @@ spring:
                 redis-rate-limiter.replenishRate: 10
                 redis-rate-limiter.burstCapacity: 20
             - RewritePath=/${version.external}/participant/(?<segment>/?.*), /${version.internal}/participant/$\{segment}
-            - RewritePath=/${version.external}/notification/subscription/list, /${version.internal}/notification/subscription/list
             - RewritePath=/${version.external}/notification/list, /${version.internal}/notification/list
           predicates:
-            - Path=/${version.external}/participant/**, /health, /service/health, /${version.external}/notification/subscription/list, /${version.external}/notification/topic/list
+            - Path=/${version.external}/participant/**, /health, /service/health, /${version.external}/notification/topic/list

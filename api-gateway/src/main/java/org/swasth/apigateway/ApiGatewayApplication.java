@@ -2,7 +2,6 @@ package org.swasth.apigateway;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import org.swasth.apigateway.constants.Constants;
 import org.swasth.apigateway.models.Acl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,6 +12,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.web.client.RestTemplate;
+import org.swasth.common.utils.Constants;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;

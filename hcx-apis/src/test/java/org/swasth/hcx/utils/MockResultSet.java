@@ -36,6 +36,8 @@ public class MockResultSet {
         getNextMock(rs);
         getStringMock(rs);
         getIntMock(rs);
+        getLongMock(rs);
+        getBooleanMock(rs);
         return rs;
     }
 
@@ -70,6 +72,24 @@ public class MockResultSet {
             final var columnIndex = columnIndices.get(columnName);
             return data[rowIndex][columnIndex];
         }).when(rs).getInt(anyString());
+    }
+
+    private void getLongMock(ResultSet rs) throws SQLException {
+        // mock rs.getLong(columnName)
+        doAnswer(invocation -> {
+            final var columnName = invocation.getArgument(0, String.class);
+            final var columnIndex = columnIndices.get(columnName);
+            return  (Long) data[rowIndex][columnIndex];
+        }).when(rs).getLong(anyString());
+    }
+
+    private void getBooleanMock(ResultSet rs) throws SQLException {
+        // mock rs.getBoolean(columnName)
+        doAnswer(invocation -> {
+            final var columnName = invocation.getArgument(0, String.class);
+            final var columnIndex = columnIndices.get(columnName);
+            return  (Boolean) data[rowIndex][columnIndex];
+        }).when(rs).getBoolean(anyString());
     }
 
     /**

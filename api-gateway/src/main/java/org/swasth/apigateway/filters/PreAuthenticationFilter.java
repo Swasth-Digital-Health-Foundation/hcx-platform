@@ -1,6 +1,5 @@
 package org.swasth.apigateway.filters;
 
-import org.swasth.apigateway.constants.Constants;
 import org.swasth.apigateway.constants.FilterOrder;
 import org.swasth.apigateway.models.Acl;
 import org.swasth.apigateway.utils.Utils;
@@ -11,8 +10,8 @@ import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
+import org.swasth.common.utils.Constants;
 import reactor.core.publisher.Mono;
-
 import java.util.Map;
 
 /**

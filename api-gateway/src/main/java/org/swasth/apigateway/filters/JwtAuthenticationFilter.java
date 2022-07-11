@@ -24,13 +24,12 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
-
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 
-import static org.swasth.apigateway.constants.Constants.AUTH_REQUIRED;
-import static org.swasth.apigateway.constants.Constants.X_JWT_SUB_HEADER;
+import static org.swasth.common.utils.Constants.AUTH_REQUIRED;
+import static org.swasth.common.utils.Constants.X_JWT_SUB_HEADER;
 
 /**
  * Authenticates the user by extracting the token from the header and validates the JWT

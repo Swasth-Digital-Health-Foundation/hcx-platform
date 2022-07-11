@@ -10,7 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
-import org.swasth.apigateway.constants.Constants;
 import org.swasth.apigateway.exception.ClientException;
 import org.swasth.apigateway.exception.ErrorCodes;
 import org.swasth.apigateway.exception.JWTVerificationException;
@@ -20,6 +19,7 @@ import org.swasth.apigateway.models.Response;
 import org.swasth.apigateway.models.ResponseError;
 import org.swasth.apigateway.service.AuditService;
 import org.swasth.apigateway.utils.JSONUtils;
+import org.swasth.common.utils.Constants;
 import reactor.core.publisher.Mono;
 
 import java.util.Map;
