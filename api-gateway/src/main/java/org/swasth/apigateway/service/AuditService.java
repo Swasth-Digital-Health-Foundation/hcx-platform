@@ -59,8 +59,8 @@ public class AuditService {
     public Map<String,Object> createAuditEvent(BaseRequest request) {
         Map<String,Object> event = new HashMap<>();
         event.put(EID, AUDIT);
-        event.put(RECIPIENT_CODE, request.getRecipientCode());
-        event.put(SENDER_CODE, request.getSenderCode());
+        event.put(HCX_RECIPIENT_CODE, request.getHcxRecipientCode());
+        event.put(HCX_SENDER_CODE, request.getHcxSenderCode());
         event.put(API_CALL_ID, request.getApiCallId());
         event.put(CORRELATION_ID, request.getCorrelationId());
         event.put(WORKFLOW_ID, request.getWorkflowId());

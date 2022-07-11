@@ -89,9 +89,9 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                     requestObj = jweRequest;
                     correlationId = jweRequest.getCorrelationId();
                     apiCallId = jweRequest.getApiCallId();
-                    Map<String,Object> senderDetails = getDetails(jweRequest.getSenderCode());
-                    Map<String,Object> recipientDetails = getDetails(jweRequest.getRecipientCode());
-                    List<Map<String, Object>> participantCtxAuditDetails = getParticipantCtxAuditData(jweRequest.getSenderCode(), jweRequest.getRecipientCode(), jweRequest.getCorrelationId());
+                    Map<String,Object> senderDetails = getDetails(jweRequest.getHcxSenderCode());
+                    Map<String,Object> recipientDetails = getDetails(jweRequest.getHcxRecipientCode());
+                    List<Map<String, Object>> participantCtxAuditDetails = getParticipantCtxAuditData(jweRequest.getHcxSenderCode(), jweRequest.getHcxRecipientCode(), jweRequest.getCorrelationId());
                     jweRequest.validate(getMandatoryHeaders(), subject, timestampRange, senderDetails, recipientDetails);
                     jweRequest.validateUsingAuditData(allowedEntitiesForForward, allowedRolesForForward, senderDetails, recipientDetails, getCorrelationAuditData(jweRequest.getCorrelationId()), getCallAuditData(jweRequest.getApiCallId()), participantCtxAuditDetails, path);
                     validateParticipantCtxDetails(participantCtxAuditDetails, path);
@@ -105,7 +105,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                         recipientsDetails = registryService.getDetails(searchRequest);
                     }
                     jsonRequest.validateNotificationReq(getNotificationHeaders(), senderDetails, recipientsDetails, allowedNetworkCodes);
-                    requestBody.put("sender_code", senderDetails.get(PARTICIPANT_CODE));
+                    requestBody.put(SENDER_CODE, senderDetails.get(PARTICIPANT_CODE));
                 } else if (path.contains(NOTIFICATION_SUBSCRIBE) || path.contains(NOTIFICATION_UNSUBSCRIBE)) { //for validating /notification/subscribe, /notification/unsubscribe
                     JSONRequest jsonRequest = new JSONRequest(requestBody, true, path, hcxCode, hcxRoles);
                     requestObj = jsonRequest;
@@ -116,12 +116,12 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                         senderListDetails = registryService.getDetails(searchRequest);
                     }
                     jsonRequest.validateSubscriptionRequests(jsonRequest.getTopicCode(),senderListDetails,recipientDetails,getSubscriptionMandatoryHeaders());
-                    requestBody.put(NOTIFY_RECIPIENT_CODE, recipientDetails.get(PARTICIPANT_CODE));
+                    requestBody.put(RECIPIENT_CODE, recipientDetails.get(PARTICIPANT_CODE));
                 } else if (path.contains(NOTIFICATION_SUBSCRIPTION_LIST)) { //for validating /notification/subscription/list
                     JSONRequest jsonRequest = new JSONRequest(requestBody, true, path, hcxCode, hcxRoles);
                     requestObj = jsonRequest;
                     Map<String,Object> recipientDetails =  registryService.fetchDetails(OS_OWNER, subject);
-                    requestBody.put(NOTIFY_RECIPIENT_CODE, recipientDetails.get(PARTICIPANT_CODE));
+                    requestBody.put(RECIPIENT_CODE, recipientDetails.get(PARTICIPANT_CODE));
                 } else { //for validating redirect and error plain JSON on_check calls
                     if (!path.contains("on_")) {
                         throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, "Request body should be a proper JWE object for action API calls");
@@ -131,9 +131,9 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                     correlationId = jsonRequest.getCorrelationId();
                     apiCallId = jsonRequest.getApiCallId();
                     if (ERROR_RESPONSE.equalsIgnoreCase(jsonRequest.getStatus())) {
-                        jsonRequest.validate(getErrorMandatoryHeaders(), subject, timestampRange, getDetails(jsonRequest.getSenderCode()), getDetails(jsonRequest.getRecipientCode()));
+                        jsonRequest.validate(getErrorMandatoryHeaders(), subject, timestampRange, getDetails(jsonRequest.getHcxSenderCode()), getDetails(jsonRequest.getHcxRecipientCode()));
                     } else {
-                        jsonRequest.validate(getRedirectMandatoryHeaders(), subject, timestampRange, getDetails(jsonRequest.getSenderCode()), getDetails(jsonRequest.getRecipientCode()));
+                        jsonRequest.validate(getRedirectMandatoryHeaders(), subject, timestampRange, getDetails(jsonRequest.getHcxSenderCode()), getDetails(jsonRequest.getHcxRecipientCode()));
                         if (getApisForRedirect().contains(path)) {
                             if (REDIRECT_STATUS.equalsIgnoreCase(jsonRequest.getStatus()))
                                 jsonRequest.validateRedirect(getRolesForRedirect(), getDetails(jsonRequest.getRedirectTo()), getCallAuditData(jsonRequest.getApiCallId()), getCorrelationAuditData(jsonRequest.getCorrelationId()));
@@ -142,7 +142,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                         } else
                             throw new ClientException(ErrorCodes.ERR_INVALID_REDIRECT_TO, "Invalid redirect request," + jsonRequest.getApiAction() + " is not allowed for redirect, Allowed APIs are: " + getApisForRedirect());
                     }
-                    validateParticipantCtxDetails(getParticipantCtxAuditData(jsonRequest.getSenderCode(), jsonRequest.getRecipientCode(), jsonRequest.getCorrelationId()), path);
+                    validateParticipantCtxDetails(getParticipantCtxAuditData(jsonRequest.getHcxSenderCode(), jsonRequest.getHcxRecipientCode(), jsonRequest.getCorrelationId()), path);
                 }
             } catch (Exception e) {
                 logger.error("Exception occurred for request with correlationId: " + correlationId);

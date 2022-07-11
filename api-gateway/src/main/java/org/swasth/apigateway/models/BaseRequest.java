@@ -65,9 +65,9 @@ public class BaseRequest {
 
         validateCondition(!DateTimeUtils.validTimestamp(timestampRange, getTimestamp()), ErrorCodes.ERR_INVALID_TIMESTAMP, "Timestamp cannot be in future or cross more than " + timestampRange + " hours in past");
         validateCondition(protocolHeaders.containsKey(WORKFLOW_ID) && !Utils.isUUID(getWorkflowId()), ErrorCodes.ERR_INVALID_WORKFLOW_ID, "Workflow id should be a valid UUID");
-        validateCondition(StringUtils.equals(getSenderCode(), getRecipientCode()), ErrorCodes.ERR_INVALID_SENDER_AND_RECIPIENT, "sender and recipient code cannot be the same");
-        validateParticipant(recipientDetails, ErrorCodes.ERR_INVALID_RECIPIENT, "recipient", getRecipientCode());
-        validateParticipant(senderDetails, ErrorCodes.ERR_INVALID_SENDER, "sender", getSenderCode());
+        validateCondition(StringUtils.equals(getHcxSenderCode(), getHcxRecipientCode()), ErrorCodes.ERR_INVALID_SENDER_AND_RECIPIENT, "sender and recipient code cannot be the same");
+        validateParticipant(recipientDetails, ErrorCodes.ERR_INVALID_RECIPIENT, "recipient", getHcxRecipientCode());
+        validateParticipant(senderDetails, ErrorCodes.ERR_INVALID_SENDER, "sender", getHcxSenderCode());
         senderRole = (ArrayList<String>) senderDetails.get(ROLES);
         recipientRole = (ArrayList<String>) recipientDetails.get(ROLES);
         validateCondition(!StringUtils.equals(((ArrayList) senderDetails.get(OS_OWNER)).get(0).toString(), subject), ErrorCodes.ERR_ACCESS_DENIED, "Caller id and sender code is not matched");
@@ -151,8 +151,8 @@ public class BaseRequest {
 
     protected Map<String, ClientException> getClientErrors(Map<String, Object> hcxHeaders){
         Map<String, ClientException> clientErrors = new HashMap<>();
-        clientErrors.put(SENDER_CODE, new ClientException(ErrorCodes.ERR_INVALID_SENDER, "Sender code cannot be null, empty and other than 'String'"));
-        clientErrors.put(RECIPIENT_CODE, new ClientException(ErrorCodes.ERR_INVALID_RECIPIENT, "Recipient code cannot be null, empty and other than 'String'"));
+        clientErrors.put(HCX_SENDER_CODE, new ClientException(ErrorCodes.ERR_INVALID_SENDER, "Sender code cannot be null, empty and other than 'String'"));
+        clientErrors.put(HCX_RECIPIENT_CODE, new ClientException(ErrorCodes.ERR_INVALID_RECIPIENT, "Recipient code cannot be null, empty and other than 'String'"));
         clientErrors.put(TIMESTAMP, new ClientException(ErrorCodes.ERR_INVALID_TIMESTAMP, "Invalid timestamp"));
         if(hcxHeaders.containsKey(WORKFLOW_ID)) {
             clientErrors.put(WORKFLOW_ID, new ClientException(ErrorCodes.ERR_INVALID_WORKFLOW_ID, "Workflow id cannot be null, empty and other than 'String'"));
@@ -187,7 +187,7 @@ public class BaseRequest {
             validateWorkflowId(correlationAuditData.get(0));
             if(!apiAction.contains("on_")){
                 for (Map<String, Object> audit : correlationAuditData) {
-                    validateCondition(getRecipientCode().equals(audit.get(SENDER_CODE)), ErrorCodes.ERR_INVALID_FORWARD_REQ, "Request cannot be forwarded to the forward initiators");
+                    validateCondition(getHcxRecipientCode().equals(audit.get(SENDER_CODE)), ErrorCodes.ERR_INVALID_FORWARD_REQ, "Request cannot be forwarded to the forward initiators");
                 }
             }
         } else if( !EXCLUDE_ENTITIES.contains(getEntity(path)) && !apiAction.contains("on_") && checkParticipantRole(allowedRolesForForward, senderRoles) && recipientRoles.contains(PROVIDER)) {
@@ -201,9 +201,9 @@ public class BaseRequest {
 
     public String getCorrelationId() { return getHeader(CORRELATION_ID); }
 
-    public String getSenderCode() { return getHeader(SENDER_CODE); }
+    public String getHcxSenderCode() { return getHeader(HCX_SENDER_CODE); }
 
-    public String getRecipientCode() { return getHeader(RECIPIENT_CODE); }
+    public String getHcxRecipientCode() { return getHeader(HCX_RECIPIENT_CODE); }
 
     public String getTimestamp() { return getHeader(TIMESTAMP); }
 
