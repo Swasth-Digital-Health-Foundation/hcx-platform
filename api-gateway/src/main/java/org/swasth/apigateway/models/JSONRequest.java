@@ -133,7 +133,7 @@ public class JSONRequest extends BaseRequest {
     public void validateSubscriptionRequests(String topicCode, List<Map<String, Object>> senderListDetails, Map<String, Object> recipientDetails, List<String> subscriptionMandatoryHeaders) throws ClientException {
         //TODO validate headers are present or not. TOPIC_CODE and SENDER_LIST
         for (String subscriptionMandatoryHeader : subscriptionMandatoryHeaders) {
-            validateCondition(!getProtocolHeaders().containsKey(subscriptionMandatoryHeader), ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Notification request does not have any one of mandatory headers: " + TOPIC_CODE +" , "+SENDER_LIST);
+            validateCondition(!getProtocolHeaders().containsKey(subscriptionMandatoryHeader), ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Notification request does not have mandatory headers: " + TOPIC_CODE +" , "+SENDER_LIST);
         }
 
         for (String header : getProtocolHeaders().keySet()) {

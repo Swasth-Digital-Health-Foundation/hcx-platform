@@ -4,20 +4,19 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.swasth.common.utils.Constants;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 public class SubscriptionTest {
 
     @Test
-    public void testSubscription() throws Exception {
+    public void testSubscription() {
         Subscription mockSubscription = Mockito.mock(Subscription.class);
         assertNotNull(mockSubscription);
     }
 
 
     @Test
-    public void testSubscriptionMockData() throws Exception {
+    public void testSubscriptionMockData() {
         //subscription_id,subscription_status,topic_code,sender_code,recipient_code,expiry,is_delegated
         Subscription mockSubscription = Mockito.mock(Subscription.class);
         assertEquals(null, mockSubscription.getSubscription_id());
@@ -35,8 +34,17 @@ public class SubscriptionTest {
         mockSubscription.setSubscription_id("hcx-notification-001:hcx-apollo-12345");
         mockSubscription.setTopic_code("hcx-notification-001");
         mockSubscription.setSubscription_status(Constants.ACTIVE_CODE);
+        mockSubscription.setIs_delegated(false);
+        mockSubscription.setSender_code("test-sender-code");
+        mockSubscription.setExpiry(123456789l);
+        mockSubscription.setRecipient_code("test-recipient-code");
         assertEquals("hcx-notification-001:hcx-apollo-12345", mockSubscription.getSubscription_id());
         assertEquals("hcx-notification-001",mockSubscription.getTopic_code());
         assertEquals(Constants.ACTIVE_CODE,mockSubscription.getSubscription_status());
+        assertFalse(mockSubscription.isIs_delegated());
+        assertEquals("test-sender-code",mockSubscription.getSender_code());
+        assertEquals(123456789l,mockSubscription.getExpiry());
+        assertEquals("test-recipient-code",mockSubscription.getRecipient_code());
+
     }
 }
