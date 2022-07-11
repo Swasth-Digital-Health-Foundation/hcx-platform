@@ -91,6 +91,23 @@ class NotificationControllerTest extends BaseSpec {
     }
 
     @Test
+    void testNotificationUnSubscribeHcxSuccess() throws Exception {
+        doNothing().when(auditIndexer).createDocument(anyMap());
+        doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
+        doNothing().when(postgreSQLClient).addBatch(anyString());
+        when(postgreSQLClient.executeBatch()).thenReturn(new int[1]);
+        String requestBody = getSubscriptionHcxRequest();
+        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_UNSUBSCRIBE).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        assertEquals(202, status);
+        Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
+        assertEquals(1, resObj.getSubscription_list().size());
+        assertTrue(!resObj.getSubscription_list().get(0).isEmpty());
+    }
+
+
+    @Test
     void testNotificationSubscribeException() throws Exception {
         doThrow(new ClientException(ErrorCodes.INTERNAL_SERVER_ERROR,"Test Internal Server Error")).when(postgreSQLClient).executeBatch();
         String requestBody = getSubscriptionRequest();
@@ -108,7 +125,7 @@ class NotificationControllerTest extends BaseSpec {
         doNothing().when(auditIndexer).createDocument(anyMap());
         doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
         doNothing().when(postgreSQLClient).addBatch(anyString());
-        when(postgreSQLClient.executeBatch()).thenReturn(new int[2]);
+        when(postgreSQLClient.executeBatch()).thenReturn(new int[1]);
         String requestBody = getSubscriptionHcxRequest();
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIBE).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -360,7 +377,7 @@ class NotificationControllerTest extends BaseSpec {
         obj.put(TOPIC_CODE,"be0e578d-b391-42f9-96f7-1e6bacd91c20");
         obj.put(RECIPIENT_CODE,"hcx-apollo-12345");
         List<String> sendersList = new ArrayList<>(){{
-            add("1-d2d56996-1b77-4abb-b9e9-0e6e7343c72e");
+            add("hcx-registry-code");
         }};
         obj.put(SENDER_LIST,sendersList);
         return JSONUtils.serialize(obj);

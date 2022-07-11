@@ -131,7 +131,6 @@ public class JSONRequest extends BaseRequest {
     }
 
     public void validateSubscriptionRequests(String topicCode, List<Map<String, Object>> senderListDetails, Map<String, Object> recipientDetails, List<String> subscriptionMandatoryHeaders) throws ClientException {
-        //TODO validate headers are present or not. TOPIC_CODE and SENDER_LIST
         for (String subscriptionMandatoryHeader : subscriptionMandatoryHeaders) {
             validateCondition(!getProtocolHeaders().containsKey(subscriptionMandatoryHeader), ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Notification request does not have mandatory headers: " + TOPIC_CODE +" , "+SENDER_LIST);
         }
@@ -148,8 +147,8 @@ public class JSONRequest extends BaseRequest {
         Map<String, Object> notification = NotificationUtils.getNotification(topicCode);
         validateCondition(notification.get(Constants.NOTIFY_STATUS).equals(Constants.IN_ACTIVE), ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Notification status is inactive");
         // Whether user has authorised roles as per the provided roles for this topicCode in the notifications list
-        validateCondition(!hasRole((List<String>) notification.get(Constants.ALLOWED_SENDERS), (List<String>) recipientDetails.get(ROLES)),
-                ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Participant is not authorized to trigger this notification: " + topicCode);
+        validateCondition(!hasRole((List<String>) notification.get(Constants.ALLOWED_RECIPIENTS), (List<String>) recipientDetails.get(ROLES)),
+                ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Participant is not allowed to receive this notification: " + topicCode);
         // All participants in the senderList are valid in the registry
         if (!getSenderList().isEmpty()) {
             List<String> fetchedCodes = senderListDetails.stream().map(obj -> obj.get(Constants.PARTICIPANT_CODE).toString()).collect(Collectors.toList());
@@ -158,8 +157,8 @@ public class JSONRequest extends BaseRequest {
                 throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Senders does not exist in the registry: " + invalidSenders);
             for (Map<String, Object> recipient : senderListDetails) {
                 validateNotificationParticipant(recipient, ErrorCodes.ERR_INVALID_SENDER, RECIPIENT);
-                validateCondition(!hasRole((List<String>) notification.get(Constants.ALLOWED_RECIPIENTS), (List<String>) recipient.get(ROLES)),
-                        ErrorCodes.ERR_INVALID_SENDER, recipient.get(Constants.PARTICIPANT_CODE) + " is not a allowed sender of this notification: " + getTopicCode());
+                validateCondition(!hasRole((List<String>) notification.get(Constants.ALLOWED_SENDERS), (List<String>) recipient.get(ROLES)),
+                        ErrorCodes.ERR_INVALID_SENDER, recipient.get(Constants.PARTICIPANT_CODE) + " is not a allowed to trigger this notification: " + getTopicCode());
             }
         }
     }

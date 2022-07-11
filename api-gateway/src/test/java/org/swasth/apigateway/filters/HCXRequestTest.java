@@ -877,7 +877,7 @@ class HCXRequestTest extends BaseSpec {
         client.post().uri(versionPrefix + Constants.NOTIFICATION_SUBSCRIBE)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
-                .bodyValue(getSubscriptionRequest("be0e578d-b391-42f9-96f7-1e6bacd91c20", Arrays.asList("new-payor-3")))
+                .bodyValue(getSubscriptionRequest("de0e578d-b391-42f9-96f7-1e6bacd91c20", Arrays.asList("new-payor-3")))
                 .exchange()
                 .expectBody(Map.class)
                 .consumeWith(result -> {
@@ -898,7 +898,7 @@ class HCXRequestTest extends BaseSpec {
         client.post().uri(versionPrefix + Constants.NOTIFICATION_NOTIFY)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
-                .bodyValue(getSubscriptionRequest("be0e578d-b391-42f9-96f7-1e6bacd91c20", Arrays.asList("new-payor-3")))
+                .bodyValue(getSubscriptionRequest("de0e578d-b391-42f9-96f7-1e6bacd91c20", Arrays.asList("new-payor-3")))
                 .exchange()
                 .expectBody(Map.class)
                 .consumeWith(result -> {
@@ -992,13 +992,13 @@ class HCXRequestTest extends BaseSpec {
         client.post().uri(versionPrefix + Constants.NOTIFICATION_SUBSCRIBE)
                 .header(Constants.AUTHORIZATION, getPayorToken())
                 .header("X-jwt-sub", "20bd4228-a87f-4175-a30a-20fb28983afb")
-                .bodyValue(getSubscriptionRequest("be0e578d-b391-42f9-96f7-1e6bacd91c20", Arrays.asList("new-payor-3")))
+                .bodyValue(getSubscriptionRequest("de0e578d-b391-42f9-96f7-1e6bacd91c20", Arrays.asList("new-payor-3")))
                 .exchange()
                 .expectBody(Map.class)
                 .consumeWith(result -> {
                     assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
                     assertEquals(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ.name(), getResponseErrorCode(result));
-                    assertTrue(getResponseErrorMessage(result).contains("Participant is not authorized to trigger this notification"));
+                    assertTrue(getResponseErrorMessage(result).contains("Participant is not allowed to receive this notification"));
                 });
     }
 
@@ -1017,7 +1017,7 @@ class HCXRequestTest extends BaseSpec {
         client.post().uri(versionPrefix + Constants.NOTIFICATION_SUBSCRIBE)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
-                .bodyValue(getSubscriptionRequest("be0e578d-b391-42f9-96f7-1e6bacd91c20", Arrays.asList("new-payor-3","test-payor")))
+                .bodyValue(getSubscriptionRequest("de0e578d-b391-42f9-96f7-1e6bacd91c20", Arrays.asList("new-payor-3","test-payor")))
                 .exchange()
                 .expectBody(Map.class)
                 .consumeWith(result -> {
@@ -1040,7 +1040,7 @@ class HCXRequestTest extends BaseSpec {
         client.post().uri(versionPrefix + Constants.NOTIFICATION_SUBSCRIBE)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
-                .bodyValue(getSubscriptionRequest("be0e578d-b391-42f9-96f7-1e6bacd91c20", Arrays.asList("new-payor-3")))
+                .bodyValue(getSubscriptionRequest("de0e578d-b391-42f9-96f7-1e6bacd91c20", Arrays.asList("new-payor-3")))
                 .exchange()
                 .expectBody(Map.class)
                 .consumeWith(result -> {
@@ -1061,7 +1061,7 @@ class HCXRequestTest extends BaseSpec {
         client.post().uri(versionPrefix + Constants.NOTIFICATION_UNSUBSCRIBE)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
-                .bodyValue(getSubscriptionRequest("be0e578d-b391-42f9-96f7-1e6bacd91c20", Arrays.asList("new-payor-3")))
+                .bodyValue(getSubscriptionRequest("de0e578d-b391-42f9-96f7-1e6bacd91c20", Arrays.asList("new-payor-3")))
                 .exchange()
                 .expectBody(Map.class)
                 .consumeWith(result -> {

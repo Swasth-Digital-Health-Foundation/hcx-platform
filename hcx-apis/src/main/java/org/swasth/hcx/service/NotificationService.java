@@ -67,7 +67,6 @@ public class NotificationService {
         pushKafka(request, senderList, subscriptionMap);
         //Set the response data
         List<String> subscriptionList = new ArrayList<>(subscriptionMap.values());
-        ;
         response.setSubscription_list(subscriptionList);
     }
 
