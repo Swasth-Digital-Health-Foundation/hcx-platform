@@ -27,14 +27,14 @@ public class AuditService {
     @Value("${hcx-api.basePath}")
     private String hcxApiUrl;
 
-    @Value("${version.external}")
-    private String externalVersion;
+    @Value("${version.internal}")
+    private String internalVersion;
 
     @Autowired
     private AuditIndexer auditIndexer;
 
     public List<Map<String, Object>> getAuditLogs(Map<String,String> filters) throws Exception {
-        String url = hcxApiUrl + externalVersion + Constants.AUDIT_SEARCH;
+        String url = hcxApiUrl + internalVersion + Constants.AUDIT_SEARCH;
         HttpResponse response;
         try {
             response = HttpUtils.post(url, JSONUtils.serialize(Collections.singletonMap("filters", filters)));
