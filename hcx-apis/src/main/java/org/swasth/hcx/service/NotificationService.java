@@ -79,7 +79,7 @@ public class NotificationService {
         senderList.stream().forEach(senderCode -> {
             try {
                 if (!senderCode.equalsIgnoreCase(hcxRegistryCode)) {
-                    String subscriptionMessage = eventGenerator.generateSubscriptionEvent(request.getMid(), request.getApiAction(), request.getNotificationRecipientCode(), senderCode);
+                    String subscriptionMessage = eventGenerator.generateSubscriptionEvent(request.getApiAction(), request.getNotificationRecipientCode(), senderCode);
                     kafkaClient.send(subscriptionTopic, senderCode, subscriptionMessage);
                     auditIndexer.createDocument(eventGenerator.generateSubscriptionAuditEvent(request, subscriptionMap.get(senderCode), QUEUED_STATUS, senderCode));
                 } else {

@@ -65,6 +65,7 @@ public class EventGenerator {
                 headers = errorHeaders;
             } else if (NOTIFICATION_NOTIFY.equalsIgnoreCase(request.getApiAction())) {
                 headers = notificationHeaders;
+                event.put(NOTIFICATION_ID, request.getNotificationId());
                 event.put(TRIGGER_TYPE, TRIGGER_VALUE);
             } else {
                 headers = null;
@@ -117,9 +118,9 @@ public class EventGenerator {
         return  event;
     }
 
-    public String generateSubscriptionEvent(String mid, String apiAction,String recipientCode,String senderCode) throws JsonProcessingException {
+    public String generateSubscriptionEvent(String apiAction,String recipientCode,String senderCode) throws JsonProcessingException {
         Map<String,Object> event = new HashMap<>();
-        event.put(MID, mid);
+        event.put(MID, UUID.randomUUID().toString());
         event.put(ETS, System.currentTimeMillis());
         event.put(ACTION, apiAction);
         event.put(HCX_RECIPIENT_CODE,recipientCode);
@@ -131,7 +132,7 @@ public class EventGenerator {
     public Map<String,Object> generateSubscriptionAuditEvent(Request request,String subscriptionId,String status,String senderCode) {
         Map<String,Object> event = new HashMap<>();
         event.put(EID, AUDIT);
-        event.put(MID, request.getMid());
+        event.put(MID, UUID.randomUUID().toString());
         event.put(ACTION, request.getApiAction());
         event.put(SUBSCRIPTION_ID, subscriptionId);
         event.put(TOPIC_CODE,request.getTopicCode());
