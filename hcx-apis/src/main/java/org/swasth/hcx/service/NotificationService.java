@@ -47,6 +47,9 @@ public class NotificationService {
     @Value("${notification.subscription.expiry}")
     private int subscriptionExpiry;
 
+    @Value("${notification.subscription.allowedFilters}")
+    private List<String> allowedSubscriptionFilters;
+
     @Autowired
     private IDatabaseService postgreSQLClient;
 
@@ -95,7 +98,7 @@ public class NotificationService {
         //subscription_id,topic_code,sender_code,recipient_code,subscription_status,lastUpdatedOn,createdOn,expiry,is_delegated
         Map<String, String> subscriptionMap = new HashMap<>();
         Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.DAY_OF_MONTH,subscriptionExpiry);
+        cal.add(Calendar.DAY_OF_MONTH, subscriptionExpiry);
         senderList.stream().forEach(senderCode -> {
             int status = senderCode.equalsIgnoreCase(hcxRegistryCode) ? statusCode : PENDING_CODE;
             UUID subscriptionId = UUID.randomUUID();
@@ -115,7 +118,7 @@ public class NotificationService {
     }
 
     public void getSubscriptions(NotificationListRequest request, Response response) throws Exception {
-        List<Subscription> subscriptionList = fetchSubscriptions(request.getRecipientCode());
+        List<Subscription> subscriptionList = fetchSubscriptions(request);
         response.setSubscriptions(subscriptionList);
         response.setCount(subscriptionList.size());
     }
@@ -156,7 +159,7 @@ public class NotificationService {
         ResultSet resultSet = null;
         try {
             String joined = subscriptions.stream()
-                    .map(plain ->  StringUtils.wrap(plain, "'"))
+                    .map(plain -> StringUtils.wrap(plain, "'"))
                     .collect(Collectors.joining(","));
             String query = String.format("SELECT subscription_id FROM %s WHERE topic_code = '%s' AND sender_code = '%s' AND subscription_status = 1 AND subscription_id IN (%s)",
                     postgresSubscription, request.getTopicCode(), request.getSenderCode(), joined);
@@ -171,12 +174,27 @@ public class NotificationService {
         }
     }
 
-    private List<Subscription> fetchSubscriptions(String recipientCode) throws Exception {
+    private List<Subscription> fetchSubscriptions(NotificationListRequest request) throws Exception {
         ResultSet resultSet = null;
         List<Subscription> subscriptionList = null;
         Subscription subscription = null;
+        Map<String, Object> filterMap = request.getFilters();
         try { //subscription_id,subscription_status,topic_code,sender_code,recipient_code,expiry,is_delegated
-            String query = String.format(selectSubscription, postgresSubscription, recipientCode);
+            String query = String.format(selectSubscription, postgresSubscription, request.getRecipientCode());
+            if (!filterMap.isEmpty()) {
+                for (String key : filterMap.keySet()) {
+                    if (!allowedSubscriptionFilters.contains(key))
+                        throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Invalid notifications filters, allowed properties are: " + allowedSubscriptionFilters);
+                    query += " AND " + key + " = '" + filterMap.get(key) + "'";
+                }
+            }
+            query += " ORDER BY lastUpdatedOn DESC";
+            if (request.getLimit() > 0) {
+                query += " LIMIT " + request.getLimit();
+            }
+            if (request.getOffset() > 0) {
+                query += " OFFSET " + request.getOffset();
+            }
             resultSet = (ResultSet) postgreSQLClient.executeQuery(query);
             subscriptionList = new ArrayList<>();
             while (resultSet.next()) {

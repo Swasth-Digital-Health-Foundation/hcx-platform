@@ -27,9 +27,9 @@ import static org.swasth.common.utils.Constants.*;
 class NotificationControllerTest extends BaseSpec {
 
     @Test
-     void testNotificationSubscribeOneSender() throws Exception {
+    void testNotificationSubscribeOneSender() throws Exception {
         doNothing().when(auditIndexer).createDocument(anyMap());
-        doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
+        doNothing().when(mockKafkaClient).send(anyString(), anyString(), any());
         when(postgreSQLClient.executeBatch()).thenReturn(new int[2]);
         String requestBody = getOnePayorSubscriptionRequest();
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIBE).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
@@ -45,7 +45,7 @@ class NotificationControllerTest extends BaseSpec {
     @Test
     void testNotificationSubscribeValidTopic() throws Exception {
         doNothing().when(auditIndexer).createDocument(anyMap());
-        doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
+        doNothing().when(mockKafkaClient).send(anyString(), anyString(), any());
         doNothing().when(postgreSQLClient).addBatch(anyString());
         when(postgreSQLClient.executeBatch()).thenReturn(new int[2]);
         String requestBody = getSubscriptionRequest();
@@ -62,7 +62,7 @@ class NotificationControllerTest extends BaseSpec {
 
     @Test
     void testNotificationUnSubscribeException() throws Exception {
-        doThrow(new ClientException(ErrorCodes.INTERNAL_SERVER_ERROR,"Test Internal Server Error")).when(postgreSQLClient).executeBatch();
+        doThrow(new ClientException(ErrorCodes.INTERNAL_SERVER_ERROR, "Test Internal Server Error")).when(postgreSQLClient).executeBatch();
         String requestBody = getSubscriptionRequest();
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_UNSUBSCRIBE).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -76,7 +76,7 @@ class NotificationControllerTest extends BaseSpec {
     @Test
     void testNotificationUnSubscribeSuccess() throws Exception {
         doNothing().when(auditIndexer).createDocument(anyMap());
-        doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
+        doNothing().when(mockKafkaClient).send(anyString(), anyString(), any());
         doNothing().when(postgreSQLClient).addBatch(anyString());
         when(postgreSQLClient.executeBatch()).thenReturn(new int[2]);
         String requestBody = getSubscriptionRequest();
@@ -93,7 +93,7 @@ class NotificationControllerTest extends BaseSpec {
     @Test
     void testNotificationUnSubscribeHcxSuccess() throws Exception {
         doNothing().when(auditIndexer).createDocument(anyMap());
-        doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
+        doNothing().when(mockKafkaClient).send(anyString(), anyString(), any());
         doNothing().when(postgreSQLClient).addBatch(anyString());
         when(postgreSQLClient.executeBatch()).thenReturn(new int[1]);
         String requestBody = getSubscriptionHcxRequest();
@@ -109,7 +109,7 @@ class NotificationControllerTest extends BaseSpec {
 
     @Test
     void testNotificationSubscribeException() throws Exception {
-        doThrow(new ClientException(ErrorCodes.INTERNAL_SERVER_ERROR,"Test Internal Server Error")).when(postgreSQLClient).executeBatch();
+        doThrow(new ClientException(ErrorCodes.INTERNAL_SERVER_ERROR, "Test Internal Server Error")).when(postgreSQLClient).executeBatch();
         String requestBody = getSubscriptionRequest();
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIBE).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -123,7 +123,7 @@ class NotificationControllerTest extends BaseSpec {
     @Test
     void testNotificationSubscribeHcxValidTopic() throws Exception {
         doNothing().when(auditIndexer).createDocument(anyMap());
-        doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
+        doNothing().when(mockKafkaClient).send(anyString(), anyString(), any());
         doNothing().when(postgreSQLClient).addBatch(anyString());
         when(postgreSQLClient.executeBatch()).thenReturn(new int[1]);
         String requestBody = getSubscriptionHcxRequest();
@@ -147,7 +147,7 @@ class NotificationControllerTest extends BaseSpec {
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
         assertEquals(200, status);
         assertTrue(resObj.getSubscriptions().isEmpty());
-        assertEquals(0,resObj.getCount());
+        assertEquals(0, resObj.getCount());
     }
 
     @Test
@@ -161,7 +161,7 @@ class NotificationControllerTest extends BaseSpec {
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
         assertEquals(200, status);
         assertTrue(!resObj.getSubscriptions().isEmpty());
-        assertEquals(1,resObj.getCount());
+        assertEquals(1, resObj.getCount());
         assertEquals("subscription_id-001", resObj.getSubscriptions().get(0).getSubscription_id());
         assertEquals("topic_code-12345", resObj.getSubscriptions().get(0).getTopic_code());
         assertEquals(ACTIVE_CODE, resObj.getSubscriptions().get(0).getSubscription_status());
@@ -182,7 +182,7 @@ class NotificationControllerTest extends BaseSpec {
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
         assertEquals(200, status);
         assertTrue(!resObj.getSubscriptions().isEmpty());
-        assertEquals(1,resObj.getCount());
+        assertEquals(1, resObj.getCount());
         assertEquals("subscription_id-001", resObj.getSubscriptions().get(0).getSubscription_id());
         assertEquals("topic_code-12345", resObj.getSubscriptions().get(0).getTopic_code());
         assertEquals(INACTIVE_CODE, resObj.getSubscriptions().get(0).getSubscription_status());
@@ -230,6 +230,31 @@ class NotificationControllerTest extends BaseSpec {
     }
 
     @Test
+    void testSubscriptionListWithFilters() throws Exception {
+        ResultSet mockResultSet = getMockResultSet();
+        doReturn(mockResultSet).when(postgreSQLClient).executeQuery(anyString());
+        String requestBody = getSubscriptionListRequestWithValidFilters();
+        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIPTION_LIST).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
+        assertEquals(200, status);
+        assertNotNull(resObj.getTimestamp());
+    }
+
+    @Test
+    void testSubscriptionListWithInvalidFilters() throws Exception {
+        String requestBody = getSubscriptionListRequestWithInValidFilters();
+        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIPTION_LIST).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        assertEquals(400, status);
+        Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
+        assertEquals(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, resObj.getError().getCode());
+        assertTrue(resObj.getError().getMessage().contains("Invalid notifications filters"));
+    }
+
+    @Test
     void testNotificationListEmpty() throws Exception {
         String requestBody = getNotificationListRequest();
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_LIST).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
@@ -259,22 +284,23 @@ class NotificationControllerTest extends BaseSpec {
         assertEquals(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, resObj.getError().getCode());
         assertTrue(resObj.getError().getMessage().contains("Invalid notifications filters"));
     }
+
     //subscription_id,subscription_status,topic_code,sender_code,recipient_code,expiry,is_delegated
     private ResultSet getMockResultSet(int status) throws SQLException {
         return MockResultSet.create(
-                new String[]{"subscription_id", "subscription_status", "topic_code","sender_code","recipient_code","expiry","is_delegated"}, //columns
+                new String[]{"subscription_id", "subscription_status", "topic_code", "sender_code", "recipient_code", "expiry", "is_delegated"}, //columns
                 new Object[][]{ // data
-                        {"subscription_id-001", status,"topic_code-12345", "hcx-apollo-12345","ICICI Lombard",1629057611000l,false}
+                        {"subscription_id-001", status, "topic_code-12345", "hcx-apollo-12345", "ICICI Lombard", 1629057611000l, false}
                 });
     }
 
     private ResultSet getMockResultSet() throws SQLException {
         return MockResultSet.create(
-                new String[]{"subscription_id", "subscription_status", "topic_code","sender_code","recipient_code","expiry","is_delegated"}, //columns
+                new String[]{"subscription_id", "subscription_status", "topic_code", "sender_code", "recipient_code", "expiry", "is_delegated"}, //columns
                 new Object[][]{ // data
-                        {"subscription_id-001", 1,"topic_code-12345", "hcx-apollo-12345","ICICI Lombard",1629057611000l,false},
-                        {"subscription_id-002", 0,"topic_code-12346", "hcx-apollo-12346","ICICI Lombard",1629057611000l,false},
-                        {"subscription_id-003", -1,"topic_code-12347", "hcx-apollo-12347","ICICI Lombard",1629057611000l,true}
+                        {"subscription_id-001", 1, "topic_code-12345", "hcx-apollo-12345", "ICICI Lombard", 1629057611000l, false},
+                        {"subscription_id-002", 0, "topic_code-12346", "hcx-apollo-12346", "ICICI Lombard", 1629057611000l, false},
+                        {"subscription_id-003", -1, "topic_code-12347", "hcx-apollo-12347", "ICICI Lombard", 1629057611000l, true}
                 });
     }
 
@@ -287,44 +313,64 @@ class NotificationControllerTest extends BaseSpec {
     }
 
     private String getSubscriptionListRequest() throws JsonProcessingException {
-        Map<String,Object> obj = new HashMap<>();
-        obj.put(FILTERS,new HashMap<>());
+        Map<String, Object> obj = new HashMap<>();
+        obj.put(FILTERS, new HashMap<>());
         obj.put(LIMIT, 10);
-        obj.put(OFFSET,0);
+        obj.put(OFFSET, 0);
+        return JSONUtils.serialize(obj);
+    }
+
+    private String getSubscriptionListRequestWithValidFilters() throws JsonProcessingException {
+        Map<String, Object> obj = new HashMap<>();
+        obj.put(FILTERS, new HashMap<>() {{
+            put("subscription_status", 2);
+        }});
+        obj.put(LIMIT, 10);
+        obj.put(OFFSET, 2);
+        return JSONUtils.serialize(obj);
+    }
+
+    private String getSubscriptionListRequestWithInValidFilters() throws JsonProcessingException {
+        Map<String, Object> obj = new HashMap<>();
+        obj.put(FILTERS, new HashMap<>() {{
+            put("expiry", 0);
+        }});
+        obj.put(LIMIT, 10);
+        obj.put(OFFSET, 0);
         return JSONUtils.serialize(obj);
     }
 
     private String getNotificationListRequest() throws JsonProcessingException {
-        Map<String,Object> filters = new HashMap<>();
+        Map<String, Object> filters = new HashMap<>();
         filters.put(PRIORITY, 0);
         return JSONUtils.serialize(Collections.singletonMap(FILTERS, filters));
     }
 
     private String getInvalidFilterRequest() throws JsonProcessingException {
-        Map<String,Object> filters = new HashMap<>();
+        Map<String, Object> filters = new HashMap<>();
         filters.put("test", "123");
         return JSONUtils.serialize(Collections.singletonMap(FILTERS, filters));
     }
 
     private String getNotificationRequest(String topicCode, List<String> subscriptions) throws JsonProcessingException {
-        Map<String,Object> obj = new HashMap<>();
+        Map<String, Object> obj = new HashMap<>();
         obj.put(TOPIC_CODE, topicCode);
-        obj.put(RECIPIENT_ROLES, List.of("provider","payor"));
+        obj.put(RECIPIENT_ROLES, List.of("provider", "payor"));
         obj.put(RECIPIENT_CODES, List.of("test-user@hcx"));
         obj.put(SUBSCRIPTIONS, subscriptions);
-        Map<String,Object> notificationData = new HashMap<>();
-        notificationData.put("message","Payor system down for sometime");
-        notificationData.put("duration","2hrs");
-        notificationData.put("startTime","9PM");
-        notificationData.put("date","26th April 2022 IST");
-        obj.put(NOTIFICATION_DATA,notificationData);
+        Map<String, Object> notificationData = new HashMap<>();
+        notificationData.put("message", "Payor system down for sometime");
+        notificationData.put("duration", "2hrs");
+        notificationData.put("startTime", "9PM");
+        notificationData.put("date", "26th April 2022 IST");
+        obj.put(NOTIFICATION_DATA, notificationData);
         return JSONUtils.serialize(obj);
     }
 
     @Test
     void testNotifySuccess() throws Exception {
         doReturn(getSubscriptionsResultSet()).when(postgreSQLClient).executeQuery(anyString());
-        doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
+        doNothing().when(mockKafkaClient).send(anyString(), anyString(), any());
         String requestBody = getNotificationRequest("notification-123", List.of("subscription-123"));
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_NOTIFY).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -336,7 +382,7 @@ class NotificationControllerTest extends BaseSpec {
 
     @Test
     void testNotifyWithEmptySubscriptions() throws Exception {
-        doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
+        doNothing().when(mockKafkaClient).send(anyString(), anyString(), any());
         String requestBody = getNotificationRequest("notification-123", Collections.EMPTY_LIST);
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_NOTIFY).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -349,7 +395,7 @@ class NotificationControllerTest extends BaseSpec {
     @Test
     void testNotifyFailure() throws Exception {
         doReturn(getSubscriptionsResultSet()).when(postgreSQLClient).executeQuery(anyString());
-        doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
+        doNothing().when(mockKafkaClient).send(anyString(), anyString(), any());
         String requestBody = getNotificationRequest("hcx-notification-001", List.of("subscription-124"));
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_NOTIFY).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -362,35 +408,36 @@ class NotificationControllerTest extends BaseSpec {
     }
 
     private String getSubscriptionRequest() throws JsonProcessingException {
-        Map<String,Object> obj = new HashMap<>();
-        obj.put(TOPIC_CODE,"be0e578d-b391-42f9-96f7-1e6bacd91c20");
-        obj.put(RECIPIENT_CODE,"hcx-apollo-12345");
-        List<String> sendersList = new ArrayList<>(){{
-            add("payor1");add("payor2"); //1-d2d56996-1b77-4abb-b9e9-0e6e7343c72e
+        Map<String, Object> obj = new HashMap<>();
+        obj.put(TOPIC_CODE, "be0e578d-b391-42f9-96f7-1e6bacd91c20");
+        obj.put(RECIPIENT_CODE, "hcx-apollo-12345");
+        List<String> sendersList = new ArrayList<>() {{
+            add("payor1");
+            add("payor2"); //1-d2d56996-1b77-4abb-b9e9-0e6e7343c72e
         }};
-        obj.put(SENDER_LIST,sendersList);
+        obj.put(SENDER_LIST, sendersList);
         return JSONUtils.serialize(obj);
     }
 
     private String getSubscriptionHcxRequest() throws JsonProcessingException {
-        Map<String,Object> obj = new HashMap<>();
-        obj.put(TOPIC_CODE,"be0e578d-b391-42f9-96f7-1e6bacd91c20");
-        obj.put(RECIPIENT_CODE,"hcx-apollo-12345");
-        List<String> sendersList = new ArrayList<>(){{
+        Map<String, Object> obj = new HashMap<>();
+        obj.put(TOPIC_CODE, "be0e578d-b391-42f9-96f7-1e6bacd91c20");
+        obj.put(RECIPIENT_CODE, "hcx-apollo-12345");
+        List<String> sendersList = new ArrayList<>() {{
             add("hcx-registry-code");
         }};
-        obj.put(SENDER_LIST,sendersList);
+        obj.put(SENDER_LIST, sendersList);
         return JSONUtils.serialize(obj);
     }
 
     private String getOnePayorSubscriptionRequest() throws JsonProcessingException {
-        Map<String,Object> obj = new HashMap<>();
-        obj.put(TOPIC_CODE,"NOTIFICATION@HCX01");
-        obj.put(RECIPIENT_CODE,"hcx-apollo-12345");
-        List<String> sendersList = new ArrayList<>(){{
+        Map<String, Object> obj = new HashMap<>();
+        obj.put(TOPIC_CODE, "NOTIFICATION@HCX01");
+        obj.put(RECIPIENT_CODE, "hcx-apollo-12345");
+        List<String> sendersList = new ArrayList<>() {{
             add("payor1");
         }};
-        obj.put(SENDER_LIST,sendersList);
+        obj.put(SENDER_LIST, sendersList);
         return JSONUtils.serialize(obj);
     }
 
