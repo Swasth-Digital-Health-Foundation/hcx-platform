@@ -86,3 +86,4 @@ notification:
     optional: ${notification_optional_headers:recipient_codes, recipient_roles, subscriptions, sender_code, notification_id}
   subscription:
     expiry: ${notification_subscription_expiry:100}
+    allowedFilters: ${notification_subscription_allowedFilters:subscription_id, topic_code, subscription_status}
