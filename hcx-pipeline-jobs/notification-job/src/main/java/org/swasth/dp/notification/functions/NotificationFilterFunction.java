@@ -1,6 +1,7 @@
 package org.swasth.dp.notification.functions;
 
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringSubstitutor;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
@@ -116,14 +117,11 @@ public class NotificationFilterFunction extends ProcessFunction<Map<String,Objec
         return new DateTime(expiryTime).isBefore(DateTime.now());
     }
 
-    private String replaceBraces(List<String> list){
-        return list.toString().replace("[", "(").replace("]", ")");
-    }
-
     private List<String> getParticipantCodes(String topicCode, String senderCode, String id, List<String> range) throws SQLException {
         List<String> participantCodes = new ArrayList<>();
-        String query = String.format("SELECT %s,%s FROM %s WHERE %s = '%s' AND %s = '%s' AND %s = 1 AND %s IN %s", Constants.RECIPIENT_CODE(), Constants.EXPIRY(),
-                config.subscriptionTableName, Constants.SENDER_CODE(), senderCode, Constants.TOPIC_CODE(), topicCode, Constants.SUBSCRIPTION_STATUS(), id, replaceBraces(range));
+        String joined = range.stream().map(plain ->  StringUtils.wrap(plain, "'")).collect(Collectors.joining(","));
+        String query = String.format("SELECT %s,%s FROM %s WHERE %s = '%s' AND %s = '%s' AND %s = 1 AND %s IN (%s)", Constants.RECIPIENT_CODE(), Constants.EXPIRY(),
+                config.subscriptionTableName, Constants.SENDER_CODE(), senderCode, Constants.TOPIC_CODE(), topicCode, Constants.SUBSCRIPTION_STATUS(), id, joined);
         ResultSet resultSet = postgresConnect.executeQuery(query);
         while (resultSet.next()) {
             if (!isExpired(resultSet.getLong(Constants.EXPIRY())))
