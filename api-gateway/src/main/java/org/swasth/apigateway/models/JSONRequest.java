@@ -7,6 +7,8 @@ import org.swasth.apigateway.exception.ClientException;
 import org.swasth.apigateway.exception.ErrorCodes;
 import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.NotificationUtils;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -127,7 +129,7 @@ public class JSONRequest extends BaseRequest {
     }
 
     public List<String> getSenderList() {
-        return (List<String>) getProtocolHeaders().getOrDefault(SENDER_LIST, null);
+        return (List<String>) getProtocolHeaders().getOrDefault(SENDER_LIST, new ArrayList<>());
     }
 
     public void validateSubscriptionRequests(String topicCode, List<Map<String, Object>> senderListDetails, Map<String, Object> recipientDetails, List<String> subscriptionMandatoryHeaders) throws ClientException {

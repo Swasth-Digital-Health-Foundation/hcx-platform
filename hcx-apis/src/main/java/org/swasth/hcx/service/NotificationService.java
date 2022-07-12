@@ -1,6 +1,7 @@
 package org.swasth.hcx.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import org.swasth.postgresql.IDatabaseService;
 
 import java.sql.ResultSet;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.swasth.common.utils.Constants.*;
 
@@ -41,6 +43,9 @@ public class NotificationService {
 
     @Value("${kafka.topic.subscription}")
     private String subscriptionTopic;
+
+    @Value("${notification.subscription.expiry}")
+    private int subscriptionExpiry;
 
     @Autowired
     private IDatabaseService postgreSQLClient;
@@ -89,12 +94,14 @@ public class NotificationService {
     private Map<String, String> insertRecords(String topicCode, int statusCode, List<String> senderList, String notificationRecipientCode) throws Exception {
         //subscription_id,topic_code,sender_code,recipient_code,subscription_status,lastUpdatedOn,createdOn,expiry,is_delegated
         Map<String, String> subscriptionMap = new HashMap<>();
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH,subscriptionExpiry);
         senderList.stream().forEach(senderCode -> {
             int status = senderCode.equalsIgnoreCase(hcxRegistryCode) ? statusCode : PENDING_CODE;
             UUID subscriptionId = UUID.randomUUID();
             subscriptionMap.put(senderCode, subscriptionId.toString());
             String query = String.format(insertSubscription, postgresSubscription, subscriptionId, topicCode, senderCode,
-                    notificationRecipientCode, status, System.currentTimeMillis(), System.currentTimeMillis(), 0, false, status, System.currentTimeMillis(), 0, false);
+                    notificationRecipientCode, status, System.currentTimeMillis(), System.currentTimeMillis(), cal.getTimeInMillis(), false, status, System.currentTimeMillis(), cal.getTimeInMillis(), false);
             try {
                 postgreSQLClient.addBatch(query);
             } catch (Exception e) {
@@ -148,8 +155,11 @@ public class NotificationService {
         List<String> subscriptions = request.getSubscriptions();
         ResultSet resultSet = null;
         try {
-            String query = String.format("SELECT subscription_id FROM %s WHERE topic_code = '%s' AND sender_code = '%s' subscription_status = 1 AND subscription_id IN %s",
-                    postgresSubscription, request.getTopicCode(), request.getSenderCode(), subscriptions.toString().replace("[", "(").replace("]", ")"));
+            String joined = subscriptions.stream()
+                    .map(plain ->  StringUtils.wrap(plain, "'"))
+                    .collect(Collectors.joining(","));
+            String query = String.format("SELECT subscription_id FROM %s WHERE topic_code = '%s' AND sender_code = '%s' AND subscription_status = 1 AND subscription_id IN (%s)",
+                    postgresSubscription, request.getTopicCode(), request.getSenderCode(), joined);
             resultSet = (ResultSet) postgreSQLClient.executeQuery(query);
             while (resultSet.next()) {
                 subscriptions.remove(resultSet.getString("subscription_id"));
