@@ -167,10 +167,9 @@ public class EventGeneratorTest {
 
     @Test
     public void testGenerateSubscriptionEvent() throws Exception {
-        String result = eventGenerator.generateSubscriptionEvent("sub-mid-001",NOTIFICATION_SUBSCRIBE,"hcx-apollo-12345","icici-67890");
+        String result = eventGenerator.generateSubscriptionEvent(NOTIFICATION_SUBSCRIBE,"hcx-apollo-12345","icici-67890");
         assertNotNull(result);
         assertTrue(result.contains(QUEUED_STATUS));
-        assertTrue(result.contains("sub-mid-001"));
         assertTrue(result.contains(NOTIFICATION_SUBSCRIBE));
         assertTrue(result.contains("hcx-apollo-12345"));
         assertTrue(result.contains("icici-67890"));
