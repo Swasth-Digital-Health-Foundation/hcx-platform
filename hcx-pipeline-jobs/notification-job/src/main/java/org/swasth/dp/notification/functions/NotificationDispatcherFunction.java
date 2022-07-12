@@ -72,7 +72,7 @@ public class NotificationDispatcherFunction extends ProcessFunction<Map<String, 
         Map<String, Object> request = new HashMap<>();
         request.put(Constants.SENDER_CODE(), getProtocolStringValue(Constants.SENDER_CODE(),event));
         request.put(Constants.RECIPIENT_CODE(), recipientCode);
-        request.put(Constants.NOTIFICATION_ID(), getProtocolStringValue(Constants.NOTIFICATION_ID(),event));
+        request.put(Constants.NOTIFICATION_ID(), event.get(Constants.NOTIFICATION_ID()));
         request.put(Constants.TIMESTAMP(), new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").format(new Date()));
         request.put(Constants.NOTIFICATION_DATA(), Collections.singletonMap(Constants.MESSAGE(), notificationMessage));
         request.put(Constants.TITLE(), notificationMasterData.get(Constants.NAME()));
@@ -102,12 +102,12 @@ public class NotificationDispatcherFunction extends ProcessFunction<Map<String, 
     private Map<String,Object> createNotificationAuditEvent(Map<String,Object> event, String recipientCode, Map<String,Object> errorDetails){
         Map<String,Object> audit = new HashMap<>();
         audit.put(Constants.EID(), Constants.AUDIT());
-        audit.put(Constants.MID(), event.get(Constants.MID()));
+        audit.put(Constants.MID(), UUID.randomUUID().toString());
         audit.put(Constants.ACTION(), event.get(Constants.ACTION()));
         audit.put(Constants.ETS(), Calendar.getInstance().getTime());
         audit.put(Constants.SENDER_CODE(), getProtocolStringValue(Constants.SENDER_CODE(),event));
         audit.put(Constants.RECIPIENT_CODE(), recipientCode);
-        audit.put(Constants.NOTIFICATION_ID(), getProtocolStringValue(Constants.NOTIFICATION_ID(),event));
+        audit.put(Constants.NOTIFICATION_ID(), event.get(Constants.NOTIFICATION_ID()));
         audit.put(Constants.TOPIC_CODE(), getProtocolStringValue(Constants.TOPIC_CODE(),event));
         if(!errorDetails.isEmpty()) {
             audit.put(Constants.ERROR_DETAILS(), errorDetails);

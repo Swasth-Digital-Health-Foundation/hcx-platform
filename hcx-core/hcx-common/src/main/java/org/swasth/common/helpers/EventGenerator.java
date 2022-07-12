@@ -65,6 +65,7 @@ public class EventGenerator {
                 headers = errorHeaders;
             } else if (NOTIFICATION_NOTIFY.equalsIgnoreCase(request.getApiAction())) {
                 headers = notificationHeaders;
+                event.put(NOTIFICATION_ID, request.getNotificationId());
                 event.put(TRIGGER_TYPE, TRIGGER_VALUE);
             } else {
                 headers = null;
