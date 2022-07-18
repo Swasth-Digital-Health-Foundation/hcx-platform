@@ -129,8 +129,8 @@ public class NotificationService {
     public void notify(Request request, Response response, String kafkaTopic) throws Exception {
         if (!request.getSubscriptions().isEmpty())
             isValidSubscriptions(request);
-        request.setNotificationId(UUID.randomUUID().toString());
-        response.setNotificationId(request.getNotificationId());
+        request.setNotificationRequestId(UUID.randomUUID().toString());
+        response.setNotificationRequestId(request.getNotificationRequestId());
         eventHandler.processAndSendEvent(kafkaTopic, request);
     }
 
@@ -167,7 +167,7 @@ public class NotificationService {
             while (resultSet.next()) {
                 subscriptions.remove(resultSet.getString("subscription_id"));
             }
-            if (!subscriptions.isEmpty())
+            if (subscriptions.size() ==1 && !subscriptions.isEmpty())
                 throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Invalid subscriptions list: " + subscriptions);
         } finally {
             if (resultSet != null) resultSet.close();

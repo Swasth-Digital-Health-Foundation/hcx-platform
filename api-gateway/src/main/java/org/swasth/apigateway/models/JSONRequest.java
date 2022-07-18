@@ -66,9 +66,6 @@ public class JSONRequest extends BaseRequest {
      */
     public void validateNotificationReq(List<String> headers, Map<String, Object> senderDetails, List<Map<String, Object>> recipientsDetails, List<String> allowedNetworkCodes) throws ClientException {
         validateNotificationParticipant(senderDetails, ErrorCodes.ERR_INVALID_SENDER, SENDER);
-        for (String header : getProtocolHeaders().keySet()) {
-            validateCondition(!headers.contains(header), ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Notification request contains invalid field: " + header);
-        }
         validateCondition(StringUtils.isEmpty(getTopicCode()), ErrorCodes.ERR_INVALID_NOTIFICATION_TOPIC_CODE, "Notification topic code cannot be null, empty and other than 'String'");
         validateCondition(!NotificationUtils.isValidCode(getTopicCode()), ErrorCodes.ERR_INVALID_NOTIFICATION_TOPIC_CODE, "Invalid topic code(" + getTopicCode() + ") is not present in the master list of notifications");
         validateCondition(MapUtils.isEmpty(getNotificationData()), ErrorCodes.ERR_INVALID_NOTIFICATION_DATA, "Notification Data cannot be null, empty and other than 'JSON Object'");
@@ -79,10 +76,10 @@ public class JSONRequest extends BaseRequest {
                     ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Participant is not authorized to trigger this notification: " + getTopicCode());
         }
         // validate recipient codes
-        if (!recipientsDetails.isEmpty()) {
+        if (!getRecipientCodes().isEmpty()) {
             List<String> fetchedCodes = recipientsDetails.stream().map(obj -> obj.get(Constants.PARTICIPANT_CODE).toString()).collect(Collectors.toList());
             List<String> invalidRecipients = getRecipientCodes().stream().filter(code -> !fetchedCodes.contains(code)).collect(Collectors.toList());
-            if (!invalidRecipients.isEmpty())
+            if (getRecipientCodes().size() == 1 && !invalidRecipients.isEmpty())
                 throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Recipients does not exist in the registry: " + invalidRecipients);
             for (Map<String, Object> recipient : recipientsDetails) {
                 validateNotificationParticipant(recipient, ErrorCodes.ERR_INVALID_RECIPIENT, Constants.RECIPIENT);
@@ -137,9 +134,6 @@ public class JSONRequest extends BaseRequest {
             validateCondition(!getProtocolHeaders().containsKey(subscriptionMandatoryHeader), ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Notification request does not have mandatory headers: " + TOPIC_CODE +" , "+SENDER_LIST);
         }
 
-        for (String header : getProtocolHeaders().keySet()) {
-            validateCondition(!subscriptionMandatoryHeaders.contains(header), ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Notification request contains invalid field: " + header);
-        }
         // validate recipient details who was intended notification recipient post successful subscription
         validateNotificationParticipant(recipientDetails, ErrorCodes.ERR_INVALID_SENDER, SENDER);
         // topicCode is present in the notifications list
