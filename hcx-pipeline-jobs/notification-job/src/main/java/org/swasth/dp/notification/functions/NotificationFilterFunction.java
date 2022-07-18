@@ -86,6 +86,7 @@ public class NotificationFilterFunction extends ProcessFunction<Map<String,Objec
             }
         }
         List<Map<String, Object>> participantDetails = registryService.getParticipantDetails("{\"participant_code\":{\"or\":[" + addQuotes(participantCodes) + "]}}");
+        System.out.println("Total number of participants: " + participantDetails.size());
         logger.debug("Total number of participants: " + participantDetails.size());
         consolidatedEvent.put(Constants.PARTICIPANT_DETAILS(), participantDetails);
         context.output(config.dispatcherOutputTag(), consolidatedEvent);
