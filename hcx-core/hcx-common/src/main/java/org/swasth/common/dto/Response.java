@@ -22,8 +22,8 @@ public class Response {
     @JsonProperty("count")
     private Integer count;
     private List<Map<String,Object>> notifications;
-    @JsonProperty("notification_id")
-    private String notificationId;
+    @JsonProperty("notification_request_id")
+    private String notificationRequestId;
     private List<String> subscription_list;
 
     public Response() {}
@@ -71,9 +71,9 @@ public class Response {
         this.count = count;
     }
 
-    public String getNotificationId() { return notificationId; }
+    public String getNotificationRequestId() { return notificationRequestId; }
 
-    public void setNotificationId(String notificationId) { this.notificationId = notificationId; }
+    public void setNotificationRequestId(String notificationRequestId) { this.notificationRequestId = notificationRequestId; }
 
     public Long getTimestamp() {
         return timestamp;

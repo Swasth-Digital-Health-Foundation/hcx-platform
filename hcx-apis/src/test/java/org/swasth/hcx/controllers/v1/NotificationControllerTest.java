@@ -377,7 +377,7 @@ class NotificationControllerTest extends BaseSpec {
         int status = response.getStatus();
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
         assertEquals(202, status);
-        assertNotNull(resObj.getNotificationId());
+        assertNotNull(resObj.getNotificationRequestId());
     }
 
     @Test
@@ -389,7 +389,7 @@ class NotificationControllerTest extends BaseSpec {
         int status = response.getStatus();
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
         assertEquals(202, status);
-        assertNotNull(resObj.getNotificationId());
+        assertNotNull(resObj.getNotificationRequestId());
     }
 
     @Test

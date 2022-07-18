@@ -63,7 +63,7 @@
     "recipient_code":{
       "type":"keyword"
     },
-    "notification_id":{
+    "notification_request_id":{
       "type":"keyword"
     },
     "status":{

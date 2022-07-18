@@ -15,7 +15,7 @@ public class Request {
     protected Map<String, Object> hcxHeaders = null;
     private String mid = UUID.randomUUID().toString();
     private String apiAction;
-    private String notificationId;
+    private String notificationRequestId;
     private final String payloadWithoutSensitiveData;
 
     public Request(Map<String, Object> body, String apiAction) throws Exception {
@@ -113,12 +113,12 @@ public class Request {
         this.mid = mid;
     }
 
-    public void setNotificationId(String notificationId) {
-        this.notificationId = notificationId;
+    public void setNotificationRequestId(String notificationRequestId) {
+        this.notificationRequestId = notificationRequestId;
     }
 
-    public String getNotificationId() {
-        return notificationId;
+    public String getNotificationRequestId() {
+        return notificationRequestId;
     }
 
     public String getTopicCode() { return getHeader(Constants.TOPIC_CODE);}
