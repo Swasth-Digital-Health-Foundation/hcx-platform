@@ -106,7 +106,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                         String searchRequest = createSearchRequest(jsonRequest.getRecipientCodes());
                         recipientsDetails = registryService.getDetails(searchRequest);
                     }
-                    jsonRequest.validateNotificationReq(getNotificationHeaders(), senderDetails, recipientsDetails, allowedNetworkCodes);
+                    jsonRequest.validateNotificationReq(senderDetails, recipientsDetails, allowedNetworkCodes);
                     requestBody.put(SENDER_CODE, senderDetails.get(PARTICIPANT_CODE));
                 } else if (path.contains(NOTIFICATION_SUBSCRIBE) || path.contains(NOTIFICATION_UNSUBSCRIBE)) { //for validating /notification/subscribe, /notification/unsubscribe
                     JSONRequest jsonRequest = new JSONRequest(requestBody, true, path, hcxCode, hcxRoles);
@@ -235,14 +235,6 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
         allowedRoles.addAll(env.getProperty("redirect.roles", List.class));
         return allowedRoles;
     }
-
-    private List<String> getNotificationHeaders() {
-        List<String> headers = new ArrayList<>();
-        headers.addAll(env.getProperty("notification.notify.headers.mandatory", List.class));
-        headers.addAll(env.getProperty("notification.notify.headers.optional", List.class));
-        return headers;
-    }
-
     private List<String> getSubscriptionMandatoryHeaders() {
         List<String> subscriptionMandatoryHeaders = new ArrayList<>();
         subscriptionMandatoryHeaders.addAll(env.getProperty("notification.subscription.headers.mandatory", List.class));

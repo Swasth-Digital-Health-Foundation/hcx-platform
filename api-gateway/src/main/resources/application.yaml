@@ -31,10 +31,6 @@ redirect:
     optional: ${redirect_optional_headers:x-hcx-workflow_id}
 
 notification:
-  notify:
-    headers:
-      mandatory: ${notification_mandatory_headers:topic_code, notification_data}
-      optional: ${notification_optional_headers:recipient_codes, recipient_roles, subscriptions}
   subscription:
     headers:
       mandatory: ${notification_subscription_mandatory_headers:topic_code,sender_list}
