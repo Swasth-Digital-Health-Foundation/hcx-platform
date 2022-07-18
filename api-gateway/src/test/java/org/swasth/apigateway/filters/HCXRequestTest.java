@@ -716,27 +716,6 @@ class HCXRequestTest extends BaseSpec {
     }
 
     @Test
-    void test_notification_notify_invalid_request_body() throws Exception {
-        server.enqueue(new MockResponse()
-                .setResponseCode(202)
-                .addHeader("Content-Type", "application/json"));
-
-        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
-                .thenReturn(getProviderDetails());
-        client.post().uri(versionPrefix + Constants.NOTIFICATION_NOTIFY)
-                .header(Constants.AUTHORIZATION, getProviderToken())
-                .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
-                .bodyValue(getInvalidNotificationRequest())
-                .exchange()
-                .expectBody(Map.class)
-                .consumeWith(result -> {
-                    assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
-                    assertEquals(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ.name(), getResponseErrorCode(result));
-                    assertTrue(getResponseErrorMessage(result).contains("Notification request contains invalid field"));
-                });
-    }
-
-    @Test
     void test_notification_notify_invalid_topic_code() throws Exception {
         server.enqueue(new MockResponse()
                 .setResponseCode(202)
@@ -840,28 +819,6 @@ class HCXRequestTest extends BaseSpec {
                     assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
                     assertEquals(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ.name(), getResponseErrorCode(result));
                     assertTrue(getResponseErrorMessage(result).contains("Notification request does not have mandatory headers"));
-                });
-    }
-
-    @Test
-    void test_notification_subscription_invalid_Request_extra_field() throws Exception {
-        server.enqueue(new MockResponse()
-                .setResponseCode(202)
-                .addHeader("Content-Type", "application/json"));
-
-        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
-                .thenReturn(getProviderDetails());
-
-        client.post().uri(versionPrefix + Constants.NOTIFICATION_SUBSCRIBE)
-                .header(Constants.AUTHORIZATION, getProviderToken())
-                .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
-                .bodyValue(getInvalidSubscriptionRequest())
-                .exchange()
-                .expectBody(Map.class)
-                .consumeWith(result -> {
-                    assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
-                    assertEquals(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ.name(), getResponseErrorCode(result));
-                    assertTrue(getResponseErrorMessage(result).contains("Notification request contains invalid field"));
                 });
     }
 
