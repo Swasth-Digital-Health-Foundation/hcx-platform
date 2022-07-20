@@ -87,7 +87,7 @@ import static org.swasth.common.utils.Constants.*;
      public void testSubscriptionPayload() throws Exception {
          Request request = new Request(getSubscriptionRequest(), NOTIFICATION_SUBSCRIBE);
          assertEquals("hcx-notification-001",request.getTopicCode());
-         assertEquals("hcx-apollo-12345", request.getNotificationRecipientCode());
+         assertEquals("hcx-apollo-12345", request.getRecipientCode());
          assertEquals(2,request.getSenderList().size());
          assertEquals("Payor1",request.getSenderList().get(0));
          assertEquals("Payor2",request.getSenderList().get(1));

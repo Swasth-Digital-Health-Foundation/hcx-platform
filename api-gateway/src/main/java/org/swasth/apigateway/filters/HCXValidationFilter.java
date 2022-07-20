@@ -124,6 +124,8 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                     requestObj = jsonRequest;
                     Map<String,Object> recipientDetails =  registryService.fetchDetails(OS_OWNER, subject);
                     requestBody.put(RECIPIENT_CODE, recipientDetails.get(PARTICIPANT_CODE));
+                } else if (path.contains(NOTIFICATION_SUBSCRIPTION_UPDATE)) {
+                    requestBody.put(SENDER_CODE, registryService.fetchDetails(OS_OWNER, subject).get(PARTICIPANT_CODE));
                 } else { //for validating redirect and error plain JSON on_check calls
                     if (!path.contains("on_")) {
                         throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, "Request body should be a proper JWE object for action API calls");
@@ -150,7 +152,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                 logger.error("Exception occurred for request with correlationId: " + correlationId);
                 return exceptionHandler.errorResponse(e, exchange, correlationId, apiCallId, requestObj);
             }
-            if(path.contains(NOTIFICATION_NOTIFY) || path.contains(NOTIFICATION_SUBSCRIBE) || path.contains(NOTIFICATION_UNSUBSCRIBE) || path.contains(NOTIFICATION_SUBSCRIPTION_LIST)){
+            if(path.contains(NOTIFICATION_NOTIFY) || path.contains(NOTIFICATION_SUBSCRIBE) || path.contains(NOTIFICATION_UNSUBSCRIBE) || path.contains(NOTIFICATION_SUBSCRIPTION_LIST) || path.contains(NOTIFICATION_SUBSCRIPTION_UPDATE)){
                 return requestHandler.getUpdatedBody(exchange, chain, requestBody);
             } else {
                 return chain.filter(exchange);

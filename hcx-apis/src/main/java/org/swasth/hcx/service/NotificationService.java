@@ -2,6 +2,8 @@ package org.swasth.hcx.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.lucene.util.QueryBuilder;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,7 +69,7 @@ public class NotificationService {
 
     public void processSubscription(Request request, int statusCode, Response response) throws Exception {
         List<String> senderList = request.getSenderList();
-        Map<String, String> subscriptionMap = insertRecords(request.getTopicCode(), statusCode, senderList, request.getNotificationRecipientCode());
+        Map<String, String> subscriptionMap = insertRecords(request.getTopicCode(), statusCode, senderList, request.getRecipientCode());
         //Iterate through the list and push the kafka event
         pushKafka(request, senderList, subscriptionMap);
         //Set the response data
@@ -79,7 +81,7 @@ public class NotificationService {
         senderList.stream().forEach(senderCode -> {
             try {
                 if (!senderCode.equalsIgnoreCase(hcxRegistryCode)) {
-                    String subscriptionMessage = eventGenerator.generateSubscriptionEvent(request.getApiAction(), request.getNotificationRecipientCode(), senderCode);
+                    String subscriptionMessage = eventGenerator.generateSubscriptionEvent(request.getApiAction(), request.getRecipientCode(), senderCode);
                     kafkaClient.send(subscriptionTopic, senderCode, subscriptionMessage);
                     auditIndexer.createDocument(eventGenerator.generateSubscriptionAuditEvent(request, subscriptionMap.get(senderCode), QUEUED_STATUS, senderCode));
                 } else {
@@ -132,6 +134,43 @@ public class NotificationService {
         request.setNotificationId(UUID.randomUUID().toString());
         response.setNotificationId(request.getNotificationId());
         eventHandler.processAndSendEvent(kafkaTopic, request);
+    }
+
+    /**
+     * To update the subscription status, expiry and enabling/disabling delegation.
+     */
+    public void subscriptionUpdate(Request request, Response response) throws Exception {
+        if (StringUtils.isEmpty(request.getTopicCode()) || !NotificationUtils.isValidCode(request.getTopicCode()))
+            throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_TOPIC_CODE, "Topic code is empty or invalid");
+        else if (!request.getPayload().containsKey(SUBSCRIPTION_STATUS) && !request.getPayload().containsKey(IS_DELEGATED) && !request.getPayload().containsKey(EXPIRY))
+            throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Mandatory fields are missing: " + SUBSCRIPTION_UPDATE_PROPS);
+        else if (request.getPayload().containsKey(EXPIRY) && new DateTime(request.getExpiry()).isBefore(DateTime.now()))
+            throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Expiry cannot be past date");
+        else if (request.getPayload().containsKey(SUBSCRIPTION_STATUS) && !ALLOWED_SUBSCRIPTION_STATUS.contains(request.getSubscriptionStatus()))
+            throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Subscription status value is invalid");
+        else if (request.getPayload().containsKey(IS_DELEGATED) && !(request.getPayload().get(IS_DELEGATED) instanceof Boolean))
+            throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Is delegated value is invalid");
+        StringBuilder updateProps = new StringBuilder();
+        SUBSCRIPTION_UPDATE_PROPS.forEach(prop -> {
+            if(request.getPayload().containsKey(prop))
+                updateProps.append("," + prop + "=" + "'" + request.getPayload().get(prop) + "'");
+        });
+        updateProps.deleteCharAt(0);
+        ResultSet resultSet = null;
+        try {
+            String updateQuery = String.format("UPDATE %s SET %s WHERE %s = '%s' AND %s = '%s' AND %s = '%s' RETURNING %s,%s",
+                    postgresSubscription, updateProps, SENDER_CODE, request.getSenderCode(), RECIPIENT_CODE,
+                    request.getRecipientCode(), TOPIC_CODE, request.getTopicCode(), SUBSCRIPTION_ID, SUBSCRIPTION_STATUS);
+            resultSet = (ResultSet) postgreSQLClient.executeQuery(updateQuery);
+            if (resultSet.next()) {
+                response.setSubscriptionId(resultSet.getString(SUBSCRIPTION_ID));
+                response.setSubscriptionStatus(resultSet.getInt(SUBSCRIPTION_STATUS));
+            } else {
+                throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Subscription does not exist");
+            }
+        } finally {
+            if (resultSet != null) resultSet.close();
+        }
     }
 
     public void getNotifications(NotificationListRequest request, Response response) throws Exception {

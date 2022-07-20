@@ -104,10 +104,11 @@ spring:
             - RewritePath=/${version.external}/notification/unsubscribe, /${version.internal}/notification/unsubscribe
             - RewritePath=/${version.external}/notification/notify, /${version.internal}/notification/notify
             - RewritePath=/${version.external}/notification/subscription/list, /${version.internal}/notification/subscription/list
+            - RewritePath=/${version.external}/notification/subscription/update, /${version.internal}/notification/subscription/update
             - CachingRequestBodyFilter
             - HCXValidationFilter
           predicates:
-            - Path=/${version.external}/coverageeligibility/**, /${version.external}/preauth/**, /${version.external}/claim/**, /${version.external}/paymentnotice/**, /${version.external}/hcx/**, /${version.external}/predetermination/**, /${version.external}/communication/**, /${version.external}/notification/subscribe, /${version.external}/notification/unsubscribe, /${version.external}/notification/subscription/list, /${version.external}/notification/notify
+            - Path=/${version.external}/coverageeligibility/**, /${version.external}/preauth/**, /${version.external}/claim/**, /${version.external}/paymentnotice/**, /${version.external}/hcx/**, /${version.external}/predetermination/**, /${version.external}/communication/**, /${version.external}/notification/subscribe, /${version.external}/notification/unsubscribe, /${version.external}/notification/subscription/list, /${version.external}/notification/notify, /${version.external}/notification/subscription/update
 
         - id: hcx-api-route-audit
           uri: ${HCX_API_BASEPATH:http://localhost:8080}
