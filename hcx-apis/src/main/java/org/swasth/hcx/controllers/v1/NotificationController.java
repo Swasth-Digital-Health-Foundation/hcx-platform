@@ -93,7 +93,7 @@ public class NotificationController extends BaseController {
         Response response = new Response(request);
         try {
             notificationService.subscriptionUpdate(request, response);
-            return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
+            return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             return exceptionHandler(response, e);
         }

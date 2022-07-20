@@ -140,8 +140,12 @@ public class Response {
         this.subscriptionStatus = subscriptionStatus;
     }
 
+    public int getSubscriptionStatus() { return subscriptionStatus;}
+
     public void setSubscriptionId(String subscriptionId) {
         this.subscriptionId = subscriptionId;
     }
+
+    public String getSubscriptionId() {return  subscriptionId;}
 }
 

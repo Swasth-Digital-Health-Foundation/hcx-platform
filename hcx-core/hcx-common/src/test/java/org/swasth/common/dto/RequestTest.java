@@ -103,4 +103,25 @@ import static org.swasth.common.utils.Constants.*;
          return obj;
      }
 
+     @Test
+     public void testSubscriptionUpdatePayload() throws Exception {
+         Request request = new Request(getSubscriptionUpdateRequest(), NOTIFICATION_SUBSCRIPTION_UPDATE);
+         assertEquals("hcx-notification-001",request.getTopicCode());
+         assertEquals("payor01@hcx", request.getRecipientCode());
+         assertEquals("provider01@hcx", request.getSenderCode());
+         assertEquals(1, request.getSubscriptionStatus());
+         assertTrue(request.getIsDelegated());
+         assertNotNull(request.getExpiry());
+     }
+
+     private Map<String,Object> getSubscriptionUpdateRequest() {
+         Map<String,Object> obj = new HashMap<>();
+         obj.put(RECIPIENT_CODE,"payor01@hcx");
+         obj.put(TOPIC_CODE,"hcx-notification-001");
+         obj.put(SENDER_CODE,"provider01@hcx");
+         obj.put(SUBSCRIPTION_STATUS, 1);
+         obj.put(EXPIRY, System.currentTimeMillis());
+         obj.put(IS_DELEGATED, true);
+         return obj;
+     }
 }
