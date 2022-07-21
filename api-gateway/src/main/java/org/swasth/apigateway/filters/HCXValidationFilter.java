@@ -125,7 +125,11 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                     Map<String,Object> recipientDetails =  registryService.fetchDetails(OS_OWNER, subject);
                     requestBody.put(RECIPIENT_CODE, recipientDetails.get(PARTICIPANT_CODE));
                 } else if (path.contains(NOTIFICATION_SUBSCRIPTION_UPDATE)) {
-                    requestBody.put(SENDER_CODE, registryService.fetchDetails(OS_OWNER, subject).get(PARTICIPANT_CODE));
+                    JSONRequest jsonRequest = new JSONRequest(requestBody, true, path, hcxCode, hcxRoles);
+                    requestObj = jsonRequest;
+                    Map<String,Object> senderDetails =  registryService.fetchDetails(OS_OWNER, subject);
+                    jsonRequest.validateNotificationParticipant(senderDetails, ErrorCodes.ERR_INVALID_SENDER, SENDER);
+                    requestBody.put(SENDER_CODE, senderDetails.get(PARTICIPANT_CODE));
                 } else { //for validating redirect and error plain JSON on_check calls
                     if (!path.contains("on_")) {
                         throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, "Request body should be a proper JWE object for action API calls");
