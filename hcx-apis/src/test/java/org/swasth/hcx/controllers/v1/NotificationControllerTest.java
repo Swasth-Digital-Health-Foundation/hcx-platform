@@ -462,7 +462,7 @@ class NotificationControllerTest extends BaseSpec {
         assertEquals(202, status);
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
         assertNotNull(resObj.getTimestamp());
-        assertEquals("subscription_id-001",resObj.getSubscription_id());
+        assertEquals("subscription_id-001",resObj.getSubscriptionId());
     }
 
     @Test
@@ -502,6 +502,7 @@ class NotificationControllerTest extends BaseSpec {
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
         assertEquals(ErrorCodes.ERR_INVALID_SUBSCRIPTION_ID, resObj.getError().getCode());
         assertTrue(resObj.getError().getMessage().contains("Unable to update record with subscription id"));
+    }
 
     @Test
     void testSubscriptionUpdateSuccess() throws Exception {

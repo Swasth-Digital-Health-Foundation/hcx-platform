@@ -102,14 +102,14 @@ public class NotificationService {
         String subscriptionMessage = eventGenerator.generateSubscriptionEvent(request.getApiAction(), subscription.getRecipient_code(), request.getSenderCode());
         kafkaClient.send(subscriptionTopic, request.getSenderCode(), subscriptionMessage);
         //Set the response data
-        response.setSubscription_id(subscriptionId);
+        response.setSubscriptionId(subscriptionId);
     }
 
     private void pushKafka(Request request, List<String> senderList, Map<String, String> subscriptionMap) {
         senderList.stream().forEach(senderCode -> {
             try {
                 if (!senderCode.equalsIgnoreCase(hcxRegistryCode)) {
-                    String subscriptionMessage = eventGenerator.generateSubscriptionEvent(request.getApiAction(), senderCode, request.getNotificationRecipientCode());
+                    String subscriptionMessage = eventGenerator.generateSubscriptionEvent(request.getApiAction(), senderCode, request.getRecipientCode());
                     kafkaClient.send(subscriptionTopic, senderCode, subscriptionMessage);
                     auditIndexer.createDocument(eventGenerator.generateSubscriptionAuditEvent(request, subscriptionMap.get(senderCode), QUEUED_STATUS, senderCode));
                 } else {

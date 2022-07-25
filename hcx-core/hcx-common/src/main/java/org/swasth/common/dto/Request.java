@@ -144,8 +144,5 @@ public class Request {
     public Long getExpiry(){ return (Long) payload.getOrDefault(EXPIRY, null); }
 
     public String getSubscriptionId() { return (String) payload.get(SUBSCRIPTION_ID); }
-
-    public int getSubscriptionStatus() { return (int) payload.get(SUBSCRIPTION_STATUS); }
-
 }
 
