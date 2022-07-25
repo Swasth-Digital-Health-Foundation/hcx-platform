@@ -47,7 +47,7 @@ public class Constants {
     public static final String NOTIFICATION_SUBSCRIPTION_LIST = "/notification/subscription/list";
     public static final String NOTIFICATION_LIST = "/notification/topic/list";
     public static final String NOTIFICATION_NOTIFY = "/notification/notify";
-
+    public static final String NOTIFICATION_SUBSCRIPTION_UPDATE = "/notification/subscription/update";
 
     // Audit APIs
     public static final String AUDIT_SEARCH = "/audit/search";
@@ -173,6 +173,8 @@ public class Constants {
     public static final String NOTIFY_STATUS = "status";
     public static final String IS_DELEGATED = "is_delegated";
     public static final String EXPIRY = "expiry";
+    public static final List<Integer> ALLOWED_SUBSCRIPTION_STATUS = Arrays.asList(1, 0);
+    public static final List<String> SUBSCRIPTION_UPDATE_PROPS = Arrays.asList(SUBSCRIPTION_STATUS, EXPIRY, IS_DELEGATED);
 
     //Constants from api-gateway
     // Entity types

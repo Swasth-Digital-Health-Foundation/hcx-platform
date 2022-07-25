@@ -441,4 +441,132 @@ class NotificationControllerTest extends BaseSpec {
         return JSONUtils.serialize(obj);
     }
 
+    @Test
+    void testSubscriptionUpdateSuccess() throws Exception {
+        doReturn(getSubscriptionUpdateResultSet()).when(postgreSQLClient).executeQuery(anyString());
+        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIPTION_UPDATE)
+                .content(getSubscriptionUpdateRequest("be0e578d-b391-42f9-96f7-1e6bacd91c20", 1, true)).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
+        assertEquals(200, status);
+        assertEquals(1, resObj.getSubscriptionStatus());
+    }
+
+    private String getSubscriptionUpdateRequest(String topicCode, int subscriptionStatus , Object isDelegated) throws JsonProcessingException {
+        Map<String,Object> obj = new HashMap<>();
+        obj.put(RECIPIENT_CODE,"payor01@hcx");
+        obj.put(TOPIC_CODE,topicCode);
+        obj.put(SENDER_CODE,"provider01@hcx");
+        obj.put(SUBSCRIPTION_STATUS, subscriptionStatus);
+        obj.put(IS_DELEGATED, isDelegated);
+        return JSONUtils.serialize(obj);
+    }
+
+    private ResultSet getSubscriptionUpdateResultSet() throws SQLException {
+        return MockResultSet.createIntStringMock(
+                new String[]{"subscription_id", "subscription_status"}, //columns
+                new Object[][]{ // data
+                        {"subscription-123", 1}
+                });
+    }
+
+    @Test
+    void testSubscriptionUpdateWithInvalidTopicCode() throws Exception {
+        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIPTION_UPDATE)
+                .content(getSubscriptionUpdateRequest("invalid-topic-123", 1, true)).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
+        assertEquals(400, status);
+        assertEquals(ErrorCodes.ERR_INVALID_NOTIFICATION_TOPIC_CODE, resObj.getError().getCode());
+        assertTrue(resObj.getError().getMessage().contains("Topic code is empty or invalid"));
+    }
+
+    @Test
+    void testSubscriptionUpdateWithMissingMandatoryFields() throws Exception {
+        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIPTION_UPDATE)
+                .content(getSubscriptionUpdateMissingFieldsRequest("be0e578d-b391-42f9-96f7-1e6bacd91c20")).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
+        assertEquals(400, status);
+        assertEquals(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, resObj.getError().getCode());
+        assertTrue(resObj.getError().getMessage().contains("Mandatory fields are missing"));
+    }
+
+    private String getSubscriptionUpdateMissingFieldsRequest(String topicCode) throws JsonProcessingException {
+        Map<String,Object> obj = new HashMap<>();
+        obj.put(RECIPIENT_CODE,"payor01@hcx");
+        obj.put(TOPIC_CODE,topicCode);
+        obj.put(SENDER_CODE,"provider01@hcx");
+        return JSONUtils.serialize(obj);
+    }
+
+    @Test
+    void testSubscriptionUpdateWithInvalidExpiry() throws Exception {
+        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIPTION_UPDATE)
+                .content(getSubscriptionUpdateInvalidExpiryRequest("be0e578d-b391-42f9-96f7-1e6bacd91c20")).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
+        assertEquals(400, status);
+        assertEquals(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, resObj.getError().getCode());
+        assertTrue(resObj.getError().getMessage().contains("Expiry cannot be past date"));
+    }
+
+    private String getSubscriptionUpdateInvalidExpiryRequest(String topicCode) throws JsonProcessingException {
+        Map<String,Object> obj = new HashMap<>();
+        obj.put(RECIPIENT_CODE,"payor01@hcx");
+        obj.put(TOPIC_CODE,topicCode);
+        obj.put(SENDER_CODE,"provider01@hcx");
+        obj.put(SUBSCRIPTION_STATUS, 1);
+        obj.put(IS_DELEGATED, true);
+        obj.put(EXPIRY, System.currentTimeMillis());
+        return JSONUtils.serialize(obj);
+    }
+
+    @Test
+    void testSubscriptionUpdateWithInvalidSubscriptionStatus() throws Exception {
+        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIPTION_UPDATE)
+                .content(getSubscriptionUpdateRequest("be0e578d-b391-42f9-96f7-1e6bacd91c20", 2, true)).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
+        assertEquals(400, status);
+        assertEquals(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, resObj.getError().getCode());
+        assertTrue(resObj.getError().getMessage().contains("Subscription status value is invalid"));
+    }
+
+    @Test
+    void testSubscriptionUpdateWithInvalidIsDelegated() throws Exception {
+        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIPTION_UPDATE)
+                .content(getSubscriptionUpdateRequest("be0e578d-b391-42f9-96f7-1e6bacd91c20", 1, "test")).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
+        assertEquals(400, status);
+        assertEquals(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, resObj.getError().getCode());
+        assertTrue(resObj.getError().getMessage().contains("Is delegated value is invalid"));
+    }
+
+    @Test
+    void testSubscriptionUpdateWithInvalidSubscriptionDetails() throws Exception {
+        doReturn(getSubscriptionUpdateEmptyResultSet()).when(postgreSQLClient).executeQuery(anyString());
+        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIPTION_UPDATE)
+                .content(getSubscriptionUpdateRequest("be0e578d-b391-42f9-96f7-1e6bacd91c20", 1, true)).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
+        assertEquals(400, status);
+        assertEquals(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, resObj.getError().getCode());
+        assertTrue(resObj.getError().getMessage().contains("Subscription does not exist"));
+    }
+
+    private ResultSet getSubscriptionUpdateEmptyResultSet() throws SQLException {
+        return MockResultSet.createEmptyMock(
+                new String[]{}, //columns
+                new Object[][]{});
+    }
+
 }
