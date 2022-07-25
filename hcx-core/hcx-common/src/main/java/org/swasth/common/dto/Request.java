@@ -137,5 +137,9 @@ public class Request {
 
     public String getNotificationRecipientCode() { return (String) payload.get(RECIPIENT_CODE); }
 
+    public String getSubscriptionId() { return (String) payload.get(SUBSCRIPTION_ID); }
+
+    public int getSubscriptionStatus() { return (int) payload.get(SUBSCRIPTION_STATUS); }
+
 }
 

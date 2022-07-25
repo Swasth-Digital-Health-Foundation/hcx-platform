@@ -44,6 +44,7 @@ public class Constants {
     // Notification APIs
     public static final String NOTIFICATION_SUBSCRIBE = "/notification/subscribe";
     public static final String NOTIFICATION_UNSUBSCRIBE = "/notification/unsubscribe";
+    public static final String NOTIFICATION_ON_SUBSCRIBE = "/notification/on_subscribe";
     public static final String NOTIFICATION_SUBSCRIPTION_LIST = "/notification/subscription/list";
     public static final String NOTIFICATION_LIST = "/notification/topic/list";
     public static final String NOTIFICATION_NOTIFY = "/notification/notify";

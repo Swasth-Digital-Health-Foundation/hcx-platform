@@ -1,0 +1,93 @@
+- topic_code: 24e975d1-054d-45fa-968e-c91b1043d0a5
+  title: Organisation status update
+  description: >-
+    A notification about the organisation status update in registry. This
+    information will be useful acknowledge the current status of a given
+    organisation and send requests.
+  allowed_senders:
+    - HIE/HIO.HCX
+  allowed_recipients:
+    - provider
+    - payor
+    - agency.tpa
+    - agency.regulator
+    - research
+    - member.isnp
+    - agency.sponsor
+    - HIE/HIO.HCX
+  type: Broadcast
+  category: Network
+  trigger: Event
+  priority: 0
+  template: >-
+    {"message": "${participant_name} status changed to ${status}",
+
+    "participant_code": "${participant_code}", "endpoint_url":
+    "${endpoint_url}"}
+  status: active
+- topic_code: be0e578d-b391-42f9-96f7-1e6bacd91c20
+  title: Payer Downtime
+  description: >-
+    A notification about the Payer System Downtime. This information will be
+    useful for all participants.
+  allowed_senders:
+    - provider
+  allowed_recipients:
+    - payor
+    - agency.tpa
+    - agency.regulator
+  type: Broadcast
+  category: Participant
+  trigger: Explicit
+  priority: 1
+  template: >-
+    {"message": "${participant_name} system will not be available from
+    ${startTime} for a duration of ${duration} on ${date}",
+
+    "participant_code": "${participant_code}", "endpoint_url":
+    "${endpoint_url}"}
+  status: active
+- topic_code: ab0e578d-b391-42f9-96f7-1e6bacd91c20
+  title: Payer Downtime
+  description: >-
+    A notification about the Payer System Downtime. This information will be
+    useful for all participants.
+  allowed_senders:
+    - provider
+  allowed_recipients:
+    - payor
+    - agency.tpa
+    - agency.regulator
+  type: Broadcast
+  category: Participant
+  trigger: Explicit
+  priority: 1
+  template: >-
+    {"message": "${participant_name} system will not be available from
+    ${startTime} for a duration of ${duration} on ${date}",
+
+    "participant_code": "${participant_code}", "endpoint_url":
+    "${endpoint_url}"}
+  status: Inactive
+- topic_code: de0e578d-b391-42f9-96f7-1e6bacd91c20
+  title: Participant Downtime
+  description: >-
+    A notification about the Participant System Downtime. This information will
+    be useful for all participants.
+  allowed_senders:
+    - payor
+  allowed_recipients:
+    - provider
+    - agency.tpa
+    - agency.regulator
+  type: Broadcast
+  category: Participant
+  trigger: Explicit
+  priority: 1
+  template: >-
+    {"message": "${participant_name} system will not be available from
+    ${startTime} for a duration of ${duration} on ${date}",
+
+    "participant_code": "${participant_code}", "endpoint_url":
+    "${endpoint_url}"}
+  status: active

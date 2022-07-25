@@ -25,6 +25,7 @@ public class Response {
     @JsonProperty("notification_id")
     private String notificationId;
     private List<String> subscription_list;
+    private String subscription_id;
 
     public Response() {}
 
@@ -130,6 +131,14 @@ public class Response {
 
     public void setSubscription_list(List<String> subscription_list) {
         this.subscription_list = subscription_list;
+    }
+
+    public String getSubscription_id() {
+        return subscription_id;
+    }
+
+    public void setSubscription_id(String subscription_id) {
+        this.subscription_id = subscription_id;
     }
 }
 

@@ -7,10 +7,12 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MvcResult;
 import org.swasth.common.dto.Response;
+import org.swasth.common.dto.Subscription;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.hcx.controllers.BaseSpec;
+import org.swasth.hcx.service.NotificationService;
 import org.swasth.hcx.utils.MockResultSet;
 
 import java.sql.ResultSet;
@@ -439,6 +441,67 @@ class NotificationControllerTest extends BaseSpec {
         }};
         obj.put(SENDER_LIST, sendersList);
         return JSONUtils.serialize(obj);
+    }
+
+    private String getOnSubscriptionRequest() throws JsonProcessingException {
+        Map<String, Object> obj = new HashMap<>();
+        obj.put(SUBSCRIPTION_ID, "subscription_id-001");
+        obj.put(SUBSCRIPTION_STATUS, 1);
+        return JSONUtils.serialize(obj);
+    }
+
+    @Test
+    void testNotificationOnSubscribeSuccess() throws Exception {
+        doNothing().when(mockKafkaClient).send(anyString(), anyString(), any());
+        doReturn(getMockResultSet(1)).when(postgreSQLClient).executeQuery(anyString());
+        doReturn(true).when(postgreSQLClient).execute(anyString());
+        String requestBody = getOnSubscriptionRequest();
+        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_ON_SUBSCRIBE).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        assertEquals(202, status);
+        Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
+        assertNotNull(resObj.getTimestamp());
+        assertEquals("subscription_id-001",resObj.getSubscription_id());
+    }
+
+    @Test
+    void testNotificationOnSubscribeException() throws Exception {
+        doThrow(new ClientException(ErrorCodes.INTERNAL_SERVER_ERROR, "Test Internal Server Error")).when(postgreSQLClient).executeQuery(anyString());
+        String requestBody = getOnSubscriptionRequest();
+        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_ON_SUBSCRIBE).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        assertEquals(400, status);
+        Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
+        assertEquals(ErrorCodes.INTERNAL_SERVER_ERROR, resObj.getError().getCode());
+        assertEquals("Test Internal Server Error", resObj.getError().getMessage());
+    }
+
+    @Test
+    void testNotificationOnSubscribeNullResponse() throws Exception {
+        doReturn(null).when(postgreSQLClient).executeQuery(anyString());
+        String requestBody = getOnSubscriptionRequest();
+        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_ON_SUBSCRIBE).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        assertEquals(500, status);
+        Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
+        assertEquals(ErrorCodes.INTERNAL_SERVER_ERROR, resObj.getError().getCode());
+    }
+
+    @Test
+    void testNotificationOnSubscribeUpdateException() throws Exception {
+        doReturn(getMockResultSet(1)).when(postgreSQLClient).executeQuery(anyString());
+        doReturn(false).when(postgreSQLClient).execute(anyString());
+        String requestBody = getOnSubscriptionRequest();
+        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_ON_SUBSCRIBE).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        assertEquals(400, status);
+        Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
+        assertEquals(ErrorCodes.ERR_INVALID_SUBSCRIPTION_ID, resObj.getError().getCode());
+        assertTrue(resObj.getError().getMessage().contains("Unable to update record with subscription id"));
     }
 
 }

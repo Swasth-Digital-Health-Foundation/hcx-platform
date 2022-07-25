@@ -1,6 +1,10 @@
 package org.swasth.common.utils;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 
 import static org.swasth.common.utils.Constants.TOPIC_CODE;
@@ -16,7 +20,7 @@ public class NotificationUtils {
     public static List<String> topicCodeList = new ArrayList<>();
 
     private void loadNotifications() throws IOException {
-        notificationList = JSONUtils.convertJson(getClass().getClassLoader().getResourceAsStream("notifications.json"), List.class);
+        notificationList = YamlUtils.convertYaml(getClass().getClassLoader().getResourceAsStream("notifications.yaml"),List.class);
         notificationList.forEach(obj -> topicCodeList.add((String) obj.get(TOPIC_CODE)));
     }
 

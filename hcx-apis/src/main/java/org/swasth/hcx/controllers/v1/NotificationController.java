@@ -63,6 +63,18 @@ public class NotificationController extends BaseController {
         }
     }
 
+    @PostMapping(NOTIFICATION_ON_SUBSCRIBE)
+    public ResponseEntity<Object> notificationOnSubscribe(@RequestBody Map<String, Object> requestBody) throws Exception {
+        Request request = new Request(requestBody, NOTIFICATION_ON_SUBSCRIBE);
+        Response response = new Response();
+        try {
+            notificationService.processOnSubscription(request, response);
+            return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
+        } catch (Exception e) {
+            return exceptionHandler(response, e);
+        }
+    }
+
     @PostMapping(NOTIFICATION_SUBSCRIPTION_LIST)
     public ResponseEntity<Object> getSubscriptionList(@RequestBody Map<String, Object> requestBody) {
         NotificationListRequest request = new NotificationListRequest(requestBody);
