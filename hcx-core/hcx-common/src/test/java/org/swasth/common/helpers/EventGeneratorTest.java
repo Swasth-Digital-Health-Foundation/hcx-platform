@@ -136,7 +136,7 @@ public class EventGeneratorTest {
 
     private Request getNotificationRequest() throws Exception {
         Map<String,Object> obj = new HashMap<>();
-        obj.put(NOTIFICATION_ID,"hcx-notification-001");
+        obj.put(NOTIFICATION_REQ_ID,"hcx-notification-001");
         obj.put(HCX_SENDER_CODE,"hcx-apollo-12345");
         obj.put(HCX_RECIPIENT_CODE,"hcx-star-insurance-001");
         obj.put(API_CALL_ID,"1fa85f64-5717-4562-b3fc-2c963f66afa6");
