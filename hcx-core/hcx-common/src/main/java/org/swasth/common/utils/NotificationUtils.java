@@ -16,7 +16,7 @@ public class NotificationUtils {
     public static List<String> topicCodeList = new ArrayList<>();
 
     private void loadNotifications() throws IOException {
-        notificationList = JSONUtils.convertJson(getClass().getClassLoader().getResourceAsStream("notifications.json"), List.class);
+        notificationList = YamlUtils.convertYaml(getClass().getClassLoader().getResourceAsStream("notifications.yaml"),List.class);
         notificationList.forEach(obj -> topicCodeList.add((String) obj.get(TOPIC_CODE)));
     }
 

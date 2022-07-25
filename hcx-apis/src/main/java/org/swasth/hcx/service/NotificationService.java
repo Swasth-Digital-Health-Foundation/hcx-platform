@@ -40,6 +40,12 @@ public class NotificationService {
     @Value("${postgres.subscription.subscriptionQuery}")
     private String selectSubscription;
 
+    @Value("${postgres.subscription.subscriptionSelectQuery}")
+    private String subscriptionSelectQuery;
+
+    @Value("${postgres.subscription.updateSubscriptionQuery}")
+    private String updateSubscriptionQuery;
+
     @Value("${registry.hcxcode}")
     private String hcxRegistryCode;
 
@@ -77,11 +83,33 @@ public class NotificationService {
         response.setSubscription_list(subscriptionList);
     }
 
+    public void processOnSubscription(Request request, Response response) throws Exception {
+        String subscriptionId = request.getSubscriptionId();
+        int statusCode = request.getSubscriptionStatus();
+        //fetch notification recipient based on subscription id
+        Subscription subscription = getSubscriptionById(subscriptionId, request.getSenderCode());
+        if (subscription == null) {
+            throw new ClientException(ErrorCodes.ERR_INVALID_SUBSCRIPTION_ID, "Invalid subscription id: " + subscriptionId);
+        }
+        //Update the Database
+        if (updateSubscription(subscriptionId, statusCode)) {
+            LOG.info("Subscription record updated for subscriptionId:" + subscriptionId.replaceAll("[\n\r\t]", "_"));
+        } else {
+            LOG.info("Subscription record is not updated for subscriptionId:" + subscriptionId.replaceAll("[\n\r\t]", "_"));
+            throw new ClientException(ErrorCodes.ERR_INVALID_SUBSCRIPTION_ID, "Unable to update record with subscription id: " + subscriptionId);
+        }
+        //Send message to kafka topic
+        String subscriptionMessage = eventGenerator.generateSubscriptionEvent(request.getApiAction(), subscription.getRecipient_code(), request.getSenderCode());
+        kafkaClient.send(subscriptionTopic, request.getSenderCode(), subscriptionMessage);
+        //Set the response data
+        response.setSubscriptionId(subscriptionId);
+    }
+
     private void pushKafka(Request request, List<String> senderList, Map<String, String> subscriptionMap) {
         senderList.stream().forEach(senderCode -> {
             try {
                 if (!senderCode.equalsIgnoreCase(hcxRegistryCode)) {
-                    String subscriptionMessage = eventGenerator.generateSubscriptionEvent(request.getApiAction(), request.getRecipientCode(), senderCode);
+                    String subscriptionMessage = eventGenerator.generateSubscriptionEvent(request.getApiAction(), senderCode, request.getRecipientCode());
                     kafkaClient.send(subscriptionTopic, senderCode, subscriptionMessage);
                     auditIndexer.createDocument(eventGenerator.generateSubscriptionAuditEvent(request, subscriptionMap.get(senderCode), QUEUED_STATUS, senderCode));
                 } else {
@@ -246,4 +274,26 @@ public class NotificationService {
             if (resultSet != null) resultSet.close();
         }
     }
+
+    public Subscription getSubscriptionById(String subscriptionId, String senderCode) throws Exception {
+        ResultSet resultSet = null;
+        Subscription subscription = null;
+        try { //subscription_id,subscription_status,topic_code,sender_code,recipient_code,expiry,is_delegated
+            String query = String.format(subscriptionSelectQuery, postgresSubscription, subscriptionId, senderCode);
+            resultSet = (ResultSet) postgreSQLClient.executeQuery(query);
+            while (resultSet.next()) {
+                subscription = new Subscription(resultSet.getString(SUBSCRIPTION_ID), resultSet.getString(TOPIC_CODE), resultSet.getInt(SUBSCRIPTION_STATUS),
+                        resultSet.getString(Constants.SENDER_CODE), resultSet.getString(RECIPIENT_CODE), resultSet.getLong(EXPIRY), resultSet.getBoolean(IS_DELEGATED));
+            }
+            return subscription;
+        } finally {
+            if (resultSet != null) resultSet.close();
+        }
+    }
+
+    private boolean updateSubscription(String subscriptionId, int subscriptionStatus) throws Exception {
+        String query = String.format(updateSubscriptionQuery, postgresSubscription, subscriptionStatus, subscriptionId);
+        return postgreSQLClient.execute(query);
+    }
+
 }
