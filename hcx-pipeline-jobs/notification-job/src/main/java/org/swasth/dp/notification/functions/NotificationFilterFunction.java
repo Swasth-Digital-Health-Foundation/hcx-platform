@@ -1,6 +1,7 @@
 package org.swasth.dp.notification.functions;
 
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringSubstitutor;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
@@ -52,6 +53,7 @@ public class NotificationFilterFunction extends ProcessFunction<Map<String,Objec
     @Override
     public void processElement(Map<String,Object> inputEvent, ProcessFunction<Map<String,Object>, Map<String,Object>>.Context context, Collector<Map<String,Object>> collector) throws Exception {
         consolidatedEvent = new HashMap<>();
+        System.out.println("Event: " + inputEvent);
         consolidatedEvent.put(Constants.INPUT_EVENT(), inputEvent);
         String topicCode = getProtocolStringValue(Constants.TOPIC_CODE(), inputEvent);
         String senderCode = getProtocolStringValue(Constants.SENDER_CODE(), inputEvent);
@@ -63,15 +65,15 @@ public class NotificationFilterFunction extends ProcessFunction<Map<String,Objec
         String resolvedTemplate = resolveTemplate(notification, inputEvent);
         consolidatedEvent.put(Constants.RESOLVED_TEMPLATE(), resolvedTemplate);
         List<String> participantCodes = new ArrayList<>();
-        List<String> subscriptions = (List<String>) inputEvent.get(Constants.SUBSCRIPTIONS());
-        List<String> recipientCodes = (List<String>) inputEvent.get(Constants.RECIPIENT_CODES());
-        List<String> recipientRoles = (List<String>) inputEvent.get(Constants.RECIPIENT_ROLES());
+        List<String> subscriptions = getProtocolListValue (Constants.SUBSCRIPTIONS(), inputEvent);
+        List<String> recipientCodes = getProtocolListValue (Constants.RECIPIENT_CODES(), inputEvent);
+        List<String> recipientRoles = getProtocolListValue (Constants.RECIPIENT_ROLES(), inputEvent);
         if (!subscriptions.isEmpty()) {
             participantCodes = getParticipantCodes(topicCode, senderCode, Constants.SUBSCRIPTION_ID(), subscriptions);
         } else {
             if (recipientCodes.isEmpty()) {
                 // fetching participants based on the master data allowed recipient roles
-                List<Map<String, Object>> fetchParticipants = registryService.getParticipantDetails("{\"roles\":{\"or\":" + recipientRoles + "}}");
+                List<Map<String, Object>> fetchParticipants = registryService.getParticipantDetails("{\"roles\":{\"or\":[" + addQuotes(recipientRoles) + "]}}");
                 recipientCodes = fetchParticipants.stream().map(obj -> (String) obj.get(Constants.PARTICIPANT_CODE())).collect(Collectors.toList());
             }
             if(notification.get(Constants.CATEGORY()).equals(Constants.NETWORK())) {
@@ -81,7 +83,7 @@ public class NotificationFilterFunction extends ProcessFunction<Map<String,Objec
                 participantCodes = getParticipantCodes(topicCode, senderCode, Constants.RECIPIENT_CODE(), recipientCodes);;
             }
         }
-        List<Map<String, Object>> participantDetails = registryService.getParticipantDetails("{\"participant_code\":{\"or\":" + participantCodes + "}}");
+        List<Map<String, Object>> participantDetails = registryService.getParticipantDetails("{\"participant_code\":{\"or\":[" + addQuotes(participantCodes) + "]}}");
         System.out.println("Total number of participants: " + participantDetails.size());
         logger.info("Total number of participants: " + participantDetails.size());
         consolidatedEvent.put(Constants.PARTICIPANT_DETAILS(), participantDetails);
@@ -89,7 +91,7 @@ public class NotificationFilterFunction extends ProcessFunction<Map<String,Objec
     }
 
     private Map<String,Object> getNotification(String topicCode) {
-        JSONArray templateData = new JSONArray(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("notifications.json")).toString());
+        JSONArray templateData = new JSONArray("[ { \"topic_code\": \"24e975d1-054d-45fa-968e-c91b1043d0a5\", \"title\": \"Organisation status update\", \"description\": \"A notification about the organisation status update in registry. This information will be useful acknowledge the current status of a given organisation and send requests.\", \"allowed_senders\": [ \"HIE/HIO.HCX\" ], \"allowed_recipients\": [ \"provider\", \"payor\", \"agency.tpa\", \"agency.regulator\", \"research\", \"member.isnp\", \"agency.sponsor\", \"HIE/HIO.HCX\" ], \"type\": \"Broadcast\", \"category\": \"Network\", \"trigger\": \"Event\", \"priority\": 0, \"template\": \"{\\\"message\\\": \\\"${participant_name} status changed to ${status}\\\",\\n\\\"participant_code\\\": \\\"${participant_code}\\\", \\\"endpoint_url\\\": \\\"${endpoint_url}\\\"}\", \"status\": \"active\" }, { \"topic_code\": \"be0e578d-b391-42f9-96f7-1e6bacd91c20\", \"title\": \"Payer Downtime\", \"description\": \"A notification about the Payer System Downtime. This information will be useful for all participants.\", \"allowed_senders\": [ \"provider\" ], \"allowed_recipients\": [ \"payor\", \"agency.tpa\", \"agency.regulator\" ], \"type\": \"Broadcast\", \"category\": \"Participant\", \"trigger\": \"Explicit\", \"priority\": 1, \"template\": \"{\\\"message\\\": \\\"${participant_name} system will not be available from ${startTime} for a duration of ${duration} on ${date}\\\",\\n\\\"participant_code\\\": \\\"${participant_code}\\\", \\\"endpoint_url\\\": \\\"${endpoint_url}\\\"}\", \"status\": \"active\" }, { \"topic_code\": \"ab0e578d-b391-42f9-96f7-1e6bacd91c20\", \"title\": \"Payer Downtime\", \"description\": \"A notification about the Payer System Downtime. This information will be useful for all participants.\", \"allowed_senders\": [ \"provider\" ], \"allowed_recipients\": [ \"payor\", \"agency.tpa\", \"agency.regulator\" ], \"type\": \"Broadcast\", \"category\": \"Participant\", \"trigger\": \"Explicit\", \"priority\": 1, \"template\": \"{\\\"message\\\": \\\"${participant_name} system will not be available from ${startTime} for a duration of ${duration} on ${date}\\\",\\n\\\"participant_code\\\": \\\"${participant_code}\\\", \\\"endpoint_url\\\": \\\"${endpoint_url}\\\"}\", \"status\": \"Inactive\" }, { \"topic_code\": \"de0e578d-b391-42f9-96f7-1e6bacd91c20\", \"title\": \"Participant Downtime\", \"description\": \"A notification about the Participant System Downtime. This information will be useful for all participants.\", \"allowed_senders\": [ \"payor\" ], \"allowed_recipients\": [ \"provider\", \"agency.tpa\", \"agency.regulator\" ], \"type\": \"Broadcast\", \"category\": \"Participant\", \"trigger\": \"Explicit\", \"priority\": 1, \"template\": \"{\\\"message\\\": \\\"${participant_name} system will not be available from ${startTime} for a duration of ${duration} on ${date}\\\"}\", \"status\": \"active\" } ]");
         for(Object data: templateData) {
             JSONObject obj = (JSONObject) data;
             if(obj.get(Constants.TOPIC_CODE()).equals(topicCode)){
@@ -112,24 +114,29 @@ public class NotificationFilterFunction extends ProcessFunction<Map<String,Objec
         return (Map<String,Object>) ((Map<String,Object>) ((Map<String,Object>) event.get(Constants.HEADERS())).get(Constants.PROTOCOL())).getOrDefault(key, new HashMap<>());
     }
 
+    private List<String> getProtocolListValue(String key,Map<String,Object> event) {
+        return (List<String>) ((Map<String,Object>) ((Map<String,Object>) event.get(Constants.HEADERS())).get(Constants.PROTOCOL())).getOrDefault(key, new ArrayList<>());
+    }
+
     private boolean isExpired(Long expiryTime){
         return new DateTime(expiryTime).isBefore(DateTime.now());
     }
 
-    private String replaceBraces(List<String> list){
-        return list.toString().replace("[", "(").replace("]", ")");
-    }
-
     private List<String> getParticipantCodes(String topicCode, String senderCode, String id, List<String> range) throws SQLException {
         List<String> participantCodes = new ArrayList<>();
-        String query = String.format("SELECT %s,%s FROM %s WHERE %s = '%s' AND %s = '%s' AND %s = 1 AND %s IN %s", Constants.RECIPIENT_CODE(), Constants.EXPIRY(),
-                config.subscriptionTableName, Constants.SENDER_CODE(), senderCode, Constants.TOPIC_CODE(), topicCode, Constants.SUBSCRIPTION_STATUS(), id, replaceBraces(range));
+        String joined = range.stream().map(plain ->  StringUtils.wrap(plain, "'")).collect(Collectors.joining(","));
+        String query = String.format("SELECT %s,%s FROM %s WHERE %s = '%s' AND %s = '%s' AND %s = 1 AND %s IN (%s)", Constants.RECIPIENT_CODE(), Constants.EXPIRY(),
+                config.subscriptionTableName, Constants.SENDER_CODE(), senderCode, Constants.TOPIC_CODE(), topicCode, Constants.SUBSCRIPTION_STATUS(), id, joined);
         ResultSet resultSet = postgresConnect.executeQuery(query);
         while (resultSet.next()) {
             if (!isExpired(resultSet.getLong(Constants.EXPIRY())))
                 participantCodes.add(resultSet.getString(Constants.RECIPIENT_CODE()));
         }
         return  participantCodes;
+    }
+
+    private String addQuotes(List<String> list){
+        return list.stream().map(plain ->  StringUtils.wrap(plain, "\"")).collect(Collectors.joining(","));
     }
 
 }

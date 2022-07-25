@@ -77,7 +77,7 @@
     "category": "Participant",
     "trigger": "Explicit",
     "priority": 1,
-    "template": "{\"message\": \"${participant_name} system will not be available from ${startTime} for a duration of ${duration} on ${date}\",\n\"participant_code\": \"${participant_code}\", \"endpoint_url\": \"${endpoint_url}\"}",
+    "template": "{\"message\": \"${participant_name} system will not be available from ${startTime} for a duration of ${duration} on ${date}\"}",
     "status": "active"
   }
 ]
