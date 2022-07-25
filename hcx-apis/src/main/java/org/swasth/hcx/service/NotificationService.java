@@ -93,9 +93,9 @@ public class NotificationService {
         }
         //Update the Database
         if (updateSubscription(subscriptionId, statusCode)) {
-            LOG.info("Subscription record updated for subscriptionId:" + subscriptionId);
+            LOG.debug("Subscription record updated for subscriptionId:" + subscriptionId);
         } else {
-            LOG.info("Subscription record is not updated for subscriptionId:" + subscriptionId);
+            LOG.debug("Subscription record is not updated for subscriptionId:" + subscriptionId);
             throw new ClientException(ErrorCodes.ERR_INVALID_SUBSCRIPTION_ID, "Unable to update record with subscription id: " + subscriptionId);
         }
         //Send message to kafka topic
