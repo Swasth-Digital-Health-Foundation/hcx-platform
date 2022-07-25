@@ -53,7 +53,7 @@ public class Request {
         return getHeader(HCX_SENDER_CODE);
     }
 
-    public String getRecipientCode() {
+    public String getHcxRecipientCode() {
         return getHeader(HCX_RECIPIENT_CODE);
     }
 
@@ -133,9 +133,15 @@ public class Request {
 
     public Map<String,Object> getNotificationData() { return getHeaderMap(Constants.NOTIFICATION_DATA);}
 
-    public List<String> getSenderList() { return (List<String>) payload.get(SENDER_LIST); }
+    public List<String> getSenderList() { return getHeaderList(SENDER_LIST); }
 
-    public String getNotificationRecipientCode() { return (String) payload.get(RECIPIENT_CODE); }
+    public String getRecipientCode() { return getHeader(RECIPIENT_CODE); }
+
+    public int getSubscriptionStatus() { return (int) payload.getOrDefault(SUBSCRIPTION_STATUS, null);}
+
+    public boolean getIsDelegated(){ return (boolean) payload.getOrDefault(IS_DELEGATED, null);}
+
+    public Long getExpiry(){ return (Long) payload.getOrDefault(EXPIRY, null); }
 
     public String getSubscriptionId() { return (String) payload.get(SUBSCRIPTION_ID); }
 

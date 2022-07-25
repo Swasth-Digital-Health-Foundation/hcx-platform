@@ -124,9 +124,12 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                     requestObj = jsonRequest;
                     Map<String,Object> recipientDetails =  registryService.fetchDetails(OS_OWNER, subject);
                     requestBody.put(RECIPIENT_CODE, recipientDetails.get(PARTICIPANT_CODE));
-                } else if (path.contains(NOTIFICATION_ON_SUBSCRIBE)) { //for validating /notification/on_subscribe
-                    Map<String,Object> recipientDetails =  registryService.fetchDetails(OS_OWNER, subject);
-                    requestBody.put(SENDER_CODE, recipientDetails.get(PARTICIPANT_CODE));
+                } else if (path.contains(NOTIFICATION_SUBSCRIPTION_UPDATE) || path.contains(NOTIFICATION_ON_SUBSCRIBE)) {
+                    JSONRequest jsonRequest = new JSONRequest(requestBody, true, path, hcxCode, hcxRoles);
+                    requestObj = jsonRequest;
+                    Map<String,Object> senderDetails =  registryService.fetchDetails(OS_OWNER, subject);
+                    jsonRequest.validateNotificationParticipant(senderDetails, ErrorCodes.ERR_INVALID_SENDER, SENDER);
+                    requestBody.put(SENDER_CODE, senderDetails.get(PARTICIPANT_CODE));
                 } else { //for validating redirect and error plain JSON on_check calls
                     if (!path.contains("on_")) {
                         throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, "Request body should be a proper JWE object for action API calls");
@@ -153,7 +156,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                 logger.error("Exception occurred for request with correlationId: " + correlationId);
                 return exceptionHandler.errorResponse(e, exchange, correlationId, apiCallId, requestObj);
             }
-            if(path.contains(NOTIFICATION_NOTIFY) || path.contains(NOTIFICATION_SUBSCRIBE) || path.contains(NOTIFICATION_UNSUBSCRIBE) || path.contains(NOTIFICATION_SUBSCRIPTION_LIST)){
+            if(path.contains(NOTIFICATION_NOTIFY) || path.contains(NOTIFICATION_SUBSCRIBE) || path.contains(NOTIFICATION_UNSUBSCRIBE) || path.contains(NOTIFICATION_SUBSCRIPTION_LIST) || path.contains(NOTIFICATION_SUBSCRIPTION_UPDATE)){
                 return requestHandler.getUpdatedBody(exchange, chain, requestBody);
             } else {
                 return chain.filter(exchange);

@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Response {
 
     private long timestamp = System.currentTimeMillis();
@@ -25,7 +25,10 @@ public class Response {
     @JsonProperty("notification_id")
     private String notificationId;
     private List<String> subscription_list;
-    private String subscription_id;
+    @JsonProperty("subscription_id")
+    private String subscriptionId;
+    @JsonProperty("subscription_status")
+    private int subscriptionStatus;
 
     public Response() {}
 
@@ -133,12 +136,16 @@ public class Response {
         this.subscription_list = subscription_list;
     }
 
-    public String getSubscription_id() {
-        return subscription_id;
+    public void setSubscriptionStatus(int subscriptionStatus) {
+        this.subscriptionStatus = subscriptionStatus;
     }
 
-    public void setSubscription_id(String subscription_id) {
-        this.subscription_id = subscription_id;
+    public int getSubscriptionStatus() { return subscriptionStatus;}
+
+    public void setSubscriptionId(String subscriptionId) {
+        this.subscriptionId = subscriptionId;
     }
+
+    public String getSubscriptionId() {return  subscriptionId;}
 }
 
