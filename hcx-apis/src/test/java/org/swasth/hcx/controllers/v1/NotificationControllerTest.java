@@ -480,14 +480,15 @@ class NotificationControllerTest extends BaseSpec {
 
     @Test
     void testNotificationOnSubscribeNullResponse() throws Exception {
-        doReturn(null).when(postgreSQLClient).executeQuery(anyString());
+        doReturn(getSubscriptionUpdateEmptyResultSet()).when(postgreSQLClient).executeQuery(anyString());
         String requestBody = getOnSubscriptionRequest();
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_ON_SUBSCRIBE).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
-        assertEquals(500, status);
+        assertEquals(400, status);
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
-        assertEquals(ErrorCodes.INTERNAL_SERVER_ERROR, resObj.getError().getCode());
+        assertEquals(ErrorCodes.ERR_INVALID_SUBSCRIPTION_ID, resObj.getError().getCode());
+        assertTrue(resObj.getError().getMessage().contains("Invalid subscription id:"));
     }
 
     @Test

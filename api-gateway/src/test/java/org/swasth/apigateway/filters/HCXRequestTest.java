@@ -1063,4 +1063,44 @@ class HCXRequestTest extends BaseSpec {
                     assertEquals(HttpStatus.OK, result.getStatus());
                 });
     }
+
+    @Test
+    void test_notification_on_subscription() throws Exception {
+        server.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .addHeader("Content-Type", "application/json"));
+
+        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
+                .thenReturn(getProviderDetails());
+        client.post().uri(versionPrefix + Constants.NOTIFICATION_ON_SUBSCRIBE)
+                .header(Constants.AUTHORIZATION, getProviderToken())
+                .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
+                .bodyValue(getOnSubscriptionRequest())
+                .exchange()
+                .expectBody(Map.class)
+                .consumeWith(result -> {
+                    assertEquals(HttpStatus.OK, result.getStatus());
+                });
+    }
+
+    @Test
+    void test_notification_on_subscription_failure() throws Exception {
+        server.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .addHeader("Content-Type", "application/json"));
+
+        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
+                .thenReturn(getBlockedProviderDetails());
+        client.post().uri(versionPrefix + Constants.NOTIFICATION_ON_SUBSCRIBE)
+                .header(Constants.AUTHORIZATION, getProviderToken())
+                .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
+                .bodyValue(getOnSubscriptionRequest())
+                .exchange()
+                .expectBody(Map.class)
+                .consumeWith(result -> {
+                    assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
+                    assertEquals(ErrorCodes.ERR_INVALID_SENDER.name(), getResponseErrorCode(result));
+                    assertTrue(getResponseErrorMessage(result).contains("Sender  is blocked or inactive as per the registry"));
+                });
+    }
 }

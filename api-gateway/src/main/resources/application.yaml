@@ -105,7 +105,7 @@ spring:
             - CachingRequestBodyFilter
             - HCXValidationFilter
           predicates:
-            - Path=/${version.external}/coverageeligibility/**, /${version.external}/preauth/**, /${version.external}/claim/**, /${version.external}/paymentnotice/**, /${version.external}/hcx/**, /${version.external}/predetermination/**, /${version.external}/communication/**, /${version.external}/notification/subscribe, /${version.external}/notification/unsubscribe, /${version.external}/notification/subscription/list, /${version.external}/notification/notify, /${version.external}/notification/subscription/update, /${version.internal}/notification/on_subscribe
+            - Path=/${version.external}/coverageeligibility/**, /${version.external}/preauth/**, /${version.external}/claim/**, /${version.external}/paymentnotice/**, /${version.external}/hcx/**, /${version.external}/predetermination/**, /${version.external}/communication/**, /${version.external}/notification/subscribe, /${version.external}/notification/unsubscribe, /${version.external}/notification/subscription/list, /${version.external}/notification/notify, /${version.external}/notification/subscription/update, /${version.external}/notification/on_subscribe
 
         - id: hcx-api-route-audit
           uri: ${HCX_API_BASEPATH:http://localhost:8080}
