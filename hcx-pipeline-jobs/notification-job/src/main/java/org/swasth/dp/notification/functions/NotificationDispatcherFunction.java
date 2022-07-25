@@ -12,6 +12,7 @@ import org.swasth.dp.core.util.Constants;
 import org.swasth.dp.core.util.DispatcherUtil;
 import org.swasth.dp.core.util.JSONUtil;
 import org.swasth.dp.notification.task.NotificationConfig;
+import scala.Option;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -53,26 +54,31 @@ public class NotificationDispatcherFunction extends ProcessFunction<Map<String, 
         for(Map<String,Object> participant: participantDetails) {
             String participantCode = (String) participant.get(Constants.PARTICIPANT_CODE());
             String endpointUrl = (String) participant.get(Constants.END_POINT());
-            if (!(participantCode).contains("null") && endpointUrl != null) {
+            if (Constants.INVALID_STATUS().contains(participant.get(Constants.STATUS()))){
+                failedDispatches++;
+                System.out.println("Recipient code: " + participantCode + " :: Dispatch status: false");
+                logger.debug("Recipient code: " + participantCode + " :: Dispatch status: false");
+                auditService.indexAudit(createNotificationAuditEvent(event, participantCode, createErrorMap(new ErrorResponse(Option.apply(Constants.ERR_INVALID_RECIPIENT()), Option.apply("Recipient is blocked or inactive as per the registry"), Option.apply("")))));
+            } else if (Constants.VALID_STATUS().contains(participant.get(Constants.STATUS())) && !(participantCode).contains("null") && endpointUrl != null) {
                 participant.put(Constants.END_POINT(), endpointUrl + event.get(Constants.ACTION()));
                 String payload = getPayload(resolvedTemplate, participantCode, notificationMasterData,event);
                 DispatcherResult result = dispatcherUtil.dispatch(participant, payload);
                 System.out.println("Recipient code: " + participantCode + " :: Dispatch status: " + result.success());
-                logger.info("Recipient code: " + participantCode + " :: Dispatch status: " + result.success());
-                auditService.indexAudit(createNotificationAuditEvent(event, participantCode, createErrorMap(result)));
+                logger.debug("Recipient code: " + participantCode + " :: Dispatch status: " + result.success());
+                auditService.indexAudit(createNotificationAuditEvent(event, participantCode, createErrorMap(result.error() != null ? result.error().get() : null)));
                 if(result.success()) successfulDispatches++; else failedDispatches++;
             }
         }
         int totalDispatches = successfulDispatches+failedDispatches;
         System.out.println("Total number of notifications dispatched: " + totalDispatches + " :: successful dispatches: " + successfulDispatches + " :: failed dispatches: " + failedDispatches);
-        logger.info("Total number of notifications dispatched: " + totalDispatches + " :: successful dispatches: " + successfulDispatches + " :: failed dispatches: " + failedDispatches);
+        logger.debug("Total number of notifications dispatched: " + totalDispatches + " :: successful dispatches: " + successfulDispatches + " :: failed dispatches: " + failedDispatches);
     }
 
     private String getPayload(String notificationMessage, String recipientCode, Map<String,Object> notificationMasterData,Map<String,Object> event) throws Exception {
         Map<String, Object> request = new HashMap<>();
         request.put(Constants.SENDER_CODE(), getProtocolStringValue(Constants.SENDER_CODE(),event));
         request.put(Constants.RECIPIENT_CODE(), recipientCode);
-        request.put(Constants.NOTIFICATION_ID(), event.get(Constants.NOTIFICATION_ID()));
+        request.put(Constants.NOTIFICATION_REQ_ID(), event.get(Constants.NOTIFICATION_REQ_ID()));
         request.put(Constants.TIMESTAMP(), new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").format(new Date()));
         request.put(Constants.NOTIFICATION_DATA(), Collections.singletonMap(Constants.MESSAGE(), notificationMessage));
         request.put(Constants.TITLE(), notificationMasterData.get(Constants.NAME()));
@@ -88,10 +94,9 @@ public class NotificationDispatcherFunction extends ProcessFunction<Map<String, 
         return (Map<String,Object>) ((Map<String,Object>) ((Map<String,Object>) event.get(Constants.HEADERS())).get(Constants.PROTOCOL())).getOrDefault(key, new HashMap<>());
     }
 
-    private Map<String,Object> createErrorMap(DispatcherResult result){
+    private Map<String,Object> createErrorMap(ErrorResponse error){
         Map<String,Object> errorMap = new HashMap<>();
-        if (result.error() != null) {
-            ErrorResponse error = result.error().get();
+        if (error != null) {
             errorMap.put(Constants.CODE(), error.code().get());
             errorMap.put(Constants.MESSAGE(), error.message().get());
             errorMap.put(Constants.TRACE(), error.trace().get());
@@ -107,7 +112,7 @@ public class NotificationDispatcherFunction extends ProcessFunction<Map<String, 
         audit.put(Constants.ETS(), Calendar.getInstance().getTime());
         audit.put(Constants.SENDER_CODE(), getProtocolStringValue(Constants.SENDER_CODE(),event));
         audit.put(Constants.RECIPIENT_CODE(), recipientCode);
-        audit.put(Constants.NOTIFICATION_ID(), event.get(Constants.NOTIFICATION_ID()));
+        audit.put(Constants.NOTIFICATION_REQ_ID(), event.get(Constants.NOTIFICATION_REQ_ID()));
         audit.put(Constants.TOPIC_CODE(), getProtocolStringValue(Constants.TOPIC_CODE(),event));
         if(!errorDetails.isEmpty()) {
             audit.put(Constants.ERROR_DETAILS(), errorDetails);

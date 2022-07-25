@@ -48,6 +48,8 @@ object Constants {
   val SUCCESSFUL_DISPATCHES = "successfulDispatches"
   val FAILED_DISPATCHES = "failedDispatches"
   val RESULT_DETAILS = "resultDetails"
+  val INVALID_STATUS = List("Inactive", "Blocked")
+  val VALID_STATUS = List("Created", "Active")
 
   //Event Fields
   val HCX_SENDER_CODE = "x-hcx-sender_code"
@@ -62,7 +64,7 @@ object Constants {
   val EXPIRY = "expiry"
   val TITLE = "title"
   val DESCRIPTION = "description"
-  val NOTIFICATION_ID = "notification_id"
+  val NOTIFICATION_REQ_ID = "notification_request_id"
   val NOTIFICATION_DATA = "notification_data"
   val SUBSCRIPTIONS = "subscriptions"
   val SUBSCRIPTION_ID = "subscription_id"
@@ -103,6 +105,7 @@ object Constants {
   //val DISPATCH_STATUS = "request.dispatched"
   //val ERROR_STATUS = "response.error"
 
+  val ERR_INVALID_RECIPIENT = "ERR_INVALID_RECIPIENT"
   val RECIPIENT_ERROR_CODE = "ERR_RECIPIENT_NOT_AVAILABLE"
   val RECIPIENT_ERROR_MESSAGE = "Please provide correct recipient code"
   val RECIPIENT_ERROR_LOG = "Recipient endpoint url is empty"

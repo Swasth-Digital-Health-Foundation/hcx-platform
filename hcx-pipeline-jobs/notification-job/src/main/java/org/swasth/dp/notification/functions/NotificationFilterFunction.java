@@ -11,14 +11,19 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.swasth.dp.core.service.AuditService;
 import org.swasth.dp.core.service.RegistryService;
-import org.swasth.dp.core.util.*;
+import org.swasth.dp.core.util.Constants;
+import org.swasth.dp.core.util.JSONUtil;
+import org.swasth.dp.core.util.PostgresConnect;
+import org.swasth.dp.core.util.PostgresConnectionConfig;
 import org.swasth.dp.notification.task.NotificationConfig;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class NotificationFilterFunction extends ProcessFunction<Map<String,Object>, Map<String,Object>> {
@@ -27,8 +32,6 @@ public class NotificationFilterFunction extends ProcessFunction<Map<String,Objec
     private NotificationConfig config;
     private RegistryService registryService;
     private PostgresConnect postgresConnect;
-    private DispatcherUtil dispatcherUtil;
-    private AuditService auditService;
     private Map<String,Object> consolidatedEvent;
 
     public NotificationFilterFunction(NotificationConfig config) {
@@ -38,8 +41,6 @@ public class NotificationFilterFunction extends ProcessFunction<Map<String,Objec
     @Override
     public void open(Configuration parameters) {
         registryService = new RegistryService(config);
-        dispatcherUtil = new DispatcherUtil(config);
-        auditService = new AuditService(config);
         postgresConnect = new PostgresConnect(new PostgresConnectionConfig(config.postgresUser(), config.postgresPassword(), config.postgresDb(), config.postgresHost(), config.postgresPort(), config.postgresMaxConnections()));
         postgresConnect.getConnection();
     }
@@ -54,6 +55,7 @@ public class NotificationFilterFunction extends ProcessFunction<Map<String,Objec
     public void processElement(Map<String,Object> inputEvent, ProcessFunction<Map<String,Object>, Map<String,Object>>.Context context, Collector<Map<String,Object>> collector) throws Exception {
         consolidatedEvent = new HashMap<>();
         System.out.println("Event: " + inputEvent);
+        logger.debug("Event: " + inputEvent);
         consolidatedEvent.put(Constants.INPUT_EVENT(), inputEvent);
         String topicCode = getProtocolStringValue(Constants.TOPIC_CODE(), inputEvent);
         String senderCode = getProtocolStringValue(Constants.SENDER_CODE(), inputEvent);
@@ -85,7 +87,7 @@ public class NotificationFilterFunction extends ProcessFunction<Map<String,Objec
         }
         List<Map<String, Object>> participantDetails = registryService.getParticipantDetails("{\"participant_code\":{\"or\":[" + addQuotes(participantCodes) + "]}}");
         System.out.println("Total number of participants: " + participantDetails.size());
-        logger.info("Total number of participants: " + participantDetails.size());
+        logger.debug("Total number of participants: " + participantDetails.size());
         consolidatedEvent.put(Constants.PARTICIPANT_DETAILS(), participantDetails);
         context.output(config.dispatcherOutputTag(), consolidatedEvent);
     }

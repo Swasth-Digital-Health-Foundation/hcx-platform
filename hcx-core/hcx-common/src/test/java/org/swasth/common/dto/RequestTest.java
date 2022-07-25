@@ -57,9 +57,9 @@ import static org.swasth.common.utils.Constants.*;
     @Test
     public void testNotificationPayload() throws Exception {
         Request request = new Request(getNotificationRequest(), NOTIFICATION_NOTIFY);
-        request.setNotificationId("f07250bf-a64b-4537-9182-c233e78d2847");
+        request.setNotificationRequestId("f07250bf-a64b-4537-9182-c233e78d2847");
         assertEquals("hcx-apollo-12345", request.getSenderCode());
-        assertEquals("f07250bf-a64b-4537-9182-c233e78d2847", request.getNotificationId());
+        assertEquals("f07250bf-a64b-4537-9182-c233e78d2847", request.getNotificationRequestId());
         assertEquals("notification-123", request.getTopicCode());
         assertTrue(request.getRecipientCodes().contains("test-user@hcx"));
         assertTrue(request.getRecipientRoles().contains("payor"));
