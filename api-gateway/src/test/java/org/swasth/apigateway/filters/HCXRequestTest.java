@@ -1044,4 +1044,23 @@ class HCXRequestTest extends BaseSpec {
                     assertEquals(HttpStatus.ACCEPTED, result.getStatus());
                 });
     }
+
+    @Test
+    void test_notification_subscription_update() throws Exception {
+        server.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .addHeader("Content-Type", "application/json"));
+
+        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
+                .thenReturn(getProviderDetails());
+        client.post().uri(versionPrefix + Constants.NOTIFICATION_SUBSCRIPTION_UPDATE)
+                .header(Constants.AUTHORIZATION, getProviderToken())
+                .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
+                .bodyValue(getSubscriptionUpdateRequest("be0e578d-b391-42f9-96f7-1e6bacd91c20", 1, true))
+                .exchange()
+                .expectBody(Map.class)
+                .consumeWith(result -> {
+                    assertEquals(HttpStatus.OK, result.getStatus());
+                });
+    }
 }

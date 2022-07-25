@@ -214,4 +214,14 @@ public class BaseSpec {
         return JSONUtils.serialize(obj);
     }
 
+    protected String getSubscriptionUpdateRequest(String topicCode, int subscriptionStatus , Object isDelegated) throws JsonProcessingException {
+        Map<String,Object> obj = new HashMap<>();
+        obj.put(RECIPIENT_CODE,"payor01@hcx");
+        obj.put(TOPIC_CODE,topicCode);
+        obj.put(SENDER_CODE,"provider01@hcx");
+        obj.put(SUBSCRIPTION_STATUS, subscriptionStatus);
+        obj.put(IS_DELEGATED, isDelegated);
+        return org.swasth.common.utils.JSONUtils.serialize(obj);
+    }
+
 }

@@ -95,7 +95,7 @@ public class EventGenerator {
     public Map<String,Object> generateAuditEvent(Request request) {
         Map<String,Object> event = new HashMap<>();
         event.put(EID, AUDIT);
-        event.put(HCX_RECIPIENT_CODE, request.getRecipientCode());
+        event.put(HCX_RECIPIENT_CODE, request.getHcxRecipientCode());
         event.put(HCX_SENDER_CODE, request.getHcxSenderCode());
         event.put(API_CALL_ID, request.getApiCallId());
         event.put(CORRELATION_ID, request.getCorrelationId());
@@ -137,7 +137,7 @@ public class EventGenerator {
         event.put(SUBSCRIPTION_ID, subscriptionId);
         event.put(TOPIC_CODE,request.getTopicCode());
         event.put(Constants.SENDER_CODE,senderCode);
-        event.put(RECIPIENT_CODE,request.getNotificationRecipientCode());
+        event.put(RECIPIENT_CODE,request.getRecipientCode());
         event.put(ETS,System.currentTimeMillis());
         event.put(NOTIFY_STATUS, status);
         return  event;

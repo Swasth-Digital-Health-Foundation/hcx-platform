@@ -91,4 +91,13 @@ public class ResponseTest {
         subscriptionIds.add("hcx-notification-subscription-67890");
         return subscriptionIds;
     }
+
+    @Test
+    public void testSubscriptionUpdateResponse(){
+        Response response = new Response();
+        response.setSubscriptionStatus(1);
+        response.setSubscriptionId("636109b8-3d95-4b55-a6b6-34daf53a6ee7");
+        assertEquals(1, response.getSubscriptionStatus());
+        assertEquals("636109b8-3d95-4b55-a6b6-34daf53a6ee7", response.getSubscriptionId());
+    }
 }
