@@ -15,12 +15,12 @@ public class NotificationUtilsTest {
     @Test
     public void testLoadNotification() {
         assertTrue(NotificationUtils.notificationList.size() > 1);
-        assertTrue(NotificationUtils.topicCodeList.contains("24e975d1-054d-45fa-968e-c91b1043d0a5"));
+        assertTrue(NotificationUtils.topicCodeList.contains("notif-participant-onboarded"));
     }
 
     @Test
     public void testValidTopicCode() {
-        assertTrue(NotificationUtils.isValidCode("24e975d1-054d-45fa-968e-c91b1043d0a5"));
+        assertTrue(NotificationUtils.isValidCode("notif-participant-onboarded"));
     }
 
     @Test
@@ -30,6 +30,6 @@ public class NotificationUtilsTest {
 
     @Test
     public void testGetNotification() {
-        assertEquals(Constants.NETWORK, NotificationUtils.getNotification("24e975d1-054d-45fa-968e-c91b1043d0a5").get(Constants.CATEGORY));
+        assertEquals(Constants.NETWORK, NotificationUtils.getNotification("notif-participant-onboarded").get(Constants.CATEGORY));
     }
 }

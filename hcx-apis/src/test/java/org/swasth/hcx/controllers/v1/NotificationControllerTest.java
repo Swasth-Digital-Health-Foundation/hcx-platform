@@ -342,7 +342,7 @@ class NotificationControllerTest extends BaseSpec {
 
     private String getNotificationListRequest() throws JsonProcessingException {
         Map<String, Object> filters = new HashMap<>();
-        filters.put(PRIORITY, 0);
+        filters.put(PRIORITY, 1);
         return JSONUtils.serialize(Collections.singletonMap(FILTERS, filters));
     }
 
@@ -507,7 +507,7 @@ class NotificationControllerTest extends BaseSpec {
     void testSubscriptionUpdateSuccess() throws Exception {
         doReturn(getSubscriptionUpdateResultSet()).when(postgreSQLClient).executeQuery(anyString());
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIPTION_UPDATE)
-                .content(getSubscriptionUpdateRequest("be0e578d-b391-42f9-96f7-1e6bacd91c20", 1, true)).contentType(MediaType.APPLICATION_JSON)).andReturn();
+                .content(getSubscriptionUpdateRequest("notif-participant-onboarded", 1, true)).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
@@ -548,7 +548,7 @@ class NotificationControllerTest extends BaseSpec {
     @Test
     void testSubscriptionUpdateWithMissingMandatoryFields() throws Exception {
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIPTION_UPDATE)
-                .content(getSubscriptionUpdateMissingFieldsRequest("be0e578d-b391-42f9-96f7-1e6bacd91c20")).contentType(MediaType.APPLICATION_JSON)).andReturn();
+                .content(getSubscriptionUpdateMissingFieldsRequest("notif-participant-onboarded")).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
@@ -568,7 +568,7 @@ class NotificationControllerTest extends BaseSpec {
     @Test
     void testSubscriptionUpdateWithInvalidExpiry() throws Exception {
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIPTION_UPDATE)
-                .content(getSubscriptionUpdateInvalidExpiryRequest("be0e578d-b391-42f9-96f7-1e6bacd91c20")).contentType(MediaType.APPLICATION_JSON)).andReturn();
+                .content(getSubscriptionUpdateInvalidExpiryRequest("notif-participant-onboarded")).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
@@ -591,7 +591,7 @@ class NotificationControllerTest extends BaseSpec {
     @Test
     void testSubscriptionUpdateWithInvalidSubscriptionStatus() throws Exception {
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIPTION_UPDATE)
-                .content(getSubscriptionUpdateRequest("be0e578d-b391-42f9-96f7-1e6bacd91c20", 2, true)).contentType(MediaType.APPLICATION_JSON)).andReturn();
+                .content(getSubscriptionUpdateRequest("notif-participant-onboarded", 2, true)).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
@@ -603,7 +603,7 @@ class NotificationControllerTest extends BaseSpec {
     @Test
     void testSubscriptionUpdateWithInvalidIsDelegated() throws Exception {
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIPTION_UPDATE)
-                .content(getSubscriptionUpdateRequest("be0e578d-b391-42f9-96f7-1e6bacd91c20", 1, "test")).contentType(MediaType.APPLICATION_JSON)).andReturn();
+                .content(getSubscriptionUpdateRequest("notif-participant-onboarded", 1, "test")).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
@@ -616,7 +616,7 @@ class NotificationControllerTest extends BaseSpec {
     void testSubscriptionUpdateWithInvalidSubscriptionDetails() throws Exception {
         doReturn(getSubscriptionUpdateEmptyResultSet()).when(postgreSQLClient).executeQuery(anyString());
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIPTION_UPDATE)
-                .content(getSubscriptionUpdateRequest("be0e578d-b391-42f9-96f7-1e6bacd91c20", 1, true)).contentType(MediaType.APPLICATION_JSON)).andReturn();
+                .content(getSubscriptionUpdateRequest("notif-participant-onboarded", 1, true)).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);

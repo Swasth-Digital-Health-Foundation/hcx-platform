@@ -144,7 +144,7 @@ public class Constants {
     //Notification constants
     public static final String NOTIFICATION_REQ_ID = "notification_request_id";
     public static final String ACTIVE = "Active";
-    public static final String IN_ACTIVE = "Inactive";
+    public static final String IN_ACTIVE = "InActive";
     public static final int ACTIVE_CODE = 1;
     public static final int INACTIVE_CODE = 0;
     public static final String SUBSCRIPTION_ID = "subscription_id";
