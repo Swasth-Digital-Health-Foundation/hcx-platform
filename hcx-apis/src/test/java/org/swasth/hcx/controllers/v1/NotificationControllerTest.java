@@ -448,19 +448,27 @@ class NotificationControllerTest extends BaseSpec {
         return JSONUtils.serialize(obj);
     }
 
+    private ResultSet getOnSubscriptionResultSet() throws SQLException {
+        return MockResultSet.createStringMock(
+                new String[]{"subscription_id"}, //columns
+                new Object[][]{ // data
+                        {"subscription_id-001"}
+                });
+    }
+
     @Test
-    void testNotificationOnSubscribeSuccess() throws Exception {
+    void testNotificationOnSubscribeUpdateFailure() throws Exception {
         doNothing().when(mockKafkaClient).send(anyString(), anyString(), any());
         doReturn(getMockResultSet(1)).when(postgreSQLClient).executeQuery(anyString());
-        doReturn(true).when(postgreSQLClient).execute(anyString());
         String requestBody = getOnSubscriptionRequest();
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_ON_SUBSCRIBE).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
-        assertEquals(202, status);
+        assertEquals(400, status);
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
         assertNotNull(resObj.getTimestamp());
-        assertEquals("subscription_id-001",resObj.getSubscriptionId());
+        assertEquals(ErrorCodes.ERR_INVALID_SUBSCRIPTION_ID, resObj.getError().getCode());
+        assertTrue(resObj.getError().getMessage().contains("Unable to update record with subscription id"));
     }
 
     @Test

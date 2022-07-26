@@ -284,9 +284,9 @@ public class NotificationService {
             resultSet = (ResultSet) postgreSQLClient.executeQuery(query);
             if (resultSet.next())
                 return resultSet.getString(SUBSCRIPTION_ID);
-            return "";
         } finally {
             if (resultSet != null) resultSet.close();
         }
+        return "";
     }
 }
