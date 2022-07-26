@@ -627,7 +627,7 @@ class HCXRequestTest extends BaseSpec {
         client.post().uri(versionPrefix + Constants.NOTIFICATION_NOTIFY)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
-                .bodyValue(getNotificationRequest("be0e578d-b391-42f9-96f7-1e6bacd91c20", Arrays.asList("payor", "agency.tpa"), Arrays.asList("new-payor-3"), Arrays.asList("subscription-123")))
+                .bodyValue(getNotificationRequest("notif-admission-case", Arrays.asList("payor", "agency.tpa"), Arrays.asList("new-payor-3"), Arrays.asList("subscription-123")))
                 .exchange()
                 .expectBody(Map.class)
                 .consumeWith(result -> {
@@ -646,7 +646,7 @@ class HCXRequestTest extends BaseSpec {
         client.post().uri(versionPrefix + Constants.NOTIFICATION_NOTIFY)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
-                .bodyValue(getNotificationRequest("24e975d1-054d-45fa-968e-c91b1043d0a5", Arrays.asList("payor", "agency.tpa"), Collections.emptyList(), Arrays.asList("subscription-123")))
+                .bodyValue(getNotificationRequest("notif-participant-onboarded", Arrays.asList("payor", "agency.tpa"), Collections.emptyList(), Arrays.asList("subscription-123")))
                 .exchange()
                 .expectBody(Map.class)
                 .consumeWith(result -> {
@@ -665,7 +665,7 @@ class HCXRequestTest extends BaseSpec {
         client.post().uri(versionPrefix + Constants.NOTIFICATION_NOTIFY)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
-                .bodyValue(getNotificationRequest("be0e578d-b391-42f9-96f7-1e6bacd91c20", Collections.emptyList(), Collections.emptyList(), Collections.emptyList()))
+                .bodyValue(getNotificationRequest("notif-admission-case", Collections.emptyList(), Collections.emptyList(), Collections.emptyList()))
                 .exchange()
                 .expectBody(Map.class)
                 .consumeWith(result -> {
@@ -749,7 +749,7 @@ class HCXRequestTest extends BaseSpec {
         client.post().uri(versionPrefix + Constants.NOTIFICATION_NOTIFY)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
-                .bodyValue(getNotificationRequest("be0e578d-b391-42f9-96f7-1e6bacd91c20", Arrays.asList("payor", "agency.tpa"), Arrays.asList("test-participant-2"), Arrays.asList("subscription-123")))
+                .bodyValue(getNotificationRequest("notif-claim-initiation", Arrays.asList("payor", "agency.tpa"), Arrays.asList("test-participant-2"), Arrays.asList("subscription-123")))
                 .exchange()
                 .expectBody(Map.class)
                 .consumeWith(result -> {
@@ -766,11 +766,11 @@ class HCXRequestTest extends BaseSpec {
                 .addHeader("Content-Type", "application/json"));
 
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
-                .thenReturn(getProviderDetails());
+                .thenReturn(getPayorDetails());
         client.post().uri(versionPrefix + Constants.NOTIFICATION_NOTIFY)
-                .header(Constants.AUTHORIZATION, getProviderToken())
+                .header(Constants.AUTHORIZATION, getPayorToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
-                .bodyValue(getNotificationRequest("be0e578d-b391-42f9-96f7-1e6bacd91c20", Arrays.asList("HIE/HIO.HCX"), Collections.emptyList(), Arrays.asList("subscription-123")))
+                .bodyValue(getNotificationRequest("notif-workflow-update", Arrays.asList("payor"), Collections.emptyList(), Arrays.asList("subscription-123")))
                 .exchange()
                 .expectBody(Map.class)
                 .consumeWith(result -> {
@@ -829,12 +829,12 @@ class HCXRequestTest extends BaseSpec {
                 .addHeader("Content-Type", "application/json"));
 
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
-                .thenReturn(getProviderDetails());
+                .thenReturn(getPayorDetails());
 
         client.post().uri(versionPrefix + Constants.NOTIFICATION_SUBSCRIBE)
-                .header(Constants.AUTHORIZATION, getProviderToken())
+                .header(Constants.AUTHORIZATION, getPayorToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
-                .bodyValue(getSubscriptionRequest("de0e578d-b391-42f9-96f7-1e6bacd91c20", Arrays.asList("new-payor-3")))
+                .bodyValue(getSubscriptionRequest("notif-claim-initiation", Arrays.asList("new-payor-3")))
                 .exchange()
                 .expectBody(Map.class)
                 .consumeWith(result -> {
@@ -855,7 +855,7 @@ class HCXRequestTest extends BaseSpec {
         client.post().uri(versionPrefix + Constants.NOTIFICATION_NOTIFY)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
-                .bodyValue(getSubscriptionRequest("de0e578d-b391-42f9-96f7-1e6bacd91c20", Arrays.asList("new-payor-3")))
+                .bodyValue(getSubscriptionRequest("notif-admission-case", Arrays.asList("new-payor-3")))
                 .exchange()
                 .expectBody(Map.class)
                 .consumeWith(result -> {
@@ -924,7 +924,7 @@ class HCXRequestTest extends BaseSpec {
         client.post().uri(versionPrefix + Constants.NOTIFICATION_SUBSCRIBE)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
-                .bodyValue(getSubscriptionRequest("ab0e578d-b391-42f9-96f7-1e6bacd91c20", Arrays.asList("new-payor-3")))
+                .bodyValue(getSubscriptionRequest("notif-claim-reimbursement-inactive", Arrays.asList("new-payor-3")))
                 .exchange()
                 .expectBody(Map.class)
                 .consumeWith(result -> {
@@ -941,15 +941,15 @@ class HCXRequestTest extends BaseSpec {
                 .addHeader("Content-Type", "application/json"));
 
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
-                .thenReturn(getPayorDetails());
+                .thenReturn(getProviderDetails());
 
         Mockito.when(registryService.getDetails(anyString()))
-                .thenReturn(Arrays.asList(getProviderDetails()));
+                .thenReturn(Arrays.asList(getPayorDetails()));
 
         client.post().uri(versionPrefix + Constants.NOTIFICATION_SUBSCRIBE)
-                .header(Constants.AUTHORIZATION, getPayorToken())
+                .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "20bd4228-a87f-4175-a30a-20fb28983afb")
-                .bodyValue(getSubscriptionRequest("de0e578d-b391-42f9-96f7-1e6bacd91c20", Arrays.asList("new-payor-3")))
+                .bodyValue(getSubscriptionRequest("notif-admission-case", Arrays.asList("new-payor-3")))
                 .exchange()
                 .expectBody(Map.class)
                 .consumeWith(result -> {
@@ -966,15 +966,15 @@ class HCXRequestTest extends BaseSpec {
                 .addHeader("Content-Type", "application/json"));
 
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
-                .thenReturn(getProviderDetails());
+                .thenReturn(getPayorDetails());
 
         Mockito.when(registryService.getDetails(anyString()))
-                .thenReturn(Arrays.asList(getPayorDetails()));
+                .thenReturn(Arrays.asList(getProviderDetails()));
 
         client.post().uri(versionPrefix + Constants.NOTIFICATION_SUBSCRIBE)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
-                .bodyValue(getSubscriptionRequest("de0e578d-b391-42f9-96f7-1e6bacd91c20", Arrays.asList("new-payor-3","test-payor")))
+                .bodyValue(getSubscriptionRequest("notif-claim-initiation", Arrays.asList("new-payor-3","test-payor")))
                 .exchange()
                 .expectBody(Map.class)
                 .consumeWith(result -> {
@@ -997,7 +997,7 @@ class HCXRequestTest extends BaseSpec {
         client.post().uri(versionPrefix + Constants.NOTIFICATION_SUBSCRIBE)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
-                .bodyValue(getSubscriptionRequest("de0e578d-b391-42f9-96f7-1e6bacd91c20", Arrays.asList("new-payor-3")))
+                .bodyValue(getSubscriptionRequest("notif-claim-initiation", Arrays.asList("new-payor-3")))
                 .exchange()
                 .expectBody(Map.class)
                 .consumeWith(result -> {
@@ -1018,7 +1018,7 @@ class HCXRequestTest extends BaseSpec {
         client.post().uri(versionPrefix + Constants.NOTIFICATION_UNSUBSCRIBE)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
-                .bodyValue(getSubscriptionRequest("de0e578d-b391-42f9-96f7-1e6bacd91c20", Arrays.asList("new-payor-3")))
+                .bodyValue(getSubscriptionRequest("notif-claim-initiation", Arrays.asList("new-payor-3")))
                 .exchange()
                 .expectBody(Map.class)
                 .consumeWith(result -> {
@@ -1056,7 +1056,7 @@ class HCXRequestTest extends BaseSpec {
         client.post().uri(versionPrefix + Constants.NOTIFICATION_SUBSCRIPTION_UPDATE)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
-                .bodyValue(getSubscriptionUpdateRequest("be0e578d-b391-42f9-96f7-1e6bacd91c20", 1, true))
+                .bodyValue(getSubscriptionUpdateRequest("notif-claim-reimbursement", 1, true))
                 .exchange()
                 .expectBody(Map.class)
                 .consumeWith(result -> {
