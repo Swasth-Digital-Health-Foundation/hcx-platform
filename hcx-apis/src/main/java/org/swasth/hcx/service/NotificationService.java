@@ -1,6 +1,5 @@
 package org.swasth.hcx.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -94,7 +93,8 @@ public class NotificationService {
             throw new ClientException(ErrorCodes.ERR_INVALID_SUBSCRIPTION_ID, "Invalid subscription id: " + subscriptionId);
         }
         //Update the Database
-        if (updateSubscription(subscriptionId, statusCode)) {
+        String subscriptionFromDB = updateSubscription(subscriptionId, statusCode);
+        if (subscriptionFromDB.equals(subscriptionId)) {
             LOG.info("Subscription record updated for subscriptionId:" + subscriptionId.replaceAll("[\n\r\t]", "_"));
         } else {
             LOG.info("Subscription record is not updated for subscriptionId:" + subscriptionId.replaceAll("[\n\r\t]", "_"));
@@ -277,9 +277,16 @@ public class NotificationService {
         }
     }
 
-    private boolean updateSubscription(String subscriptionId, int subscriptionStatus) throws Exception {
-        String query = String.format(updateSubscriptionQuery, postgresSubscription, subscriptionStatus, subscriptionId);
-        return postgreSQLClient.execute(query);
+    private String updateSubscription(String subscriptionId, int subscriptionStatus) throws Exception {
+        String query = String.format(updateSubscriptionQuery, postgresSubscription, subscriptionStatus, subscriptionId, SUBSCRIPTION_ID);
+        ResultSet resultSet = null;
+        try {
+            resultSet = (ResultSet) postgreSQLClient.executeQuery(query);
+            if (resultSet.next())
+                return resultSet.getString(SUBSCRIPTION_ID);
+            return "";
+        } finally {
+            if (resultSet != null) resultSet.close();
+        }
     }
-
 }
