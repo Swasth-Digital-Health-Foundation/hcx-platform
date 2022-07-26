@@ -498,17 +498,17 @@ class NotificationControllerTest extends BaseSpec {
     }
 
     @Test
-    void testNotificationOnSubscribeUpdateException() throws Exception {
-        doReturn(getMockResultSet(1)).when(postgreSQLClient).executeQuery(anyString());
-        doReturn(false).when(postgreSQLClient).execute(anyString());
+    void testNotificationOnSubscribeSuccess() throws Exception {
+        doReturn(getMockResultSet(1),getOnSubscriptionResultSet()).when(postgreSQLClient).executeQuery(anyString());
+        doNothing().when(mockKafkaClient).send(anyString(), anyString(), any());
+        doNothing().when(auditIndexer).createDocument(anyMap());
         String requestBody = getOnSubscriptionRequest();
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_ON_SUBSCRIBE).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
-        assertEquals(400, status);
+        assertEquals(202, status);
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
-        assertEquals(ErrorCodes.ERR_INVALID_SUBSCRIPTION_ID, resObj.getError().getCode());
-        assertTrue(resObj.getError().getMessage().contains("Unable to update record with subscription id"));
+        assertEquals("subscription_id-001", resObj.getSubscriptionId());
     }
 
     @Test
