@@ -167,26 +167,27 @@ public class EventGeneratorTest {
 
     @Test
     public void testGenerateSubscriptionEvent() throws Exception {
-        String result = eventGenerator.generateSubscriptionEvent(NOTIFICATION_SUBSCRIBE,"hcx-apollo-12345","icici-67890");
+        String result = eventGenerator.generateSubscriptionEvent(NOTIFICATION_SUBSCRIBE,"hcx-apollo-12345","hcx-notification-001",new ArrayList<>(){{add("icici-67890");add("Payor1"); add("Payor2");}});
+        System.out.println(result);
         assertNotNull(result);
         assertTrue(result.contains(QUEUED_STATUS));
         assertTrue(result.contains(NOTIFICATION_SUBSCRIBE));
         assertTrue(result.contains("hcx-apollo-12345"));
+        assertTrue(result.contains("hcx-notification-001"));
         assertTrue(result.contains("icici-67890"));
     }
 
     @Test
     public void testGenerateSubscriptionAuditEvent() throws Exception {
         Request subscriptionReq = getSubscriptionRequest();
-        Map<String,Object> resultMap = eventGenerator.generateSubscriptionAuditEvent(subscriptionReq,"1fa85f64-5717-4562-b3fc-2c963f66afa6",QUEUED_STATUS,"icici-67890");
+        Map<String,Object> resultMap = eventGenerator.generateSubscriptionAuditEvent(subscriptionReq,QUEUED_STATUS,new ArrayList<>(){{add("icici-67890");}});
         assertNotNull(resultMap);
         assertEquals(AUDIT,resultMap.get(EID));
         assertNotNull(resultMap.get(MID));
         assertEquals(NOTIFICATION_SUBSCRIBE,resultMap.get(ACTION));
         assertEquals("hcx-notification-001",resultMap.get(TOPIC_CODE));
         assertEquals("hcx-apollo-12345",resultMap.get(RECIPIENT_CODE));
-        assertEquals("icici-67890",resultMap.get(Constants.SENDER_CODE));
-        assertEquals("1fa85f64-5717-4562-b3fc-2c963f66afa6",resultMap.get(SUBSCRIPTION_ID));
+        assertNotNull(resultMap.get(Constants.SENDER_LIST));
     }
 
     private Request getSubscriptionRequest() throws Exception {
@@ -197,6 +198,32 @@ public class EventGeneratorTest {
             { add("Payor1"); add("Payor2");}
         });
         return new Request(obj,NOTIFICATION_SUBSCRIBE);
+    }
+
+    @Test
+    public void testGenerateOnSubscriptionEvent() throws Exception {
+        String result = eventGenerator.generateOnSubscriptionEvent(NOTIFICATION_ON_SUBSCRIBE,"hcx-apollo-12345","icici-67890","hcx-apollo:icici-67890",1);
+        assertNotNull(result);
+        assertTrue(result.contains(QUEUED_STATUS));
+        assertTrue(result.contains(NOTIFICATION_ON_SUBSCRIBE));
+        assertTrue(result.contains("hcx-apollo-12345"));
+        assertTrue(result.contains("icici-67890"));
+        assertTrue(result.contains("hcx-apollo:icici-67890"));
+    }
+
+    @Test
+    public void testGenerateOnSubscriptionAuditEvent() {
+        Map<String,Object> resultMap = eventGenerator.generateOnSubscriptionAuditEvent(NOTIFICATION_ON_SUBSCRIBE,"hcx-apollo-12345","subscription_id-001",QUEUED_STATUS,"icici-67890",1);
+        assertNotNull(resultMap);
+        assertEquals(AUDIT,resultMap.get(EID));
+        assertNotNull(resultMap.get(MID));
+        assertEquals(NOTIFICATION_ON_SUBSCRIBE,resultMap.get(ACTION));
+        assertEquals(1,resultMap.get(SUBSCRIPTION_STATUS));
+        assertEquals("hcx-apollo-12345",resultMap.get(RECIPIENT_CODE));
+        assertEquals("icici-67890",resultMap.get(Constants.SENDER_CODE));
+        assertEquals("subscription_id-001",resultMap.get(SUBSCRIPTION_ID));
+        assertNotNull(resultMap.get(ETS));
+        assertEquals(QUEUED_STATUS,resultMap.get(NOTIFY_STATUS));
     }
 
 }

@@ -374,4 +374,27 @@ object EventFixture {
       |"endpoint_url":"http://a07c089412c1b46f2b49946c59267d03-2070772031.ap-south-1.elb.amazonaws.com:8080/v1/predetermination/submit",
       |"participant_name":"Test Provider","hfr_code":"0001","status":"Created"}}}""".stripMargin
 
+  val SAMPLE_VALID_ON_SUBSCRIBE_EVENT: String =
+    """{"ets":1658775486932,"payload":{"subscription_id":"hcx-apollo:icici-67890","subscription_status":1},
+      |"x-hcx-recipient_code":"hcx-apollo-12345","mid":"018fad49-1012-4510-8456-02ed52cda58b",
+      |"action":"/notification/on_subscribe","x-hcx-sender_code":"icici-67890","status":"request.queued"}""".stripMargin
+
+  val SAMPLE_VALID_SUBSCRIBE_EVENT: String =
+    """{"ets":1658779850039,"payload":{"topic_code":"hcx-notification-001","sender_list":["icici-67890","Payor1","Payor2"]},
+      |"mid":"79cf8220-70f7-4c8c-b990-0cd6305d8bb7","action":"/notification/subscribe","x-hcx-sender_code":"hcx-apollo-12345","status":"request.queued"}""".stripMargin
+
+  val SAMPLE_VALID_DISPATCHER_SUBSCRIPTION_REQUEST: String =
+    """{"ets":1637320447257,"mid":"761dfc11-1870-4981-b33d-16254a104a9d",
+      |"action":"/notification/subscribe","status":"request.queued",
+      |"payload":{"topic_code":"hcx-notification-001","sender_list":["icici-67890"]},
+      |"cdata":{"sender":{"participant_code":"12345","signing_cert_path":"","roles":"admin","encryption_cert":"",
+      |"endpoint_url":"http://a4a175528daf949a2af3cd141af93de2-1466580421.ap-south-1.elb.amazonaws.com:8080/v1/notification/on_subscribe",
+      |"participant_name":"Test Provider","hfr_code":"0001","status":"Created"},
+      |"recipient":{"participant_code":"67890","signing_cert_path":"urn:isbn:0-476-27557-4","roles":"admin","encryption_cert":"urn:isbn:0-4234",
+      |"endpoint_url":"http://a07c089412c1b46f2b49946c59267d03-2070772031.ap-south-1.elb.amazonaws.com:8080/v1/notification/subscribe",
+      |"participant_name":"Test Provider","hfr_code":"0001","status":"Created"}}}""".stripMargin
+
+  val SUBSCRIPTION_TOPIC: String =
+    """{"ets":1658789572751,"payload":{"topic_code":"hcx-notification-001","sender_list":["icici-67890","Payor1","Payor2"]},
+      |"mid":"9c5dbe83-a425-4498-9e92-3468f45c537e","action":"/notification/subscribe","x-hcx-sender_code":"hcx-apollo-12345","status":"request.queued"}""".stripMargin
 }

@@ -41,7 +41,7 @@ object Constants {
   val PARTICIPANT_CODE = "participant_code"
   val TEMPLATE = "template"
   val PARTICIPANTS = "participants"
-  val PARTICIPANT_SEARCH = "/v1/participant/search"
+  val PARTICIPANT_SEARCH = "/v0.7/participant/search"
   val NAME = "name"
   val AUDIT = "AUDIT"
   val TOTAL_DISPATCHES = "totalDispatches"
@@ -117,4 +117,8 @@ object Constants {
   val IAT = "iat"
   val EXP = "exp"
 
+  val NOTIFICATION_SUBSCRIBE = "/notification/subscribe"
+  val NOTIFICATION_UNSUBSCRIBE = "/notification/unsubscribe"
+  val SENDER_LIST = "sender_list"
+  val NOTIFY_STATUS = "status"
 }
