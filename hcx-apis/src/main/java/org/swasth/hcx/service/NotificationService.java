@@ -2,7 +2,6 @@ package org.swasth.hcx.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.lucene.util.QueryBuilder;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,8 +75,11 @@ public class NotificationService {
     public void processSubscription(Request request, int statusCode, Response response) throws Exception {
         List<String> senderList = request.getSenderList();
         Map<String, String> subscriptionMap = insertRecords(request.getTopicCode(), statusCode, senderList, request.getRecipientCode());
-        //Iterate through the list and push the kafka event
-        pushKafka(request, senderList, subscriptionMap);
+        //Push the event to kafka
+        String subscriptionMessage = eventGenerator.generateSubscriptionEvent(request.getApiAction(), request.getRecipientCode(), request.getTopicCode(), senderList);
+        kafkaClient.send(subscriptionTopic, request.getRecipientCode(), subscriptionMessage);
+        //Create audit event
+        auditIndexer.createDocument(eventGenerator.generateSubscriptionAuditEvent(request,QUEUED_STATUS,senderList));
         //Set the response data
         List<String> subscriptionList = new ArrayList<>(subscriptionMap.values());
         response.setSubscription_list(subscriptionList);
@@ -99,29 +101,13 @@ public class NotificationService {
             throw new ClientException(ErrorCodes.ERR_INVALID_SUBSCRIPTION_ID, "Unable to update record with subscription id: " + subscriptionId);
         }
         //Send message to kafka topic
-        String subscriptionMessage = eventGenerator.generateSubscriptionEvent(request.getApiAction(), subscription.getRecipient_code(), request.getSenderCode());
+        String subscriptionMessage = eventGenerator.generateOnSubscriptionEvent(request.getApiAction(), subscription.getRecipient_code(), request.getSenderCode(), subscriptionId, statusCode);
         kafkaClient.send(subscriptionTopic, request.getSenderCode(), subscriptionMessage);
+
+        //Create audit event
+        auditIndexer.createDocument(eventGenerator.generateOnSubscriptionAuditEvent(request.getApiAction(),subscription.getRecipient_code(),subscriptionId,QUEUED_STATUS,request.getSenderCode(),statusCode));
         //Set the response data
         response.setSubscriptionId(subscriptionId);
-    }
-
-    private void pushKafka(Request request, List<String> senderList, Map<String, String> subscriptionMap) {
-        senderList.stream().forEach(senderCode -> {
-            try {
-                if (!senderCode.equalsIgnoreCase(hcxRegistryCode)) {
-                    String subscriptionMessage = eventGenerator.generateSubscriptionEvent(request.getApiAction(), senderCode, request.getRecipientCode());
-                    kafkaClient.send(subscriptionTopic, senderCode, subscriptionMessage);
-                    auditIndexer.createDocument(eventGenerator.generateSubscriptionAuditEvent(request, subscriptionMap.get(senderCode), QUEUED_STATUS, senderCode));
-                } else {
-                    LOG.info("Subscribe/Unsubscribe request received with HCX as recipient with code:" + senderCode);
-                    auditIndexer.createDocument(eventGenerator.generateSubscriptionAuditEvent(request, subscriptionMap.get(senderCode), DISPATCHED_STATUS, senderCode));
-                }
-            } catch (JsonProcessingException e) {
-                LOG.error("JsonProcessingException while generating subscription event", e);
-            } catch (Exception e) {
-                LOG.error("Exception while generating subscription event", e);
-            }
-        });
     }
 
     private Map<String, String> insertRecords(String topicCode, int statusCode, List<String> senderList, String notificationRecipientCode) throws Exception {

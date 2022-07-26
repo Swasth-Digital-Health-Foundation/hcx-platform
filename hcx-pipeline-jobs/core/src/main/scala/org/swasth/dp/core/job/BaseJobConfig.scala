@@ -51,6 +51,7 @@ class BaseJobConfig(val config: Config, val jobName: String) extends Serializabl
   // Default output configurations
   val enrichedOutputTag: OutputTag[util.Map[String, AnyRef]] = OutputTag[util.Map[String, AnyRef]]("enriched-events")
   val dispatcherOutputTag: OutputTag[util.Map[String, AnyRef]] = OutputTag[util.Map[String, AnyRef]]("dispatched-events")
+  val enrichedSubscriptionsOutputTag: OutputTag[util.Map[String, AnyRef]] = OutputTag[util.Map[String, AnyRef]]("enriched-subscription-events")
 
   // Default job metrics
   val dispatcherSuccessCount = "dispatcher-success-count"
@@ -111,5 +112,8 @@ class BaseJobConfig(val config: Config, val jobName: String) extends Serializabl
   //HTTP-Codes
   val successCodes: util.List[Integer] = config.getIntList("errorCodes.successCodes")
   val errorCodes: util.List[Integer] = config.getIntList("errorCodes.errorCodes")
+
+  val subscribeOutputTag: OutputTag[util.Map[String, AnyRef]] = OutputTag[util.Map[String, AnyRef]]("subscribed-events")
+  val onSubscribeOutputTag: OutputTag[util.Map[String, AnyRef]] = OutputTag[util.Map[String, AnyRef]]("on-subscribed-events")
 
 }

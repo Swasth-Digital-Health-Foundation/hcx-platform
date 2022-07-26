@@ -117,4 +117,8 @@ object Constants {
   val IAT = "iat"
   val EXP = "exp"
 
+  val NOTIFICATION_SUBSCRIBE = "/notification/subscribe"
+  val NOTIFICATION_UNSUBSCRIBE = "/notification/unsubscribe"
+  val SENDER_LIST = "sender_list"
+  val NOTIFY_STATUS = "status"
 }

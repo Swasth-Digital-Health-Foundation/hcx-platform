@@ -7,12 +7,10 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MvcResult;
 import org.swasth.common.dto.Response;
-import org.swasth.common.dto.Subscription;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.hcx.controllers.BaseSpec;
-import org.swasth.hcx.service.NotificationService;
 import org.swasth.hcx.utils.MockResultSet;
 
 import java.sql.ResultSet;

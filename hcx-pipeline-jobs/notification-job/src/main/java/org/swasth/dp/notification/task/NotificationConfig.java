@@ -9,9 +9,11 @@ public class NotificationConfig extends BaseJobConfig {
 
     // kafka
     public String kafkaInputTopic;
+    public String subscriptionInputTopic;
 
     // Consumers
     public String notificationConsumer = "notification-consumer";
+    public String subscriptionConsumer = "subscription-consumer";
     public int consumerParallelism;
     public int downstreamOperatorsParallelism;
     public int dispatcherParallelism;
@@ -31,6 +33,7 @@ public class NotificationConfig extends BaseJobConfig {
         downstreamOperatorsParallelism = config.getInt("task.downstream.operators.parallelism");
         subscriptionTableName = config.getString("postgres.subscription.table");
         dispatcherParallelism = config.getInt("task.downstream.operators.dispatcher.parallelism");
+        subscriptionInputTopic = config.getString("kafka.subscription.input.topic");
     }
 
 }
