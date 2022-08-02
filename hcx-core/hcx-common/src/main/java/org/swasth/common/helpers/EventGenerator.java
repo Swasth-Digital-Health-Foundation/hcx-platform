@@ -182,4 +182,18 @@ public class EventGenerator {
         return  event;
     }
 
+    public Map<String,Object> createAuditLog(String id, String objectType, Map<String,Object> cdata, Map<String,Object> edata) {
+        Map<String,Object> event = new HashMap<>();
+        event.put(EID, AUDIT);
+        event.put(ETS, System.currentTimeMillis());
+        event.put(MID, UUID.randomUUID().toString());
+        event.put(OBJECT, new HashMap<String,Object>(){{
+            put(ID, id);
+            put(TYPE, objectType);
+        }});
+        event.put(CDATA, cdata);
+        event.put(EDATA, edata);
+        return event;
+    }
+
 }

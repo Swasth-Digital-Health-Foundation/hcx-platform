@@ -64,7 +64,7 @@
   priority: 1
   template: >-
     {"message": "${hcx_name} now supports $(feature_code) on its platform. All
-    participants can now initiate transactions relationg to $(feature_code)."}
+    participants can now initiate transactions relating to $(feature_code)."}
   status: Active
 - topic_code: notif-network-feature-removed
   title: End of support for old feature
@@ -469,9 +469,29 @@
     {"message": "${participant_name} is changing the SLA policy for the
     $(Usecase_code) going forward. Please plan your operations accordingly."}
   status: Active
-- topic_code: notif-workflow-update
-  title: 'Staus change - Initiation, closure, approved, etc.'
-  description: Notification about workflow updates on a policy.
+- topic_code: notif-claim-initiation
+  title: Claim initiation
+  description: Notification about claim initiation.
+  allowed_senders:
+    - provider
+  allowed_recipients:
+    - payor
+    - agency.tpa
+    - agency.regulator
+    - research
+    - member.isnp
+    - agency.sponsor
+    - HIE/HIO.HCX
+  type: Targeted
+  category: Workflow
+  trigger: API
+  priority: 1
+  template: >-
+    {"message": "${participant_name} has initiated a claim."}
+  status: Active
+- topic_code: notif-claim-closure
+  title: Claim closure
+  description: Notification about a claim closure.
   allowed_senders:
     - payor
   allowed_recipients:
@@ -487,8 +507,7 @@
   trigger: API
   priority: 1
   template: >-
-    {"message": "${participant_name} has updated the status for a policy to
-    ${Status}."}
+    {"message": "${participant_name} has closed a claim."}
   status: Active
 - topic_code: notif-admission-case
   title: Admission case - For a particular disease
@@ -511,7 +530,7 @@
     {"message": "${participant_name} has initiated a insurance claim workflow on
     admission for ${Disease_code}."}
   status: Active
-- topic_code: notif-claim-initiation
+- topic_code: notif-claim-particular-disease
   title: Claim initiation for a particular disease
   description: >-
     Notification about workflow updates for claim initiation for a particular

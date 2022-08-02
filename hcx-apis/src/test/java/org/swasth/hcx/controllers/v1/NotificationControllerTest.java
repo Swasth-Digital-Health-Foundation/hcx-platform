@@ -554,7 +554,7 @@ class NotificationControllerTest extends BaseSpec {
     }
 
     @Test
-    void testSubscriptionUpdateWithMissingMandatoryFields() throws Exception {
+    void testSubscriptionUpdateWithNoUpdateProps() throws Exception {
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIPTION_UPDATE)
                 .content(getSubscriptionUpdateMissingFieldsRequest("notif-participant-onboarded")).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -562,7 +562,7 @@ class NotificationControllerTest extends BaseSpec {
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
         assertEquals(400, status);
         assertEquals(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, resObj.getError().getCode());
-        assertTrue(resObj.getError().getMessage().contains("Mandatory fields are missing"));
+        assertTrue(resObj.getError().getMessage().contains("Nothing to update"));
     }
 
     private String getSubscriptionUpdateMissingFieldsRequest(String topicCode) throws JsonProcessingException {

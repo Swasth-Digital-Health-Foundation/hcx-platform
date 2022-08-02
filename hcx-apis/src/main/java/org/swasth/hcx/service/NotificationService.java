@@ -157,7 +157,7 @@ public class NotificationService {
         if (StringUtils.isEmpty(request.getTopicCode()) || !NotificationUtils.isValidCode(request.getTopicCode()))
             throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_TOPIC_CODE, "Topic code is empty or invalid");
         else if (!request.getPayload().containsKey(SUBSCRIPTION_STATUS) && !request.getPayload().containsKey(IS_DELEGATED) && !request.getPayload().containsKey(EXPIRY))
-            throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Mandatory fields are missing: " + SUBSCRIPTION_UPDATE_PROPS);
+            throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Nothing to update");
         else if (request.getPayload().containsKey(EXPIRY) && new DateTime(request.getExpiry()).isBefore(DateTime.now()))
             throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Expiry cannot be past date");
         else if (request.getPayload().containsKey(SUBSCRIPTION_STATUS) && !ALLOWED_SUBSCRIPTION_STATUS.contains(request.getSubscriptionStatus()))
@@ -165,26 +165,58 @@ public class NotificationService {
         else if (request.getPayload().containsKey(IS_DELEGATED) && !(request.getPayload().get(IS_DELEGATED) instanceof Boolean))
             throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Is delegated value is invalid");
         StringBuilder updateProps = new StringBuilder();
-        SUBSCRIPTION_UPDATE_PROPS.forEach(prop -> {
-            if(request.getPayload().containsKey(prop))
-                updateProps.append("," + prop + "=" + "'" + request.getPayload().get(prop) + "'");
-        });
-        updateProps.deleteCharAt(0);
-        ResultSet resultSet = null;
-        try {
+        formatDBCondition(request, updateProps, " AND ", "!=");
+        updateProps.delete(0,4);
+        String selectQuery = String.format("SELECT %s FROM %s WHERE %s = '%s' AND %s = '%s' AND %s = '%s'",
+                SUBSCRIPTION_STATUS, postgresSubscription, SENDER_CODE, request.getSenderCode(), RECIPIENT_CODE,
+                request.getRecipientCode(), TOPIC_CODE, request.getTopicCode());
+        System.out.println("-----select query-----" + selectQuery);
+        ResultSet selectResult = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
+        if(selectResult.next()) {
+            int prevStatus = selectResult.getInt(SUBSCRIPTION_STATUS);
+            formatDBCondition(request, updateProps, ",", "=");
+            updateProps.deleteCharAt(0);
             String updateQuery = String.format("UPDATE %s SET %s WHERE %s = '%s' AND %s = '%s' AND %s = '%s' RETURNING %s,%s",
                     postgresSubscription, updateProps, SENDER_CODE, request.getSenderCode(), RECIPIENT_CODE,
                     request.getRecipientCode(), TOPIC_CODE, request.getTopicCode(), SUBSCRIPTION_ID, SUBSCRIPTION_STATUS);
-            resultSet = (ResultSet) postgreSQLClient.executeQuery(updateQuery);
-            if (resultSet.next()) {
-                response.setSubscriptionId(resultSet.getString(SUBSCRIPTION_ID));
-                response.setSubscriptionStatus(resultSet.getInt(SUBSCRIPTION_STATUS));
+            System.out.println("-----update query-----" + updateQuery);
+            ResultSet updateResult = (ResultSet) postgreSQLClient.executeQuery(updateQuery);
+            if (updateResult.next()) {
+                response.setSubscriptionId(updateResult.getString(SUBSCRIPTION_ID));
+                response.setSubscriptionStatus(updateResult.getInt(SUBSCRIPTION_STATUS));
             } else {
                 throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Subscription does not exist");
             }
-        } finally {
-            if (resultSet != null) resultSet.close();
+            List<String> updatedProps = new ArrayList<>();
+            SUBSCRIPTION_UPDATE_PROPS.forEach(prop -> { if(request.getPayload().containsKey(prop)) updatedProps.add(prop);});
+            eventHandler.createAudit(eventGenerator.createAuditLog(response.getSubscriptionId(), NOTIFICATION, getCData(request),
+                    getEData(response.getSubscriptionStatus(), prevStatus, updatedProps)));
         }
+    }
+
+    private void formatDBCondition(Request request, StringBuilder updateProps, String fieldSeparator, String operation) {
+        updateProps.delete(0, updateProps.length());
+        SUBSCRIPTION_UPDATE_PROPS.forEach(prop -> {
+            if(request.getPayload().containsKey(prop))
+                updateProps.append(fieldSeparator + prop + operation + "'" + request.getPayload().get(prop) + "'");
+        });
+    }
+
+    private Map<String,Object> getCData(Request request) {
+        Map<String,Object> data = new HashMap<>();
+        data.put(ACTION, request.getApiAction());
+        data.put(SENDER_CODE, request.getSenderCode());
+        data.put(RECIPIENT_CODE, request.getRecipientCode());
+        return data;
+    }
+
+    private Map<String,Object> getEData(int status, int prevStatus, List<String> props) {
+        Map<String,Object> data = new HashMap<>();
+        data.put(AUDIT_STATUS, status);
+        data.put(PROPS, props);
+        if (status != prevStatus)
+            data.put(PREV_STATUS, prevStatus);
+        return data;
     }
 
     public void getNotifications(NotificationListRequest request, Response response) throws Exception {

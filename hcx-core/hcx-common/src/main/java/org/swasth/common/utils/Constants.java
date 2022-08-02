@@ -58,6 +58,9 @@ public class Constants {
     public static final String PARTICIPANT_SEARCH = "/participant/search";
     public static final String PARTICIPANT_UPDATE = "/participant/update";
 
+    // Object Types
+    public static final String PARTICIPANT = "participant";
+
     public static final String HEALTHY = "healthy";
     public static final String NAME = "name";
     public static final String KAFKA = "kafka";
@@ -83,6 +86,15 @@ public class Constants {
     public static final String UPDATED_TIME = "updatedTimestamp";
     public static final String REQUEST_TIME = "requestTimeStamp";
     public static  final String TRIGGER_TYPE = "triggerType";
+    public static  final String OBJECT = "object";
+    public static  final String CDATA = "cdata";
+    public static  final String EDATA = "edata";
+    public static  final String ID = "id";
+    public static  final String TYPE = "type";
+    public static  final String AUDIT_STATUS = "status";
+    public static  final String PREV_STATUS = "prevStatus";
+    public static  final String PROPS = "props";
+    public static  final String CREATED = "Created";
 
     //Request props
     public static final String PROTOCOL_HEADERS_MANDATORY = "protocol.headers.mandatory";

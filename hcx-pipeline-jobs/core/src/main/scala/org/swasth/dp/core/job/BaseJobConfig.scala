@@ -52,6 +52,11 @@ class BaseJobConfig(val config: Config, val jobName: String) extends Serializabl
   val enrichedOutputTag: OutputTag[util.Map[String, AnyRef]] = OutputTag[util.Map[String, AnyRef]]("enriched-events")
   val dispatcherOutputTag: OutputTag[util.Map[String, AnyRef]] = OutputTag[util.Map[String, AnyRef]]("dispatched-events")
   val enrichedSubscriptionsOutputTag: OutputTag[util.Map[String, AnyRef]] = OutputTag[util.Map[String, AnyRef]]("enriched-subscription-events")
+  val auditOutputTag: OutputTag[String] = OutputTag[String]("audit-events")
+  val auditTopic = if (config.hasPath("kafka.audit.topic")) config.getString("kafka.audit.topic") else ""
+
+  // Producers
+  val auditProducer = "audit-events-sink"
 
   // Default job metrics
   val dispatcherSuccessCount = "dispatcher-success-count"
@@ -115,5 +120,7 @@ class BaseJobConfig(val config: Config, val jobName: String) extends Serializabl
 
   val subscribeOutputTag: OutputTag[util.Map[String, AnyRef]] = OutputTag[util.Map[String, AnyRef]]("subscribed-events")
   val onSubscribeOutputTag: OutputTag[util.Map[String, AnyRef]] = OutputTag[util.Map[String, AnyRef]]("on-subscribed-events")
+
+  val hcxInstanceName: String = config.getString("hcx.instanceName")
 
 }

@@ -81,7 +81,7 @@ public class NotificationFilterFunction extends ProcessFunction<Map<String,Objec
             if(notification.get(Constants.CATEGORY()).equals(Constants.NETWORK())) {
                 participantCodes = recipientCodes;
             } else {
-                // check recipients have active subscription
+                // check if recipients have any active subscription
                 participantCodes = getParticipantCodes(topicCode, senderCode, Constants.RECIPIENT_CODE(), recipientCodes);;
             }
         }
