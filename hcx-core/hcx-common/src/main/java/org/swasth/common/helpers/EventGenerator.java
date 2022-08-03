@@ -187,10 +187,10 @@ public class EventGenerator {
         event.put(EID, AUDIT);
         event.put(ETS, System.currentTimeMillis());
         event.put(MID, UUID.randomUUID().toString());
-        event.put(OBJECT, new HashMap<String,Object>(){{
-            put(ID, id);
-            put(TYPE, objectType);
-        }});
+        Map<String,Object> objectMap = new HashMap<>();
+        objectMap.put(ID, id);
+        objectMap.put(TYPE, objectType);
+        event.put(OBJECT, objectMap);
         event.put(CDATA, cdata);
         event.put(EDATA, edata);
         return event;

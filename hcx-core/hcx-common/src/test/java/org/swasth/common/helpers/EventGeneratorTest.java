@@ -5,10 +5,7 @@ import org.junit.Test;
 import org.swasth.common.dto.Request;
 import org.swasth.common.utils.Constants;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.Assert.*;
 import static org.swasth.common.utils.Constants.*;
@@ -224,6 +221,20 @@ public class EventGeneratorTest {
         assertEquals("subscription_id-001",resultMap.get(SUBSCRIPTION_ID));
         assertNotNull(resultMap.get(ETS));
         assertEquals(QUEUED_STATUS,resultMap.get(NOTIFY_STATUS));
+    }
+
+    @Test
+    public void testCreateAuditLog() {
+        Map<String,Object> resultMap = eventGenerator.createAuditLog("provider01@hcx","participant",
+                Collections.singletonMap(ACTION, PARTICIPANT_CREATE), Collections.singletonMap(AUDIT_STATUS, CREATED));
+        assertNotNull(resultMap);
+        assertEquals(AUDIT, resultMap.get(EID));
+        assertNotNull(resultMap.get(ETS));
+        assertNotNull(resultMap.get(MID));
+        assertEquals("provider01@hcx", ((Map<String,Object>) resultMap.get(OBJECT)).get(ID));
+        assertEquals("participant", ((Map<String,Object>) resultMap.get(OBJECT)).get(TYPE));
+        assertEquals(PARTICIPANT_CREATE, ((Map<String,Object>) resultMap.get(CDATA)).get(ACTION));
+        assertEquals(CREATED, ((Map<String,Object>) resultMap.get(EDATA)).get(AUDIT_STATUS));
     }
 
 }
