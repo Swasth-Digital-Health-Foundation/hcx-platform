@@ -82,8 +82,8 @@ public class NotificationTriggerProcessFunction extends ProcessFunction<Map<Stri
                 processWorkflowNotification(context, cdata, topicCode, notifyEvent);
         }
         if (notifyEvent != null)
-            System.out.println("Notify event is pushed to kafka :: Event ::" + notifyEvent);
-            logger.debug("Notify event is pushed to kafka :: Event :: " + notifyEvent);
+            System.out.println("Notify event is pushed to kafka :: " + notifyEvent);
+            logger.debug("Notify event is pushed to kafka :: " + notifyEvent);
     }
 
     private void processWorkflowNotification(ProcessFunction<Map<String, Object>, Map<String, Object>>.Context context, Map<String, Object> cdata, String topicCode, String notifyEvent) throws Exception {

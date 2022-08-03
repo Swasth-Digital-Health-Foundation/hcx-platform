@@ -14,7 +14,6 @@
     - HIE/HIO.HCX
   type: Broadcast
   category: Network
-  trigger: Event
   priority: 1
   template: >-
     {"message": "${participant_name} has been successfully onboarded on ${hcx_name}
@@ -37,7 +36,6 @@
     - HIE/HIO.HCX
   type: Broadcast
   category: Network
-  trigger: Event
   priority: 1
   template: >-
     {"message": "${participant_name} has been deboarded from ${hcx_name} on
@@ -60,11 +58,10 @@
     - HIE/HIO.HCX
   type: Broadcast
   category: Network
-  trigger: API
   priority: 1
   template: >-
     {"message": "${hcx_name} now supports $(feature_code) on its platform. All
-    participants can now initiate transactions relationg to $(feature_code)."}
+    participants can now initiate transactions relating to $(feature_code)."}
   status: Active
 - topic_code: notif-network-feature-removed
   title: End of support for old feature
@@ -84,7 +81,6 @@
     - HIE/HIO.HCX
   type: Broadcast
   category: Network
-  trigger: API
   priority: 1
   template: >-
     {"message": "${hcx_name} now does not support $(feature_code) on its
@@ -108,7 +104,6 @@
     - HIE/HIO.HCX
   type: Broadcast
   category: Network
-  trigger: API
   priority: 1
   template: >-
     {"message": "${hcx_name} now does not support $(version_code) on its
@@ -131,7 +126,6 @@
     - HIE/HIO.HCX
   type: Broadcast
   category: Network
-  trigger: API
   priority: 1
   template: >-
     {"message": "${hcx_name} will be facing downtime from ${DDMMYYYY} to
@@ -156,7 +150,6 @@
     - HIE/HIO.HCX
   type: Broadcast
   category: Network
-  trigger: API
   priority: 1
   template: >-
     {"message": "${hcx_name} is changing the SLA policy for the $(Usecase_code)
@@ -180,7 +173,6 @@
     - HIE/HIO.HCX
   type: Broadcast
   category: Network
-  trigger: API
   priority: 1
   template: >-
     {"message": "${hcx_name} is now compliant with latest FHIR security and
@@ -205,7 +197,6 @@
     - HIE/HIO.HCX
   type: Targeted
   category: Network
-  trigger: Event
   priority: 1
   template: >-
     {"message": "${participant_name} compliance certificate will be expiring on
@@ -229,7 +220,6 @@
     - HIE/HIO.HCX
   type: Targeted
   category: Network
-  trigger: Event
   priority: 1
   template: >-
     {"message": "${participant_name} notification subscription to
@@ -254,7 +244,6 @@
     - HIE/HIO.HCX
   type: Targeted
   category: Network
-  trigger: Event
   priority: 1
   template: >-
     {"message": "${participant_name} encryption key will be expiring on
@@ -284,7 +273,6 @@
     - HIE/HIO.HCX
   type: Broadcast
   category: Participant
-  trigger: API
   priority: 1
   template: >-
     {"message": "${participant_name} will be facing downtime from ${DDMMYYYY} to
@@ -316,7 +304,6 @@
     - HIE/HIO.HCX
   type: Broadcast
   category: Participant
-  trigger: API
   priority: 1
   template: >-
     {"message": "${participant_name} now supports $(version_code) on its
@@ -348,7 +335,6 @@
     - HIE/HIO.HCX
   type: Broadcast
   category: Participant
-  trigger: API
   priority: 1
   template: >-
     {"message": "${participant_name} now supports $(Master_list_version) on its
@@ -380,7 +366,6 @@
     - HIE/HIO.HCX
   type: Broadcast
   category: Participant
-  trigger: API
   priority: 1
   template: >-
     {"message": "${participant_name} now does not support $(feature_code) on its
@@ -403,7 +388,6 @@
     - HIE/HIO.HCX
   type: Broadcast
   category: Participant
-  trigger: API
   priority: 1
   template: >-
     {"message": "${participant_name} now supports $(feature_code) on its
@@ -433,7 +417,6 @@
     - HIE/HIO.HCX
   type: Broadcast
   category: Participant
-  trigger: API
   priority: 1
   template: >-
     {"message": "${participant_name} is changing the service terms for policy
@@ -463,15 +446,33 @@
     - HIE/HIO.HCX
   type: Broadcast
   category: Participant
-  trigger: API
   priority: 1
   template: >-
     {"message": "${participant_name} is changing the SLA policy for the
     $(Usecase_code) going forward. Please plan your operations accordingly."}
   status: Active
-- topic_code: notif-workflow-update
-  title: 'Staus change - Initiation, closure, approved, etc.'
-  description: Notification about workflow updates on a policy.
+- topic_code: notif-claim-initiation
+  title: Claim initiation
+  description: Notification about claim initiation.
+  allowed_senders:
+    - provider
+  allowed_recipients:
+    - payor
+    - agency.tpa
+    - agency.regulator
+    - research
+    - member.isnp
+    - agency.sponsor
+    - HIE/HIO.HCX
+  type: Targeted
+  category: Workflow
+  priority: 1
+  template: >-
+    {"message": "${participant_name} has initiated a claim."}
+  status: Active
+- topic_code: notif-claim-closure
+  title: Claim closure
+  description: Notification about a claim closure.
   allowed_senders:
     - payor
   allowed_recipients:
@@ -484,11 +485,47 @@
     - HIE/HIO.HCX
   type: Targeted
   category: Workflow
-  trigger: API
   priority: 1
   template: >-
-    {"message": "${participant_name} has updated the status for a policy to
-    ${Status}."}
+    {"message": "${participant_name} has closed a claim."}
+  status: Active
+- topic_code: notif-payment-initiation
+  title: Payment notice initiation
+  description: Notification about a payment notice initiation.
+  allowed_senders:
+    - payor
+  allowed_recipients:
+    - provider
+    - agency.tpa
+    - agency.regulator
+    - research
+    - member.isnp
+    - agency.sponsor
+    - HIE/HIO.HCX
+  type: Targeted
+  category: Workflow
+  priority: 1
+  template: >-
+    {"message": "${participant_name} has initiated a payment notice."}
+  status: Active
+- topic_code: notif-payment-closure
+  title: Payment notice closure
+  description: Notification about payment notice closure.
+  allowed_senders:
+    - provider
+  allowed_recipients:
+    - payor
+    - agency.tpa
+    - agency.regulator
+    - research
+    - member.isnp
+    - agency.sponsor
+    - HIE/HIO.HCX
+  type: Targeted
+  category: Workflow
+  priority: 1
+  template: >-
+    {"message": "${participant_name} has closed a payment notice."}
   status: Active
 - topic_code: notif-admission-case
   title: Admission case - For a particular disease
@@ -505,13 +542,12 @@
     - HIE/HIO.HCX
   type: Targeted
   category: Workflow
-  trigger: API
   priority: 1
   template: >-
     {"message": "${participant_name} has initiated a insurance claim workflow on
     admission for ${Disease_code}."}
   status: Active
-- topic_code: notif-claim-initiation
+- topic_code: notif-claim-particular-disease
   title: Claim initiation for a particular disease
   description: >-
     Notification about workflow updates for claim initiation for a particular
@@ -529,7 +565,6 @@
     - HIE/HIO.HCX
   type: Targeted
   category: Workflow
-  trigger: API
   priority: 1
   template: >-
     {"message": "${participant_name} has initiated a insurance claim workflow on
@@ -551,7 +586,6 @@
     - HIE/HIO.HCX
   type: Targeted
   category: Workflow
-  trigger: API
   priority: 1
   template: >-
     {"message": "${participant_name} has updated the status for ${policy_ID} to
@@ -573,7 +607,6 @@
     - HIE/HIO.HCX
   type: Targeted
   category: Workflow
-  trigger: API
   priority: 1
   template: >-
     {"message": "${participant_name} has updated the coverage eligibility for
@@ -595,7 +628,6 @@
     - HIE/HIO.HCX
   type: Targeted
   category: Workflow
-  trigger: API
   priority: 1
   template: >-
     {"message": "${participant_name} has approved the reimbursement payment for
@@ -618,7 +650,6 @@
     - HIE/HIO.HCX
   type: Targeted
   category: Workflow
-  trigger: API
   priority: 1
   template: >-
     {"message": "${participant_name} has approved the reimbursement payment for
@@ -641,7 +672,6 @@
     - HIE/HIO.HCX
   type: Targeted
   category: Network
-  trigger: API
   priority: 1
   template: >-
     {"message": "${participant_name} has updated the subscription: ${subscription_id}."}
