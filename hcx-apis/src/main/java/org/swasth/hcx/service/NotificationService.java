@@ -170,7 +170,6 @@ public class NotificationService {
         String selectQuery = String.format("SELECT %s FROM %s WHERE %s = '%s' AND %s = '%s' AND %s = '%s'",
                 SUBSCRIPTION_STATUS, postgresSubscription, SENDER_CODE, request.getSenderCode(), RECIPIENT_CODE,
                 request.getRecipientCode(), TOPIC_CODE, request.getTopicCode());
-        System.out.println("-----select query-----" + selectQuery);
         ResultSet selectResult = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
         if(selectResult.next()) {
             int prevStatus = selectResult.getInt(SUBSCRIPTION_STATUS);
@@ -179,7 +178,6 @@ public class NotificationService {
             String updateQuery = String.format("UPDATE %s SET %s WHERE %s = '%s' AND %s = '%s' AND %s = '%s' RETURNING %s,%s",
                     postgresSubscription, updateProps, SENDER_CODE, request.getSenderCode(), RECIPIENT_CODE,
                     request.getRecipientCode(), TOPIC_CODE, request.getTopicCode(), SUBSCRIPTION_ID, SUBSCRIPTION_STATUS);
-            System.out.println("-----update query-----" + updateQuery);
             ResultSet updateResult = (ResultSet) postgreSQLClient.executeQuery(updateQuery);
             if (updateResult.next()) {
                 response.setSubscriptionId(updateResult.getString(SUBSCRIPTION_ID));
