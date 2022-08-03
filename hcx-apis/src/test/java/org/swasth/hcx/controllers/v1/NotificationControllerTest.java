@@ -628,7 +628,7 @@ class NotificationControllerTest extends BaseSpec {
 
     @Test
     void testSubscriptionUpdateWithInvalidSubscriptionDetails() throws Exception {
-        doReturn(getSubscriptionUpdateEmptyResultSet()).when(postgreSQLClient).executeQuery(anyString());
+        doReturn(getSubscriptionUpdateSelectResultSet()).when(postgreSQLClient).executeQuery(anyString());
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIPTION_UPDATE)
                 .content(getSubscriptionUpdateRequest("notif-participant-onboarded", 1, true)).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -639,12 +639,18 @@ class NotificationControllerTest extends BaseSpec {
         assertTrue(resObj.getError().getMessage().contains("Subscription does not exist"));
     }
 
-    private ResultSet getSubscriptionUpdateEmptyResultSet() throws SQLException {
+    private ResultSet getSubscriptionUpdateSelectResultSet() throws SQLException {
         return MockResultSet.createIntMock(
                 new String[]{"subscription_id", "subscription_status"}, //columns
                 new Object[][]{ // data
                         {"subscription-123", 1}
                 });
+    }
+
+    private ResultSet getSubscriptionUpdateEmptyResultSet() throws SQLException {
+        return MockResultSet.createEmptyMock(
+                new String[]{}, //columns
+                new Object[][]{});
     }
 
 }
