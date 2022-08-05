@@ -1,4 +1,4 @@
-package org.swasth.retrybatch.functions;
+package org.swasth.commonscheduler.schedulers;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,39 +24,22 @@ import java.util.Map;
 import static org.swasth.common.utils.Constants.*;
 
 @Component
-public class RetryFunction {
+public class RetryScheduler extends BaseScheduler {
 
-    private final Logger logger = LoggerFactory.getLogger(RetryFunction.class);
-
-    @Autowired
-    private Environment env;
-
-    @Value("${postgres.url}")
-    private String postgresUrl;
-
-    @Value("${postgres.user}")
-    private String postgresUser;
-
-    @Value("${postgres.password}")
-    private String postgresPassword;
-
-    @Value("${postgres.tablename}")
-    private String postgresTableName;
+    private final Logger logger = LoggerFactory.getLogger(RetryScheduler.class);
 
     @Value("${max.retry}")
     private int maxRetry;
 
-    @Value("${kafka.url}")
-    private String kafkaUrl;
-
     @Value("${kafka.topic.output}")
     private String kafkaOutputTopic;
 
-    @Scheduled(fixedDelayString = "${fixedDelay.in.milliseconds}")
+    @Value("${postgres.tablename}")
+    private String postgresTableName;
+
+    @Scheduled(fixedDelayString = "${fixedDelay.in.milliseconds.retry}")
     public void process() throws Exception {
-        KafkaClient kafkaClient = new KafkaClient(kafkaUrl);
-        EventGenerator eventGenerator = new EventGenerator(getProtocolHeaders(), getJoseHeaders(), getRedirectHeaders(), getErrorHeaders(), getNotificationHeaders());
-        PostgreSQLClient postgreSQLClient = new PostgreSQLClient(postgresUrl, postgresUser, postgresPassword);
+
         System.out.println("Retry batch job is started");
         ResultSet result = null;
         Connection connection = postgreSQLClient.getConnection();
@@ -92,34 +75,6 @@ public class RetryFunction {
             connection.close();
             postgreSQLClient.close();
         }
-    }
-
-    private List<String> getProtocolHeaders(){
-        List<String> protocolHeaders = env.getProperty(PROTOCOL_HEADERS_MANDATORY, List.class, new ArrayList<String>());
-        protocolHeaders.addAll(env.getProperty(PROTOCOL_HEADERS_OPTIONAL, List.class, new ArrayList<String>()));
-        return protocolHeaders;
-    }
-
-    private List<String> getJoseHeaders(){
-        return env.getProperty(JOSE_HEADERS, List.class);
-    }
-
-    private List<String> getRedirectHeaders(){
-        List<String> redirectHeaders = env.getProperty(REDIRECT_HEADERS_MANDATORY, List.class, new ArrayList<String>());
-        redirectHeaders.addAll(env.getProperty(REDIRECT_HEADERS_OPTIONAL, List.class, new ArrayList<String>()));
-        return  redirectHeaders;
-    }
-
-    private List<String> getErrorHeaders(){
-        List<String> errorHeaders = env.getProperty(ERROR_HEADERS_MANDATORY, List.class, new ArrayList<String>());
-        errorHeaders.addAll(env.getProperty(ERROR_HEADERS_OPTIONAL, List.class, new ArrayList<String>()));
-        return errorHeaders;
-    }
-
-    private List<String> getNotificationHeaders(){
-        List<String> notificationHeaders = env.getProperty(NOTIFICATION_HEADERS_MANDATORY, List.class, new ArrayList<String>());
-        notificationHeaders.addAll(env.getProperty(NOTIFICATION_HEADERS_OPTIONAL, List.class, new ArrayList<String>()));
-        return notificationHeaders;
     }
 
 }

@@ -182,4 +182,16 @@ public class EventGenerator {
         return  event;
     }
 
+    public String createNotifyEvent(String topicCode, String senderCode, List<String> recipientCodes, List<String> recipientRoles,
+                                    List<String> subscriptions, Map<String,Object> notificationData) throws Exception {
+        Map<String,Object> event = new HashMap<>();
+        event.put(TOPIC_CODE, topicCode);
+        event.put(SENDER_CODE, senderCode);
+        event.put(RECIPIENT_CODES, recipientCodes);
+        event.put(RECIPIENT_ROLES, recipientRoles);
+        event.put(SUBSCRIPTIONS, subscriptions);
+        event.put(NOTIFICATION_DATA, notificationData);
+        return JSONUtils.serialize(event);
+    }
+
 }
