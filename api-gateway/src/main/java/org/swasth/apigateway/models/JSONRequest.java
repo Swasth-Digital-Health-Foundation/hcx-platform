@@ -129,7 +129,7 @@ public class JSONRequest extends BaseRequest {
         return (List<String>) getProtocolHeaders().getOrDefault(SENDER_LIST, new ArrayList<>());
     }
 
-    public void validateSubscriptionRequests(String topicCode, List<Map<String, Object>> senderListDetails, Map<String, Object> recipientDetails, List<String> subscriptionMandatoryHeaders) throws ClientException {
+    public void validateSubscriptionRequests(String topicCode, List<Map<String, Object>> senderListDetails, Map<String, Object> recipientDetails, List<String> subscriptionMandatoryHeaders,Map<String, Object> notification) throws ClientException {
         for (String subscriptionMandatoryHeader : subscriptionMandatoryHeaders) {
             validateCondition(!getProtocolHeaders().containsKey(subscriptionMandatoryHeader), ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Notification request does not have mandatory headers: " + TOPIC_CODE +" , "+SENDER_LIST);
         }
@@ -140,7 +140,6 @@ public class JSONRequest extends BaseRequest {
         validateCondition(StringUtils.isEmpty(topicCode), ErrorCodes.ERR_INVALID_NOTIFICATION_TOPIC_CODE, "Notification topic code cannot be null, empty and other than 'String'");
         validateCondition(!NotificationUtils.isValidCode(topicCode), ErrorCodes.ERR_INVALID_NOTIFICATION_TOPIC_CODE, "Invalid topic code(" + topicCode + ") is not present in the master list of notifications");
 
-        Map<String, Object> notification = NotificationUtils.getNotification(topicCode);
         validateCondition(notification.get(Constants.NOTIFY_STATUS).equals(Constants.IN_ACTIVE), ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Notification status is inactive");
         // Whether user has authorised roles as per the provided roles for this topicCode in the notifications list
         validateCondition(!hasRole((List<String>) notification.get(Constants.ALLOWED_RECIPIENTS), (List<String>) recipientDetails.get(ROLES)),

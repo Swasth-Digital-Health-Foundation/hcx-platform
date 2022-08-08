@@ -49,7 +49,7 @@ public class SubscriptionTest {
 
     @Test
     public void testSubscriptionConstructor() {
-        Subscription mockSubscription = new Subscription("hcx-notification-001:hcx-apollo-12345","hcx-notification-001",Constants.ACTIVE_CODE,
+        Subscription mockSubscription = new Subscription("hcx-notification-001:hcx-apollo-12345","sub-request-id","hcx-notification-001",Constants.ACTIVE_CODE,
                 "test-sender-code","test-recipient-code",123456789l,false);
         assertEquals("hcx-notification-001:hcx-apollo-12345", mockSubscription.getSubscription_id());
         assertEquals("hcx-notification-001",mockSubscription.getTopic_code());
@@ -58,5 +58,6 @@ public class SubscriptionTest {
         assertEquals("test-sender-code",mockSubscription.getSender_code());
         assertEquals(123456789l,mockSubscription.getExpiry());
         assertEquals("test-recipient-code",mockSubscription.getRecipient_code());
+        assertEquals("sub-request-id",mockSubscription.getSubscription_request_id());
     }
 }
