@@ -8,12 +8,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.swasth.auditindexer.function.AuditIndexer;
-import org.swasth.common.dto.*;
+import org.swasth.common.dto.NotificationListRequest;
+import org.swasth.common.dto.Request;
+import org.swasth.common.dto.Response;
+import org.swasth.common.dto.Subscription;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
+import org.swasth.common.helpers.EventGenerator;
 import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.NotificationUtils;
-import org.swasth.common.helpers.EventGenerator;
 import org.swasth.hcx.handlers.EventHandler;
 import org.swasth.kafka.client.IEventService;
 import org.swasth.postgresql.IDatabaseService;
@@ -28,48 +31,34 @@ import static org.swasth.common.utils.Constants.*;
 public class NotificationService {
 
     private static final Logger LOG = LoggerFactory.getLogger(NotificationService.class);
-
-    @Value("${postgres.subscription.tablename}")
-    private String postgresSubscription;
-
-    @Value("${postgres.subscription.insertQuery}")
-    private String insertSubscription;
-
-    @Value("${postgres.subscription.subscriptionQuery}")
-    private String selectSubscription;
-
-    @Value("${postgres.subscription.subscriptionSelectQuery}")
-    private String subscriptionSelectQuery;
-
-    @Value("${postgres.subscription.updateSubscriptionQuery}")
-    private String updateSubscriptionQuery;
-
-    @Value("${registry.hcxcode}")
-    private String hcxRegistryCode;
-
-    @Value("${kafka.topic.subscription}")
-    private String subscriptionTopic;
-
-    @Value("${notification.subscription.expiry}")
-    private int subscriptionExpiry;
-
-    @Value("${notification.subscription.allowedFilters}")
-    private List<String> allowedSubscriptionFilters;
-
-    @Autowired
-    private IDatabaseService postgreSQLClient;
-
     @Autowired
     protected EventHandler eventHandler;
-
     @Autowired
     protected EventGenerator eventGenerator;
-
-    @Autowired
-    private IEventService kafkaClient;
-
     @Autowired
     protected AuditIndexer auditIndexer;
+    @Value("${postgres.subscription.tablename}")
+    private String postgresSubscription;
+    @Value("${postgres.subscription.insertQuery}")
+    private String insertSubscription;
+    @Value("${postgres.subscription.subscriptionQuery}")
+    private String selectSubscription;
+    @Value("${postgres.subscription.subscriptionSelectQuery}")
+    private String subscriptionSelectQuery;
+    @Value("${postgres.subscription.updateSubscriptionQuery}")
+    private String updateSubscriptionQuery;
+    @Value("${registry.hcxcode}")
+    private String hcxRegistryCode;
+    @Value("${kafka.topic.subscription}")
+    private String subscriptionTopic;
+    @Value("${notification.subscription.expiry}")
+    private int subscriptionExpiry;
+    @Value("${notification.subscription.allowedFilters}")
+    private List<String> allowedSubscriptionFilters;
+    @Autowired
+    private IDatabaseService postgreSQLClient;
+    @Autowired
+    private IEventService kafkaClient;
 
     public void processSubscription(Request request, int statusCode, Response response) throws Exception {
         List<String> senderList = request.getSenderList();
@@ -78,7 +67,7 @@ public class NotificationService {
         String subscriptionMessage = eventGenerator.generateSubscriptionEvent(request.getApiAction(), request.getRecipientCode(), request.getTopicCode(), senderList);
         kafkaClient.send(subscriptionTopic, request.getRecipientCode(), subscriptionMessage);
         //Create audit event
-        auditIndexer.createDocument(eventGenerator.generateSubscriptionAuditEvent(request,QUEUED_STATUS,senderList));
+        auditIndexer.createDocument(eventGenerator.generateSubscriptionAuditEvent(request, QUEUED_STATUS, senderList));
         //Set the response data
         List<String> subscriptionList = new ArrayList<>(subscriptionMap.values());
         response.setSubscription_list(subscriptionList);
@@ -105,7 +94,7 @@ public class NotificationService {
         kafkaClient.send(subscriptionTopic, request.getSenderCode(), subscriptionMessage);
 
         //Create audit event
-        auditIndexer.createDocument(eventGenerator.generateOnSubscriptionAuditEvent(request.getApiAction(),subscription.getRecipient_code(),subscriptionId,QUEUED_STATUS,request.getSenderCode(),statusCode));
+        auditIndexer.createDocument(eventGenerator.generateOnSubscriptionAuditEvent(request.getApiAction(), subscription.getRecipient_code(), subscriptionId, QUEUED_STATUS, request.getSenderCode(), statusCode));
         //Set the response data
         response.setSubscriptionId(subscriptionId);
     }
@@ -166,7 +155,7 @@ public class NotificationService {
             throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Is delegated value is invalid");
         StringBuilder updateProps = new StringBuilder();
         SUBSCRIPTION_UPDATE_PROPS.forEach(prop -> {
-            if(request.getPayload().containsKey(prop))
+            if (request.getPayload().containsKey(prop))
                 updateProps.append("," + prop + "=" + "'" + request.getPayload().get(prop) + "'");
         });
         updateProps.deleteCharAt(0);
@@ -220,7 +209,7 @@ public class NotificationService {
             while (resultSet.next()) {
                 subscriptions.remove(resultSet.getString("subscription_id"));
             }
-            if (subscriptions.size() ==1 && !subscriptions.isEmpty())
+            if (subscriptions.size() == 1 && !subscriptions.isEmpty())
                 throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Invalid subscriptions list: " + subscriptions);
         } finally {
             if (resultSet != null) resultSet.close();
