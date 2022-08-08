@@ -8,6 +8,7 @@ import org.swasth.common.utils.HttpUtils;
 import org.swasth.common.utils.JSONUtils;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -23,7 +24,7 @@ public class RegistryService {
         String url = registryUrl + "/api/v1/Organisation/search";
         HttpResponse<String> response;
         try {
-            response = HttpUtils.post(url, requestBody, Collections.emptyMap());
+            response = HttpUtils.post(url, requestBody, new HashMap<>());
         } catch (UnirestException e) {
             throw new ServerException(ErrorCodes.ERR_SERVICE_UNAVAILABLE, "Error connecting to registry service: " + e.getMessage());
         }
