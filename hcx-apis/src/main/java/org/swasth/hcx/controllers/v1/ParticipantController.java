@@ -96,6 +96,22 @@ public class ParticipantController  extends BaseController {
         }
     }
 
+    private boolean isParticipantCodeExists(String participantCode) throws Exception {
+        ResponseEntity<Object> searchResponse = participantSearch(JSONUtils.deserialize("{ \"filters\": { \"participant_code\": { \"eq\": \" " + participantCode + "\" } } }", Map.class));
+        Object responseBody = searchResponse.getBody();
+        if (responseBody != null) {
+            if(responseBody instanceof Response){
+                Response response = (Response) responseBody;
+                throw new ServerException("Error in creating participant :: Exception: " + response.getError().getMessage());
+            } else {
+                ParticipantResponse participantResponse = (ParticipantResponse) responseBody;
+                return !participantResponse.getParticipants().isEmpty();
+            }
+        } else {
+            throw new ServerException("Error in creating participant, invalid response from registry");
+        }
+    }
+
     private ResponseEntity<Object> responseHandler(HttpResponse<String> response, String participantCode) throws Exception {
         if (response.getStatus() == 200) {
             if (response.getBody().isEmpty()) {
@@ -134,22 +150,6 @@ public class ParticipantController  extends BaseController {
             throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, "encryption_cert is missing or invalid");
         // add encryption certificate expiry
         requestBody.put(ENCRYPTION_CERT_EXPIRY, CertificateUtils.getExpiry((String) requestBody.get(ENCRYPTION_CERT)));
-    }
-
-    private boolean isParticipantCodeExists(String participantCode) throws Exception {
-        ResponseEntity<Object> searchResponse = participantSearch(JSONUtils.deserialize("{ \"filters\": { \"participant_code\": { \"eq\": \" " + participantCode + "\" } } }", Map.class));
-        Object responseBody = searchResponse.getBody();
-        if (responseBody != null) {
-            if(responseBody instanceof Response){
-                Response response = (Response) responseBody;
-                throw new ServerException("Error in creating participant :: Exception: " + response.getError().getMessage());
-            } else {
-                ParticipantResponse participantResponse = (ParticipantResponse) responseBody;
-                return !participantResponse.getParticipants().isEmpty();
-            }
-        } else {
-            throw new ServerException("Error in creating participant, invalid response from registry");
-        }
     }
 
     private ResponseEntity<Object> getSuccessResponse(Object response){
