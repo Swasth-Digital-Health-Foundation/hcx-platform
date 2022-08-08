@@ -11,14 +11,12 @@ import org.springframework.web.bind.annotation.*;
 import org.swasth.common.dto.ParticipantResponse;
 import org.swasth.common.dto.Response;
 import org.swasth.common.exception.*;
-import org.swasth.common.utils.Constants;
-import org.swasth.common.utils.HttpUtils;
-import org.swasth.common.utils.JSONUtils;
-import org.swasth.common.utils.SlugUtils;
+import org.swasth.common.utils.*;
 import org.swasth.hcx.controllers.BaseController;
 import org.swasth.redis.cache.RedisCache;
 
 import java.security.SecureRandom;
+import java.security.cert.CertificateException;
 import java.util.*;
 
 import static org.swasth.common.utils.Constants.*;
@@ -98,6 +96,17 @@ public class ParticipantController  extends BaseController {
         }
     }
 
+    @PostMapping(PARTICIPANT_SEARCH)
+    public ResponseEntity<Object> participantSearch(@RequestBody Map<String, Object> requestBody) throws Exception {
+        try {
+            String url =  registryUrl + "/api/v1/Organisation/search";
+            HttpResponse<String> response = HttpUtils.post(url, JSONUtils.serialize(requestBody), new HashMap<>());
+            return responseHandler(response, null);
+        } catch (Exception e) {
+            return exceptionHandler(new Response(), e);
+        }
+    }
+
     private ResponseEntity<Object> responseHandler(HttpResponse<String> response, String participantCode) throws Exception {
         if (response.getStatus() == 200) {
             if (response.getBody().isEmpty()) {
@@ -139,7 +148,7 @@ public class ParticipantController  extends BaseController {
         }
     }
 
-    private void validateParticipant(Map<String, Object> requestBody) throws ClientException {
+    private void validateParticipant(Map<String, Object> requestBody) throws ClientException, CertificateException {
         List<String> notAllowedUrls = env.getProperty(HCX_NOT_ALLOWED_URLS, List.class, new ArrayList<String>());
         if (!requestBody.containsKey(ROLES) || !(requestBody.get(ROLES) instanceof ArrayList) || ((ArrayList<String>) requestBody.get(ROLES)).isEmpty())
             throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, "roles property cannot be null, empty or other than 'ArrayList'");
@@ -151,7 +160,11 @@ public class ParticipantController  extends BaseController {
             throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, "end point url should not be the HCX Gateway/APIs URL");
         else if (!requestBody.containsKey(PRIMARY_EMAIL) || !(requestBody.get(PRIMARY_EMAIL) instanceof String)
                 || !EmailValidator.getInstance().isValid((String) requestBody.get(PRIMARY_EMAIL)))
-            throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, "primary_email does not exist or invalid");
+            throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, "primary_email is missing or invalid");
+        else if (!requestBody.containsKey(ENCRYPTION_CERT) || !(requestBody.get(ENCRYPTION_CERT) instanceof String))
+            throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, "encryption_cert is missing or invalid");
+        // add encryption certificate expiry
+        requestBody.put(ENCRYPTION_CERT_EXPIRY, CertificateUtils.getExpiry((String) requestBody.get(ENCRYPTION_CERT)));
     }
 
     private String getErrorMessage(HttpResponse<String> response) throws Exception {

@@ -1,15 +1,15 @@
-package org.swasth.retrybatch.job;
+package org.swasth.commonscheduler.job;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-@SpringBootApplication(scanBasePackages={"org.swasth.retrybatch"})
+@SpringBootApplication(scanBasePackages={"org.swasth.commonscheduler"})
 @EnableScheduling
-public class RetryBatchJob {
+public class CommonSchedulerJob {
 
     public static void main(String[] args) {
-        SpringApplication.run(RetryBatchJob.class, args);
+        SpringApplication.run(CommonSchedulerJob.class, args);
     }
 
 }
