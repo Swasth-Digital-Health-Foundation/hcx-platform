@@ -33,6 +33,10 @@ const claimSubmit = async (req, res, next) => {
         })
     }
 
+    if(index !== 1){
+        headers["x-hcx-recipient_code"] = process.env.RECIPIENT_CODE;
+    }
+
     const patientEntry = claimPayload.entry.find(e => e.resource.resourceType === 'Patient');
     if (patientEntry) {
         patientEntry.resource.gender = gender;

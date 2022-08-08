@@ -91,7 +91,7 @@ const coverageCheck = async (req, res, next) => {
     });
     
     
-    var config = { method: 'post', url: '/' +  process.env.api_version + '/coverageeligibility/check', data };
+    var config = { method: 'post', url: process.env.api_version + '/coverageeligibility/check', data };
     debug('coverageCheck-payload', config);
     try {
         const response = await hcxInstance(config);
