@@ -175,6 +175,20 @@ public class EventGenerator {
         return  event;
     }
 
+    public Map<String,Object> createAuditLog(String id, String objectType, Map<String,Object> cdata, Map<String,Object> edata) {
+        Map<String,Object> event = new HashMap<>();
+        event.put(EID, AUDIT);
+        event.put(ETS, System.currentTimeMillis());
+        event.put(MID, UUID.randomUUID().toString());
+        Map<String,Object> objectMap = new HashMap<>();
+        objectMap.put(ID, id);
+        objectMap.put(TYPE, objectType);
+        event.put(OBJECT, objectMap);
+        event.put(CDATA, cdata);
+        event.put(EDATA, edata);
+        return event;
+    }
+
     private Map<String,Object> createOnSubscriptionPayload(String subscriptionId, int status) {
         Map<String,Object> event = new HashMap<>();
         event.put(SUBSCRIPTION_ID,subscriptionId);
@@ -193,5 +207,4 @@ public class EventGenerator {
         event.put(NOTIFICATION_DATA, notificationData);
         return JSONUtils.serialize(event);
     }
-
 }

@@ -2,7 +2,14 @@ package org.swasth.dp.core.util
 
 object Constants {
 
+  // APIs
+  val PARTICIPANT_CREATE = "/participant/create"
+  val CLAIM_SUBMIT = "/claim/submit"
+  val CLAIM_ONSUBMIT = "/claim/on_submit"
+  val NOTIFICATION_SUBSCRIPTION_UPDATE = "/notification/subscription/update"
+
   val CDATA = "cdata"
+  val EDATA = "edata"
   val SENDER = "sender"
   val RECIPIENT = "recipient"
   val PROTECTED = "protected"
@@ -85,6 +92,18 @@ object Constants {
   val MASTER_DATA = "masterData"
   val RESOLVED_TEMPLATE = "resolvedTemplate"
   val PARTICIPANT_DETAILS = "participantDetails"
+  val OBJECT = "object"
+  val ID = "id"
+  val PARTICIPANT_NAME = "participant_name"
+  val HCX_NAME = "hcx_name"
+  val DDMMYY = "DDMMYY"
+  val WORKFLOW = "Workflow"
+
+  // Notification topic codes
+  val PARTICIPANT_ONBOARD = "notif-participant-onboarded"
+  val CLAIM_INITIATED = "notif-claim-initiation"
+  val CLAIM_CLOSURE = "notif-claim-closure"
+  val SUBSCRIPTION_UPDATE = "notif-subscription-update"
 
   //Search Fields
   val SEARCH_REQUEST = "x-hcx-search"

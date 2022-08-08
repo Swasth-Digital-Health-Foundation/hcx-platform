@@ -65,6 +65,8 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
   @throws(classOf[Exception])
   def audit(event: util.Map[String, AnyRef], context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
     auditService.indexAudit(createAuditRecord(event))
+    val audit = "test"
+    context.output(config.auditOutputTag, JSONUtil.serialize(audit))
     metrics.incCounter(config.auditEventsCount)
   }
 
@@ -226,6 +228,24 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
     audit.put(Constants.SENDER_ROLE, getCDataListValue(event, Constants.SENDER, Constants.ROLES))
     audit.put(Constants.RECIPIENT_ROLE, getCDataListValue(event, Constants.RECIPIENT, Constants.ROLES))
     audit.put(Constants.PAYLOAD, removeSensitiveData(payload))
+    audit
+  }
+
+  def createAuditLog(event: util.Map[String,AnyRef]): util.Map[String,AnyRef] = {
+    val audit = new util.HashMap[String,AnyRef]()
+    audit.put(Constants.EID, Constants.AUDIT)
+    audit.put(Constants.ETS, Calendar.getInstance().getTime)
+    audit.put(Constants.MID, event.get(Constants.MID).asInstanceOf[String])
+    audit.put(Constants.OBJECT, new util.HashMap[String,AnyRef](){{
+      put(Constants.ID, getProtocolStringValue(event,Constants.CORRELATION_ID))
+      put(Constants.TYPE, getEntity(event.get(Constants.ACTION).asInstanceOf[String]))
+    }})
+    audit.put(Constants.CDATA, new util.HashMap[String,AnyRef](){{
+      putAll(event.get(Constants.HEADERS).asInstanceOf[util.Map[String, AnyRef]].get(Constants.PROTOCOL).asInstanceOf[util.Map[String, AnyRef]])
+    }})
+    audit.put(Constants.EDATA, new util.HashMap[String,AnyRef](){{
+      put(Constants.STATUS, getProtocolStringValue(event,Constants.HCX_STATUS))
+    }})
     audit
   }
 

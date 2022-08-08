@@ -18,7 +18,6 @@ import org.swasth.redis.cache.RedisCache;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.util.*;
-import java.util.regex.Pattern;
 
 import static org.swasth.common.utils.Constants.*;
 
@@ -42,8 +41,7 @@ public class ParticipantController  extends BaseController {
     private RedisCache redisCache;
 
     @PostMapping(PARTICIPANT_CREATE)
-    public ResponseEntity<Object> participantCreate(@RequestHeader HttpHeaders header,
-        @RequestBody Map<String, Object> requestBody) throws Exception {
+    public ResponseEntity<Object> participantCreate(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
         try {
             validateParticipant(requestBody);
             String primaryEmail = (String) requestBody.get(PRIMARY_EMAIL);
@@ -56,6 +54,8 @@ public class ParticipantController  extends BaseController {
             Map<String, String> headersMap = new HashMap<>();
             headersMap.put(AUTHORIZATION, Objects.requireNonNull(header.get(AUTHORIZATION)).get(0));
             HttpResponse<String> response = HttpUtils.post(url, JSONUtils.serialize(requestBody), headersMap);
+            if(response.getStatus() == 200)
+                eventHandler.createAudit(eventGenerator.createAuditLog(participantCode, PARTICIPANT, Collections.singletonMap(ACTION, PARTICIPANT_CREATE), getEData(CREATED, "", Collections.emptyList())));
             return responseHandler(response, participantCode);
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
@@ -63,7 +63,7 @@ public class ParticipantController  extends BaseController {
     }
 
     @PostMapping(PARTICIPANT_UPDATE)
-    public ResponseEntity<Object> participantUpdate(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) throws Exception {
+    public ResponseEntity<Object> participantUpdate(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
         try {
             validateParticipant(requestBody);
             String participantCode = (String) requestBody.get(PARTICIPANT_CODE);
@@ -121,10 +121,6 @@ public class ParticipantController  extends BaseController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    private String generateParticipantCode(String role, String participantName){
-        return role + fieldSeparator + participantName + "@" + hcxInstanceName;
-    }
-
     private boolean isParticipantCodeExists(String participantCode) throws Exception {
         ResponseEntity<Object> searchResponse = participantSearch(JSONUtils.deserialize("{ \"filters\": { \"participant_code\": { \"eq\": \" " + participantCode + "\" } } }", Map.class));
         Object responseBody = searchResponse.getBody();
@@ -163,6 +159,15 @@ public class ParticipantController  extends BaseController {
     private String getErrorMessage(HttpResponse<String> response) throws Exception {
         Map<String, Object> result = JSONUtils.deserialize(response.getBody(), HashMap.class);
         return (String) ((Map<String, Object>) result.get("params")).get("errmsg");
+    }
+
+    private Map<String,Object> getEData(String status, String prevStatus, List<String> props) {
+        Map<String,Object> data = new HashMap<>();
+        data.put(AUDIT_STATUS, status);
+        data.put(PREV_STATUS, prevStatus);
+        if(!props.isEmpty())
+            data.put(PROPS, props);
+        return data;
     }
 
 }
