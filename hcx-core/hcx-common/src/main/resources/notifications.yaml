@@ -676,3 +676,23 @@
   template: >-
     {"message": "${participant_name} has updated the subscription: ${subscription_id}."}
   status: Active
+- topic_code: notif-encryption-cert-expired
+  title: Encryption certificate expiry
+  description: Notification about encryption certificate expiry
+  allowed_senders:
+    - HIE/HIO.HCX
+  allowed_recipients:
+    - provider
+    - payor
+    - agency.tpa
+    - agency.regulator
+    - research
+    - member.isnp
+    - agency.sponsor
+    - HIE/HIO.HCX
+  type: Targeted
+  category: Network
+  priority: 1
+  template: >-
+    {"message": "Your encryption certificate got expired, please update your details with new certificate."}
+  status: Active
