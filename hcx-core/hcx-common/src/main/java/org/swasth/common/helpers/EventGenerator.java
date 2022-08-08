@@ -136,6 +136,19 @@ public class EventGenerator {
         return event;
     }
 
+    public Map<String,Object> generateSubscriptionAuditEvent(Request request,String status,List<String> senderList) {
+        Map<String,Object> event = new HashMap<>();
+        event.put(EID, AUDIT);
+        event.put(MID, UUID.randomUUID().toString());
+        event.put(ACTION, request.getApiAction());
+        event.put(TOPIC_CODE,request.getTopicCode());
+        event.put(SENDER_LIST,senderList);
+        event.put(RECIPIENT_CODE,request.getRecipientCode());
+        event.put(ETS,System.currentTimeMillis());
+        event.put(NOTIFY_STATUS, status);
+        return  event;
+    }
+
     public String generateOnSubscriptionEvent(String apiAction,String recipientCode,String senderCode,String subscriptionId,int status) throws JsonProcessingException {
         Map<String,Object> event = new HashMap<>();
         event.put(MID, UUID.randomUUID().toString());
@@ -153,19 +166,6 @@ public class EventGenerator {
         event.put(SUBSCRIPTION_ID,subscriptionId);
         event.put(SUBSCRIPTION_STATUS,status);
         return event;
-    }
-
-    public Map<String,Object> generateSubscriptionAuditEvent(Request request,String status,List<String> senderList) {
-        Map<String,Object> event = new HashMap<>();
-        event.put(EID, AUDIT);
-        event.put(MID, UUID.randomUUID().toString());
-        event.put(ACTION, request.getApiAction());
-        event.put(TOPIC_CODE,request.getTopicCode());
-        event.put(SENDER_LIST,senderList);
-        event.put(RECIPIENT_CODE,request.getRecipientCode());
-        event.put(ETS,System.currentTimeMillis());
-        event.put(NOTIFY_STATUS, status);
-        return  event;
     }
 
     public Map<String,Object> generateOnSubscriptionAuditEvent(String apiAction,String recipientCode,String subscriptionId,String status,String senderCode,int subscriptionStatus) {
