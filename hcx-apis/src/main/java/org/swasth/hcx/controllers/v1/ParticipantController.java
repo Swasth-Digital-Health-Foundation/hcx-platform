@@ -117,23 +117,12 @@ public class ParticipantController  extends BaseController {
         }
     }
 
-    private void validateParticipant(Map<String, Object> requestBody) throws ClientException, CertificateException {
-        List<String> notAllowedUrls = env.getProperty(HCX_NOT_ALLOWED_URLS, List.class, new ArrayList<String>());
-        if (!requestBody.containsKey(ROLES) || !(requestBody.get(ROLES) instanceof ArrayList) || ((ArrayList<String>) requestBody.get(ROLES)).isEmpty())
-            throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, "roles property cannot be null, empty or other than 'ArrayList'");
-        else if(((ArrayList<String>) requestBody.get(ROLES)).contains(PAYOR) && !requestBody.containsKey(SCHEME_CODE))
-            throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, "scheme_code property is missing");
-        else if (!((ArrayList<String>) requestBody.get(ROLES)).contains(PAYOR) && requestBody.containsKey(SCHEME_CODE))
-            throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, "unknown property, 'scheme_code' is not allowed");
-        else if (notAllowedUrls.contains(requestBody.get(ENDPOINT_URL)))
-            throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, "end point url should not be the HCX Gateway/APIs URL");
-        else if (!requestBody.containsKey(PRIMARY_EMAIL) || !(requestBody.get(PRIMARY_EMAIL) instanceof String)
-                || !EmailValidator.getInstance().isValid((String) requestBody.get(PRIMARY_EMAIL)))
-            throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, "primary_email is missing or invalid");
-        else if (!requestBody.containsKey(ENCRYPTION_CERT) || !(requestBody.get(ENCRYPTION_CERT) instanceof String))
-            throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, "encryption_cert is missing or invalid");
-        // add encryption certificate expiry
-        requestBody.put(ENCRYPTION_CERT_EXPIRY, CertificateUtils.getExpiry((String) requestBody.get(ENCRYPTION_CERT)));
+    private ResponseEntity<Object> getSuccessResponse(Object response){
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    private String generateParticipantCode(String role, String participantName){
+        return role + fieldSeparator + participantName + "@" + hcxInstanceName;
     }
 
     private boolean isParticipantCodeExists(String participantCode) throws Exception {
@@ -152,8 +141,23 @@ public class ParticipantController  extends BaseController {
         }
     }
 
-    private ResponseEntity<Object> getSuccessResponse(Object response){
-        return new ResponseEntity<>(response, HttpStatus.OK);
+    private void validateParticipant(Map<String, Object> requestBody) throws ClientException, CertificateException {
+        List<String> notAllowedUrls = env.getProperty(HCX_NOT_ALLOWED_URLS, List.class, new ArrayList<String>());
+        if (!requestBody.containsKey(ROLES) || !(requestBody.get(ROLES) instanceof ArrayList) || ((ArrayList<String>) requestBody.get(ROLES)).isEmpty())
+            throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, "roles property cannot be null, empty or other than 'ArrayList'");
+        else if(((ArrayList<String>) requestBody.get(ROLES)).contains(PAYOR) && !requestBody.containsKey(SCHEME_CODE))
+            throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, "scheme_code property is missing");
+        else if (!((ArrayList<String>) requestBody.get(ROLES)).contains(PAYOR) && requestBody.containsKey(SCHEME_CODE))
+            throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, "unknown property, 'scheme_code' is not allowed");
+        else if (notAllowedUrls.contains(requestBody.get(ENDPOINT_URL)))
+            throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, "end point url should not be the HCX Gateway/APIs URL");
+        else if (!requestBody.containsKey(PRIMARY_EMAIL) || !(requestBody.get(PRIMARY_EMAIL) instanceof String)
+                || !EmailValidator.getInstance().isValid((String) requestBody.get(PRIMARY_EMAIL)))
+            throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, "primary_email is missing or invalid");
+        else if (!requestBody.containsKey(ENCRYPTION_CERT) || !(requestBody.get(ENCRYPTION_CERT) instanceof String))
+            throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, "encryption_cert is missing or invalid");
+        // add encryption certificate expiry
+        requestBody.put(ENCRYPTION_CERT_EXPIRY, CertificateUtils.getExpiry((String) requestBody.get(ENCRYPTION_CERT)));
     }
 
     private String getErrorMessage(HttpResponse<String> response) throws Exception {
