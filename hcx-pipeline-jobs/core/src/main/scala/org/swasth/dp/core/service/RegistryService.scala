@@ -13,7 +13,7 @@ class RegistryService(config: BaseJobConfig) {
 
   val httpClient: CloseableHttpClient = new HttpUtil().getHttpClient()
 
-  def getParticipantDetails(filters: String): util.ArrayList[util.Map[String, AnyRef]]= {
+  def  getParticipantDetails(filters: String): util.ArrayList[util.Map[String, AnyRef]]= {
     // payload for registry search
     val payload = s"""{"entityType":["Organisation"],"filters":$filters}"""
     //Console.println("registry payload", payload)

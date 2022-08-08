@@ -22,6 +22,7 @@ import org.swasth.apigateway.service.AuditService;
 import org.swasth.apigateway.service.RegistryService;
 import org.swasth.apigateway.utils.JSONUtils;
 import org.swasth.common.utils.Constants;
+import org.swasth.common.utils.NotificationUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -103,7 +104,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                     Map<String,Object> senderDetails =  registryService.fetchDetails(OS_OWNER, subject);
                     List<Map<String,Object>> recipientsDetails = new ArrayList<>();
                     if(!jsonRequest.getRecipientCodes().isEmpty()){
-                        String searchRequest = createSearchRequest(jsonRequest.getRecipientCodes());
+                        String searchRequest = createSearchRequest(jsonRequest.getRecipientCodes(),PARTICIPANT_CODE);
                         recipientsDetails = registryService.getDetails(searchRequest);
                     }
                     jsonRequest.validateNotificationReq(senderDetails, recipientsDetails, allowedNetworkCodes);
@@ -111,13 +112,20 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                 } else if (path.contains(NOTIFICATION_SUBSCRIBE) || path.contains(NOTIFICATION_UNSUBSCRIBE)) { //for validating /notification/subscribe, /notification/unsubscribe
                     JSONRequest jsonRequest = new JSONRequest(requestBody, true, path, hcxCode, hcxRoles);
                     requestObj = jsonRequest;
-                    Map<String,Object> recipientDetails =  registryService.fetchDetails(OS_OWNER, subject);
-                    List<Map<String,Object>> senderListDetails = new ArrayList<>();
-                    if(!jsonRequest.getSenderList().isEmpty()){
-                        String searchRequest = createSearchRequest(jsonRequest.getSenderList());
+                    Map<String, Object> recipientDetails = registryService.fetchDetails(OS_OWNER, subject);
+                    List<Map<String, Object>> senderListDetails = new ArrayList<>();
+                    //Check for * in the request body in sendersList and send subscription for all valid participants who roles
+                    Map<String, Object> notification = NotificationUtils.getNotification(jsonRequest.getTopicCode());
+                    if (jsonRequest.getSenderList().contains("*")) {
+                        String searchRequest = createSearchRequest((List<String>) notification.get(Constants.ALLOWED_SENDERS),ROLES);
+                        senderListDetails = registryService.getDetails(searchRequest);
+                        List<String> fetchedCodes = senderListDetails.stream().map(obj -> obj.get(Constants.PARTICIPANT_CODE).toString()).collect(Collectors.toList());
+                        requestBody.put(SENDER_LIST, fetchedCodes);
+                    } else if (!jsonRequest.getSenderList().isEmpty()) {
+                        String searchRequest = createSearchRequest(jsonRequest.getSenderList(),PARTICIPANT_CODE);
                         senderListDetails = registryService.getDetails(searchRequest);
                     }
-                    jsonRequest.validateSubscriptionRequests(jsonRequest.getTopicCode(),senderListDetails,recipientDetails,getSubscriptionMandatoryHeaders());
+                    jsonRequest.validateSubscriptionRequests(jsonRequest.getTopicCode(), senderListDetails, recipientDetails, getSubscriptionMandatoryHeaders(), notification);
                     requestBody.put(RECIPIENT_CODE, recipientDetails.get(PARTICIPANT_CODE));
                 } else if (path.contains(NOTIFICATION_SUBSCRIPTION_LIST)) { //for validating /notification/subscription/list
                     JSONRequest jsonRequest = new JSONRequest(requestBody, true, path, hcxCode, hcxRoles);
@@ -164,11 +172,11 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
         };
     }
 
-    private String createSearchRequest(List<String> jsonRequest) {
+    private String createSearchRequest(List<String> jsonRequest, String filterKey) {
         String wrappedList = jsonRequest.stream()
                 .map(plain ->  StringUtils.wrap(plain, "\""))
                 .collect(Collectors.joining(", "));
-        String searchRequest = "{\"filters\":{\"" + PARTICIPANT_CODE + "\":{\"or\":[" +  wrappedList + "]}}}";
+        String searchRequest = "{\"filters\":{\"" + filterKey + "\":{\"or\":[" +  wrappedList + "]}}}";
         return searchRequest;
     }
 

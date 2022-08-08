@@ -1,15 +1,12 @@
 package org.swasth.dp.notification.functions;
 
-import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.util.Collector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.swasth.dp.core.function.DispatcherResult;
 import org.swasth.dp.core.function.ErrorResponse;
-import org.swasth.dp.core.service.AuditService;
 import org.swasth.dp.core.util.Constants;
-import org.swasth.dp.core.util.DispatcherUtil;
 import org.swasth.dp.core.util.JSONUtil;
 import org.swasth.dp.notification.task.NotificationConfig;
 import scala.Option;
@@ -17,30 +14,16 @@ import scala.Option;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-public class NotificationDispatcherFunction extends ProcessFunction<Map<String, Object>, Object> {
+public class NotificationDispatcherFunction extends BaseNotificationFunction {
 
     private final Logger logger = LoggerFactory.getLogger(NotificationDispatcherFunction.class);
-    private NotificationConfig config;
-    private DispatcherUtil dispatcherUtil;
-    private AuditService auditService;
 
     public NotificationDispatcherFunction(NotificationConfig config) {
-        this.config = config;
+        super(config);
     }
 
     @Override
-    public void open(Configuration parameters) {
-        dispatcherUtil = new DispatcherUtil(config);
-        auditService = new AuditService(config);
-    }
-
-    @Override
-    public void close() throws Exception {
-        super.close();
-    }
-
-    @Override
-    public void processElement(Map<String, Object> inputEvent, ProcessFunction<Map<String, Object>, Object>.Context context, Collector<Object> collector) throws Exception {
+    public void processElement(Map<String, Object> inputEvent, ProcessFunction<Map<String, Object>, Map<String,Object>>.Context context, Collector<Map<String,Object>> collector) throws Exception {
         Map<String,Object> actualEvent = (Map<String, Object>) inputEvent.get(Constants.INPUT_EVENT());
         Map<String,Object> notification = (Map<String, Object>) inputEvent.get(Constants.MASTER_DATA());
         String resolvedTemplate = (String) inputEvent.get(Constants.RESOLVED_TEMPLATE());
@@ -86,41 +69,6 @@ public class NotificationDispatcherFunction extends ProcessFunction<Map<String, 
         return JSONUtil.serialize(request);
     }
 
-    private String getProtocolStringValue(String key,Map<String,Object> event) {
-        return (String) ((Map<String,Object>) ((Map<String,Object>) event.get(Constants.HEADERS())).get(Constants.PROTOCOL())).getOrDefault(key, "");
-    }
 
-    private Map<String,Object> getProtocolMapValue(String key,Map<String,Object> event) {
-        return (Map<String,Object>) ((Map<String,Object>) ((Map<String,Object>) event.get(Constants.HEADERS())).get(Constants.PROTOCOL())).getOrDefault(key, new HashMap<>());
-    }
-
-    private Map<String,Object> createErrorMap(ErrorResponse error){
-        Map<String,Object> errorMap = new HashMap<>();
-        if (error != null) {
-            errorMap.put(Constants.CODE(), error.code().get());
-            errorMap.put(Constants.MESSAGE(), error.message().get());
-            errorMap.put(Constants.TRACE(), error.trace().get());
-        }
-        return errorMap;
-    }
-
-    private Map<String,Object> createNotificationAuditEvent(Map<String,Object> event, String recipientCode, Map<String,Object> errorDetails){
-        Map<String,Object> audit = new HashMap<>();
-        audit.put(Constants.EID(), Constants.AUDIT());
-        audit.put(Constants.MID(), UUID.randomUUID().toString());
-        audit.put(Constants.ACTION(), event.get(Constants.ACTION()));
-        audit.put(Constants.ETS(), Calendar.getInstance().getTime());
-        audit.put(Constants.SENDER_CODE(), getProtocolStringValue(Constants.SENDER_CODE(),event));
-        audit.put(Constants.RECIPIENT_CODE(), recipientCode);
-        audit.put(Constants.NOTIFICATION_REQ_ID(), event.get(Constants.NOTIFICATION_REQ_ID()));
-        audit.put(Constants.TOPIC_CODE(), getProtocolStringValue(Constants.TOPIC_CODE(),event));
-        if(!errorDetails.isEmpty()) {
-            audit.put(Constants.ERROR_DETAILS(), errorDetails);
-            audit.put(Constants.STATUS(), Constants.ERROR_STATUS());
-        } else {
-            audit.put(Constants.STATUS(), Constants.DISPATCH_STATUS());
-        }
-        return audit;
-    }
 
 }

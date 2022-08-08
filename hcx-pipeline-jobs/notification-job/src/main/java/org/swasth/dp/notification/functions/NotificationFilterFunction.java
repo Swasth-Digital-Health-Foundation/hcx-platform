@@ -2,17 +2,11 @@ package org.swasth.dp.notification.functions;
 
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.text.StringSubstitutor;
-import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.util.Collector;
-import org.joda.time.DateTime;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.swasth.dp.core.service.RegistryService;
-import org.swasth.dp.core.util.*;
+import org.swasth.dp.core.util.Constants;
 import org.swasth.dp.notification.task.NotificationConfig;
 
 import java.sql.ResultSet;
@@ -23,31 +17,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class NotificationFilterFunction extends ProcessFunction<Map<String,Object>, Map<String,Object>> {
+public class NotificationFilterFunction extends BaseNotificationFunction {
 
     private final Logger logger = LoggerFactory.getLogger(NotificationFilterFunction.class);
-    private NotificationConfig config;
-    private RegistryService registryService;
-    private PostgresConnect postgresConnect;
-    private NotificationUtil notificationUtil;
     private Map<String,Object> consolidatedEvent;
 
     public NotificationFilterFunction(NotificationConfig config) {
-        this.config = config;
-    }
-
-    @Override
-    public void open(Configuration parameters) {
-        registryService = new RegistryService(config);
-        postgresConnect = new PostgresConnect(new PostgresConnectionConfig(config.postgresUser(), config.postgresPassword(), config.postgresDb(), config.postgresHost(), config.postgresPort(), config.postgresMaxConnections()));
-        postgresConnect.getConnection();
-        notificationUtil = new NotificationUtil();
-    }
-
-    @Override
-    public void close() throws Exception {
-        super.close();
-        postgresConnect.closeConnection();
+        super(config);
     }
 
     @Override
@@ -91,27 +67,6 @@ public class NotificationFilterFunction extends ProcessFunction<Map<String,Objec
         context.output(config.dispatcherOutputTag(), consolidatedEvent);
     }
 
-    private String resolveTemplate(Map<String, Object> notification, Map<String,Object> event) {
-        StringSubstitutor sub = new StringSubstitutor(getProtocolMapValue(Constants.NOTIFICATION_DATA(), event));
-        return sub.replace((JSONUtil.deserialize((String) notification.get(Constants.TEMPLATE()), Map.class)).get(Constants.MESSAGE()));
-    }
-
-    private String getProtocolStringValue(String key,Map<String,Object> event) {
-        return (String) ((Map<String,Object>) ((Map<String,Object>) event.get(Constants.HEADERS())).get(Constants.PROTOCOL())).getOrDefault(key, "");
-    }
-
-    private Map<String,Object> getProtocolMapValue(String key,Map<String,Object> event) {
-        return (Map<String,Object>) ((Map<String,Object>) ((Map<String,Object>) event.get(Constants.HEADERS())).get(Constants.PROTOCOL())).getOrDefault(key, new HashMap<>());
-    }
-
-    private List<String> getProtocolListValue(String key,Map<String,Object> event) {
-        return (List<String>) ((Map<String,Object>) ((Map<String,Object>) event.get(Constants.HEADERS())).get(Constants.PROTOCOL())).getOrDefault(key, new ArrayList<>());
-    }
-
-    private boolean isExpired(Long expiryTime){
-        return new DateTime(expiryTime).isBefore(DateTime.now());
-    }
-
     private List<String> getParticipantCodes(String topicCode, String senderCode, String id, List<String> range) throws SQLException {
         List<String> participantCodes = new ArrayList<>();
         String joined = range.stream().map(plain ->  StringUtils.wrap(plain, "'")).collect(Collectors.joining(","));
@@ -124,9 +79,4 @@ public class NotificationFilterFunction extends ProcessFunction<Map<String,Objec
         }
         return  participantCodes;
     }
-
-    private String addQuotes(List<String> list){
-        return list.stream().map(plain ->  StringUtils.wrap(plain, "\"")).collect(Collectors.joining(","));
-    }
-
 }
