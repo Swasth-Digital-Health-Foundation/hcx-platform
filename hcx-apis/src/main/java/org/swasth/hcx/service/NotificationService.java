@@ -227,6 +227,35 @@ public class NotificationService {
         response.setCount(subscriptionList.size());
     }
 
+    private String updateSubscription(String subscriptionId, int subscriptionStatus) throws Exception {
+        String query = String.format(updateSubscriptionQuery, postgresSubscription, subscriptionStatus, subscriptionId, SUBSCRIPTION_ID);
+        ResultSet resultSet = null;
+        try {
+            resultSet = (ResultSet) postgreSQLClient.executeQuery(query);
+            if (resultSet.next())
+                return resultSet.getString(SUBSCRIPTION_ID);
+        } finally {
+            if (resultSet != null) resultSet.close();
+        }
+        return "";
+    }
+
+    public Subscription getSubscriptionById(String subscriptionId, String senderCode) throws Exception {
+        ResultSet resultSet = null;
+        Subscription subscription = null;
+        try { //subscription_id,subscription_status,topic_code,sender_code,recipient_code,expiry,is_delegated
+            String query = String.format(subscriptionSelectQuery, postgresSubscription, subscriptionId, senderCode);
+            resultSet = (ResultSet) postgreSQLClient.executeQuery(query);
+            while (resultSet.next()) {
+                subscription = new Subscription(resultSet.getString(SUBSCRIPTION_ID), resultSet.getString(TOPIC_CODE), resultSet.getInt(SUBSCRIPTION_STATUS),
+                        resultSet.getString(Constants.SENDER_CODE), resultSet.getString(RECIPIENT_CODE), resultSet.getLong(EXPIRY), resultSet.getBoolean(IS_DELEGATED));
+            }
+            return subscription;
+        } finally {
+            if (resultSet != null) resultSet.close();
+        }
+    }
+
     private List<Subscription> fetchSubscriptions(NotificationListRequest request) throws Exception {
         ResultSet resultSet = null;
         List<Subscription> subscriptionList = null;
@@ -259,34 +288,5 @@ public class NotificationService {
         } finally {
             if (resultSet != null) resultSet.close();
         }
-    }
-
-    public Subscription getSubscriptionById(String subscriptionId, String senderCode) throws Exception {
-        ResultSet resultSet = null;
-        Subscription subscription = null;
-        try { //subscription_id,subscription_status,topic_code,sender_code,recipient_code,expiry,is_delegated
-            String query = String.format(subscriptionSelectQuery, postgresSubscription, subscriptionId, senderCode);
-            resultSet = (ResultSet) postgreSQLClient.executeQuery(query);
-            while (resultSet.next()) {
-                subscription = new Subscription(resultSet.getString(SUBSCRIPTION_ID), resultSet.getString(TOPIC_CODE), resultSet.getInt(SUBSCRIPTION_STATUS),
-                        resultSet.getString(Constants.SENDER_CODE), resultSet.getString(RECIPIENT_CODE), resultSet.getLong(EXPIRY), resultSet.getBoolean(IS_DELEGATED));
-            }
-            return subscription;
-        } finally {
-            if (resultSet != null) resultSet.close();
-        }
-    }
-
-    private String updateSubscription(String subscriptionId, int subscriptionStatus) throws Exception {
-        String query = String.format(updateSubscriptionQuery, postgresSubscription, subscriptionStatus, subscriptionId, SUBSCRIPTION_ID);
-        ResultSet resultSet = null;
-        try {
-            resultSet = (ResultSet) postgreSQLClient.executeQuery(query);
-            if (resultSet.next())
-                return resultSet.getString(SUBSCRIPTION_ID);
-        } finally {
-            if (resultSet != null) resultSet.close();
-        }
-        return "";
     }
 }
