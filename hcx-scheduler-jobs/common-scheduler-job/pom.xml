@@ -9,7 +9,7 @@
 	</parent>
 
 	<groupId>org.swasth</groupId>
-	<artifactId>retry-batch-job</artifactId>
+	<artifactId>common-scheduler-job</artifactId>
 	<version>1.0.0</version>
 	<packaging>jar</packaging>
 

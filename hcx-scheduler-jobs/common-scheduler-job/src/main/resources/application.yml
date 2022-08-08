@@ -1,15 +1,23 @@
-fixedDelay:
-  in:
-    milliseconds: ${fixedDelay_in_milliseconds:20000}
+fixedDelay.in.milliseconds:
+  retry: ${retry_fixedDelay_in_milliseconds:20000}
+  participantVerify: ${participantVerify_fixedDelay_in_milliseconds:20000}
 
 kafka:
   url: ${kafka_url:localhost:9092}
   groupId: ${kafka_group_id:local-retry-group}
   topic:
     output: ${kafka_topic_ouput:local.hcx.request.retry}
+    notification: ${kafka_topic_notification:local.hcx.request.notification}
 
 max:
   retry: ${max_retry:3}
+
+registry:
+  basePath: ${registry_base_path:http://a0b2bab079318431d8ca99f1efb1c25c-874274596.ap-south-1.elb.amazonaws.com:8081}
+  hcxCode: ${registry_hcx_code:1-d2d56996-1b77-4abb-b9e9-0e6e7343c72e}
+
+topicCode:
+ encryptionCertExpired: ${topic_code_encryption_cert_expired:notif-encryption-cert-expired}
 
 #postgres config
 postgres:
@@ -41,7 +49,7 @@ redirect:
 #Notifications headers
 notification:
   headers:
-    mandatory: ${notification_mandatory_headers:x-hcx-notification_id,x-hcx-notification_data,x-hcx-sender_code, x-hcx-recipient_code, x-hcx-api_call_id, x-hcx-timestamp, x-hcx-correlation_id}
-    optional: ${notification_optional_headers:x-hcx-workflow_id,x-hcx-status}
+    mandatory: ${notification_mandatory_headers:topic_code, notification_data}
+    optional: ${notification_optional_headers:recipient_codes, recipient_roles, subscriptions, sender_code, notification_id}
 
 

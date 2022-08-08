@@ -71,17 +71,55 @@ public class NotificationService {
     @Autowired
     protected AuditIndexer auditIndexer;
 
-    public void processSubscription(Request request, int statusCode, Response response) throws Exception {
-        List<String> senderList = request.getSenderList();
-        Map<String, String> subscriptionMap = insertRecords(request.getTopicCode(), statusCode, senderList, request.getRecipientCode());
-        //Push the event to kafka
-        String subscriptionMessage = eventGenerator.generateSubscriptionEvent(request.getApiAction(), request.getRecipientCode(), request.getTopicCode(), senderList);
-        kafkaClient.send(subscriptionTopic, request.getRecipientCode(), subscriptionMessage);
-        //Create audit event
-        auditIndexer.createDocument(eventGenerator.generateSubscriptionAuditEvent(request,QUEUED_STATUS,senderList));
-        //Set the response data
-        List<String> subscriptionList = new ArrayList<>(subscriptionMap.values());
-        response.setSubscription_list(subscriptionList);
+    public void getNotifications(NotificationListRequest request, Response response) throws Exception {
+        for (String key : request.getFilters().keySet()) {
+            if (!ALLOWED_NOTIFICATION_FILTER_PROPS.contains(key))
+                throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Invalid notifications filters, allowed properties are: " + ALLOWED_NOTIFICATION_FILTER_PROPS);
+        }
+        // TODO: add filter limit condition
+        List<Map<String, Object>> list = new ArrayList<>(NotificationUtils.notificationList);
+        Set<Map<String, Object>> removeNotificationList = new HashSet<>();
+        list.forEach(notification -> request.getFilters().keySet().forEach(key -> {
+            if (!notification.get(key).equals(request.getFilters().get(key)))
+                removeNotificationList.add(notification);
+        }));
+        list.removeAll(removeNotificationList);
+        response.setNotifications(list);
+        response.setCount(list.size());
+    }
+
+    /**
+     * validates and process the notify request
+     */
+    public void notify(Request request, Response response, String kafkaTopic) throws Exception {
+        if (!request.getSubscriptions().isEmpty())
+            isValidSubscriptions(request);
+        request.setNotificationRequestId(UUID.randomUUID().toString());
+        response.setNotificationRequestId(request.getNotificationRequestId());
+        eventHandler.processAndSendEvent(kafkaTopic, request);
+    }
+
+    /**
+     * checks the given list of subscriptions are valid and active
+     */
+    private void isValidSubscriptions(Request request) throws Exception {
+        List<String> subscriptions = request.getSubscriptions();
+        ResultSet resultSet = null;
+        try {
+            String joined = subscriptions.stream()
+                    .map(plain -> StringUtils.wrap(plain, "'"))
+                    .collect(Collectors.joining(","));
+            String query = String.format("SELECT subscription_id FROM %s WHERE topic_code = '%s' AND sender_code = '%s' AND subscription_status = 1 AND subscription_id IN (%s)",
+                    postgresSubscription, request.getTopicCode(), request.getSenderCode(), joined);
+            resultSet = (ResultSet) postgreSQLClient.executeQuery(query);
+            while (resultSet.next()) {
+                subscriptions.remove(resultSet.getString("subscription_id"));
+            }
+            if (subscriptions.size() ==1 && !subscriptions.isEmpty())
+                throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Invalid subscriptions list: " + subscriptions);
+        } finally {
+            if (resultSet != null) resultSet.close();
+        }
     }
 
     public void processOnSubscription(Request request, Response response) throws Exception {
@@ -110,6 +148,19 @@ public class NotificationService {
         response.setSubscriptionId(subscriptionId);
     }
 
+    public void processSubscription(Request request, int statusCode, Response response) throws Exception {
+        List<String> senderList = request.getSenderList();
+        Map<String, String> subscriptionMap = insertRecords(request.getTopicCode(), statusCode, senderList, request.getRecipientCode());
+        //Push the event to kafka
+        String subscriptionMessage = eventGenerator.generateSubscriptionEvent(request.getApiAction(), request.getRecipientCode(), request.getTopicCode(), senderList);
+        kafkaClient.send(subscriptionTopic, request.getRecipientCode(), subscriptionMessage);
+        //Create audit event
+        auditIndexer.createDocument(eventGenerator.generateSubscriptionAuditEvent(request,QUEUED_STATUS,senderList));
+        //Set the response data
+        List<String> subscriptionList = new ArrayList<>(subscriptionMap.values());
+        response.setSubscription_list(subscriptionList);
+    }
+
     private Map<String, String> insertRecords(String topicCode, int statusCode, List<String> senderList, String notificationRecipientCode) throws Exception {
         //subscription_id,topic_code,sender_code,recipient_code,subscription_status,lastUpdatedOn,createdOn,expiry,is_delegated
         Map<String, String> subscriptionMap = new HashMap<>();
@@ -131,23 +182,6 @@ public class NotificationService {
         int[] batchArr = postgreSQLClient.executeBatch();
         LOG.info("Number of records inserted into DB:" + batchArr.length);
         return subscriptionMap;
-    }
-
-    public void getSubscriptions(NotificationListRequest request, Response response) throws Exception {
-        List<Subscription> subscriptionList = fetchSubscriptions(request);
-        response.setSubscriptions(subscriptionList);
-        response.setCount(subscriptionList.size());
-    }
-
-    /**
-     * validates and process the notify request
-     */
-    public void notify(Request request, Response response, String kafkaTopic) throws Exception {
-        if (!request.getSubscriptions().isEmpty())
-            isValidSubscriptions(request);
-        request.setNotificationRequestId(UUID.randomUUID().toString());
-        response.setNotificationRequestId(request.getNotificationRequestId());
-        eventHandler.processAndSendEvent(kafkaTopic, request);
     }
 
     /**
@@ -187,41 +221,36 @@ public class NotificationService {
         }
     }
 
-    public void getNotifications(NotificationListRequest request, Response response) throws Exception {
-        for (String key : request.getFilters().keySet()) {
-            if (!ALLOWED_NOTIFICATION_FILTER_PROPS.contains(key))
-                throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Invalid notifications filters, allowed properties are: " + ALLOWED_NOTIFICATION_FILTER_PROPS);
-        }
-        // TODO: add filter limit condition
-        List<Map<String, Object>> list = new ArrayList<>(NotificationUtils.notificationList);
-        Set<Map<String, Object>> removeNotificationList = new HashSet<>();
-        list.forEach(notification -> request.getFilters().keySet().forEach(key -> {
-            if (!notification.get(key).equals(request.getFilters().get(key)))
-                removeNotificationList.add(notification);
-        }));
-        list.removeAll(removeNotificationList);
-        response.setNotifications(list);
-        response.setCount(list.size());
+    public void getSubscriptions(NotificationListRequest request, Response response) throws Exception {
+        List<Subscription> subscriptionList = fetchSubscriptions(request);
+        response.setSubscriptions(subscriptionList);
+        response.setCount(subscriptionList.size());
     }
 
-    /**
-     * checks the given list of subscriptions are valid and active
-     */
-    private void isValidSubscriptions(Request request) throws Exception {
-        List<String> subscriptions = request.getSubscriptions();
+    private String updateSubscription(String subscriptionId, int subscriptionStatus) throws Exception {
+        String query = String.format(updateSubscriptionQuery, postgresSubscription, subscriptionStatus, subscriptionId, SUBSCRIPTION_ID);
         ResultSet resultSet = null;
         try {
-            String joined = subscriptions.stream()
-                    .map(plain -> StringUtils.wrap(plain, "'"))
-                    .collect(Collectors.joining(","));
-            String query = String.format("SELECT subscription_id FROM %s WHERE topic_code = '%s' AND sender_code = '%s' AND subscription_status = 1 AND subscription_id IN (%s)",
-                    postgresSubscription, request.getTopicCode(), request.getSenderCode(), joined);
+            resultSet = (ResultSet) postgreSQLClient.executeQuery(query);
+            if (resultSet.next())
+                return resultSet.getString(SUBSCRIPTION_ID);
+        } finally {
+            if (resultSet != null) resultSet.close();
+        }
+        return "";
+    }
+
+    public Subscription getSubscriptionById(String subscriptionId, String senderCode) throws Exception {
+        ResultSet resultSet = null;
+        Subscription subscription = null;
+        try { //subscription_id,subscription_status,topic_code,sender_code,recipient_code,expiry,is_delegated
+            String query = String.format(subscriptionSelectQuery, postgresSubscription, subscriptionId, senderCode);
             resultSet = (ResultSet) postgreSQLClient.executeQuery(query);
             while (resultSet.next()) {
-                subscriptions.remove(resultSet.getString("subscription_id"));
+                subscription = new Subscription(resultSet.getString(SUBSCRIPTION_ID), resultSet.getString(TOPIC_CODE), resultSet.getInt(SUBSCRIPTION_STATUS),
+                        resultSet.getString(Constants.SENDER_CODE), resultSet.getString(RECIPIENT_CODE), resultSet.getLong(EXPIRY), resultSet.getBoolean(IS_DELEGATED));
             }
-            if (subscriptions.size() ==1 && !subscriptions.isEmpty())
-                throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Invalid subscriptions list: " + subscriptions);
+            return subscription;
         } finally {
             if (resultSet != null) resultSet.close();
         }
@@ -259,34 +288,5 @@ public class NotificationService {
         } finally {
             if (resultSet != null) resultSet.close();
         }
-    }
-
-    public Subscription getSubscriptionById(String subscriptionId, String senderCode) throws Exception {
-        ResultSet resultSet = null;
-        Subscription subscription = null;
-        try { //subscription_id,subscription_status,topic_code,sender_code,recipient_code,expiry,is_delegated
-            String query = String.format(subscriptionSelectQuery, postgresSubscription, subscriptionId, senderCode);
-            resultSet = (ResultSet) postgreSQLClient.executeQuery(query);
-            while (resultSet.next()) {
-                subscription = new Subscription(resultSet.getString(SUBSCRIPTION_ID), resultSet.getString(TOPIC_CODE), resultSet.getInt(SUBSCRIPTION_STATUS),
-                        resultSet.getString(Constants.SENDER_CODE), resultSet.getString(RECIPIENT_CODE), resultSet.getLong(EXPIRY), resultSet.getBoolean(IS_DELEGATED));
-            }
-            return subscription;
-        } finally {
-            if (resultSet != null) resultSet.close();
-        }
-    }
-
-    private String updateSubscription(String subscriptionId, int subscriptionStatus) throws Exception {
-        String query = String.format(updateSubscriptionQuery, postgresSubscription, subscriptionStatus, subscriptionId, SUBSCRIPTION_ID);
-        ResultSet resultSet = null;
-        try {
-            resultSet = (ResultSet) postgreSQLClient.executeQuery(query);
-            if (resultSet.next())
-                return resultSet.getString(SUBSCRIPTION_ID);
-        } finally {
-            if (resultSet != null) resultSet.close();
-        }
-        return "";
     }
 }

@@ -27,13 +27,13 @@ public class NotificationController extends BaseController {
     @Autowired
     private NotificationService notificationService;
 
-    @PostMapping(Constants.NOTIFICATION_NOTIFY)
-    public ResponseEntity<Object> notificationRequest(@RequestBody Map<String, Object> requestBody) throws Exception {
-        Request request = new Request(requestBody, NOTIFICATION_NOTIFY);
-        Response response = new Response(request);
+    @PostMapping(NOTIFICATION_LIST)
+    public ResponseEntity<Object> getNotificationList(@RequestBody Map<String, Object> requestBody) {
+        NotificationListRequest request = new NotificationListRequest(requestBody);
+        Response response = new Response();
         try {
-            notificationService.notify(request, response, kafkaTopic);
-            return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
+            notificationService.getNotifications(request, response);
+            return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             return exceptionHandler(response, e);
         }
@@ -87,13 +87,13 @@ public class NotificationController extends BaseController {
         }
     }
 
-    @PostMapping(NOTIFICATION_LIST)
-    public ResponseEntity<Object> getNotificationList(@RequestBody Map<String, Object> requestBody) {
-        NotificationListRequest request = new NotificationListRequest(requestBody);
-        Response response = new Response();
+    @PostMapping(Constants.NOTIFICATION_NOTIFY)
+    public ResponseEntity<Object> notificationRequest(@RequestBody Map<String, Object> requestBody) throws Exception {
+        Request request = new Request(requestBody, NOTIFICATION_NOTIFY);
+        Response response = new Response(request);
         try {
-            notificationService.getNotifications(request, response);
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            notificationService.notify(request, response, kafkaTopic);
+            return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
             return exceptionHandler(response, e);
         }
