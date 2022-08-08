@@ -56,6 +56,13 @@ public class MockResultSet {
         return rs;
     }
 
+    private ResultSet buildIntMock() throws SQLException {
+        final var rs = mock(ResultSet.class);
+        getNextMock(rs);
+        getIntMock(rs);
+        return rs;
+    }
+
     private ResultSet buildEmptyMock() throws SQLException {
         final var rs = mock(ResultSet.class);
         getNextMock(rs);
@@ -138,6 +145,13 @@ public class MockResultSet {
             final Object[][] data)
             throws SQLException {
         return new MockResultSet(columnNames, data).buildEmptyMock();
+    }
+
+    public static ResultSet createIntMock(
+            final String[] columnNames,
+            final Object[][] data)
+            throws SQLException {
+        return new MockResultSet(columnNames, data).buildIntMock();
     }
 
 }

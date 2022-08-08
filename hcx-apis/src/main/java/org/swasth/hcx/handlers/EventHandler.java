@@ -1,5 +1,6 @@
 package org.swasth.hcx.handlers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,9 +10,12 @@ import org.springframework.stereotype.Component;
 import org.swasth.auditindexer.function.AuditIndexer;
 import org.swasth.common.dto.Request;
 import org.swasth.common.helpers.EventGenerator;
+import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.kafka.client.IEventService;
 import org.swasth.postgresql.IDatabaseService;
+
+import java.util.Map;
 
 import static org.swasth.common.utils.Constants.KAFKA_TOPIC_PAYLOAD;
 import static org.swasth.common.utils.Constants.QUEUED_STATUS;
@@ -39,6 +43,9 @@ public class EventHandler {
     @Value("${postgres.tablename}")
     private String postgresTableName;
 
+    @Value("${kafka.topic.audit}")
+    private String auditTopic;
+
     public void processAndSendEvent(String metadataTopic, Request request) throws Exception {
         String payloadTopic = env.getProperty(KAFKA_TOPIC_PAYLOAD);
         String key = request.getHcxSenderCode();
@@ -51,6 +58,10 @@ public class EventHandler {
         kafkaClient.send(payloadTopic, key, payloadEvent);
         kafkaClient.send(metadataTopic, key, metadataEvent);
         auditIndexer.createDocument(eventGenerator.generateAuditEvent(request));
+    }
+
+    public void createAudit(Map<String,Object> event) throws Exception {
+        kafkaClient.send(auditTopic , (String) ((Map<String,Object>) event.get(Constants.OBJECT)).get(Constants.TYPE) , JSONUtils.serialize(event));
     }
 
 }

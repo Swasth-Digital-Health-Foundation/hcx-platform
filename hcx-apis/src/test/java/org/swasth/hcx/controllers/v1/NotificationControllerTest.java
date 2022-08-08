@@ -514,6 +514,7 @@ class NotificationControllerTest extends BaseSpec {
     @Test
     void testSubscriptionUpdateSuccess() throws Exception {
         doReturn(getSubscriptionUpdateResultSet()).when(postgreSQLClient).executeQuery(anyString());
+        doReturn(getSubscriptionUpdateAuditLog()).when(mockEventGenerator).createAuditLog(anyString(), anyString(), anyMap(), anyMap());
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIPTION_UPDATE)
                 .content(getSubscriptionUpdateRequest("notif-participant-onboarded", 1, true)).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -537,8 +538,13 @@ class NotificationControllerTest extends BaseSpec {
         return MockResultSet.createIntStringMock(
                 new String[]{"subscription_id", "subscription_status"}, //columns
                 new Object[][]{ // data
+                        {"subscription-123", 1},
                         {"subscription-123", 1}
                 });
+    }
+
+    private Map<String,Object> getSubscriptionUpdateAuditLog() throws Exception {
+        return JSONUtils.deserialize("{\"eid\":\"AUDIT\",\"edata\":{\"prevStatus\":1,\"status\":0,\"props\":[\"subscription_status\",\"expiry\",\"is_delegated\"]},\"ets\":1659434908868,\"mid\":\"5ee2b9e1-ded6-4b56-afa8-3380107632e0\",\"object\":{\"id\":\"097e0185-eeb1-48f1-b2b0-b68774d02c6d\",\"type\":\"notification\"},\"cdata\":{\"action\":\"/notification/subscription/update\",\"recipient_code\":\"testpayor1.icici@swasth-hcx-dev\",\"sender_code\":\"testprovider1.apollo@swasth-hcx-dev\"}}", Map.class);
     }
 
     @Test
@@ -554,7 +560,7 @@ class NotificationControllerTest extends BaseSpec {
     }
 
     @Test
-    void testSubscriptionUpdateWithMissingMandatoryFields() throws Exception {
+    void testSubscriptionUpdateWithNoUpdateProps() throws Exception {
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIPTION_UPDATE)
                 .content(getSubscriptionUpdateMissingFieldsRequest("notif-participant-onboarded")).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -562,7 +568,7 @@ class NotificationControllerTest extends BaseSpec {
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
         assertEquals(400, status);
         assertEquals(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, resObj.getError().getCode());
-        assertTrue(resObj.getError().getMessage().contains("Mandatory fields are missing"));
+        assertTrue(resObj.getError().getMessage().contains("Nothing to update"));
     }
 
     private String getSubscriptionUpdateMissingFieldsRequest(String topicCode) throws JsonProcessingException {
@@ -622,7 +628,7 @@ class NotificationControllerTest extends BaseSpec {
 
     @Test
     void testSubscriptionUpdateWithInvalidSubscriptionDetails() throws Exception {
-        doReturn(getSubscriptionUpdateEmptyResultSet()).when(postgreSQLClient).executeQuery(anyString());
+        doReturn(getSubscriptionUpdateSelectResultSet()).when(postgreSQLClient).executeQuery(anyString());
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIPTION_UPDATE)
                 .content(getSubscriptionUpdateRequest("notif-participant-onboarded", 1, true)).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -631,6 +637,14 @@ class NotificationControllerTest extends BaseSpec {
         assertEquals(400, status);
         assertEquals(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, resObj.getError().getCode());
         assertTrue(resObj.getError().getMessage().contains("Subscription does not exist"));
+    }
+
+    private ResultSet getSubscriptionUpdateSelectResultSet() throws SQLException {
+        return MockResultSet.createIntMock(
+                new String[]{"subscription_id", "subscription_status"}, //columns
+                new Object[][]{ // data
+                        {"subscription-123", 1}
+                });
     }
 
     private ResultSet getSubscriptionUpdateEmptyResultSet() throws SQLException {
