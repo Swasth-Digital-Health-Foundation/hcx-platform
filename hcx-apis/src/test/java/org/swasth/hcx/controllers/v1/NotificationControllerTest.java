@@ -288,19 +288,19 @@ class NotificationControllerTest extends BaseSpec {
     //subscription_id,subscription_status,topic_code,sender_code,recipient_code,expiry,is_delegated
     private ResultSet getMockResultSet(int status) throws SQLException {
         return MockResultSet.create(
-                new String[]{"subscription_id", "subscription_status", "topic_code", "sender_code", "recipient_code", "expiry", "is_delegated"}, //columns
+                new String[]{"subscription_id", "subscription_request_id", "subscription_status", "topic_code", "sender_code", "recipient_code", "expiry", "is_delegated"}, //columns
                 new Object[][]{ // data
-                        {"subscription_id-001", status, "topic_code-12345", "hcx-apollo-12345", "ICICI Lombard", 1629057611000l, false}
+                        {"subscription_id-001", "subscription_request_1", status, "topic_code-12345", "hcx-apollo-12345", "ICICI Lombard", 1629057611000l, false}
                 });
     }
 
     private ResultSet getMockResultSet() throws SQLException {
         return MockResultSet.create(
-                new String[]{"subscription_id", "subscription_status", "topic_code", "sender_code", "recipient_code", "expiry", "is_delegated"}, //columns
+                new String[]{"subscription_id", "subscription_request_id","subscription_status", "topic_code", "sender_code", "recipient_code", "expiry", "is_delegated"}, //columns
                 new Object[][]{ // data
-                        {"subscription_id-001", 1, "topic_code-12345", "hcx-apollo-12345", "ICICI Lombard", 1629057611000l, false},
-                        {"subscription_id-002", 0, "topic_code-12346", "hcx-apollo-12346", "ICICI Lombard", 1629057611000l, false},
-                        {"subscription_id-003", -1, "topic_code-12347", "hcx-apollo-12347", "ICICI Lombard", 1629057611000l, true}
+                        {"subscription_id-001", "subscription_request_1", 1, "topic_code-12345", "hcx-apollo-12345", "ICICI Lombard", 1629057611000l, false},
+                        {"subscription_id-002", "subscription_request_2", 0, "topic_code-12346", "hcx-apollo-12346", "ICICI Lombard", 1629057611000l, false},
+                        {"subscription_id-003", "subscription_request_3", -1, "topic_code-12347", "hcx-apollo-12347", "ICICI Lombard", 1629057611000l, true}
                 });
     }
 
