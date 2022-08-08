@@ -4,8 +4,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Subscription {
-    //subscription_id,subscription_status,topic_code,sender_code,recipient_code,expiry,is_delegated
+    //subscription_id,subscription_request_id,subscription_status,topic_code,sender_code,recipient_code,expiry,is_delegated
     private String subscription_id;
+    private String subscription_request_id;
     private String topic_code;
     private int subscription_status;
     private String sender_code;
@@ -15,8 +16,9 @@ public class Subscription {
 
     public Subscription() {}
 
-    public Subscription(String subscription_id, String topic_code, int subscription_status, String sender_code, String recipient_code, long expiry, boolean is_delegated) {
+    public Subscription(String subscription_id, String subscription_request_id,String topic_code, int subscription_status, String sender_code, String recipient_code, long expiry, boolean is_delegated) {
         this.subscription_id = subscription_id;
+        this.subscription_request_id = subscription_request_id;
         this.topic_code = topic_code;
         this.subscription_status = subscription_status;
         this.sender_code = sender_code;
@@ -32,6 +34,10 @@ public class Subscription {
     public void setSubscription_id(String subscription_id) {
         this.subscription_id = subscription_id;
     }
+
+    public String getSubscription_request_id() { return subscription_request_id; }
+
+    public void setSubscription_request_id(String subscription_request_id) { this.subscription_request_id = subscription_request_id; }
 
     public String getTopic_code() {
         return topic_code;

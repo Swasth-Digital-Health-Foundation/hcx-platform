@@ -68,6 +68,7 @@ object Constants {
   val NOTIFICATION_DATA = "notification_data"
   val SUBSCRIPTIONS = "subscriptions"
   val SUBSCRIPTION_ID = "subscription_id"
+  val SUBSCRIPTION_REQUEST_ID = "subscription_id"
   val RECIPIENT_CODE = "recipient_code"
   val SENDER_CODE = "sender_code"
   val RECIPIENT_CODES = "recipient_codes"
@@ -119,6 +120,6 @@ object Constants {
 
   val NOTIFICATION_SUBSCRIBE = "/notification/subscribe"
   val NOTIFICATION_UNSUBSCRIBE = "/notification/unsubscribe"
+  val NOTIFICATION_ONSUBSCRIBE = "/notification/on_subscribe"
   val SENDER_LIST = "sender_list"
-  val NOTIFY_STATUS = "status"
 }

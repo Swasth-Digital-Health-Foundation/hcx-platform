@@ -1103,4 +1103,25 @@ class HCXRequestTest extends BaseSpec {
                     assertTrue(getResponseErrorMessage(result).contains("Sender  is blocked or inactive as per the registry"));
                 });
     }
+
+    @Test
+    void test_notification_subscribe_wildcard_success() throws Exception {
+        server.enqueue(new MockResponse()
+                .setResponseCode(202)
+                .addHeader("Content-Type", "application/json"));
+
+        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
+                .thenReturn(getProviderDetails());
+        Mockito.when(registryService.getDetails(anyString()))
+                .thenReturn(Arrays.asList(getPayorDetails()));
+        client.post().uri(versionPrefix + Constants.NOTIFICATION_SUBSCRIBE)
+                .header(Constants.AUTHORIZATION, getProviderToken())
+                .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
+                .bodyValue(getSubscriptionRequest("notif-participant-system-downtime", Arrays.asList("new-payor-3","*")))
+                .exchange()
+                .expectBody(Map.class)
+                .consumeWith(result -> {
+                    assertEquals(HttpStatus.ACCEPTED, result.getStatus());
+                });
+    }
 }

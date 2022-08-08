@@ -50,6 +50,9 @@ public class NotificationService {
     @Value("${kafka.topic.subscription}")
     private String subscriptionTopic;
 
+    @Value("${kafka.topic.onsubscription}")
+    private String onSubscriptionTopic;
+
     @Value("${notification.subscription.expiry}")
     private int subscriptionExpiry;
 
@@ -102,7 +105,7 @@ public class NotificationService {
         }
         //Send message to kafka topic
         String subscriptionMessage = eventGenerator.generateOnSubscriptionEvent(request.getApiAction(), subscription.getRecipient_code(), request.getSenderCode(), subscriptionId, statusCode);
-        kafkaClient.send(subscriptionTopic, request.getSenderCode(), subscriptionMessage);
+        kafkaClient.send(onSubscriptionTopic, request.getSenderCode(), subscriptionMessage);
 
         //Create audit event
         auditIndexer.createDocument(eventGenerator.generateOnSubscriptionAuditEvent(request.getApiAction(),subscription.getRecipient_code(),subscriptionId,QUEUED_STATUS,request.getSenderCode(),statusCode));
@@ -115,11 +118,12 @@ public class NotificationService {
         Map<String, String> subscriptionMap = new HashMap<>();
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DAY_OF_MONTH, subscriptionExpiry);
+        UUID subRequestId = UUID.randomUUID();
         senderList.stream().forEach(senderCode -> {
             int status = senderCode.equalsIgnoreCase(hcxRegistryCode) ? statusCode : PENDING_CODE;
             UUID subscriptionId = UUID.randomUUID();
             subscriptionMap.put(senderCode, subscriptionId.toString());
-            String query = String.format(insertSubscription, postgresSubscription, subscriptionId, topicCode, senderCode,
+            String query = String.format(insertSubscription, postgresSubscription, subscriptionId, subRequestId, topicCode, senderCode,
                     notificationRecipientCode, status, System.currentTimeMillis(), System.currentTimeMillis(), cal.getTimeInMillis(), false, status, System.currentTimeMillis(), cal.getTimeInMillis(), false);
             try {
                 postgreSQLClient.addBatch(query);
@@ -251,7 +255,7 @@ public class NotificationService {
             resultSet = (ResultSet) postgreSQLClient.executeQuery(query);
             subscriptionList = new ArrayList<>();
             while (resultSet.next()) {
-                subscription = new Subscription(resultSet.getString(SUBSCRIPTION_ID), resultSet.getString(TOPIC_CODE), resultSet.getInt(SUBSCRIPTION_STATUS),
+                subscription = new Subscription(resultSet.getString(SUBSCRIPTION_ID), resultSet.getString(SUBSCRIPTION_REQUEST_ID), resultSet.getString(TOPIC_CODE), resultSet.getInt(SUBSCRIPTION_STATUS),
                         resultSet.getString(Constants.SENDER_CODE), resultSet.getString(RECIPIENT_CODE), resultSet.getLong(EXPIRY), resultSet.getBoolean(IS_DELEGATED));
                 subscriptionList.add(subscription);
             }
@@ -268,7 +272,7 @@ public class NotificationService {
             String query = String.format(subscriptionSelectQuery, postgresSubscription, subscriptionId, senderCode);
             resultSet = (ResultSet) postgreSQLClient.executeQuery(query);
             while (resultSet.next()) {
-                subscription = new Subscription(resultSet.getString(SUBSCRIPTION_ID), resultSet.getString(TOPIC_CODE), resultSet.getInt(SUBSCRIPTION_STATUS),
+                subscription = new Subscription(resultSet.getString(SUBSCRIPTION_ID), resultSet.getString(SUBSCRIPTION_REQUEST_ID), resultSet.getString(TOPIC_CODE), resultSet.getInt(SUBSCRIPTION_STATUS),
                         resultSet.getString(Constants.SENDER_CODE), resultSet.getString(RECIPIENT_CODE), resultSet.getLong(EXPIRY), resultSet.getBoolean(IS_DELEGATED));
             }
             return subscription;

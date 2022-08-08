@@ -1,33 +1,17 @@
 package org.swasth.dp.notification.functions;
 
-import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.util.Collector;
-import org.swasth.dp.core.service.AuditService;
 import org.swasth.dp.core.util.Constants;
 import org.swasth.dp.core.util.JSONUtil;
 import org.swasth.dp.notification.task.NotificationConfig;
 
 import java.util.*;
 
-public class SubscriptionFilterFunction extends ProcessFunction<Map<String, Object>, Map<String, Object>> {
-
-    private NotificationConfig config;
-    private AuditService auditService;
-    private Map<String, Object> consolidatedEvent;
+public class SubscriptionFilterFunction extends BaseNotificationFunction {
 
     public SubscriptionFilterFunction(NotificationConfig config) {
-        this.config = config;
-    }
-
-    @Override
-    public void open(Configuration parameters) {
-        auditService = new AuditService(config);
-    }
-
-    @Override
-    public void close() throws Exception {
-        super.close();
+        super(config);
     }
 
     @Override
@@ -56,15 +40,8 @@ public class SubscriptionFilterFunction extends ProcessFunction<Map<String, Obje
                     auditService.indexAudit(createSubscriptionAuditEvent(action, topicCode, senderCode, recipientCode, Constants.DISPATCH_STATUS()));
                 }
             }
-        } else { // for /notification/on_subscribe
-            String senderCode = (String) eventMap.get(Constants.HCX_SENDER_CODE());
-            String recipientCode = (String) eventMap.get(Constants.HCX_RECIPIENT_CODE());
-            Map<String, Object> payloadMap = (Map) eventMap.get(Constants.PAYLOAD());
-            String subscriptionId = (String) payloadMap.get(Constants.SUBSCRIPTION_ID());
-            Double subscriptionStatus = (Double) payloadMap.get(Constants.SUBSCRIPTION_STATUS());
-            //Create audit event
-            auditService.indexAudit(createOnSubscriptionAuditEvent(action, subscriptionId, recipientCode, senderCode, subscriptionStatus.intValue()));
-            context.output(config.onSubscribeOutputTag(), eventMap);
+        } else {
+            System.out.println("Wrong event data for this process function SubscriptionFilterFunction");
         }
     }
 
@@ -77,30 +54,4 @@ public class SubscriptionFilterFunction extends ProcessFunction<Map<String, Obje
         return event;
     }
 
-    private Map<String, Object> createSubscriptionAuditEvent(String action, String topicCode, String recipientCode, String senderCode, String status) {
-        Map<String, Object> audit = new HashMap<>();
-        audit.put(Constants.EID(), Constants.AUDIT());
-        audit.put(Constants.MID(), UUID.randomUUID().toString());
-        audit.put(Constants.ACTION(), action);
-        audit.put(Constants.ETS(), Calendar.getInstance().getTime());
-        audit.put(Constants.SENDER_CODE(), senderCode);
-        audit.put(Constants.RECIPIENT_CODE(), recipientCode);
-        audit.put(Constants.TOPIC_CODE(), topicCode);
-        audit.put(Constants.NOTIFY_STATUS(), status);
-        return audit;
-    }
-
-    private Map<String, Object> createOnSubscriptionAuditEvent(String action, String subscriptionId, String recipientCode, String senderCode, int subscriptionStatus) {
-        Map<String, Object> audit = new HashMap<>();
-        audit.put(Constants.EID(), Constants.AUDIT());
-        audit.put(Constants.MID(), UUID.randomUUID().toString());
-        audit.put(Constants.ACTION(), action);
-        audit.put(Constants.ETS(), Calendar.getInstance().getTime());
-        audit.put(Constants.SENDER_CODE(), senderCode);
-        audit.put(Constants.RECIPIENT_CODE(), recipientCode);
-        audit.put(Constants.SUBSCRIPTION_ID(), subscriptionId);
-        audit.put(Constants.SUBSCRIPTION_STATUS(), subscriptionStatus);
-        audit.put(Constants.NOTIFY_STATUS(), Constants.QUEUED_STATUS());
-        return audit;
-    }
 }

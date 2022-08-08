@@ -23,7 +23,7 @@ public class NotificationDispatcherFunctionTest {
     @Test
     public void testNotificationDispatchProcess() throws Exception {
         // wrap user defined function into the corresponding operator
-        OneInputStreamOperatorTestHarness<Map<String, Object>, Object> harness = ProcessFunctionTestHarnesses.forProcessFunction(processFunction);
+        OneInputStreamOperatorTestHarness<Map<String, Object>, Map<String, Object>> harness = ProcessFunctionTestHarnesses.forProcessFunction(processFunction);
 
         //TODO StreamRecord object with the sample data
         Map<String, Object> eventMap = new HashMap<>();//(HashMap<String,Object>) gson.fromJson(EventFixture.SAMPLE_VALID_RETRY_REQUEST(),HashMap.class);

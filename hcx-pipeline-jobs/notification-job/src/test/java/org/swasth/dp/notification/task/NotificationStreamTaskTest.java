@@ -22,7 +22,7 @@ import java.util.Map;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.Mockito.*;
 
-public class SubscriptionStreamTaskTest {
+public class NotificationStreamTaskTest {
 
     @ClassRule
     public static MiniClusterWithClientResource flinkCluster =
@@ -55,7 +55,7 @@ public class SubscriptionStreamTaskTest {
 
     @Test
     public void testSubscriptionStreamTask() throws Exception {
-        SubscriptionStreamTask task = new SubscriptionStreamTask(notificationConfig, mockKafkaUtil);
+        NotificationStreamTask task = new NotificationStreamTask(notificationConfig, mockKafkaUtil);
         task.process(baseJobConfig);
     }
 
