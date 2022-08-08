@@ -19,7 +19,7 @@ const privateKey = fs.readFileSync(path.join(__dirname, '..', 'resources', 'keys
  * @return {*} 
  */
 const coverageCheck = async (req, res, next) => {
-    console.log("RECIPIENT_CODE and SENDER_CODE",process.env.RECIPIENT_CODE, process.env.SENDER_CODE);
+    console.log("RECIPIENT_CODE and SENDER_CODE",process.env.RECIPIENT_CODE, " " ,process.env.SENDER_CODE, " " , process.env.api_version);
     const { name, gender, index, error_code, error_code_message, sender_code = process.env.SENDER_CODE , recipient_code } = req.body;
     if (!recipient_code) return next(createError(400, 'Recipient Code is mandatory'));
     console.log("sender code", recipient_code," " ,index);
@@ -91,7 +91,7 @@ const coverageCheck = async (req, res, next) => {
     });
     
     
-    var config = { method: 'post', url: 'v1/coverageeligibility/check', data };
+    var config = { method: 'post', url: '/' +  process.env.api_version + '/coverageeligibility/check', data };
     debug('coverageCheck-payload', config);
     try {
         const response = await hcxInstance(config);

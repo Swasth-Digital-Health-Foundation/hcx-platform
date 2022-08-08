@@ -55,7 +55,7 @@ const claimSubmit = async (req, res, next) => {
     const payload = await encrypt({ headers, payload: claimPayload, cert: privateKey });
     const data = JSON.stringify({ payload })
 
-    var config = { method: 'post', url: 'v1/claim/submit', data };
+    var config = { method: 'post', url: '/' +  process.env.api_version +'/claim/submit', data };
     debug('claim-payload', config);
 
     try {
