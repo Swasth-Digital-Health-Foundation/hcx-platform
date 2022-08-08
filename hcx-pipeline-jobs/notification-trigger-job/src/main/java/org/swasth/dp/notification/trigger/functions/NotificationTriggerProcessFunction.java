@@ -60,7 +60,7 @@ public class NotificationTriggerProcessFunction extends ProcessFunction<Map<Stri
             notificationData.put(Constants.DDMMYY(), new SimpleDateFormat("dd-MM-yyyy").format(event.get(Constants.ETS())));
             notificationData.put(Constants.PARTICIPANT_NAME(), participant.get(Constants.PARTICIPANT_NAME()));
             notificationData.put(Constants.PARTICIPANT_CODE(), participant.get(Constants.PARTICIPANT_CODE()));
-            notifyEvent = createNotifyEvent((String) notification.get(Constants.TOPIC_CODE()), Collections.emptyList(),
+            notifyEvent = createNotifyEvent((String) notification.get(Constants.TOPIC_CODE()), config.hcxRegistryCode(), Collections.emptyList(),
                     (List<String>) notification.get(Constants.ALLOWED_RECIPIENTS()), Collections.emptyList(), notificationData);
             context.output(config.notifyOutputTag, notifyEvent);
         } else if(action.equals(Constants.NOTIFICATION_SUBSCRIPTION_UPDATE())) {
@@ -69,8 +69,8 @@ public class NotificationTriggerProcessFunction extends ProcessFunction<Map<Stri
             Map<String, Object> notificationData = new HashMap<>();
             notificationData.put(Constants.PARTICIPANT_NAME(), participant.get(Constants.PARTICIPANT_NAME()));
             notificationData.put(Constants.SUBSCRIPTION_ID(), id);
-            notifyEvent = createNotifyEvent((String) notification.get(Constants.TOPIC_CODE()), Arrays.asList((String) cdata.get(Constants.RECIPIENT_CODE())),
-                    Collections.emptyList(), Collections.emptyList(), notificationData);
+            notifyEvent = createNotifyEvent((String) notification.get(Constants.TOPIC_CODE()), config.hcxRegistryCode(),
+                    Arrays.asList((String) cdata.get(Constants.RECIPIENT_CODE())), Collections.emptyList(), Collections.emptyList(), notificationData);
             context.output(config.notifyOutputTag, notifyEvent);
         }
         // Workflow notifications
@@ -102,16 +102,17 @@ public class NotificationTriggerProcessFunction extends ProcessFunction<Map<Stri
         }
         if (!subscriptions.isEmpty()) {
             Map<String, Object> participant = registryService.getParticipantDetails("{\"participant_code\":{\"eq\":\"" + senderCode + "\"}}").get(0);
-            notifyEvent = createNotifyEvent(topicCode, Collections.emptyList(), Collections.emptyList(),
+            notifyEvent = createNotifyEvent(topicCode, config.hcxRegistryCode(), Collections.emptyList(), Collections.emptyList(),
                     subscriptions, Collections.singletonMap(Constants.PARTICIPANT_NAME(), participant.get(Constants.PARTICIPANT_NAME())));
             context.output(config.notifyOutputTag, notifyEvent);
         }
     }
 
-    public String createNotifyEvent(String topicCode, List<String> recipientCodes, List<String> recipientRoles,
+    public String createNotifyEvent(String topicCode, String senderCode, List<String> recipientCodes, List<String> recipientRoles,
                                     List<String> subscriptions, Map<String,Object> notificationData) throws Exception {
         Map<String,Object> event = new HashMap<>();
         event.put(Constants.TOPIC_CODE(), topicCode);
+        event.put(Constants.SENDER_CODE(), senderCode);
         event.put(Constants.RECIPIENT_CODES(), recipientCodes);
         event.put(Constants.RECIPIENT_ROLES(), recipientRoles);
         event.put(Constants.SUBSCRIPTIONS(), subscriptions);
