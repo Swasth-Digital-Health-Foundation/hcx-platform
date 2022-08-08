@@ -62,17 +62,6 @@ public class ParticipantController  extends BaseController {
         }
     }
 
-    @PostMapping(PARTICIPANT_SEARCH)
-    public ResponseEntity<Object> participantSearch(@RequestBody Map<String, Object> requestBody) throws Exception {
-        try {
-            String url =  registryUrl + "/api/v1/Organisation/search";
-            HttpResponse<String> response = HttpUtils.post(url, JSONUtils.serialize(requestBody), new HashMap<>());
-            return responseHandler(response, null);
-        } catch (Exception e) {
-            return exceptionHandler(new Response(), e);
-        }
-    }
-
     @PostMapping(PARTICIPANT_UPDATE)
     public ResponseEntity<Object> participantUpdate(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) throws Exception {
         try {
@@ -95,6 +84,19 @@ public class ParticipantController  extends BaseController {
             return exceptionHandler(new Response(), e);
         }
     }
+
+    @PostMapping(PARTICIPANT_SEARCH)
+    public ResponseEntity<Object> participantSearch(@RequestBody Map<String, Object> requestBody) throws Exception {
+        try {
+            String url =  registryUrl + "/api/v1/Organisation/search";
+            HttpResponse<String> response = HttpUtils.post(url, JSONUtils.serialize(requestBody), new HashMap<>());
+            return responseHandler(response, null);
+        } catch (Exception e) {
+            return exceptionHandler(new Response(), e);
+        }
+    }
+
+
 
     private ResponseEntity<Object> responseHandler(HttpResponse<String> response, String participantCode) throws Exception {
         if (response.getStatus() == 200) {
