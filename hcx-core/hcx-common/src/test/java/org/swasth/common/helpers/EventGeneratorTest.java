@@ -5,10 +5,7 @@ import org.junit.Test;
 import org.swasth.common.dto.Request;
 import org.swasth.common.utils.Constants;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.Assert.*;
 import static org.swasth.common.utils.Constants.*;
@@ -66,6 +63,12 @@ public class EventGeneratorTest {
     public void check_generateAuditEvent_if_status_is_null() throws Exception {
         Map<String,Object> result = eventGenerator.generateAuditEvent(getJSONRequest(null));
         assertEquals("request.queued", result.get(Constants.STATUS));
+    }
+
+    @Test
+    public void check_createNotifyEvent() throws Exception {
+        String result = eventGenerator.createNotifyEvent("test-code-123", "provider01@hcx", List.of("payor01@hcx"), Collections.emptyList(), Collections.emptyList(), Collections.singletonMap(PARTICIPANT_CODE, "provider01@hcx"));
+        assertNotNull(result);
     }
 
     public Request getRequest() throws Exception {
