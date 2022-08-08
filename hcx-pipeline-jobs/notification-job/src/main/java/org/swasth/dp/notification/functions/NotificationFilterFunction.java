@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.swasth.dp.core.util.Constants;
 import org.swasth.dp.notification.task.NotificationConfig;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
