@@ -161,13 +161,6 @@ public class EventGenerator {
         return JSONUtils.serialize(event);
     }
 
-    private Map<String,Object> createOnSubscriptionPayload(String subscriptionId, int status) {
-        Map<String,Object> event = new HashMap<>();
-        event.put(SUBSCRIPTION_ID,subscriptionId);
-        event.put(SUBSCRIPTION_STATUS,status);
-        return event;
-    }
-
     public Map<String,Object> generateOnSubscriptionAuditEvent(String apiAction,String recipientCode,String subscriptionId,String status,String senderCode,int subscriptionStatus) {
         Map<String,Object> event = new HashMap<>();
         event.put(EID, AUDIT);
@@ -180,6 +173,13 @@ public class EventGenerator {
         event.put(ETS,System.currentTimeMillis());
         event.put(NOTIFY_STATUS, status);
         return  event;
+    }
+
+    private Map<String,Object> createOnSubscriptionPayload(String subscriptionId, int status) {
+        Map<String,Object> event = new HashMap<>();
+        event.put(SUBSCRIPTION_ID,subscriptionId);
+        event.put(SUBSCRIPTION_STATUS,status);
+        return event;
     }
 
     public String createNotifyEvent(String topicCode, String senderCode, List<String> recipientCodes, List<String> recipientRoles,
