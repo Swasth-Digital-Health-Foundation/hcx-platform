@@ -96,8 +96,6 @@ public class ParticipantController  extends BaseController {
         }
     }
 
-
-
     private ResponseEntity<Object> responseHandler(HttpResponse<String> response, String participantCode) throws Exception {
         if (response.getStatus() == 200) {
             if (response.getBody().isEmpty()) {
