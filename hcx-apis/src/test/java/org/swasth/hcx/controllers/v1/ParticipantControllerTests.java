@@ -171,7 +171,7 @@ class ParticipantControllerTests extends BaseSpec{
         int status = response.getStatus();
         assertEquals(400, status);
         assertEquals(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS.name(), getResponseErrorCode(responseBody));
-        assertEquals("primary_email does not exist or invalid", getResponseErrorMessage(responseBody));
+        assertEquals("primary_email is missing or invalid", getResponseErrorMessage(responseBody));
     }
 
     @Test
