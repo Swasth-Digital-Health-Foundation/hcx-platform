@@ -26,6 +26,7 @@ public class NotificationTriggerConfig  extends BaseJobConfig {
     public OutputTag<String> notifyOutputTag = new OutputTag<String>("notify-events"){};
     public String notifyProducer = "notify-events-sink";
     public boolean networkNotificationsEnabled;
+    public boolean workflowNotificationEnabled;
     public List<String> notificationTriggersDisabled;
     public Map<String,Object> topicCodeAndAPIActionMap;
 
@@ -42,6 +43,7 @@ public class NotificationTriggerConfig  extends BaseJobConfig {
         downstreamOperatorsParallelism = config.getInt("task.downstream.operators.parallelism");
         subscriptionTableName = config.getString("postgres.subscription.table");
         networkNotificationsEnabled = config.getBoolean("notification.network.enabled");
+        workflowNotificationEnabled = config.getBoolean("notification.workflow.enabled");
         notificationTriggersDisabled = config.getStringList("notification.triggers.disabled");
         topicCodeAndAPIActionMap = (Map<String, Object>) config.getAnyRef("notification.workflow.topicCodeAndAPIActionMap");
     }

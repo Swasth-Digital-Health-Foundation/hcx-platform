@@ -49,41 +49,42 @@ public class NotificationTriggerProcessFunction extends ProcessFunction<Map<Stri
         Map<String, Object> cdata = (Map<String, Object>) event.get(Constants.CDATA());
         String action = (String) cdata.get(Constants.ACTION());
         String id = (String) ((Map<String, Object>) event.get(Constants.OBJECT())).get(Constants.ID());
-        String notifyEvent = null;
-        // Network notifications
-        if (config.networkNotificationsEnabled && action.equals(Constants.PARTICIPANT_CREATE())) {
-            Map<String, Object> notification = notificationUtil.getNotification(Constants.PARTICIPANT_ONBOARD());
-            Map<String, Object> participant = registryService.getParticipantDetails("{\"participant_code\":{\"eq\":\"" + id + "\"}}").get(0);
-            Map<String, Object> notificationData = new HashMap<>();
-            notificationData.put(Constants.PARTICIPANT_NAME(), participant.get(Constants.PARTICIPANT_NAME()));
-            notificationData.put(Constants.HCX_NAME(), config.hcxInstanceName());
-            notificationData.put(Constants.DDMMYY(), new SimpleDateFormat("dd-MM-yyyy").format(event.get(Constants.ETS())));
-            notificationData.put(Constants.PARTICIPANT_NAME(), participant.get(Constants.PARTICIPANT_NAME()));
-            notificationData.put(Constants.PARTICIPANT_CODE(), participant.get(Constants.PARTICIPANT_CODE()));
-            notifyEvent = createNotifyEvent((String) notification.get(Constants.TOPIC_CODE()), config.hcxRegistryCode(), Collections.emptyList(),
-                    (List<String>) notification.get(Constants.ALLOWED_RECIPIENTS()), Collections.emptyList(), notificationData);
-            context.output(config.notifyOutputTag, notifyEvent);
-        } else if(action.equals(Constants.NOTIFICATION_SUBSCRIPTION_UPDATE())) {
-            Map<String, Object> notification = notificationUtil.getNotification(Constants.SUBSCRIPTION_UPDATE());
-            Map<String, Object> participant = registryService.getParticipantDetails("{\"participant_code\":{\"eq\":\"" + cdata.get(Constants.RECIPIENT_CODE()) + "\"}}").get(0);
-            Map<String, Object> notificationData = new HashMap<>();
-            notificationData.put(Constants.PARTICIPANT_NAME(), participant.get(Constants.PARTICIPANT_NAME()));
-            notificationData.put(Constants.SUBSCRIPTION_ID(), id);
-            notifyEvent = createNotifyEvent((String) notification.get(Constants.TOPIC_CODE()), config.hcxRegistryCode(),
-                    Arrays.asList((String) cdata.get(Constants.RECIPIENT_CODE())), Collections.emptyList(), Collections.emptyList(), notificationData);
-            context.output(config.notifyOutputTag, notifyEvent);
-        }
-        // Workflow notifications
         String topicCode = (String) config.topicCodeAndAPIActionMap.get(action);
-        if (!config.notificationTriggersDisabled.contains(topicCode)){
-            if (action.contains("on_") && cdata.get(Constants.HCX_STATUS()).equals(Constants.COMPLETE_RESPONSE()))
-                processWorkflowNotification(context, cdata, topicCode, notifyEvent);
-            else if (!action.contains("on_"))
-                processWorkflowNotification(context, cdata, topicCode, notifyEvent);
+        String notifyEvent = null;
+        if (!config.notificationTriggersDisabled.contains(topicCode)) {
+            // Network notifications
+            if (config.networkNotificationsEnabled) {
+                if (action.equals(Constants.PARTICIPANT_CREATE())) {
+                    Map<String, Object> notification = notificationUtil.getNotification(topicCode);
+                    Map<String, Object> participant = registryService.getParticipantDetails("{\"participant_code\":{\"eq\":\"" + id + "\"}}").get(0);
+                    Map<String, Object> notificationData = new HashMap<>();
+                    notificationData.put(Constants.PARTICIPANT_NAME(), participant.get(Constants.PARTICIPANT_NAME()));
+                    notificationData.put(Constants.HCX_NAME(), config.hcxInstanceName());
+                    notificationData.put(Constants.DDMMYY(), new SimpleDateFormat("dd-MM-yyyy").format(event.get(Constants.ETS())));
+                    notificationData.put(Constants.PARTICIPANT_NAME(), participant.get(Constants.PARTICIPANT_NAME()));
+                    notificationData.put(Constants.PARTICIPANT_CODE(), participant.get(Constants.PARTICIPANT_CODE()));
+                    notifyEvent = createNotifyEvent((String) notification.get(Constants.TOPIC_CODE()), config.hcxRegistryCode(), Collections.emptyList(),
+                            (List<String>) notification.get(Constants.ALLOWED_RECIPIENTS()), Collections.emptyList(), notificationData);
+                    pushToKafka(context, notifyEvent);
+                } else if (action.equals(Constants.NOTIFICATION_SUBSCRIPTION_UPDATE())) {
+                    Map<String, Object> notification = notificationUtil.getNotification(topicCode);
+                    Map<String, Object> participant = registryService.getParticipantDetails("{\"participant_code\":{\"eq\":\"" + cdata.get(Constants.RECIPIENT_CODE()) + "\"}}").get(0);
+                    Map<String, Object> notificationData = new HashMap<>();
+                    notificationData.put(Constants.PARTICIPANT_NAME(), participant.get(Constants.PARTICIPANT_NAME()));
+                    notificationData.put(Constants.SUBSCRIPTION_ID(), id);
+                    notifyEvent = createNotifyEvent((String) notification.get(Constants.TOPIC_CODE()), config.hcxRegistryCode(),
+                            Arrays.asList((String) cdata.get(Constants.RECIPIENT_CODE())), Collections.emptyList(), Collections.emptyList(), notificationData);
+                    pushToKafka(context, notifyEvent);
+                }
+            }
+            // Workflow notifications
+            if (config.workflowNotificationEnabled) {
+                if (action.contains("on_") && cdata.get(Constants.HCX_STATUS()).equals(Constants.COMPLETE_RESPONSE()))
+                    processWorkflowNotification(context, cdata, topicCode, notifyEvent);
+                else if (!action.contains("on_"))
+                    processWorkflowNotification(context, cdata, topicCode, notifyEvent);
+            }
         }
-        if (notifyEvent != null)
-            System.out.println("Notify event is pushed to kafka :: " + notifyEvent);
-            logger.debug("Notify event is pushed to kafka :: " + notifyEvent);
     }
 
     private void processWorkflowNotification(ProcessFunction<Map<String, Object>, Map<String, Object>>.Context context, Map<String, Object> cdata, String topicCode, String notifyEvent) throws Exception {
@@ -104,7 +105,15 @@ public class NotificationTriggerProcessFunction extends ProcessFunction<Map<Stri
             Map<String, Object> participant = registryService.getParticipantDetails("{\"participant_code\":{\"eq\":\"" + senderCode + "\"}}").get(0);
             notifyEvent = createNotifyEvent(topicCode, config.hcxRegistryCode(), Collections.emptyList(), Collections.emptyList(),
                     subscriptions, Collections.singletonMap(Constants.PARTICIPANT_NAME(), participant.get(Constants.PARTICIPANT_NAME())));
+            pushToKafka(context, notifyEvent);
+        }
+    }
+
+    private void pushToKafka(ProcessFunction<Map<String, Object>, Map<String, Object>>.Context context, String notifyEvent) {
+        if (notifyEvent != null) {
             context.output(config.notifyOutputTag, notifyEvent);
+            System.out.println("Notify event is pushed to kafka :: " + notifyEvent);
+            logger.debug("Notify event is pushed to kafka :: " + notifyEvent);
         }
     }
 
