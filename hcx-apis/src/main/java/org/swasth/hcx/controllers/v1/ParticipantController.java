@@ -13,7 +13,6 @@ import org.swasth.common.dto.Response;
 import org.swasth.common.exception.*;
 import org.swasth.common.utils.*;
 import org.swasth.hcx.controllers.BaseController;
-import org.swasth.hcx.service.ParticipantService;
 import org.swasth.redis.cache.RedisCache;
 
 import java.security.SecureRandom;

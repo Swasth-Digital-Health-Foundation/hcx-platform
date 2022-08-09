@@ -17,6 +17,7 @@ import org.springframework.web.context.WebApplicationContext;
 import org.swasth.auditindexer.function.AuditIndexer;
 import org.swasth.common.dto.Response;
 import org.swasth.common.helpers.EventGenerator;
+import org.swasth.common.service.RegistryService;
 import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.hcx.config.GenericConfiguration;
@@ -25,7 +26,6 @@ import org.swasth.hcx.handlers.EventHandler;
 import org.swasth.hcx.managers.HealthCheckManager;
 import org.swasth.hcx.service.HeaderAuditService;
 import org.swasth.hcx.service.NotificationService;
-import org.swasth.hcx.service.ParticipantService;
 import org.swasth.kafka.client.IEventService;
 import org.swasth.postgresql.IDatabaseService;
 import org.swasth.redis.cache.RedisCache;
@@ -33,7 +33,7 @@ import org.swasth.redis.cache.RedisCache;
 import java.util.*;
 
 
-@WebMvcTest({CoverageEligibilityController.class, PreAuthController.class, ClaimsController.class, PaymentsController.class, AuditController.class, StatusController.class, SearchController.class, CommunicationController.class, PredeterminationController.class, ParticipantController.class, NotificationController.class, NotificationService.class, EventHandler.class, ParticipantService.class})
+@WebMvcTest({CoverageEligibilityController.class, PreAuthController.class, ClaimsController.class, PaymentsController.class, AuditController.class, StatusController.class, SearchController.class, CommunicationController.class, PredeterminationController.class, ParticipantController.class, NotificationController.class, NotificationService.class, EventHandler.class})
 @ExtendWith(MockitoExtension.class)
 @ActiveProfiles("test")
 @Import(GenericConfiguration.class)
@@ -75,7 +75,7 @@ public class BaseSpec {
     protected EventHandler eventHandler;
 
     @MockBean
-    protected ParticipantService mockParticipantService;
+    protected RegistryService mockRegistryService;
 
     @BeforeEach
     public void setup() {

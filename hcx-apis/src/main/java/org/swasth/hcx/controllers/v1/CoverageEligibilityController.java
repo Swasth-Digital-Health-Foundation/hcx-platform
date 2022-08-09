@@ -1,6 +1,5 @@
 package org.swasth.hcx.controllers.v1;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -9,14 +8,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.swasth.common.dto.ParticipantResponse;
 import org.swasth.common.dto.Request;
 import org.swasth.common.dto.Response;
+import org.swasth.common.service.RegistryService;
 import org.swasth.common.utils.Constants;
-import org.swasth.common.utils.JSONUtils;
 import org.swasth.hcx.controllers.BaseController;
 import org.swasth.hcx.service.NotificationService;
-import org.swasth.hcx.service.ParticipantService;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,7 +36,7 @@ public class CoverageEligibilityController extends BaseController {
     private NotificationService notificationService;
 
     @Autowired
-    private ParticipantService participantService;
+    private RegistryService registryService;
 
     @PostMapping(Constants.COVERAGE_ELIGIBILITY_CHECK)
     public ResponseEntity<Object> checkCoverageEligibility(@RequestBody Map<String, Object> requestBody) throws Exception {
@@ -47,9 +44,8 @@ public class CoverageEligibilityController extends BaseController {
         Response response = new Response(request);
         try {
             // fetch the recipient roles,crate request body with filters for registry search
-            ResponseEntity<Object> participantResponse = participantService.search(JSONUtils.deserialize("{ \"filters\": { \"participant_code\": { \"eq\": \" " + request.getHcxSenderCode() + "\" } } }", Map.class));
-            ParticipantResponse body = (ParticipantResponse) participantResponse.getBody();
-            List<String> roles = (List) ((Map) body.getParticipants().get(0)).get(ROLES);
+            List<Map<String,Object>> participantResponse = registryService.getDetails("{ \"filters\": { \"participant_code\": { \"eq\": \" " + request.getHcxSenderCode() + "\" } } }");
+            List<String> roles = (List) (participantResponse.get(0)).get(ROLES);
             if(roles.contains(MEMBER_ISNP)){
                 //create subscription requests based on configured topic codes
                 for (String topicCode: topicCodes) {

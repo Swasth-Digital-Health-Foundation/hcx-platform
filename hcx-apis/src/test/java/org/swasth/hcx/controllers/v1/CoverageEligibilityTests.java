@@ -2,21 +2,19 @@ package org.swasth.hcx.controllers.v1;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MvcResult;
-import org.swasth.common.dto.ParticipantResponse;
 import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.hcx.controllers.BaseSpec;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 
-import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 class CoverageEligibilityTests extends BaseSpec {
@@ -34,13 +32,8 @@ class CoverageEligibilityTests extends BaseSpec {
     @Test
     void check_coverage_eligibility_success_scenario() throws Exception {
         doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
-        ParticipantResponse mockParticipantResponse = mock(ParticipantResponse.class);
-        ResponseEntity mockResponseEntity = mock(ResponseEntity.class);
         Map<String, Object> participantMap = JSONUtils.deserialize(getParticipantPayorBody(), Map.class);
-        ArrayList<Object> participantList = new ArrayList<>(){{ add(participantMap); }};
-        when(mockParticipantService.search(anyMap())).thenReturn(mockResponseEntity);
-        when(mockResponseEntity.getBody()).thenReturn(mockParticipantResponse);
-        when(mockParticipantResponse.getParticipants()).thenReturn(participantList);
+        when(mockRegistryService.getDetails(anyString())).thenReturn(Arrays.asList(participantMap));
         String requestBody = getRequestBody();
         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.COVERAGE_ELIGIBILITY_CHECK).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -53,17 +46,12 @@ class CoverageEligibilityTests extends BaseSpec {
         doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
         when(postgreSQLClient.executeBatch()).thenReturn(new int[1]);
         doNothing().when(auditIndexer).createDocument(anyMap());
-        ParticipantResponse mockParticipantResponse = mock(ParticipantResponse.class);
-        ResponseEntity mockResponseEntity = mock(ResponseEntity.class);
-        ArrayList<Object> participantList = new ArrayList<>(){{ add(getHIUParticipant()); }};
-        when(mockParticipantService.search(anyMap())).thenReturn(mockResponseEntity);
-        when(mockResponseEntity.getBody()).thenReturn(mockParticipantResponse);
-        when(mockParticipantResponse.getParticipants()).thenReturn(participantList);
+        when(mockRegistryService.getDetails(anyString())).thenReturn(Arrays.asList(getHIUParticipant()));
         String requestBody = getRequestBody();
         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.COVERAGE_ELIGIBILITY_CHECK).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
-        assertNotNull(status);
+        assertEquals(202, status);
     }
 
 
