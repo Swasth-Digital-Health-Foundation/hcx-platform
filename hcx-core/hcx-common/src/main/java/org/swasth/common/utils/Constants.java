@@ -125,6 +125,7 @@ public class Constants {
     public static final String PAYOR = "payor";
     public static final String PROVIDER = "provider";
     public static final String AGENCY_TPA = "agency.tpa";
+    public static final String MEMBER_ISNP = "member.isnp";
     public static final String ROLES = "roles";
     public static final String SCHEME_CODE = "scheme_code";
     public static final String PARTICIPANT_CODE = "participant_code";
@@ -150,6 +151,7 @@ public class Constants {
     public static final String ERROR_STATUS = "response.error";
     public static final String REDIRECT_STATUS = "response.redirect";
     public static final String COMPLETE_STATUS = "response.complete";
+    public static final String PARTIAL_STATUS = "response.partial";
     public static final String QUEUED_STATUS = "request.queued";
     public static final String DISPATCHED_STATUS = "request.dispatched";
     public static final String RETRY_STATUS = "request.retry";
@@ -162,6 +164,7 @@ public class Constants {
     public static final int ACTIVE_CODE = 1;
     public static final int INACTIVE_CODE = 0;
     public static final String SUBSCRIPTION_ID = "subscription_id";
+    public static final String SUBSCRIPTION_REQUEST_ID = "subscription_request_id";
     public static final String NOTIFICATION_HEADERS_MANDATORY = "notification.headers.mandatory";
     public static final String NOTIFICATION_HEADERS_OPTIONAL = "notification.headers.optional";
     public static final String TRIGGER_VALUE = "API";
@@ -223,6 +226,6 @@ public class Constants {
     public static final String SENDER = "Sender";
     public static final List<String> OPERATIONAL_ENTITIES = Arrays.asList(NOTIFICATION, COMMUNICATION, REGISTRY_STATUS);
     public static final List<String> EXCLUDE_ENTITIES = Arrays.asList(COMMUNICATION, PAYMENT, NOTIFICATION);
-    public static final List<String> RESPONSE_STATUS_VALUES = Arrays.asList(COMPLETE_STATUS, "response.partial", ERROR_RESPONSE, REDIRECT_STATUS);
+    public static final List<String> RESPONSE_STATUS_VALUES = Arrays.asList(COMPLETE_STATUS, PARTIAL_STATUS, ERROR_RESPONSE, REDIRECT_STATUS);
     public static final List<String> ALLOWED_ENTITIES_ERROR_AUDIT_CREATION = Arrays.asList("coverageeligibility", "preauth", "claim", PAYMENT, COMMUNICATION, "predetermination", REGISTRY_STATUS, "search");
 }
