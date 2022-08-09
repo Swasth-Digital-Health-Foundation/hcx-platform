@@ -1,11 +1,7 @@
 package org.swasth.hcx.utils;
 
-import org.apache.commons.collections.map.HashedMap;
 import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.index.query.QueryBuilder;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.swasth.common.dto.SearchRequestDTO;
 import org.swasth.hcx.controllers.BaseSpec;

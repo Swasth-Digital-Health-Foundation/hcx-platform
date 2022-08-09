@@ -93,3 +93,4 @@ notification:
   subscription:
     expiry: ${notification_subscription_expiry:100}
     allowedFilters: ${notification_subscription_allowedFilters:subscription_id, topic_code, subscription_status}
+  topicCodesForHIUs: ${notification_topicCodesForHIUs:notif-coverage-eligibility-change}
