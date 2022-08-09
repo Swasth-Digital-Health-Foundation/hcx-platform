@@ -164,7 +164,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                 logger.error("Exception occurred for request with correlationId: " + correlationId);
                 return exceptionHandler.errorResponse(e, exchange, correlationId, apiCallId, requestObj);
             }
-            if(path.contains(NOTIFICATION_NOTIFY) || path.contains(NOTIFICATION_SUBSCRIBE) || path.contains(NOTIFICATION_UNSUBSCRIBE) || path.contains(NOTIFICATION_SUBSCRIPTION_LIST) || path.contains(NOTIFICATION_SUBSCRIPTION_UPDATE)){
+            if(path.contains(NOTIFICATION_NOTIFY) || path.contains(NOTIFICATION_SUBSCRIBE) || path.contains(NOTIFICATION_UNSUBSCRIBE) || path.contains(NOTIFICATION_SUBSCRIPTION_LIST) || path.contains(NOTIFICATION_SUBSCRIPTION_UPDATE) || path.contains(NOTIFICATION_ON_SUBSCRIBE)){
                 return requestHandler.getUpdatedBody(exchange, chain, requestBody);
             } else {
                 return chain.filter(exchange);
