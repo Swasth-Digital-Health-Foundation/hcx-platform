@@ -51,7 +51,7 @@ class ParticipantControllerTests extends BaseSpec{
         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_SEARCH).content(getSearchNotFoundFilter()).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
-        assertNotNull(status);
+        assertEquals(500, status);
     }
 
     @Test
@@ -84,7 +84,7 @@ class ParticipantControllerTests extends BaseSpec{
         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_CREATE).content(getParticipantCreateBody()).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
-        assertNotNull(status);
+        assertEquals(200, status);
     }
 
     @Test
@@ -111,7 +111,7 @@ class ParticipantControllerTests extends BaseSpec{
         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_CREATE).content(getParticipantCreateBody()).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
-        assertNotNull(status);
+        assertEquals(400, status);
     }
 
     @Test
@@ -202,7 +202,7 @@ class ParticipantControllerTests extends BaseSpec{
         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_UPDATE).content(getParticipantUpdateBody()).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
-        assertNotNull(status);
+        assertEquals(200, status);
     }
 
     @Test
@@ -216,9 +216,9 @@ class ParticipantControllerTests extends BaseSpec{
         int status = response.getStatus();
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
         assertNotNull(resObj.getTimestamp());
-        assertNotNull(status);
-        //assertEquals(ErrorCodes.ERR_INVALID_PARTICIPANT_CODE, resObj.getError().getCode());
-        //assertEquals("Please provide valid participant code", resObj.getError().getMessage());
+        assertEquals(400, status);
+        assertEquals(ErrorCodes.ERR_INVALID_PARTICIPANT_CODE, resObj.getError().getCode());
+        assertEquals("Please provide valid participant code", resObj.getError().getMessage());
     }
 
     @Test
@@ -234,7 +234,7 @@ class ParticipantControllerTests extends BaseSpec{
         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_UPDATE).content(getParticipantUpdateBody()).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
-        assertNotNull(status);
+        assertEquals(404, status);
     }
 
     @Test
@@ -250,7 +250,7 @@ class ParticipantControllerTests extends BaseSpec{
         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_UPDATE).content(getParticipantUpdateBody()).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
-        assertNotNull(status);
+        assertEquals(401, status);
     }
 
     @Test

@@ -41,9 +41,6 @@ public class ParticipantController  extends BaseController {
     @Autowired
     private RedisCache redisCache;
 
-    @Autowired
-    private ParticipantService participantService;
-
     @PostMapping(PARTICIPANT_CREATE)
     public ResponseEntity<Object> participantCreate(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
         try {
@@ -60,7 +57,7 @@ public class ParticipantController  extends BaseController {
             HttpResponse<String> response = HttpUtils.post(url, JSONUtils.serialize(requestBody), headersMap);
             if(response.getStatus() == 200)
                 eventHandler.createAudit(eventGenerator.createAuditLog(participantCode, PARTICIPANT, Collections.singletonMap(ACTION, PARTICIPANT_CREATE), getEData(CREATED, "", Collections.emptyList())));
-            return participantService.responseHandler(response, participantCode);
+            return responseHandler(response, participantCode);
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }
@@ -83,7 +80,7 @@ public class ParticipantController  extends BaseController {
                 if(redisCache.isExists(participantCode))
                     redisCache.delete(participantCode);
             }
-            return participantService.responseHandler(response, null);
+            return responseHandler(response, null);
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }
@@ -92,13 +89,13 @@ public class ParticipantController  extends BaseController {
     @PostMapping(PARTICIPANT_SEARCH)
     public ResponseEntity<Object> participantSearch(@RequestBody Map<String, Object> requestBody) {
         try {
-            return participantService.search(requestBody);
+            String url =  registryUrl + "/api/v1/Organisation/search";
+            HttpResponse<String> response = HttpUtils.post(url, JSONUtils.serialize(requestBody), new HashMap<>());
+            return responseHandler(response, null);
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }
     }
-
-
 
     private boolean isParticipantCodeExists(String participantCode) throws Exception {
         ResponseEntity<Object> searchResponse = participantSearch(JSONUtils.deserialize("{ \"filters\": { \"participant_code\": { \"eq\": \" " + participantCode + "\" } } }", Map.class));
@@ -142,6 +139,37 @@ public class ParticipantController  extends BaseController {
         if(!props.isEmpty())
             data.put(PROPS, props);
         return data;
+    }
+
+    //TODO Remove this unnecessary code post moving changes into service layer
+    public ResponseEntity<Object> responseHandler(HttpResponse<String> response, String participantCode) throws Exception {
+        if (response.getStatus() == 200) {
+            if (response.getBody().isEmpty()) {
+                return getSuccessResponse("");
+            } else {
+                if (response.getBody().startsWith("["))
+                    return getSuccessResponse(new ParticipantResponse(JSONUtils.deserialize(response.getBody(), ArrayList.class)));
+                else
+                    return getSuccessResponse(new ParticipantResponse(participantCode));
+            }
+        } else if (response.getStatus() == 400) {
+            throw new ClientException(getErrorMessage(response));
+        } else if (response.getStatus() == 401) {
+            throw new AuthorizationException(getErrorMessage(response));
+        } else if (response.getStatus() == 404) {
+            throw new ResourceNotFoundException(getErrorMessage(response));
+        } else {
+            throw new ServerException(getErrorMessage(response));
+        }
+    }
+
+    private ResponseEntity<Object> getSuccessResponse(Object response){
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    private String getErrorMessage(HttpResponse<String> response) throws Exception {
+        Map<String, Object> result = JSONUtils.deserialize(response.getBody(), HashMap.class);
+        return (String) ((Map<String, Object>) result.get("params")).get("errmsg");
     }
 
 }
