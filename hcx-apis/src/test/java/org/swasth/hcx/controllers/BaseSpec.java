@@ -25,6 +25,7 @@ import org.swasth.hcx.handlers.EventHandler;
 import org.swasth.hcx.managers.HealthCheckManager;
 import org.swasth.hcx.service.HeaderAuditService;
 import org.swasth.hcx.service.NotificationService;
+import org.swasth.hcx.service.ParticipantService;
 import org.swasth.kafka.client.IEventService;
 import org.swasth.postgresql.IDatabaseService;
 import org.swasth.redis.cache.RedisCache;
@@ -32,7 +33,7 @@ import org.swasth.redis.cache.RedisCache;
 import java.util.*;
 
 
-@WebMvcTest({CoverageEligibilityController.class, PreAuthController.class, ClaimsController.class, PaymentsController.class, AuditController.class, StatusController.class, SearchController.class, CommunicationController.class, PredeterminationController.class, ParticipantController.class, NotificationController.class, NotificationService.class, EventHandler.class})
+@WebMvcTest({CoverageEligibilityController.class, PreAuthController.class, ClaimsController.class, PaymentsController.class, AuditController.class, StatusController.class, SearchController.class, CommunicationController.class, PredeterminationController.class, ParticipantController.class, NotificationController.class, NotificationService.class, EventHandler.class, ParticipantService.class})
 @ExtendWith(MockitoExtension.class)
 @ActiveProfiles("test")
 @Import(GenericConfiguration.class)
@@ -72,6 +73,9 @@ public class BaseSpec {
 
     @Autowired
     protected EventHandler eventHandler;
+
+    @MockBean
+    protected ParticipantService mockParticipantService;
 
     @BeforeEach
     public void setup() {
@@ -360,5 +364,34 @@ public class BaseSpec {
 
     public String getAuthorizationHeader() {
         return "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJMYU9HdVRrYVpsVEtzaERwUng1R25JaXUwV1A1S3VGUUoyb29WMEZnWGx3In0.eyJleHAiOjE2NDcwNzgwNjksImlhdCI6MTY0Njk5MTY2OSwianRpIjoiNDcyYzkwOTAtZWQ4YS00MDYxLTg5NDQtMzk4MjhmYzBjM2I4IiwiaXNzIjoiaHR0cDovL2E5ZGQ2M2RlOTFlZTk0ZDU5ODQ3YTEyMjVkYThiMTExLTI3Mzk1NDEzMC5hcC1zb3V0aC0xLmVsYi5hbWF6b25hd3MuY29tOjgwODAvYXV0aC9yZWFsbXMvc3dhc3RoLWhlYWx0aC1jbGFpbS1leGNoYW5nZSIsImF1ZCI6ImFjY291bnQiLCJzdWIiOiIwYzU3NjNkZS03MzJkLTRmZDQtODU0Ny1iMzk2MGMxMzIwZjUiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJyZWdpc3RyeS1mcm9udGVuZCIsInNlc3Npb25fc3RhdGUiOiIxMThhMTRmMS04OTAxLTQxZTMtYWE5Zi1iNWFjMjYzNjkzMzIiLCJhY3IiOiIxIiwiYWxsb3dlZC1vcmlnaW5zIjpbImh0dHBzOi8vbG9jYWxob3N0OjQyMDIiLCJodHRwOi8vbG9jYWxob3N0OjQyMDIiLCJodHRwczovL2xvY2FsaG9zdDo0MjAwIiwiaHR0cHM6Ly9uZGVhci54aXYuaW4iLCJodHRwOi8vbG9jYWxob3N0OjQyMDAiLCJodHRwOi8vbmRlYXIueGl2LmluIiwiaHR0cDovLzIwLjE5OC42NC4xMjgiXSwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbIkhJRS9ISU8uSENYIiwiZGVmYXVsdC1yb2xlcy1uZGVhciJdfSwicmVzb3VyY2VfYWNjZXNzIjp7ImFjY291bnQiOnsicm9sZXMiOlsibWFuYWdlLWFjY291bnQiLCJtYW5hZ2UtYWNjb3VudC1saW5rcyIsInZpZXctcHJvZmlsZSJdfX0sInNjb3BlIjoicHJvZmlsZSBlbWFpbCIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwibmFtZSI6ImhjeCBhZG1pbiIsInByZWZlcnJlZF91c2VybmFtZSI6ImhjeC1hZG1pbiIsImdpdmVuX25hbWUiOiJoY3ggYWRtaW4ifQ.SwDJNGkHOs7MrArqwdkArLkRDgPIU3SHwMdrppmG2JHQkpYRLqFpfmFPgIYNAyi_b_ZQnXKwuhT6ABNEV2-viJWTPLYe4z5JkeUGNurnrkSoMMObrd0s1tLYjdgu5j5kLaeUBeSeULTkdBfAM9KZX5Gn6Ri6AKs6uFq22hJOmhtw3RTyX-7kozG-SzSfIyN_-7mvJBZjBR73gaNJyEms4-aKULAnQ6pYkj4hzzlac2WCucq2zZnipeupBOJzx5z27MLdMs8lfNRTTqkQVhoUK0DhDxyj9N_TzbycPdykajhOrerKfpEnYcZpWfC-bJJSDagnP9D407OqoxoE3_niHw";
+    }
+
+    public Map<String,Object> getHIUParticipant() throws JsonProcessingException {
+        Map<String,Object> obj = new HashMap<>();
+        obj.put("participant_name","New Teja Hospital888");
+        obj.put("primary_mobile","9493347239");
+        obj.put("primary_email","dharmateja888@gmail.com");
+        obj.put("roles",new ArrayList<>(Collections.singleton("member.isnp")));
+        obj.put("scheme_code","default");
+        obj.put("address", new HashMap<>() {{
+            put("plot","5-4-199");
+            put("street","road no 12");
+            put("landmark","");
+            put("village","Nampally");
+            put("district","Hyd");
+            put("state","Telangana");
+            put("pincode","500805");
+        }});
+        obj.put("phone",new ArrayList<>(Collections.singleton("040-387658992")));
+        obj.put("status","Created");
+        obj.put("endpoint_url","http://localhost:8095");
+        obj.put("payment_details", new HashMap<>() {{
+            put("account_number","4707890099809809");
+            put("ifsc_code","ICICLE");
+        }});
+        obj.put("signing_cert_path","urn:isbn:0-476-27557-4");
+        obj.put("linked_registry_codes",new ArrayList<>(Collections.singleton("22344")));
+        obj.put("encryption_cert","urn:isbn:0-4234");
+        return obj;
     }
 }

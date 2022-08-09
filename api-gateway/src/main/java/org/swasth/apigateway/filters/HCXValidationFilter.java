@@ -104,7 +104,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                     Map<String,Object> senderDetails =  registryService.fetchDetails(OS_OWNER, subject);
                     List<Map<String,Object>> recipientsDetails = new ArrayList<>();
                     if(!jsonRequest.getRecipientCodes().isEmpty()){
-                        String searchRequest = createSearchRequest(jsonRequest.getRecipientCodes(),PARTICIPANT_CODE);
+                        String searchRequest = createSearchRequest(jsonRequest.getRecipientCodes(),PARTICIPANT_CODE,false);
                         recipientsDetails = registryService.getDetails(searchRequest);
                     }
                     jsonRequest.validateNotificationReq(senderDetails, recipientsDetails, allowedNetworkCodes);
@@ -117,12 +117,12 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                     //Check for * in the request body in sendersList and send subscription for all valid participants who roles
                     Map<String, Object> notification = NotificationUtils.getNotification(jsonRequest.getTopicCode());
                     if (jsonRequest.getSenderList().contains("*")) {
-                        String searchRequest = createSearchRequest((List<String>) notification.get(Constants.ALLOWED_SENDERS),ROLES);
+                        String searchRequest = createSearchRequest((List<String>) notification.get(Constants.ALLOWED_SENDERS),ROLES,true);
                         senderListDetails = registryService.getDetails(searchRequest);
                         List<String> fetchedCodes = senderListDetails.stream().map(obj -> obj.get(Constants.PARTICIPANT_CODE).toString()).collect(Collectors.toList());
                         requestBody.put(SENDER_LIST, fetchedCodes);
                     } else if (!jsonRequest.getSenderList().isEmpty()) {
-                        String searchRequest = createSearchRequest(jsonRequest.getSenderList(),PARTICIPANT_CODE);
+                        String searchRequest = createSearchRequest(jsonRequest.getSenderList(),PARTICIPANT_CODE,false);
                         senderListDetails = registryService.getDetails(searchRequest);
                     }
                     jsonRequest.validateSubscriptionRequests(jsonRequest.getTopicCode(), senderListDetails, recipientDetails, getSubscriptionMandatoryHeaders(), notification);
@@ -172,11 +172,14 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
         };
     }
 
-    private String createSearchRequest(List<String> jsonRequest, String filterKey) {
+    private String createSearchRequest(List<String> jsonRequest, String filterKey, boolean isActive) {
         String wrappedList = jsonRequest.stream()
-                .map(plain ->  StringUtils.wrap(plain, "\""))
+                .map(plain -> StringUtils.wrap(plain, "\""))
                 .collect(Collectors.joining(", "));
-        String searchRequest = "{\"filters\":{\"" + filterKey + "\":{\"or\":[" +  wrappedList + "]}}}";
+        String searchRequest = null;
+        if (isActive)
+            searchRequest = "{\"filters\":{\"" + filterKey + "\":{\"or\":[" + wrappedList + "]},\"status\": {\"or\": [\"Created\", \"Active\"]}}}";
+        else searchRequest = "{\"filters\":{\"" + filterKey + "\":{\"or\":[" + wrappedList + "]}}}";
         return searchRequest;
     }
 

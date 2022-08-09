@@ -13,6 +13,7 @@ import org.swasth.common.dto.Response;
 import org.swasth.common.exception.*;
 import org.swasth.common.utils.*;
 import org.swasth.hcx.controllers.BaseController;
+import org.swasth.hcx.service.ParticipantService;
 import org.swasth.redis.cache.RedisCache;
 
 import java.security.SecureRandom;
@@ -40,6 +41,9 @@ public class ParticipantController  extends BaseController {
     @Autowired
     private RedisCache redisCache;
 
+    @Autowired
+    private ParticipantService participantService;
+
     @PostMapping(PARTICIPANT_CREATE)
     public ResponseEntity<Object> participantCreate(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
         try {
@@ -56,7 +60,7 @@ public class ParticipantController  extends BaseController {
             HttpResponse<String> response = HttpUtils.post(url, JSONUtils.serialize(requestBody), headersMap);
             if(response.getStatus() == 200)
                 eventHandler.createAudit(eventGenerator.createAuditLog(participantCode, PARTICIPANT, Collections.singletonMap(ACTION, PARTICIPANT_CREATE), getEData(CREATED, "", Collections.emptyList())));
-            return responseHandler(response, participantCode);
+            return participantService.responseHandler(response, participantCode);
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }
@@ -79,47 +83,22 @@ public class ParticipantController  extends BaseController {
                 if(redisCache.isExists(participantCode))
                     redisCache.delete(participantCode);
             }
-            return responseHandler(response, null);
+            return participantService.responseHandler(response, null);
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }
     }
 
     @PostMapping(PARTICIPANT_SEARCH)
-    public ResponseEntity<Object> participantSearch(@RequestBody Map<String, Object> requestBody) throws Exception {
+    public ResponseEntity<Object> participantSearch(@RequestBody Map<String, Object> requestBody) {
         try {
-            String url =  registryUrl + "/api/v1/Organisation/search";
-            HttpResponse<String> response = HttpUtils.post(url, JSONUtils.serialize(requestBody), new HashMap<>());
-            return responseHandler(response, null);
+            return participantService.search(requestBody);
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }
     }
 
-    private ResponseEntity<Object> responseHandler(HttpResponse<String> response, String participantCode) throws Exception {
-        if (response.getStatus() == 200) {
-            if (response.getBody().isEmpty()) {
-                return getSuccessResponse("");
-            } else {
-                if (response.getBody().startsWith("["))
-                    return getSuccessResponse(new ParticipantResponse(JSONUtils.deserialize(response.getBody(), ArrayList.class)));
-                else
-                    return getSuccessResponse(new ParticipantResponse(participantCode));
-            }
-        } else if (response.getStatus() == 400) {
-            throw new ClientException(getErrorMessage(response));
-        } else if (response.getStatus() == 401) {
-            throw new AuthorizationException(getErrorMessage(response));
-        } else if (response.getStatus() == 404) {
-            throw new ResourceNotFoundException(getErrorMessage(response));
-        } else {
-            throw new ServerException(getErrorMessage(response));
-        }
-    }
 
-    private ResponseEntity<Object> getSuccessResponse(Object response){
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
 
     private boolean isParticipantCodeExists(String participantCode) throws Exception {
         ResponseEntity<Object> searchResponse = participantSearch(JSONUtils.deserialize("{ \"filters\": { \"participant_code\": { \"eq\": \" " + participantCode + "\" } } }", Map.class));
@@ -154,11 +133,6 @@ public class ParticipantController  extends BaseController {
             throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, "encryption_cert is missing or invalid");
         // add encryption certificate expiry
         requestBody.put(ENCRYPTION_CERT_EXPIRY, CertificateUtils.getExpiry((String) requestBody.get(ENCRYPTION_CERT)));
-    }
-
-    private String getErrorMessage(HttpResponse<String> response) throws Exception {
-        Map<String, Object> result = JSONUtils.deserialize(response.getBody(), HashMap.class);
-        return (String) ((Map<String, Object>) result.get("params")).get("errmsg");
     }
 
     private Map<String,Object> getEData(String status, String prevStatus, List<String> props) {
