@@ -86,7 +86,7 @@ public class ParticipantController  extends BaseController {
     }
 
     @PostMapping(PARTICIPANT_SEARCH)
-    public ResponseEntity<Object> participantSearch(@RequestBody Map<String, Object> requestBody) throws Exception {
+    public ResponseEntity<Object> participantSearch(@RequestBody Map<String, Object> requestBody) {
         try {
             String url =  registryUrl + "/api/v1/Organisation/search";
             HttpResponse<String> response = HttpUtils.post(url, JSONUtils.serialize(requestBody), new HashMap<>());
@@ -94,31 +94,6 @@ public class ParticipantController  extends BaseController {
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }
-    }
-
-    private ResponseEntity<Object> responseHandler(HttpResponse<String> response, String participantCode) throws Exception {
-        if (response.getStatus() == 200) {
-            if (response.getBody().isEmpty()) {
-                return getSuccessResponse("");
-            } else {
-                if (response.getBody().startsWith("["))
-                    return getSuccessResponse(new ParticipantResponse(JSONUtils.deserialize(response.getBody(), ArrayList.class)));
-                else
-                    return getSuccessResponse(new ParticipantResponse(participantCode));
-            }
-        } else if (response.getStatus() == 400) {
-            throw new ClientException(getErrorMessage(response));
-        } else if (response.getStatus() == 401) {
-            throw new AuthorizationException(getErrorMessage(response));
-        } else if (response.getStatus() == 404) {
-            throw new ResourceNotFoundException(getErrorMessage(response));
-        } else {
-            throw new ServerException(getErrorMessage(response));
-        }
-    }
-
-    private ResponseEntity<Object> getSuccessResponse(Object response){
-        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     private boolean isParticipantCodeExists(String participantCode) throws Exception {
@@ -156,11 +131,6 @@ public class ParticipantController  extends BaseController {
         requestBody.put(ENCRYPTION_CERT_EXPIRY, CertificateUtils.getExpiry((String) requestBody.get(ENCRYPTION_CERT)));
     }
 
-    private String getErrorMessage(HttpResponse<String> response) throws Exception {
-        Map<String, Object> result = JSONUtils.deserialize(response.getBody(), HashMap.class);
-        return (String) ((Map<String, Object>) result.get("params")).get("errmsg");
-    }
-
     private Map<String,Object> getEData(String status, String prevStatus, List<String> props) {
         Map<String,Object> data = new HashMap<>();
         data.put(AUDIT_STATUS, status);
@@ -168,6 +138,37 @@ public class ParticipantController  extends BaseController {
         if(!props.isEmpty())
             data.put(PROPS, props);
         return data;
+    }
+
+    //TODO Remove this unnecessary code post moving changes into service layer
+    public ResponseEntity<Object> responseHandler(HttpResponse<String> response, String participantCode) throws Exception {
+        if (response.getStatus() == 200) {
+            if (response.getBody().isEmpty()) {
+                return getSuccessResponse("");
+            } else {
+                if (response.getBody().startsWith("["))
+                    return getSuccessResponse(new ParticipantResponse(JSONUtils.deserialize(response.getBody(), ArrayList.class)));
+                else
+                    return getSuccessResponse(new ParticipantResponse(participantCode));
+            }
+        } else if (response.getStatus() == 400) {
+            throw new ClientException(getErrorMessage(response));
+        } else if (response.getStatus() == 401) {
+            throw new AuthorizationException(getErrorMessage(response));
+        } else if (response.getStatus() == 404) {
+            throw new ResourceNotFoundException(getErrorMessage(response));
+        } else {
+            throw new ServerException(getErrorMessage(response));
+        }
+    }
+
+    private ResponseEntity<Object> getSuccessResponse(Object response){
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    private String getErrorMessage(HttpResponse<String> response) throws Exception {
+        Map<String, Object> result = JSONUtils.deserialize(response.getBody(), HashMap.class);
+        return (String) ((Map<String, Object>) result.get("params")).get("errmsg");
     }
 
 }
