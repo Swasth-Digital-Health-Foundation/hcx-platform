@@ -15,10 +15,7 @@ import org.swasth.common.utils.Constants;
 import org.swasth.hcx.controllers.BaseController;
 import org.swasth.hcx.service.NotificationService;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.swasth.common.utils.Constants.*;
 
@@ -71,10 +68,7 @@ public class CoverageEligibilityController extends BaseController {
         Map<String, Object> obj = new HashMap<>();
         obj.put(TOPIC_CODE, topicCode);
         obj.put(RECIPIENT_CODE, recipientCode);
-        List<String> sendersList = new ArrayList<>() {{
-            add(senderCode);
-        }};
-        obj.put(SENDER_LIST, sendersList);
+        obj.put(SENDER_LIST, Arrays.asList(senderCode));
         return obj;
     }
 }
