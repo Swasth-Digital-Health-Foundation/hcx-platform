@@ -65,8 +65,7 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
   @throws(classOf[Exception])
   def audit(event: util.Map[String, AnyRef], context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
     auditService.indexAudit(createAuditRecord(event))
-    val audit = "test"
-    context.output(config.auditOutputTag, JSONUtil.serialize(audit))
+    context.output(config.auditOutputTag, JSONUtil.serialize(createAuditLog(event)))
     metrics.incCounter(config.auditEventsCount)
   }
 
