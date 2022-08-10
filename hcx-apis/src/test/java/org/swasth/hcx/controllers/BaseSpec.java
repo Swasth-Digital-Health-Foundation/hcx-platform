@@ -8,6 +8,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.env.Environment;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -16,7 +17,10 @@ import org.springframework.web.context.WebApplicationContext;
 import org.swasth.auditindexer.function.AuditIndexer;
 import org.swasth.common.dto.Response;
 import org.swasth.common.helpers.EventGenerator;
+import org.swasth.common.service.RegistryService;
+import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
+import org.swasth.hcx.config.GenericConfiguration;
 import org.swasth.hcx.controllers.v1.*;
 import org.swasth.hcx.handlers.EventHandler;
 import org.swasth.hcx.managers.HealthCheckManager;
@@ -26,16 +30,13 @@ import org.swasth.kafka.client.IEventService;
 import org.swasth.postgresql.IDatabaseService;
 import org.swasth.redis.cache.RedisCache;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
+import java.util.*;
 
 
 @WebMvcTest({CoverageEligibilityController.class, PreAuthController.class, ClaimsController.class, PaymentsController.class, AuditController.class, StatusController.class, SearchController.class, CommunicationController.class, PredeterminationController.class, ParticipantController.class, NotificationController.class, NotificationService.class, EventHandler.class})
 @ExtendWith(MockitoExtension.class)
 @ActiveProfiles("test")
+@Import(GenericConfiguration.class)
 public class BaseSpec {
 
     @Autowired
@@ -73,6 +74,9 @@ public class BaseSpec {
     @Autowired
     protected EventHandler eventHandler;
 
+    @MockBean
+    protected RegistryService mockRegistryService;
+
     @BeforeEach
     public void setup() {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
@@ -89,6 +93,12 @@ public class BaseSpec {
     public String getRequestBody() throws JsonProcessingException {
         Map<String,Object> obj = new HashMap<>();
         obj.put("payload","eyJlbmMiOiJBMjU2R0NNIiwKImFsZyI6IlJTQS1PQUVQIiwKIngtaGN4LXNlbmRlcl9jb2RlIjoiMS05ODc1Ni1jZjJkLTQ1ZmUtYTVlMS01ZjFjODI5NzllMGQiLAoieC1oY3gtcmVjaXBpZW50X2NvZGUiOiIxLTI3OTliNmE0LWNmMmQtNDVmZS1hNWUxLTVmMWM4Mjk3OWUwZCIsCiJ4LWhjeC1hcGlfY2FsbF9pZCI6IjI2YjEwNjBjLTFlODMtNDYwMC05NjEyLWVhMzFlMGNhNTA5MSIsCiJ4LWhjeC1jb3JyZWxhdGlvbl9pZCI6IjVlOTM0ZjkwLTExMWQtNGYwYi1iMDE2LWMyMmQ4MjA2NzRlMSIsCiJ4LWhjeC10aW1lc3RhbXAiOiIyMDIyLTAxLTA2VDA5OjUwOjIzKzAwIiwKIngtaGN4LXN0YXR1cyI6InJlcXVlc3QuaW5pdGlhdGUiLAoieC1oY3gtd29ya2Zsb3dfaWQiOiIxZTgzLTQ2MGEtNGYwYi1iMDE2LWMyMmQ4MjA2NzRlMSIsCiJ4LWhjeC1zdGF0dXNfZmlsdGVycyI6eyJyZXF1ZXN0X2lkIjoiMjZiMTA2MGMtMWU4My00NjAwLTk2MTItZWEzMWUwY2E1MTAxIn0sCiJqd3NfaGVhZGVyIjp7InR5cCI6IkpXVCIsICJhbGciOiJSUzI1NiJ9LAoiandlX2hlYWRlciI6eyJhbGciOiJSU0EtT0FFUCIsImVuYyI6IkEyNTZHQ00ifQp9.6KB707dM9YTIgHtLvtgWQ8mKwboJW3of9locizkDTHzBC2IlrT1oOQ.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.AxY8DCtDaGlsbGljb3RoZQ.KDlTtXchhZTGufMYmOYGS4HffxPSUrfmqCHXaI9wOGY.Mz-VPPyU4RlcuYv1IwIvzw");
+        return JSONUtils.serialize(obj);
+    }
+
+    public String getCommunicationRequestBody() throws JsonProcessingException {
+        Map<String,Object> obj = new HashMap<>();
+        obj.put("payload","eyJlbmMiOiJBMjU2R0NNIiwKImFsZyI6IlJTQS1PQUVQIiwKIngtaGN4LXNlbmRlcl9jb2RlIjoiMS05ODc1Ni1jZjJkLTQ1ZmUtYTVlMS01ZjFjODI5NzllMGQiLAoieC1oY3gtcmVjaXBpZW50X2NvZGUiOiIxLTI3OTliNmE0LWNmMmQtNDVmZS1hNWUxLTVmMWM4Mjk3OWUwZCIsCiJ4LWhjeC1hcGlfY2FsbF9pZCI6IjI2YjEwNjBjLTFlODMtNDYwMC05NjEyLWVhMzFlMGNhNTA5MSIsCiJ4LWhjeC1jb3JyZWxhdGlvbl9pZCI6IjVlOTM0ZjkwLTExMWQtNGYwYi1iMDE2LWMyMmQ4MjA2NzRlMSIsCiJ4LWhjeC10aW1lc3RhbXAiOiIyMDIyLTAxLTA2VDA5OjUwOjIzKzAwIiwKIngtaGN4LXN0YXR1cyI6InJlcXVlc3QuaW5pdGlhdGUiLAoieC1oY3gtd29ya2Zsb3dfaWQiOiIxZTgzLTQ2MGEtNGYwYi1iMDE2LWMyMmQ4MjA2NzRlMiIsCiJ4LWhjeC1zdGF0dXNfZmlsdGVycyI6eyJyZXF1ZXN0X2lkIjoiMjZiMTA2MGMtMWU4My00NjAwLTk2MTItZWEzMWUwY2E1MTAxIn0sCiJqd3NfaGVhZGVyIjp7InR5cCI6IkpXVCIsICJhbGciOiJSUzI1NiJ9LAoiandlX2hlYWRlciI6eyJhbGciOiJSU0EtT0FFUCIsImVuYyI6IkEyNTZHQ00ifQp9.6KB707dM9YTIgHtLvtgWQ8mKwboJW3of9locizkDTHzBC2IlrT1oOQ.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.AxY8DCtDaGlsbGljb3RoZQ.KDlTtXchhZTGufMYmOYGS4HffxPSUrfmqCHXaI9wOGY.Mz-VPPyU4RlcuYv1IwIvzw");
         return JSONUtils.serialize(obj);
     }
 
@@ -141,11 +151,34 @@ public class BaseSpec {
         return new Response("healthy",true);
     }
 
+    protected Map<String,Object> getAuditData(String action, String status){
+        Map<String,Object> obj = new HashMap();
+        obj.put(Constants.EID, "AUDIT");
+        obj.put(Constants.ERROR_DETAILS, new Object());
+        obj.put(Constants.DEBUG_DETAILS, new Object());
+        obj.put(Constants.HCX_RECIPIENT_CODE, "1-2799b6a4-cf2d-45fe-a5e1-5f1c82979e0d");
+        obj.put(Constants.HCX_SENDER_CODE, "93f908ba");
+        obj.put(Constants.API_CALL_ID, "26b1060c-1e83-4600-9612-ea31e0ca5091");
+        obj.put(Constants.WORKFLOW_ID, "1e83-460a-4f0b-b016-c22d820674e1");
+        obj.put(Constants.CORRELATION_ID, "5e934f90-111d-4f0b-b016-c22d820674e1");
+        obj.put(Constants.TIMESTAMP, "2022-01-06T09:50:23+00");
+        obj.put(Constants.REQUEST_TIME, "1642781095099");
+        obj.put(Constants.AUDIT_TIMESTAMP, "1642781095099");
+        obj.put(Constants.UPDATED_TIME, "1642781095099");
+        obj.put(Constants.ACTION, action);
+        obj.put(Constants.MID, "59cefda2-a4cc-4795-95f3-fb9e82e21cef");
+        obj.put(Constants.STATUS, status);
+        obj.put(Constants.SENDER_ROLE, Arrays.asList("provider"));
+        obj.put(Constants.RECIPIENT_ROLE, Arrays.asList("payor"));
+        obj.put(Constants.PAYLOAD, "test_payload");
+        return obj;
+    }
+
     public String getParticipantCreateBody() throws JsonProcessingException {
         Map<String,Object> obj = new HashMap<>();
-        obj.put("participant_name","New Teja Hospital888");
+        obj.put("participant_name","test user");
         obj.put("primary_mobile","9493347239");
-        obj.put("primary_email","dharmateja888@gmail.com");
+        obj.put("primary_email","testuser@gmail.com");
         obj.put("roles",new ArrayList<>(Collections.singleton("provider")));
         obj.put("address", new HashMap<>() {{
             put("plot","5-4-199");
@@ -165,7 +198,7 @@ public class BaseSpec {
         }});
         obj.put("signing_cert_path","urn:isbn:0-476-27557-4");
         obj.put("linked_registry_codes",new ArrayList<>(Collections.singleton("22344")));
-        obj.put("encryption_cert","urn:isbn:0-4234");
+        obj.put("encryption_cert","-----BEGIN CERTIFICATE-----\nMIIC6jCCAdKgAwIBAgIGAX4A5QsDMA0GCSqGSIb3DQEBCwUAMDYxNDAyBgNVBAMM K0hpYmx5bXRVSXl2ZVU4cDVSODZZdzVsMVVYdjQ2SU1GYjByMjkyMENWdHcwHhcN MjExMjI4MTE1NTE3WhcNMjIxMDI0MTE1NTE3WjA2MTQwMgYDVQQDDCtIaWJseW10 VUl5dmVVOHA1Ujg2WXc1bDFVWHY0NklNRmIwcjI5MjBDVnR3MIIBIjANBgkqhkiG 9w0BAQEFAAOCAQ8AMIIBCgKCAQEAhvlyz2Igsa2au9SF/sO7qAxsRiO6su12g2y9 wSRN947u643az+8LADlkbzPASMlrkWWYZfcRvru5f+zrGQMxqKiO6ft9sfq/SCVc 26Cw2o5OrafzT4NXLHO39jOQbuq5CxL6yi893YMt0PdvKzLA960pswS3pXyk6Pmg 17wjosNXTFrGWXZBKQkycR9/TW9iuEufZDv0dhrUlP0DC6uuZt+F3DGaQ7WrQNbt UvCXWTTXjAjvjbhSgcyH711AkPI5H+4etdvlD9QGIaMgjBac1GfW+5YkBfU2KV9T Mq/7U++VirkZZBZXAC1K7VbJC/CgNMOrANJ1+XzkVbLlXoVXgwIDAQABMA0GCSqG SIb3DQEBCwUAA4IBAQBnLAUhz56DZC28byQz0GS/GdgGMiobkxFvtHNCutb9cFOp PXc3mX4/69B8vfu0dncjLKiMOv/S+IzoUjqSiJpackA84oODZb7baBH/Ogqa9ZkY vxA2O1DsbANQrbfiBjKRIiCGCTzWCCD2vPJdjoJiActL3gbGaENKM6Ft0FO5D7sp kaFOBvIjfXvxvfFrS/BwivoKWESpD4ZmlcafQweGfSJVECRZ5Oc+T0lg+0S20NlP vmlozyceiVTXAqpPngK8Jc3VuDeG4xRLI9J0DwDV0rtUbPzdVBzAO9KgrnsxYzRQ 8LmmugWhh4L+QwIJe+1NWmULmPG+he+/lBiFD0Jg\n-----END CERTIFICATE-----");
         return JSONUtils.serialize(obj);
     }
 
@@ -301,6 +334,7 @@ public class BaseSpec {
         obj.put("phone", new ArrayList<>(Collections.singleton("040-38765899")));
         obj.put("status","Created");
         obj.put("endpoint_url","http://a4a175528daf949a2af3cd141af93de2-1466580421.ap-south-1.elb.amazonaws.com:8080");
+        obj.put("encryption_cert","-----BEGIN CERTIFICATE-----\nMIIC6jCCAdKgAwIBAgIGAX4A5QsDMA0GCSqGSIb3DQEBCwUAMDYxNDAyBgNVBAMM K0hpYmx5bXRVSXl2ZVU4cDVSODZZdzVsMVVYdjQ2SU1GYjByMjkyMENWdHcwHhcN MjExMjI4MTE1NTE3WhcNMjIxMDI0MTE1NTE3WjA2MTQwMgYDVQQDDCtIaWJseW10 VUl5dmVVOHA1Ujg2WXc1bDFVWHY0NklNRmIwcjI5MjBDVnR3MIIBIjANBgkqhkiG 9w0BAQEFAAOCAQ8AMIIBCgKCAQEAhvlyz2Igsa2au9SF/sO7qAxsRiO6su12g2y9 wSRN947u643az+8LADlkbzPASMlrkWWYZfcRvru5f+zrGQMxqKiO6ft9sfq/SCVc 26Cw2o5OrafzT4NXLHO39jOQbuq5CxL6yi893YMt0PdvKzLA960pswS3pXyk6Pmg 17wjosNXTFrGWXZBKQkycR9/TW9iuEufZDv0dhrUlP0DC6uuZt+F3DGaQ7WrQNbt UvCXWTTXjAjvjbhSgcyH711AkPI5H+4etdvlD9QGIaMgjBac1GfW+5YkBfU2KV9T Mq/7U++VirkZZBZXAC1K7VbJC/CgNMOrANJ1+XzkVbLlXoVXgwIDAQABMA0GCSqG SIb3DQEBCwUAA4IBAQBnLAUhz56DZC28byQz0GS/GdgGMiobkxFvtHNCutb9cFOp PXc3mX4/69B8vfu0dncjLKiMOv/S+IzoUjqSiJpackA84oODZb7baBH/Ogqa9ZkY vxA2O1DsbANQrbfiBjKRIiCGCTzWCCD2vPJdjoJiActL3gbGaENKM6Ft0FO5D7sp kaFOBvIjfXvxvfFrS/BwivoKWESpD4ZmlcafQweGfSJVECRZ5Oc+T0lg+0S20NlP vmlozyceiVTXAqpPngK8Jc3VuDeG4xRLI9J0DwDV0rtUbPzdVBzAO9KgrnsxYzRQ 8LmmugWhh4L+QwIJe+1NWmULmPG+he+/lBiFD0Jg\n-----END CERTIFICATE-----");
         return JSONUtils.serialize(obj);
     }
 
@@ -324,13 +358,40 @@ public class BaseSpec {
         return JSONUtils.serialize(obj);
     }
 
-    public String getAuthorizationHeader() throws JsonProcessingException{
-        String s = "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJMYU9HdVRrYVpsVEtzaERwUng1R25JaXUwV1A1S3VGUUoyb29WMEZnWGx3In0.eyJleHAiOjE2NDcwNzgwNjksImlhdCI6MTY0Njk5MTY2OSwianRpIjoiNDcyYzkwOTAtZWQ4YS00MDYxLTg5NDQtMzk4MjhmYzBjM2I4IiwiaXNzIjoiaHR0cDovL2E5ZGQ2M2RlOTFlZTk0ZDU5ODQ3YTEyMjVkYThiMTExLTI3Mzk1NDEzMC5hcC1zb3V0aC0xLmVsYi5hbWF6b25hd3MuY29tOjgwODAvYXV0aC9yZWFsbXMvc3dhc3RoLWhlYWx0aC1jbGFpbS1leGNoYW5nZSIsImF1ZCI6ImFjY291bnQiLCJzdWIiOiIwYzU3NjNkZS03MzJkLTRmZDQtODU0Ny1iMzk2MGMxMzIwZjUiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJyZWdpc3RyeS1mcm9udGVuZCIsInNlc3Npb25fc3RhdGUiOiIxMThhMTRmMS04OTAxLTQxZTMtYWE5Zi1iNWFjMjYzNjkzMzIiLCJhY3IiOiIxIiwiYWxsb3dlZC1vcmlnaW5zIjpbImh0dHBzOi8vbG9jYWxob3N0OjQyMDIiLCJodHRwOi8vbG9jYWxob3N0OjQyMDIiLCJodHRwczovL2xvY2FsaG9zdDo0MjAwIiwiaHR0cHM6Ly9uZGVhci54aXYuaW4iLCJodHRwOi8vbG9jYWxob3N0OjQyMDAiLCJodHRwOi8vbmRlYXIueGl2LmluIiwiaHR0cDovLzIwLjE5OC42NC4xMjgiXSwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbIkhJRS9ISU8uSENYIiwiZGVmYXVsdC1yb2xlcy1uZGVhciJdfSwicmVzb3VyY2VfYWNjZXNzIjp7ImFjY291bnQiOnsicm9sZXMiOlsibWFuYWdlLWFjY291bnQiLCJtYW5hZ2UtYWNjb3VudC1saW5rcyIsInZpZXctcHJvZmlsZSJdfX0sInNjb3BlIjoicHJvZmlsZSBlbWFpbCIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwibmFtZSI6ImhjeCBhZG1pbiIsInByZWZlcnJlZF91c2VybmFtZSI6ImhjeC1hZG1pbiIsImdpdmVuX25hbWUiOiJoY3ggYWRtaW4ifQ.SwDJNGkHOs7MrArqwdkArLkRDgPIU3SHwMdrppmG2JHQkpYRLqFpfmFPgIYNAyi_b_ZQnXKwuhT6ABNEV2-viJWTPLYe4z5JkeUGNurnrkSoMMObrd0s1tLYjdgu5j5kLaeUBeSeULTkdBfAM9KZX5Gn6Ri6AKs6uFq22hJOmhtw3RTyX-7kozG-SzSfIyN_-7mvJBZjBR73gaNJyEms4-aKULAnQ6pYkj4hzzlac2WCucq2zZnipeupBOJzx5z27MLdMs8lfNRTTqkQVhoUK0DhDxyj9N_TzbycPdykajhOrerKfpEnYcZpWfC-bJJSDagnP9D407OqoxoE3_niHw";
-        return s;
+    public Map<String,Object> getParticipantCreateAuditLog() throws Exception {
+        return JSONUtils.deserialize("{\"eid\":\"AUDIT\",\"edata\":{\"prevStatus\":\"\",\"status\":\"Created\"},\"ets\":1659434908868,\"mid\":\"5ee2b9e1-ded6-4b56-afa8-3380107632e0\",\"object\":{\"id\":\"097e0185-eeb1-48f1-b2b0-b68774d02c6d\",\"type\":\"participant\"},\"cdata\":{\"action\":\"/participant/create\"}}", Map.class);
     }
 
-    public String getAuthorizationUpdateHeader() throws JsonProcessingException{
-        String s = "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICI3Q1l0Z2VYMzA2NEQ3VUU0czdCQWlJZmUzN3hxczBtNEVSQnpmdzVuMzdNIn0.eyJleHAiOjE2NDcyNDM3NjgsImlhdCI6MTY0NjM3OTc2OCwianRpIjoiYTNhNjNlYmEtNmQ3MS00M2RhLWEwODEtMjVlN2Q2MjY2NDU4IiwiaXNzIjoiaHR0cDovL2FlZjgxMDFjNDMyZDA0YTY1OWU2MzE3YjNlNTAzMWNmLTE2NzQ1ODYwNjguYXAtc291dGgtMS5lbGIuYW1hem9uYXdzLmNvbTo4MDgwL2F1dGgvcmVhbG1zL3N3YXN0aC1oZWFsdGgtY2xhaW0tZXhjaGFuZ2UiLCJhdWQiOiJhY2NvdW50Iiwic3ViIjoiNjU4NWEwZWItNTY4ZS00MzBmLTkxMzgtNzg1ODUyZjg2NGM1IiwidHlwIjoiQmVhcmVyIiwiYXpwIjoicmVnaXN0cnktZnJvbnRlbmQiLCJzZXNzaW9uX3N0YXRlIjoiYzhiOWFiN2YtMDNhMS00MWQwLTlmYzItNmY2ZDI3OTUxMzg1IiwiYWNyIjoiMSIsInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJwYXlvciIsImRlZmF1bHQtcm9sZXMtbmRlYXIiXX0sInJlc291cmNlX2FjY2VzcyI6eyJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50IiwibWFuYWdlLWFjY291bnQtbGlua3MiLCJ2aWV3LXByb2ZpbGUiXX19LCJzY29wZSI6InByb2ZpbGUgZW1haWwiLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsInByZWZlcnJlZF91c2VybmFtZSI6ImRoYXJtYXRlamE4ODdAZ21haWwuY29tIiwiZW50aXR5IjpbIk9yZ2FuaXNhdGlvbiJdLCJlbWFpbCI6ImRoYXJtYXRlamE4ODdAZ21haWwuY29tIn0.Ujl6c0x5JXffoIdKt_JxoQgu5pItD8ZhohcEkLglfmuxSzhfJe41iDawEtUJgCgnx6W2tu5ZxcMg-O-SoFSO8f9AUT5BqRqATya4f1rKqXPZXZVzlpipSDvPY_wLgtSxiOXDISyeTP22Le1hjulrAZWlAUJ2RCFlk1n4q4GdAZjnKFQReGVWv3tH4Vsh13fKXkE2rpVmHlsIgYz6v-AGJ857jla5u_BlN1fC9AlAjB6VjwWwLSN9c9ktxGPBsq5snw7UzAjdpCqiu0MU1ed2-4niKtmYqYpN9Sjv7mq3YeVW-npG-uz2-hznCpjU4qF45csJhtmLVsFYTLccI5WX6Q";
-        return s;
+    public String getAuthorizationHeader() {
+        return "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJMYU9HdVRrYVpsVEtzaERwUng1R25JaXUwV1A1S3VGUUoyb29WMEZnWGx3In0.eyJleHAiOjE2NDcwNzgwNjksImlhdCI6MTY0Njk5MTY2OSwianRpIjoiNDcyYzkwOTAtZWQ4YS00MDYxLTg5NDQtMzk4MjhmYzBjM2I4IiwiaXNzIjoiaHR0cDovL2E5ZGQ2M2RlOTFlZTk0ZDU5ODQ3YTEyMjVkYThiMTExLTI3Mzk1NDEzMC5hcC1zb3V0aC0xLmVsYi5hbWF6b25hd3MuY29tOjgwODAvYXV0aC9yZWFsbXMvc3dhc3RoLWhlYWx0aC1jbGFpbS1leGNoYW5nZSIsImF1ZCI6ImFjY291bnQiLCJzdWIiOiIwYzU3NjNkZS03MzJkLTRmZDQtODU0Ny1iMzk2MGMxMzIwZjUiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJyZWdpc3RyeS1mcm9udGVuZCIsInNlc3Npb25fc3RhdGUiOiIxMThhMTRmMS04OTAxLTQxZTMtYWE5Zi1iNWFjMjYzNjkzMzIiLCJhY3IiOiIxIiwiYWxsb3dlZC1vcmlnaW5zIjpbImh0dHBzOi8vbG9jYWxob3N0OjQyMDIiLCJodHRwOi8vbG9jYWxob3N0OjQyMDIiLCJodHRwczovL2xvY2FsaG9zdDo0MjAwIiwiaHR0cHM6Ly9uZGVhci54aXYuaW4iLCJodHRwOi8vbG9jYWxob3N0OjQyMDAiLCJodHRwOi8vbmRlYXIueGl2LmluIiwiaHR0cDovLzIwLjE5OC42NC4xMjgiXSwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbIkhJRS9ISU8uSENYIiwiZGVmYXVsdC1yb2xlcy1uZGVhciJdfSwicmVzb3VyY2VfYWNjZXNzIjp7ImFjY291bnQiOnsicm9sZXMiOlsibWFuYWdlLWFjY291bnQiLCJtYW5hZ2UtYWNjb3VudC1saW5rcyIsInZpZXctcHJvZmlsZSJdfX0sInNjb3BlIjoicHJvZmlsZSBlbWFpbCIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwibmFtZSI6ImhjeCBhZG1pbiIsInByZWZlcnJlZF91c2VybmFtZSI6ImhjeC1hZG1pbiIsImdpdmVuX25hbWUiOiJoY3ggYWRtaW4ifQ.SwDJNGkHOs7MrArqwdkArLkRDgPIU3SHwMdrppmG2JHQkpYRLqFpfmFPgIYNAyi_b_ZQnXKwuhT6ABNEV2-viJWTPLYe4z5JkeUGNurnrkSoMMObrd0s1tLYjdgu5j5kLaeUBeSeULTkdBfAM9KZX5Gn6Ri6AKs6uFq22hJOmhtw3RTyX-7kozG-SzSfIyN_-7mvJBZjBR73gaNJyEms4-aKULAnQ6pYkj4hzzlac2WCucq2zZnipeupBOJzx5z27MLdMs8lfNRTTqkQVhoUK0DhDxyj9N_TzbycPdykajhOrerKfpEnYcZpWfC-bJJSDagnP9D407OqoxoE3_niHw";
+    }
+
+    public Map<String,Object> getHIUParticipant() throws JsonProcessingException {
+        Map<String,Object> obj = new HashMap<>();
+        obj.put("participant_name","New Teja Hospital888");
+        obj.put("primary_mobile","9493347239");
+        obj.put("primary_email","dharmateja888@gmail.com");
+        obj.put("roles",new ArrayList<>(Collections.singleton("member.isnp")));
+        obj.put("scheme_code","default");
+        obj.put("address", new HashMap<>() {{
+            put("plot","5-4-199");
+            put("street","road no 12");
+            put("landmark","");
+            put("village","Nampally");
+            put("district","Hyd");
+            put("state","Telangana");
+            put("pincode","500805");
+        }});
+        obj.put("phone",new ArrayList<>(Collections.singleton("040-387658992")));
+        obj.put("status","Created");
+        obj.put("endpoint_url","http://localhost:8095");
+        obj.put("payment_details", new HashMap<>() {{
+            put("account_number","4707890099809809");
+            put("ifsc_code","ICICLE");
+        }});
+        obj.put("signing_cert_path","urn:isbn:0-476-27557-4");
+        obj.put("linked_registry_codes",new ArrayList<>(Collections.singleton("22344")));
+        obj.put("encryption_cert","urn:isbn:0-4234");
+        return obj;
     }
 }

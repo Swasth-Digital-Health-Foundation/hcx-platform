@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Response {
 
     private long timestamp = System.currentTimeMillis();
@@ -18,13 +18,17 @@ public class Response {
     private String apiCallId;
     private ResponseError error;
     private Map<String, Object> result;
-    private String subscriptionId;
-    @JsonProperty("status")
-    private String subscriptionStatus;
     private List<Subscription> subscriptions;
     @JsonProperty("count")
     private Integer count;
     private List<Map<String,Object>> notifications;
+    @JsonProperty("notification_request_id")
+    private String notificationRequestId;
+    private List<String> subscription_list;
+    @JsonProperty("subscription_id")
+    private String subscriptionId;
+    @JsonProperty("subscription_status")
+    private int subscriptionStatus;
 
     public Response() {}
 
@@ -55,22 +59,6 @@ public class Response {
         this.notifications = notifications;
     }
 
-    public String getSubscriptionId() {
-        return subscriptionId;
-    }
-
-    public void setSubscriptionId(String subscriptionId) {
-        this.subscriptionId = subscriptionId;
-    }
-
-    public String getSubscriptionStatus() {
-        return subscriptionStatus;
-    }
-
-    public void setSubscriptionStatus(String subscriptionStatus) {
-        this.subscriptionStatus = subscriptionStatus;
-    }
-
     public List<Subscription> getSubscriptions() {
         return subscriptions;
     }
@@ -86,6 +74,10 @@ public class Response {
     public void setCount(Integer count) {
         this.count = count;
     }
+
+    public String getNotificationRequestId() { return notificationRequestId; }
+
+    public void setNotificationRequestId(String notificationRequestId) { this.notificationRequestId = notificationRequestId; }
 
     public Long getTimestamp() {
         return timestamp;
@@ -136,10 +128,24 @@ public class Response {
         return this;
     }
 
-    public Response putAll(Map<String, Object> resultMap) {
-        result.putAll(resultMap);
-        return this;
+    public List<String> getSubscription_list() {
+        return subscription_list;
     }
 
+    public void setSubscription_list(List<String> subscription_list) {
+        this.subscription_list = subscription_list;
+    }
+
+    public void setSubscriptionStatus(int subscriptionStatus) {
+        this.subscriptionStatus = subscriptionStatus;
+    }
+
+    public int getSubscriptionStatus() { return subscriptionStatus;}
+
+    public void setSubscriptionId(String subscriptionId) {
+        this.subscriptionId = subscriptionId;
+    }
+
+    public String getSubscriptionId() {return  subscriptionId;}
 }
 

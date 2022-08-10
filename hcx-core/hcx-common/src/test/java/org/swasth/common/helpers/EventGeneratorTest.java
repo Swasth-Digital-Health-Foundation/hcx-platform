@@ -5,9 +5,7 @@ import org.junit.Test;
 import org.swasth.common.dto.Request;
 import org.swasth.common.utils.Constants;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.Assert.*;
 import static org.swasth.common.utils.Constants.*;
@@ -65,6 +63,12 @@ public class EventGeneratorTest {
     public void check_generateAuditEvent_if_status_is_null() throws Exception {
         Map<String,Object> result = eventGenerator.generateAuditEvent(getJSONRequest(null));
         assertEquals("request.queued", result.get(Constants.STATUS));
+    }
+
+    @Test
+    public void check_createNotifyEvent() throws Exception {
+        String result = eventGenerator.createNotifyEvent("test-code-123", "provider01@hcx", List.of("payor01@hcx"), Collections.emptyList(), Collections.emptyList(), Collections.singletonMap(PARTICIPANT_CODE, "provider01@hcx"));
+        assertNotNull(result);
     }
 
     public Request getRequest() throws Exception {
@@ -135,9 +139,9 @@ public class EventGeneratorTest {
 
     private Request getNotificationRequest() throws Exception {
         Map<String,Object> obj = new HashMap<>();
-        obj.put(NOTIFICATION_ID,"hcx-notification-001");
-        obj.put(SENDER_CODE,"hcx-apollo-12345");
-        obj.put(RECIPIENT_CODE,"hcx-star-insurance-001");
+        obj.put(NOTIFICATION_REQ_ID,"hcx-notification-001");
+        obj.put(HCX_SENDER_CODE,"hcx-apollo-12345");
+        obj.put(HCX_RECIPIENT_CODE,"hcx-star-insurance-001");
         obj.put(API_CALL_ID,"1fa85f64-5717-4562-b3fc-2c963f66afa6");
         obj.put(CORRELATION_ID,"2fa85f64-5717-4562-b3fc-2c963f66afa6");
         obj.put(WORKFLOW_ID,"3fa85f64-5717-4562-b3fc-2c963f66afa6");
@@ -148,13 +152,13 @@ public class EventGeneratorTest {
         notificationData.put("startTime","9PM");
         notificationData.put("date","26th April 2022 IST");
         obj.put(NOTIFICATION_DATA,notificationData);
-        return new Request(obj, NOTIFICATION_REQUEST);
+        return new Request(obj, NOTIFICATION_NOTIFY);
     }
 
     @Test
     public void testGenerateMetadataEventNotificationSuccess() throws Exception {
         Request notificationReq = getNotificationRequest();
-        notificationReq.setApiAction(NOTIFICATION_REQUEST);
+        notificationReq.setApiAction(NOTIFICATION_NOTIFY);
         String result = eventGenerator.generateMetadataEvent(notificationReq);
         assertNotNull(result);
         //HCX should add status if the status is not present in the request
@@ -162,6 +166,81 @@ public class EventGeneratorTest {
         //HCX should add triggerType as API
         assertTrue(result.contains(TRIGGER_VALUE));
 
+    }
+
+    @Test
+    public void testGenerateSubscriptionEvent() throws Exception {
+        String result = eventGenerator.generateSubscriptionEvent(NOTIFICATION_SUBSCRIBE,"hcx-apollo-12345","hcx-notification-001",new ArrayList<>(){{add("icici-67890");add("Payor1"); add("Payor2");}});
+        System.out.println(result);
+        assertNotNull(result);
+        assertTrue(result.contains(QUEUED_STATUS));
+        assertTrue(result.contains(NOTIFICATION_SUBSCRIBE));
+        assertTrue(result.contains("hcx-apollo-12345"));
+        assertTrue(result.contains("hcx-notification-001"));
+        assertTrue(result.contains("icici-67890"));
+    }
+
+    @Test
+    public void testGenerateSubscriptionAuditEvent() throws Exception {
+        Request subscriptionReq = getSubscriptionRequest();
+        Map<String,Object> resultMap = eventGenerator.generateSubscriptionAuditEvent(subscriptionReq,QUEUED_STATUS,new ArrayList<>(){{add("icici-67890");}});
+        assertNotNull(resultMap);
+        assertEquals(AUDIT,resultMap.get(EID));
+        assertNotNull(resultMap.get(MID));
+        assertEquals(NOTIFICATION_SUBSCRIBE,resultMap.get(ACTION));
+        assertEquals("hcx-notification-001",resultMap.get(TOPIC_CODE));
+        assertEquals("hcx-apollo-12345",resultMap.get(RECIPIENT_CODE));
+        assertNotNull(resultMap.get(Constants.SENDER_LIST));
+    }
+
+    private Request getSubscriptionRequest() throws Exception {
+        Map<String,Object> obj = new HashMap<>();
+        obj.put(RECIPIENT_CODE,"hcx-apollo-12345");
+        obj.put(TOPIC_CODE,"hcx-notification-001");
+        obj.put(SENDER_LIST,new ArrayList<>(){
+            { add("Payor1"); add("Payor2");}
+        });
+        return new Request(obj,NOTIFICATION_SUBSCRIBE);
+    }
+
+    @Test
+    public void testGenerateOnSubscriptionEvent() throws Exception {
+        String result = eventGenerator.generateOnSubscriptionEvent(NOTIFICATION_ON_SUBSCRIBE,"hcx-apollo-12345","icici-67890","hcx-apollo:icici-67890",1);
+        assertNotNull(result);
+        assertTrue(result.contains(QUEUED_STATUS));
+        assertTrue(result.contains(NOTIFICATION_ON_SUBSCRIBE));
+        assertTrue(result.contains("hcx-apollo-12345"));
+        assertTrue(result.contains("icici-67890"));
+        assertTrue(result.contains("hcx-apollo:icici-67890"));
+    }
+
+    @Test
+    public void testGenerateOnSubscriptionAuditEvent() {
+        Map<String,Object> resultMap = eventGenerator.generateOnSubscriptionAuditEvent(NOTIFICATION_ON_SUBSCRIBE,"hcx-apollo-12345","subscription_id-001",QUEUED_STATUS,"icici-67890",1);
+        assertNotNull(resultMap);
+        assertEquals(AUDIT,resultMap.get(EID));
+        assertNotNull(resultMap.get(MID));
+        assertEquals(NOTIFICATION_ON_SUBSCRIBE,resultMap.get(ACTION));
+        assertEquals(1,resultMap.get(SUBSCRIPTION_STATUS));
+        assertEquals("hcx-apollo-12345",resultMap.get(RECIPIENT_CODE));
+        assertEquals("icici-67890",resultMap.get(Constants.SENDER_CODE));
+        assertEquals("subscription_id-001",resultMap.get(SUBSCRIPTION_ID));
+        assertNotNull(resultMap.get(ETS));
+        assertEquals(QUEUED_STATUS,resultMap.get(NOTIFY_STATUS));
+    }
+
+    @Test
+    public void testCreateAuditLog() {
+        Map<String,Object> resultMap = eventGenerator.createAuditLog("provider01@hcx","participant",
+                Collections.singletonMap(ACTION, PARTICIPANT_CREATE), Collections.singletonMap(AUDIT_STATUS, CREATED));
+        assertNotNull(resultMap);
+        assertEquals(AUDIT, resultMap.get(EID));
+        assertNotNull(resultMap.get(ETS));
+        assertNotNull(resultMap.get(MID));
+        assertEquals("provider01@hcx", ((Map<String,Object>) resultMap.get(OBJECT)).get(ID));
+        assertEquals("participant", ((Map<String,Object>) resultMap.get(OBJECT)).get(TYPE));
+        assertEquals(PARTICIPANT_CREATE, ((Map<String,Object>) resultMap.get(CDATA)).get(ACTION));
+        assertEquals(CREATED, ((Map<String,Object>) resultMap.get(EDATA)).get(AUDIT_STATUS));
     }
 
 }

@@ -2,11 +2,10 @@ package org.swasth.common.dto;
 
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
+import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.utils.PayloadUtils;
-
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static org.swasth.common.utils.Constants.*;
 
@@ -16,6 +15,7 @@ public class Request {
     protected Map<String, Object> hcxHeaders = null;
     private String mid = UUID.randomUUID().toString();
     private String apiAction;
+    private String notificationRequestId;
     private final String payloadWithoutSensitiveData;
 
     public Request(Map<String, Object> body, String apiAction) throws Exception {
@@ -49,12 +49,12 @@ public class Request {
         return getHeader(CORRELATION_ID);
     }
 
-    public String getSenderCode() {
-        return getHeader(SENDER_CODE);
+    public String getHcxSenderCode() {
+        return getHeader(HCX_SENDER_CODE);
     }
 
-    public String getRecipientCode() {
-        return getHeader(RECIPIENT_CODE);
+    public String getHcxRecipientCode() {
+        return getHeader(HCX_RECIPIENT_CODE);
     }
 
     public String getTimestamp() {
@@ -77,6 +77,10 @@ public class Request {
 
     protected String getHeader(String key) {
         return (String) hcxHeaders.getOrDefault(key, null);
+    }
+
+    protected List<String> getHeaderList(String key) {
+        return (List<String>) hcxHeaders.getOrDefault(key, new ArrayList<>());
     }
 
     protected Map<String, Object> getHeaderMap(String key) {
@@ -109,8 +113,36 @@ public class Request {
         this.mid = mid;
     }
 
-    public String getNotificationId() { return getHeader(NOTIFICATION_ID);}
-    public Map<String, Object> getNotificationData(){ return getHeaderMap(NOTIFICATION_DATA);}
+    public void setNotificationRequestId(String notificationRequestId) {
+        this.notificationRequestId = notificationRequestId;
+    }
 
+    public String getNotificationRequestId() {
+        return notificationRequestId;
+    }
+
+    public String getTopicCode() { return getHeader(Constants.TOPIC_CODE);}
+
+    public String getSenderCode() { return getHeader(SENDER_CODE); }
+
+    public List<String> getRecipientCodes() { return getHeaderList(Constants.RECIPIENT_CODES);}
+
+    public List<String> getRecipientRoles() { return getHeaderList(Constants.RECIPIENT_ROLES);}
+
+    public List<String> getSubscriptions() { return getHeaderList(Constants.SUBSCRIPTIONS);}
+
+    public Map<String,Object> getNotificationData() { return getHeaderMap(Constants.NOTIFICATION_DATA);}
+
+    public List<String> getSenderList() { return getHeaderList(SENDER_LIST); }
+
+    public String getRecipientCode() { return getHeader(RECIPIENT_CODE); }
+
+    public int getSubscriptionStatus() { return (int) payload.getOrDefault(SUBSCRIPTION_STATUS, null);}
+
+    public boolean getIsDelegated(){ return (boolean) payload.getOrDefault(IS_DELEGATED, null);}
+
+    public Long getExpiry(){ return (Long) payload.getOrDefault(EXPIRY, null); }
+
+    public String getSubscriptionId() { return (String) payload.get(SUBSCRIPTION_ID); }
 }
 

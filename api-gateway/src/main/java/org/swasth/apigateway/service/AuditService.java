@@ -15,12 +15,8 @@ import org.swasth.apigateway.utils.JSONUtils;
 import org.swasth.apigateway.utils.Utils;
 import org.swasth.auditindexer.function.AuditIndexer;
 import org.swasth.common.utils.Constants;
-
 import java.util.*;
-
-import static org.swasth.apigateway.constants.Constants.*;
-import static org.swasth.common.utils.Constants.NOTIFICATION_DATA;
-import static org.swasth.common.utils.Constants.NOTIFICATION_ID;
+import static org.swasth.common.utils.Constants.*;
 
 
 @Service
@@ -31,11 +27,14 @@ public class AuditService {
     @Value("${hcx-api.basePath}")
     private String hcxApiUrl;
 
+    @Value("${version.internal}")
+    private String internalVersion;
+
     @Autowired
     private AuditIndexer auditIndexer;
 
     public List<Map<String, Object>> getAuditLogs(Map<String,String> filters) throws Exception {
-        String url = hcxApiUrl + Constants.AUDIT_SEARCH;
+        String url = hcxApiUrl + "/" + internalVersion + Constants.AUDIT_SEARCH;
         HttpResponse response;
         try {
             response = HttpUtils.post(url, JSONUtils.serialize(Collections.singletonMap("filters", filters)));
@@ -63,8 +62,8 @@ public class AuditService {
     public Map<String,Object> createAuditEvent(BaseRequest request) {
         Map<String,Object> event = new HashMap<>();
         event.put(EID, AUDIT);
-        event.put(RECIPIENT_CODE, request.getRecipientCode());
-        event.put(SENDER_CODE, request.getSenderCode());
+        event.put(HCX_RECIPIENT_CODE, request.getHcxRecipientCode());
+        event.put(HCX_SENDER_CODE, request.getHcxSenderCode());
         event.put(API_CALL_ID, request.getApiCallId());
         event.put(CORRELATION_ID, request.getCorrelationId());
         event.put(WORKFLOW_ID, request.getWorkflowId());
@@ -76,12 +75,10 @@ public class AuditService {
         event.put(STATUS, ERROR_STATUS);
         event.put(REQUESTED_TIME, System.currentTimeMillis());
         event.put(UPDATED_TIME, System.currentTimeMillis());
-        event.put(AUDIT_TIMESTAMP, System.currentTimeMillis());
+        event.put(ETS, System.currentTimeMillis());
         event.put(SENDER_ROLE, request.getSenderRole());
         event.put(RECIPIENT_ROLE, request.getRecipientRole());
         event.put(PAYLOAD, request.getPayloadWithoutSensitiveData());
-        event.put(NOTIFICATION_ID, request.getNotificationId());
-        event.put(NOTIFICATION_DATA, request.getNotificationData());
         return event;
     }
 

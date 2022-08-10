@@ -27,6 +27,15 @@ redirect:
     mandatory: ${redirect_mandatory_headers:x-hcx-sender_code, x-hcx-recipient_code, x-hcx-api_call_id, x-hcx-timestamp, x-hcx-correlation_id}
     optional: ${redirect_optional_headers:x-hcx-workflow_id, x-hcx-status, x-hcx-redirect_to}
 
+notification:
+  subscription:
+    headers:
+      mandatory: ${notification_subscription_mandatory_headers:topic_code,sender_list}
+
+notify:
+  network:
+    allowedCodes: ${notify_network_allowedCodes:${registry.hcxCode}}
+
 timestamp:
   range: ${timestamp_range:10000}
 
@@ -87,10 +96,13 @@ spring:
             - RewritePath=/${version.external}/notification/subscribe, /${version.internal}/notification/subscribe
             - RewritePath=/${version.external}/notification/unsubscribe, /${version.internal}/notification/unsubscribe
             - RewritePath=/${version.external}/notification/notify, /${version.internal}/notification/notify
+            - RewritePath=/${version.external}/notification/subscription/list, /${version.internal}/notification/subscription/list
+            - RewritePath=/${version.external}/notification/subscription/update, /${version.internal}/notification/subscription/update
+            - RewritePath=/${version.external}/notification/on_subscribe, /${version.internal}/notification/on_subscribe
             - CachingRequestBodyFilter
             - HCXValidationFilter
           predicates:
-            - Path=/${version.external}/coverageeligibility/**, /${version.external}/preauth/**, /${version.external}/claim/**, /${version.external}/paymentnotice/**, /${version.external}/hcx/**, /${version.external}/predetermination/**, /${version.external}/communication/**, /${version.external}/notification/subscribe, /${version.external}/notification/unsubscribe, /${version.external}/notification/notify
+            - Path=/${version.external}/coverageeligibility/**, /${version.external}/preauth/**, /${version.external}/claim/**, /${version.external}/paymentnotice/**, /${version.external}/hcx/**, /${version.external}/predetermination/**, /${version.external}/communication/**, /${version.external}/notification/subscribe, /${version.external}/notification/unsubscribe, /${version.external}/notification/subscription/list, /${version.external}/notification/notify, /${version.external}/notification/subscription/update, /${version.external}/notification/on_subscribe
 
         - id: hcx-api-route-audit
           uri: ${HCX_API_BASEPATH:http://localhost:8080}
@@ -113,8 +125,7 @@ spring:
                 redis-rate-limiter.replenishRate: 10
                 redis-rate-limiter.burstCapacity: 20
             - RewritePath=/${version.external}/participant/(?<segment>/?.*), /${version.internal}/participant/$\{segment}
-            - RewritePath=/${version.external}/notification/subscription/list, /${version.internal}/notification/subscription/list
-            - RewritePath=/${version.external}/notification/list, /${version.internal}/notification/list
+            - RewritePath=/${version.external}/notification/topic/list, /${version.internal}/notification/topic/list
           predicates:
-            - Path=/${version.external}/participant/**, /health, /service/health, /${version.external}/notification/subscription/list, /${version.external}/notification/topic/list
+            - Path=/${version.external}/participant/**, /health, /service/health, /${version.external}/notification/topic/list
 

@@ -46,7 +46,7 @@ public class SearchController extends BaseController {
             eventHandler.processAndSendEvent(topic, request);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
-            return exceptionHandler(request, response, e);
+            return exceptionHandlerWithAudit(request, response, e);
         }
     }
 
@@ -62,12 +62,12 @@ public class SearchController extends BaseController {
             eventHandler.processAndSendEvent(responseTopic, request);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
-            return exceptionHandler(request, response, e);
+            return exceptionHandlerWithAudit(request, response, e);
         }
     }
 
     private void validateRegistryCode(SearchRequest request) throws ClientException {
-        if(Constants.HCX_REGISTRY_CODE.equals(request.getRecipientCode())){
+        if(Constants.HCX_REGISTRY_CODE.equals(request.getHcxRecipientCode())){
             throw new ClientException(ErrorCodes.ERR_INVALID_SEARCH, "Search recipient code must be hcx registry code");
         }
     }

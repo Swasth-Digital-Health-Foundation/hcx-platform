@@ -3,11 +3,10 @@ package org.swasth.apigateway.filters;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.jayway.jsonpath.JsonPath;
-import lombok.SneakyThrows;
 import org.swasth.apigateway.constants.FilterOrder;
 import org.swasth.apigateway.exception.ErrorCodes;
 import org.swasth.apigateway.exception.JWTVerificationException;
-import org.swasth.apigateway.helpers.ExceptionHandler;
+import org.swasth.apigateway.handlers.ExceptionHandler;
 import org.swasth.apigateway.models.Acl;
 import org.swasth.apigateway.models.BaseRequest;
 import org.swasth.apigateway.security.JwtConfigs;
@@ -17,7 +16,6 @@ import net.minidev.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
@@ -26,13 +24,12 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
-
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 
-import static org.swasth.apigateway.constants.Constants.AUTH_REQUIRED;
-import static org.swasth.apigateway.constants.Constants.X_JWT_SUB_HEADER;
+import static org.swasth.common.utils.Constants.AUTH_REQUIRED;
+import static org.swasth.common.utils.Constants.X_JWT_SUB_HEADER;
 
 /**
  * Authenticates the user by extracting the token from the header and validates the JWT

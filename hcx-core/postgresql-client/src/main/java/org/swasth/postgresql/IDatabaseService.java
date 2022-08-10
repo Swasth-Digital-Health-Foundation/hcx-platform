@@ -7,4 +7,6 @@ public interface IDatabaseService {
     boolean isHealthy();
     Object getConnection() throws Exception;
     void close() throws Exception;
+    void addBatch(String query) throws Exception;
+    int[] executeBatch() throws Exception;
 }

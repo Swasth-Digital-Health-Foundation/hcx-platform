@@ -1,23 +1,31 @@
 #kafka config
 bootstrap-servers: ${bootstrap_servers:localhost:9092}
 
+env: local
+
 kafka:
   topic:
-    payload: ${kafka_payload_topic:local.hcx.request.payload}
-    coverageeligibility: ${kafka_coverageeligibility_topic:hcx.request.coverageeligibility}
-    preauth: ${kafka_preauth_topic:hcx.request.preauth}
-    claim: ${kafka_claim_topic:hcx.request.claim}
-    payment: ${kafka_payment_topic:hcx.request.payment}
-    status: ${kafka_status_topic:hcx.request.status.search}
-    search: ${kafka_search_topic:hcx.request.search}
-    searchresponse: ${kafka_search_response_topic:hcx.response.search}
-    communication: ${kafka_communication_topic:hcx.request.communication}
-    predetermination: ${kafka_predetermination_topic:hcx.request.predetermination}
-    notification: ${kafka_notification_topic:hcx.request.notification}
+    payload: ${kafka_payload_topic:${env}.hcx.request.payload}
+    coverageeligibility: ${kafka_coverageeligibility_topic:${env}.hcx.request.coverageeligibility}
+    preauth: ${kafka_preauth_topic:${env}.hcx.request.preauth}
+    claim: ${kafka_claim_topic:${env}.hcx.request.claim}
+    payment: ${kafka_payment_topic:${env}.hcx.request.payment}
+    status: ${kafka_status_topic:${env}.hcx.request.status.search}
+    search: ${kafka_search_topic:${env}.hcx.request.search}
+    searchresponse: ${kafka_search_response_topic:${env}.hcx.response.search}
+    communication: ${kafka_communication_topic:${env}.hcx.request.communication}
+    predetermination: ${kafka_predetermination_topic:${env}.hcx.request.predetermination}
+    notification: ${kafka_notification_topic:${env}.hcx.request.notification}
+    subscription: ${kafka_subscription_topic:${env}.hcx.request.subscription}
+    audit: ${kafka_audit_topic:${env}.hcx.audit}
+    onsubscription: ${kafka_onsubscription_topic:${env}.hcx.request.onsubscription}
 
 registry:
-  basePath: ${registry_basePath:http://a65d6a493998b4d0e98bd690a123328b-1532825861.ap-south-1.elb.amazonaws.com:8081}
+  basePath: ${registry_basePath:http://a0b2bab079318431d8ca99f1efb1c25c-874274596.ap-south-1.elb.amazonaws.com:8081}
   hcxcode: ${registry_hcxcode:1-d2d56996-1b77-4abb-b9e9-0e6e7343c72e}
+
+participantCode:
+  fieldSeparator: ${participant_code_field_separator:.}
 
 #postgres config
 postgres:
@@ -27,8 +35,10 @@ postgres:
   tablename: ${postgres_tablename:payload}
   subscription:
     tablename: ${postgres_subscription_tablename:subscription}
-    insertQuery: ${postgres_subscription_insertQuery:INSERT INTO %s as sub(id,recipientId,notificationId,status,lastUpdatedOn,mode) VALUES ('%s','%s','%s',%d,%d,'%s') ON CONFLICT ON CONSTRAINT subscription_pkey DO UPDATE SET status=%d,lastUpdatedOn=%d WHERE sub.recipientId=EXCLUDED.recipientId AND sub.notificationId=EXCLUDED.notificationId}
-    subscriptionQuery: ${postgres_subscription_subscriptionQuery:SELECT notificationId,recipientId,status,mode FROM %s WHERE recipientId = '%s'}
+    insertQuery: ${postgres_subscription_insertQuery:INSERT INTO %s as sub(subscription_id,subscription_request_id,topic_code,sender_code,recipient_code,subscription_status,lastUpdatedOn,createdOn,expiry,is_delegated) VALUES ('%s','%s','%s','%s','%s',%d,%d,%d,%d,%s) ON CONFLICT ON CONSTRAINT subscription_pkey DO UPDATE SET subscription_status=%d,lastUpdatedOn=%d,expiry=%d,is_delegated=%s WHERE sub.sender_code=EXCLUDED.sender_code AND sub.topic_code=EXCLUDED.topic_code AND sub.recipient_code=EXCLUDED.recipient_code}
+    subscriptionQuery: ${postgres_subscription_subscriptionQuery:SELECT subscription_id,subscription_request_id,subscription_status,topic_code,sender_code,recipient_code,expiry,is_delegated FROM %s WHERE recipient_code = '%s'}
+    subscriptionSelectQuery: ${postgres_subscription_subscriptionSelectQuery:SELECT subscription_id,subscription_request_id,subscription_status,topic_code,sender_code,recipient_code,expiry,is_delegated FROM %s WHERE subscription_id = '%s' AND sender_code = '%s' }
+    updateSubscriptionQuery: ${postgres_subscription_updateSubscriptionQuery:UPDATE %s SET subscription_status = %d  WHERE subscription_id = '%s' RETURNING %s }
 
 
 #hcx error headers
@@ -69,14 +79,18 @@ redirect:
     mandatory: ${redirect_mandatory_headers:x-hcx-sender_code, x-hcx-recipient_code, x-hcx-api_call_id, x-hcx-timestamp, x-hcx-correlation_id, x-hcx-status, x-hcx-redirect_to}
     optional: ${redirect_optional_headers:x-hcx-workflow_id}
 
-#hcx not allowed urls
+#hcx config
 hcx:
+  instanceName: ${hcx_instance_name:swasth-hcx}
   urls:
     notallowed: ${not_allowed_urls:http://dev-hcx.swasth.app/api,http://staging-hcx.swasth.app/api}
 
 #Notifications related configurations
 notification:
-  path: ${notification_path:classpath:notifications.json}
   headers:
-    mandatory: ${notification_mandatory_headers:x-hcx-notification_id,x-hcx-sender_code, x-hcx-recipient_code, x-hcx-api_call_id, x-hcx-timestamp, x-hcx-correlation_id}
-    optional: ${notification_optional_headers:x-hcx-workflow_id,x-hcx-status,x-hcx-notification_data}
+    mandatory: ${notification_mandatory_headers:topic_code, notification_data}
+    optional: ${notification_optional_headers:recipient_codes, recipient_roles, subscriptions, sender_code, notification_id}
+  subscription:
+    expiry: ${notification_subscription_expiry:100}
+    allowedFilters: ${notification_subscription_allowedFilters:subscription_id, topic_code, subscription_status}
+  topicCodesForHIUs: ${notification_topicCodesForHIUs:notif-coverage-eligibility-change}

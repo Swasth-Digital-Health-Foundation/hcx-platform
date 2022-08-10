@@ -57,14 +57,14 @@ class CompositeSearchFunction(config: SearchConfig)(implicit val stringTypeInfo:
 
     val correlationId = getProtocolStringValue(event,Constants.CORRELATION_ID)
     val originalApiCallId = getProtocolStringValue(event,Constants.API_CALL_ID)
-    val senderCode = getProtocolStringValue(event,Constants.SENDER_CODE)
+    val senderCode = getProtocolStringValue(event,Constants.HCX_SENDER_CODE)
     val action = event.get(Constants.ACTION).asInstanceOf[String]
     //Insert base record
     insertSearchRecord(correlationId, originalApiCallId, senderCode, null, Constants.OPEN_STATUS, "{}")
-    mutableMap.asJava.put(Constants.SENDER_CODE, config.hcxRegistryCode)
+    mutableMap.asJava.put(Constants.HCX_SENDER_CODE, config.hcxRegistryCode)
     //Iterate through all the recipients and dispatch apicalls with updated payload
     for (recipientCode <- recipientList.asScala) {
-      mutableMap.asJava.put(Constants.RECIPIENT_CODE, recipientCode)
+      mutableMap.asJava.put(Constants.HCX_RECIPIENT_CODE, recipientCode)
       val apiCallId = UUID.randomUUID().toString
       mutableMap.asJava.put(Constants.API_CALL_ID, apiCallId)
       val filterList = new util.ArrayList[String]

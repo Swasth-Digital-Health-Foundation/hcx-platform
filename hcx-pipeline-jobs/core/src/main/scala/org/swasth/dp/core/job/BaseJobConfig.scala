@@ -40,9 +40,6 @@ class BaseJobConfig(val config: Config, val jobName: String) extends Serializabl
   val senderReceiverFields = List("signing_cert_path", "primary_mobile","encryption_cert", "endpoint_url", "participant_name","status","roles")
   val redisExpires: Int = Option(config.getInt("redis.expires")).getOrElse(3600)
 
-  val metaRedisHost: String = Option(config.getString("redis-meta.host")).getOrElse("localhost")
-  val metaRedisPort: Int = Option(config.getInt("redis-meta.port")).getOrElse(6379)
-
   // Checkpointing config
   val enableCompressedCheckpointing: Boolean = config.getBoolean("task.checkpointing.compressed")
   val checkpointingInterval: Int = config.getInt("task.checkpointing.interval")
@@ -54,6 +51,12 @@ class BaseJobConfig(val config: Config, val jobName: String) extends Serializabl
   // Default output configurations
   val enrichedOutputTag: OutputTag[util.Map[String, AnyRef]] = OutputTag[util.Map[String, AnyRef]]("enriched-events")
   val dispatcherOutputTag: OutputTag[util.Map[String, AnyRef]] = OutputTag[util.Map[String, AnyRef]]("dispatched-events")
+  val enrichedSubscriptionsOutputTag: OutputTag[util.Map[String, AnyRef]] = OutputTag[util.Map[String, AnyRef]]("enriched-subscription-events")
+  val auditOutputTag: OutputTag[String] = OutputTag[String]("audit-events")
+  val auditTopic = if (config.hasPath("kafka.audit.topic")) config.getString("kafka.audit.topic") else ""
+
+  // Producers
+  val auditProducer = "audit-events-sink"
 
   // Default job metrics
   val dispatcherSuccessCount = "dispatcher-success-count"
@@ -114,5 +117,10 @@ class BaseJobConfig(val config: Config, val jobName: String) extends Serializabl
   //HTTP-Codes
   val successCodes: util.List[Integer] = config.getIntList("errorCodes.successCodes")
   val errorCodes: util.List[Integer] = config.getIntList("errorCodes.errorCodes")
+
+  val subscribeOutputTag: OutputTag[util.Map[String, AnyRef]] = OutputTag[util.Map[String, AnyRef]]("subscribed-events")
+  val onSubscribeOutputTag: OutputTag[util.Map[String, AnyRef]] = OutputTag[util.Map[String, AnyRef]]("on-subscribed-events")
+
+  val hcxInstanceName: String = config.getString("hcx.instanceName")
 
 }

@@ -2,6 +2,7 @@ package org.swasth.common.dto;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.swasth.common.exception.ErrorCodes;
 import org.swasth.common.utils.Constants;
 
@@ -11,8 +12,8 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
-import static org.swasth.common.utils.Constants.ACTIVE;
-import static org.swasth.common.utils.Constants.IN_ACTIVE;
+import static org.junit.Assert.assertNotNull;
+import static org.swasth.common.utils.Constants.*;
 
 public class ResponseTest {
 
@@ -32,16 +33,15 @@ public class ResponseTest {
     public void testNotificationResponse() {
         Response response = new Response();
         response.setNotifications(List.of(Collections.singletonMap(Constants.TOPIC_CODE, "notification-123")));
+        response.setNotificationRequestId("f07250bf-a64b-4537-9182-c233e78d2847");
+        assertEquals("f07250bf-a64b-4537-9182-c233e78d2847", response.getNotificationRequestId());
         assertEquals("notification-123", (response.getNotifications().get(0)).get(Constants.TOPIC_CODE));
     }
 
     @Test
     public void testSubscription(){
-        Response response = new Response();
-        response.setSubscriptionStatus(ACTIVE);
-        response.setSubscriptionId("hcx-notification-001:hcx-apollo-12345");
-        assertEquals(ACTIVE,response.getSubscriptionStatus());
-        assertEquals("hcx-notification-001:hcx-apollo-12345", response.getSubscriptionId());
+        Response mockResponse = Mockito.mock(Response.class);
+        assertNotNull(mockResponse);
     }
 
     @Test
@@ -52,14 +52,30 @@ public class ResponseTest {
         response.setCount(subscriptionList.size());
         assertEquals(2,response.getSubscriptions().size());
         assertEquals(2,response.getCount().intValue());
-        assertEquals(ACTIVE, response.getSubscriptions().get(0).getStatus());
-        assertEquals(IN_ACTIVE, response.getSubscriptions().get(1).getStatus());
+        assertEquals(ACTIVE_CODE, response.getSubscriptions().get(0).getSubscription_status());
+        assertEquals(INACTIVE_CODE, response.getSubscriptions().get(1).getSubscription_status());
+    }
+
+    @Test
+    public void testSubscriptionIds(){
+        Response response = new Response();
+        List<String> subscriptionList = getSubscriptionIds();
+        response.setSubscription_list(subscriptionList);
+        assertEquals(2,response.getSubscription_list().size());
+        assertEquals("hcx-notification-subscription-12345", response.getSubscription_list().get(0));
+        assertEquals("hcx-notification-subscription-67890", response.getSubscription_list().get(1));
     }
 
     private List<Subscription> getSubscriptionList()  {
         List<Subscription> subscriptionList = new ArrayList<>();
-        Subscription subscription = new Subscription("hcx-notification-001:hcx-apollo-12345", "hcx-notification-001", ACTIVE, "API");
-        Subscription inActiveSubscription = new Subscription("hcx-notification-001:hcx-apollo-12345", "hcx-notification-001", IN_ACTIVE, "API");
+        Subscription subscription = new Subscription();
+        subscription.setSubscription_id("hcx-notification-subscription-12345");
+        subscription.setTopic_code("hcx-notification-001");
+        subscription.setSubscription_status(ACTIVE_CODE);
+        Subscription inActiveSubscription = new Subscription();
+        inActiveSubscription.setSubscription_id("hcx-notification-subscription-67890");
+        inActiveSubscription.setTopic_code("hcx-notification-001");
+        inActiveSubscription.setSubscription_status(INACTIVE_CODE);
         subscriptionList.add(subscription);
         subscriptionList.add(inActiveSubscription);
         return subscriptionList;
@@ -67,5 +83,21 @@ public class ResponseTest {
 
     public Map<String,Object> getRequestBody() throws JsonProcessingException {
         return Collections.singletonMap("payload","eyJlbmMiOiJBMjU2R0NNIiwKImFsZyI6IlJTQS1PQUVQIiwKIngtaGN4LXNlbmRlcl9jb2RlIjoiMS05ODc1Ni1jZjJkLTQ1ZmUtYTVlMS01ZjFjODI5NzllMGQiLAoieC1oY3gtcmVjaXBpZW50X2NvZGUiOiIxLTI3OTliNmE0LWNmMmQtNDVmZS1hNWUxLTVmMWM4Mjk3OWUwZCIsCiJ4LWhjeC1hcGlfY2FsbF9pZCI6IjI2YjEwNjBjLTFlODMtNDYwMC05NjEyLWVhMzFlMGNhNTA5MSIsCiJ4LWhjeC1jb3JyZWxhdGlvbl9pZCI6IjVlOTM0ZjkwLTExMWQtNGYwYi1iMDE2LWMyMmQ4MjA2NzRlMSIsCiJ4LWhjeC10aW1lc3RhbXAiOiIyMDIyLTAxLTA2VDA5OjUwOjIzKzAwIiwKIngtaGN4LXN0YXR1cyI6InJlcXVlc3QuaW5pdGlhdGUiLAoieC1oY3gtd29ya2Zsb3dfaWQiOiIxZTgzLTQ2MGEtNGYwYi1iMDE2LWMyMmQ4MjA2NzRlMSIsCiJ4LWhjeC1zdGF0dXNfZmlsdGVycyI6eyJyZXF1ZXN0X2lkIjoiMjZiMTA2MGMtMWU4My00NjAwLTk2MTItZWEzMWUwY2E1MTAxIn0sCiJqd3NfaGVhZGVyIjp7InR5cCI6IkpXVCIsICJhbGciOiJSUzI1NiJ9LAoiandlX2hlYWRlciI6eyJhbGciOiJSU0EtT0FFUCIsImVuYyI6IkEyNTZHQ00ifQp9.6KB707dM9YTIgHtLvtgWQ8mKwboJW3of9locizkDTHzBC2IlrT1oOQ.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.AxY8DCtDaGlsbGljb3RoZQ.KDlTtXchhZTGufMYmOYGS4HffxPSUrfmqCHXaI9wOGY.Mz-VPPyU4RlcuYv1IwIvzw");
+    }
+
+    private List<String> getSubscriptionIds(){
+        List<String> subscriptionIds = new ArrayList<>();
+        subscriptionIds.add("hcx-notification-subscription-12345");
+        subscriptionIds.add("hcx-notification-subscription-67890");
+        return subscriptionIds;
+    }
+
+    @Test
+    public void testSubscriptionUpdateResponse(){
+        Response response = new Response();
+        response.setSubscriptionStatus(1);
+        response.setSubscriptionId("636109b8-3d95-4b55-a6b6-34daf53a6ee7");
+        assertEquals(1, response.getSubscriptionStatus());
+        assertEquals("636109b8-3d95-4b55-a6b6-34daf53a6ee7", response.getSubscriptionId());
     }
 }
