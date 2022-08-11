@@ -71,8 +71,8 @@ public class BaseSpec {
     @Autowired
     protected EventHandler eventHandler;
 
-    @Autowired
-    protected EventGenerator eventGenerator;
+    @MockBean
+    protected EventGenerator mockEventGenerator;
 
     @MockBean
     protected RegistryService mockRegistryService;
@@ -364,6 +364,10 @@ public class BaseSpec {
 
     public Map<String,Object> getParticipantCreateAuditLog() throws Exception {
         return JSONUtils.deserialize("{\"eid\":\"AUDIT\",\"edata\":{\"prevStatus\":\"\",\"status\":\"Created\"},\"ets\":1659434908868,\"mid\":\"5ee2b9e1-ded6-4b56-afa8-3380107632e0\",\"object\":{\"id\":\"097e0185-eeb1-48f1-b2b0-b68774d02c6d\",\"type\":\"participant\"},\"cdata\":{\"action\":\"/participant/create\"}}", Map.class);
+    }
+
+    public Map<String,Object> getParticipantDeleteAuditLog() throws Exception {
+        return JSONUtils.deserialize("{\"eid\":\"AUDIT\",\"edata\":{\"prevStatus\":\"Created\",\"status\":\"Inactive\"},\"ets\":1659434908868,\"mid\":\"5ee2b9e1-ded6-4b56-afa8-3380107632e0\",\"object\":{\"id\":\"097e0185-eeb1-48f1-b2b0-b68774d02c6d\",\"type\":\"participant\"},\"cdata\":{\"action\":\"/participant/delete\"}}", Map.class);
     }
 
     public String getAuthorizationHeader() {

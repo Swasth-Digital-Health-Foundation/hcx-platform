@@ -514,6 +514,7 @@ class NotificationControllerTest extends BaseSpec {
     @Test
     void testSubscriptionUpdateSuccess() throws Exception {
         doReturn(getSubscriptionUpdateResultSet()).when(postgreSQLClient).executeQuery(anyString());
+        doReturn(getSubscriptionUpdateAuditLog()).when(mockEventGenerator).createAuditLog(anyString(), anyString(), anyMap(), anyMap());
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIPTION_UPDATE)
                 .content(getSubscriptionUpdateRequest("notif-participant-onboarded", 1, true)).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
