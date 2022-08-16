@@ -99,6 +99,8 @@ object Constants {
   val HCX_NAME = "hcx_name"
   val DDMMYY = "DDMMYY"
   val WORKFLOW = "Workflow"
+  val PROPERTIES = "properties"
+  val PROPS = "props"
 
   // Notification topic codes
   val PARTICIPANT_ONBOARD = "notif-participant-onboarded"
