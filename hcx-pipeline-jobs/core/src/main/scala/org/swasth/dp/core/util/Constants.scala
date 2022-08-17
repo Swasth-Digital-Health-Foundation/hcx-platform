@@ -4,6 +4,7 @@ object Constants {
 
   // APIs
   val PARTICIPANT_CREATE = "/participant/create"
+  val PARTICIPANT_DELETE = "/participant/delete"
   val CLAIM_SUBMIT = "/claim/submit"
   val CLAIM_ONSUBMIT = "/claim/on_submit"
   val NOTIFICATION_SUBSCRIPTION_UPDATE = "/notification/subscription/update"

@@ -18,12 +18,14 @@ import org.swasth.hcx.controllers.BaseSpec;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
@@ -273,4 +275,34 @@ class ParticipantControllerTests extends BaseSpec{
         assertEquals(400, status);
     }
 
+    @Test
+    void participant_delete_success() throws Exception {
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("[{\"osid\":\"1-68c5deca-8299-4feb-b441-923bb649a9a3\", \"status\":\"Created\"}]")
+                .addHeader("Content-Type", "application/json"));
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{ \"id\": \"sunbird-rc.registry.delete\", \"ver\": \"1.0\", \"ets\": 1660126601629, \"params\": { \"resmsgid\": \"\", \"msgid\": \"4d5e904d-205c-4e07-a078-a2f213f3c5ed\", \"err\": \"\", \"status\": \"SUCCESSFUL\", \"errmsg\": \"\" }, \"responseCode\": \"OK\" }")
+                .addHeader("Content-Type", "application/json"));
+        Mockito.when(redisCache.isExists(any())).thenReturn(true);
+        doReturn(getParticipantDeleteAuditLog()).when(mockEventGenerator).createAuditLog(anyString(), anyString(), anyMap(), anyMap());
+        doNothing().when(mockKafkaClient).send(anyString(), anyString(), anyString());
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_DELETE).content(getParticipantUpdateBody()).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        assertEquals(200, status);
+    }
+
+    @Test
+    void participant_delete_invalid_participant_code() throws Exception {
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_DELETE).content(getEmptyBody()).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
+        assertEquals(400, status);
+        assertEquals(ErrorCodes.ERR_INVALID_PARTICIPANT_CODE, resObj.getError().getCode());
+        assertEquals("Please provide valid participant code", resObj.getError().getMessage());
+    }
+    
 }
