@@ -674,7 +674,7 @@
   category: Network
   priority: 1
   template: >-
-    {"message": "${participant_name} has updated the subscription: ${subscription_id}."}
+    {"message": "${participant_name} has updated the subscription: ${subscription_id}, updated properties are: ${properties}"}
   status: Active
 - topic_code: notif-encryption-cert-expired
   title: Encryption certificate expiry
