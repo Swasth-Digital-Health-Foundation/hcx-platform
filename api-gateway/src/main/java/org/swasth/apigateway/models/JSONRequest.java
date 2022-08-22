@@ -65,10 +65,9 @@ public class JSONRequest extends BaseRequest {
      * This method is to validate notification notify request
      */
     public void validateNotificationReq(Map<String, Object> senderDetails, List<Map<String, Object>> recipientsDetails, List<String> allowedNetworkCodes) throws ClientException {
-        validateNotificationParticipant(senderDetails, ErrorCodes.ERR_INVALID_SENDER, SENDER);
+        validateCondition(getNotificationHeaders().isEmpty(), ErrorCodes.ERR_INVALID_NOTIFICATION_HEADERS, "Notification headers is missing or empty");
         validateCondition(StringUtils.isEmpty(getTopicCode()), ErrorCodes.ERR_INVALID_NOTIFICATION_TOPIC_CODE, "Notification topic code cannot be null, empty and other than 'String'");
         validateCondition(!NotificationUtils.isValidCode(getTopicCode()), ErrorCodes.ERR_INVALID_NOTIFICATION_TOPIC_CODE, "Invalid topic code(" + getTopicCode() + ") is not present in the master list of notifications");
-        validateCondition(MapUtils.isEmpty(getNotificationData()), ErrorCodes.ERR_INVALID_NOTIFICATION_DATA, "Notification Data cannot be null, empty and other than 'JSON Object'");
         Map<String, Object> notification = NotificationUtils.getNotification(getTopicCode());
         validateCondition(notification.get("status").equals(Constants.IN_ACTIVE), ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Notification status is inactive");
         if (notification.get(Constants.CATEGORY).equals(Constants.NETWORK)) {
@@ -123,6 +122,10 @@ public class JSONRequest extends BaseRequest {
 
     public Map<String, Object> getNotificationData() {
         return getHeaderMap(Constants.NOTIFICATION_DATA);
+    }
+
+    public Map<String, Object> getNotificationHeaders() {
+        return getHeaderMap(NOTIFICATION_HEADERS);
     }
 
     public List<String> getSenderList() {

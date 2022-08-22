@@ -86,7 +86,6 @@ public class Constants {
     public static final String AUDIT_TIMESTAMP = "auditTimeStamp";
     public static final String UPDATED_TIME = "updatedTimestamp";
     public static final String REQUEST_TIME = "requestTimeStamp";
-    public static  final String TRIGGER_TYPE = "triggerType";
     public static  final String OBJECT = "object";
     public static  final String CDATA = "cdata";
     public static  final String EDATA = "edata";
@@ -116,8 +115,7 @@ public class Constants {
     public static final String STATUS = "x-hcx-status";
     public static final String ERROR_DETAILS = "x-hcx-error_details";
     public static final String DEBUG_DETAILS = "x-hcx-debug_details";
-    public static final String SERVICE_MODE = "service.mode";
-    public static final String GATEWAY = "gateway";
+    public static final String NOTIFICATION_HEADERS = "x-hcx-notification_headers";
     public static final String KAFKA_TOPIC_PAYLOAD = "kafka.topic.payload";
     public static final String ENDPOINT_URL = "endpoint_url";
     public static final String HCX_NOT_ALLOWED_URLS = "hcx.urls.notallowed";
@@ -168,7 +166,6 @@ public class Constants {
     public static final String SUBSCRIPTION_REQUEST_ID = "subscription_request_id";
     public static final String NOTIFICATION_HEADERS_MANDATORY = "notification.headers.mandatory";
     public static final String NOTIFICATION_HEADERS_OPTIONAL = "notification.headers.optional";
-    public static final String TRIGGER_VALUE = "API";
     public static final String PRIORITY = "priority";
     public static final String CATEGORY = "category";
     public static final String BROADCAST = "Broadcast";
@@ -201,7 +198,8 @@ public class Constants {
     public static final String NOTIFICATION = "notification";
     public static final String PAYMENT = "paymentnotice";
 
-    public static final int PAYLOAD_LENGTH = 5;
+    public static final int PROTOCOL_PAYLOAD_LENGTH = 5;
+    public static final int NOTIFICATION_PAYLOAD_LENGTH = 3;
     public static final String AUTH_REQUIRED = "AUTH_REQUIRED";
     public static final String X_JWT_SUB_HEADER = "X-jwt-sub";
     public static final String REDIRECT_TO = "x-hcx-redirect_to";

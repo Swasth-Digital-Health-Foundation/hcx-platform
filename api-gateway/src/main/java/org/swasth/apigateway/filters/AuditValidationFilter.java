@@ -13,8 +13,8 @@ import org.swasth.apigateway.handlers.ExceptionHandler;
 import org.swasth.apigateway.handlers.RequestHandler;
 import org.swasth.apigateway.models.BaseRequest;
 import org.swasth.apigateway.service.RegistryService;
-import org.swasth.apigateway.utils.JSONUtils;
 import org.swasth.common.utils.Constants;
+import org.swasth.common.utils.JSONUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;

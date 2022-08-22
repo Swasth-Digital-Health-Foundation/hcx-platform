@@ -18,8 +18,8 @@ import org.swasth.apigateway.models.BaseRequest;
 import org.swasth.apigateway.models.Response;
 import org.swasth.apigateway.models.ResponseError;
 import org.swasth.apigateway.service.AuditService;
-import org.swasth.apigateway.utils.JSONUtils;
 import org.swasth.common.utils.Constants;
+import org.swasth.common.utils.JSONUtils;
 import reactor.core.publisher.Mono;
 
 import java.util.Map;

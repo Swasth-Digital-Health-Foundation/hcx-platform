@@ -66,4 +66,5 @@ public class GenericConfiguration {
         notificationHeaders.addAll(env.getProperty(NOTIFICATION_HEADERS_OPTIONAL, List.class, new ArrayList<String>()));
         return notificationHeaders;
     }
+
 }

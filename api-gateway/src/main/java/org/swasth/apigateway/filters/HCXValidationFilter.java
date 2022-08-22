@@ -20,8 +20,8 @@ import org.swasth.apigateway.models.JSONRequest;
 import org.swasth.apigateway.models.JWERequest;
 import org.swasth.apigateway.service.AuditService;
 import org.swasth.apigateway.service.RegistryService;
-import org.swasth.apigateway.utils.JSONUtils;
 import org.swasth.common.utils.Constants;
+import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.utils.NotificationUtils;
 
 import java.nio.charset.StandardCharsets;
@@ -87,7 +87,20 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                 path = request.getPath().value();
                 String subject = request.getHeaders().getFirst("X-jwt-sub");
                 requestBody = JSONUtils.deserialize(cachedBody.toString(), HashMap.class);
-                if (requestBody.containsKey(PAYLOAD)) {
+                if (path.contains(NOTIFICATION_NOTIFY)) { //for validating notify api request
+                    JSONRequest jsonRequest = new JSONRequest(requestBody, false, path, hcxCode, hcxRoles);
+                    jsonRequest.setHeaders(jsonRequest.getPayload());
+                    jsonRequest.setHeaders((Map<String, Object>) jsonRequest.getPayload().getOrDefault(NOTIFICATION_HEADERS, new HashMap<>()));
+                    requestObj = jsonRequest;
+                    Map<String,Object> senderDetails =  registryService.fetchDetails(OS_OWNER, subject);
+                    List<Map<String,Object>> recipientsDetails = new ArrayList<>();
+                    if(!jsonRequest.getRecipientCodes().isEmpty()){
+                        String searchRequest = createSearchRequest(jsonRequest.getRecipientCodes(),PARTICIPANT_CODE,false);
+                        recipientsDetails = registryService.getDetails(searchRequest);
+                    }
+                    jsonRequest.validate(getNotificationMandatoryHeaders(), subject, timestampRange, senderDetails, getDetails(jsonRequest.getHcxRecipientCode()));
+                    jsonRequest.validateNotificationReq(senderDetails, recipientsDetails, allowedNetworkCodes);
+                } else if (requestBody.containsKey(PAYLOAD)) {
                     JWERequest jweRequest = new JWERequest(requestBody, false, path, hcxCode, hcxRoles);
                     requestObj = jweRequest;
                     correlationId = jweRequest.getCorrelationId();
@@ -98,17 +111,6 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                     jweRequest.validate(getMandatoryHeaders(), subject, timestampRange, senderDetails, recipientDetails);
                     jweRequest.validateUsingAuditData(allowedEntitiesForForward, allowedRolesForForward, senderDetails, recipientDetails, getCorrelationAuditData(jweRequest.getCorrelationId()), getCallAuditData(jweRequest.getApiCallId()), participantCtxAuditDetails, path);
                     validateParticipantCtxDetails(participantCtxAuditDetails, path);
-                } else if (path.contains(NOTIFICATION_NOTIFY)) { //for validating notify api request
-                    JSONRequest jsonRequest = new JSONRequest(requestBody, true, path, hcxCode, hcxRoles);
-                    requestObj = jsonRequest;
-                    Map<String,Object> senderDetails =  registryService.fetchDetails(OS_OWNER, subject);
-                    List<Map<String,Object>> recipientsDetails = new ArrayList<>();
-                    if(!jsonRequest.getRecipientCodes().isEmpty()){
-                        String searchRequest = createSearchRequest(jsonRequest.getRecipientCodes(),PARTICIPANT_CODE,false);
-                        recipientsDetails = registryService.getDetails(searchRequest);
-                    }
-                    jsonRequest.validateNotificationReq(senderDetails, recipientsDetails, allowedNetworkCodes);
-                    requestBody.put(SENDER_CODE, senderDetails.get(PARTICIPANT_CODE));
                 } else if (path.contains(NOTIFICATION_SUBSCRIBE) || path.contains(NOTIFICATION_UNSUBSCRIBE)) { //for validating /notification/subscribe, /notification/unsubscribe
                     JSONRequest jsonRequest = new JSONRequest(requestBody, true, path, hcxCode, hcxRoles);
                     requestObj = jsonRequest;
@@ -256,6 +258,12 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
         List<String> subscriptionMandatoryHeaders = new ArrayList<>();
         subscriptionMandatoryHeaders.addAll(env.getProperty("notification.subscription.headers.mandatory", List.class));
         return subscriptionMandatoryHeaders;
+    }
+
+    private List<String> getNotificationMandatoryHeaders() {
+        List<String> mandatoryHeaders = new ArrayList<>();
+        mandatoryHeaders.addAll(env.getProperty("notification.headers.mandatory", List.class));
+        return mandatoryHeaders;
     }
 
 }

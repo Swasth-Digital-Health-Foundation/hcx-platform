@@ -11,6 +11,7 @@ import org.swasth.dp.core.service.RegistryService;
 import org.swasth.dp.core.util.*;
 import org.swasth.dp.notification.task.NotificationConfig;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -22,6 +23,7 @@ public abstract class BaseNotificationFunction extends ProcessFunction<Map<Strin
     protected PostgresConnect postgresConnect;
     protected DispatcherUtil dispatcherUtil;
     protected NotificationUtil notificationUtil;
+    protected JWTUtil jwtUtil;
 
     public BaseNotificationFunction(NotificationConfig config) {
         this.config = config;
@@ -35,6 +37,7 @@ public abstract class BaseNotificationFunction extends ProcessFunction<Map<Strin
         postgresConnect = new PostgresConnect(new PostgresConnectionConfig(config.postgresUser(), config.postgresPassword(), config.postgresDb(), config.postgresHost(), config.postgresPort(), config.postgresMaxConnections()));
         postgresConnect.getConnection();
         notificationUtil = new NotificationUtil();
+        jwtUtil = new JWTUtil(config);
     }
 
     @Override
@@ -48,7 +51,7 @@ public abstract class BaseNotificationFunction extends ProcessFunction<Map<Strin
     }
 
     protected String resolveTemplate(Map<String, Object> notification, Map<String,Object> event) {
-        StringSubstitutor sub = new StringSubstitutor(getProtocolMapValue(Constants.NOTIFICATION_DATA(), event));
+        StringSubstitutor sub = new StringSubstitutor((Map<String,Object>) event.get(Constants.NOTIFICATION_DATA()));
         return sub.replace((JSONUtil.deserialize((String) notification.get(Constants.TEMPLATE()), Map.class)).get(Constants.MESSAGE()));
     }
 
@@ -58,6 +61,10 @@ public abstract class BaseNotificationFunction extends ProcessFunction<Map<Strin
 
     protected Map<String,Object> getProtocolMapValue(String key,Map<String,Object> event) {
         return (Map<String,Object>) ((Map<String,Object>) ((Map<String,Object>) event.get(Constants.HEADERS())).get(Constants.PROTOCOL())).getOrDefault(key, new HashMap<>());
+    }
+
+    protected Map<String,Object> getProtocolHeaders(Map<String,Object> event) {
+        return (Map<String,Object>) ((Map<String,Object>) event.get(Constants.HEADERS())).get(Constants.PROTOCOL());
     }
 
     protected List<String> getProtocolListValue(String key,Map<String,Object> event) {
@@ -84,10 +91,14 @@ public abstract class BaseNotificationFunction extends ProcessFunction<Map<Strin
         audit.put(Constants.MID(), UUID.randomUUID().toString());
         audit.put(Constants.ACTION(), event.get(Constants.ACTION()));
         audit.put(Constants.ETS(), Calendar.getInstance().getTime());
-        audit.put(Constants.SENDER_CODE(), getProtocolStringValue(Constants.SENDER_CODE(),event));
-        audit.put(Constants.RECIPIENT_CODE(), recipientCode);
-        audit.put(Constants.NOTIFICATION_REQ_ID(), event.get(Constants.NOTIFICATION_REQ_ID()));
-        audit.put(Constants.TOPIC_CODE(), getProtocolStringValue(Constants.TOPIC_CODE(),event));
+        audit.put(Constants.TOPIC_CODE(), event.get(Constants.TOPIC_CODE()));
+        audit.put(Constants.HCX_SENDER_CODE(), getProtocolStringValue(Constants.HCX_SENDER_CODE(), event));
+        audit.put(Constants.HCX_RECIPIENT_CODE(),recipientCode);
+        audit.put(Constants.API_CALL_ID(), UUID.randomUUID().toString());
+        audit.put(Constants.CORRELATION_ID(), getProtocolStringValue(Constants.CORRELATION_ID(), event));
+        audit.put(Constants.HCX_TIMESTAMP(), new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").format(new Date()));
+        if(!getProtocolStringValue(Constants.WORKFLOW_ID(), event).isEmpty())
+            audit.put(Constants.WORKFLOW_ID(), getProtocolStringValue(Constants.WORKFLOW_ID(), event));
         if(!errorDetails.isEmpty()) {
             audit.put(Constants.ERROR_DETAILS(), errorDetails);
             audit.put(Constants.STATUS(), Constants.ERROR_STATUS());
@@ -114,12 +125,12 @@ public abstract class BaseNotificationFunction extends ProcessFunction<Map<Strin
         Map<String, Object> audit = new HashMap<>();
         audit.put(Constants.EID(), Constants.AUDIT());
         audit.put(Constants.MID(), UUID.randomUUID().toString());
-        audit.put(Constants.ACTION(), (String) eventMap.get(Constants.ACTION()));
+        audit.put(Constants.ACTION(), eventMap.get(Constants.ACTION()));
         audit.put(Constants.ETS(), Calendar.getInstance().getTime());
-        audit.put(Constants.SENDER_CODE(), (String) eventMap.get(Constants.HCX_SENDER_CODE()));
-        audit.put(Constants.RECIPIENT_CODE(), (String) eventMap.get(Constants.HCX_RECIPIENT_CODE()));
-        audit.put(Constants.SUBSCRIPTION_ID(), (String) ((Map) eventMap.get(Constants.PAYLOAD())).get(Constants.SUBSCRIPTION_ID()));
-        audit.put(Constants.SUBSCRIPTION_STATUS(), (Double) ((Map) eventMap.get(Constants.PAYLOAD())).get(Constants.SUBSCRIPTION_STATUS()));
+        audit.put(Constants.SENDER_CODE(), eventMap.get(Constants.HCX_SENDER_CODE()));
+        audit.put(Constants.RECIPIENT_CODE(), eventMap.get(Constants.HCX_RECIPIENT_CODE()));
+        audit.put(Constants.SUBSCRIPTION_ID(), ((Map) eventMap.get(Constants.PAYLOAD())).get(Constants.SUBSCRIPTION_ID()));
+        audit.put(Constants.SUBSCRIPTION_STATUS(), ((Map) eventMap.get(Constants.PAYLOAD())).get(Constants.SUBSCRIPTION_STATUS()));
         audit.put(Constants.HCX_STATUS(), hcxStatus);
         if(!errorDetails.isEmpty()) {
             audit.put(Constants.ERROR_DETAILS(), errorDetails);

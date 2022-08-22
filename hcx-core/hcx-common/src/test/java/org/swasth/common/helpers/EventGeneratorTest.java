@@ -139,19 +139,17 @@ public class EventGeneratorTest {
 
     private Request getNotificationRequest() throws Exception {
         Map<String,Object> obj = new HashMap<>();
-        obj.put(NOTIFICATION_REQ_ID,"hcx-notification-001");
         obj.put(HCX_SENDER_CODE,"hcx-apollo-12345");
-        obj.put(HCX_RECIPIENT_CODE,"hcx-star-insurance-001");
-        obj.put(API_CALL_ID,"1fa85f64-5717-4562-b3fc-2c963f66afa6");
-        obj.put(CORRELATION_ID,"2fa85f64-5717-4562-b3fc-2c963f66afa6");
-        obj.put(WORKFLOW_ID,"3fa85f64-5717-4562-b3fc-2c963f66afa6");
-        obj.put(TIMESTAMP,"1629057611000");
-        Map<String,Object> notificationData = new HashMap<>();
-        notificationData.put("message","Payor system down for sometime");
-        notificationData.put("duration","2hrs");
-        notificationData.put("startTime","9PM");
-        notificationData.put("date","26th April 2022 IST");
-        obj.put(NOTIFICATION_DATA,notificationData);
+        obj.put(HCX_RECIPIENT_CODE,"hcx-gateway");
+        obj.put(CORRELATION_ID, "5e934f90-111d-4f0b-b016-c22d820674e4");
+        obj.put(API_CALL_ID, "1e83-460a-4f0b-b016-c22d820674e1");
+        obj.put(TIMESTAMP, "2022-01-06T09:50:23+00");
+        Map<String,Object> notificationHeaders = new HashMap<>();
+        notificationHeaders.put(RECIPIENT_ROLES, List.of("payor"));
+        notificationHeaders.put(RECIPIENT_CODES, List.of("test-user@hcx"));
+        notificationHeaders.put(SUBSCRIPTIONS, List.of("hcx-notification-001:hcx-apollo-12345"));
+        obj.put(NOTIFICATION_HEADERS, notificationHeaders);
+        obj.put(PAYLOAD, "eyJhbGciOiJSUzI1NiJ9.eyJ0b3BpY19jb2RlIjoibm90aWYtcGFydGljaXBhbnQtb25ib2FyZGVkIiwibWVzc2FnZSI6IlBhcnRpY2lwYW50IGhhcyBzdWNjZXNzZnVsbHkgb25ib2FyZGVkIn0=.L14NMRVoQq7TMEUt0IiG36P0NgDH1Poz4Nbh5BRZ7BcFXQzUI4SBduIJKY-WFCMPdKBl_LjlSm9JpNULn-gwLiDQ8ipQ3fZhzOkdzyjg0kUfpYN_aLQVgMaZ8Nrw3WytXIHserNxmka3wJQuSLvPnz9aJoFABij2evurnTsKq3oNbR0Oac3FJrpPO2O8fKaXs0Pi5Stf81eqcJ3Xs7oncJqBzgbp_jWShX8Ljfrf_TvM1patR-_h4E0O0HoVb0zD7SQmlKYOy0hw1bli5vdCnkh0tc1dF9yYrTEgofOjRemycFz_wEJ6FjFO1RryaBETw7qQ8hdGLemD545yUxCUng");
         return new Request(obj, NOTIFICATION_NOTIFY);
     }
 
@@ -161,17 +159,12 @@ public class EventGeneratorTest {
         notificationReq.setApiAction(NOTIFICATION_NOTIFY);
         String result = eventGenerator.generateMetadataEvent(notificationReq);
         assertNotNull(result);
-        //HCX should add status if the status is not present in the request
         assertTrue(result.contains(QUEUED_STATUS));
-        //HCX should add triggerType as API
-        assertTrue(result.contains(TRIGGER_VALUE));
-
     }
 
     @Test
     public void testGenerateSubscriptionEvent() throws Exception {
         String result = eventGenerator.generateSubscriptionEvent(NOTIFICATION_SUBSCRIBE,"hcx-apollo-12345","hcx-notification-001",new ArrayList<>(){{add("icici-67890");add("Payor1"); add("Payor2");}});
-        System.out.println(result);
         assertNotNull(result);
         assertTrue(result.contains(QUEUED_STATUS));
         assertTrue(result.contains(NOTIFICATION_SUBSCRIBE));

@@ -680,7 +680,8 @@ class HCXRequestTest extends BaseSpec {
                 .addHeader("Content-Type", "application/json"));
 
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
-                .thenReturn(new HashMap<>());
+                .thenReturn(new HashMap<>())
+                .thenReturn(getHCXAdminDetails());
         client.post().uri(versionPrefix + Constants.NOTIFICATION_NOTIFY)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
@@ -701,7 +702,8 @@ class HCXRequestTest extends BaseSpec {
                 .addHeader("Content-Type", "application/json"));
 
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
-                .thenReturn(getBlockedProviderDetails());
+                .thenReturn(getBlockedProviderDetails())
+                        .thenReturn(getHCXAdminDetails());
         client.post().uri(versionPrefix + Constants.NOTIFICATION_NOTIFY)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
@@ -852,7 +854,7 @@ class HCXRequestTest extends BaseSpec {
 
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getBlockedProviderDetails());
-        client.post().uri(versionPrefix + Constants.NOTIFICATION_NOTIFY)
+        client.post().uri(versionPrefix + Constants.NOTIFICATION_SUBSCRIBE)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
                 .bodyValue(getSubscriptionRequest("notif-admission-case", Arrays.asList("new-payor-3")))

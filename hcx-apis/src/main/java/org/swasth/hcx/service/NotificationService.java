@@ -94,11 +94,9 @@ public class NotificationService {
     /**
      * validates and process the notify request
      */
-    public void notify(Request request, Response response, String kafkaTopic) throws Exception {
+    public void notify(Request request, String kafkaTopic) throws Exception {
         if (!request.getSubscriptions().isEmpty())
             isValidSubscriptions(request);
-        request.setNotificationRequestId(UUID.randomUUID().toString());
-        response.setNotificationRequestId(request.getNotificationRequestId());
         eventHandler.processAndSendEvent(kafkaTopic, request);
     }
 
