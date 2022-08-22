@@ -7,16 +7,16 @@ import static org.swasth.common.utils.Constants.TOPIC_CODE;
 
 public class NotificationUtils {
 
-    public NotificationUtils() throws IOException {
-        loadNotifications();
+    public NotificationUtils(String notificationsPath) throws IOException {
+        loadNotifications(notificationsPath);
     }
 
     public static List<Map<String, Object>> notificationList = null;
 
     public static List<String> topicCodeList = new ArrayList<>();
 
-    private void loadNotifications() throws IOException {
-        notificationList = YamlUtils.convertYaml(getClass().getClassLoader().getResourceAsStream("notifications.yaml"),List.class);
+    private void loadNotifications(String notificationsPath) throws IOException {
+        notificationList = YamlUtils.convertYaml(getClass().getClassLoader().getResourceAsStream(notificationsPath),List.class);
         notificationList.forEach(obj -> topicCodeList.add((String) obj.get(TOPIC_CODE)));
     }
 

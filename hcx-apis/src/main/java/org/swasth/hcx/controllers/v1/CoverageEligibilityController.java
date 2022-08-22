@@ -26,49 +26,24 @@ public class CoverageEligibilityController extends BaseController {
     @Value("${kafka.topic.coverageeligibility}")
     private String kafkaTopic;
 
-    @Value("${notification.topicCodesForHIUs}")
-    private List<String> topicCodes;
-
-    @Autowired
-    private NotificationService notificationService;
-
     @Autowired
     private RegistryService registryService;
 
     @PostMapping(Constants.COVERAGE_ELIGIBILITY_CHECK)
     public ResponseEntity<Object> checkCoverageEligibility(@RequestBody Map<String, Object> requestBody) throws Exception {
-        Request request = new Request(requestBody, Constants.COVERAGE_ELIGIBILITY_CHECK);
-        Response response = new Response(request);
-        try {
-            // fetch the recipient roles,crate request body with filters for registry search
-            List<Map<String,Object>> participantResponse = registryService.getDetails("{ \"filters\": { \"participant_code\": { \"eq\": \" " + request.getHcxSenderCode() + "\" } } }");
-            List<String> roles = (List) (participantResponse.get(0)).get(ROLES);
-            if(roles.contains(MEMBER_ISNP)){
-                //create subscription requests based on configured topic codes
-                for (String topicCode: topicCodes) {
-                    request = new Request(createSubscriptionRequest(topicCode,request.getHcxSenderCode(),request.getHcxRecipientCode()), Constants.NOTIFICATION_SUBSCRIBE);
-                    notificationService.processSubscription(request, ACTIVE_CODE, response);
-                }
-            }else{
-                request = new Request(requestBody, Constants.COVERAGE_ELIGIBILITY_CHECK);
-                eventHandler.processAndSendEvent(kafkaTopic, request);
-            }
-            return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
-        } catch (Exception e) {
-            return exceptionHandlerWithAudit(request, response, e);
-        }
+        return validateReqAndPushToKafka(requestBody, Constants.COVERAGE_ELIGIBILITY_CHECK, kafkaTopic);
     }
 
     @PostMapping(Constants.COVERAGE_ELIGIBILITY_ONCHECK)
     public ResponseEntity<Object> onCheckCoverageEligibility(@RequestBody Map<String, Object> requestBody) throws Exception {
-        return validateReqAndPushToKafka(requestBody, Constants.COVERAGE_ELIGIBILITY_ONCHECK, kafkaTopic);
-    }
-
-    private Map<String,Object> createSubscriptionRequest(String topicCode,String recipientCode,String senderCode) {
-        Map<String, Object> obj = new HashMap<>();
-        obj.put(TOPIC_CODE, topicCode);
-        obj.put(RECIPIENT_CODE, recipientCode);
-        obj.put(SENDER_LIST, Arrays.asList(senderCode));
-        return obj;
+        Request request = new Request(requestBody, Constants.COVERAGE_ELIGIBILITY_ONCHECK);
+        // fetch the recipient roles,create request body with filters for registry search
+        List<Map<String,Object>> participantResponse = registryService.getDetails("{ \"filters\": { \"participant_code\": { \"eq\": \" " + request.getHcxRecipientCode() + "\" } } }");
+        List<String> roles = (List) (participantResponse.get(0)).get(ROLES);
+        if(roles.contains(MEMBER_ISNP)){
+            //Create subscription audit event for on_check call for any HIU user
+            auditIndexer.createDocument(eventGenerator.generateSubscriptionAuditEvent(request,QUEUED_STATUS, Arrays.asList(request.getHcxSenderCode())));
+        }
+        return validateReqAndPushToKafka(request, kafkaTopic);
     }
 }

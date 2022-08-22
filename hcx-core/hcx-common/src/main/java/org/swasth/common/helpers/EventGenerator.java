@@ -98,7 +98,7 @@ public class EventGenerator {
         event.put(MID, UUID.randomUUID().toString());
         event.put(ETS, System.currentTimeMillis());
         event.put(ACTION, apiAction);
-        event.put(NOTIFY_STATUS, QUEUED_STATUS);
+        event.put(AUDIT_STATUS, QUEUED_STATUS);
         event.put(PAYLOAD, createSubscriptionPayload(topicCode,senderList));
         event.put(HCX_SENDER_CODE,recipientCode);
         return JSONUtils.serialize(event);
@@ -116,11 +116,11 @@ public class EventGenerator {
         event.put(EID, AUDIT);
         event.put(MID, UUID.randomUUID().toString());
         event.put(ACTION, request.getApiAction());
-        event.put(TOPIC_CODE,request.getTopicCode());
+        event.put(TOPIC_CODE,request.getTopicCode() == null ? "" : request.getTopicCode());
         event.put(SENDER_LIST,senderList);
         event.put(RECIPIENT_CODE,request.getRecipientCode());
         event.put(ETS,System.currentTimeMillis());
-        event.put(NOTIFY_STATUS, status);
+        event.put(AUDIT_STATUS, status);
         return  event;
     }
 
@@ -150,19 +150,19 @@ public class EventGenerator {
         return  event;
     }
 
-    public String generateOnSubscriptionEvent(String apiAction,String recipientCode,String senderCode,String subscriptionId,int status) throws JsonProcessingException {
+    public String generateOnSubscriptionEvent(String apiAction,String recipientCode,String senderCode,String subscriptionId,String status) throws JsonProcessingException {
         Map<String,Object> event = new HashMap<>();
         event.put(MID, UUID.randomUUID().toString());
         event.put(ETS, System.currentTimeMillis());
         event.put(ACTION, apiAction);
-        event.put(NOTIFY_STATUS, QUEUED_STATUS);
+        event.put(AUDIT_STATUS, QUEUED_STATUS);
         event.put(PAYLOAD, createOnSubscriptionPayload(subscriptionId,status));
         event.put(HCX_RECIPIENT_CODE,recipientCode);
         event.put(HCX_SENDER_CODE, senderCode);
         return JSONUtils.serialize(event);
     }
 
-    public Map<String,Object> generateOnSubscriptionAuditEvent(String apiAction,String recipientCode,String subscriptionId,String status,String senderCode,int subscriptionStatus) {
+    public Map<String,Object> generateOnSubscriptionAuditEvent(String apiAction,String recipientCode,String subscriptionId,String status,String senderCode,String subscriptionStatus) {
         Map<String,Object> event = new HashMap<>();
         event.put(EID, AUDIT);
         event.put(MID, UUID.randomUUID().toString());
@@ -172,7 +172,7 @@ public class EventGenerator {
         event.put(SENDER_CODE,senderCode);
         event.put(RECIPIENT_CODE,recipientCode);
         event.put(ETS,System.currentTimeMillis());
-        event.put(NOTIFY_STATUS, status);
+        event.put(AUDIT_STATUS, status);
         return  event;
     }
 
@@ -190,7 +190,7 @@ public class EventGenerator {
         return event;
     }
 
-    private Map<String,Object> createOnSubscriptionPayload(String subscriptionId, int status) {
+    private Map<String,Object> createOnSubscriptionPayload(String subscriptionId, String status) {
         Map<String,Object> event = new HashMap<>();
         event.put(SUBSCRIPTION_ID,subscriptionId);
         event.put(SUBSCRIPTION_STATUS,status);

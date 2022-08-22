@@ -35,7 +35,6 @@ public class MockResultSet {
         final var rs = mock(ResultSet.class);
         getNextMock(rs);
         getStringMock(rs);
-        getIntMock(rs);
         getLongMock(rs);
         getBooleanMock(rs);
         return rs;
@@ -48,21 +47,6 @@ public class MockResultSet {
         return rs;
     }
 
-    private ResultSet buildIntStringMock() throws SQLException {
-        final var rs = mock(ResultSet.class);
-        getNextMock(rs);
-        getIntMock(rs);
-        getStringMock(rs);
-        return rs;
-    }
-
-    private ResultSet buildIntMock() throws SQLException {
-        final var rs = mock(ResultSet.class);
-        getNextMock(rs);
-        getIntMock(rs);
-        return rs;
-    }
-
     private ResultSet buildEmptyMock() throws SQLException {
         final var rs = mock(ResultSet.class);
         getNextMock(rs);
@@ -70,7 +54,6 @@ public class MockResultSet {
     }
 
     private void getNextMock(ResultSet rs) throws SQLException {
-        // mock rs.next()
         doAnswer(invocation -> {
             rowIndex++;
             return rowIndex < data.length;
@@ -78,7 +61,6 @@ public class MockResultSet {
     }
 
     private void getStringMock(ResultSet rs) throws SQLException {
-        // mock rs.getString(columnName)
         doAnswer(invocation -> {
             final var columnName = invocation.getArgument(0, String.class);
             final var columnIndex = columnIndices.get(columnName);
@@ -87,7 +69,6 @@ public class MockResultSet {
     }
 
     private void getIntMock(ResultSet rs) throws SQLException {
-        // mock rs.getInt(columnName)
         doAnswer(invocation -> {
             final var columnName = invocation.getArgument(0, String.class);
             final var columnIndex = columnIndices.get(columnName);
@@ -96,7 +77,6 @@ public class MockResultSet {
     }
 
     private void getLongMock(ResultSet rs) throws SQLException {
-        // mock rs.getLong(columnName)
         doAnswer(invocation -> {
             final var columnName = invocation.getArgument(0, String.class);
             final var columnIndex = columnIndices.get(columnName);
@@ -105,7 +85,6 @@ public class MockResultSet {
     }
 
     private void getBooleanMock(ResultSet rs) throws SQLException {
-        // mock rs.getBoolean(columnName)
         doAnswer(invocation -> {
             final var columnName = invocation.getArgument(0, String.class);
             final var columnIndex = columnIndices.get(columnName);
@@ -133,26 +112,11 @@ public class MockResultSet {
         return new MockResultSet(columnNames, data).buildStringMock();
     }
 
-    public static ResultSet createIntStringMock(
-            final String[] columnNames,
-            final Object[][] data)
-            throws SQLException {
-        return new MockResultSet(columnNames, data).buildIntStringMock();
-    }
-
     public static ResultSet createEmptyMock(
             final String[] columnNames,
             final Object[][] data)
             throws SQLException {
         return new MockResultSet(columnNames, data).buildEmptyMock();
     }
-
-    public static ResultSet createIntMock(
-            final String[] columnNames,
-            final Object[][] data)
-            throws SQLException {
-        return new MockResultSet(columnNames, data).buildIntMock();
-    }
-
 }
 

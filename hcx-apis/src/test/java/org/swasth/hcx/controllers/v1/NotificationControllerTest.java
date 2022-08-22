@@ -152,7 +152,7 @@ class NotificationControllerTest extends BaseSpec {
 
     @Test
     void testSubscriptionListWithOneActiveSubscription() throws Exception {
-        ResultSet mockResultSet = getMockResultSet(1);
+        ResultSet mockResultSet = getMockResultSet(ACTIVE);
         doReturn(mockResultSet).when(postgreSQLClient).executeQuery(anyString());
         String requestBody = getSubscriptionListRequest();
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIPTION_LIST).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
@@ -164,7 +164,7 @@ class NotificationControllerTest extends BaseSpec {
         assertEquals(1, resObj.getCount());
         assertEquals("subscription_id-001", resObj.getSubscriptions().get(0).getSubscription_id());
         assertEquals("topic_code-12345", resObj.getSubscriptions().get(0).getTopic_code());
-        assertEquals(ACTIVE_CODE, resObj.getSubscriptions().get(0).getSubscription_status());
+        assertEquals(ACTIVE, resObj.getSubscriptions().get(0).getSubscription_status());
         assertEquals("hcx-apollo-12345", resObj.getSubscriptions().get(0).getSender_code());
         assertEquals("ICICI Lombard", resObj.getSubscriptions().get(0).getRecipient_code());
         assertEquals(1629057611000l, resObj.getSubscriptions().get(0).getExpiry());
@@ -173,7 +173,7 @@ class NotificationControllerTest extends BaseSpec {
 
     @Test
     void testSubscriptionListWithOneInActiveSubscription() throws Exception {
-        ResultSet mockResultSet = getMockResultSet(0);
+        ResultSet mockResultSet = getMockResultSet(INACTIVE);
         doReturn(mockResultSet).when(postgreSQLClient).executeQuery(anyString());
         String requestBody = getSubscriptionListRequest();
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIPTION_LIST).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
@@ -185,7 +185,7 @@ class NotificationControllerTest extends BaseSpec {
         assertEquals(1, resObj.getCount());
         assertEquals("subscription_id-001", resObj.getSubscriptions().get(0).getSubscription_id());
         assertEquals("topic_code-12345", resObj.getSubscriptions().get(0).getTopic_code());
-        assertEquals(INACTIVE_CODE, resObj.getSubscriptions().get(0).getSubscription_status());
+        assertEquals(INACTIVE, resObj.getSubscriptions().get(0).getSubscription_status());
         assertEquals("hcx-apollo-12345", resObj.getSubscriptions().get(0).getSender_code());
         assertEquals("ICICI Lombard", resObj.getSubscriptions().get(0).getRecipient_code());
         assertEquals(1629057611000l, resObj.getSubscriptions().get(0).getExpiry());
@@ -206,15 +206,15 @@ class NotificationControllerTest extends BaseSpec {
         assertEquals(3, resObj.getCount());
         assertEquals("subscription_id-001", resObj.getSubscriptions().get(0).getSubscription_id());
         assertEquals("topic_code-12345", resObj.getSubscriptions().get(0).getTopic_code());
-        assertEquals(ACTIVE_CODE, resObj.getSubscriptions().get(0).getSubscription_status());
+        assertEquals(ACTIVE, resObj.getSubscriptions().get(0).getSubscription_status());
         assertFalse(resObj.getSubscriptions().get(0).isIs_delegated());
         assertEquals("subscription_id-002", resObj.getSubscriptions().get(1).getSubscription_id());
         assertEquals("topic_code-12346", resObj.getSubscriptions().get(1).getTopic_code());
-        assertEquals(INACTIVE_CODE, resObj.getSubscriptions().get(1).getSubscription_status());
+        assertEquals(INACTIVE, resObj.getSubscriptions().get(1).getSubscription_status());
         assertFalse(resObj.getSubscriptions().get(1).isIs_delegated());
         assertEquals("subscription_id-003", resObj.getSubscriptions().get(2).getSubscription_id());
         assertEquals("topic_code-12347", resObj.getSubscriptions().get(2).getTopic_code());
-        assertEquals(PENDING_CODE, resObj.getSubscriptions().get(2).getSubscription_status());
+        assertEquals(PENDING, resObj.getSubscriptions().get(2).getSubscription_status());
         assertTrue(resObj.getSubscriptions().get(2).isIs_delegated());
     }
 
@@ -286,7 +286,7 @@ class NotificationControllerTest extends BaseSpec {
     }
 
     //subscription_id,subscription_status,topic_code,sender_code,recipient_code,expiry,is_delegated
-    private ResultSet getMockResultSet(int status) throws SQLException {
+    private ResultSet getMockResultSet(String status) throws SQLException {
         return MockResultSet.create(
                 new String[]{"subscription_id", "subscription_request_id", "subscription_status", "topic_code", "sender_code", "recipient_code", "expiry", "is_delegated"}, //columns
                 new Object[][]{ // data
@@ -298,9 +298,9 @@ class NotificationControllerTest extends BaseSpec {
         return MockResultSet.create(
                 new String[]{"subscription_id", "subscription_request_id","subscription_status", "topic_code", "sender_code", "recipient_code", "expiry", "is_delegated"}, //columns
                 new Object[][]{ // data
-                        {"subscription_id-001", "subscription_request_1", 1, "topic_code-12345", "hcx-apollo-12345", "ICICI Lombard", 1629057611000l, false},
-                        {"subscription_id-002", "subscription_request_2", 0, "topic_code-12346", "hcx-apollo-12346", "ICICI Lombard", 1629057611000l, false},
-                        {"subscription_id-003", "subscription_request_3", -1, "topic_code-12347", "hcx-apollo-12347", "ICICI Lombard", 1629057611000l, true}
+                        {"subscription_id-001", "subscription_request_1", "Active", "topic_code-12345", "hcx-apollo-12345", "ICICI Lombard", 1629057611000l, false},
+                        {"subscription_id-002", "subscription_request_2", "Inactive", "topic_code-12346", "hcx-apollo-12346", "ICICI Lombard", 1629057611000l, false},
+                        {"subscription_id-003", "subscription_request_3", "Pending", "topic_code-12347", "hcx-apollo-12347", "ICICI Lombard", 1629057611000l, true}
                 });
     }
 
@@ -443,7 +443,7 @@ class NotificationControllerTest extends BaseSpec {
     private String getOnSubscriptionRequest() throws JsonProcessingException {
         Map<String, Object> obj = new HashMap<>();
         obj.put(SUBSCRIPTION_ID, "subscription_id-001");
-        obj.put(SUBSCRIPTION_STATUS, 1);
+        obj.put(SUBSCRIPTION_STATUS, ACTIVE);
         return JSONUtils.serialize(obj);
     }
 
@@ -458,7 +458,7 @@ class NotificationControllerTest extends BaseSpec {
     @Test
     void testNotificationOnSubscribeUpdateFailure() throws Exception {
         doNothing().when(mockKafkaClient).send(anyString(), anyString(), any());
-        doReturn(getMockResultSet(1)).when(postgreSQLClient).executeQuery(anyString());
+        doReturn(getMockResultSet(ACTIVE)).when(postgreSQLClient).executeQuery(anyString());
         String requestBody = getOnSubscriptionRequest();
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_ON_SUBSCRIBE).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -498,7 +498,7 @@ class NotificationControllerTest extends BaseSpec {
 
     @Test
     void testNotificationOnSubscribeSuccess() throws Exception {
-        doReturn(getMockResultSet(1),getOnSubscriptionResultSet()).when(postgreSQLClient).executeQuery(anyString());
+        doReturn(getMockResultSet(ACTIVE),getOnSubscriptionResultSet()).when(postgreSQLClient).executeQuery(anyString());
         doNothing().when(mockKafkaClient).send(anyString(), anyString(), any());
         doNothing().when(auditIndexer).createDocument(anyMap());
         String requestBody = getOnSubscriptionRequest();
@@ -515,15 +515,15 @@ class NotificationControllerTest extends BaseSpec {
         doReturn(getSubscriptionUpdateResultSet()).when(postgreSQLClient).executeQuery(anyString());
         doReturn(getSubscriptionUpdateAuditLog()).when(mockEventGenerator).createAuditLog(anyString(), anyString(), anyMap(), anyMap());
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIPTION_UPDATE)
-                .content(getSubscriptionUpdateRequest("notif-participant-onboarded", 1, true)).contentType(MediaType.APPLICATION_JSON)).andReturn();
+                .content(getSubscriptionUpdateRequest("notif-participant-onboarded", ACTIVE, true)).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
         assertEquals(200, status);
-        assertEquals(1, resObj.getSubscriptionStatus());
+        assertEquals(ACTIVE, resObj.getSubscriptionStatus());
     }
 
-    private String getSubscriptionUpdateRequest(String topicCode, int subscriptionStatus , Object isDelegated) throws JsonProcessingException {
+    private String getSubscriptionUpdateRequest(String topicCode, String subscriptionStatus , Object isDelegated) throws JsonProcessingException {
         Map<String,Object> obj = new HashMap<>();
         obj.put(RECIPIENT_CODE,"payor01@hcx");
         obj.put(TOPIC_CODE,topicCode);
@@ -534,11 +534,11 @@ class NotificationControllerTest extends BaseSpec {
     }
 
     private ResultSet getSubscriptionUpdateResultSet() throws SQLException {
-        return MockResultSet.createIntStringMock(
+        return MockResultSet.createStringMock(
                 new String[]{"subscription_id", "subscription_status"}, //columns
                 new Object[][]{ // data
-                        {"subscription-123", 1},
-                        {"subscription-123", 1}
+                        {"subscription-123", ACTIVE},
+                        {"subscription-123", ACTIVE}
                 });
     }
 
@@ -549,7 +549,7 @@ class NotificationControllerTest extends BaseSpec {
     @Test
     void testSubscriptionUpdateWithInvalidTopicCode() throws Exception {
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIPTION_UPDATE)
-                .content(getSubscriptionUpdateRequest("invalid-topic-123", 1, true)).contentType(MediaType.APPLICATION_JSON)).andReturn();
+                .content(getSubscriptionUpdateRequest("invalid-topic-123", ACTIVE, true)).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
@@ -604,7 +604,7 @@ class NotificationControllerTest extends BaseSpec {
     @Test
     void testSubscriptionUpdateWithInvalidSubscriptionStatus() throws Exception {
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIPTION_UPDATE)
-                .content(getSubscriptionUpdateRequest("notif-participant-onboarded", 2, true)).contentType(MediaType.APPLICATION_JSON)).andReturn();
+                .content(getSubscriptionUpdateRequest("notif-participant-onboarded", "InvalidStatus", true)).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
@@ -616,7 +616,7 @@ class NotificationControllerTest extends BaseSpec {
     @Test
     void testSubscriptionUpdateWithInvalidIsDelegated() throws Exception {
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIPTION_UPDATE)
-                .content(getSubscriptionUpdateRequest("notif-participant-onboarded", 1, "test")).contentType(MediaType.APPLICATION_JSON)).andReturn();
+                .content(getSubscriptionUpdateRequest("notif-participant-onboarded", ACTIVE, "test")).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
@@ -629,7 +629,7 @@ class NotificationControllerTest extends BaseSpec {
     void testSubscriptionUpdateWithInvalidSubscriptionDetails() throws Exception {
         doReturn(getSubscriptionUpdateSelectResultSet()).when(postgreSQLClient).executeQuery(anyString());
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIPTION_UPDATE)
-                .content(getSubscriptionUpdateRequest("notif-participant-onboarded", 1, true)).contentType(MediaType.APPLICATION_JSON)).andReturn();
+                .content(getSubscriptionUpdateRequest("notif-participant-onboarded", ACTIVE, true)).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
@@ -639,10 +639,10 @@ class NotificationControllerTest extends BaseSpec {
     }
 
     private ResultSet getSubscriptionUpdateSelectResultSet() throws SQLException {
-        return MockResultSet.createIntMock(
+        return MockResultSet.createStringMock(
                 new String[]{"subscription_id", "subscription_status"}, //columns
                 new Object[][]{ // data
-                        {"subscription-123", 1}
+                        {"subscription-123", ACTIVE}
                 });
     }
 

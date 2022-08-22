@@ -127,10 +127,10 @@ public abstract class BaseNotificationFunction extends ProcessFunction<Map<Strin
         audit.put(Constants.MID(), UUID.randomUUID().toString());
         audit.put(Constants.ACTION(), eventMap.get(Constants.ACTION()));
         audit.put(Constants.ETS(), Calendar.getInstance().getTime());
-        audit.put(Constants.SENDER_CODE(), eventMap.get(Constants.HCX_SENDER_CODE()));
-        audit.put(Constants.RECIPIENT_CODE(), eventMap.get(Constants.HCX_RECIPIENT_CODE()));
-        audit.put(Constants.SUBSCRIPTION_ID(), ((Map) eventMap.get(Constants.PAYLOAD())).get(Constants.SUBSCRIPTION_ID()));
-        audit.put(Constants.SUBSCRIPTION_STATUS(), ((Map) eventMap.get(Constants.PAYLOAD())).get(Constants.SUBSCRIPTION_STATUS()));
+        audit.put(Constants.SENDER_CODE(), (String) eventMap.get(Constants.HCX_SENDER_CODE()));
+        audit.put(Constants.RECIPIENT_CODE(), (String) eventMap.get(Constants.HCX_RECIPIENT_CODE()));
+        audit.put(Constants.SUBSCRIPTION_ID(), (String) ((Map) eventMap.get(Constants.PAYLOAD())).get(Constants.SUBSCRIPTION_ID()));
+        audit.put(Constants.SUBSCRIPTION_STATUS(), (String) ((Map) eventMap.get(Constants.PAYLOAD())).get(Constants.SUBSCRIPTION_STATUS()));
         audit.put(Constants.HCX_STATUS(), hcxStatus);
         if(!errorDetails.isEmpty()) {
             audit.put(Constants.ERROR_DETAILS(), errorDetails);
