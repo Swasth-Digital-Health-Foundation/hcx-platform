@@ -654,7 +654,7 @@
   template: >-
     {"message": "${participant_name} has approved the reimbursement payment for
     ${policy_ID}."}
-  status: InActive
+  status: Inactive
 - topic_code: notif-subscription-update
   title: Subscription Update Notification
   description: Notification about subscription update.
