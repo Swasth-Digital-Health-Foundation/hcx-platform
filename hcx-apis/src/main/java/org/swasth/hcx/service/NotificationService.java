@@ -203,8 +203,6 @@ public class NotificationService {
         else if (request.getPayload().containsKey(IS_DELEGATED) && !(request.getPayload().get(IS_DELEGATED) instanceof Boolean))
             throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Is delegated value is invalid");
         StringBuilder updateProps = new StringBuilder();
-        formatDBCondition(request, updateProps, " AND ", "!=");
-        updateProps.delete(0,4);
         String selectQuery = String.format("SELECT %s FROM %s WHERE %s = '%s' AND %s = '%s' AND %s = '%s'",
                 SUBSCRIPTION_STATUS, postgresSubscription, SENDER_CODE, request.getSenderCode(), RECIPIENT_CODE,
                 request.getRecipientCode(), TOPIC_CODE, request.getTopicCode());
@@ -223,8 +221,8 @@ public class NotificationService {
             } else {
                 throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Subscription does not exist");
             }
-            List<String> updatedProps = new ArrayList<>();
-            SUBSCRIPTION_UPDATE_PROPS.forEach(prop -> { if(request.getPayload().containsKey(prop)) updatedProps.add(prop);});
+            Map<String,Object> updatedProps = new HashMap<>();
+            SUBSCRIPTION_UPDATE_PROPS.forEach(prop -> { if(request.getPayload().containsKey(prop)) updatedProps.put(prop,request.getPayload().get(prop));});
             eventHandler.createAudit(eventGenerator.createAuditLog(response.getSubscriptionId(), NOTIFICATION, getCData(request),
                     getEData(response.getSubscriptionStatus(), prevStatus, updatedProps)));
         }
