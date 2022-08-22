@@ -36,7 +36,7 @@ public class EventGenerator {
 
     public String generateMetadataEvent(Request request) throws Exception {
         Map<String,Object> event = new HashMap<>();
-        if (request.getPayload().containsKey(PAYLOAD)) {
+        if (request.getPayload().containsKey(PAYLOAD) && !request.getApiAction().equals(NOTIFICATION_NOTIFY)) {
             Map<String,Object> protectedHeaders = request.getHcxHeaders();
             Map<String,Object> filterJoseHeaders = new HashMap<>();
             Map<String,Object> filterProtocolHeaders = new HashMap<>();
