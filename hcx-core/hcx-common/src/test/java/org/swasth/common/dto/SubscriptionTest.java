@@ -20,7 +20,7 @@ public class SubscriptionTest {
         //subscription_id,subscription_status,topic_code,sender_code,recipient_code,expiry,is_delegated
         Subscription mockSubscription = Mockito.mock(Subscription.class);
         assertEquals(null, mockSubscription.getSubscription_id());
-        assertEquals(0,mockSubscription.getSubscription_status());
+        assertEquals(null,mockSubscription.getSubscription_status());
         assertEquals(null,mockSubscription.getTopic_code());
         assertEquals(null,mockSubscription.getSender_code());
         assertEquals(null,mockSubscription.getRecipient_code());

@@ -109,7 +109,7 @@ import static org.swasth.common.utils.Constants.*;
          assertEquals("hcx-notification-001",request.getTopicCode());
          assertEquals("payor01@hcx", request.getRecipientCode());
          assertEquals("provider01@hcx", request.getSenderCode());
-         assertEquals(1, request.getSubscriptionStatus());
+         assertEquals(ACTIVE, request.getSubscriptionStatus());
          assertTrue(request.getIsDelegated());
          assertNotNull(request.getExpiry());
      }
@@ -119,7 +119,7 @@ import static org.swasth.common.utils.Constants.*;
          obj.put(RECIPIENT_CODE,"payor01@hcx");
          obj.put(TOPIC_CODE,"hcx-notification-001");
          obj.put(SENDER_CODE,"provider01@hcx");
-         obj.put(SUBSCRIPTION_STATUS, 1);
+         obj.put(SUBSCRIPTION_STATUS, ACTIVE);
          obj.put(EXPIRY, System.currentTimeMillis());
          obj.put(IS_DELEGATED, true);
          return obj;
