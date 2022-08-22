@@ -244,7 +244,7 @@ public class NotificationService {
         return data;
     }
 
-    private Map<String,Object> getEData(String status, String prevStatus, List<String> props) {
+    private Map<String,Object> getEData(String status, String prevStatus, Map<String,Object> props) {
         Map<String,Object> data = new HashMap<>();
         data.put(AUDIT_STATUS, status);
         data.put(PROPS, props);
