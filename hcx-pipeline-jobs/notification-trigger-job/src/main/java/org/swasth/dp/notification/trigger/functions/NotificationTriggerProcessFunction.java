@@ -47,6 +47,7 @@ public class NotificationTriggerProcessFunction extends ProcessFunction<Map<Stri
         System.out.println("Audit Event :: " + event);
         logger.debug("Audit Event :: " + event);
         Map<String, Object> cdata = (Map<String, Object>) event.get(Constants.CDATA());
+        Map<String, Object> edata = (Map<String, Object>) event.get(Constants.EDATA());
         String action = (String) cdata.get(Constants.ACTION());
         String id = (String) ((Map<String, Object>) event.get(Constants.OBJECT())).get(Constants.ID());
         String topicCode = (String) config.topicCodeAndAPIActionMap.get(action);
@@ -54,15 +55,14 @@ public class NotificationTriggerProcessFunction extends ProcessFunction<Map<Stri
         if (!config.notificationTriggersDisabled.contains(topicCode)) {
             // Network notifications
             if (config.networkNotificationsEnabled) {
-                if (action.equals(Constants.PARTICIPANT_CREATE())) {
+                if (action.equals(Constants.PARTICIPANT_CREATE()) || action.equals(Constants.PARTICIPANT_DELETE())) {
                     Map<String, Object> notification = notificationUtil.getNotification(topicCode);
-                    Map<String, Object> participant = registryService.getParticipantDetails("{\"participant_code\":{\"eq\":\"" + id + "\"}}").get(0);
                     Map<String, Object> notificationData = new HashMap<>();
-                    notificationData.put(Constants.PARTICIPANT_NAME(), participant.get(Constants.PARTICIPANT_NAME()));
+                    notificationData.put(Constants.PARTICIPANT_NAME(), cdata.get(Constants.PARTICIPANT_NAME()));
                     notificationData.put(Constants.HCX_NAME(), config.hcxInstanceName());
                     notificationData.put(Constants.DDMMYY(), new SimpleDateFormat("dd-MM-yyyy").format(event.get(Constants.ETS())));
-                    notificationData.put(Constants.PARTICIPANT_NAME(), participant.get(Constants.PARTICIPANT_NAME()));
-                    notificationData.put(Constants.PARTICIPANT_CODE(), participant.get(Constants.PARTICIPANT_CODE()));
+                    notificationData.put(Constants.PARTICIPANT_NAME(), cdata.get(Constants.PARTICIPANT_NAME()));
+                    notificationData.put(Constants.PARTICIPANT_CODE(), cdata.get(Constants.PARTICIPANT_CODE()));
                     notifyEvent = createNotifyEvent((String) notification.get(Constants.TOPIC_CODE()), config.hcxRegistryCode(), Collections.emptyList(),
                             (List<String>) notification.get(Constants.ALLOWED_RECIPIENTS()), Collections.emptyList(), notificationData);
                     pushToKafka(context, notifyEvent);
@@ -72,6 +72,7 @@ public class NotificationTriggerProcessFunction extends ProcessFunction<Map<Stri
                     Map<String, Object> notificationData = new HashMap<>();
                     notificationData.put(Constants.PARTICIPANT_NAME(), participant.get(Constants.PARTICIPANT_NAME()));
                     notificationData.put(Constants.SUBSCRIPTION_ID(), id);
+                    notificationData.put(Constants.PROPERTIES(), edata.get(Constants.PROPS()));
                     notifyEvent = createNotifyEvent((String) notification.get(Constants.TOPIC_CODE()), config.hcxRegistryCode(),
                             Arrays.asList((String) cdata.get(Constants.RECIPIENT_CODE())), Collections.emptyList(), Collections.emptyList(), notificationData);
                     pushToKafka(context, notifyEvent);

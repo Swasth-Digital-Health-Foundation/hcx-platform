@@ -176,7 +176,7 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
     else if (path.contains("search")) "search"
     else {
       val str = path.split("/")
-      str(str.length - 1)
+      str(str.length - 2)
     }
   }
 
@@ -240,6 +240,7 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
       put(Constants.TYPE, getEntity(event.get(Constants.ACTION).asInstanceOf[String]))
     }})
     audit.put(Constants.CDATA, new util.HashMap[String,AnyRef](){{
+      put(Constants.ACTION, event.get(Constants.ACTION).asInstanceOf[String])
       putAll(event.get(Constants.HEADERS).asInstanceOf[util.Map[String, AnyRef]].get(Constants.PROTOCOL).asInstanceOf[util.Map[String, AnyRef]])
     }})
     audit.put(Constants.EDATA, new util.HashMap[String,AnyRef](){{
