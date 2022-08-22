@@ -5,6 +5,7 @@ import org.swasth.common.dto.Request;
 import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static org.swasth.common.utils.Constants.*;
@@ -65,12 +66,12 @@ public class EventGenerator {
                 headers = errorHeaders;
             } else if (NOTIFICATION_NOTIFY.equalsIgnoreCase(request.getApiAction())) {
                 headers = notificationHeaders;
-                event.put(NOTIFICATION_REQ_ID, request.getNotificationRequestId());
-                event.put(TRIGGER_TYPE, TRIGGER_VALUE);
+                event.put(TOPIC_CODE, request.getTopicCode());
+                event.put(NOTIFICATION_DATA, request.getNotificationData());
+                event.put(MESSAGE, request.getNotificationMessage());
             } else {
                 headers = null;
             }
-
             Map<String, Object> protectedHeaders = request.getHcxHeaders();
             Map<String, Object> filterHeaders = new HashMap<>();
             if(headers != null) {
@@ -198,13 +199,24 @@ public class EventGenerator {
 
     public String createNotifyEvent(String topicCode, String senderCode, List<String> recipientCodes, List<String> recipientRoles,
                                     List<String> subscriptions, Map<String,Object> notificationData) throws Exception {
+        Map<String,Object> notificationHeaders = new HashMap<>();
+        notificationHeaders.put(RECIPIENT_CODES, recipientCodes);
+        notificationHeaders.put(RECIPIENT_ROLES, recipientRoles);
+        notificationHeaders.put(SUBSCRIPTIONS, subscriptions);
+        Map<String,Object> protocolHeaders = new HashMap<>();
+        protocolHeaders.put(HCX_SENDER_CODE, senderCode);
+        protocolHeaders.put(API_CALL_ID, UUID.randomUUID().toString());
+        protocolHeaders.put(CORRELATION_ID, UUID.randomUUID().toString());
+        protocolHeaders.put(TIMESTAMP, new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").format(new Date()));
+        protocolHeaders.put(NOTIFICATION_HEADERS, notificationHeaders);
         Map<String,Object> event = new HashMap<>();
+        event.put(MID, UUID.randomUUID().toString());
+        event.put(ETS, System.currentTimeMillis());
+        event.put(ACTION, NOTIFICATION_NOTIFY);
         event.put(TOPIC_CODE, topicCode);
-        event.put(SENDER_CODE, senderCode);
-        event.put(RECIPIENT_CODES, recipientCodes);
-        event.put(RECIPIENT_ROLES, recipientRoles);
-        event.put(SUBSCRIPTIONS, subscriptions);
         event.put(NOTIFICATION_DATA, notificationData);
+        event.put(MESSAGE, null);
+        event.put(HEADERS, Collections.singletonMap(PROTOCOL, protocolHeaders));
         return JSONUtils.serialize(event);
     }
 }

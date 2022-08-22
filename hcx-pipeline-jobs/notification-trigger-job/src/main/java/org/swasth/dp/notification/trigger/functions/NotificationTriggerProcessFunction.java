@@ -92,8 +92,8 @@ public class NotificationTriggerProcessFunction extends ProcessFunction<Map<Stri
         List<String> subscriptions = new ArrayList<>();
         ResultSet resultSet = null;
         try {
-            String query = String.format("SELECT %s from %s WHERE %s = '%s' AND %s = '%s' AND %s = 1", Constants.SUBSCRIPTION_ID(),
-                    config.subscriptionTableName, Constants.SENDER_CODE(), senderCode, Constants.TOPIC_CODE(), topicCode, Constants.SUBSCRIPTION_STATUS());
+            String query = String.format("SELECT %s from %s WHERE %s = '%s' AND %s = '%s' AND %s = '%s'", Constants.SUBSCRIPTION_ID(),
+                    config.subscriptionTableName, Constants.SENDER_CODE(), senderCode, Constants.TOPIC_CODE(), topicCode, Constants.SUBSCRIPTION_STATUS(), Constants.ACTIVE());
             resultSet = postgresConnect.executeQuery(query);
             while (resultSet.next()) {
                 subscriptions.add(resultSet.getString(Constants.SUBSCRIPTION_ID()));
@@ -119,13 +119,24 @@ public class NotificationTriggerProcessFunction extends ProcessFunction<Map<Stri
 
     public String createNotifyEvent(String topicCode, String senderCode, List<String> recipientCodes, List<String> recipientRoles,
                                     List<String> subscriptions, Map<String,Object> notificationData) throws Exception {
+        Map<String,Object> notificationHeaders = new HashMap<>();
+        notificationHeaders.put(Constants.RECIPIENT_CODES(), recipientCodes);
+        notificationHeaders.put(Constants.RECIPIENT_ROLES(), recipientRoles);
+        notificationHeaders.put(Constants.SUBSCRIPTIONS(), subscriptions);
+        Map<String,Object> protocolHeaders = new HashMap<>();
+        protocolHeaders.put(Constants.HCX_SENDER_CODE(), senderCode);
+        protocolHeaders.put(Constants.API_CALL_ID(), UUID.randomUUID().toString());
+        protocolHeaders.put(Constants.CORRELATION_ID(), UUID.randomUUID().toString());
+        protocolHeaders.put(Constants.HCX_TIMESTAMP(), new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").format(new Date()));
+        protocolHeaders.put(Constants.NOTIFICATION_HEADERS(), notificationHeaders);
         Map<String,Object> event = new HashMap<>();
+        event.put(Constants.MID(), UUID.randomUUID().toString());
+        event.put(Constants.ETS(), System.currentTimeMillis());
+        event.put(Constants.ACTION(), Constants.NOTIFICATION_NOTIFY());
         event.put(Constants.TOPIC_CODE(), topicCode);
-        event.put(Constants.SENDER_CODE(), senderCode);
-        event.put(Constants.RECIPIENT_CODES(), recipientCodes);
-        event.put(Constants.RECIPIENT_ROLES(), recipientRoles);
-        event.put(Constants.SUBSCRIPTIONS(), subscriptions);
         event.put(Constants.NOTIFICATION_DATA(), notificationData);
+        event.put(Constants.MESSAGE(), null);
+        event.put(Constants.HEADERS(), Collections.singletonMap(Constants.PROTOCOL(), protocolHeaders));
         return JSONUtil.serialize(event);
     }
 

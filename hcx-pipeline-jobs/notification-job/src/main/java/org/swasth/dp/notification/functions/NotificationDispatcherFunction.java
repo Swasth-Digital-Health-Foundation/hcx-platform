@@ -44,7 +44,7 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
                 auditService.indexAudit(createNotificationAuditEvent(event, participantCode, createErrorMap(new ErrorResponse(Option.apply(Constants.ERR_INVALID_RECIPIENT()), Option.apply("Recipient is blocked or inactive as per the registry"), Option.apply("")))));
             } else if (Constants.VALID_STATUS().contains(participant.get(Constants.STATUS())) && !(participantCode).contains("null") && endpointUrl != null) {
                 participant.put(Constants.END_POINT(), endpointUrl + event.get(Constants.ACTION()));
-                String payload = getPayload(resolvedTemplate, participantCode, notificationMasterData,event);
+                String payload = getPayload(participantCode, event);
                 DispatcherResult result = dispatcherUtil.dispatch(participant, payload);
                 System.out.println("Recipient code: " + participantCode + " :: Dispatch status: " + result.success());
                 logger.debug("Recipient code: " + participantCode + " :: Dispatch status: " + result.success());
@@ -57,18 +57,18 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
         logger.debug("Total number of notifications dispatched: " + totalDispatches + " :: successful dispatches: " + successfulDispatches + " :: failed dispatches: " + failedDispatches);
     }
 
-    private String getPayload(String notificationMessage, String recipientCode, Map<String,Object> notificationMasterData,Map<String,Object> event) throws Exception {
-        Map<String, Object> request = new HashMap<>();
-        request.put(Constants.SENDER_CODE(), getProtocolStringValue(Constants.SENDER_CODE(),event));
-        request.put(Constants.RECIPIENT_CODE(), recipientCode);
-        request.put(Constants.NOTIFICATION_REQ_ID(), event.get(Constants.NOTIFICATION_REQ_ID()));
-        request.put(Constants.TIMESTAMP(), new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").format(new Date()));
-        request.put(Constants.NOTIFICATION_DATA(), Collections.singletonMap(Constants.MESSAGE(), notificationMessage));
-        request.put(Constants.TITLE(), notificationMasterData.get(Constants.NAME()));
-        request.put(Constants.DESCRIPTION(), notificationMasterData.get(Constants.DESCRIPTION()));
-        return JSONUtil.serialize(request);
+    private String getPayload(String recipientCode, Map<String,Object> event) throws Exception {
+        Map<String, Object> payload = new HashMap<>();
+        payload.put(Constants.HCX_SENDER_CODE(), getProtocolStringValue(Constants.HCX_SENDER_CODE(), event));
+        payload.put(Constants.HCX_RECIPIENT_CODE(),recipientCode);
+        payload.put(Constants.API_CALL_ID(), UUID.randomUUID().toString());
+        payload.put(Constants.CORRELATION_ID(), getProtocolStringValue(Constants.CORRELATION_ID(), event));
+        payload.put(Constants.HCX_TIMESTAMP(), new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").format(new Date()));
+        payload.put(Constants.NOTIFICATION_HEADERS(), getProtocolMapValue(Constants.NOTIFICATION_HEADERS(), event));
+        payload.put(Constants.PAYLOAD(), getProtocolStringValue(Constants.PAYLOAD(), event));
+        if(!getProtocolStringValue(Constants.WORKFLOW_ID(), event).isEmpty())
+            payload.put(Constants.WORKFLOW_ID(), getProtocolStringValue(Constants.WORKFLOW_ID(), event));
+        return JSONUtil.serialize(payload);
     }
-
-
 
 }

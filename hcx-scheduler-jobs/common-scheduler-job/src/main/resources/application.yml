@@ -49,7 +49,7 @@ redirect:
 #Notifications headers
 notification:
   headers:
-    mandatory: ${notification_mandatory_headers:topic_code, notification_data}
-    optional: ${notification_optional_headers:recipient_codes, recipient_roles, subscriptions, sender_code, notification_id}
+    mandatory: ${notification_mandatory_headers:x-hcx-sender_code, x-hcx-recipient_code, x-hcx-api_call_id, x-hcx-timestamp, x-hcx-correlation_id, x-hcx-notification_headers, payload}
+    optional: ${notification_optional_headers:x-hcx-workflow_id}
 
 
