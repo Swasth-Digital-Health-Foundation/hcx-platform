@@ -137,7 +137,7 @@ public class Request {
 
     public String getRecipientCode() { return getHeader(RECIPIENT_CODE); }
 
-    public int getSubscriptionStatus() { return (int) payload.getOrDefault(SUBSCRIPTION_STATUS, null);}
+    public String getSubscriptionStatus() { return (String) payload.getOrDefault(SUBSCRIPTION_STATUS, null);}
 
     public boolean getIsDelegated(){ return (boolean) payload.getOrDefault(IS_DELEGATED, null);}
 

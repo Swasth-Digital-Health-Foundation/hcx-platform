@@ -52,8 +52,8 @@ public class ResponseTest {
         response.setCount(subscriptionList.size());
         assertEquals(2,response.getSubscriptions().size());
         assertEquals(2,response.getCount().intValue());
-        assertEquals(ACTIVE_CODE, response.getSubscriptions().get(0).getSubscription_status());
-        assertEquals(INACTIVE_CODE, response.getSubscriptions().get(1).getSubscription_status());
+        assertEquals(ACTIVE, response.getSubscriptions().get(0).getSubscription_status());
+        assertEquals(INACTIVE, response.getSubscriptions().get(1).getSubscription_status());
     }
 
     @Test
@@ -71,11 +71,11 @@ public class ResponseTest {
         Subscription subscription = new Subscription();
         subscription.setSubscription_id("hcx-notification-subscription-12345");
         subscription.setTopic_code("hcx-notification-001");
-        subscription.setSubscription_status(ACTIVE_CODE);
+        subscription.setSubscription_status(ACTIVE);
         Subscription inActiveSubscription = new Subscription();
         inActiveSubscription.setSubscription_id("hcx-notification-subscription-67890");
         inActiveSubscription.setTopic_code("hcx-notification-001");
-        inActiveSubscription.setSubscription_status(INACTIVE_CODE);
+        inActiveSubscription.setSubscription_status(INACTIVE);
         subscriptionList.add(subscription);
         subscriptionList.add(inActiveSubscription);
         return subscriptionList;
@@ -95,9 +95,9 @@ public class ResponseTest {
     @Test
     public void testSubscriptionUpdateResponse(){
         Response response = new Response();
-        response.setSubscriptionStatus(1);
+        response.setSubscriptionStatus("Active");
         response.setSubscriptionId("636109b8-3d95-4b55-a6b6-34daf53a6ee7");
-        assertEquals(1, response.getSubscriptionStatus());
+        assertEquals("Active", response.getSubscriptionStatus());
         assertEquals("636109b8-3d95-4b55-a6b6-34daf53a6ee7", response.getSubscriptionId());
     }
 }

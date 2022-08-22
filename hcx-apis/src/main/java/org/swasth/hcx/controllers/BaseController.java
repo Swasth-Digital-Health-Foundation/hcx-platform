@@ -39,6 +39,16 @@ public class BaseController {
         return response;
     }
 
+    public ResponseEntity<Object> validateReqAndPushToKafka(Request request, String kafkaTopic) throws Exception {
+        Response response = new Response(request);
+        try {
+            eventHandler.processAndSendEvent(kafkaTopic, request);
+            return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
+        } catch (Exception e) {
+            return exceptionHandlerWithAudit(request, response, e);
+        }
+    }
+
     public ResponseEntity<Object> validateReqAndPushToKafka(Map<String, Object> requestBody, String apiAction, String kafkaTopic) throws Exception {
         Request request = new Request(requestBody, apiAction);
         Response response = new Response(request);

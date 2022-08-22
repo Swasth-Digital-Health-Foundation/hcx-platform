@@ -30,6 +30,9 @@ public class GenericConfiguration {
     @Value("${redis.port:9200}")
     private int redisPort;
 
+    @Value("${notification.masterListPath:notifications.yaml}")
+    private String notificationsPath;
+
     @Bean
     public AuditIndexer auditIndexer() throws Exception {
         return new AuditIndexer(esHost, esPort, auditIndex, auditAlias);
@@ -42,7 +45,7 @@ public class GenericConfiguration {
 
     @Bean
     public NotificationUtils notificationUtils() throws IOException {
-        return new NotificationUtils();
+        return new NotificationUtils(notificationsPath);
     }
 
 }

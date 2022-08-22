@@ -44,7 +44,7 @@ public class NotificationController extends BaseController {
         Request request = new Request(requestBody, NOTIFICATION_SUBSCRIBE);
         Response response = new Response();
         try {
-            notificationService.processSubscription(request, ACTIVE_CODE, response);
+            notificationService.processSubscription(request, ACTIVE, response);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
             return exceptionHandler(response, e);
@@ -56,7 +56,7 @@ public class NotificationController extends BaseController {
         Request request = new Request(requestBody, NOTIFICATION_UNSUBSCRIBE);
         Response response = new Response();
         try {
-            notificationService.processSubscription(request, INACTIVE_CODE, response);
+            notificationService.processSubscription(request, INACTIVE, response);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
             return exceptionHandler(response, e);

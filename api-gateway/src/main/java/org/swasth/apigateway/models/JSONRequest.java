@@ -70,7 +70,7 @@ public class JSONRequest extends BaseRequest {
         validateCondition(!NotificationUtils.isValidCode(getTopicCode()), ErrorCodes.ERR_INVALID_NOTIFICATION_TOPIC_CODE, "Invalid topic code(" + getTopicCode() + ") is not present in the master list of notifications");
         validateCondition(MapUtils.isEmpty(getNotificationData()), ErrorCodes.ERR_INVALID_NOTIFICATION_DATA, "Notification Data cannot be null, empty and other than 'JSON Object'");
         Map<String, Object> notification = NotificationUtils.getNotification(getTopicCode());
-        validateCondition(notification.get("status").equals(Constants.IN_ACTIVE), ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Notification status is inactive");
+        validateCondition(notification.get("status").equals(Constants.INACTIVE), ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Notification status is inactive");
         if (notification.get(Constants.CATEGORY).equals(Constants.NETWORK)) {
             validateCondition(!hasRole((List<String>) notification.get(Constants.ALLOWED_SENDERS), (List<String>) senderDetails.get(ROLES)) || !allowedNetworkCodes.contains(senderDetails.get(Constants.PARTICIPANT_CODE)),
                     ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Participant is not authorized to trigger this notification: " + getTopicCode());
@@ -140,7 +140,7 @@ public class JSONRequest extends BaseRequest {
         validateCondition(StringUtils.isEmpty(topicCode), ErrorCodes.ERR_INVALID_NOTIFICATION_TOPIC_CODE, "Notification topic code cannot be null, empty and other than 'String'");
         validateCondition(!NotificationUtils.isValidCode(topicCode), ErrorCodes.ERR_INVALID_NOTIFICATION_TOPIC_CODE, "Invalid topic code(" + topicCode + ") is not present in the master list of notifications");
 
-        validateCondition(notification.get(Constants.NOTIFY_STATUS).equals(Constants.IN_ACTIVE), ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Notification status is inactive");
+        validateCondition(notification.get(Constants.AUDIT_STATUS).equals(Constants.INACTIVE), ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Notification status is inactive");
         // Whether user has authorised roles as per the provided roles for this topicCode in the notifications list
         validateCondition(!hasRole((List<String>) notification.get(Constants.ALLOWED_RECIPIENTS), (List<String>) recipientDetails.get(ROLES)),
                 ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Participant is not allowed to receive this notification: " + topicCode);

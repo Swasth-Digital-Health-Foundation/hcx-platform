@@ -119,7 +119,7 @@ public abstract class BaseNotificationFunction extends ProcessFunction<Map<Strin
         audit.put(Constants.SENDER_CODE(), (String) eventMap.get(Constants.HCX_SENDER_CODE()));
         audit.put(Constants.RECIPIENT_CODE(), (String) eventMap.get(Constants.HCX_RECIPIENT_CODE()));
         audit.put(Constants.SUBSCRIPTION_ID(), (String) ((Map) eventMap.get(Constants.PAYLOAD())).get(Constants.SUBSCRIPTION_ID()));
-        audit.put(Constants.SUBSCRIPTION_STATUS(), (Double) ((Map) eventMap.get(Constants.PAYLOAD())).get(Constants.SUBSCRIPTION_STATUS()));
+        audit.put(Constants.SUBSCRIPTION_STATUS(), (String) ((Map) eventMap.get(Constants.PAYLOAD())).get(Constants.SUBSCRIPTION_STATUS()));
         audit.put(Constants.HCX_STATUS(), hcxStatus);
         if(!errorDetails.isEmpty()) {
             audit.put(Constants.ERROR_DETAILS(), errorDetails);
