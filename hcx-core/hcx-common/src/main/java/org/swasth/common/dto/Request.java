@@ -15,18 +15,19 @@ public class Request {
     protected Map<String, Object> hcxHeaders = null;
     private String mid = UUID.randomUUID().toString();
     private String apiAction;
-    private String notificationRequestId;
     private final String payloadWithoutSensitiveData;
 
     public Request(Map<String, Object> body, String apiAction) throws Exception {
         this.apiAction = apiAction;
         this.payload = body;
         try {
-            if (body.containsKey(PAYLOAD)) {
+            if (apiAction.equals(NOTIFICATION_NOTIFY))
+                hcxHeaders = JSONUtils.decodeBase64String(((String) body.get(PAYLOAD)).split("\\.")[1], Map.class);
+            else if (body.containsKey(PAYLOAD))
                 hcxHeaders = JSONUtils.decodeBase64String(((String) body.get(PAYLOAD)).split("\\.")[0], Map.class);
-            } else //FIXME  No need of this check here, as all JSON request bodies will have proper body structure post validations if (body.containsKey(STATUS))
+            else
                 hcxHeaders = body;
-            this.payloadWithoutSensitiveData = PayloadUtils.removeSensitiveData(body);
+            this.payloadWithoutSensitiveData = PayloadUtils.removeSensitiveData(body, apiAction);
         } catch (Exception e) {
             throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, "Invalid Payload");
         }
@@ -79,6 +80,10 @@ public class Request {
         return (String) hcxHeaders.getOrDefault(key, null);
     }
 
+    public void setHeaders(Map<String,Object> headers) {
+        hcxHeaders.putAll(headers);
+    }
+
     protected List<String> getHeaderList(String key) {
         return (List<String>) hcxHeaders.getOrDefault(key, new ArrayList<>());
     }
@@ -113,14 +118,6 @@ public class Request {
         this.mid = mid;
     }
 
-    public void setNotificationRequestId(String notificationRequestId) {
-        this.notificationRequestId = notificationRequestId;
-    }
-
-    public String getNotificationRequestId() {
-        return notificationRequestId;
-    }
-
     public String getTopicCode() { return getHeader(Constants.TOPIC_CODE);}
 
     public String getSenderCode() { return getHeader(SENDER_CODE); }
@@ -138,6 +135,8 @@ public class Request {
     public String getRecipientCode() { return getHeader(RECIPIENT_CODE); }
 
     public String getSubscriptionStatus() { return (String) payload.getOrDefault(SUBSCRIPTION_STATUS, null);}
+    
+    public String getNotificationMessage() { return getHeader(MESSAGE); }
 
     public boolean getIsDelegated(){ return (boolean) payload.getOrDefault(IS_DELEGATED, null);}
 

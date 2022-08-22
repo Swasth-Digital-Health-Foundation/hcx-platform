@@ -22,8 +22,6 @@ public class Response {
     @JsonProperty("count")
     private Integer count;
     private List<Map<String,Object>> notifications;
-    @JsonProperty("notification_request_id")
-    private String notificationRequestId;
     private List<String> subscription_list;
     @JsonProperty("subscription_id")
     private String subscriptionId;
@@ -74,10 +72,6 @@ public class Response {
     public void setCount(Integer count) {
         this.count = count;
     }
-
-    public String getNotificationRequestId() { return notificationRequestId; }
-
-    public void setNotificationRequestId(String notificationRequestId) { this.notificationRequestId = notificationRequestId; }
 
     public Long getTimestamp() {
         return timestamp;

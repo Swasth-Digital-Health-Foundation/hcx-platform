@@ -14,8 +14,9 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.swasth.apigateway.config.GenericConfiguration;
 import org.swasth.apigateway.service.AuditService;
 import org.swasth.apigateway.service.RegistryService;
-import org.swasth.apigateway.utils.JSONUtils;
 import org.swasth.auditindexer.function.AuditIndexer;
+import org.swasth.common.utils.Constants;
+import org.swasth.common.utils.JSONUtils;
 import org.swasth.redis.cache.RedisCache;
 
 import java.io.IOException;
@@ -103,16 +104,25 @@ public class BaseSpec {
 
     protected String getNotificationRequest(String topicCode, List<String> recipientRoles, List<String> recipientCodes, List<String> subscriptions) throws JsonProcessingException {
         Map<String,Object> obj = new HashMap<>();
-        obj.put(TOPIC_CODE, topicCode);
-        obj.put(RECIPIENT_ROLES, recipientRoles);
-        obj.put(RECIPIENT_CODES, recipientCodes);
-        obj.put(SUBSCRIPTIONS, subscriptions);
+        obj.put(HCX_SENDER_CODE,"hcx-apollo-12345");
+        obj.put(HCX_RECIPIENT_CODE,"hcx-gateway");
+        obj.put(CORRELATION_ID, "fd9cbdcb-a820-411f-9ec7-8365ec61f327");
+        obj.put(API_CALL_ID, "0327a49a-845c-4b5d-a920-28312dfbe06e");
+        obj.put(TIMESTAMP, "2022-01-06T09:50:23+00");
+        Map<String,Object> notificationHeaders = new HashMap<>();
+        notificationHeaders.put(RECIPIENT_ROLES, recipientRoles);
+        notificationHeaders.put(RECIPIENT_CODES, recipientCodes);
+        notificationHeaders.put(SUBSCRIPTIONS, subscriptions);
+        obj.put(NOTIFICATION_HEADERS, notificationHeaders);
         Map<String,Object> notificationData = new HashMap<>();
         notificationData.put("message","Payor system down for sometime");
         notificationData.put("duration","2hrs");
         notificationData.put("startTime","9PM");
         notificationData.put("date","26th April 2022 IST");
-        obj.put(NOTIFICATION_DATA,notificationData);
+        Map<String,Object> payload = new HashMap<>();
+        payload.put(TOPIC_CODE, topicCode);
+        payload.put(NOTIFICATION_DATA, notificationData);
+        obj.put(PAYLOAD, "eyJhbGciOiJSUzI1NiJ9." + JSONUtils.encodeBase64String(JSONUtils.serialize(payload)) + ".L14NMRVoQq7TMEUt0IiG36P0NgDH1Poz");
         return JSONUtils.serialize(obj);
     }
 
@@ -156,7 +166,7 @@ public class BaseSpec {
 
 
     protected Map<String,Object> getHCXAdminDetails() throws Exception {
-        return JSONUtils.deserialize("{ \"participant_code\": \"1-d2d56996-1b77-4abb-b9e9-0e6e7343c72e\", \"participant_name\": \"HCX Gateway\", \"primary_mobile\": \"\", \"primary_email\": \"hcxgateway@gmail.com\", \"roles\": [ \"HIE/HIO.HCX\" ], \"status\": \"Created\", \"endpoint_url\": \"http://a54c5bc648f1a41b8871b77ac01060ed-1840123973.ap-south-1.elb.amazonaws.com:8080\", \"encryption_cert\": \"urn:isbn:0-4234\", \"osOwner\": [ \"f698b521-7409-432d-a5db-d13e51f029a9\" ], \"osid\": \"d2d56996-1b77-4abb-b9e9-0e6e7343c72e\" }", Map.class);
+        return JSONUtils.deserialize("{ \"participant_code\": \"1-d2d56996-1b77-4abb-b9e9-0e6e7343c72e\", \"participant_name\": \"HCX Gateway\", \"primary_mobile\": \"\", \"primary_email\": \"hcxgateway@gmail.com\", \"roles\": [ \"HIE/HIO.HCX\" ], \"status\": \"Created\", \"endpoint_url\": \"http://a54c5bc648f1a41b8871b77ac01060ed-1840123973.ap-south-1.elb.amazonaws.com:8080\", \"encryption_cert\": \"urn:isbn:0-4234\", \"osOwner\": [ \"f7c0e759-bec3-431b-8c4f-6b294d103a74\" ], \"osid\": \"d2d56996-1b77-4abb-b9e9-0e6e7343c72e\" }", Map.class);
     }
 
     protected List<Map<String,Object>> getAuditLogs() throws Exception {

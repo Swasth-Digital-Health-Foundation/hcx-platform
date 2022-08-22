@@ -3,7 +3,6 @@ package org.swasth.common.utils;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 
 import static org.junit.Assert.*;
 

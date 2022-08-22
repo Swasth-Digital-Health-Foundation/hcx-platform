@@ -63,14 +63,17 @@
     "recipient_code":{
       "type":"keyword"
     },
-    "notification_request_id":{
-      "type":"keyword"
-    },
     "status":{
       "type":"keyword"
     },
     "subscription_id":{
       "type":"keyword"
+    },
+    "subscription_status":{
+      "type":"keyword"
+    },
+    "x-hcx-notification_headers":{
+      "type":"object"
     }
   }
 }

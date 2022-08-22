@@ -10,11 +10,12 @@ import org.springframework.stereotype.Service;
 import org.swasth.apigateway.exception.ErrorCodes;
 import org.swasth.apigateway.exception.ServerException;
 import org.swasth.apigateway.models.BaseRequest;
-import org.swasth.apigateway.utils.HttpUtils;
-import org.swasth.apigateway.utils.JSONUtils;
 import org.swasth.apigateway.utils.Utils;
 import org.swasth.auditindexer.function.AuditIndexer;
 import org.swasth.common.utils.Constants;
+import org.swasth.common.utils.HttpUtils;
+import org.swasth.common.utils.JSONUtils;
+
 import java.util.*;
 import static org.swasth.common.utils.Constants.*;
 

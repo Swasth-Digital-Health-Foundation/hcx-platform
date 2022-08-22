@@ -8,6 +8,7 @@ object Constants {
   val CLAIM_SUBMIT = "/claim/submit"
   val CLAIM_ONSUBMIT = "/claim/on_submit"
   val NOTIFICATION_SUBSCRIPTION_UPDATE = "/notification/subscription/update"
+  val NOTIFICATION_NOTIFY = "/notification/notify"
 
   val CDATA = "cdata"
   val EDATA = "edata"
@@ -58,6 +59,7 @@ object Constants {
   val RESULT_DETAILS = "resultDetails"
   val INVALID_STATUS = List("Inactive", "Blocked")
   val VALID_STATUS = List("Created", "Active")
+  val ACTIVE = "Active"
 
   //Event Fields
   val HCX_SENDER_CODE = "x-hcx-sender_code"
@@ -65,9 +67,11 @@ object Constants {
   val API_CALL_ID = "x-hcx-api_call_id"
   val CORRELATION_ID = "x-hcx-correlation_id"
   val WORKFLOW_ID = "x-hcx-workflow_id"
-  val TIMESTAMP = "x-hcx-timestamp"
+  val HCX_TIMESTAMP = "x-hcx-timestamp"
+  val TIMESTAMP = "timestamp"
   val DEBUG_FLAG = "x-hcx-debug_flag"
   val HCX_STATUS = "x-hcx-status"
+  val NOTIFICATION_HEADERS = "x-hcx-notification_headers"
   val TOPIC_CODE = "topic_code"
   val EXPIRY = "expiry"
   val TITLE = "title"
@@ -139,6 +143,10 @@ object Constants {
   val SUB = "sub"
   val IAT = "iat"
   val EXP = "exp"
+  val TYP = "typ"
+  val ALG = "alg"
+  val RS256 = "RS256"
+
 
   val NOTIFICATION_SUBSCRIBE = "/notification/subscribe"
   val NOTIFICATION_UNSUBSCRIBE = "/notification/unsubscribe"

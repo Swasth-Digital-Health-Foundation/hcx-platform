@@ -33,8 +33,6 @@ public class ResponseTest {
     public void testNotificationResponse() {
         Response response = new Response();
         response.setNotifications(List.of(Collections.singletonMap(Constants.TOPIC_CODE, "notification-123")));
-        response.setNotificationRequestId("f07250bf-a64b-4537-9182-c233e78d2847");
-        assertEquals("f07250bf-a64b-4537-9182-c233e78d2847", response.getNotificationRequestId());
         assertEquals("notification-123", (response.getNotifications().get(0)).get(Constants.TOPIC_CODE));
     }
 

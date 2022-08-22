@@ -8,13 +8,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import static org.swasth.common.utils.Constants.NOTIFICATION_NOTIFY;
 import static org.swasth.common.utils.Constants.PAYLOAD;
 
 @UtilityClass
 public class PayloadUtils {
 
-    public static String removeSensitiveData(Map<String, Object> payload) throws JsonProcessingException {
-        if(payload.containsKey(PAYLOAD)) {
+    public static String removeSensitiveData(Map<String, Object> payload, String apiAction) throws JsonProcessingException {
+        if(payload.containsKey(PAYLOAD) && !apiAction.contains(NOTIFICATION_NOTIFY)) {
             List<String> modifiedPayload = new ArrayList<>(Arrays.asList(payload.get(PAYLOAD).toString().split("\\.")));
             // remove encryption key
             modifiedPayload.remove(1);

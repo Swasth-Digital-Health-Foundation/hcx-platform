@@ -57,29 +57,23 @@ import static org.swasth.common.utils.Constants.*;
     @Test
     public void testNotificationPayload() throws Exception {
         Request request = new Request(getNotificationRequest(), NOTIFICATION_NOTIFY);
-        request.setNotificationRequestId("f07250bf-a64b-4537-9182-c233e78d2847");
-        assertEquals("hcx-apollo-12345", request.getSenderCode());
-        assertEquals("f07250bf-a64b-4537-9182-c233e78d2847", request.getNotificationRequestId());
-        assertEquals("notification-123", request.getTopicCode());
-        assertTrue(request.getRecipientCodes().contains("test-user@hcx"));
-        assertTrue(request.getRecipientRoles().contains("payor"));
-        assertTrue(request.getSubscriptions().contains("hcx-notification-001:hcx-apollo-12345"));
-        assertTrue(((String) request.getNotificationData().get(MESSAGE)).contains("Payor system down for sometime"));
+        assertEquals("notif-participant-onboarded", request.getTopicCode());
+        assertNotNull(request.getNotificationMessage());
     }
 
     private Map<String,Object> getNotificationRequest() {
         Map<String,Object> obj = new HashMap<>();
-        obj.put(SENDER_CODE,"hcx-apollo-12345");
-        obj.put(TOPIC_CODE, "notification-123");
-        obj.put(RECIPIENT_ROLES, List.of("payor"));
-        obj.put(RECIPIENT_CODES, List.of("test-user@hcx"));
-        obj.put(SUBSCRIPTIONS, List.of("hcx-notification-001:hcx-apollo-12345"));
-        Map<String,Object> notificationData = new HashMap<>();
-        notificationData.put("message","Payor system down for sometime");
-        notificationData.put("duration","2hrs");
-        notificationData.put("startTime","9PM");
-        notificationData.put("date","26th April 2022 IST");
-        obj.put(NOTIFICATION_DATA,notificationData);
+        obj.put(HCX_SENDER_CODE,"hcx-apollo-12345");
+        obj.put(HCX_RECIPIENT_CODE,"hcx-gateway");
+        obj.put(CORRELATION_ID, "5e934f90-111d-4f0b-b016-c22d820674e4");
+        obj.put(API_CALL_ID, "1e83-460a-4f0b-b016-c22d820674e1");
+        obj.put(TIMESTAMP, "2022-01-06T09:50:23+00");
+        Map<String,Object> notificationHeaders = new HashMap<>();
+        notificationHeaders.put(RECIPIENT_ROLES, List.of("payor"));
+        notificationHeaders.put(RECIPIENT_CODES, List.of("test-user@hcx"));
+        notificationHeaders.put(SUBSCRIPTIONS, List.of("hcx-notification-001:hcx-apollo-12345"));
+        obj.put(NOTIFICATION_HEADERS, notificationHeaders);
+        obj.put(PAYLOAD, "eyJhbGciOiJSUzI1NiJ9.eyJ0b3BpY19jb2RlIjoibm90aWYtcGFydGljaXBhbnQtb25ib2FyZGVkIiwibWVzc2FnZSI6IlBhcnRpY2lwYW50IGhhcyBzdWNjZXNzZnVsbHkgb25ib2FyZGVkIn0=.L14NMRVoQq7TMEUt0IiG36P0NgDH1Poz4Nbh5BRZ7BcFXQzUI4SBduIJKY-WFCMPdKBl_LjlSm9JpNULn-gwLiDQ8ipQ3fZhzOkdzyjg0kUfpYN_aLQVgMaZ8Nrw3WytXIHserNxmka3wJQuSLvPnz9aJoFABij2evurnTsKq3oNbR0Oac3FJrpPO2O8fKaXs0Pi5Stf81eqcJ3Xs7oncJqBzgbp_jWShX8Ljfrf_TvM1patR-_h4E0O0HoVb0zD7SQmlKYOy0hw1bli5vdCnkh0tc1dF9yYrTEgofOjRemycFz_wEJ6FjFO1RryaBETw7qQ8hdGLemD545yUxCUng");
         return obj;
     }
 

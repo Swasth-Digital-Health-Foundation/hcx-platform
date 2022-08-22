@@ -7,8 +7,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.swasth.apigateway.exception.ClientException;
 import org.swasth.apigateway.exception.ErrorCodes;
 import org.swasth.apigateway.utils.DateTimeUtils;
-import org.swasth.apigateway.utils.JSONUtils;
 import org.swasth.apigateway.utils.Utils;
+import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.utils.PayloadUtils;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -38,11 +38,13 @@ public class BaseRequest {
         this.hcxRoles = hcxRoles;
         this.hcxCode  = hcxCode;
         try {
-            if(this.isJSONRequest)
-                this.protocolHeaders = payload;
+            if (apiAction.contains(NOTIFICATION_NOTIFY))
+                this.protocolHeaders = JSONUtils.decodeBase64String(validatePayload(payload, apiAction)[1], Map.class);
+            else if (!this.isJSONRequest)
+                this.protocolHeaders = JSONUtils.decodeBase64String(validatePayload(payload, apiAction)[0], Map.class);
             else
-                this.protocolHeaders = JSONUtils.decodeBase64String(validateRequestBody(payload)[0], Map.class);
-            this.payloadWithoutSensitiveData = PayloadUtils.removeSensitiveData(payload);
+                this.protocolHeaders = payload;
+            this.payloadWithoutSensitiveData = PayloadUtils.removeSensitiveData(payload, apiAction);
         } catch (JsonParseException e) {
             throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, "Error while parsing protected headers");
         }
@@ -103,19 +105,19 @@ public class BaseRequest {
 
     protected void validateParticipant(Map<String,Object> details, ErrorCodes code, String participant, String participantCode) throws ClientException {
         ArrayList<String> roles = (ArrayList) details.get("roles");
-
         if(details.isEmpty()){
             throw new ClientException(code, participant + " does not exist in registry");
-        }
-        else if(participantCode.equals(hcxCode)) {
-            throw new ClientException(code, participant + " should not be sent as sender/recipient in the incoming requests");
-        }
-        else if(StringUtils.equals((String) details.get(REGISTRY_STATUS), BLOCKED) || StringUtils.equals((String) details.get(REGISTRY_STATUS), INACTIVE)){
+        } else if(StringUtils.equals((String) details.get(REGISTRY_STATUS), BLOCKED) || StringUtils.equals((String) details.get(REGISTRY_STATUS), INACTIVE)){
             throw new ClientException(code, participant + "  is blocked or inactive as per the registry");
         }
-        for (String notAllowRole: roles){
-            if(notAllowRole.equalsIgnoreCase(hcxRoles)) {
-                throw new ClientException(code, participant + " role is not be sent as sender/recipient in the incoming requests");
+        if (!apiAction.contains(NOTIFICATION_NOTIFY)) {
+            if(participantCode.equals(hcxCode)) {
+                throw new ClientException(code, participant + " should not be sent as sender/recipient in the incoming requests");
+            }
+            for (String notAllowRole : roles) {
+                if (notAllowRole.equalsIgnoreCase(hcxRoles)) {
+                    throw new ClientException(code, participant + " role is not be sent as sender/recipient in the incoming requests");
+                }
             }
         }
     }
@@ -213,6 +215,10 @@ public class BaseRequest {
 
     protected String getHeader(String key) { return (String) protocolHeaders.getOrDefault(key, null); }
 
+    public void setHeaders(Map<String,Object> headers) { protocolHeaders.putAll(headers);}
+
+    public Map<String,Object> getPayload() { return payload; }
+
     protected List<String> getHeaderList(String key) { return (List<String>) protocolHeaders.getOrDefault(key, new ArrayList<>()); }
 
     protected Map<String,Object> getHeaderMap(String key){ return (Map<String,Object>) protocolHeaders.getOrDefault(key,null); }
@@ -230,18 +236,26 @@ public class BaseRequest {
 
     public String getPayloadWithoutSensitiveData() { return payloadWithoutSensitiveData; }
 
-    protected String[] validateRequestBody(Map<String, Object> requestBody) throws Exception {
+    protected String[] validatePayload(Map<String, Object> requestBody, String apiAction) throws Exception {
         try {
             String[] payloadValues = ((String) requestBody.get(PAYLOAD)).split("\\.");
-            if(payloadValues.length != PAYLOAD_LENGTH)
-                throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, "Invalid payload");
-            for(String value: payloadValues){
-                if(value == null || value.isEmpty())
-                    throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, "Invalid payload");
+            if (apiAction.contains(NOTIFICATION_NOTIFY)) {
+                validatePayloadValues(payloadValues, NOTIFICATION_PAYLOAD_LENGTH);
+            } else {
+                validatePayloadValues(payloadValues, PROTOCOL_PAYLOAD_LENGTH);
             }
             return payloadValues;
         } catch (Exception e) {
             throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, "Invalid payload");
+        }
+    }
+
+    private void validatePayloadValues(String[] payloadValues, int payloadLength) throws ClientException {
+        if (payloadValues.length != payloadLength)
+            throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, "Malformat payload");
+        for (String value : payloadValues) {
+            if (value == null || value.isEmpty())
+                throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, "Payload contains null or empty values");
         }
     }
 
