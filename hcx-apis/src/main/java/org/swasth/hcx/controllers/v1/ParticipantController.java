@@ -54,8 +54,13 @@ public class ParticipantController  extends BaseController {
             Map<String, String> headersMap = new HashMap<>();
             headersMap.put(AUTHORIZATION, Objects.requireNonNull(header.get(AUTHORIZATION)).get(0));
             HttpResponse<String> response = HttpUtils.post(url, JSONUtils.serialize(requestBody), headersMap);
-            if(response.getStatus() == 200)
-                eventHandler.createAudit(eventGenerator.createAuditLog(participantCode, PARTICIPANT, Collections.singletonMap(ACTION, PARTICIPANT_CREATE), getEData(CREATED, "", Collections.emptyList())));
+            if(response.getStatus() == 200) {
+                Map<String, Object> cdata = new HashMap<>();
+                cdata.put(ACTION, PARTICIPANT_CREATE);
+                cdata.putAll(requestBody);
+                eventHandler.createAudit(eventGenerator.createAuditLog(participantCode, PARTICIPANT, cdata,
+                        getEData(CREATED, "", Collections.emptyList())));
+            }
             return responseHandler(response, participantCode);
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
@@ -67,17 +72,13 @@ public class ParticipantController  extends BaseController {
         try {
             validateParticipant(requestBody);
             String participantCode = (String) requestBody.get(PARTICIPANT_CODE);
-            ResponseEntity<Object> searchResponse = participantSearch(JSONUtils.deserialize("{ \"filters\": { \"participant_code\": { \"eq\": \" " + participantCode + "\" } } }", Map.class));
-            ParticipantResponse participantResponse = (ParticipantResponse) Objects.requireNonNull(searchResponse.getBody());
-            if(participantResponse.getParticipants().isEmpty())
-                throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_CODE, "Please provide valid participant code");
-            String url = registryUrl + "/api/v1/Organisation/" + ((Map<String,Object>) participantResponse.getParticipants().get(0)).get(OSID);
+            Map<String,Object> participant = getParticipant(participantCode);
+            String url = registryUrl + "/api/v1/Organisation/" + participant.get(OSID);
             Map<String, String> headersMap = new HashMap<>();
             headersMap.put(AUTHORIZATION, Objects.requireNonNull(header.get(AUTHORIZATION)).get(0));
             HttpResponse<String> response = HttpUtils.put(url, JSONUtils.serialize(requestBody), headersMap);
             if (response.getStatus() == 200) {
-                if(redisCache.isExists(participantCode))
-                    redisCache.delete(participantCode);
+                deleteCache(participantCode);
             }
             return responseHandler(response, null);
         } catch (Exception e) {
@@ -85,11 +86,47 @@ public class ParticipantController  extends BaseController {
         }
     }
 
+    private void deleteCache(String participantCode) throws Exception {
+        if(redisCache.isExists(participantCode))
+            redisCache.delete(participantCode);
+    }
+
+    private Map<String,Object> getParticipant(String participantCode) throws Exception {
+        ResponseEntity<Object> searchResponse = participantSearch(JSONUtils.deserialize("{ \"filters\": { \"participant_code\": { \"eq\": \" " + participantCode + "\" } } }", Map.class));
+        ParticipantResponse participantResponse = (ParticipantResponse) Objects.requireNonNull(searchResponse.getBody());
+        if(participantResponse.getParticipants().isEmpty())
+            throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_CODE, "Please provide valid participant code");
+        return (Map<String,Object>) participantResponse.getParticipants().get(0);
+    }
+
     @PostMapping(PARTICIPANT_SEARCH)
     public ResponseEntity<Object> participantSearch(@RequestBody Map<String, Object> requestBody) {
         try {
             String url =  registryUrl + "/api/v1/Organisation/search";
             HttpResponse<String> response = HttpUtils.post(url, JSONUtils.serialize(requestBody), new HashMap<>());
+            return responseHandler(response, null);
+        } catch (Exception e) {
+            return exceptionHandler(new Response(), e);
+        }
+    }
+
+    @PostMapping(PARTICIPANT_DELETE)
+    public ResponseEntity<Object> participantDelete(@RequestBody Map<String, Object> requestBody) {
+        try {
+            if(!requestBody.containsKey(PARTICIPANT_CODE))
+                throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_CODE, "Please provide valid participant code");
+            String participantCode = (String) requestBody.get(PARTICIPANT_CODE);
+            Map<String,Object> participant = getParticipant(participantCode);
+            String url =  registryUrl + "/api/v1/Organisation/delete/" + participant.get(OSID);
+            HttpResponse<String> response = HttpUtils.delete(url);
+            if(response.getStatus() == 200) {
+                deleteCache(participantCode);
+                Map<String, Object> cdata = new HashMap<>();
+                cdata.put(ACTION, PARTICIPANT_DELETE);
+                cdata.putAll(participant);
+                eventHandler.createAudit(eventGenerator.createAuditLog(participantCode, PARTICIPANT, cdata,
+                        getEData(INACTIVE, (String) participant.get(AUDIT_STATUS), Collections.emptyList())));
+            }
             return responseHandler(response, null);
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
