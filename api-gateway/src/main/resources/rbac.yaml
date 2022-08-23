@@ -79,6 +79,7 @@ rbac:
   - role: member.isnp
     paths:
       - /v0.7/coverageeligibility/on_check
+      - /v0.7/coverageeligibility/check
       - /v0.7/predetermination/on_submit
       - /v0.7/hcx/status
       - /v0.7/audit/search
