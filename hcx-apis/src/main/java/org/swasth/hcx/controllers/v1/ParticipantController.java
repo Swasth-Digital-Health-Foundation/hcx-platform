@@ -110,7 +110,7 @@ public class ParticipantController  extends BaseController {
         }
     }
 
-    @PostMapping(PARTICIPANT_DELETE)
+    @DeleteMapping(PARTICIPANT_DELETE)
     public ResponseEntity<Object> participantDelete(@RequestBody Map<String, Object> requestBody) {
         try {
             if(!requestBody.containsKey(PARTICIPANT_CODE))
