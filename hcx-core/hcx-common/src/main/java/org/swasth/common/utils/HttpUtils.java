@@ -28,8 +28,9 @@ public class HttpUtils {
         return Unirest.put(url).headers(headers).body(requestBody).asString();
     }
 
-    public static HttpResponse<String> delete(String url){
-        return Unirest.delete(url).headers(Collections.singletonMap("Content-Type","application/json")).asString();
+    public static HttpResponse<String> delete(String url, Map<String,String> headers){
+        headers.put("Content-Type","application/json");
+        return Unirest.delete(url).headers(headers).asString();
     }
 
 }

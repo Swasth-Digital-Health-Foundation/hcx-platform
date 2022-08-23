@@ -110,15 +110,18 @@ public class ParticipantController  extends BaseController {
         }
     }
 
-    @DeleteMapping(PARTICIPANT_DELETE)
-    public ResponseEntity<Object> participantDelete(@RequestBody Map<String, Object> requestBody) {
+
+    @PostMapping(PARTICIPANT_DELETE)
+    public ResponseEntity<Object> participantDelete(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
         try {
             if(!requestBody.containsKey(PARTICIPANT_CODE))
                 throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_CODE, "Please provide valid participant code");
             String participantCode = (String) requestBody.get(PARTICIPANT_CODE);
             Map<String,Object> participant = getParticipant(participantCode);
             String url =  registryUrl + "/api/v1/Organisation/" + participant.get(OSID);
-            HttpResponse<String> response = HttpUtils.delete(url);
+            Map<String, String> headersMap = new HashMap<>();
+            headersMap.put(AUTHORIZATION, Objects.requireNonNull(header.get(AUTHORIZATION)).get(0));
+            HttpResponse<String> response = HttpUtils.delete(url, headersMap);
             if(response.getStatus() == 200) {
                 deleteCache(participantCode);
                 Map<String, Object> cdata = new HashMap<>();
