@@ -222,91 +222,30 @@ paths:
 
 components:
   schemas:
-    NotificationSignature:
-      required:
-        - x-hcx-sender_code
-        - x-hcx-timestamp
-      type: object
-      description: JSON object
-      allOf:
-        - properties:
-            x-hcx-sender_code:
-              type: string
-              description: Registry code of the sender (e.g. provider or payer)
-              example: "PROVIDER01@HCX01"
-            x-hcx-timestamp:
-              type: string
-              description: Unix timestamp when the request is sent.
-              example: "1629057611000"
-    NotificationPayload:
-      required:
-        - x-hcx-recipient_code
-        - x-hcx-api_call_id
-        - x-hcx-correlation_id
-        - x-hcx-notification_details
-      type: object
-      description: JSON object
-      allOf:
-        - $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/ProtocolHeader'
-        - properties:
-            x-hcx-notification_details:
-              type: object
-              description: Used to provide the details of the notification.
-              required:
-                - topic_code
-                - topic
-                - notification_data
-              allOf:
-                - $ref: '#/components/schemas/NotificationData'
-    NotificationRequest:
-      required:
-        - signature
-        - payload
-      type: object
-      description: JSON object
-      properties:
-        signature:
-          type: object
-          description: TODO
-          allOf:
-            - $ref: '#/components/schemas/NotificationSignature'
-        payload:
-          type: object
-          description: TODO
-          allOf:
-            - $ref: '#/components/schemas/NotificationPayload'
-
-    NotificationSubscriptionJWEPayload:
+    NotificationJWSPayload:
       required:
         - payload
       type: object
       format: byte
-      description: This object is used as payload in the HCX protocol APIs that require the request body to sent in JWE format (as defined in [RFC-7516](https://datatracker.ietf.org/doc/html/rfc7516)). 
-      
+      description: This object is used as payload in the HCX protocol APIs that require the request body to sent in JWE format (as defined in [RFC-7515](https://datatracker.ietf.org/doc/html/rfc7515)). 
       properties:
         payload:
           type: object
           format: string
-          description: The paylod should be a JWE token containing the following elements.
+          description: The paylod should be a JWS token containing the following elements.
           
-            1. Protected headers (**protected**) - A set of attributes that provide transport, security, message integrity and summary information about the message being exchanged.
+            1. JWS Protected headers (**protected**) - A set of attributes that provide transport, security, message integrity and summary information about the message being exchanged.
         
-            2. JWE element (**encrypted_key**) - Content Encryption Key.
+            2. JWS Payload (**payload**) - Payload containing the relevant domain entity (eObject) as prescribed for the use case by the domain specifications. This needs to be encrypted so that HCX cannot read this.
         
-            3. JWE element (**iv**) - Initialisation Vector for the algorithm.
-        
-            4. Encrypted Payload (**ciphertext**) - Payload containing the relevant domain entity (eObject) as prescribed for the use case by the domain specifications. This needs to be encrypted so that HCX cannot read this.
-        
-            5. Authentication tag (**authentication_tag**) - Digital signature on the protected header and the payload of the message to ensure its integrity.
+            3. JWS Signature (**signature**) - Digital signature on the protected header and the payload of the message to ensure its integrity.
+            
+            The final payload should be serialzed using JWS compact serialization as defined in the RFC-7515 - 
+      
+            **protected || '.' || payload || '.' || signature**
             
             
-            The final payload should be serialzed using JWE compact serialization as defined in the RFC-7516 - 
-            
-            
-            **protected || '.' || encrypted_key || '.' || iv || '.' || ciphertext || '.' || authentication_tag**
-            
-            
-            Detailed steps on how to construct the JWE token are provided in this [section](https://docs.swasth.app/hcx-specifications/hcx-technical-specifications/open-protocol/data-security-and-privacy/message-security-and-integrity#message-encryption) of the HCX specifications.
+            Detailed steps on how to construct the JWS token are provided in this [section](https://docs.swasth.app/hcx-specifications/hcx-technical-specifications/open-protocol/data-security-and-privacy/message-security-and-integrity#message-encryption) of the HCX specifications.
           example: "eyJlbmMiOiJBMjU2R0NNIiwKImFsZyI6IlJTQS1PQUVQIiwKIngtaGN4LXNlbmRlcl9jb2RlIjoiMS00ZGMzZTA4OC1hMzEzLTQ0YWItYWZhMS0wMjIyOTU5Y2I3NWIiLAoieC1oY3gtcmVjaXBpZW50X2NvZGUiOiIxLTkzZjkwOGJhLWI1NzktNDUzZS04YjJhLTU2MDIyYWZhZDI3NSIsCiJ4LWhjeC1yZXF1ZXN0X2lkIjoiMjZiMTA2MGMtMWU4My00NjAwLTk2MTItZWEzMWUwY2E1MDkxIiwKIngtaGN4LWNvcnJlbGF0aW9uX2lkIjoiNWU5MzRmOTAtMTExZC00ZjBiLWIwMTYtYzIyZDgyMDY3NGUxIiwKIngtaGN4LXRpbWVzdGFtcCI6IjIwMjEtMTAtMjdUMjA6MzU6NTIuNjM2KzA1MzAiLAoieC1oY3gtc3RhdHVzIjoicmVxdWVzdC5pbml0aWF0ZSIsCiJ4LWhjeC13b3JrZmxvd19pZCI6IjVlOTM0ZjkwLTExMWQtNGYwYi1iMDE2LWMyMmQ4MjA2NzRlMiIsCiJ4LWhjeC1kZWJ1Z19mbGFnIjoiSW5mbyIsCiJ4LWhjeC1lcnJvcl9kZXRhaWxzIjp7ImVycm9yLmNvZGUiOiAiYmFkLmlucHV0IiwgImVycm9yLm1lc3NhZ2UiOiAiUHJvdmlkZXIgY29kZSBub3QgZm91bmQiLCAidHJhY2UiOiAiIn0sCiJ4LWhjeC1kZWJ1Z19kZXRhaWxzIjp7ImVycm9yLmNvZGUiOiAiYmFkLmlucHV0IiwgImVycm9yLm1lc3NhZ2UiOiAiUHJvdmlkZXIgY29kZSBub3QgZm91bmQiLCJ0cmFjZSI6IiJ9LAoiandzX2hlYWRlciI6eyJ0eXAiOiJKV1QiLCAiYWxnIjoiUlMyNTYifSwKImp3ZV9oZWFkZXIiOnsiYWxnIjoiUlNBLU9BRVAiLCJlbmMiOiJBMjU2R0NNIn0KfQ==.6KB707dM9YTIgHtLvtgWQ8mKwboJW3of9locizkDTHzBC2IlrT1oOQ.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.KDlTtXchhZTGufMYmOYGS4HffxPSUrfmqCHXaI9wOGY.Mz-VPPyU4RlcuYv1IwIvzw"
           properties:
             protected:
@@ -314,67 +253,79 @@ components:
               format: string
               description: Protected headers contain information that helps HCX gateway to identify senders, receivers of the message, perform integrity checks, audits and routing functionality. Header values are posted in clear and must never contain any Personally Identifiable Information (PII) about the patient or any person. HCX protocol uses JWE protected headers for such information to ensure these are not tampered with by the intermediate gateways. Protected Headers for HCX will be the union of the following three header categories.
           
-                1. JOSE Headers - JSON Web encryption header as per [RFC7516](https://datatracker.ietf.org/doc/html/rfc7516#section-4). For HCX V1, this is proposed to be fixed to {"alg":"RSA-OAEP","enc":"A256GCM"}.
-            
-                2. HCX Protocol Headers - Private headers as per [RFC7516 section 4.3](https://datatracker.ietf.org/doc/html/rfc7516#section-4.3). List of header values that are allowed in HCX APIs and their details are defined in this [section](https://docs.swasth.app/hcx-specifications/hcx-technical-specifications/open-protocol/key-components-building-blocks#hcx-protocol-headers) of HCX Specifications.
-            
-                3. HCX Domain Headers - JSON object containing a map of domain-specific header values as proposed in domain data specifications for each entity. E.g. For claims use cases, domain specs may decide to populate the total claimed amount, list of diagnostics/procedures. Please note that all such parameter names must follow the naming convention _x-hcx-<use_case_name>-<parameter_name>_.
+                JOSE Headers - JSON Web Signature header as per [RFC7515](https://datatracker.ietf.org/doc/html/rfc7515#page-9). For HCX V0.8, this is proposed to be fixed to {"alg":"RS256"}
                 
-                4. HCX Notification Headers - JSON object containing a map of notification and the subscription details.
-
-            
-                  Overall, the protected headers should be created as - 
+                Overall, the protected headers should be created as - 
                   
-                  
-                  JWE Protected Header = BASE64URL(UTF8( (JOSE headers) + (HCX Protocol Headers) + (HCX Domain Headers) + (HCX Notification Headers) ))
+                JWS Protected Header = BASE64URL(UTF8(JOSE headers))
               allOf:
                 - $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/JOSEHeader'
-                - $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/ProtocolHeader'
-                - $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/DomainHeaders'
-                - properties:
-                    topic_code:
-                      type: string
-                      description: Unique code for the notification topic
-                      example: "NOTIFICATION@HCX01"
-                    
-            encrypted_key:
+              example: "eyJlbmMiOiJBMTI4Q0JDLUhTMjU2In0"
+            payload:
               type: string
-              description: The JWE encrypted key should be generated using the following process
-            
-                1. A random content encryption key (CEK) has to be generated by the sender. 
-            
-                2. Encrypt the CEK with the recipient's public key using the RSAES-OAEP algorithm to produce the JWE Encrypted Key.
-            
-                3. Base64url-encode the JWE Encrypted Key.
-          
-            
-                The encrypted & base64 encoded key should be set as the encrypted_key in the JWE token and also used for encrypting the domain payload (i.e. the FHIR resource) to be sent in the request. The recipient shall decrypt the content encryption key using their private key (corresponding to the public key used by the sender) and use the decrypted CEK for decrypting the domain payload. 
+              description: The payload contains the notification details 
+              example: ""
+            signature:
+              type: string
+              description: TODO
+              example: ""
               
-              example: "6KB707dM9YTIgHtLvtgWQ8mKwboJW3of9locizkDTHzBC2IlrT1oOQ"
-            
-            iv:
+    NotificationHeaders:
+      required:
+        - sender_code
+        - timestamp
+      type: object
+      description: JSON object
+      allOf:
+        - properties:
+            sender_code:
               type: string
-              description: Initialization vector (_iv_) is needed in the encryption process of the payload and for the recipient (along with the encrypted_key and aad) to subsequently decrypt the payload. The "iv" should be created by generating a random JWE initialization vector and Base64url-encoding the JWE initialization vector. 
-              example: "AxY8DCtDaGlsbGljb3RoZQ"
-              
-            ciphertext:
+              description: Registry code of the sender (e.g. provider or payer)
+              example: "PROVIDER01@HCX01"
+            timestamp:
               type: string
-              description: _ciphertext_ contains the domain payload (that has to  be sent to the recipient) in encrypted form. Usecase specific   JSON payload defined in the [eObjects](https://docs.swasth.app/hcx-specifications/hcx-domain-specifications/domain-data-specifications/domain-data-models/eobjects) section of the HCX specifications (i.e. the FHIR resource defined for the use case, e.g. CoverageEligibilityRequest document for coverage eligibility request API) should be encrypted as per JWE specification and sent as the _ciphertext_ in the request.
-          
-          
-                Steps to create the ciphertext element - 
-            
-                1. Create the JSON payload for the API request as per the [eObjects specification](https://docs.swasth.app/hcx-specifications/hcx-domain-specifications/domain-data-specifications/domain-data-models/eobjects).
-            
-                2. Perform authenticated encryption on the JSON payload with the AES GCM algorithm using the CEK as the encryption key (_encrypted_key_), the JWE Initialization Vector (_iv_)), and the Additional Authenticated Data value (_aad_), requesting a 128-bit Authentication Tag output. This step outputs a ciphertext and an authentication tag (_tag_).
-            
-                3. Base64url-encode the ciphertext output from the previous step and set it as the _ciphertext_ element in the request body.
-              example: "KDlTtXchhZTGufMYmOYGS4HffxPSUrfmqCHXaI9wOGY"
-              
-            authentication_tag:
-              type: string
-              description: The authentication tag generated as an output of the payload encryption algorithm (used for creating the _ciphertext_) should be sent as the _tag_ element in the request body. This tag is required for decrypting the encrypted payload.
-              example: "Mz-VPPyU4RlcuYv1IwIvzw"
+              description: Unix timestamp when the request is sent.
+              example: "1629057611000"
+            recipient_codes:
+              type: array
+              items:
+                type: string
+                description: Participant code of the recipient(s) of the notification. Could be one or more based on the need.
+            recipient_roles:
+              type: array
+              items:
+                type: string
+              description: Participant role of the recipient(s) of the notification. Could be one or more based on the need. recipient_codes and/or recipientRoles can be used to send a notification (network or participant category) to a subset of participants defined in the notification master data for the corresponding topic.
+            subscriptions:
+              type: array
+              items:
+                type: string
+              description: list of subscription_ids (at least one) is mandatory for use_case category notifications.
+    NotificationPayload:
+      required:
+        - x-hcx-recipient_code
+        - x-hcx-sender_code
+        - x-hcx-api_call_id
+        - x-hcx-correlation_id
+      type: object
+      description: JSON object
+      allOf:
+        - $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/ProtocolHeader'
+    NotificationRequest:
+      required:
+        - x-hcx-notification_headers
+        - payload
+      type: object
+      description: JSON object
+      allOf:
+        - $ref: '#/components/schemas/NotificationPayload'
+        - properties:
+            x-hcx-notification_headers:
+              type: object
+              description: TODO
+              allOf:
+                - $ref: '#/components/schemas/NotificationHeaders'
+        - $ref: '#/components/schemas/NotificationJWSPayload'
               
     NotificationTopicListRequest:
       type: object
@@ -492,24 +443,6 @@ components:
           type: string
           description: Unique notification identifier from HCX gateway using the master list.
           example: "NOTIFICATION@HCX01"
-        topic:
-          type: string
-          description: Topic of notification as defined in the master list of notifications.
-        recipient_codes:
-          type: array
-          items:
-            type: string
-          description: Participant code of the recipient(s) of the notification. Could be one or more based on the need.
-        recipient_roles:
-          type: array
-          items:
-            type: string
-          description: Participant role of the recipient(s) of the notification. Could be one or more based on the need. recipient_codes and/or recipientRoles can be used to send a notification (network or participant category) to a subset of participants defined in the notification master data for the corresponding topic.
-        subscriptions:
-          type: array
-          items:
-            type: string
-          description: list of subscription_ids (at least one) is mandatory for use_case category notifications.
         notification_data:
           type: object
           description: JSON object containing the details of the notification to send.
@@ -521,4 +454,3 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
-      
