@@ -159,9 +159,8 @@ public class Constants {
     //Notification constants
     public static final String NOTIFICATION_REQ_ID = "notification_request_id";
     public static final String ACTIVE = "Active";
-    public static final String IN_ACTIVE = "InActive";
-    public static final int ACTIVE_CODE = 1;
-    public static final int INACTIVE_CODE = 0;
+    public static final String INACTIVE = "Inactive";
+    public static final String PENDING = "Pending";
     public static final String SUBSCRIPTION_ID = "subscription_id";
     public static final String SUBSCRIPTION_REQUEST_ID = "subscription_request_id";
     public static final String NOTIFICATION_HEADERS_MANDATORY = "notification.headers.mandatory";
@@ -183,13 +182,11 @@ public class Constants {
     public static final String SENDER_CODE = "sender_code";
     public static final String MESSAGE = "message";
     public static final String SENDER_LIST = "sender_list";
-    public static final int PENDING_CODE = -1;
     public static final String SUBSCRIPTION_STATUS = "subscription_status";
     public static final String RECIPIENT_CODE = "recipient_code";
-    public static final String NOTIFY_STATUS = "status";
     public static final String IS_DELEGATED = "is_delegated";
     public static final String EXPIRY = "expiry";
-    public static final List<Integer> ALLOWED_SUBSCRIPTION_STATUS = Arrays.asList(1, 0);
+    public static final List<String> ALLOWED_SUBSCRIPTION_STATUS = Arrays.asList(ACTIVE, INACTIVE);
     public static final List<String> SUBSCRIPTION_UPDATE_PROPS = Arrays.asList(SUBSCRIPTION_STATUS, EXPIRY, IS_DELEGATED);
 
     //Constants from api-gateway
@@ -208,7 +205,6 @@ public class Constants {
     public static final List<String> ERROR_DETAILS_VALUES = Arrays.asList("code","message","trace");
     public static final String REQUESTED_TIME = "requestTimeStamp";
     public static final String BLOCKED = "Blocked";
-    public static final String INACTIVE = "Inactive";
     public static final String OS_OWNER = "osOwner";
     public static final String ERROR_RESPONSE = "response.error";
     public static final List<String> RECIPIENT_ERROR_VALUES = Arrays.asList("ERR_INVALID_ENCRYPTION", "ERR_INVALID_PAYLOAD", "ERR_WRONG_DOMAIN_PAYLOAD", "ERR_INVALID_DOMAIN_PAYLOAD", "ERR_SENDER_NOT_SUPPORTED", "ERR_SERVICE_UNAVAILABLE", "ERR_DOMAIN_PROCESSING","ERR_MANDATORY_HEADER_MISSING",
