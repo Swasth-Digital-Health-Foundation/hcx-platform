@@ -117,7 +117,7 @@ public class ParticipantController  extends BaseController {
                 throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_CODE, "Please provide valid participant code");
             String participantCode = (String) requestBody.get(PARTICIPANT_CODE);
             Map<String,Object> participant = getParticipant(participantCode);
-            String url =  registryUrl + "/api/v1/Organisation/delete/" + participant.get(OSID);
+            String url =  registryUrl + "/api/v1/Organisation/" + participant.get(OSID);
             HttpResponse<String> response = HttpUtils.delete(url);
             if(response.getStatus() == 200) {
                 deleteCache(participantCode);
