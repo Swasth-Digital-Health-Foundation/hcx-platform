@@ -198,7 +198,7 @@ public class EventGeneratorTest {
 
     @Test
     public void testGenerateOnSubscriptionEvent() throws Exception {
-        String result = eventGenerator.generateOnSubscriptionEvent(NOTIFICATION_ON_SUBSCRIBE,"hcx-apollo-12345","icici-67890","hcx-apollo:icici-67890",1);
+        String result = eventGenerator.generateOnSubscriptionEvent(NOTIFICATION_ON_SUBSCRIBE,"hcx-apollo-12345","icici-67890","hcx-apollo:icici-67890","Active");
         assertNotNull(result);
         assertTrue(result.contains(QUEUED_STATUS));
         assertTrue(result.contains(NOTIFICATION_ON_SUBSCRIBE));
@@ -209,17 +209,17 @@ public class EventGeneratorTest {
 
     @Test
     public void testGenerateOnSubscriptionAuditEvent() {
-        Map<String,Object> resultMap = eventGenerator.generateOnSubscriptionAuditEvent(NOTIFICATION_ON_SUBSCRIBE,"hcx-apollo-12345","subscription_id-001",QUEUED_STATUS,"icici-67890",1);
+        Map<String,Object> resultMap = eventGenerator.generateOnSubscriptionAuditEvent(NOTIFICATION_ON_SUBSCRIBE,"hcx-apollo-12345","subscription_id-001",QUEUED_STATUS,"icici-67890","Active");
         assertNotNull(resultMap);
         assertEquals(AUDIT,resultMap.get(EID));
         assertNotNull(resultMap.get(MID));
         assertEquals(NOTIFICATION_ON_SUBSCRIBE,resultMap.get(ACTION));
-        assertEquals(1,resultMap.get(SUBSCRIPTION_STATUS));
+        assertEquals(ACTIVE,resultMap.get(SUBSCRIPTION_STATUS));
         assertEquals("hcx-apollo-12345",resultMap.get(RECIPIENT_CODE));
         assertEquals("icici-67890",resultMap.get(Constants.SENDER_CODE));
         assertEquals("subscription_id-001",resultMap.get(SUBSCRIPTION_ID));
         assertNotNull(resultMap.get(ETS));
-        assertEquals(QUEUED_STATUS,resultMap.get(NOTIFY_STATUS));
+        assertEquals(QUEUED_STATUS,resultMap.get(AUDIT_STATUS));
     }
 
     @Test

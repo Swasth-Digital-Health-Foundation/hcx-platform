@@ -37,6 +37,7 @@ notification:
   subscription:
     headers:
       mandatory: ${notification_subscription_mandatory_headers:topic_code,sender_list}
+  masterListPath: ${notification_masterListPath:notifications.yaml}
 
 notify:
   network:

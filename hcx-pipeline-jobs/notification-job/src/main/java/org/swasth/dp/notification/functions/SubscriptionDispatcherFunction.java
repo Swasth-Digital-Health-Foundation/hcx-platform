@@ -54,7 +54,7 @@ public class SubscriptionDispatcherFunction extends BaseNotificationFunction {
     }
 
     private boolean hasPendingResponses(String subscriptionId) throws SQLException {
-        String query = String.format("SELECT count(%s) FROM %s WHERE %s IN (SELECT DISTINCT %s from %s WHERE %s = '%s') AND %s = -1 ",
+        String query = String.format("SELECT count(%s) FROM %s WHERE %s IN (SELECT DISTINCT %s from %s WHERE %s = '%s') AND %s = 'Pending' ",
                 Constants.SUBSCRIPTION_REQUEST_ID(), config.subscriptionTableName, Constants.SUBSCRIPTION_REQUEST_ID(), Constants.SUBSCRIPTION_REQUEST_ID(),
                 config.subscriptionTableName, Constants.SUBSCRIPTION_ID(), subscriptionId, Constants.SUBSCRIPTION_STATUS());
         ResultSet resultSet = postgresConnect.executeQuery(query);

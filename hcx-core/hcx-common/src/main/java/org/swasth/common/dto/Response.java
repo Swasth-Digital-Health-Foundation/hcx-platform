@@ -26,7 +26,7 @@ public class Response {
     @JsonProperty("subscription_id")
     private String subscriptionId;
     @JsonProperty("subscription_status")
-    private int subscriptionStatus;
+    private String subscriptionStatus;
 
     public Response() {}
 
@@ -130,11 +130,11 @@ public class Response {
         this.subscription_list = subscription_list;
     }
 
-    public void setSubscriptionStatus(int subscriptionStatus) {
+    public void setSubscriptionStatus(String subscriptionStatus) {
         this.subscriptionStatus = subscriptionStatus;
     }
 
-    public int getSubscriptionStatus() { return subscriptionStatus;}
+    public String getSubscriptionStatus() { return subscriptionStatus;}
 
     public void setSubscriptionId(String subscriptionId) {
         this.subscriptionId = subscriptionId;

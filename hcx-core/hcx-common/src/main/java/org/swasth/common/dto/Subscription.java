@@ -8,7 +8,7 @@ public class Subscription {
     private String subscription_id;
     private String subscription_request_id;
     private String topic_code;
-    private int subscription_status;
+    private String subscription_status;
     private String sender_code;
     private String recipient_code;
     private long expiry;
@@ -16,7 +16,7 @@ public class Subscription {
 
     public Subscription() {}
 
-    public Subscription(String subscription_id, String subscription_request_id,String topic_code, int subscription_status, String sender_code, String recipient_code, long expiry, boolean is_delegated) {
+    public Subscription(String subscription_id, String subscription_request_id,String topic_code, String subscription_status, String sender_code, String recipient_code, long expiry, boolean is_delegated) {
         this.subscription_id = subscription_id;
         this.subscription_request_id = subscription_request_id;
         this.topic_code = topic_code;
@@ -47,11 +47,11 @@ public class Subscription {
         this.topic_code = topic_code;
     }
 
-    public int getSubscription_status() {
+    public String getSubscription_status() {
         return subscription_status;
     }
 
-    public void setSubscription_status(int subscription_status) {
+    public void setSubscription_status(String subscription_status) {
         this.subscription_status = subscription_status;
     }
 
