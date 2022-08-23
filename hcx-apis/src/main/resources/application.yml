@@ -29,9 +29,9 @@ participantCode:
 
 #postgres config
 postgres:
-  url: ${postgres_url:jdbc:postgresql://localhost:5432/hcxdb}
-  user: ${postgres_user:prasad}
-  password: ${postgres_password:hcx@123}
+  url: ${postgres_url:jdbc:postgresql://localhost:5432/postgres}
+  user: ${postgres_user:postgres}
+  password: ${postgres_password:postgres}
   tablename: ${postgres_tablename:payload}
   subscription:
     tablename: ${postgres_subscription_tablename:subscription}
