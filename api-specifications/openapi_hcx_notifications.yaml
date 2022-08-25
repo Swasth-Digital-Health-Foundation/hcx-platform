@@ -176,12 +176,12 @@ paths:
         This API is for the participants to explicitly send the notification to recipients via HCX gateway.
       
         The participant should send the below details in the request body while making a call to send notification.
-          1. The protocol headers defined and used by all the other APIs to understand the sender, recipient, status etc,.
+          1. The protocol headers defined and used by all the other APIs to understand the sender, recipient_type, recipients etc,.
           2. The notification details like topic_code (as payload.x-hcx-notification_details.topic_code), title  (payload.x-hcx-notification_details.topic), and data (payload. x-hcx-notification_details.data) to understand the notification to which the participant want to send the notification.
           
         
         The response to this API could be one of the following:
-          1. A successful accepted (202) response from the HCX gateway if the strucuture of the request is valid and the validation of open attributes (protocol headers) is successful. Upon successful validation, HCX gateway forwards the same request to the intended recipient asynchronously.
+          1. A successful ok (200) response from the HCX gateway if the strucuture of the request is valid and the validation of open attributes (protocol headers) is successful. Upon successful validation, HCX gateway forwards the same request to the intended recipient asynchronously.
           3. An error response if any of the validations fail.
           
         The HCX gateway will send the notification to all the recipients of the notification if the x-hcx-recipient_id is HCX gateway identifier.
@@ -193,8 +193,8 @@ paths:
               oneOf:
                 - $ref: '#/components/schemas/NotificationRequest'
       responses:
-        '202':
-          description: Accepted
+        '200':
+          description: OK
           content:
             application/json:
               schema:
@@ -227,7 +227,7 @@ components:
         - payload
       type: object
       format: byte
-      description: This object is used as payload in the HCX protocol APIs that require the request body to sent in JWE format (as defined in [RFC-7515](https://datatracker.ietf.org/doc/html/rfc7515)). 
+      description: This object is used as payload in the HCX protocol APIs that require the request body to sent in JWS format (as defined in [RFC-7515](https://datatracker.ietf.org/doc/html/rfc7515)). 
       properties:
         payload:
           type: object
@@ -251,15 +251,27 @@ components:
             protected:
               type: object
               format: string
-              description: Protected headers contain information that helps HCX gateway to identify senders, receivers of the message, perform integrity checks, audits and routing functionality. Header values are posted in clear and must never contain any Personally Identifiable Information (PII) about the patient or any person. HCX protocol uses JWE protected headers for such information to ensure these are not tampered with by the intermediate gateways. Protected Headers for HCX will be the union of the following three header categories.
+              description: >-
+                Protected headers contain information that helps HCX gateway to identify senders, receivers of the message, perform integrity checks, audits and routing functionality. Header values are posted in clear and must never contain any Personally Identifiable Information (PII) about the patient or any person. HCX protocol uses JWS protected headers for such information to ensure these are not tampered with by the intermediate gateways. Protected Headers for HCX will be the union of the following three header categories.
           
-                JOSE Headers - JSON Web Signature header as per [RFC7515](https://datatracker.ietf.org/doc/html/rfc7515#page-9). For HCX V0.8, this is proposed to be fixed to {"alg":"RS256"}
-                
+                JOSE Headers - JSON Web Signature header as per [RFC7515](https://datatracker.ietf.org/doc/html/rfc7515#page-9). For HCX V0.8, this is proposed to be fixed to {"alg":"RS256"}.
+                  
+                Notification Protected Headers - The JWS protected headers as per [RFC7515](https://datatracker.ietf.org/doc/html/rfc7515#page-9). The list of header allowed for the notification request to define the recipients and the details about the notification.
+                  
                 Overall, the protected headers should be created as - 
                   
-                JWS Protected Header = BASE64URL(UTF8(JOSE headers))
+                JWS Protected Header = BASE64URL(UTF8(JOSE headers) + UTF8( Notification headers))
               allOf:
-                - $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/JOSEHeader'
+                - required:
+                  - x-hcx-notification_headers
+                - $ref: '#/components/schemas/JOSEHeader'
+                - properties:
+                    
+                    x-hcx-notification_headers:
+                      type: object
+                      description: TODO
+                      allOf:
+                        - $ref: '#/components/schemas/NotificationHeaders'
               example: "eyJlbmMiOiJBMTI4Q0JDLUhTMjU2In0"
             payload:
               type: string
@@ -286,45 +298,33 @@ components:
               type: string
               description: Unix timestamp when the request is sent.
               example: "1629057611000"
-            recipient_codes:
+            recipient_type:
+              type: string
+              enum: ["code", "role", "subscription"]
+              description: The notification will be sent to a group of participants. To easily define the list we use role or codes or subscriptions. This property will help to understand the type of identifiers given in `recipients` property.
+            recipients:
               type: array
               items:
                 type: string
-                description: Participant code of the recipient(s) of the notification. Could be one or more based on the need.
-            recipient_roles:
-              type: array
-              items:
-                type: string
-              description: Participant role of the recipient(s) of the notification. Could be one or more based on the need. recipient_codes and/or recipientRoles can be used to send a notification (network or participant category) to a subset of participants defined in the notification master data for the corresponding topic.
-            subscriptions:
-              type: array
-              items:
-                type: string
-              description: list of subscription_ids (at least one) is mandatory for use_case category notifications.
-    NotificationPayload:
-      required:
-        - x-hcx-recipient_code
-        - x-hcx-sender_code
-        - x-hcx-api_call_id
-        - x-hcx-correlation_id
-      type: object
-      description: JSON object
-      allOf:
-        - $ref: 'https://raw.githubusercontent.com/hcx-project/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml#/components/schemas/ProtocolHeader'
+                description: >- 
+                  The recipients will be identified based one of the below using `recipient_type`. 
+                  
+                  `code`: Participant code of the recipient(s) of the notification. Could be one or more based on the need.
+                  `role`: Participant role of the recipient(s) of the notification.
+                  `subscription`: list of subscription_ids (at least one). it is mandatory for use_case category notifications.
+            correlation_id:
+              type: string
+              description: Unique id for all notifications (trigger & dispatches) that are involved in processing notification trigger and dispatching to the recipients.
+            expiry:
+              type: string
+              description: The time from when this notification will be invalid.
+              example: "54539485304"
     NotificationRequest:
       required:
-        - x-hcx-notification_headers
         - payload
       type: object
       description: JSON object
       allOf:
-        - $ref: '#/components/schemas/NotificationPayload'
-        - properties:
-            x-hcx-notification_headers:
-              type: object
-              description: TODO
-              allOf:
-                - $ref: '#/components/schemas/NotificationHeaders'
         - $ref: '#/components/schemas/NotificationJWSPayload'
               
     NotificationTopicListRequest:
@@ -386,6 +386,17 @@ components:
         status:
           type: number
           example: 1
+    
+    JOSEHeader:
+      required:
+        - alg
+      type: object
+      description: JSON Web Signature header as per RFC7515. For the current version, this is proposed to be fixed to {"alg":"RS256"}
+      properties:
+        alg:
+          type: string
+          enum: ["RS256"]
+      additionalProperties: false
     
     NotificationTopic:
       type: object
