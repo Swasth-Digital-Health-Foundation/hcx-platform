@@ -174,12 +174,13 @@ paths:
         - Notification APIs
       description: >-
         This API is for the participants to explicitly send the notification to recipients via HCX gateway.
-      
-        The participant should send the below details in the request body while making a call to send notification.
-          1. The protocol headers defined and used by all the other APIs to understand the sender, recipient_type, recipients etc,.
-          2. The notification details like topic_code (as payload.x-hcx-notification_details.topic_code), title  (payload.x-hcx-notification_details.topic), and data (payload. x-hcx-notification_details.data) to understand the notification to which the participant want to send the notification.
-          
         
+        The participant should send the below details in the request body while making a call to send notification.
+          
+        The notification protected headers defined and used by all the other APIs to understand the sender, recipient_type, recipients etc,.
+          
+        _**description** - work in progress._
+          
         The response to this API could be one of the following:
           1. A successful ok (200) response from the HCX gateway if the strucuture of the request is valid and the validation of open attributes (protocol headers) is successful. Upon successful validation, HCX gateway forwards the same request to the intended recipient asynchronously.
           3. An error response if any of the validations fail.
@@ -300,7 +301,7 @@ components:
               example: "1629057611000"
             recipient_type:
               type: string
-              enum: ["code", "role", "subscription"]
+              enum: ["participant_code", "participant_role", "subscription"]
               description: The notification will be sent to a group of participants. To easily define the list we use role or codes or subscriptions. This property will help to understand the type of identifiers given in `recipients` property.
             recipients:
               type: array
