@@ -2,11 +2,13 @@ package org.swasth.apigateway.filters;
 
 import okhttp3.mockwebserver.MockResponse;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 import org.swasth.apigateway.BaseSpec;
 import org.swasth.apigateway.exception.ErrorCodes;
 import org.swasth.common.utils.Constants;
+import org.swasth.common.utils.JWTUtils;
 
 import java.util.*;
 
@@ -14,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mockStatic;
 
 class HCXRequestTest extends BaseSpec {
 
@@ -624,6 +627,8 @@ class HCXRequestTest extends BaseSpec {
                 .thenReturn(getProviderDetails());
         Mockito.when(registryService.getDetails(anyString()))
                 .thenReturn(Arrays.asList(getPayorDetails()));
+        Mockito.when(jwtUtils.isValidSignature(anyString(), anyString()))
+                .thenReturn(Boolean.TRUE);
         client.post().uri(versionPrefix + Constants.NOTIFICATION_NOTIFY)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
@@ -643,6 +648,8 @@ class HCXRequestTest extends BaseSpec {
 
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getHCXAdminDetails());
+        Mockito.when(jwtUtils.isValidSignature(anyString(), anyString()))
+                .thenReturn(Boolean.TRUE);
         client.post().uri(versionPrefix + Constants.NOTIFICATION_NOTIFY)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
@@ -662,6 +669,8 @@ class HCXRequestTest extends BaseSpec {
 
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getProviderDetails());
+        Mockito.when(jwtUtils.isValidSignature(anyString(), anyString()))
+                .thenReturn(Boolean.TRUE);
         client.post().uri(versionPrefix + Constants.NOTIFICATION_NOTIFY)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
@@ -725,6 +734,8 @@ class HCXRequestTest extends BaseSpec {
 
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getProviderDetails());
+        Mockito.when(jwtUtils.isValidSignature(anyString(), anyString()))
+                .thenReturn(Boolean.TRUE);
         client.post().uri(versionPrefix + Constants.NOTIFICATION_NOTIFY)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
@@ -748,6 +759,8 @@ class HCXRequestTest extends BaseSpec {
                 .thenReturn(getProviderDetails());
         Mockito.when(registryService.getDetails(anyString()))
                 .thenReturn(Arrays.asList(getPayorDetails()));
+        Mockito.when(jwtUtils.isValidSignature(anyString(), anyString()))
+                .thenReturn(Boolean.TRUE);
         client.post().uri(versionPrefix + Constants.NOTIFICATION_NOTIFY)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
@@ -769,6 +782,8 @@ class HCXRequestTest extends BaseSpec {
 
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getPayorDetails());
+        Mockito.when(jwtUtils.isValidSignature(anyString(), anyString()))
+                .thenReturn(Boolean.TRUE);
         client.post().uri(versionPrefix + Constants.NOTIFICATION_NOTIFY)
                 .header(Constants.AUTHORIZATION, getPayorToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")

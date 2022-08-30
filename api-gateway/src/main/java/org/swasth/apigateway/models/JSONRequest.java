@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.swasth.apigateway.exception.ClientException;
 import org.swasth.apigateway.exception.ErrorCodes;
 import org.swasth.common.utils.Constants;
+import org.swasth.common.utils.JWTUtils;
 import org.swasth.common.utils.NotificationUtils;
 
 import java.util.ArrayList;
@@ -64,7 +65,8 @@ public class JSONRequest extends BaseRequest {
     /**
      * This method is to validate notification notify request
      */
-    public void validateNotificationReq(Map<String, Object> senderDetails, List<Map<String, Object>> recipientsDetails, List<String> allowedNetworkCodes) throws ClientException {
+    public void validateNotificationReq(Map<String, Object> senderDetails, List<Map<String, Object>> recipientsDetails, List<String> allowedNetworkCodes, boolean isValidSignature) throws Exception {
+        validateCondition(!isValidSignature, ErrorCodes.ERR_INVALID_SIGNATURE, "JWS payload is not signed by the request initiator");
         validateCondition(getNotificationHeaders().isEmpty(), ErrorCodes.ERR_INVALID_NOTIFICATION_HEADERS, "Notification headers is missing or empty");
         validateCondition(StringUtils.isEmpty(getTopicCode()), ErrorCodes.ERR_INVALID_NOTIFICATION_TOPIC_CODE, "Notification topic code cannot be null, empty and other than 'String'");
         validateCondition(!NotificationUtils.isValidCode(getTopicCode()), ErrorCodes.ERR_INVALID_NOTIFICATION_TOPIC_CODE, "Invalid topic code(" + getTopicCode() + ") is not present in the master list of notifications");
@@ -127,6 +129,8 @@ public class JSONRequest extends BaseRequest {
     public Map<String, Object> getNotificationHeaders() {
         return getHeaderMap(NOTIFICATION_HEADERS);
     }
+
+    public String getNotificationPayload() { return getHeader(PAYLOAD); }
 
     public List<String> getSenderList() {
         return (List<String>) getProtocolHeaders().getOrDefault(SENDER_LIST, new ArrayList<>());

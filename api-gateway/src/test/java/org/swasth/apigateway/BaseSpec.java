@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.web.server.LocalServerPort;
@@ -17,6 +18,7 @@ import org.swasth.apigateway.service.RegistryService;
 import org.swasth.auditindexer.function.AuditIndexer;
 import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
+import org.swasth.common.utils.JWTUtils;
 import org.swasth.redis.cache.RedisCache;
 
 import java.io.IOException;
@@ -50,6 +52,9 @@ public class BaseSpec {
     protected int port;
 
     protected WebTestClient client;
+
+    @MockBean
+    protected JWTUtils jwtUtils;
 
     @BeforeEach
     public void setup() throws IOException {
@@ -122,7 +127,8 @@ public class BaseSpec {
         Map<String,Object> payload = new HashMap<>();
         payload.put(TOPIC_CODE, topicCode);
         payload.put(NOTIFICATION_DATA, notificationData);
-        obj.put(PAYLOAD, "eyJhbGciOiJSUzI1NiJ9." + JSONUtils.encodeBase64String(JSONUtils.serialize(payload)) + ".L14NMRVoQq7TMEUt0IiG36P0NgDH1Poz");
+        obj.put(PAYLOAD, "eyJhbGciOiJSUzI1NiJ9." + JSONUtils.encodeBase64String(JSONUtils.serialize(payload)) + ".D9LaKmvZfjmNHc3UtrWmILkmGJUdjjKaJtus6H9vRcQZqrd6gTXZ-NQl_oayPc8poFq3vljUAKXPO7PzDNI_N1pd2eqWJ5O-UM1NG_m-v1pKi-kV9HaXucZ0VhAjFS9DEQwZ_CMUMOtgnhh5hKFZZn7ljEbDHaC-2JGDshPNUm_FMWMK447A5B-BJYkEztV47Ony-k4lu9BmfmwsKtqSOO2Y3_qXzuZalShMNt9risNoguY_CQWMFTjV4P_cgsKYDtaRnpgKX96DCO2L2j47BbGx2zHCsMia_LIkxBvEnuEAbDn40zZ17IPOo3BCve8JjmPgCLOYnI3W8HBfHfGegg");
+        //obj.put(PAYLOAD, "eyJhbGciOiJSUzI1NiJ9.eyJ1c2VyIjoidGVzdCJ9.D9LaKmvZfjmNHc3UtrWmILkmGJUdjjKaJtus6H9vRcQZqrd6gTXZ-NQl_oayPc8poFq3vljUAKXPO7PzDNI_N1pd2eqWJ5O-UM1NG_m-v1pKi-kV9HaXucZ0VhAjFS9DEQwZ_CMUMOtgnhh5hKFZZn7ljEbDHaC-2JGDshPNUm_FMWMK447A5B-BJYkEztV47Ony-k4lu9BmfmwsKtqSOO2Y3_qXzuZalShMNt9risNoguY_CQWMFTjV4P_cgsKYDtaRnpgKX96DCO2L2j47BbGx2zHCsMia_LIkxBvEnuEAbDn40zZ17IPOo3BCve8JjmPgCLOYnI3W8HBfHfGegg");
         return JSONUtils.serialize(obj);
     }
 

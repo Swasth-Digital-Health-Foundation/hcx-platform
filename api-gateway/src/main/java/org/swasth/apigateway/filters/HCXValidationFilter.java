@@ -22,6 +22,7 @@ import org.swasth.apigateway.service.AuditService;
 import org.swasth.apigateway.service.RegistryService;
 import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
+import org.swasth.common.utils.JWTUtils;
 import org.swasth.common.utils.NotificationUtils;
 
 import java.nio.charset.StandardCharsets;
@@ -50,6 +51,9 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
 
     @Autowired
     private Environment env;
+
+    @Autowired
+    private JWTUtils jwtUtils;
 
     @Value("${timestamp.range}")
     private int timestampRange;
@@ -99,7 +103,8 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                         recipientsDetails = registryService.getDetails(searchRequest);
                     }
                     jsonRequest.validate(getNotificationMandatoryHeaders(), subject, timestampRange, senderDetails, getDetails(jsonRequest.getHcxRecipientCode()));
-                    jsonRequest.validateNotificationReq(senderDetails, recipientsDetails, allowedNetworkCodes);
+                    jsonRequest.validateNotificationReq(senderDetails, recipientsDetails, allowedNetworkCodes,
+                            jwtUtils.isValidSignature(jsonRequest.getNotificationPayload(), (String) senderDetails.get(ENCRYPTION_CERT)));
                 } else if (requestBody.containsKey(PAYLOAD)) {
                     JWERequest jweRequest = new JWERequest(requestBody, false, path, hcxCode, hcxRoles);
                     requestObj = jweRequest;
