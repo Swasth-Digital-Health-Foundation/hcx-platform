@@ -1,6 +1,5 @@
 package org.swasth.common.utils;
 
-import lombok.experimental.UtilityClass;
 import org.apache.commons.io.IOUtils;
 
 import java.io.ByteArrayInputStream;
