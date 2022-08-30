@@ -172,8 +172,7 @@ public class ParticipantController  extends BaseController {
         else if (!requestBody.containsKey(ENCRYPTION_CERT) || !(requestBody.get(ENCRYPTION_CERT) instanceof String))
             throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, "encryption_cert is missing or invalid");
         // add encryption certificate expiry
-        String url = (String) requestBody.get(ENCRYPTION_CERT);
-        requestBody.put(ENCRYPTION_CERT_EXPIRY, jwtUtils.getCertificateExpiry(url));
+        requestBody.put(ENCRYPTION_CERT_EXPIRY, jwtUtils.getCertificateExpiry((String) requestBody.get(ENCRYPTION_CERT)));
     }
 
     private Map<String,Object> getEData(String status, String prevStatus, List<String> props) {
