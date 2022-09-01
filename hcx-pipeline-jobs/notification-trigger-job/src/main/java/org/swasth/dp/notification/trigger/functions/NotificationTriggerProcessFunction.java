@@ -46,14 +46,13 @@ public class NotificationTriggerProcessFunction extends ProcessFunction<Map<Stri
     public void processElement(Map<String, Object> event,
                                ProcessFunction<Map<String, Object>, Map<String, Object>>.Context context,
                                Collector<Map<String, Object>> collector) throws Exception {
-
         System.out.println("Audit Event :: " + event);
         logger.debug("Audit Event :: " + event);
         Map<String, Object> cdata = (Map<String, Object>) event.get(Constants.CDATA());
         Map<String, Object> edata = (Map<String, Object>) event.get(Constants.EDATA());
         String action = (String) cdata.get(Constants.ACTION());
         String id = (String) ((Map<String, Object>) event.get(Constants.OBJECT())).get(Constants.ID());
-        String topicCode = (String) config.topicCodeAndAPIActionMap.get(action);
+        String topicCode = (String) config.apiActionAndTopicCodeMap.get(action);
         String notifyEvent = null;
         if (!config.notificationTriggersDisabled.contains(topicCode)) {
             // Network notifications
@@ -78,23 +77,26 @@ public class NotificationTriggerProcessFunction extends ProcessFunction<Map<Stri
                     nData.put(Constants.SUBSCRIPTION_ID(), id);
                     nData.put(Constants.PROPERTIES(), edata.get(Constants.PROPS()));
                     String message = resolveTemplate(notification, nData);
-                    notifyEvent = createNotifyEvent((String) notification.get(Constants.TOPIC_CODE()), config.hcxRegistryCode(), Constants.PARTICIPANT_ROLE(),
-                            (List<String>) notification.get(Constants.ALLOWED_RECIPIENTS()), message);
+                    notifyEvent = createNotifyEvent((String) notification.get(Constants.TOPIC_CODE()), config.hcxRegistryCode(), Constants.PARTICIPANT_CODE(),
+                            Arrays.asList((String) cdata.get(Constants.RECIPIENT_CODE())), message);
                     pushToKafka(context, notifyEvent);
                 }
             }
             // Workflow notifications
-            if (config.workflowNotificationEnabled) {
+            if (config.workflowNotificationEnabled && config.workflowNotificationAllowedEntities.contains(getEntity(action))) {
                 if (action.contains("on_") && cdata.get(Constants.HCX_STATUS()).equals(Constants.COMPLETE_RESPONSE()))
-                    processWorkflowNotification(context, cdata, topicCode, notifyEvent);
+                    processWorkflowNotification(context, cdata, action);
                 else if (!action.contains("on_"))
-                    processWorkflowNotification(context, cdata, topicCode, notifyEvent);
+                    cdata.put(Constants.HCX_STATUS(), Constants.REQUEST_INITIATED());
+                    processWorkflowNotification(context, cdata, action);
             }
         }
     }
 
-    private void processWorkflowNotification(ProcessFunction<Map<String, Object>, Map<String, Object>>.Context context, Map<String, Object> cdata, String topicCode, String notifyEvent) throws Exception {
+    private void processWorkflowNotification(ProcessFunction<Map<String, Object>, Map<String, Object>>.Context context, Map<String, Object> cdata, String action) throws Exception {
+        String topicCode = config.workflowUpdateTopicCode;
         String senderCode = (String) cdata.get(Constants.HCX_SENDER_CODE());
+        String notifyEvent;
         List<String> subscriptions = new ArrayList<>();
         ResultSet resultSet = null;
         try {
@@ -109,7 +111,12 @@ public class NotificationTriggerProcessFunction extends ProcessFunction<Map<Stri
         }
         if (!subscriptions.isEmpty()) {
             Map<String, Object> participant = registryService.getParticipantDetails("{\"participant_code\":{\"eq\":\"" + senderCode + "\"}}").get(0);
-            String message = resolveTemplate(notificationUtil.getNotification(topicCode), Collections.singletonMap(Constants.PARTICIPANT_NAME(), participant.get(Constants.PARTICIPANT_NAME())));
+            Map<String, Object> nData = new HashMap<>();
+            nData.put(Constants.PARTICIPANT_NAME(), participant.get(Constants.PARTICIPANT_NAME()));
+            nData.put(Constants.ENTITY_TYPE(), getEntity(action));
+            nData.put(Constants.CORRELATIONID(), cdata.get(Constants.HCX_CORRELATION_ID()));
+            nData.put(Constants.STATUS(), cdata.get(Constants.HCX_STATUS()));
+            String message = resolveTemplate(notificationUtil.getNotification(topicCode), nData);
             notifyEvent = createNotifyEvent(topicCode, config.hcxRegistryCode(), Constants.SUBSCRIPTION(), subscriptions, message);
             pushToKafka(context, notifyEvent);
         }
@@ -152,9 +159,21 @@ public class NotificationTriggerProcessFunction extends ProcessFunction<Map<Stri
         return JSONUtil.serialize(event);
     }
 
+
     private String resolveTemplate(Map<String, Object> notification, Map<String,Object> nData) {
         StringSubstitutor sub = new StringSubstitutor(nData);
         return sub.replace((JSONUtil.deserialize((String) notification.get(Constants.TEMPLATE()), Map.class)).get(Constants.MESSAGE()));
+    }
+
+    public String getEntity(String action) {
+        if (action.contains("status")) {
+            return "status";
+        } else if (action.contains("search")) {
+            return "search";
+        } else {
+            String[] str = action.split("/");
+            return str[str.length-2];
+        }
     }
 
 }
