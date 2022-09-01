@@ -43,52 +43,53 @@ public class NotificationTriggerProcessFunction extends ProcessFunction<Map<Stri
     public void processElement(Map<String, Object> event,
                                ProcessFunction<Map<String, Object>, Map<String, Object>>.Context context,
                                Collector<Map<String, Object>> collector) throws Exception {
-
         System.out.println("Audit Event :: " + event);
         logger.debug("Audit Event :: " + event);
         Map<String, Object> cdata = (Map<String, Object>) event.get(Constants.CDATA());
         Map<String, Object> edata = (Map<String, Object>) event.get(Constants.EDATA());
         String action = (String) cdata.get(Constants.ACTION());
         String id = (String) ((Map<String, Object>) event.get(Constants.OBJECT())).get(Constants.ID());
-        String topicCode = (String) config.topicCodeAndAPIActionMap.get(action);
+        String topicCode = (String) config.apiActionAndTopicCodeMap.get(action);
         String notifyEvent = null;
         if (!config.notificationTriggersDisabled.contains(topicCode)) {
             // Network notifications
             if (config.networkNotificationsEnabled) {
                 if (action.equals(Constants.PARTICIPANT_CREATE()) || action.equals(Constants.PARTICIPANT_DELETE())) {
                     Map<String, Object> notification = notificationUtil.getNotification(topicCode);
-                    Map<String, Object> notificationData = new HashMap<>();
-                    notificationData.put(Constants.PARTICIPANT_NAME(), cdata.get(Constants.PARTICIPANT_NAME()));
-                    notificationData.put(Constants.HCX_NAME(), config.hcxInstanceName());
-                    notificationData.put(Constants.DDMMYY(), new SimpleDateFormat("dd-MM-yyyy").format(event.get(Constants.ETS())));
-                    notificationData.put(Constants.PARTICIPANT_NAME(), cdata.get(Constants.PARTICIPANT_NAME()));
-                    notificationData.put(Constants.PARTICIPANT_CODE(), cdata.get(Constants.PARTICIPANT_CODE()));
+                    Map<String, Object> nData = new HashMap<>();
+                    nData.put(Constants.PARTICIPANT_NAME(), cdata.get(Constants.PARTICIPANT_NAME()));
+                    nData.put(Constants.HCX_NAME(), config.hcxInstanceName());
+                    nData.put(Constants.DDMMYY(), new SimpleDateFormat("dd-MM-yyyy").format(event.get(Constants.ETS())));
+                    nData.put(Constants.PARTICIPANT_NAME(), cdata.get(Constants.PARTICIPANT_NAME()));
+                    nData.put(Constants.PARTICIPANT_CODE(), cdata.get(Constants.PARTICIPANT_CODE()));
                     notifyEvent = createNotifyEvent((String) notification.get(Constants.TOPIC_CODE()), config.hcxRegistryCode(), Collections.emptyList(),
-                            (List<String>) notification.get(Constants.ALLOWED_RECIPIENTS()), Collections.emptyList(), notificationData);
+                            (List<String>) notification.get(Constants.ALLOWED_RECIPIENTS()), Collections.emptyList(), nData);
                     pushToKafka(context, notifyEvent);
                 } else if (action.equals(Constants.NOTIFICATION_SUBSCRIPTION_UPDATE())) {
                     Map<String, Object> notification = notificationUtil.getNotification(topicCode);
                     Map<String, Object> participant = registryService.getParticipantDetails("{\"participant_code\":{\"eq\":\"" + cdata.get(Constants.RECIPIENT_CODE()) + "\"}}").get(0);
-                    Map<String, Object> notificationData = new HashMap<>();
-                    notificationData.put(Constants.PARTICIPANT_NAME(), participant.get(Constants.PARTICIPANT_NAME()));
-                    notificationData.put(Constants.SUBSCRIPTION_ID(), id);
-                    notificationData.put(Constants.PROPERTIES(), edata.get(Constants.PROPS()));
+                    Map<String, Object> nData = new HashMap<>();
+                    nData.put(Constants.PARTICIPANT_NAME(), participant.get(Constants.PARTICIPANT_NAME()));
+                    nData.put(Constants.SUBSCRIPTION_ID(), id);
+                    nData.put(Constants.PROPERTIES(), edata.get(Constants.PROPS()));
                     notifyEvent = createNotifyEvent((String) notification.get(Constants.TOPIC_CODE()), config.hcxRegistryCode(),
-                            Arrays.asList((String) cdata.get(Constants.RECIPIENT_CODE())), Collections.emptyList(), Collections.emptyList(), notificationData);
+                            Arrays.asList((String) cdata.get(Constants.RECIPIENT_CODE())), Collections.emptyList(), Collections.emptyList(), nData);
                     pushToKafka(context, notifyEvent);
                 }
             }
             // Workflow notifications
-            if (config.workflowNotificationEnabled) {
+            if (config.workflowNotificationEnabled && config.workflowNotificationAllowedEntities.contains(getEntity(action))) {
                 if (action.contains("on_") && cdata.get(Constants.HCX_STATUS()).equals(Constants.COMPLETE_RESPONSE()))
-                    processWorkflowNotification(context, cdata, topicCode, notifyEvent);
+                    processWorkflowNotification(context, cdata, action);
                 else if (!action.contains("on_"))
-                    processWorkflowNotification(context, cdata, topicCode, notifyEvent);
+                    cdata.put(Constants.HCX_STATUS(), Constants.REQUEST_INITIATED());
+                    processWorkflowNotification(context, cdata, action);
             }
         }
     }
 
-    private void processWorkflowNotification(ProcessFunction<Map<String, Object>, Map<String, Object>>.Context context, Map<String, Object> cdata, String topicCode, String notifyEvent) throws Exception {
+    private void processWorkflowNotification(ProcessFunction<Map<String, Object>, Map<String, Object>>.Context context, Map<String, Object> cdata, String action) throws Exception {
+        String topicCode = config.workflowUpdateTopicCode;
         String senderCode = (String) cdata.get(Constants.HCX_SENDER_CODE());
         List<String> subscriptions = new ArrayList<>();
         ResultSet resultSet = null;
@@ -104,8 +105,12 @@ public class NotificationTriggerProcessFunction extends ProcessFunction<Map<Stri
         }
         if (!subscriptions.isEmpty()) {
             Map<String, Object> participant = registryService.getParticipantDetails("{\"participant_code\":{\"eq\":\"" + senderCode + "\"}}").get(0);
-            notifyEvent = createNotifyEvent(topicCode, config.hcxRegistryCode(), Collections.emptyList(), Collections.emptyList(),
-                    subscriptions, Collections.singletonMap(Constants.PARTICIPANT_NAME(), participant.get(Constants.PARTICIPANT_NAME())));
+            Map<String, Object> nData = new HashMap<>();
+            nData.put(Constants.PARTICIPANT_NAME(), participant.get(Constants.PARTICIPANT_NAME()));
+            nData.put(Constants.ENTITY_TYPE(), getEntity(action));
+            nData.put(Constants.CORRELATIONID(), cdata.get(Constants.CORRELATION_ID()));
+            nData.put(Constants.STATUS(), cdata.get(Constants.HCX_STATUS()));
+            String notifyEvent = createNotifyEvent(topicCode, config.hcxRegistryCode(), Collections.emptyList(), Collections.emptyList(), subscriptions, nData);
             pushToKafka(context, notifyEvent);
         }
     }
@@ -139,6 +144,17 @@ public class NotificationTriggerProcessFunction extends ProcessFunction<Map<Stri
         event.put(Constants.MESSAGE(), null);
         event.put(Constants.HEADERS(), Collections.singletonMap(Constants.PROTOCOL(), protocolHeaders));
         return JSONUtil.serialize(event);
+    }
+
+    public String getEntity(String action){
+        if (action.contains("status")) {
+            return "status";
+        } else if (action.contains("search")) {
+            return "search";
+        } else {
+            String[] str = action.split("/");
+            return str[str.length-2];
+        }
     }
 
 }
