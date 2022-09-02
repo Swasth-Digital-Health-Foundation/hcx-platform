@@ -169,8 +169,8 @@ public class EventGenerator {
         event.put(ACTION, apiAction);
         event.put(SUBSCRIPTION_ID, subscriptionId);
         event.put(SUBSCRIPTION_STATUS, subscriptionStatus);
-        event.put(SENDER_CODE,senderCode);
-        event.put(RECIPIENT_CODE,recipientCode);
+        event.put(HCX_SENDER_CODE,senderCode);
+        event.put(HCX_RECIPIENT_CODE,recipientCode);
         event.put(ETS,System.currentTimeMillis());
         event.put(AUDIT_STATUS, status);
         return  event;
