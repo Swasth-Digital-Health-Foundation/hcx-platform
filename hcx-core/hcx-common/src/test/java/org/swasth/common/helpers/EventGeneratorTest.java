@@ -215,8 +215,8 @@ public class EventGeneratorTest {
         assertNotNull(resultMap.get(MID));
         assertEquals(NOTIFICATION_ON_SUBSCRIBE,resultMap.get(ACTION));
         assertEquals(ACTIVE,resultMap.get(SUBSCRIPTION_STATUS));
-        assertEquals("hcx-apollo-12345",resultMap.get(RECIPIENT_CODE));
-        assertEquals("icici-67890",resultMap.get(Constants.SENDER_CODE));
+        assertEquals("hcx-apollo-12345",resultMap.get(HCX_RECIPIENT_CODE));
+        assertEquals("icici-67890",resultMap.get(HCX_SENDER_CODE));
         assertEquals("subscription_id-001",resultMap.get(SUBSCRIPTION_ID));
         assertNotNull(resultMap.get(ETS));
         assertEquals(QUEUED_STATUS,resultMap.get(AUDIT_STATUS));
