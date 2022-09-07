@@ -42,7 +42,7 @@ class SearchResponseFunction(config: SearchResponseConfig)(implicit val stringTy
      */
     //Add request time stamp for audit log
     event.put(Constants.REQUESTED_TIME, Calendar.getInstance().getTime())
-    val correlationId = getProtocolStringValue(event,Constants.CORRELATION_ID)
+    val correlationId = getProtocolStringValue(event,Constants.HCX_CORRELATION_ID)
     val action = event.get(Constants.ACTION).asInstanceOf[String]
     val apiCallId = getProtocolStringValue(event,Constants.API_CALL_ID)
     val baseRecord = getBaseRecord(correlationId)

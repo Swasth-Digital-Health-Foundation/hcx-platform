@@ -92,8 +92,6 @@ public class NotificationController extends BaseController {
     @PostMapping(Constants.NOTIFICATION_NOTIFY)
     public ResponseEntity<Object> notificationRequest(@RequestBody Map<String, Object> requestBody) throws Exception {
         Request request = new Request(requestBody, NOTIFICATION_NOTIFY);
-        request.setHeaders(request.getPayload());
-        request.setHeaders((Map<String, Object>) request.getPayload().getOrDefault(NOTIFICATION_HEADERS, new HashMap<>()));
         Response response = new Response(request);
         try {
             notificationService.notify(request, kafkaTopic);

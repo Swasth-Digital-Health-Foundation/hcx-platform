@@ -1,5 +1,6 @@
 package org.swasth.hcx.service;
 
+import org.apache.commons.collections.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -95,7 +96,7 @@ public class NotificationService {
      * validates and process the notify request
      */
     public void notify(Request request, String kafkaTopic) throws Exception {
-        if (!request.getSubscriptions().isEmpty())
+        if (request.getRecipientType().equalsIgnoreCase(SUBSCRIPTION) && !request.getRecipients().isEmpty())
             isValidSubscriptions(request);
         eventHandler.processAndSendEvent(kafkaTopic, request);
     }
@@ -104,7 +105,7 @@ public class NotificationService {
      * checks the given list of subscriptions are valid and active
      */
     private void isValidSubscriptions(Request request) throws Exception {
-        List<String> subscriptions = request.getSubscriptions();
+        List<String> subscriptions = request.getRecipients();
         ResultSet resultSet = null;
         try {
             String joined = subscriptions.stream()

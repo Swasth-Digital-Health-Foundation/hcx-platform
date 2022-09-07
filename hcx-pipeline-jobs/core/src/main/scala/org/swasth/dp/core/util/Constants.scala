@@ -65,7 +65,7 @@ object Constants {
   val HCX_SENDER_CODE = "x-hcx-sender_code"
   val HCX_RECIPIENT_CODE = "x-hcx-recipient_code"
   val API_CALL_ID = "x-hcx-api_call_id"
-  val CORRELATION_ID = "x-hcx-correlation_id"
+  val HCX_CORRELATION_ID = "x-hcx-correlation_id"
   val WORKFLOW_ID = "x-hcx-workflow_id"
   val HCX_TIMESTAMP = "x-hcx-timestamp"
   val TIMESTAMP = "timestamp"
@@ -106,6 +106,10 @@ object Constants {
   val WORKFLOW = "Workflow"
   val PROPERTIES = "properties"
   val PROPS = "props"
+  val RECIPIENT_TYPE = "recipient_type"
+  val SUBSCRIPTION = "subscription"
+  val PARTICIPANT_ROLE = "participant_role"
+  val RECIPIENTS = "recipients"
 
   // Notification topic codes
   val PARTICIPANT_ONBOARD = "notif-participant-onboarded"
@@ -144,6 +148,7 @@ object Constants {
   val IAT = "iat"
   val EXP = "exp"
   val TYP = "typ"
+  val JWT = "JWT"
   val ALG = "alg"
   val RS256 = "RS256"
 

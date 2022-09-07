@@ -1,5 +1,7 @@
 package org.swasth.common.utils;
 
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.io.IOUtils;
 
@@ -8,13 +10,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.security.PublicKey;
-import java.security.Signature;
+import java.security.*;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
+import java.util.Map;
 
 public class JWTUtils {
 
@@ -39,4 +43,12 @@ public class JWTUtils {
                 .generateCertificate(new ByteArrayInputStream(IOUtils.toString(new URL(publicKeyUrl), StandardCharsets.UTF_8.toString()).getBytes()));
         return certificate.getNotAfter().toInstant().toEpochMilli();
     }
+
+    public String generateJWS(Map<String,Object> headers, Map<String,Object> payload, String privateKey) throws NoSuchAlgorithmException, InvalidKeySpecException {
+       byte[] privateKeyDecoded = Base64.getDecoder().decode(privateKey);
+        PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(privateKeyDecoded);
+        PrivateKey rsaPrivateKey = KeyFactory.getInstance("RSA").generatePrivate(spec);
+        return Jwts.builder().setHeader(headers).setClaims(payload).signWith(SignatureAlgorithm.RS256, rsaPrivateKey).compact();
+    }
+
 }

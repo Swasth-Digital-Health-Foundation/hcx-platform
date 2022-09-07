@@ -1,10 +1,13 @@
 package org.swasth.common.dto;
 
+import org.apache.commons.lang3.StringUtils;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
 import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.utils.PayloadUtils;
+import org.swasth.common.utils.UUIDUtils;
+
 import java.util.*;
 
 import static org.swasth.common.utils.Constants.*;
@@ -13,7 +16,7 @@ public class Request {
 
     private final Map<String, Object> payload;
     protected Map<String, Object> hcxHeaders = null;
-    private String mid = UUID.randomUUID().toString();
+    private String mid = UUIDUtils.getUUID();
     private String apiAction;
     private final String payloadWithoutSensitiveData;
 
@@ -21,16 +24,26 @@ public class Request {
         this.apiAction = apiAction;
         this.payload = body;
         try {
-            if (apiAction.equals(NOTIFICATION_NOTIFY))
-                hcxHeaders = JSONUtils.decodeBase64String(((String) body.get(PAYLOAD)).split("\\.")[1], Map.class);
-            else if (body.containsKey(PAYLOAD))
-                hcxHeaders = JSONUtils.decodeBase64String(((String) body.get(PAYLOAD)).split("\\.")[0], Map.class);
-            else
+            if (body.containsKey(PAYLOAD)) {
+                hcxHeaders = JSONUtils.decodeBase64String(getPayloadValues()[0], Map.class);
+            } else if (apiAction.equals(NOTIFICATION_NOTIFY)) {
+                hcxHeaders.putAll(JSONUtils.decodeBase64String(getPayloadValues()[1], Map.class));
+                hcxHeaders.putAll(getNotificationHeaders());
+                if (StringUtils.isEmpty((String) getHcxHeaders().getOrDefault("correlation_id", "")) || !UUIDUtils.isUUID("correlation_id"))
+                    hcxHeaders.put(CORRELATION_ID, UUIDUtils.getUUID());
+                else
+                    hcxHeaders.put(CORRELATION_ID, hcxHeaders.get("correlation_id"));
+            } else {
                 hcxHeaders = body;
+            }
             this.payloadWithoutSensitiveData = PayloadUtils.removeSensitiveData(body, apiAction);
         } catch (Exception e) {
-            throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, "Invalid Payload");
+            throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, "Error while parsing the payload");
         }
+    }
+
+    private String[] getPayloadValues() {
+        return ((String) getPayload().get(PAYLOAD)).split("\\.");
     }
 
     // TODO remove this method. We should restrict accessing it to have a clean code.
@@ -77,7 +90,11 @@ public class Request {
     }
 
     protected String getHeader(String key) {
-        return (String) hcxHeaders.getOrDefault(key, null);
+        return (String) hcxHeaders.getOrDefault(key, "");
+    }
+
+    public void setHeader(String key, String value) {
+        hcxHeaders.put(key, value);
     }
 
     public void setHeaders(Map<String,Object> headers) {
@@ -89,7 +106,7 @@ public class Request {
     }
 
     protected Map<String, Object> getHeaderMap(String key) {
-        return (Map<String, Object>) hcxHeaders.getOrDefault(key, null);
+        return (Map<String, Object>) hcxHeaders.getOrDefault(key, new HashMap<>());
     }
 
     private void setHeaderMap(String key, Object value) {
@@ -122,13 +139,13 @@ public class Request {
 
     public String getSenderCode() { return getHeader(SENDER_CODE); }
 
-    public List<String> getRecipientCodes() { return getHeaderList(Constants.RECIPIENT_CODES);}
+    public String getRecipientType() { return getHeader(RECIPIENT_TYPE); }
 
-    public List<String> getRecipientRoles() { return getHeaderList(Constants.RECIPIENT_ROLES);}
+    public List<String> getRecipients() { return getHeaderList(Constants.RECIPIENTS); }
 
-    public List<String> getSubscriptions() { return getHeaderList(Constants.SUBSCRIPTIONS);}
+    public Map<String,Object> getNotificationHeaders() { return getHeaderMap(NOTIFICATION_HEADERS); }
 
-    public Map<String,Object> getNotificationData() { return getHeaderMap(Constants.NOTIFICATION_DATA);}
+    public Map<String,Object> getNotificationData() { return getHeaderMap(Constants.NOTIFICATION_DATA); }
 
     public List<String> getSenderList() { return getHeaderList(SENDER_LIST); }
 
