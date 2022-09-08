@@ -77,7 +77,7 @@ import static org.swasth.common.utils.Constants.*;
         notificationHeaders.put(SENDER_CODE, "hcx-apollo-12345");
         notificationHeaders.put(RECIPIENT_TYPE, PARTICIPANT_CODE);
         notificationHeaders.put(RECIPIENTS, List.of("test-user@hcx"));
-        notificationHeaders.put("correlation_id", "");
+        notificationHeaders.put("correlation_id", "1234");
         obj.put(NOTIFICATION_HEADERS, notificationHeaders);
         obj.put(PAYLOAD, JSONUtils.encodeBase64String(JSONUtils.serialize(notificationHeaders)) + ".eyJ0b3BpY19jb2RlIjoibm90aWYtcGFydGljaXBhbnQtb25ib2FyZGVkIiwibWVzc2FnZSI6IlBhcnRpY2lwYW50IGhhcyBzdWNjZXNzZnVsbHkgb25ib2FyZGVkIn0=.L14NMRVoQq7TMEUt0IiG36P0NgDH1Poz4Nbh5BRZ7BcFXQzUI4SBduIJKY-WFCMPdKBl_LjlSm9JpNULn-gwLiDQ8ipQ3fZhzOkdzyjg0kUfpYN_aLQVgMaZ8Nrw3WytXIHserNxmka3wJQuSLvPnz9aJoFABij2evurnTsKq3oNbR0Oac3FJrpPO2O8fKaXs0Pi5Stf81eqcJ3Xs7oncJqBzgbp_jWShX8Ljfrf_TvM1patR-_h4E0O0HoVb0zD7SQmlKYOy0hw1bli5vdCnkh0tc1dF9yYrTEgofOjRemycFz_wEJ6FjFO1RryaBETw7qQ8hdGLemD545yUxCUng");
         return obj;

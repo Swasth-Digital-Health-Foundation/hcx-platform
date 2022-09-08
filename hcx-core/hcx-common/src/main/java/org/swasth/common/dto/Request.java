@@ -28,7 +28,8 @@ public class Request {
                 hcxHeaders = getHeadersFromPayload();
                 hcxHeaders.putAll(JSONUtils.decodeBase64String(getPayloadValues()[1], Map.class));
                 hcxHeaders.putAll(getNotificationHeaders());
-                if (StringUtils.isEmpty((String) getHcxHeaders().getOrDefault("correlation_id", "")) || !UUIDUtils.isUUID("correlation_id"))
+                if (StringUtils.isEmpty((String) getHcxHeaders().getOrDefault("correlation_id", ""))
+                        || !UUIDUtils.isUUID((String) getHcxHeaders().get("correlation_id")))
                     hcxHeaders.put(CORRELATION_ID, UUIDUtils.getUUID());
                 else
                     hcxHeaders.put(CORRELATION_ID, hcxHeaders.get("correlation_id"));
