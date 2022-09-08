@@ -72,8 +72,7 @@ public class JSONRequest extends BaseRequest {
         validateCondition(!isValidSignature, ErrorCodes.ERR_INVALID_SIGNATURE, "JWS payload is not signed by the request initiator");
         validateCondition(getNotificationTimestamp() == null, ErrorCodes.ERR_INVALID_NOTIFICATION_TIMESTAMP, "Notification timestamp is missing or empty");
         validateCondition(MapUtils.isEmpty(getNotificationHeaders()), ErrorCodes.ERR_INVALID_NOTIFICATION_HEADERS, "Notification headers is missing or empty");
-        validateCondition(getProtocolHeaders().containsKey(EXPIRY) && (StringUtils.isEmpty(getExpiry()) || new DateTime(getExpiry()).isBefore(DateTime.now())),
-                ErrorCodes.ERR_INVALID_NOTIFICATION_EXPIRY, "Notification expiry cannot be empty or past date");
+        validateCondition(getProtocolHeaders().containsKey(EXPIRY) && new DateTime(getExpiry()).isBefore(DateTime.now()), ErrorCodes.ERR_INVALID_NOTIFICATION_EXPIRY, "Notification expiry cannot be past date");
         validateCondition(StringUtils.isEmpty(getRecipientType()), ErrorCodes.ERR_INVALID_NOTIFICATION_RECIPIENT_TYPE, "Recipient type is missing or empty");
         validateCondition(getRecipients().size() == 0, ErrorCodes.ERR_INVALID_NOTIFICATION_RECIPIENTS, "Recipients list is empty");
         validateCondition(StringUtils.isEmpty(getNotificationMessage()), ErrorCodes.ERR_INVALID_NOTIFICATION_MESSAGE, "Notification message is missing or empty");
@@ -137,8 +136,8 @@ public class JSONRequest extends BaseRequest {
         return (Long) getProtocolHeaders().getOrDefault("timestamp", null);
     }
 
-    public String getExpiry() {
-        return getHeader(EXPIRY);
+    public Long getExpiry() {
+        return (Long) getProtocolHeaders().getOrDefault(EXPIRY, null);
     }
 
     public String getNotificationPayload() { return getHeader(PAYLOAD); }
