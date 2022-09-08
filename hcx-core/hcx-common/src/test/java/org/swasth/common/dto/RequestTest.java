@@ -1,8 +1,10 @@
 package org.swasth.common.dto;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.Test;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.utils.Constants;
+import org.swasth.common.utils.JSONUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -69,7 +71,7 @@ import static org.swasth.common.utils.Constants.*;
          assertNotNull(request.getCorrelationId());
      }
 
-    private Map<String,Object> getNotificationRequest() {
+    private Map<String,Object> getNotificationRequest() throws JsonProcessingException {
         Map<String,Object> obj = new HashMap<>();
         Map<String,Object> notificationHeaders = new HashMap<>();
         notificationHeaders.put(SENDER_CODE, "hcx-apollo-12345");
@@ -77,11 +79,11 @@ import static org.swasth.common.utils.Constants.*;
         notificationHeaders.put(RECIPIENTS, List.of("test-user@hcx"));
         notificationHeaders.put("correlation_id", "");
         obj.put(NOTIFICATION_HEADERS, notificationHeaders);
-        obj.put(PAYLOAD, "eyJhbGciOiJSUzI1NiJ9.eyJ0b3BpY19jb2RlIjoibm90aWYtcGFydGljaXBhbnQtb25ib2FyZGVkIiwibWVzc2FnZSI6IlBhcnRpY2lwYW50IGhhcyBzdWNjZXNzZnVsbHkgb25ib2FyZGVkIn0=.L14NMRVoQq7TMEUt0IiG36P0NgDH1Poz4Nbh5BRZ7BcFXQzUI4SBduIJKY-WFCMPdKBl_LjlSm9JpNULn-gwLiDQ8ipQ3fZhzOkdzyjg0kUfpYN_aLQVgMaZ8Nrw3WytXIHserNxmka3wJQuSLvPnz9aJoFABij2evurnTsKq3oNbR0Oac3FJrpPO2O8fKaXs0Pi5Stf81eqcJ3Xs7oncJqBzgbp_jWShX8Ljfrf_TvM1patR-_h4E0O0HoVb0zD7SQmlKYOy0hw1bli5vdCnkh0tc1dF9yYrTEgofOjRemycFz_wEJ6FjFO1RryaBETw7qQ8hdGLemD545yUxCUng");
+        obj.put(PAYLOAD, JSONUtils.encodeBase64String(JSONUtils.serialize(notificationHeaders)) + ".eyJ0b3BpY19jb2RlIjoibm90aWYtcGFydGljaXBhbnQtb25ib2FyZGVkIiwibWVzc2FnZSI6IlBhcnRpY2lwYW50IGhhcyBzdWNjZXNzZnVsbHkgb25ib2FyZGVkIn0=.L14NMRVoQq7TMEUt0IiG36P0NgDH1Poz4Nbh5BRZ7BcFXQzUI4SBduIJKY-WFCMPdKBl_LjlSm9JpNULn-gwLiDQ8ipQ3fZhzOkdzyjg0kUfpYN_aLQVgMaZ8Nrw3WytXIHserNxmka3wJQuSLvPnz9aJoFABij2evurnTsKq3oNbR0Oac3FJrpPO2O8fKaXs0Pi5Stf81eqcJ3Xs7oncJqBzgbp_jWShX8Ljfrf_TvM1patR-_h4E0O0HoVb0zD7SQmlKYOy0hw1bli5vdCnkh0tc1dF9yYrTEgofOjRemycFz_wEJ6FjFO1RryaBETw7qQ8hdGLemD545yUxCUng");
         return obj;
     }
 
-     private Map<String,Object> getInvalidCorrIdNotificationRequest() {
+     private Map<String,Object> getInvalidCorrIdNotificationRequest() throws JsonProcessingException {
          Map<String,Object> obj = new HashMap<>();
          Map<String,Object> notificationHeaders = new HashMap<>();
          notificationHeaders.put(SENDER_CODE, "hcx-apollo-12345");
@@ -89,7 +91,7 @@ import static org.swasth.common.utils.Constants.*;
          notificationHeaders.put(RECIPIENTS, List.of("test-user@hcx"));
          notificationHeaders.put("correlation_id", "8c365958-9d3e-4e00-ac58-e6a7c837b74c");
          obj.put(NOTIFICATION_HEADERS, notificationHeaders);
-         obj.put(PAYLOAD, "eyJhbGciOiJSUzI1NiJ9.eyJ0b3BpY19jb2RlIjoibm90aWYtcGFydGljaXBhbnQtb25ib2FyZGVkIiwibWVzc2FnZSI6IlBhcnRpY2lwYW50IGhhcyBzdWNjZXNzZnVsbHkgb25ib2FyZGVkIn0=.L14NMRVoQq7TMEUt0IiG36P0NgDH1Poz4Nbh5BRZ7BcFXQzUI4SBduIJKY-WFCMPdKBl_LjlSm9JpNULn-gwLiDQ8ipQ3fZhzOkdzyjg0kUfpYN_aLQVgMaZ8Nrw3WytXIHserNxmka3wJQuSLvPnz9aJoFABij2evurnTsKq3oNbR0Oac3FJrpPO2O8fKaXs0Pi5Stf81eqcJ3Xs7oncJqBzgbp_jWShX8Ljfrf_TvM1patR-_h4E0O0HoVb0zD7SQmlKYOy0hw1bli5vdCnkh0tc1dF9yYrTEgofOjRemycFz_wEJ6FjFO1RryaBETw7qQ8hdGLemD545yUxCUng");
+         obj.put(PAYLOAD, JSONUtils.encodeBase64String(JSONUtils.serialize(notificationHeaders)) + ".eyJ0b3BpY19jb2RlIjoibm90aWYtcGFydGljaXBhbnQtb25ib2FyZGVkIiwibWVzc2FnZSI6IlBhcnRpY2lwYW50IGhhcyBzdWNjZXNzZnVsbHkgb25ib2FyZGVkIn0=.L14NMRVoQq7TMEUt0IiG36P0NgDH1Poz4Nbh5BRZ7BcFXQzUI4SBduIJKY-WFCMPdKBl_LjlSm9JpNULn-gwLiDQ8ipQ3fZhzOkdzyjg0kUfpYN_aLQVgMaZ8Nrw3WytXIHserNxmka3wJQuSLvPnz9aJoFABij2evurnTsKq3oNbR0Oac3FJrpPO2O8fKaXs0Pi5Stf81eqcJ3Xs7oncJqBzgbp_jWShX8Ljfrf_TvM1patR-_h4E0O0HoVb0zD7SQmlKYOy0hw1bli5vdCnkh0tc1dF9yYrTEgofOjRemycFz_wEJ6FjFO1RryaBETw7qQ8hdGLemD545yUxCUng");
          return obj;
      }
 
