@@ -92,7 +92,7 @@ public class NotificationController extends BaseController {
     @PostMapping(Constants.NOTIFICATION_NOTIFY)
     public ResponseEntity<Object> notificationRequest(@RequestBody Map<String, Object> requestBody) throws Exception {
         Request request = new Request(requestBody, NOTIFICATION_NOTIFY);
-        Response response = new Response(request);
+        Response response = new Response(request.getCorrelationId());
         try {
             notificationService.notify(request, kafkaTopic);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
