@@ -382,17 +382,6 @@ class NotificationControllerTest extends BaseSpec {
     }
 
     @Test
-    void testNotifyWithEmptySubscriptions() throws Exception {
-        doNothing().when(mockKafkaClient).send(anyString(), anyString(), any());
-        String requestBody = getNotificationRequest(Collections.EMPTY_LIST);
-        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_NOTIFY).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
-        MockHttpServletResponse response = mvcResult.getResponse();
-        int status = response.getStatus();
-        Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
-        assertEquals(202, status);
-    }
-
-    @Test
     void testNotifyFailure() throws Exception {
         doReturn(getSubscriptionsResultSet()).when(postgreSQLClient).executeQuery(anyString());
         doNothing().when(mockKafkaClient).send(anyString(), anyString(), any());
