@@ -98,10 +98,6 @@ public class Request {
         return (String) hcxHeaders.getOrDefault(key, "");
     }
 
-    public void setHeader(String key, String value) {
-        hcxHeaders.put(key, value);
-    }
-
     public void setHeaders(Map<String,Object> headers) {
         hcxHeaders.putAll(headers);
     }
