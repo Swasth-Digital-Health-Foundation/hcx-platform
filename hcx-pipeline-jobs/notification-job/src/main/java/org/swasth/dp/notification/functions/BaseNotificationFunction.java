@@ -53,6 +53,10 @@ public abstract class BaseNotificationFunction extends ProcessFunction<Map<Strin
         return (String) ((Map<String,Object>) ((Map<String,Object>) event.get(Constants.HEADERS())).get(Constants.PROTOCOL())).getOrDefault(key, "");
     }
 
+    protected Long getProtocolLongValue(String key,Map<String,Object> event) {
+        return (Long) ((Map<String,Object>) ((Map<String,Object>) event.get(Constants.HEADERS())).get(Constants.PROTOCOL())).getOrDefault(key, null);
+    }
+
     protected Map<String,Object> getProtocolMapValue(String key,Map<String,Object> event) {
         return (Map<String,Object>) ((Map<String,Object>) ((Map<String,Object>) event.get(Constants.HEADERS())).get(Constants.PROTOCOL())).getOrDefault(key, new HashMap<>());
     }

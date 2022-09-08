@@ -42,16 +42,22 @@ public class BaseRequest {
         this.hcxRoles = hcxRoles;
         this.hcxCode  = hcxCode;
         try {
-            if (!this.isJSONRequest)
-                this.protocolHeaders = JSONUtils.decodeBase64String(validatePayload(apiAction)[0], Map.class);
-            else if (apiAction.contains(NOTIFICATION_NOTIFY))
+            if (apiAction.contains(NOTIFICATION_NOTIFY)) {
+                this.protocolHeaders = getProtocolHeaders(apiAction, 0);
                 this.protocolHeaders.putAll(JSONUtils.decodeBase64String(getPayloadValues()[1], Map.class));
-            else
+            } else if (!this.isJSONRequest) {
+                this.protocolHeaders = getProtocolHeaders(apiAction, 0);
+            } else {
                 this.protocolHeaders = payload;
+            }
             this.payloadWithoutSensitiveData = PayloadUtils.removeSensitiveData(payload, apiAction);
         } catch (JsonParseException e) {
             throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, "Error while parsing the payload");
         }
+    }
+
+    private Map<String,Object> getProtocolHeaders(String apiAction, int i) throws Exception {
+        return JSONUtils.decodeBase64String(validatePayload(apiAction)[i], Map.class);
     }
 
     public void validate(List<String> mandatoryHeaders,String subject, int timestampRange,Map<String,Object> senderDetails,Map<String,Object> recipientDetails) throws Exception {

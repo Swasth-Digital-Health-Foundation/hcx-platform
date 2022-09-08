@@ -137,6 +137,7 @@ object Constants {
   //val ERROR_STATUS = "response.error"
 
   val ERR_INVALID_RECIPIENT = "ERR_INVALID_RECIPIENT"
+  val ERR_NOTIFICATION_EXPIRED = "ERR_NOTIFICATION_EXPIRED"
   val RECIPIENT_ERROR_CODE = "ERR_RECIPIENT_NOT_AVAILABLE"
   val RECIPIENT_ERROR_MESSAGE = "Please provide correct recipient code"
   val RECIPIENT_ERROR_LOG = "Recipient endpoint url is empty"
