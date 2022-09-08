@@ -15,8 +15,8 @@ import org.swasth.common.utils.Constants;
 import org.swasth.hcx.controllers.BaseController;
 import org.swasth.hcx.service.NotificationService;
 
-import java.util.HashMap;
 import java.util.Map;
+
 import static org.swasth.common.utils.Constants.*;
 
 @RestController()

@@ -4,7 +4,6 @@ import lombok.experimental.UtilityClass;
 import org.springframework.util.AntPathMatcher;
 
 import java.util.List;
-import java.util.UUID;
 
 @UtilityClass
 public class Utils {

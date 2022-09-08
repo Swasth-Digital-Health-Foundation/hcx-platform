@@ -1,6 +1,5 @@
 package org.swasth.hcx.service;
 
-import org.apache.commons.collections.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -9,12 +8,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.swasth.auditindexer.function.AuditIndexer;
-import org.swasth.common.dto.*;
+import org.swasth.common.dto.NotificationListRequest;
+import org.swasth.common.dto.Request;
+import org.swasth.common.dto.Response;
+import org.swasth.common.dto.Subscription;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
+import org.swasth.common.helpers.EventGenerator;
 import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.NotificationUtils;
-import org.swasth.common.helpers.EventGenerator;
 import org.swasth.hcx.handlers.EventHandler;
 import org.swasth.kafka.client.IEventService;
 import org.swasth.postgresql.IDatabaseService;
@@ -96,7 +98,7 @@ public class NotificationService {
      * validates and process the notify request
      */
     public void notify(Request request, String kafkaTopic) throws Exception {
-        if (request.getRecipientType().equalsIgnoreCase(SUBSCRIPTION) && !request.getRecipients().isEmpty())
+        if (request.getRecipientType().equalsIgnoreCase(SUBSCRIPTION))
             isValidSubscriptions(request);
         eventHandler.processAndSendEvent(kafkaTopic, request);
     }

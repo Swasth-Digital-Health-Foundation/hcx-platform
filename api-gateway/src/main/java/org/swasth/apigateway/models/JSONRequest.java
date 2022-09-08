@@ -7,13 +7,13 @@ import org.joda.time.DateTime;
 import org.swasth.apigateway.exception.ClientException;
 import org.swasth.apigateway.exception.ErrorCodes;
 import org.swasth.common.utils.Constants;
-import org.swasth.common.utils.JWTUtils;
 import org.swasth.common.utils.NotificationUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
 import static org.swasth.common.utils.Constants.*;
 
 @Data

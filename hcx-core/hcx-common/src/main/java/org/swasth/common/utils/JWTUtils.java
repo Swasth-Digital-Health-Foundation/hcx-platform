@@ -2,7 +2,6 @@ package org.swasth.common.utils;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import lombok.experimental.UtilityClass;
 import org.apache.commons.io.IOUtils;
 
 import java.io.ByteArrayInputStream;
