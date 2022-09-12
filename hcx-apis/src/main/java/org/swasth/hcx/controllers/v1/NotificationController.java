@@ -15,8 +15,8 @@ import org.swasth.common.utils.Constants;
 import org.swasth.hcx.controllers.BaseController;
 import org.swasth.hcx.service.NotificationService;
 
-import java.util.HashMap;
 import java.util.Map;
+
 import static org.swasth.common.utils.Constants.*;
 
 @RestController()
@@ -92,9 +92,7 @@ public class NotificationController extends BaseController {
     @PostMapping(Constants.NOTIFICATION_NOTIFY)
     public ResponseEntity<Object> notificationRequest(@RequestBody Map<String, Object> requestBody) throws Exception {
         Request request = new Request(requestBody, NOTIFICATION_NOTIFY);
-        request.setHeaders(request.getPayload());
-        request.setHeaders((Map<String, Object>) request.getPayload().getOrDefault(NOTIFICATION_HEADERS, new HashMap<>()));
-        Response response = new Response(request);
+        Response response = new Response(request.getCorrelationId());
         try {
             notificationService.notify(request, kafkaTopic);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
