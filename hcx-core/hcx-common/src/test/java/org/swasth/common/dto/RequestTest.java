@@ -1,8 +1,10 @@
 package org.swasth.common.dto;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.Test;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.utils.Constants;
+import org.swasth.common.utils.JSONUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -59,23 +61,39 @@ import static org.swasth.common.utils.Constants.*;
         Request request = new Request(getNotificationRequest(), NOTIFICATION_NOTIFY);
         assertEquals("notif-participant-onboarded", request.getTopicCode());
         assertNotNull(request.getNotificationMessage());
+        assertEquals(PARTICIPANT_CODE, request.getRecipientType());
+        assertEquals(List.of("test-user@hcx"), request.getRecipients());
     }
 
-    private Map<String,Object> getNotificationRequest() {
+     @Test
+     public void testNotificationPayloadWithInvalidCorrId() throws Exception {
+         Request request = new Request(getInvalidCorrIdNotificationRequest(), NOTIFICATION_NOTIFY);
+         assertNotNull(request.getCorrelationId());
+     }
+
+    private Map<String,Object> getNotificationRequest() throws JsonProcessingException {
         Map<String,Object> obj = new HashMap<>();
-        obj.put(HCX_SENDER_CODE,"hcx-apollo-12345");
-        obj.put(HCX_RECIPIENT_CODE,"hcx-gateway");
-        obj.put(CORRELATION_ID, "5e934f90-111d-4f0b-b016-c22d820674e4");
-        obj.put(API_CALL_ID, "1e83-460a-4f0b-b016-c22d820674e1");
-        obj.put(TIMESTAMP, "2022-01-06T09:50:23+00");
         Map<String,Object> notificationHeaders = new HashMap<>();
-        notificationHeaders.put(RECIPIENT_ROLES, List.of("payor"));
-        notificationHeaders.put(RECIPIENT_CODES, List.of("test-user@hcx"));
-        notificationHeaders.put(SUBSCRIPTIONS, List.of("hcx-notification-001:hcx-apollo-12345"));
+        notificationHeaders.put(SENDER_CODE, "hcx-apollo-12345");
+        notificationHeaders.put(RECIPIENT_TYPE, PARTICIPANT_CODE);
+        notificationHeaders.put(RECIPIENTS, List.of("test-user@hcx"));
+        notificationHeaders.put("correlation_id", "1234");
         obj.put(NOTIFICATION_HEADERS, notificationHeaders);
-        obj.put(PAYLOAD, "eyJhbGciOiJSUzI1NiJ9.eyJ0b3BpY19jb2RlIjoibm90aWYtcGFydGljaXBhbnQtb25ib2FyZGVkIiwibWVzc2FnZSI6IlBhcnRpY2lwYW50IGhhcyBzdWNjZXNzZnVsbHkgb25ib2FyZGVkIn0=.L14NMRVoQq7TMEUt0IiG36P0NgDH1Poz4Nbh5BRZ7BcFXQzUI4SBduIJKY-WFCMPdKBl_LjlSm9JpNULn-gwLiDQ8ipQ3fZhzOkdzyjg0kUfpYN_aLQVgMaZ8Nrw3WytXIHserNxmka3wJQuSLvPnz9aJoFABij2evurnTsKq3oNbR0Oac3FJrpPO2O8fKaXs0Pi5Stf81eqcJ3Xs7oncJqBzgbp_jWShX8Ljfrf_TvM1patR-_h4E0O0HoVb0zD7SQmlKYOy0hw1bli5vdCnkh0tc1dF9yYrTEgofOjRemycFz_wEJ6FjFO1RryaBETw7qQ8hdGLemD545yUxCUng");
+        obj.put(PAYLOAD, JSONUtils.encodeBase64String(JSONUtils.serialize(notificationHeaders)) + ".eyJ0b3BpY19jb2RlIjoibm90aWYtcGFydGljaXBhbnQtb25ib2FyZGVkIiwibWVzc2FnZSI6IlBhcnRpY2lwYW50IGhhcyBzdWNjZXNzZnVsbHkgb25ib2FyZGVkIn0=.L14NMRVoQq7TMEUt0IiG36P0NgDH1Poz4Nbh5BRZ7BcFXQzUI4SBduIJKY-WFCMPdKBl_LjlSm9JpNULn-gwLiDQ8ipQ3fZhzOkdzyjg0kUfpYN_aLQVgMaZ8Nrw3WytXIHserNxmka3wJQuSLvPnz9aJoFABij2evurnTsKq3oNbR0Oac3FJrpPO2O8fKaXs0Pi5Stf81eqcJ3Xs7oncJqBzgbp_jWShX8Ljfrf_TvM1patR-_h4E0O0HoVb0zD7SQmlKYOy0hw1bli5vdCnkh0tc1dF9yYrTEgofOjRemycFz_wEJ6FjFO1RryaBETw7qQ8hdGLemD545yUxCUng");
         return obj;
     }
+
+     private Map<String,Object> getInvalidCorrIdNotificationRequest() throws JsonProcessingException {
+         Map<String,Object> obj = new HashMap<>();
+         Map<String,Object> notificationHeaders = new HashMap<>();
+         notificationHeaders.put(SENDER_CODE, "hcx-apollo-12345");
+         notificationHeaders.put(RECIPIENT_TYPE, PARTICIPANT_CODE);
+         notificationHeaders.put(RECIPIENTS, List.of("test-user@hcx"));
+         notificationHeaders.put("correlation_id", "8c365958-9d3e-4e00-ac58-e6a7c837b74c");
+         obj.put(NOTIFICATION_HEADERS, notificationHeaders);
+         obj.put(PAYLOAD, JSONUtils.encodeBase64String(JSONUtils.serialize(notificationHeaders)) + ".eyJ0b3BpY19jb2RlIjoibm90aWYtcGFydGljaXBhbnQtb25ib2FyZGVkIiwibWVzc2FnZSI6IlBhcnRpY2lwYW50IGhhcyBzdWNjZXNzZnVsbHkgb25ib2FyZGVkIn0=.L14NMRVoQq7TMEUt0IiG36P0NgDH1Poz4Nbh5BRZ7BcFXQzUI4SBduIJKY-WFCMPdKBl_LjlSm9JpNULn-gwLiDQ8ipQ3fZhzOkdzyjg0kUfpYN_aLQVgMaZ8Nrw3WytXIHserNxmka3wJQuSLvPnz9aJoFABij2evurnTsKq3oNbR0Oac3FJrpPO2O8fKaXs0Pi5Stf81eqcJ3Xs7oncJqBzgbp_jWShX8Ljfrf_TvM1patR-_h4E0O0HoVb0zD7SQmlKYOy0hw1bli5vdCnkh0tc1dF9yYrTEgofOjRemycFz_wEJ6FjFO1RryaBETw7qQ8hdGLemD545yUxCUng");
+         return obj;
+     }
 
      @Test
      public void testSubscriptionPayload() throws Exception {

@@ -24,6 +24,12 @@ public class ResponseTest {
     }
 
     @Test
+    public void testCreateResponseWithCorrelationId() throws Exception {
+        Response response = new Response(new Request(getRequestBody(), Constants.COVERAGE_ELIGIBILITY_CHECK).getCorrelationId());
+        assertEquals("5e934f90-111d-4f0b-b016-c22d820674e1", response.getCorrelationId());
+    }
+
+    @Test
     public void testErrorResponse() {
         Response errorResp = new Response(new ResponseError(ErrorCodes.ERR_INVALID_PAYLOAD, "Invalid payload", null));
         assertEquals(ErrorCodes.ERR_INVALID_PAYLOAD, errorResp.getError().getCode());

@@ -116,6 +116,8 @@ public class Constants {
     public static final String ERROR_DETAILS = "x-hcx-error_details";
     public static final String DEBUG_DETAILS = "x-hcx-debug_details";
     public static final String NOTIFICATION_HEADERS = "x-hcx-notification_headers";
+    public static final String NOTIFICATION_TIMESTAMP = "timestamp";
+    public static final String ALG = "alg";
     public static final String KAFKA_TOPIC_PAYLOAD = "kafka.topic.payload";
     public static final String ENDPOINT_URL = "endpoint_url";
     public static final String HCX_NOT_ALLOWED_URLS = "hcx.urls.notallowed";
@@ -129,6 +131,7 @@ public class Constants {
     public static final String SCHEME_CODE = "scheme_code";
     public static final String PARTICIPANT_CODE = "participant_code";
     public static final String PARTICIPANT_NAME = "participant_name";
+    public static final String PARTICIPANT_ROLE = "participant_role";
     public static final String PRIMARY_EMAIL = "primary_email";
     public static final String ENCRYPTION_CERT = "encryption_cert";
     public static final String ENCRYPTION_CERT_EXPIRY = "encryption_cert_expiry";
@@ -157,7 +160,6 @@ public class Constants {
     public static final String RETRY_PROCESSING_STATUS = "request.retry.processing";
 
     //Notification constants
-    public static final String NOTIFICATION_REQ_ID = "notification_request_id";
     public static final String ACTIVE = "Active";
     public static final String INACTIVE = "Inactive";
     public static final String PENDING = "Pending";
@@ -176,6 +178,8 @@ public class Constants {
     public static final String RECIPIENT_CODES = "recipient_codes";
     public static final String RECIPIENT_ROLES = "recipient_roles";
     public static final String SUBSCRIPTIONS = "subscriptions";
+    public static final String RECIPIENTS = "recipients";
+    public static final String RECIPIENT_TYPE = "recipient_type";
     public static final String NOTIFICATION_DATA = "notification_data";
     public static final String ALLOWED_RECIPIENTS = "allowed_recipients";
     public static final String ALLOWED_SENDERS = "allowed_senders";
@@ -188,6 +192,8 @@ public class Constants {
     public static final String EXPIRY = "expiry";
     public static final List<String> ALLOWED_SUBSCRIPTION_STATUS = Arrays.asList(ACTIVE, INACTIVE);
     public static final List<String> SUBSCRIPTION_UPDATE_PROPS = Arrays.asList(SUBSCRIPTION_STATUS, EXPIRY, IS_DELEGATED);
+    public static final String RS256 = "RS256";
+    public static final String SUBSCRIPTION = "subscription";
 
     //Constants from api-gateway
     // Entity types

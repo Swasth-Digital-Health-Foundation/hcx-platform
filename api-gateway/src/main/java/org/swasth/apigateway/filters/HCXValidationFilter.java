@@ -22,6 +22,7 @@ import org.swasth.apigateway.service.AuditService;
 import org.swasth.apigateway.service.RegistryService;
 import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
+import org.swasth.common.utils.JWTUtils;
 import org.swasth.common.utils.NotificationUtils;
 
 import java.nio.charset.StandardCharsets;
@@ -50,6 +51,9 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
 
     @Autowired
     private Environment env;
+
+    @Autowired
+    private JWTUtils jwtUtils;
 
     @Value("${timestamp.range}")
     private int timestampRange;
@@ -89,17 +93,16 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                 requestBody = JSONUtils.deserialize(cachedBody.toString(), HashMap.class);
                 if (path.contains(NOTIFICATION_NOTIFY)) { //for validating notify api request
                     JSONRequest jsonRequest = new JSONRequest(requestBody, false, path, hcxCode, hcxRoles);
-                    jsonRequest.setHeaders(jsonRequest.getPayload());
-                    jsonRequest.setHeaders((Map<String, Object>) jsonRequest.getPayload().getOrDefault(NOTIFICATION_HEADERS, new HashMap<>()));
+                    jsonRequest.setHeaders(jsonRequest.getNotificationHeaders());
                     requestObj = jsonRequest;
-                    Map<String,Object> senderDetails =  registryService.fetchDetails(OS_OWNER, subject);
+                    Map<String,Object> senderDetails =  registryService.fetchDetails(PARTICIPANT_CODE, jsonRequest.getSenderCode());
                     List<Map<String,Object>> recipientsDetails = new ArrayList<>();
-                    if(!jsonRequest.getRecipientCodes().isEmpty()){
-                        String searchRequest = createSearchRequest(jsonRequest.getRecipientCodes(),PARTICIPANT_CODE,false);
+                    if(jsonRequest.getRecipientType().equalsIgnoreCase(PARTICIPANT_CODE) && !jsonRequest.getRecipients().isEmpty()) {
+                        String searchRequest = createSearchRequest(jsonRequest.getRecipients(), PARTICIPANT_CODE, false);
                         recipientsDetails = registryService.getDetails(searchRequest);
                     }
-                    jsonRequest.validate(getNotificationMandatoryHeaders(), subject, timestampRange, senderDetails, getDetails(jsonRequest.getHcxRecipientCode()));
-                    jsonRequest.validateNotificationReq(senderDetails, recipientsDetails, allowedNetworkCodes);
+                    jsonRequest.validateNotificationReq(senderDetails, recipientsDetails, allowedNetworkCodes,
+                            jwtUtils.isValidSignature(jsonRequest.getNotificationPayload(), (String) senderDetails.get(ENCRYPTION_CERT)));
                 } else if (requestBody.containsKey(PAYLOAD)) {
                     JWERequest jweRequest = new JWERequest(requestBody, false, path, hcxCode, hcxRoles);
                     requestObj = jweRequest;
@@ -258,12 +261,6 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
         List<String> subscriptionMandatoryHeaders = new ArrayList<>();
         subscriptionMandatoryHeaders.addAll(env.getProperty("notification.subscription.headers.mandatory", List.class));
         return subscriptionMandatoryHeaders;
-    }
-
-    private List<String> getNotificationMandatoryHeaders() {
-        List<String> mandatoryHeaders = new ArrayList<>();
-        mandatoryHeaders.addAll(env.getProperty("notification.headers.mandatory", List.class));
-        return mandatoryHeaders;
     }
 
 }

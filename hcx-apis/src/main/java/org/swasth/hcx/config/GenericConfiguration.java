@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.swasth.common.helpers.EventGenerator;
 import org.swasth.common.service.RegistryService;
+import org.swasth.common.utils.JWTUtils;
 import org.swasth.common.utils.NotificationUtils;
 
 import java.io.IOException;
@@ -35,6 +36,11 @@ public class GenericConfiguration {
     @Bean
     public NotificationUtils notificationUtils() throws IOException {
         return new NotificationUtils(notificationsPath);
+    }
+
+    @Bean
+    public JWTUtils jwtUtils() {
+        return new JWTUtils();
     }
 
     @Bean

@@ -7,10 +7,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.swasth.apigateway.exception.ClientException;
 import org.swasth.apigateway.exception.ErrorCodes;
 import org.swasth.apigateway.utils.DateTimeUtils;
-import org.swasth.apigateway.utils.Utils;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.utils.PayloadUtils;
-import java.util.*;
+import org.swasth.common.utils.UUIDUtils;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.swasth.common.utils.Constants.*;
@@ -38,24 +42,30 @@ public class BaseRequest {
         this.hcxRoles = hcxRoles;
         this.hcxCode  = hcxCode;
         try {
-            if (apiAction.contains(NOTIFICATION_NOTIFY))
-                this.protocolHeaders = JSONUtils.decodeBase64String(validatePayload(payload, apiAction)[1], Map.class);
-            else if (!this.isJSONRequest)
-                this.protocolHeaders = JSONUtils.decodeBase64String(validatePayload(payload, apiAction)[0], Map.class);
-            else
+            if (apiAction.contains(NOTIFICATION_NOTIFY)) {
+                this.protocolHeaders = getProtocolHeaders(apiAction, 0);
+                this.protocolHeaders.putAll(JSONUtils.decodeBase64String(getPayloadValues()[1], Map.class));
+            } else if (!this.isJSONRequest) {
+                this.protocolHeaders = getProtocolHeaders(apiAction, 0);
+            } else {
                 this.protocolHeaders = payload;
+            }
             this.payloadWithoutSensitiveData = PayloadUtils.removeSensitiveData(payload, apiAction);
         } catch (JsonParseException e) {
-            throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, "Error while parsing protected headers");
+            throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, "Error while parsing the payload");
         }
+    }
+
+    private Map<String,Object> getProtocolHeaders(String apiAction, int i) throws Exception {
+        return JSONUtils.decodeBase64String(validatePayload(apiAction)[i], Map.class);
     }
 
     public void validate(List<String> mandatoryHeaders,String subject, int timestampRange,Map<String,Object> senderDetails,Map<String,Object> recipientDetails) throws Exception {
         for (Map.Entry<String, ClientException> entry : getResponseParamErrors().entrySet()) {
             validateHeader(protocolHeaders, entry.getKey(), entry.getValue());
         }
-        validateCondition(!Utils.isUUID(getApiCallId()), ErrorCodes.ERR_INVALID_API_CALL_ID, "API call id should be a valid UUID");
-        validateCondition(!Utils.isUUID(getCorrelationId()), ErrorCodes.ERR_INVALID_CORRELATION_ID, "Correlation id should be a valid UUID");
+        validateCondition(!UUIDUtils.isUUID(getApiCallId()), ErrorCodes.ERR_INVALID_API_CALL_ID, "API call id should be a valid UUID");
+        validateCondition(!UUIDUtils.isUUID(getCorrelationId()), ErrorCodes.ERR_INVALID_CORRELATION_ID, "Correlation id should be a valid UUID");
 
         List<String> missingHeaders = mandatoryHeaders.stream().filter(key -> !protocolHeaders.containsKey(key)).collect(Collectors.toList());
         if (!missingHeaders.isEmpty()) {
@@ -66,7 +76,7 @@ public class BaseRequest {
         }
 
         validateCondition(!DateTimeUtils.validTimestamp(timestampRange, getTimestamp()), ErrorCodes.ERR_INVALID_TIMESTAMP, "Timestamp cannot be in future or cross more than " + timestampRange + " hours in past");
-        validateCondition(protocolHeaders.containsKey(WORKFLOW_ID) && !Utils.isUUID(getWorkflowId()), ErrorCodes.ERR_INVALID_WORKFLOW_ID, "Workflow id should be a valid UUID");
+        validateCondition(protocolHeaders.containsKey(WORKFLOW_ID) && !UUIDUtils.isUUID(getWorkflowId()), ErrorCodes.ERR_INVALID_WORKFLOW_ID, "Workflow id should be a valid UUID");
         validateCondition(StringUtils.equals(getHcxSenderCode(), getHcxRecipientCode()), ErrorCodes.ERR_INVALID_SENDER_AND_RECIPIENT, "sender and recipient code cannot be the same");
         validateParticipant(recipientDetails, ErrorCodes.ERR_INVALID_RECIPIENT, "recipient", getHcxRecipientCode());
         validateParticipant(senderDetails, ErrorCodes.ERR_INVALID_SENDER, "sender", getHcxSenderCode());
@@ -213,7 +223,7 @@ public class BaseRequest {
 
     public String getStatus() { return getHeader(STATUS); }
 
-    protected String getHeader(String key) { return (String) protocolHeaders.getOrDefault(key, null); }
+    protected String getHeader(String key) { return (String) protocolHeaders.getOrDefault(key, ""); }
 
     public void setHeaders(Map<String,Object> headers) { protocolHeaders.putAll(headers);}
 
@@ -236,9 +246,9 @@ public class BaseRequest {
 
     public String getPayloadWithoutSensitiveData() { return payloadWithoutSensitiveData; }
 
-    protected String[] validatePayload(Map<String, Object> requestBody, String apiAction) throws Exception {
+    private String[] validatePayload(String apiAction) throws Exception {
         try {
-            String[] payloadValues = ((String) requestBody.get(PAYLOAD)).split("\\.");
+            String[] payloadValues = getPayloadValues();
             if (apiAction.contains(NOTIFICATION_NOTIFY)) {
                 validatePayloadValues(payloadValues, NOTIFICATION_PAYLOAD_LENGTH);
             } else {
@@ -246,8 +256,12 @@ public class BaseRequest {
             }
             return payloadValues;
         } catch (Exception e) {
-            throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, "Invalid payload");
+            throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, "Error while parsing the payload");
         }
+    }
+
+    private String[] getPayloadValues() {
+        return ((String) getPayload().get(PAYLOAD)).split("\\.");
     }
 
     private void validatePayloadValues(String[] payloadValues, int payloadLength) throws ClientException {

@@ -8,12 +8,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.swasth.auditindexer.function.AuditIndexer;
-import org.swasth.common.dto.*;
+import org.swasth.common.dto.NotificationListRequest;
+import org.swasth.common.dto.Request;
+import org.swasth.common.dto.Response;
+import org.swasth.common.dto.Subscription;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
+import org.swasth.common.helpers.EventGenerator;
 import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.NotificationUtils;
-import org.swasth.common.helpers.EventGenerator;
 import org.swasth.hcx.handlers.EventHandler;
 import org.swasth.kafka.client.IEventService;
 import org.swasth.postgresql.IDatabaseService;
@@ -95,7 +98,7 @@ public class NotificationService {
      * validates and process the notify request
      */
     public void notify(Request request, String kafkaTopic) throws Exception {
-        if (!request.getSubscriptions().isEmpty())
+        if (request.getRecipientType().equalsIgnoreCase(SUBSCRIPTION))
             isValidSubscriptions(request);
         eventHandler.processAndSendEvent(kafkaTopic, request);
     }
@@ -104,7 +107,7 @@ public class NotificationService {
      * checks the given list of subscriptions are valid and active
      */
     private void isValidSubscriptions(Request request) throws Exception {
-        List<String> subscriptions = request.getSubscriptions();
+        List<String> subscriptions = request.getRecipients();
         ResultSet resultSet = null;
         try {
             String joined = subscriptions.stream()

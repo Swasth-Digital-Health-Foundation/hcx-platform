@@ -7,7 +7,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class GenericConfigurationTest {
 
-    ApplicationContextRunner context = new ApplicationContextRunner()
+    private final ApplicationContextRunner context = new ApplicationContextRunner()
             .withUserConfiguration(GenericConfiguration.class);
 
     @Test
@@ -24,4 +24,7 @@ class GenericConfigurationTest {
     void should_check_presence_of_notification_utils_bean() {
         context.run(it -> assertThat(it).hasBean("notificationUtils"));
     }
+
+    @Test
+    void should_check_presence_of_jwt_utils_bean() { context.run(it -> assertThat(it).hasBean("jwtUtils")); }
 }

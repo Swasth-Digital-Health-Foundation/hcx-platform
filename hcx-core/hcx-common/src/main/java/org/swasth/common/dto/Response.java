@@ -30,6 +30,10 @@ public class Response {
 
     public Response() {}
 
+    public Response(String correlationId) {
+        this.correlationId = correlationId;
+    }
+
     public Response(String correlationId, String apiCallId) {
         this.correlationId = correlationId;
         this.apiCallId = apiCallId;
