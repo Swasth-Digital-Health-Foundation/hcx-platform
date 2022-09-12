@@ -8,3 +8,6 @@
 **/.cache-tests
 **/.settings/**
 
+# gitignore for Gradle project(s).
+**/.gradle/**
+**/lib/build/**
