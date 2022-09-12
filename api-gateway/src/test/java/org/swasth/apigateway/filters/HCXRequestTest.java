@@ -745,7 +745,7 @@ class HCXRequestTest extends BaseSpec {
         client.post().uri(versionPrefix + Constants.NOTIFICATION_NOTIFY)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
-                .bodyValue(getNotificationRequest("notif-claim-initiation", Constants.PARTICIPANT_CODE, Arrays.asList("test-participant-2")))
+                .bodyValue(getNotificationRequest("notif-claim-reimbursement", Constants.PARTICIPANT_CODE, Arrays.asList("test-participant-2")))
                 .exchange()
                 .expectBody(Map.class)
                 .consumeWith(result -> {
@@ -768,7 +768,7 @@ class HCXRequestTest extends BaseSpec {
         client.post().uri(versionPrefix + Constants.NOTIFICATION_NOTIFY)
                 .header(Constants.AUTHORIZATION, getPayorToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
-                .bodyValue(getNotificationRequest("notif-claim-closure", Constants.PARTICIPANT_ROLE, Arrays.asList("payor")))
+                .bodyValue(getNotificationRequest("notif-admission-case", Constants.PARTICIPANT_ROLE, Arrays.asList("invalid_role")))
                 .exchange()
                 .expectBody(Map.class)
                 .consumeWith(result -> {
@@ -832,7 +832,7 @@ class HCXRequestTest extends BaseSpec {
         client.post().uri(versionPrefix + Constants.NOTIFICATION_SUBSCRIBE)
                 .header(Constants.AUTHORIZATION, getPayorToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
-                .bodyValue(getSubscriptionRequest("notif-claim-initiation", Arrays.asList("new-payor-3")))
+                .bodyValue(getSubscriptionRequest("notif-claim-particular-disease", Arrays.asList("new-payor-3")))
                 .exchange()
                 .expectBody(Map.class)
                 .consumeWith(result -> {
@@ -972,7 +972,7 @@ class HCXRequestTest extends BaseSpec {
         client.post().uri(versionPrefix + Constants.NOTIFICATION_SUBSCRIBE)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
-                .bodyValue(getSubscriptionRequest("notif-claim-initiation", Arrays.asList("new-payor-3","test-payor")))
+                .bodyValue(getSubscriptionRequest("notif-admission-case", Arrays.asList("new-payor-3","test-payor")))
                 .exchange()
                 .expectBody(Map.class)
                 .consumeWith(result -> {
@@ -995,7 +995,7 @@ class HCXRequestTest extends BaseSpec {
         client.post().uri(versionPrefix + Constants.NOTIFICATION_SUBSCRIBE)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
-                .bodyValue(getSubscriptionRequest("notif-claim-closure", Arrays.asList("new-payor-3")))
+                .bodyValue(getSubscriptionRequest("notif-claim-particular-disease", Arrays.asList("new-payor-3")))
                 .exchange()
                 .expectBody(Map.class)
                 .consumeWith(result -> assertEquals(HttpStatus.ACCEPTED, result.getStatus()));
@@ -1014,7 +1014,7 @@ class HCXRequestTest extends BaseSpec {
         client.post().uri(versionPrefix + Constants.NOTIFICATION_UNSUBSCRIBE)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
-                .bodyValue(getSubscriptionRequest("notif-claim-closure", Arrays.asList("new-payor-3")))
+                .bodyValue(getSubscriptionRequest("notif-claim-particular-disease", Arrays.asList("new-payor-3")))
                 .exchange()
                 .expectBody(Map.class)
                 .consumeWith(result -> assertEquals(HttpStatus.ACCEPTED, result.getStatus()));

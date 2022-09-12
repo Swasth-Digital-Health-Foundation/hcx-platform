@@ -451,12 +451,14 @@
     {"message": "${participant_name} is changing the SLA policy for the
     $(Usecase_code) going forward. Please plan your operations accordingly."}
   status: Active
-- topic_code: notif-claim-initiation
-  title: Claim initiation
-  description: Notification about claim initiation.
+- topic_code: notif-workflow-update
+  title: Workflow update
+  description: Notification about coverage eligibility, predetermination, preauth, claim and paymentnotice workflow updates.
   allowed_senders:
     - provider
+    - payor
   allowed_recipients:
+    - provider
     - payor
     - agency.tpa
     - agency.regulator
@@ -468,64 +470,7 @@
   category: Workflow
   priority: 1
   template: >-
-    {"message": "${participant_name} has initiated a claim."}
-  status: Active
-- topic_code: notif-claim-closure
-  title: Claim closure
-  description: Notification about a claim closure.
-  allowed_senders:
-    - payor
-  allowed_recipients:
-    - provider
-    - agency.tpa
-    - agency.regulator
-    - research
-    - member.isnp
-    - agency.sponsor
-    - HIE/HIO.HCX
-  type: Targeted
-  category: Workflow
-  priority: 1
-  template: >-
-    {"message": "${participant_name} has closed a claim."}
-  status: Active
-- topic_code: notif-payment-initiation
-  title: Payment notice initiation
-  description: Notification about a payment notice initiation.
-  allowed_senders:
-    - payor
-  allowed_recipients:
-    - provider
-    - agency.tpa
-    - agency.regulator
-    - research
-    - member.isnp
-    - agency.sponsor
-    - HIE/HIO.HCX
-  type: Targeted
-  category: Workflow
-  priority: 1
-  template: >-
-    {"message": "${participant_name} has initiated a payment notice."}
-  status: Active
-- topic_code: notif-payment-closure
-  title: Payment notice closure
-  description: Notification about payment notice closure.
-  allowed_senders:
-    - provider
-  allowed_recipients:
-    - payor
-    - agency.tpa
-    - agency.regulator
-    - research
-    - member.isnp
-    - agency.sponsor
-    - HIE/HIO.HCX
-  type: Targeted
-  category: Workflow
-  priority: 1
-  template: >-
-    {"message": "${participant_name} has closed a payment notice."}
+    {"message": "${participant_name} has updated a ${entity_type} request with correlation id: ${correlation_id} status to ${status}."}
   status: Active
 - topic_code: notif-admission-case
   title: Admission case - For a particular disease

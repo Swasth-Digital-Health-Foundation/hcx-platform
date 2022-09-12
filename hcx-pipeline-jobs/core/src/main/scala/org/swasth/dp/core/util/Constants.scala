@@ -60,6 +60,7 @@ object Constants {
   val INVALID_STATUS = List("Inactive", "Blocked")
   val VALID_STATUS = List("Created", "Active")
   val ACTIVE = "Active"
+  val ENTITY_TYPE = "entity_type"
 
   //Event Fields
   val HCX_SENDER_CODE = "x-hcx-sender_code"
@@ -110,6 +111,7 @@ object Constants {
   val SUBSCRIPTION = "subscription"
   val PARTICIPANT_ROLE = "participant_role"
   val RECIPIENTS = "recipients"
+  val CORRELATIONID = "correlation_id"
 
   // Notification topic codes
   val PARTICIPANT_ONBOARD = "notif-participant-onboarded"
@@ -126,6 +128,7 @@ object Constants {
   val SEARCH_ENTITY_COUNT = "entity_counts"
   val PARTIAL_RESPONSE = "response.partial"
   val COMPLETE_RESPONSE = "response.complete"
+  val REQUEST_INITIATED = "request.initiated"
 
 
   val OPEN_STATUS = "OPEN"
