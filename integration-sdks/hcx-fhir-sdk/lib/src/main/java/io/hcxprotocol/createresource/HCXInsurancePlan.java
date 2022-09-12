@@ -5,11 +5,41 @@ import ca.uhn.fhir.model.api.annotation.Extension;
 import ca.uhn.fhir.util.ElementUtil;
 import org.hl7.fhir.r4.model.*;
 
+import java.util.Collections;
+import java.util.UUID;
+
 @ResourceDef(name="InsurancePlan", profile="https://ig.hcxprotocol.io/v0.7/StructureDefinition-HCXInsurancePlan.html")
 public class HCXInsurancePlan extends InsurancePlan {
 
+    public HCXInsurancePlan() {}
+
+    public HCXInsurancePlan(String identifier, Enumerations.PublicationStatus status, String name) {
+        this.setId(UUID.randomUUID().toString());
+        Meta meta = new Meta();
+        meta.setProfile(Collections.singletonList(new CanonicalType("https://ig.hcxprotocol.io/v0.7/StructureDefinition-HCXInsurancePlan.html")));
+        this.setMeta(meta);
+        this.getIdentifier().add(new Identifier().setValue(identifier));
+        this.setStatus(status);
+        this.setType(Collections.singletonList(new CodeableConcept().setCoding(Collections.singletonList(new Coding().setCode("medical").setSystem("http://terminology.hl7.org/CodeSystem/insurance-plan-type")))));
+        this.setName(name);
+    }
+
     @Block
-    public static class InsurancePlanPlanComponent extends InsurancePlan.InsurancePlanPlanComponent{
+    public static class InsurancePlanPlanComponent extends InsurancePlan.InsurancePlanPlanComponent {
+
+        public InsurancePlanPlanComponent() {
+            this.setId(UUID.randomUUID().toString());
+        }
+
+        @Child(name="HCXProofOfIdentificationExtension")
+        @Extension(url="https://ig.hcxprotocol.io/v0.7/StructureDefinition-HCXProofOfIdentificationExtension.html", definedLocally=false, isModifier=false)
+        @Description(shortDefinition="Adding Proof of Identification as extension to base InsuracncePlan SD")
+        protected IdentificationExtension identificationExtension;
+
+        @Child(name="HCXProofOfPresenceExtension")
+        @Extension(url="https://ig.hcxprotocol.io/v0.7/StructureDefinition-HCXProofOfPresenceExtension.html", definedLocally=false, isModifier=false)
+        @Description(shortDefinition="Adding Proof of Presence as extension to base InsuracncePlan SD")
+        protected PresenceExtension presenceExtension;
 
         public IdentificationExtension getIdentificationExtension() {
             return identificationExtension;
@@ -19,11 +49,6 @@ public class HCXInsurancePlan extends InsurancePlan {
             this.identificationExtension = identificationExtension;
         }
 
-        @Child(name="HCXProofOfIdentificationExtension")
-        @Extension(url="https://ig.hcxprotocol.io/v0.7/StructureDefinition-HCXProofOfIdentificationExtension.html", definedLocally=false, isModifier=false)
-        @Description(shortDefinition="Adding Proof of Identification as extension to base InsuracncePlan SD")
-        protected IdentificationExtension identificationExtension;
-
         public PresenceExtension getPresenceExtension() {
             return presenceExtension;
         }
@@ -32,10 +57,11 @@ public class HCXInsurancePlan extends InsurancePlan {
             this.presenceExtension = presenceExtension;
         }
 
-        @Child(name="HCXProofOfPresenceExtension")
-        @Extension(url="https://ig.hcxprotocol.io/v0.7/StructureDefinition-HCXProofOfPresenceExtension.html", definedLocally=false, isModifier=false)
-        @Description(shortDefinition="Adding Proof of Presence as extension to base InsuracncePlan SD")
-        protected PresenceExtension presenceExtension;
+        public void setType(String code) {
+            // TODO: another parameter for system path?
+            // TODO: setCoding is a list. Do we need to support more parameters?
+            this.setType(new CodeableConcept().setCoding(Collections.singletonList(new Coding().setCode(code).setSystem("http://terminologyServer/ValueSets/plan-type"))));
+        }
 
         @Override
         public boolean isEmpty() {
@@ -51,6 +77,30 @@ public class HCXInsurancePlan extends InsurancePlan {
 
         private static final long serialVersionUID = 4522090347756045145L;
 
+        @Child(name = "proofOfIdDocumentCode")
+        @Extension(url = "ProofOfIdentificationDocumentCode", definedLocally = false, isModifier = false)
+        private CodeableConcept proofOfIdDocumentCode;
+
+        @Child(name = "proofOfIdentificationDocumentRequiredFlag")
+        @Extension(url = "ProofOfIdentificationDocumentRequiredFlag", definedLocally = false, isModifier = false)
+        private BooleanType proofOfIdentificationDocumentRequiredFlag;
+
+        @Child(name = "proofOfIdentificationDocumentMimeType")
+        @Extension(url = "ProofOfIdentificationDocumentMimeType", definedLocally = false, isModifier = false)
+        private CodeType proofOfIdentificationDocumentMimeType;
+
+        @Child(name = "clinicalDiagnosticDocumentClaimUse")
+        @Extension(url = "ClinicalDiagnosticDocumentClaimUse", definedLocally = false, isModifier = false)
+        private CodeType clinicalDiagnosticDocumentClaimUse;
+
+        @Child(name = "documentationUrl")
+        @Extension(url = "DocumentationUrl", definedLocally = false, isModifier = false)
+        private UrlType documentationUrl;
+
+        public IdentificationExtension() {
+            this.setDocumentationUrl(new UrlType("http://documentation-url"));
+        }
+
         public CodeableConcept getProofOfIdDocumentCode() {
             return proofOfIdDocumentCode;
         }
@@ -58,11 +108,6 @@ public class HCXInsurancePlan extends InsurancePlan {
         public void setProofOfIdDocumentCode(CodeableConcept proofOfIdDocumentCode) {
             this.proofOfIdDocumentCode = proofOfIdDocumentCode;
         }
-
-        @Child(name = "proofOfIdDocumentCode")
-        @Extension(url = "ProofOfIdentificationDocumentCode", definedLocally = false, isModifier = false)
-        private CodeableConcept proofOfIdDocumentCode;
-
 
         public BooleanType isProofOfIdentificationDocumentRequiredFlag() {
             return proofOfIdentificationDocumentRequiredFlag;
@@ -72,11 +117,6 @@ public class HCXInsurancePlan extends InsurancePlan {
             this.proofOfIdentificationDocumentRequiredFlag = proofOfIdentificationDocumentRequiredFlag;
         }
 
-        @Child(name = "proofOfIdentificationDocumentRequiredFlag")
-        @Extension(url = "ProofOfIdentificationDocumentRequiredFlag", definedLocally = false, isModifier = false)
-        private BooleanType proofOfIdentificationDocumentRequiredFlag;
-
-
         public CodeType getProofOfIdentificationDocumentMimeType() {
             return proofOfIdentificationDocumentMimeType;
         }
@@ -84,10 +124,6 @@ public class HCXInsurancePlan extends InsurancePlan {
         public void setProofOfIdentificationDocumentMimeType(CodeType proofOfIdentificationDocumentMimeType) {
             this.proofOfIdentificationDocumentMimeType = proofOfIdentificationDocumentMimeType;
         }
-
-        @Child(name = "proofOfIdentificationDocumentMimeType")
-        @Extension(url = "ProofOfIdentificationDocumentMimeType", definedLocally = false, isModifier = false)
-        private CodeType proofOfIdentificationDocumentMimeType;
 
         public CodeType getClinicalDiagnosticDocumentClaimUse() {
             return clinicalDiagnosticDocumentClaimUse;
@@ -97,10 +133,6 @@ public class HCXInsurancePlan extends InsurancePlan {
             this.clinicalDiagnosticDocumentClaimUse = clinicalDiagnosticDocumentClaimUse;
         }
 
-        @Child(name = "clinicalDiagnosticDocumentClaimUse")
-        @Extension(url = "ClinicalDiagnosticDocumentClaimUse", definedLocally = false, isModifier = false)
-        private CodeType clinicalDiagnosticDocumentClaimUse;
-
         public UrlType getDocumentationUrl() {
             return documentationUrl;
         }
@@ -109,9 +141,13 @@ public class HCXInsurancePlan extends InsurancePlan {
             this.documentationUrl = documentationUrl;
         }
 
-        @Child(name = "documentationUrl")
-        @Extension(url = "DocumentationUrl", definedLocally = false, isModifier = false)
-        private UrlType documentationUrl;
+        public void setProofOfIdDocumentCode(String code, String display) {
+            this.setProofOfIdDocumentCode(new CodeableConcept(new Coding().setSystem("https://hcx-valuesets/proofOfIdentificationDocumentCodes").setCode(code).setDisplay(display).setVersion("1.0.0")));
+        }
+
+        public void setClinicalDiagnosticDocumentClaimUse(String claimUseCode) {
+            this.setClinicalDiagnosticDocumentClaimUse(new CodeType(claimUseCode));
+        }
 
         @Override
         public IdentificationExtension copy() {
@@ -123,6 +159,7 @@ public class HCXInsurancePlan extends InsurancePlan {
             copy().documentationUrl = documentationUrl;
             return copy;
         }
+
         @Override
         public boolean isEmpty() {
             return super.isEmpty() && ElementUtil.isEmpty(clinicalDiagnosticDocumentClaimUse,proofOfIdDocumentCode,proofOfIdentificationDocumentMimeType,proofOfIdentificationDocumentRequiredFlag,documentationUrl);
@@ -134,6 +171,30 @@ public class HCXInsurancePlan extends InsurancePlan {
 
         private static final long serialVersionUID = 4522090347756045146L;
 
+        public PresenceExtension() {
+            this.setDocumentationUrl(new UrlType("http://documentation-url"));
+        }
+
+        @Child(name = "proofOfPresenceDocumentCode")
+        @Extension(url = "ProofOfPresenceDocumentCode", definedLocally = false, isModifier = false)
+        private CodeableConcept proofOfPresenceDocumentCode;
+
+        @Child(name = "proofOfPresenceDocumentRequiredFlag")
+        @Extension(url = "ProofOfPresenceDocumentRequiredFlag", definedLocally = false, isModifier = false)
+        private BooleanType proofOfPresenceDocumentRequiredFlag;
+
+        @Child(name = "proofOfPresenceDocumentMimeType")
+        @Extension(url = "ProofOfPresenceDocumentMimeType", definedLocally = false, isModifier = false)
+        private CodeType proofOfPresenceDocumentMimeType;
+
+        @Child(name = "clinicalDiagnosticDocumentClaimUse")
+        @Extension(url = "ClinicalDiagnosticDocumentClaimUse", definedLocally = false, isModifier = false)
+        private CodeType clinicalDiagnosticDocumentClaimUse;
+
+        @Child(name = "documentationUrl")
+        @Extension(url = "DocumentationUrl", definedLocally = false, isModifier = false)
+        private UrlType documentationUrl;
+
         public CodeableConcept getProofOfPresenceDocumentCode() {
             return proofOfPresenceDocumentCode;
         }
@@ -141,10 +202,6 @@ public class HCXInsurancePlan extends InsurancePlan {
         public void setProofOfPresenceDocumentCode(CodeableConcept proofOfPresenceDocumentCode) {
             this.proofOfPresenceDocumentCode = proofOfPresenceDocumentCode;
         }
-
-        @Child(name = "proofOfPresenceDocumentCode")
-        @Extension(url = "ProofOfPresenceDocumentCode", definedLocally = false, isModifier = false)
-        private CodeableConcept proofOfPresenceDocumentCode;
 
         public BooleanType isProofOfPresenceDocumentRequiredFlag() {
             return proofOfPresenceDocumentRequiredFlag;
@@ -154,10 +211,6 @@ public class HCXInsurancePlan extends InsurancePlan {
             this.proofOfPresenceDocumentRequiredFlag = proofOfPresenceDocumentRequiredFlag;
         }
 
-        @Child(name = "proofOfPresenceDocumentRequiredFlag")
-        @Extension(url = "ProofOfPresenceDocumentRequiredFlag", definedLocally = false, isModifier = false)
-        private BooleanType proofOfPresenceDocumentRequiredFlag;
-
         public CodeType getProofOfPresenceDocumentMimeType() {
             return proofOfPresenceDocumentMimeType;
         }
@@ -165,10 +218,6 @@ public class HCXInsurancePlan extends InsurancePlan {
         public void setProofOfPresenceDocumentMimeType(CodeType proofOfPresenceDocumentMimeType) {
             this.proofOfPresenceDocumentMimeType = proofOfPresenceDocumentMimeType;
         }
-
-        @Child(name = "proofOfPresenceDocumentMimeType")
-        @Extension(url = "ProofOfPresenceDocumentMimeType", definedLocally = false, isModifier = false)
-        private CodeType proofOfPresenceDocumentMimeType;
 
         public CodeType getClinicalDiagnosticDocumentClaimUse() {
             return clinicalDiagnosticDocumentClaimUse;
@@ -178,10 +227,6 @@ public class HCXInsurancePlan extends InsurancePlan {
             this.clinicalDiagnosticDocumentClaimUse = clinicalDiagnosticDocumentClaimUse;
         }
 
-        @Child(name = "clinicalDiagnosticDocumentClaimUse")
-        @Extension(url = "ClinicalDiagnosticDocumentClaimUse", definedLocally = false, isModifier = false)
-        private CodeType clinicalDiagnosticDocumentClaimUse;
-
         public UrlType getDocumentationUrl() {
             return documentationUrl;
         }
@@ -190,9 +235,13 @@ public class HCXInsurancePlan extends InsurancePlan {
             this.documentationUrl = documentationUrl;
         }
 
-        @Child(name = "documentationUrl")
-        @Extension(url = "DocumentationUrl", definedLocally = false, isModifier = false)
-        private UrlType documentationUrl;
+        public void setClinicalDiagnosticDocumentClaimUse(String claimUseCode) {
+            this.setClinicalDiagnosticDocumentClaimUse(new CodeType(claimUseCode));
+        }
+
+        public void setProofOfPresenceDocumentCode(String code, String display) {
+            this.setProofOfPresenceDocumentCode(new CodeableConcept(new Coding().setSystem("https://hcx-valuesets/proofOfIdentificationDocumentCodes").setCode(code).setDisplay(display).setVersion("1.0.0")));
+        }
 
         @Override
         public PresenceExtension copy() {
@@ -212,7 +261,6 @@ public class HCXInsurancePlan extends InsurancePlan {
 
 
     //Extensions for benefits
-
 
     @Block
     public static class PlanBenefitComponent extends InsurancePlan.PlanBenefitComponent{
@@ -414,7 +462,6 @@ public class HCXInsurancePlan extends InsurancePlan {
             return super.isEmpty() && ElementUtil.isEmpty(informationalMessageClaimUse,informationalMessageCode,informationalMessagesCode,documentationUrl);
         }
     }
-
 
     @Block
     public static class QuestionnairesExtension extends BackboneElement {
