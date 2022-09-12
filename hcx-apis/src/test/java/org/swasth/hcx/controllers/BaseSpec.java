@@ -20,6 +20,7 @@ import org.swasth.common.helpers.EventGenerator;
 import org.swasth.common.service.RegistryService;
 import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
+import org.swasth.common.utils.JWTUtils;
 import org.swasth.hcx.config.GenericConfiguration;
 import org.swasth.hcx.controllers.v1.*;
 import org.swasth.hcx.handlers.EventHandler;
@@ -76,6 +77,9 @@ public class BaseSpec {
 
     @MockBean
     protected RegistryService mockRegistryService;
+
+    @MockBean
+    protected JWTUtils jwtUtils;
 
     @BeforeEach
     public void setup() {

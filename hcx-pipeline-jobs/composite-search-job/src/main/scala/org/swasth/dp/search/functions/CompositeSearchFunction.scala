@@ -55,7 +55,7 @@ class CompositeSearchFunction(config: SearchConfig)(implicit val stringTypeInfo:
       get(Constants.SEARCH_FILTERS).asInstanceOf[util.Map[String, AnyRef]].
       get(Constants.SEARCH_FILTERS_RECEIVER).asInstanceOf[util.List[String]]
 
-    val correlationId = getProtocolStringValue(event,Constants.CORRELATION_ID)
+    val correlationId = getProtocolStringValue(event,Constants.HCX_CORRELATION_ID)
     val originalApiCallId = getProtocolStringValue(event,Constants.API_CALL_ID)
     val senderCode = getProtocolStringValue(event,Constants.HCX_SENDER_CODE)
     val action = event.get(Constants.ACTION).asInstanceOf[String]

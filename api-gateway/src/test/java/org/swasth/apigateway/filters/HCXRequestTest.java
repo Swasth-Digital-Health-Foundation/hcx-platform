@@ -26,9 +26,7 @@ class HCXRequestTest extends BaseSpec {
         client.get().uri(Constants.HEALTH)
                 .exchange()
                 .expectBody(Map.class)
-                .consumeWith(result -> {
-                    assertEquals(HttpStatus.OK, result.getStatus());
-                });
+                .consumeWith(result -> assertEquals(HttpStatus.OK, result.getStatus()));
     }
 
     @Test
@@ -48,9 +46,7 @@ class HCXRequestTest extends BaseSpec {
                 .bodyValue(getRequestBody())
                 .exchange()
                 .expectBody(Map.class)
-                .consumeWith(result -> {
-                    assertEquals(HttpStatus.ACCEPTED, result.getStatus());
-                });
+                .consumeWith(result -> assertEquals(HttpStatus.ACCEPTED, result.getStatus()));
     }
 
     @Test
@@ -74,9 +70,7 @@ class HCXRequestTest extends BaseSpec {
                 .bodyValue(getOnRequestBody())
                 .exchange()
                 .expectBody(Map.class)
-                .consumeWith(result -> {
-                    assertEquals(HttpStatus.ACCEPTED, result.getStatus());
-                });
+                .consumeWith(result -> assertEquals(HttpStatus.ACCEPTED, result.getStatus()));
     }
 
     @Test
@@ -99,9 +93,7 @@ class HCXRequestTest extends BaseSpec {
                 .bodyValue(getErrorRequestBody())
                 .exchange()
                 .expectBody(Map.class)
-                .consumeWith(result -> {
-                    assertEquals(HttpStatus.ACCEPTED, result.getStatus());
-                });
+                .consumeWith(result -> assertEquals(HttpStatus.ACCEPTED, result.getStatus()));
     }
 
     @Test
@@ -120,7 +112,7 @@ class HCXRequestTest extends BaseSpec {
 
 
     @Test
-    void check_hcx_request_missing_authorization_header_scenario() throws Exception {
+    void check_hcx_request_missing_authorization_header_scenario() {
         client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_CHECK)
                 .bodyValue(getRequestBody())
                 .exchange()
@@ -132,7 +124,7 @@ class HCXRequestTest extends BaseSpec {
     }
 
     @Test
-    void check_hcx_request_malformat_authorization_header_scenario() throws Exception {
+    void check_hcx_request_malformat_authorization_header_scenario() {
         client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_CHECK)
                 .header(Constants.AUTHORIZATION, "Bearer ")
                 .bodyValue(getRequestBody())
@@ -145,7 +137,7 @@ class HCXRequestTest extends BaseSpec {
     }
 
     @Test
-    void check_hcx_request_invalid_format_authorization_header_scenario() throws Exception {
+    void check_hcx_request_invalid_format_authorization_header_scenario() {
         client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_CHECK)
                 .header(Constants.AUTHORIZATION, "test token")
                 .bodyValue(getRequestBody())
@@ -158,7 +150,7 @@ class HCXRequestTest extends BaseSpec {
     }
 
     @Test
-    void check_hcx_request_expired_jwt_token_scenario() throws Exception {
+    void check_hcx_request_expired_jwt_token_scenario() {
         client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_CHECK)
                 .header(Constants.AUTHORIZATION, getExpiredProviderToken())
                 .bodyValue(getRequestBody())
@@ -232,7 +224,7 @@ class HCXRequestTest extends BaseSpec {
     }
 
     @Test
-    void check_hcx_request_missing_mandatory_headers_scenario() throws Exception {
+    void check_hcx_request_missing_mandatory_headers_scenario() {
         client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_CHECK)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
@@ -293,7 +285,7 @@ class HCXRequestTest extends BaseSpec {
     }
 
     @Test
-    void check_hcx_request_empty_recipient_details_scenario() throws Exception {
+    void check_hcx_request_empty_recipient_details_scenario() {
         client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_CHECK)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
@@ -489,9 +481,7 @@ class HCXRequestTest extends BaseSpec {
                 .bodyValue(Collections.singletonMap("payload", "eyJlbmMiOiJBMjU2R0NNIiwKImFsZyI6IlJTQS1PQUVQIiwKIngtaGN4LXNlbmRlcl9jb2RlIjoiMS1jZTIzY2NkYy1lNjQ1LTRlMzUtOTdiOC0wYmQ4ZmVmNDNlY2QiLAoieC1oY3gtcmVjaXBpZW50X2NvZGUiOiIxLTg1ODRiYTY5LTZjNTAtNDUzNS04YWQ1LWMwMmI4YzMxODBhNiIsCiJ4LWhjeC1hcGlfY2FsbF9pZCI6IjI2YjEwNjBjLTFlODMtNDYwMC05NjEyLWVhMzFlMGNhNTA5NCIsCiJ4LWhjeC1jb3JyZWxhdGlvbl9pZCI6IjVlOTM0ZjkwLTExMWQtNGYwYi1iMDE2LWMyMmQ4MjA2NzRlMSIsCiJ4LWhjeC10aW1lc3RhbXAiOiIyMDIxLTEwLTI3VDIwOjM1OjUyLjYzNiswNTMwIiwKIngtaGN4LXdvcmtmbG93X2lkIjoiMjZiMTA2MGMtMWU4My00NjAwLTk2MTItZWEzMWUwY2E1MDk0Igp9.6KB707dM9YTIgHtLvtgWQ8mKwboJW3of9locizkDTHzBC2IlrT1oOQ.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.KDlTtXchhZTGufMYmOYGS4HffxPSUrfmqCHXaI9wOGY.Mz-VPPyU4RlcuYv1IwIvzw"))
                 .exchange()
                 .expectBody(Map.class)
-                .consumeWith(result -> {
-                    assertEquals(HttpStatus.ACCEPTED, result.getStatus());
-                });
+                .consumeWith(result -> assertEquals(HttpStatus.ACCEPTED, result.getStatus()));
     }
 
     @Test
@@ -530,9 +520,7 @@ class HCXRequestTest extends BaseSpec {
                 .bodyValue(Collections.singletonMap("payload", "eyJlbmMiOiJBMjU2R0NNIiwKImFsZyI6IlJTQS1PQUVQIiwKIngtaGN4LXNlbmRlcl9jb2RlIjoiMS1jZTIzY2NkYy1lNjQ1LTRlMzUtOTdiOC0wYmQ4ZmVmNDNlY2QiLAoieC1oY3gtcmVjaXBpZW50X2NvZGUiOiIxLTg1ODRiYTY5LTZjNTAtNDUzNS04YWQ1LWMwMmI4YzMxODBhNiIsCiJ4LWhjeC1hcGlfY2FsbF9pZCI6IjI2YjEwNjBjLTFlODMtNDYwMC05NjEyLWVhMzFlMGNhNTA5NCIsCiJ4LWhjeC1jb3JyZWxhdGlvbl9pZCI6IjVlOTM0ZjkwLTExMWQtNGYwYi1iMDE2LWMyMmQ4MjA2NzRlMSIsCiJ4LWhjeC10aW1lc3RhbXAiOiIyMDIxLTEwLTI3VDIwOjM1OjUyLjYzNiswNTMwIiwKIngtaGN4LXdvcmtmbG93X2lkIjoiMjZiMTA2MGMtMWU4My00NjAwLTk2MTItZWEzMWUwY2E1MDk0Igp9.6KB707dM9YTIgHtLvtgWQ8mKwboJW3of9locizkDTHzBC2IlrT1oOQ.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.KDlTtXchhZTGufMYmOYGS4HffxPSUrfmqCHXaI9wOGY.Mz-VPPyU4RlcuYv1IwIvzw"))
                 .exchange()
                 .expectBody(Map.class)
-                .consumeWith(result -> {
-                    assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
-                });
+                .consumeWith(result -> assertEquals(HttpStatus.BAD_REQUEST, result.getStatus()));
     }
 
     @Test
@@ -555,9 +543,7 @@ class HCXRequestTest extends BaseSpec {
                 .bodyValue("{ \"x-hcx-recipient_code\": \"1-3a3bd68a-848a-4d52-9ec2-07a92d765fb4\", \"x-hcx-timestamp\": \"2021-10-27T20:35:52.636+0530\", \"x-hcx-sender_code\": \"1-2ff1f493-c4d4-4fc7-8d41-aaabb997af23\", \"x-hcx-correlation_id\": \"5e934f90-111d-4f0b-b016-c22d820674e1\", \"x-hcx-workflow_id\":\"26b1060c-1e83-4600-9612-ea31e0ca5094\", \"x-hcx-api_call_id\": \"26b1060c-1e83-4600-9612-ea31e0ca5194\", \"x-hcx-status\": \"response.redirect\", \"x-hcx-redirect_to\": \"1-74f6cb29-4116-42d0-9fbb-adb65e6a64ac\" }")
                 .exchange()
                 .expectBody(Map.class)
-                .consumeWith(result -> {
-                    assertEquals(HttpStatus.ACCEPTED, result.getStatus());
-                });
+                .consumeWith(result -> assertEquals(HttpStatus.ACCEPTED, result.getStatus()));
     }
 
     @Test
@@ -624,15 +610,15 @@ class HCXRequestTest extends BaseSpec {
                 .thenReturn(getProviderDetails());
         Mockito.when(registryService.getDetails(anyString()))
                 .thenReturn(Arrays.asList(getPayorDetails()));
+        Mockito.when(jwtUtils.isValidSignature(anyString(), anyString()))
+                .thenReturn(Boolean.TRUE);
         client.post().uri(versionPrefix + Constants.NOTIFICATION_NOTIFY)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
-                .bodyValue(getNotificationRequest("notif-admission-case", Arrays.asList("payor", "agency.tpa"), Arrays.asList("new-payor-3"), Arrays.asList("subscription-123")))
+                .bodyValue(getNotificationRequest("notif-admission-case", Constants.SUBSCRIPTION, Arrays.asList("subscription-123")))
                 .exchange()
                 .expectBody(Map.class)
-                .consumeWith(result -> {
-                    assertEquals(HttpStatus.ACCEPTED, result.getStatus());
-                });
+                .consumeWith(result -> assertEquals(HttpStatus.ACCEPTED, result.getStatus()));
     }
 
     @Test
@@ -643,15 +629,15 @@ class HCXRequestTest extends BaseSpec {
 
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getHCXAdminDetails());
+        Mockito.when(jwtUtils.isValidSignature(anyString(), anyString()))
+                .thenReturn(Boolean.TRUE);
         client.post().uri(versionPrefix + Constants.NOTIFICATION_NOTIFY)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
-                .bodyValue(getNotificationRequest("notif-participant-onboarded", Arrays.asList("payor", "agency.tpa"), Collections.emptyList(), Arrays.asList("subscription-123")))
+                .bodyValue(getNotificationRequest("notif-participant-onboarded", Constants.SUBSCRIPTION, Arrays.asList("subscription-123")))
                 .exchange()
                 .expectBody(Map.class)
-                .consumeWith(result -> {
-                    assertEquals(HttpStatus.ACCEPTED, result.getStatus());
-                });
+                .consumeWith(result -> assertEquals(HttpStatus.ACCEPTED, result.getStatus()));
     }
 
     @Test
@@ -662,14 +648,18 @@ class HCXRequestTest extends BaseSpec {
 
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getProviderDetails());
+        Mockito.when(jwtUtils.isValidSignature(anyString(), anyString()))
+                .thenReturn(Boolean.TRUE);
         client.post().uri(versionPrefix + Constants.NOTIFICATION_NOTIFY)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
-                .bodyValue(getNotificationRequest("notif-admission-case", Collections.emptyList(), Collections.emptyList(), Collections.emptyList()))
+                .bodyValue(getNotificationRequest("notif-admission-case", Constants.PARTICIPANT_CODE, Arrays.asList("test@01")))
                 .exchange()
                 .expectBody(Map.class)
                 .consumeWith(result -> {
-                    assertEquals(HttpStatus.ACCEPTED, result.getStatus());
+                    assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
+                    assertEquals(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ.name(), getResponseErrorCode(result));
+                    assertTrue(getResponseErrorMessage(result).contains("Recipients does not exist in the registry"));
                 });
     }
 
@@ -685,7 +675,7 @@ class HCXRequestTest extends BaseSpec {
         client.post().uri(versionPrefix + Constants.NOTIFICATION_NOTIFY)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
-                .bodyValue(getNotificationRequest("be0e578d-b391-42f9-96f7-1e6bacd91c20", Arrays.asList("payor", "agency.tpa"), Collections.emptyList(), Arrays.asList("subscription-123")))
+                .bodyValue(getNotificationRequest("be0e578d-b391-42f9-96f7-1e6bacd91c20", Constants.SUBSCRIPTION, Arrays.asList("subscription-123")))
                 .exchange()
                 .expectBody(Map.class)
                 .consumeWith(result -> {
@@ -707,7 +697,7 @@ class HCXRequestTest extends BaseSpec {
         client.post().uri(versionPrefix + Constants.NOTIFICATION_NOTIFY)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
-                .bodyValue(getNotificationRequest("be0e578d-b391-42f9-96f7-1e6bacd91c20", Arrays.asList("payor", "agency.tpa"), Collections.emptyList(), Arrays.asList("subscription-123")))
+                .bodyValue(getNotificationRequest("be0e578d-b391-42f9-96f7-1e6bacd91c20", Constants.PARTICIPANT_ROLE, Arrays.asList("payor", "agency.tpa")))
                 .exchange()
                 .expectBody(Map.class)
                 .consumeWith(result -> {
@@ -725,10 +715,12 @@ class HCXRequestTest extends BaseSpec {
 
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getProviderDetails());
+        Mockito.when(jwtUtils.isValidSignature(anyString(), anyString()))
+                .thenReturn(Boolean.TRUE);
         client.post().uri(versionPrefix + Constants.NOTIFICATION_NOTIFY)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
-                .bodyValue(getNotificationRequest("invalid-notification-123", Arrays.asList("payor", "agency.tpa"), Collections.emptyList(), Arrays.asList("subscription-123")))
+                .bodyValue(getNotificationRequest("invalid-notification-123", Constants.SUBSCRIPTION, Arrays.asList("subscription-123")))
                 .exchange()
                 .expectBody(Map.class)
                 .consumeWith(result -> {
@@ -748,10 +740,12 @@ class HCXRequestTest extends BaseSpec {
                 .thenReturn(getProviderDetails());
         Mockito.when(registryService.getDetails(anyString()))
                 .thenReturn(Arrays.asList(getPayorDetails()));
+        Mockito.when(jwtUtils.isValidSignature(anyString(), anyString()))
+                .thenReturn(Boolean.TRUE);
         client.post().uri(versionPrefix + Constants.NOTIFICATION_NOTIFY)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
-                .bodyValue(getNotificationRequest("notif-claim-initiation", Arrays.asList("payor", "agency.tpa"), Arrays.asList("test-participant-2"), Arrays.asList("subscription-123")))
+                .bodyValue(getNotificationRequest("notif-claim-initiation", Constants.PARTICIPANT_CODE, Arrays.asList("test-participant-2")))
                 .exchange()
                 .expectBody(Map.class)
                 .consumeWith(result -> {
@@ -769,10 +763,12 @@ class HCXRequestTest extends BaseSpec {
 
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getPayorDetails());
+        Mockito.when(jwtUtils.isValidSignature(anyString(), anyString()))
+                .thenReturn(Boolean.TRUE);
         client.post().uri(versionPrefix + Constants.NOTIFICATION_NOTIFY)
                 .header(Constants.AUTHORIZATION, getPayorToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
-                .bodyValue(getNotificationRequest("notif-claim-closure", Arrays.asList("payor"), Collections.emptyList(), Arrays.asList("subscription-123")))
+                .bodyValue(getNotificationRequest("notif-claim-closure", Constants.PARTICIPANT_ROLE, Arrays.asList("payor")))
                 .exchange()
                 .expectBody(Map.class)
                 .consumeWith(result -> {
@@ -1002,9 +998,7 @@ class HCXRequestTest extends BaseSpec {
                 .bodyValue(getSubscriptionRequest("notif-claim-closure", Arrays.asList("new-payor-3")))
                 .exchange()
                 .expectBody(Map.class)
-                .consumeWith(result -> {
-                    assertEquals(HttpStatus.ACCEPTED, result.getStatus());
-                });
+                .consumeWith(result -> assertEquals(HttpStatus.ACCEPTED, result.getStatus()));
     }
 
     @Test
@@ -1023,9 +1017,7 @@ class HCXRequestTest extends BaseSpec {
                 .bodyValue(getSubscriptionRequest("notif-claim-closure", Arrays.asList("new-payor-3")))
                 .exchange()
                 .expectBody(Map.class)
-                .consumeWith(result -> {
-                    assertEquals(HttpStatus.ACCEPTED, result.getStatus());
-                });
+                .consumeWith(result -> assertEquals(HttpStatus.ACCEPTED, result.getStatus()));
     }
 
     @Test
@@ -1042,9 +1034,7 @@ class HCXRequestTest extends BaseSpec {
                 .bodyValue(getSubscriptionListRequest())
                 .exchange()
                 .expectBody(Map.class)
-                .consumeWith(result -> {
-                    assertEquals(HttpStatus.ACCEPTED, result.getStatus());
-                });
+                .consumeWith(result -> assertEquals(HttpStatus.ACCEPTED, result.getStatus()));
     }
 
     @Test
@@ -1061,9 +1051,7 @@ class HCXRequestTest extends BaseSpec {
                 .bodyValue(getSubscriptionUpdateRequest("notif-claim-reimbursement", 1, true))
                 .exchange()
                 .expectBody(Map.class)
-                .consumeWith(result -> {
-                    assertEquals(HttpStatus.OK, result.getStatus());
-                });
+                .consumeWith(result -> assertEquals(HttpStatus.OK, result.getStatus()));
     }
 
     @Test
@@ -1080,9 +1068,7 @@ class HCXRequestTest extends BaseSpec {
                 .bodyValue(getOnSubscriptionRequest())
                 .exchange()
                 .expectBody(Map.class)
-                .consumeWith(result -> {
-                    assertEquals(HttpStatus.OK, result.getStatus());
-                });
+                .consumeWith(result -> assertEquals(HttpStatus.OK, result.getStatus()));
     }
 
     @Test
@@ -1122,8 +1108,6 @@ class HCXRequestTest extends BaseSpec {
                 .bodyValue(getSubscriptionRequest("notif-participant-system-downtime", Arrays.asList("new-payor-3","*")))
                 .exchange()
                 .expectBody(Map.class)
-                .consumeWith(result -> {
-                    assertEquals(HttpStatus.ACCEPTED, result.getStatus());
-                });
+                .consumeWith(result -> assertEquals(HttpStatus.ACCEPTED, result.getStatus()));
     }
 }

@@ -3,6 +3,7 @@ package org.swasth.apigateway.models;
 import lombok.Data;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.swasth.apigateway.exception.ClientException;
 import org.swasth.apigateway.exception.ErrorCodes;
 import org.swasth.common.utils.Constants;
@@ -12,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
 import static org.swasth.common.utils.Constants.*;
 
 @Data
@@ -64,8 +66,16 @@ public class JSONRequest extends BaseRequest {
     /**
      * This method is to validate notification notify request
      */
-    public void validateNotificationReq(Map<String, Object> senderDetails, List<Map<String, Object>> recipientsDetails, List<String> allowedNetworkCodes) throws ClientException {
-        validateCondition(getNotificationHeaders().isEmpty(), ErrorCodes.ERR_INVALID_NOTIFICATION_HEADERS, "Notification headers is missing or empty");
+    public void validateNotificationReq(Map<String, Object> senderDetails, List<Map<String, Object>> recipientsDetails, List<String> allowedNetworkCodes, boolean isValidSignature) throws Exception {
+        validateNotificationParticipant(senderDetails, ErrorCodes.ERR_INVALID_SENDER, SENDER);
+        validateCondition(StringUtils.isEmpty(getAlg()) || !getAlg().equalsIgnoreCase(Constants.RS256), ErrorCodes.ERR_INVALID_ALGORITHM, "Algorithm is missing or invalid");
+        validateCondition(!isValidSignature, ErrorCodes.ERR_INVALID_SIGNATURE, "JWS payload is not signed by the request initiator");
+        validateCondition(getNotificationTimestamp() == null, ErrorCodes.ERR_INVALID_NOTIFICATION_TIMESTAMP, "Notification timestamp is missing or empty");
+        validateCondition(MapUtils.isEmpty(getNotificationHeaders()), ErrorCodes.ERR_INVALID_NOTIFICATION_HEADERS, "Notification headers is missing or empty");
+        validateCondition(getProtocolHeaders().containsKey(EXPIRY) && new DateTime(getExpiry()).isBefore(DateTime.now()), ErrorCodes.ERR_INVALID_NOTIFICATION_EXPIRY, "Notification expiry cannot be past date");
+        validateCondition(StringUtils.isEmpty(getRecipientType()), ErrorCodes.ERR_INVALID_NOTIFICATION_RECIPIENT_TYPE, "Recipient type is missing or empty");
+        validateCondition(getRecipients().size() == 0, ErrorCodes.ERR_INVALID_NOTIFICATION_RECIPIENTS, "Recipients list is empty");
+        validateCondition(StringUtils.isEmpty(getNotificationMessage()), ErrorCodes.ERR_INVALID_NOTIFICATION_MESSAGE, "Notification message is missing or empty");
         validateCondition(StringUtils.isEmpty(getTopicCode()), ErrorCodes.ERR_INVALID_NOTIFICATION_TOPIC_CODE, "Notification topic code cannot be null, empty and other than 'String'");
         validateCondition(!NotificationUtils.isValidCode(getTopicCode()), ErrorCodes.ERR_INVALID_NOTIFICATION_TOPIC_CODE, "Invalid topic code(" + getTopicCode() + ") is not present in the master list of notifications");
         Map<String, Object> notification = NotificationUtils.getNotification(getTopicCode());
@@ -74,22 +84,20 @@ public class JSONRequest extends BaseRequest {
             validateCondition(!hasRole((List<String>) notification.get(Constants.ALLOWED_SENDERS), (List<String>) senderDetails.get(ROLES)) || !allowedNetworkCodes.contains(senderDetails.get(Constants.PARTICIPANT_CODE)),
                     ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Participant is not authorized to trigger this notification: " + getTopicCode());
         }
-        // validate recipient codes
-        if (!getRecipientCodes().isEmpty()) {
+
+        if (getRecipientType().equalsIgnoreCase(PARTICIPANT_CODE)) { // validate recipient codes
             List<String> fetchedCodes = recipientsDetails.stream().map(obj -> obj.get(Constants.PARTICIPANT_CODE).toString()).collect(Collectors.toList());
-            List<String> invalidRecipients = getRecipientCodes().stream().filter(code -> !fetchedCodes.contains(code)).collect(Collectors.toList());
-            if (getRecipientCodes().size() == 1 && !invalidRecipients.isEmpty())
+            List<String> invalidRecipients = getRecipients().stream().filter(code -> !fetchedCodes.contains(code)).collect(Collectors.toList());
+            if (getRecipients().size() == 1 && !invalidRecipients.isEmpty())
                 throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Recipients does not exist in the registry: " + invalidRecipients);
             for (Map<String, Object> recipient : recipientsDetails) {
                 validateNotificationParticipant(recipient, ErrorCodes.ERR_INVALID_RECIPIENT, Constants.RECIPIENT);
                 validateCondition(!hasRole((List<String>) notification.get(Constants.ALLOWED_RECIPIENTS), (List<String>) recipient.get(ROLES)),
                         ErrorCodes.ERR_INVALID_RECIPIENT, recipient.get(Constants.PARTICIPANT_CODE) + " is not a allowed recipient of this notification: " + getTopicCode());
             }
-        }
-        // validate recipient roles
-        if (!getRecipientRoles().isEmpty()) {
+        } else if (getRecipientType().equalsIgnoreCase(PARTICIPANT_ROLE)) { // validate recipient roles
             List<String> allowedRecipients = (List<String>) notification.get(Constants.ALLOWED_RECIPIENTS);
-            for (String role : getRecipientRoles()) {
+            for (String role : getRecipients()) {
                 validateCondition(!allowedRecipients.contains(role), ErrorCodes.ERR_INVALID_NOTIFICATION_REQ,
                         "Recipient roles are out of range, allowed recipients for this notification: " + notification.get(Constants.ALLOWED_RECIPIENTS));
             }
@@ -108,29 +116,39 @@ public class JSONRequest extends BaseRequest {
         return getHeader(Constants.TOPIC_CODE);
     }
 
-    public List<String> getRecipientCodes() {
-        return getHeaderList(Constants.RECIPIENT_CODES);
+    public List<String> getRecipients() {
+        return getHeaderList(Constants.RECIPIENTS);
     }
 
-    public List<String> getRecipientRoles() {
-        return getHeaderList(Constants.RECIPIENT_ROLES);
-    }
-
-    public List<String> getSubscriptions() {
-        return getHeaderList(Constants.SUBSCRIPTIONS);
-    }
-
-    public Map<String, Object> getNotificationData() {
-        return getHeaderMap(Constants.NOTIFICATION_DATA);
+    public String getNotificationMessage() {
+        return getHeader(MESSAGE);
     }
 
     public Map<String, Object> getNotificationHeaders() {
         return getHeaderMap(NOTIFICATION_HEADERS);
     }
 
+    public String getAlg() {
+        return getHeader(ALG);
+    }
+
+    public Long getNotificationTimestamp() {
+        return (Long) getProtocolHeaders().getOrDefault("timestamp", null);
+    }
+
+    public Long getExpiry() {
+        return (Long) getProtocolHeaders().getOrDefault(EXPIRY, null);
+    }
+
+    public String getNotificationPayload() { return getHeader(PAYLOAD); }
+
     public List<String> getSenderList() {
         return (List<String>) getProtocolHeaders().getOrDefault(SENDER_LIST, new ArrayList<>());
     }
+
+    public String getRecipientType() { return getHeader(RECIPIENT_TYPE); }
+
+    public String getSenderCode() { return getHeader(SENDER_CODE); }
 
     public void validateSubscriptionRequests(String topicCode, List<Map<String, Object>> senderListDetails, Map<String, Object> recipientDetails, List<String> subscriptionMandatoryHeaders,Map<String, Object> notification) throws ClientException {
         for (String subscriptionMandatoryHeader : subscriptionMandatoryHeaders) {

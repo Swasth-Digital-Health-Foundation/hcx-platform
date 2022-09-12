@@ -15,6 +15,7 @@ import org.swasth.common.utils.*;
 import org.swasth.hcx.controllers.BaseController;
 import org.swasth.redis.cache.RedisCache;
 
+import java.io.IOException;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.util.*;
@@ -39,6 +40,9 @@ public class ParticipantController  extends BaseController {
 
     @Autowired
     private RedisCache redisCache;
+
+    @Autowired
+    private JWTUtils jwtUtils;
 
     @PostMapping(PARTICIPANT_CREATE)
     public ResponseEntity<Object> participantCreate(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
@@ -152,7 +156,7 @@ public class ParticipantController  extends BaseController {
         }
     }
 
-    private void validateParticipant(Map<String, Object> requestBody) throws ClientException, CertificateException {
+    private void validateParticipant(Map<String, Object> requestBody) throws ClientException, CertificateException, IOException {
         List<String> notAllowedUrls = env.getProperty(HCX_NOT_ALLOWED_URLS, List.class, new ArrayList<String>());
         if (!requestBody.containsKey(ROLES) || !(requestBody.get(ROLES) instanceof ArrayList) || ((ArrayList<String>) requestBody.get(ROLES)).isEmpty())
             throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, "roles property cannot be null, empty or other than 'ArrayList'");
@@ -168,7 +172,7 @@ public class ParticipantController  extends BaseController {
         else if (!requestBody.containsKey(ENCRYPTION_CERT) || !(requestBody.get(ENCRYPTION_CERT) instanceof String))
             throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, "encryption_cert is missing or invalid");
         // add encryption certificate expiry
-        requestBody.put(ENCRYPTION_CERT_EXPIRY, CertificateUtils.getExpiry((String) requestBody.get(ENCRYPTION_CERT)));
+        requestBody.put(ENCRYPTION_CERT_EXPIRY, jwtUtils.getCertificateExpiry((String) requestBody.get(ENCRYPTION_CERT)));
     }
 
     private Map<String,Object> getEData(String status, String prevStatus, List<String> props) {

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.web.server.LocalServerPort;
@@ -17,6 +18,7 @@ import org.swasth.apigateway.service.RegistryService;
 import org.swasth.auditindexer.function.AuditIndexer;
 import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
+import org.swasth.common.utils.JWTUtils;
 import org.swasth.redis.cache.RedisCache;
 
 import java.io.IOException;
@@ -50,6 +52,9 @@ public class BaseSpec {
     protected int port;
 
     protected WebTestClient client;
+
+    @MockBean
+    protected JWTUtils jwtUtils;
 
     @BeforeEach
     public void setup() throws IOException {
@@ -102,28 +107,23 @@ public class BaseSpec {
         return JSONUtils.serialize(obj);
     }
 
-    protected String getNotificationRequest(String topicCode, List<String> recipientRoles, List<String> recipientCodes, List<String> subscriptions) throws JsonProcessingException {
-        Map<String,Object> obj = new HashMap<>();
-        obj.put(HCX_SENDER_CODE,"hcx-apollo-12345");
-        obj.put(HCX_RECIPIENT_CODE,"hcx-gateway");
-        obj.put(CORRELATION_ID, "fd9cbdcb-a820-411f-9ec7-8365ec61f327");
-        obj.put(API_CALL_ID, "0327a49a-845c-4b5d-a920-28312dfbe06e");
-        obj.put(TIMESTAMP, "2022-01-06T09:50:23+00");
+    protected String getNotificationRequest(String topicCode, String recipientType, List<String> recipients) throws JsonProcessingException {
         Map<String,Object> notificationHeaders = new HashMap<>();
-        notificationHeaders.put(RECIPIENT_ROLES, recipientRoles);
-        notificationHeaders.put(RECIPIENT_CODES, recipientCodes);
-        notificationHeaders.put(SUBSCRIPTIONS, subscriptions);
-        obj.put(NOTIFICATION_HEADERS, notificationHeaders);
-        Map<String,Object> notificationData = new HashMap<>();
-        notificationData.put("message","Payor system down for sometime");
-        notificationData.put("duration","2hrs");
-        notificationData.put("startTime","9PM");
-        notificationData.put("date","26th April 2022 IST");
+        notificationHeaders.put(SENDER_CODE, "hcx-apollo-12345");
+        notificationHeaders.put("timestamp", System.currentTimeMillis());
+        notificationHeaders.put(RECIPIENT_TYPE, recipientType);
+        notificationHeaders.put(RECIPIENTS, recipients);
+        notificationHeaders.put("correlation_id", "5e934f90-111d-4f0b-b016-c22d820674e4");
+        notificationHeaders.put(EXPIRY, new Date(new Date().getTime() + 86400000).getTime());
+        Map<String,Object> headers = new HashMap<>();
+        headers.put(ALG, RS256);
+        headers.put(NOTIFICATION_HEADERS, notificationHeaders);
         Map<String,Object> payload = new HashMap<>();
         payload.put(TOPIC_CODE, topicCode);
-        payload.put(NOTIFICATION_DATA, notificationData);
-        obj.put(PAYLOAD, "eyJhbGciOiJSUzI1NiJ9." + JSONUtils.encodeBase64String(JSONUtils.serialize(payload)) + ".L14NMRVoQq7TMEUt0IiG36P0NgDH1Poz");
-        return JSONUtils.serialize(obj);
+        payload.put(MESSAGE, "Participant has been successfully onboarded");
+        Map<String,Object> jwsPayload = new HashMap<>();
+        jwsPayload.put(PAYLOAD, JSONUtils.encodeBase64String(JSONUtils.serialize(headers)) + "." + JSONUtils.encodeBase64String(JSONUtils.serialize(payload)) + ".L14NMRVoQq7TMEUt0IiG36P0NgDH1Poz4Nbh5BRZ7BcFXQzUI4SBduIJKY-WFCMPdKBl_LjlSm9JpNULn-gwLiDQ8ipQ3fZhzOkdzyjg0kUfpYN_aLQVgMaZ8Nrw3WytXIHserNxmka3wJQuSLvPnz9aJoFABij2evurnTsKq3oNbR0Oac3FJrpPO2O8fKaXs0Pi5Stf81eqcJ3Xs7oncJqBzgbp_jWShX8Ljfrf_TvM1patR-_h4E0O0HoVb0zD7SQmlKYOy0hw1bli5vdCnkh0tc1dF9yYrTEgofOjRemycFz_wEJ6FjFO1RryaBETw7qQ8hdGLemD545yUxCUng");
+        return JSONUtils.serialize(jwsPayload);
     }
 
     protected String getInvalidNotificationRequest() throws JsonProcessingException {
