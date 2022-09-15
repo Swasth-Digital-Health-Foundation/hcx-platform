@@ -1,23 +1,19 @@
 package org.swasth.hcx.utils;
 
 import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.index.query.*;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.util.CollectionUtils;
 import org.swasth.common.dto.SearchRequestDTO;
+import org.swasth.common.utils.Constants;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 
 public final class SearchUtil {
-
-    SearchUtil() {}
 
     public static SearchRequest buildSearchRequest(final String indexName,
                                                    final SearchRequestDTO dto) {
@@ -41,9 +37,7 @@ public final class SearchUtil {
         }
     }
 
-
-
-    private static QueryBuilder getQueryBuilder(final SearchRequestDTO dto) throws ParseException {
+    private static QueryBuilder getQueryBuilder(final SearchRequestDTO dto) {
         if (dto == null) {
             return null;
         }
@@ -51,19 +45,20 @@ public final class SearchUtil {
         if (CollectionUtils.isEmpty(fields)) {
             return null;
         }
-        Optional<String> firstkey = fields.keySet().stream().findFirst();
-        if (firstkey.isPresent()) {
+        Optional<String> firstKey = fields.keySet().stream().findFirst();
+        if (firstKey.isPresent()) {
             BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
             for (Entry<String, String> entry : fields.entrySet()) {
-                if(entry.getKey() != "start_datetime" & entry.getKey() != "stop_datetime") {
-                	queryBuilder = queryBuilder.must(QueryBuilders.termQuery(entry.getKey(),entry.getValue()));	
-                } else if (entry.getKey() == "start_datetime") {
-                    System.out.println("here is the start date");
-                	queryBuilder = queryBuilder.must(QueryBuilders.rangeQuery("timestamp").gte(entry.getValue()));
-                } else if (entry.getKey() == "stop_datetime") {
-                	System.out.println("here is the stop date");
-                	queryBuilder = queryBuilder.must(QueryBuilders.rangeQuery("timestamp").lte(entry.getValue()));
-                }    
+                if (dto.getAction().equalsIgnoreCase(Constants.AUDIT_NOTIFICATION_SEARCH) && entry.getKey().equalsIgnoreCase(Constants.HCX_SENDER_CODE)){
+                    queryBuilder = queryBuilder.should(QueryBuilders.termQuery(Constants.HCX_SENDER_CODE, entry.getValue()));
+                    queryBuilder = queryBuilder.should(QueryBuilders.termQuery(Constants.HCX_RECIPIENT_CODE, entry.getValue()));
+                } else if(!entry.getKey().equalsIgnoreCase(Constants.START_DATETIME) & !entry.getKey().equalsIgnoreCase(Constants.STOP_DATETIME)) {
+                	queryBuilder = queryBuilder.must(QueryBuilders.termQuery(entry.getKey(),entry.getValue()));
+                } else if (entry.getKey().equalsIgnoreCase(Constants.START_DATETIME)) {
+                	queryBuilder = queryBuilder.must(QueryBuilders.rangeQuery(Constants.TIMESTAMP).gte(entry.getValue()));
+                } else if (entry.getKey().equalsIgnoreCase(Constants.STOP_DATETIME)) {
+                	queryBuilder = queryBuilder.must(QueryBuilders.rangeQuery(Constants.TIMESTAMP).lte(entry.getValue()));
+                }
             }
             return queryBuilder;
         }

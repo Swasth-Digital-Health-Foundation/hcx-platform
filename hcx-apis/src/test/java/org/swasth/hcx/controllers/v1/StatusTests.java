@@ -24,7 +24,7 @@ class StatusTests extends BaseSpec {
     @Test
     void status_success_for_request_dispatched_scenario() throws Exception {
         doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
-        when(headerAuditService.search(any())).thenReturn(List.of(getAuditData(Constants.COVERAGE_ELIGIBILITY_CHECK, Constants.DISPATCHED_STATUS)));
+        when(auditService.search(any())).thenReturn(List.of(getAuditData(Constants.COVERAGE_ELIGIBILITY_CHECK, Constants.DISPATCHED_STATUS)));
         String requestBody = getStatusRequestBody();
         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.HCX_STATUS).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -35,7 +35,7 @@ class StatusTests extends BaseSpec {
     @Test
     void status_success_for_request_queued_scenario() throws Exception {
         doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
-        when(headerAuditService.search(any())).thenReturn(List.of(getAuditData(Constants.COVERAGE_ELIGIBILITY_CHECK, Constants.QUEUED_STATUS)));
+        when(auditService.search(any())).thenReturn(List.of(getAuditData(Constants.COVERAGE_ELIGIBILITY_CHECK, Constants.QUEUED_STATUS)));
         String requestBody = getStatusRequestBody();
         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.HCX_STATUS).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -46,7 +46,7 @@ class StatusTests extends BaseSpec {
     @Test
     void status_empty_audit_response_scenario() throws Exception {
         doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
-        when(headerAuditService.search(any())).thenReturn(Arrays.asList());
+        when(auditService.search(any())).thenReturn(Arrays.asList());
         String requestBody = getStatusRequestBody();
         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.HCX_STATUS).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -59,7 +59,7 @@ class StatusTests extends BaseSpec {
     @Test
     void status_invalid_entity_scenario() throws Exception {
         doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
-        when(headerAuditService.search(any())).thenReturn(List.of(getAuditData(Constants.PAYMENT_NOTICE_REQUEST, Constants.DISPATCHED_STATUS)));
+        when(auditService.search(any())).thenReturn(List.of(getAuditData(Constants.PAYMENT_NOTICE_REQUEST, Constants.DISPATCHED_STATUS)));
         String requestBody = getStatusRequestBody();
         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.HCX_STATUS).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();

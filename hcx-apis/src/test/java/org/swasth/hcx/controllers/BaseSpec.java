@@ -25,7 +25,7 @@ import org.swasth.hcx.config.GenericConfiguration;
 import org.swasth.hcx.controllers.v1.*;
 import org.swasth.hcx.handlers.EventHandler;
 import org.swasth.hcx.managers.HealthCheckManager;
-import org.swasth.hcx.service.HeaderAuditService;
+import org.swasth.hcx.service.AuditService;
 import org.swasth.hcx.service.NotificationService;
 import org.swasth.kafka.client.IEventService;
 import org.swasth.postgresql.IDatabaseService;
@@ -58,7 +58,7 @@ public class BaseSpec {
     protected HealthCheckManager healthCheckManager;
 
     @MockBean
-    protected HeaderAuditService headerAuditService;
+    protected AuditService auditService;
 
     @MockBean
     protected AuditIndexer auditIndexer;

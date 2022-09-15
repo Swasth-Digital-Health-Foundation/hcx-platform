@@ -19,13 +19,14 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class HeaderAuditService {
+public class AuditService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(HeaderAuditService.class);
+    private static final Logger logger = LoggerFactory.getLogger(AuditService.class);
 
     private final RestHighLevelClient client;
+
     @Autowired
-    public HeaderAuditService(RestHighLevelClient client) {
+    public AuditService(RestHighLevelClient client) {
         this.client = client;
     }
 
@@ -36,7 +37,8 @@ public class HeaderAuditService {
      * @param dto DTO containing info about what to search for.
      * @return Returns a list of found audit events.
      */
-    public List<Map<String, Object>> search(final SearchRequestDTO dto) {
+    public List<Map<String, Object>> search(final SearchRequestDTO dto, String action) {
+        dto.setAction(action);
         final SearchRequest request = SearchUtil.buildSearchRequest(
         		Constants.HEADER_AUDIT,
                 dto
@@ -48,7 +50,7 @@ public class HeaderAuditService {
 
     private List<Map<String,Object>> searchInternal(final SearchRequest request) {
         if (request == null) {
-            LOG.error("Failed to build search request");
+            logger.error("Failed to build search request");
             return Collections.emptyList();
         }
 
@@ -61,7 +63,7 @@ public class HeaderAuditService {
             }
             return headeraudit;
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
             return Collections.emptyList();
         }
     }
