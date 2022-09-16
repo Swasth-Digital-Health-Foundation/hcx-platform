@@ -1,6 +1,7 @@
 package org.swasth.hcx.service;
 
 import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.search.SearchHit;
@@ -12,10 +13,7 @@ import org.swasth.common.dto.AuditSearchRequest;
 import org.swasth.common.utils.Constants;
 import org.swasth.hcx.utils.SearchUtil;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class AuditService {
