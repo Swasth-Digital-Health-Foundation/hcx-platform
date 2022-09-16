@@ -77,7 +77,7 @@ class AuditControllerTests {
         AuditSearchRequest request = new AuditSearchRequest();
         request.setFilters(filters);
         request.setLimit(10);
-        request.setOffset(0);
+        request.setOffset(5);
         return request;
     }
 

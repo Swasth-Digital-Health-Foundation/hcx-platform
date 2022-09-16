@@ -25,6 +25,7 @@ public class AuditSearchRequestTest {
         AuditSearchRequest request = new AuditSearchRequest();
         request.setFilters(filters);
         request.setAction(Constants.AUDIT_SEARCH);
+        request.setLimit(0);
         assertEquals(Constants.AUDIT_SEARCH, request.getAction());
         assertEquals("provider@01", request.getFilters().get(Constants.HCX_SENDER_CODE));
     }

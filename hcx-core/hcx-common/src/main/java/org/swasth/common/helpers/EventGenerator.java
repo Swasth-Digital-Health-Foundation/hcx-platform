@@ -179,6 +179,27 @@ public class EventGenerator {
         return  event;
     }
 
+    public Map<String,Object> createAuditLog(String id, String objectType, Map<String,Object> cdata, Map<String,Object> edata) {
+        Map<String,Object> event = new HashMap<>();
+        event.put(EID, AUDIT);
+        event.put(ETS, System.currentTimeMillis());
+        event.put(MID, UUID.randomUUID().toString());
+        Map<String,Object> objectMap = new HashMap<>();
+        objectMap.put(ID, id);
+        objectMap.put(TYPE, objectType);
+        event.put(OBJECT, objectMap);
+        event.put(CDATA, cdata);
+        event.put(EDATA, edata);
+        return event;
+    }
+
+    private Map<String,Object> createOnSubscriptionPayload(String subscriptionId, String status) {
+        Map<String,Object> event = new HashMap<>();
+        event.put(SUBSCRIPTION_ID,subscriptionId);
+        event.put(SUBSCRIPTION_STATUS,status);
+        return event;
+    }
+
     public String createNotifyEvent(String topicCode, String senderCode, String recipientType, List<String> recipients, long expiry, String message, String privateKey) throws Exception {
         Map<String,Object> notificationHeaders = new HashMap<>();
         notificationHeaders.put(SENDER_CODE, senderCode);
@@ -206,27 +227,6 @@ public class EventGenerator {
         event.put(HEADERS, Collections.singletonMap(PROTOCOL, protocolHeaders));
 
         return JSONUtils.serialize(event);
-    }
-
-    public Map<String,Object> createAuditLog(String id, String objectType, Map<String,Object> cdata, Map<String,Object> edata) {
-        Map<String,Object> event = new HashMap<>();
-        event.put(EID, AUDIT);
-        event.put(ETS, System.currentTimeMillis());
-        event.put(MID, UUID.randomUUID().toString());
-        Map<String,Object> objectMap = new HashMap<>();
-        objectMap.put(ID, id);
-        objectMap.put(TYPE, objectType);
-        event.put(OBJECT, objectMap);
-        event.put(CDATA, cdata);
-        event.put(EDATA, edata);
-        return event;
-    }
-
-    private Map<String,Object> createOnSubscriptionPayload(String subscriptionId, String status) {
-        Map<String,Object> event = new HashMap<>();
-        event.put(SUBSCRIPTION_ID,subscriptionId);
-        event.put(SUBSCRIPTION_STATUS,status);
-        return event;
     }
     
 }

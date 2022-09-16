@@ -45,11 +45,6 @@ public class AuditService {
 
 
     private List<Map<String,Object>> searchInternal(final SearchRequest request) {
-        if (request == null) {
-            logger.error("Failed to build search request");
-            return Collections.emptyList();
-        }
-
         try {
             final SearchResponse response = client.search(request, RequestOptions.DEFAULT);
             final SearchHit[] searchHits = response.getHits().getHits();

@@ -49,7 +49,7 @@ public final class SearchUtil {
                 if (request.getAction().equalsIgnoreCase(Constants.AUDIT_NOTIFICATION_SEARCH) && entry.getKey().equalsIgnoreCase(Constants.HCX_SENDER_CODE)){
                     queryBuilder = queryBuilder.should(QueryBuilders.termQuery(Constants.HCX_SENDER_CODE, entry.getValue()));
                     queryBuilder = queryBuilder.should(QueryBuilders.termQuery(Constants.HCX_RECIPIENT_CODE, entry.getValue()));
-                } else if(!entry.getKey().equalsIgnoreCase(Constants.START_DATETIME) & !entry.getKey().equalsIgnoreCase(Constants.STOP_DATETIME)) {
+                } else if(!entry.getKey().equalsIgnoreCase(Constants.START_DATETIME) && !entry.getKey().equalsIgnoreCase(Constants.STOP_DATETIME)) {
                 	queryBuilder = queryBuilder.must(QueryBuilders.termQuery(entry.getKey(),entry.getValue()));
                 } else if (entry.getKey().equalsIgnoreCase(Constants.START_DATETIME)) {
                 	queryBuilder = queryBuilder.must(QueryBuilders.rangeQuery(Constants.TIMESTAMP).gte(entry.getValue()));
