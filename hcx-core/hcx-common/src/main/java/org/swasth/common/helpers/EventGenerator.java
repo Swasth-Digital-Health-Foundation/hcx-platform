@@ -164,6 +164,35 @@ public class EventGenerator {
         event.put(HCX_SENDER_CODE, senderCode);
         return JSONUtils.serialize(event);
     }
+    
+    public String createNotifyEvent(String topicCode, String senderCode, String recipientType, List<String> recipients, long expiry, String message, String privateKey) throws Exception {
+        Map<String,Object> notificationHeaders = new HashMap<>();
+        notificationHeaders.put(SENDER_CODE, senderCode);
+        notificationHeaders.put(TIMESTAMP, System.currentTimeMillis());
+        notificationHeaders.put(RECIPIENT_TYPE, recipientType);
+        notificationHeaders.put(RECIPIENTS, recipients);
+        notificationHeaders.put(CORRELATION_ID, UUID.randomUUID().toString());
+        notificationHeaders.put(EXPIRY, expiry);
+
+        Map<String,Object> protocolHeaders = new HashMap<>();
+        protocolHeaders.put(ALG, RS256);
+        protocolHeaders.put(NOTIFICATION_HEADERS, notificationHeaders);
+
+        Map<String,Object> payload = new HashMap<>();
+        payload.put(TOPIC_CODE, topicCode);
+        payload.put(MESSAGE, message);
+
+        Map<String,Object> event = new HashMap<>();
+        event.put(MID, UUID.randomUUID().toString());
+        event.put(ETS, System.currentTimeMillis());
+        event.put(ACTION, NOTIFICATION_NOTIFY);
+        event.put(TOPIC_CODE, topicCode);
+        event.put(MESSAGE, message);
+        event.put(PAYLOAD, jwtUtils.generateJWS(protocolHeaders, payload, privateKey));
+        event.put(HEADERS, Collections.singletonMap(PROTOCOL, protocolHeaders));
+
+        return JSONUtils.serialize(event);
+    }
 
     public Map<String,Object> generateOnSubscriptionAuditEvent(String apiAction,String recipientCode,String subscriptionId,String status,String senderCode,String subscriptionStatus) {
         Map<String,Object> event = new HashMap<>();
@@ -200,33 +229,5 @@ public class EventGenerator {
         return event;
     }
 
-    public String createNotifyEvent(String topicCode, String senderCode, String recipientType, List<String> recipients, long expiry, String message, String privateKey) throws Exception {
-        Map<String,Object> notificationHeaders = new HashMap<>();
-        notificationHeaders.put(SENDER_CODE, senderCode);
-        notificationHeaders.put(TIMESTAMP, System.currentTimeMillis());
-        notificationHeaders.put(RECIPIENT_TYPE, recipientType);
-        notificationHeaders.put(RECIPIENTS, recipients);
-        notificationHeaders.put(CORRELATION_ID, UUID.randomUUID().toString());
-        notificationHeaders.put(EXPIRY, expiry);
-
-        Map<String,Object> protocolHeaders = new HashMap<>();
-        protocolHeaders.put(ALG, RS256);
-        protocolHeaders.put(NOTIFICATION_HEADERS, notificationHeaders);
-
-        Map<String,Object> payload = new HashMap<>();
-        payload.put(TOPIC_CODE, topicCode);
-        payload.put(MESSAGE, message);
-
-        Map<String,Object> event = new HashMap<>();
-        event.put(MID, UUID.randomUUID().toString());
-        event.put(ETS, System.currentTimeMillis());
-        event.put(ACTION, NOTIFICATION_NOTIFY);
-        event.put(TOPIC_CODE, topicCode);
-        event.put(MESSAGE, message);
-        event.put(PAYLOAD, jwtUtils.generateJWS(protocolHeaders, payload, privateKey));
-        event.put(HEADERS, Collections.singletonMap(PROTOCOL, protocolHeaders));
-
-        return JSONUtils.serialize(event);
-    }
     
 }
