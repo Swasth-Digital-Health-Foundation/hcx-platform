@@ -164,7 +164,7 @@ public class EventGenerator {
         event.put(HCX_SENDER_CODE, senderCode);
         return JSONUtils.serialize(event);
     }
-    
+
     public String createNotifyEvent(String topicCode, String senderCode, String recipientType, List<String> recipients, long expiry, String message, String privateKey) throws Exception {
         Map<String,Object> notificationHeaders = new HashMap<>();
         notificationHeaders.put(SENDER_CODE, senderCode);
@@ -228,6 +228,5 @@ public class EventGenerator {
         event.put(SUBSCRIPTION_STATUS,status);
         return event;
     }
-
     
 }

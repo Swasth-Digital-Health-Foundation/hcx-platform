@@ -13,10 +13,7 @@ import org.swasth.common.dto.AuditSearchRequest;
 import org.swasth.common.utils.Constants;
 import org.swasth.hcx.utils.SearchUtil;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class AuditService {
@@ -46,8 +43,7 @@ public class AuditService {
 
     private List<Map<String,Object>> searchInternal(final SearchRequest request) {
         try {
-            final SearchResponse response = client.search(request, RequestOptions.DEFAULT);
-            final SearchHit[] searchHits = response.getHits().getHits();
+            final SearchHit[] searchHits = client.search(request, RequestOptions.DEFAULT).getHits().getHits();
             final List<Map<String,Object>> audit = new ArrayList<>(searchHits.length);
             for (SearchHit hit : searchHits) {
                 audit.add(hit.getSourceAsMap());
