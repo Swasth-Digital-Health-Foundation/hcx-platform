@@ -38,10 +38,7 @@ public final class SearchUtil {
     }
 
     private static QueryBuilder getQueryBuilder(final AuditSearchRequest request) {
-        if (request == null) {
-            return null;
-        }
-        final Map<String, String> fields = request.getFilters();
+        Map<String, String> fields = request.getFilters();
         if (CollectionUtils.isEmpty(fields)) {
             return null;
         }

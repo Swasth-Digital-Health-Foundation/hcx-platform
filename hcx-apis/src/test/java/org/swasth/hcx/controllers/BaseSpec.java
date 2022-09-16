@@ -1,6 +1,7 @@
 package org.swasth.hcx.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -34,7 +35,7 @@ import org.swasth.redis.cache.RedisCache;
 import java.util.*;
 
 
-@WebMvcTest({CoverageEligibilityController.class, PreAuthController.class, ClaimsController.class, PaymentsController.class, AuditController.class, StatusController.class, SearchController.class, CommunicationController.class, PredeterminationController.class, ParticipantController.class, NotificationController.class, NotificationService.class, EventHandler.class, EventGenerator.class})
+@WebMvcTest({CoverageEligibilityController.class, PreAuthController.class, ClaimsController.class, PaymentsController.class, StatusController.class, SearchController.class, CommunicationController.class, PredeterminationController.class, ParticipantController.class, NotificationController.class, AuditService.class, NotificationService.class, EventHandler.class, EventGenerator.class})
 @ExtendWith(MockitoExtension.class)
 @ActiveProfiles("test")
 @Import(GenericConfiguration.class)
@@ -58,13 +59,13 @@ public class BaseSpec {
     protected HealthCheckManager healthCheckManager;
 
     @MockBean
-    protected AuditService auditService;
-
-    @MockBean
     protected AuditIndexer auditIndexer;
 
     @MockBean
     protected RedisCache redisCache;
+
+    @MockBean
+    protected AuditService auditService;
 
     @Autowired
     protected NotificationService notificationService;
@@ -77,6 +78,9 @@ public class BaseSpec {
 
     @MockBean
     protected RegistryService mockRegistryService;
+
+    @MockBean
+    protected RestHighLevelClient restHighLevelClient;
 
     @MockBean
     protected JWTUtils jwtUtils;

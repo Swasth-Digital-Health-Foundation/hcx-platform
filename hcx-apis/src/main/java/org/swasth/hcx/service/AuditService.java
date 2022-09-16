@@ -23,12 +23,8 @@ public class AuditService {
 
     private static final Logger logger = LoggerFactory.getLogger(AuditService.class);
 
-    private final RestHighLevelClient client;
-
     @Autowired
-    public AuditService(RestHighLevelClient client) {
-        this.client = client;
-    }
+    private RestHighLevelClient client;
 
     /**
      * Used to search for audit events based on data provided in the {@link AuditSearchRequest} DTO. For more info take a look
