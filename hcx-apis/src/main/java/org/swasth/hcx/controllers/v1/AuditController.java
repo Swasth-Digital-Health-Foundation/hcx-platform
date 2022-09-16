@@ -17,12 +17,8 @@ import java.util.Map;
 @RequestMapping(Constants.VERSION_PREFIX)
 public class AuditController {
 
-	private final AuditService service;
-	
 	@Autowired
-	public AuditController(AuditService service) {
-		this.service =  service;
-	}
+	private AuditService service;
 
     @PostMapping(Constants.AUDIT_SEARCH)
     public List<Map<String, Object>> auditSearch(@RequestBody AuditSearchRequest request) {
