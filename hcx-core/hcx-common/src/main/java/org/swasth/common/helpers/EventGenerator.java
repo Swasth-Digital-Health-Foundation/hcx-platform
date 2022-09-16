@@ -96,6 +96,32 @@ public class EventGenerator {
         return JSONUtils.serialize(event);
     }
 
+    public Map<String,Object> generateAuditEvent(Request request) {
+        Map<String,Object> event = new HashMap<>();
+        event.put(EID, AUDIT);
+        event.put(HCX_RECIPIENT_CODE, request.getHcxRecipientCode());
+        event.put(HCX_SENDER_CODE, request.getHcxSenderCode());
+        event.put(API_CALL_ID, request.getApiCallId());
+        event.put(CORRELATION_ID, request.getCorrelationId());
+        event.put(WORKFLOW_ID, request.getWorkflowId());
+        event.put(TIMESTAMP, request.getTimestamp());
+        event.put(ERROR_DETAILS, request.getErrorDetails());
+        event.put(DEBUG_DETAILS, request.getDebugDetails());
+        event.put(MID, request.getMid());
+        event.put(ACTION, request.getApiAction());
+        if(request.getStatus() == null)
+            event.put(STATUS, QUEUED_STATUS);
+        else
+            event.put(STATUS, request.getStatus());
+        event.put(REQUEST_TIME, System.currentTimeMillis());
+        event.put(UPDATED_TIME, System.currentTimeMillis());
+        event.put(ETS, System.currentTimeMillis());
+        event.put(SENDER_ROLE, new ArrayList<>());
+        event.put(RECIPIENT_ROLE, new ArrayList<>());
+        event.put(PAYLOAD, request.getPayloadWithoutSensitiveData());
+        return  event;
+    }
+
     public String generateSubscriptionEvent(String apiAction,String recipientCode,String topicCode,List<String> senderList) throws JsonProcessingException {
         Map<String,Object> event = new HashMap<>();
         event.put(MID, UUID.randomUUID().toString());
@@ -124,32 +150,6 @@ public class EventGenerator {
         event.put(RECIPIENT_CODE,request.getRecipientCode());
         event.put(ETS,System.currentTimeMillis());
         event.put(AUDIT_STATUS, status);
-        return  event;
-    }
-
-    public Map<String,Object> generateAuditEvent(Request request) {
-        Map<String,Object> event = new HashMap<>();
-        event.put(EID, AUDIT);
-        event.put(HCX_RECIPIENT_CODE, request.getHcxRecipientCode());
-        event.put(HCX_SENDER_CODE, request.getHcxSenderCode());
-        event.put(API_CALL_ID, request.getApiCallId());
-        event.put(CORRELATION_ID, request.getCorrelationId());
-        event.put(WORKFLOW_ID, request.getWorkflowId());
-        event.put(TIMESTAMP, request.getTimestamp());
-        event.put(ERROR_DETAILS, request.getErrorDetails());
-        event.put(DEBUG_DETAILS, request.getDebugDetails());
-        event.put(MID, request.getMid());
-        event.put(ACTION, request.getApiAction());
-        if(request.getStatus() == null)
-            event.put(STATUS, QUEUED_STATUS);
-        else
-            event.put(STATUS, request.getStatus());
-        event.put(REQUEST_TIME, System.currentTimeMillis());
-        event.put(UPDATED_TIME, System.currentTimeMillis());
-        event.put(ETS, System.currentTimeMillis());
-        event.put(SENDER_ROLE, new ArrayList<>());
-        event.put(RECIPIENT_ROLE, new ArrayList<>());
-        event.put(PAYLOAD, request.getPayloadWithoutSensitiveData());
         return  event;
     }
 
@@ -228,5 +228,5 @@ public class EventGenerator {
         event.put(SUBSCRIPTION_STATUS,status);
         return event;
     }
-    
+
 }
