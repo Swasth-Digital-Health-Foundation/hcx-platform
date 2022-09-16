@@ -9,7 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.swasth.common.dto.SearchRequestDTO;
+import org.swasth.common.dto.AuditSearchRequest;
 import org.swasth.common.utils.Constants;
 import org.swasth.hcx.utils.SearchUtil;
 
@@ -31,20 +31,20 @@ public class AuditService {
     }
 
     /**
-     * Used to search for audit events based on data provided in the {@link SearchRequestDTO} DTO. For more info take a look
+     * Used to search for audit events based on data provided in the {@link AuditSearchRequest} DTO. For more info take a look
      * at DTO javadoc.
      *
-     * @param dto DTO containing info about what to search for.
+     * @param request DTO containing info about what to search for.
      * @return Returns a list of found audit events.
      */
-    public List<Map<String, Object>> search(final SearchRequestDTO dto, String action) {
-        dto.setAction(action);
-        final SearchRequest request = SearchUtil.buildSearchRequest(
+    public List<Map<String, Object>> search(final AuditSearchRequest request, String action) {
+        request.setAction(action);
+        final SearchRequest searchRequest = SearchUtil.buildSearchRequest(
         		Constants.HEADER_AUDIT,
-                dto
+                request
         );
 
-        return searchInternal(request);
+        return searchInternal(searchRequest);
     }
 
 
@@ -57,11 +57,11 @@ public class AuditService {
         try {
             final SearchResponse response = client.search(request, RequestOptions.DEFAULT);
             final SearchHit[] searchHits = response.getHits().getHits();
-            final List<Map<String,Object>> headeraudit = new ArrayList<>(searchHits.length);
+            final List<Map<String,Object>> audit = new ArrayList<>(searchHits.length);
             for (SearchHit hit : searchHits) {
-                headeraudit.add(hit.getSourceAsMap());
+                audit.add(hit.getSourceAsMap());
             }
-            return headeraudit;
+            return audit;
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             return Collections.emptyList();

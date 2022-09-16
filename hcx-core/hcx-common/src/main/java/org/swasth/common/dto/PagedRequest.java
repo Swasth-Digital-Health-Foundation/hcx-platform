@@ -1,7 +1,7 @@
 package org.swasth.common.dto;
 
 
-public class PagedRequestDTO {
+public class PagedRequest {
     private static final int DEFAULT_SIZE = 50;
 
     private int offset;

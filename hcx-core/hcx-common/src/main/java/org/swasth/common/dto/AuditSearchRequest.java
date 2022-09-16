@@ -2,15 +2,15 @@ package org.swasth.common.dto;
 
 import java.util.Map;
 
-public class SearchRequestDTO extends PagedRequestDTO {
+public class AuditSearchRequest extends PagedRequest {
 
     private String action;
 
     private Map<String, String> filters;
 
-    public SearchRequestDTO() {}
+    public AuditSearchRequest() {}
 
-    public SearchRequestDTO(Map<String, String> filters){
+    public AuditSearchRequest(Map<String, String> filters){
         this.filters = filters;
     }
 
