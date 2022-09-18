@@ -60,12 +60,13 @@ object Constants {
   val INVALID_STATUS = List("Inactive", "Blocked")
   val VALID_STATUS = List("Created", "Active")
   val ACTIVE = "Active"
+  val ENTITY_TYPE = "entity_type"
 
   //Event Fields
   val HCX_SENDER_CODE = "x-hcx-sender_code"
   val HCX_RECIPIENT_CODE = "x-hcx-recipient_code"
   val API_CALL_ID = "x-hcx-api_call_id"
-  val CORRELATION_ID = "x-hcx-correlation_id"
+  val HCX_CORRELATION_ID = "x-hcx-correlation_id"
   val WORKFLOW_ID = "x-hcx-workflow_id"
   val HCX_TIMESTAMP = "x-hcx-timestamp"
   val TIMESTAMP = "timestamp"
@@ -106,6 +107,11 @@ object Constants {
   val WORKFLOW = "Workflow"
   val PROPERTIES = "properties"
   val PROPS = "props"
+  val RECIPIENT_TYPE = "recipient_type"
+  val SUBSCRIPTION = "subscription"
+  val PARTICIPANT_ROLE = "participant_role"
+  val RECIPIENTS = "recipients"
+  val CORRELATIONID = "correlation_id"
 
   // Notification topic codes
   val PARTICIPANT_ONBOARD = "notif-participant-onboarded"
@@ -122,6 +128,7 @@ object Constants {
   val SEARCH_ENTITY_COUNT = "entity_counts"
   val PARTIAL_RESPONSE = "response.partial"
   val COMPLETE_RESPONSE = "response.complete"
+  val REQUEST_INITIATED = "request.initiated"
 
 
   val OPEN_STATUS = "OPEN"
@@ -133,6 +140,7 @@ object Constants {
   //val ERROR_STATUS = "response.error"
 
   val ERR_INVALID_RECIPIENT = "ERR_INVALID_RECIPIENT"
+  val ERR_NOTIFICATION_EXPIRED = "ERR_NOTIFICATION_EXPIRED"
   val RECIPIENT_ERROR_CODE = "ERR_RECIPIENT_NOT_AVAILABLE"
   val RECIPIENT_ERROR_MESSAGE = "Please provide correct recipient code"
   val RECIPIENT_ERROR_LOG = "Recipient endpoint url is empty"
@@ -144,6 +152,7 @@ object Constants {
   val IAT = "iat"
   val EXP = "exp"
   val TYP = "typ"
+  val JWT = "JWT"
   val ALG = "alg"
   val RS256 = "RS256"
 

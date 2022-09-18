@@ -20,22 +20,23 @@ import java.util.Map;
 
 public class CommunicationStreamTask {
 
-	private CommunicationConfig config;
-	private FlinkKafkaConnector kafkaConnector;
+	private final CommunicationConfig config;
+	private final FlinkKafkaConnector kafkaConnector;
+
 	public CommunicationStreamTask(CommunicationConfig config, FlinkKafkaConnector kafkaConnector){
 		this.config = config;
 		this.kafkaConnector = kafkaConnector;
 	}
 
 	public static void main(String[] args) {
-		Option<String> configFilePath = new Some<String>(ParameterTool.fromArgs(args).get("config.file.path"));
+		Option<String> configFilePath = new Some<>(ParameterTool.fromArgs(args).get("config.file.path"));
 		Config conf = configFilePath.map(path -> ConfigFactory.parseFile(new File(path)).resolve())
 				.getOrElse(() -> ConfigFactory.load("resources/communication.conf").withFallback(ConfigFactory.systemEnvironment()));
 		CommunicationConfig config = new CommunicationConfig(conf,"Communication-Job");
 		FlinkKafkaConnector kafkaConnector = new FlinkKafkaConnector(config);
-		CommunicationStreamTask searchTask = new CommunicationStreamTask(config, kafkaConnector);
+		CommunicationStreamTask task = new CommunicationStreamTask(config, kafkaConnector);
 		try {
-			searchTask.process(config);
+			task.process(config);
 		} catch (Exception e) {
 			//TODO Add loggers
 			e.printStackTrace();

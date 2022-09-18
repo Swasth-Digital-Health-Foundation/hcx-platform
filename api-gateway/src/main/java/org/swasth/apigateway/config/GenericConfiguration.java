@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.swasth.auditindexer.function.AuditIndexer;
+import org.swasth.common.utils.JWTUtils;
 import org.swasth.common.utils.NotificationUtils;
 import org.swasth.redis.cache.RedisCache;
 
@@ -46,6 +47,11 @@ public class GenericConfiguration {
     @Bean
     public NotificationUtils notificationUtils() throws IOException {
         return new NotificationUtils(notificationsPath);
+    }
+
+    @Bean
+    public JWTUtils jwtUtils() throws IOException {
+        return new JWTUtils();
     }
 
 }

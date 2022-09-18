@@ -353,19 +353,20 @@ class NotificationControllerTest extends BaseSpec {
     }
 
     private String getNotificationRequest(List<String> subscriptions) throws JsonProcessingException {
-        Map<String,Object> obj = new HashMap<>();
-        obj.put(HCX_SENDER_CODE,"hcx-apollo-12345");
-        obj.put(HCX_RECIPIENT_CODE,"hcx-gateway");
-        obj.put(CORRELATION_ID, "5e934f90-111d-4f0b-b016-c22d820674e4");
-        obj.put(API_CALL_ID, "1e83-460a-4f0b-b016-c22d820674e1");
-        obj.put(TIMESTAMP, "2022-01-06T09:50:23+00");
         Map<String,Object> notificationHeaders = new HashMap<>();
-        notificationHeaders.put(RECIPIENT_ROLES, List.of("provider", "payor"));
-        notificationHeaders.put(RECIPIENT_CODES, List.of("test-user@hcx"));
-        notificationHeaders.put(SUBSCRIPTIONS, subscriptions);
-        obj.put(NOTIFICATION_HEADERS, notificationHeaders);
-        obj.put(PAYLOAD, "eyJhbGciOiJSUzI1NiJ9.eyJ0b3BpY19jb2RlIjoibm90aWYtcGFydGljaXBhbnQtb25ib2FyZGVkIiwibWVzc2FnZSI6IlBhcnRpY2lwYW50IGhhcyBzdWNjZXNzZnVsbHkgb25ib2FyZGVkIn0=.L14NMRVoQq7TMEUt0IiG36P0NgDH1Poz4Nbh5BRZ7BcFXQzUI4SBduIJKY-WFCMPdKBl_LjlSm9JpNULn-gwLiDQ8ipQ3fZhzOkdzyjg0kUfpYN_aLQVgMaZ8Nrw3WytXIHserNxmka3wJQuSLvPnz9aJoFABij2evurnTsKq3oNbR0Oac3FJrpPO2O8fKaXs0Pi5Stf81eqcJ3Xs7oncJqBzgbp_jWShX8Ljfrf_TvM1patR-_h4E0O0HoVb0zD7SQmlKYOy0hw1bli5vdCnkh0tc1dF9yYrTEgofOjRemycFz_wEJ6FjFO1RryaBETw7qQ8hdGLemD545yUxCUng");
-        return JSONUtils.serialize(obj);
+        notificationHeaders.put(SENDER_CODE, "hcx-apollo-12345");
+        notificationHeaders.put(TIMESTAMP, System.currentTimeMillis());
+        notificationHeaders.put(RECIPIENT_TYPE, SUBSCRIPTION);
+        notificationHeaders.put(RECIPIENTS, subscriptions);
+        notificationHeaders.put(CORRELATION_ID, "5e934f90-111d-4f0b-b016-c22d820674e4");
+        Map<String,Object> headers = new HashMap<>();
+        headers.put(NOTIFICATION_HEADERS, notificationHeaders);
+        Map<String,Object> payload = new HashMap<>();
+        payload.put(TOPIC_CODE, "notif-participant-onboarded");
+        payload.put(MESSAGE, "Participant has been successfully onboarded");
+        Map<String,Object> jwsPayload = new HashMap<>();
+        jwsPayload.put(PAYLOAD, JSONUtils.encodeBase64String(JSONUtils.serialize(headers)) + "." + JSONUtils.encodeBase64String(JSONUtils.serialize(payload)) + ".L14NMRVoQq7TMEUt0IiG36P0NgDH1Poz4Nbh5BRZ7BcFXQzUI4SBduIJKY-WFCMPdKBl_LjlSm9JpNULn-gwLiDQ8ipQ3fZhzOkdzyjg0kUfpYN_aLQVgMaZ8Nrw3WytXIHserNxmka3wJQuSLvPnz9aJoFABij2evurnTsKq3oNbR0Oac3FJrpPO2O8fKaXs0Pi5Stf81eqcJ3Xs7oncJqBzgbp_jWShX8Ljfrf_TvM1patR-_h4E0O0HoVb0zD7SQmlKYOy0hw1bli5vdCnkh0tc1dF9yYrTEgofOjRemycFz_wEJ6FjFO1RryaBETw7qQ8hdGLemD545yUxCUng");
+        return JSONUtils.serialize(jwsPayload);
     }
 
     @Test
@@ -373,17 +374,6 @@ class NotificationControllerTest extends BaseSpec {
         doReturn(getSubscriptionsResultSet()).when(postgreSQLClient).executeQuery(anyString());
         doNothing().when(mockKafkaClient).send(anyString(), anyString(), any());
         String requestBody = getNotificationRequest(List.of("subscription-123"));
-        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_NOTIFY).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
-        MockHttpServletResponse response = mvcResult.getResponse();
-        int status = response.getStatus();
-        Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
-        assertEquals(202, status);
-    }
-
-    @Test
-    void testNotifyWithEmptySubscriptions() throws Exception {
-        doNothing().when(mockKafkaClient).send(anyString(), anyString(), any());
-        String requestBody = getNotificationRequest(Collections.EMPTY_LIST);
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_NOTIFY).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();

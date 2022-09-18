@@ -29,9 +29,9 @@ participantCode:
 
 #postgres config
 postgres:
-  url: ${postgres_url:jdbc:postgresql://localhost:5432/hcxdb}
-  user: ${postgres_user:prasad}
-  password: ${postgres_password:hcx@123}
+  url: ${postgres_url:jdbc:postgresql://localhost:5432/postgres}
+  user: ${postgres_user:postgres}
+  password: ${postgres_password:postgres}
   tablename: ${postgres_tablename:payload}
   subscription:
     tablename: ${postgres_subscription_tablename:subscription}
@@ -88,8 +88,8 @@ hcx:
 #Notifications related configurations
 notification:
   headers:
-    mandatory: ${notification_mandatory_headers:x-hcx-sender_code, x-hcx-recipient_code, x-hcx-api_call_id, x-hcx-timestamp, x-hcx-correlation_id, x-hcx-notification_headers, payload}
-    optional: ${notification_optional_headers:x-hcx-workflow_id}
+    mandatory: ${notification_mandatory_headers:alg, x-hcx-notification_headers, sender_code, timestamp, recipient_type, recipients}
+    optional: ${notification_optional_headers:x-hcx-correlation_id, expiry}
   subscription:
     expiry: ${notification_subscription_expiry:100}
     allowedFilters: ${notification_subscription_allowedFilters:subscription_id, topic_code, subscription_status}

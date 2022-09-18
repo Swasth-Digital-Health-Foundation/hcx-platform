@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.swasth.common.dto.Request;
 import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
+import org.swasth.common.utils.JWTUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -13,6 +14,7 @@ import static org.swasth.common.utils.Constants.*;
 
 public class EventGenerator {
 
+    private final JWTUtils jwtUtils = new JWTUtils();
     private List<String> protocolHeaders;
     private List<String> joseHeaders;
     private List<String> redirectHeaders;
@@ -69,6 +71,7 @@ public class EventGenerator {
                 event.put(TOPIC_CODE, request.getTopicCode());
                 event.put(NOTIFICATION_DATA, request.getNotificationData());
                 event.put(MESSAGE, request.getNotificationMessage());
+                event.put(PAYLOAD, request.getPayload());
             } else {
                 headers = null;
             }
@@ -169,11 +172,40 @@ public class EventGenerator {
         event.put(ACTION, apiAction);
         event.put(SUBSCRIPTION_ID, subscriptionId);
         event.put(SUBSCRIPTION_STATUS, subscriptionStatus);
-        event.put(SENDER_CODE,senderCode);
-        event.put(RECIPIENT_CODE,recipientCode);
+        event.put(HCX_SENDER_CODE,senderCode);
+        event.put(HCX_RECIPIENT_CODE,recipientCode);
         event.put(ETS,System.currentTimeMillis());
         event.put(AUDIT_STATUS, status);
         return  event;
+    }
+
+    public String createNotifyEvent(String topicCode, String senderCode, String recipientType, List<String> recipients, long expiry, String message, String privateKey) throws Exception {
+        Map<String,Object> notificationHeaders = new HashMap<>();
+        notificationHeaders.put(SENDER_CODE, senderCode);
+        notificationHeaders.put(TIMESTAMP, System.currentTimeMillis());
+        notificationHeaders.put(RECIPIENT_TYPE, recipientType);
+        notificationHeaders.put(RECIPIENTS, recipients);
+        notificationHeaders.put(CORRELATION_ID, UUID.randomUUID().toString());
+        notificationHeaders.put(EXPIRY, expiry);
+
+        Map<String,Object> protocolHeaders = new HashMap<>();
+        protocolHeaders.put(ALG, RS256);
+        protocolHeaders.put(NOTIFICATION_HEADERS, notificationHeaders);
+
+        Map<String,Object> payload = new HashMap<>();
+        payload.put(TOPIC_CODE, topicCode);
+        payload.put(MESSAGE, message);
+
+        Map<String,Object> event = new HashMap<>();
+        event.put(MID, UUID.randomUUID().toString());
+        event.put(ETS, System.currentTimeMillis());
+        event.put(ACTION, NOTIFICATION_NOTIFY);
+        event.put(TOPIC_CODE, topicCode);
+        event.put(MESSAGE, message);
+        event.put(PAYLOAD, jwtUtils.generateJWS(protocolHeaders, payload, privateKey));
+        event.put(HEADERS, Collections.singletonMap(PROTOCOL, protocolHeaders));
+
+        return JSONUtils.serialize(event);
     }
 
     public Map<String,Object> createAuditLog(String id, String objectType, Map<String,Object> cdata, Map<String,Object> edata) {
@@ -196,27 +228,5 @@ public class EventGenerator {
         event.put(SUBSCRIPTION_STATUS,status);
         return event;
     }
-
-    public String createNotifyEvent(String topicCode, String senderCode, List<String> recipientCodes, List<String> recipientRoles,
-                                    List<String> subscriptions, Map<String,Object> notificationData) throws Exception {
-        Map<String,Object> notificationHeaders = new HashMap<>();
-        notificationHeaders.put(RECIPIENT_CODES, recipientCodes);
-        notificationHeaders.put(RECIPIENT_ROLES, recipientRoles);
-        notificationHeaders.put(SUBSCRIPTIONS, subscriptions);
-        Map<String,Object> protocolHeaders = new HashMap<>();
-        protocolHeaders.put(HCX_SENDER_CODE, senderCode);
-        protocolHeaders.put(API_CALL_ID, UUID.randomUUID().toString());
-        protocolHeaders.put(CORRELATION_ID, UUID.randomUUID().toString());
-        protocolHeaders.put(TIMESTAMP, new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").format(new Date()));
-        protocolHeaders.put(NOTIFICATION_HEADERS, notificationHeaders);
-        Map<String,Object> event = new HashMap<>();
-        event.put(MID, UUID.randomUUID().toString());
-        event.put(ETS, System.currentTimeMillis());
-        event.put(ACTION, NOTIFICATION_NOTIFY);
-        event.put(TOPIC_CODE, topicCode);
-        event.put(NOTIFICATION_DATA, notificationData);
-        event.put(MESSAGE, null);
-        event.put(HEADERS, Collections.singletonMap(PROTOCOL, protocolHeaders));
-        return JSONUtils.serialize(event);
-    }
+    
 }

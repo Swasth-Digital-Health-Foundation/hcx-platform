@@ -15,6 +15,7 @@ import org.swasth.auditindexer.function.AuditIndexer;
 import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.HttpUtils;
 import org.swasth.common.utils.JSONUtils;
+import org.swasth.common.utils.UUIDUtils;
 
 import java.util.*;
 import static org.swasth.common.utils.Constants.*;
@@ -71,7 +72,7 @@ public class AuditService {
         event.put(TIMESTAMP, request.getTimestamp());
         event.put(ERROR_DETAILS, request.getErrorDetails());
         event.put(DEBUG_DETAILS, request.getDebugDetails());
-        event.put(MID, Utils.getUUID());
+        event.put(MID, UUIDUtils.getUUID());
         event.put(ACTION, request.getApiAction());
         event.put(STATUS, ERROR_STATUS);
         event.put(REQUESTED_TIME, System.currentTimeMillis());

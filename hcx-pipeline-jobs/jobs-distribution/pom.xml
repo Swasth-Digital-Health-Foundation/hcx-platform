@@ -22,7 +22,7 @@
         </dependency>
         <dependency>
             <groupId>org.swasth</groupId>
-            <artifactId>coverage-eligibility-check-job</artifactId>
+            <artifactId>coverage-eligibility-job</artifactId>
             <version>1.0.0</version>
             <type>jar</type>
         </dependency>

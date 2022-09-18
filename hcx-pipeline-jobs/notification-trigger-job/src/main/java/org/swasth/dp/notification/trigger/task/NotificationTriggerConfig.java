@@ -28,7 +28,10 @@ public class NotificationTriggerConfig  extends BaseJobConfig {
     public boolean networkNotificationsEnabled;
     public boolean workflowNotificationEnabled;
     public List<String> notificationTriggersDisabled;
-    public Map<String,Object> topicCodeAndAPIActionMap;
+    public long notificationExpiry;
+    public Map<String,Object> apiActionAndTopicCodeMap;
+    public String workflowUpdateTopicCode;
+    public List<String> workflowNotificationAllowedEntities;
 
     public NotificationTriggerConfig(Config config, String jobName) {
         super(config, jobName);
@@ -45,6 +48,9 @@ public class NotificationTriggerConfig  extends BaseJobConfig {
         networkNotificationsEnabled = config.getBoolean("notification.network.enabled");
         workflowNotificationEnabled = config.getBoolean("notification.workflow.enabled");
         notificationTriggersDisabled = config.getStringList("notification.triggers.disabled");
-        topicCodeAndAPIActionMap = (Map<String, Object>) config.getAnyRef("notification.workflow.topicCodeAndAPIActionMap");
+        notificationExpiry = config.getLong("notification.expiry");
+        apiActionAndTopicCodeMap = (Map<String, Object>) config.getAnyRef("notification.workflow.apiActionAndTopicCodeMap");
+        workflowUpdateTopicCode = config.getString("notification.topicCode.workflow.update");
+        workflowNotificationAllowedEntities = config.getStringList("notification.workflow.allowedEntities");
     }
 }
