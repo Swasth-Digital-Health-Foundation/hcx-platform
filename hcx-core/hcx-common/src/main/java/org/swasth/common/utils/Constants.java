@@ -52,6 +52,7 @@ public class Constants {
 
     // Audit APIs
     public static final String AUDIT_SEARCH = "/audit/search";
+    public static final String AUDIT_NOTIFICATION_SEARCH = "/audit/notification/search";
 
     // Registry Participant APIs
     public static final String PARTICIPANT_CREATE = "/participant/create";
@@ -141,6 +142,8 @@ public class Constants {
     public static final String FILTERS = "filters";
     public static final String LIMIT = "limit";
     public static final String OFFSET = "offset";
+    public static final String START_DATETIME = "start_datetime";
+    public static final String STOP_DATETIME = "stop_datetime";
 
     public static final String SEARCH_REQ ="x-hcx-search";
     public static final String SEARCH_RESP = "x-hcx-search_response";

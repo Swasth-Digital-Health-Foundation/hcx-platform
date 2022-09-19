@@ -116,10 +116,11 @@ spring:
                 redis-rate-limiter.replenishRate: 10
                 redis-rate-limiter.burstCapacity: 20
             - RewritePath=/${version.external}/audit/search, /${version.internal}/audit/search
+            - RewritePath=/${version.external}/audit/notification/search, /${version.internal}/audit/notification/search
             - CachingRequestBodyFilter
             - AuditValidationFilter
           predicates:
-            - Path=/${version.external}/audit/search
+            - Path=/${version.external}/audit/search, /${version.external}/audit/notification/search
 
         - id: hcx-registry-api-route
           uri: ${HCX_API_BASEPATH:http://localhost:8080}
