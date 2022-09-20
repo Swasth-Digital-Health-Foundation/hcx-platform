@@ -54,7 +54,7 @@ public class ExceptionHandler {
                 auditService.createAuditLog(request);
             }
         } catch (Exception exception) {
-            ex = new ClientException("Error while creating audit log :: Exception : " + exception.getMessage());
+            ex = e;
         }
         return this.onError(exchange, status, correlationId, apiCallId, errorCode, ex);
     }

@@ -107,7 +107,7 @@ public class BaseRequest {
 
     }
 
-    protected void validateCondition(Boolean condition, ErrorCodes errorcode, String msg) throws ClientException {
+    public void validateCondition(Boolean condition, ErrorCodes errorcode, String msg) throws ClientException {
         if(condition){
             throw new ClientException(errorcode, msg);
         }
@@ -231,7 +231,7 @@ public class BaseRequest {
 
     protected List<String> getHeaderList(String key) { return (List<String>) protocolHeaders.getOrDefault(key, new ArrayList<>()); }
 
-    protected Map<String,Object> getHeaderMap(String key){ return (Map<String,Object>) protocolHeaders.getOrDefault(key,null); }
+    protected Map<String,Object> getHeaderMap(String key){ return (Map<String,Object>) protocolHeaders.getOrDefault(key,new HashMap<>()); }
     private void setHeaderMap(String key, Object value){ protocolHeaders.put(key, value); }
 
     public Map<String,Object> getErrorDetails(){ return getHeaderMap(ERROR_DETAILS); }

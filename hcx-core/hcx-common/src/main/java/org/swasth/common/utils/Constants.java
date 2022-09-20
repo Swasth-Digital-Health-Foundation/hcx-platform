@@ -197,6 +197,7 @@ public class Constants {
     public static final List<String> SUBSCRIPTION_UPDATE_PROPS = Arrays.asList(SUBSCRIPTION_STATUS, EXPIRY, IS_DELEGATED);
     public static final String RS256 = "RS256";
     public static final String SUBSCRIPTION = "subscription";
+    public static final List<String> ALLOWED_RECIPIENT_TYPE = Arrays.asList(Constants.PARTICIPANT_CODE, Constants.PARTICIPANT_ROLE, Constants.SUBSCRIPTION);
 
     //Constants from api-gateway
     // Entity types

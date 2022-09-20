@@ -147,7 +147,7 @@ public class EventGenerator {
         event.put(ACTION, request.getApiAction());
         event.put(TOPIC_CODE,request.getTopicCode() == null ? "" : request.getTopicCode());
         event.put(SENDER_LIST,senderList);
-        event.put(RECIPIENT_CODE,request.getRecipientCode());
+        event.put(HCX_RECIPIENT_CODE,request.getRecipientCode());
         event.put(ETS,System.currentTimeMillis());
         event.put(AUDIT_STATUS, status);
         return  event;
