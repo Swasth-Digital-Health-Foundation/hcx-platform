@@ -11,7 +11,7 @@ import org.swasth.common.dto.ResponseError;
 import org.swasth.common.exception.*;
 import org.swasth.common.helpers.EventGenerator;
 import org.swasth.hcx.handlers.EventHandler;
-import org.swasth.hcx.service.HeaderAuditService;
+import org.swasth.hcx.service.AuditService;
 
 import java.util.Map;
 
@@ -29,7 +29,7 @@ public class BaseController {
     protected EventGenerator eventGenerator;
 
     @Autowired
-    protected HeaderAuditService auditService;
+    protected AuditService auditService;
 
     @Autowired
     protected EventHandler eventHandler;

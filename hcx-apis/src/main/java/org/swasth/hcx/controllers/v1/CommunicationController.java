@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.swasth.common.dto.Request;
 import org.swasth.common.dto.Response;
-import org.swasth.common.dto.SearchRequestDTO;
+import org.swasth.common.dto.AuditSearchRequest;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
 import org.swasth.common.utils.Constants;
@@ -37,10 +37,10 @@ public class CommunicationController extends BaseController {
         try {
             Map<String, Object> hcxHeaders = request.getHcxHeaders();
             Map<String, String> filters = new HashMap<>();
-            filters.put(CORRELATION_ID, request.getCorrelationId());
-            List<Map<String, Object>> auditResponse = auditService.search(new SearchRequestDTO(filters));
-            if (auditResponse.isEmpty()) {
-                throw new ClientException(ErrorCodes.ERR_INVALID_CORRELATION_ID, INVALID_CORRELATION_ID);
+            filters.put(CORRELATION_ID,request.getCorrelationId());
+            List<Map<String,Object>> auditResponse = auditService.search(new AuditSearchRequest(filters), COMMUNICATION_REQUEST);
+            if(auditResponse.isEmpty()){
+                throw new ClientException(ErrorCodes.ERR_INVALID_CORRELATION_ID,INVALID_CORRELATION_ID);
             }
             Map<String, Object> auditData = auditResponse.get(0);
             if (auditData.get(WORKFLOW_ID) != null && (!hcxHeaders.containsKey(WORKFLOW_ID) || !request.getWorkflowId().equals(auditData.get(WORKFLOW_ID)))) {

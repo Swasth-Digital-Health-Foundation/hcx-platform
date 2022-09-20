@@ -1,69 +1,61 @@
 package org.swasth.hcx.utils;
 
 import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.index.query.*;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.util.CollectionUtils;
-import org.swasth.common.dto.SearchRequestDTO;
+import org.swasth.common.dto.AuditSearchRequest;
+import org.swasth.common.utils.Constants;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 
 public final class SearchUtil {
 
-    SearchUtil() {}
-
     public static SearchRequest buildSearchRequest(final String indexName,
-                                                   final SearchRequestDTO dto) {
+                                                   final AuditSearchRequest request) {
     	try {
-            final int page = dto.getOffset();
-            final int size = dto.getLimit();
+            final int page = request.getOffset();
+            final int size = request.getLimit();
             final int from = page <= 0 ? 0 : page * size;
 
             SearchSourceBuilder builder = new SearchSourceBuilder()
                     .from(from)
                     .size(size)
-                    .postFilter(getQueryBuilder(dto));
+                    .postFilter(getQueryBuilder(request));
 
-            final SearchRequest request = new SearchRequest(indexName);
-            request.source(builder);
+            final SearchRequest searchRequest = new SearchRequest(indexName);
+            searchRequest.source(builder);
 
-            return request;
+            return searchRequest;
         } catch (final Exception e) {
             e.printStackTrace();
             return null;
         }
     }
 
-
-
-    private static QueryBuilder getQueryBuilder(final SearchRequestDTO dto) throws ParseException {
-        if (dto == null) {
-            return null;
-        }
-        final Map<String, String> fields = dto.getFilters();
+    private static QueryBuilder getQueryBuilder(final AuditSearchRequest request) {
+        Map<String, String> fields = request.getFilters();
         if (CollectionUtils.isEmpty(fields)) {
             return null;
         }
-        Optional<String> firstkey = fields.keySet().stream().findFirst();
-        if (firstkey.isPresent()) {
+        Optional<String> firstKey = fields.keySet().stream().findFirst();
+        if (firstKey.isPresent()) {
             BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
             for (Entry<String, String> entry : fields.entrySet()) {
-                if(entry.getKey() != "start_datetime" & entry.getKey() != "stop_datetime") {
-                	queryBuilder = queryBuilder.must(QueryBuilders.termQuery(entry.getKey(),entry.getValue()));	
-                } else if (entry.getKey() == "start_datetime") {
-                    System.out.println("here is the start date");
-                	queryBuilder = queryBuilder.must(QueryBuilders.rangeQuery("timestamp").gte(entry.getValue()));
-                } else if (entry.getKey() == "stop_datetime") {
-                	System.out.println("here is the stop date");
-                	queryBuilder = queryBuilder.must(QueryBuilders.rangeQuery("timestamp").lte(entry.getValue()));
-                }    
+                if (request.getAction().equalsIgnoreCase(Constants.AUDIT_NOTIFICATION_SEARCH) && entry.getKey().equalsIgnoreCase(Constants.HCX_SENDER_CODE)){
+                    queryBuilder = queryBuilder.should(QueryBuilders.termQuery(Constants.HCX_SENDER_CODE, entry.getValue()));
+                    queryBuilder = queryBuilder.should(QueryBuilders.termQuery(Constants.HCX_RECIPIENT_CODE, entry.getValue()));
+                } else if(!entry.getKey().equalsIgnoreCase(Constants.START_DATETIME) && !entry.getKey().equalsIgnoreCase(Constants.STOP_DATETIME)) {
+                	queryBuilder = queryBuilder.must(QueryBuilders.termQuery(entry.getKey(),entry.getValue()));
+                } else if (entry.getKey().equalsIgnoreCase(Constants.START_DATETIME)) {
+                	queryBuilder = queryBuilder.must(QueryBuilders.rangeQuery(Constants.TIMESTAMP).gte(entry.getValue()));
+                } else if (entry.getKey().equalsIgnoreCase(Constants.STOP_DATETIME)) {
+                	queryBuilder = queryBuilder.must(QueryBuilders.rangeQuery(Constants.TIMESTAMP).lte(entry.getValue()));
+                }
             }
             return queryBuilder;
         }

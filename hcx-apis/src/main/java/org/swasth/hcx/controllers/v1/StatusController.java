@@ -43,8 +43,8 @@ public class StatusController extends BaseController {
             Map<String, String> auditFilters = new HashMap<>();
             auditFilters.put(HCX_SENDER_CODE, request.getHcxSenderCode());
             auditFilters.put(CORRELATION_ID, request.getCorrelationId());
-            List<Map<String, Object>> auditResponse = auditService.search(new SearchRequestDTO(auditFilters));
-            if (auditResponse.isEmpty()) {
+            List<Map<String,Object>> auditResponse = auditService.search(new AuditSearchRequest(auditFilters), HCX_STATUS);
+            if(auditResponse.isEmpty()){
                 throw new ClientException(CORRELATION_ID_MISSING);
             }
             Map<String, Object> auditData = auditResponse.get(auditResponse.size() - 1);

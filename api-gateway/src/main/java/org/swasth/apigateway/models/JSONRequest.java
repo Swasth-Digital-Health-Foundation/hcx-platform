@@ -142,9 +142,7 @@ public class JSONRequest extends BaseRequest {
         return (Long) getProtocolHeaders().getOrDefault(EXPIRY, null);
     }
 
-    public String getNotificationPayload() {
-        return getHeader(PAYLOAD);
-    }
+    public String getNotificationPayload() { return (String) getPayload().getOrDefault(PAYLOAD, ""); }
 
     public List<String> getSenderList() {
         return (List<String>) getProtocolHeaders().getOrDefault(SENDER_LIST, new ArrayList<>());
