@@ -622,6 +622,31 @@ class HCXRequestTest extends BaseSpec {
     }
 
     @Test
+    void test_notification_notify_with_not_allowed_recipient_type() throws Exception {
+        server.enqueue(new MockResponse()
+                .setResponseCode(202)
+                .addHeader("Content-Type", "application/json"));
+
+        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
+                .thenReturn(getProviderDetails());
+        Mockito.when(registryService.getDetails(anyString()))
+                .thenReturn(Arrays.asList(getPayorDetails()));
+        Mockito.when(jwtUtils.isValidSignature(anyString(), anyString()))
+                .thenReturn(Boolean.TRUE);
+        client.post().uri(versionPrefix + Constants.NOTIFICATION_NOTIFY)
+                .header(Constants.AUTHORIZATION, getProviderToken())
+                .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
+                .bodyValue(getNotificationRequest("notif-admission-case", "test", Arrays.asList("subscription-123")))
+                .exchange()
+                .expectBody(Map.class)
+                .consumeWith(result -> {
+                    assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
+                    assertEquals(ErrorCodes.ERR_INVALID_NOTIFICATION_RECIPIENT_TYPE.name(), getResponseErrorCode(result));
+                    assertTrue(getResponseErrorMessage(result).contains("Recipient type is invalid, allowed type are"));
+                });
+    }
+
+    @Test
     void test_notification_notify_with_valid_allowed_sender() throws Exception {
         server.enqueue(new MockResponse()
                 .setResponseCode(202)

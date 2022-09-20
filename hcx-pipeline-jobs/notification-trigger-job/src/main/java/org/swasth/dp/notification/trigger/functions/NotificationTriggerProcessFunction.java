@@ -84,7 +84,7 @@ public class NotificationTriggerProcessFunction extends ProcessFunction<Map<Stri
             }
             // Workflow notifications
             if (config.workflowNotificationEnabled && config.workflowNotificationAllowedEntities.contains(getEntity(action))) {
-                if (action.contains("on_") && cdata.get(Constants.HCX_STATUS()).equals(Constants.COMPLETE_RESPONSE())) {
+                if (action.contains("on_") && config.workflowNotificationAllowedStatus.contains((String) cdata.get(Constants.HCX_STATUS()))) {
                     processWorkflowNotification(context, cdata, action);
                 } else if (!action.contains("on_")) {
                     cdata.put(Constants.HCX_STATUS(), Constants.REQUEST_INITIATED());

@@ -66,14 +66,14 @@ public class JSONRequest extends BaseRequest {
     /**
      * This method is to validate notification notify request
      */
-    public void validateNotificationReq(Map<String, Object> senderDetails, List<Map<String, Object>> recipientsDetails, List<String> allowedNetworkCodes, boolean isValidSignature) throws Exception {
+    public void validateNotificationReq(Map<String, Object> senderDetails, List<Map<String, Object>> recipientsDetails, List<String> allowedNetworkCodes) throws Exception {
+        validateCondition(MapUtils.isEmpty(getNotificationHeaders()), ErrorCodes.ERR_INVALID_NOTIFICATION_HEADERS, "Notification headers is missing or empty");
         validateNotificationParticipant(senderDetails, ErrorCodes.ERR_INVALID_SENDER, SENDER);
         validateCondition(StringUtils.isEmpty(getAlg()) || !getAlg().equalsIgnoreCase(Constants.RS256), ErrorCodes.ERR_INVALID_ALGORITHM, "Algorithm is missing or invalid");
-        validateCondition(!isValidSignature, ErrorCodes.ERR_INVALID_SIGNATURE, "JWS payload is not signed by the request initiator");
         validateCondition(getNotificationTimestamp() == null, ErrorCodes.ERR_INVALID_NOTIFICATION_TIMESTAMP, "Notification timestamp is missing or empty");
-        validateCondition(MapUtils.isEmpty(getNotificationHeaders()), ErrorCodes.ERR_INVALID_NOTIFICATION_HEADERS, "Notification headers is missing or empty");
         validateCondition(getProtocolHeaders().containsKey(EXPIRY) && new DateTime(getExpiry()).isBefore(DateTime.now()), ErrorCodes.ERR_INVALID_NOTIFICATION_EXPIRY, "Notification expiry cannot be past date");
         validateCondition(StringUtils.isEmpty(getRecipientType()), ErrorCodes.ERR_INVALID_NOTIFICATION_RECIPIENT_TYPE, "Recipient type is missing or empty");
+        validateCondition(!ALLOWED_RECIPIENT_TYPE.contains(getRecipientType()), ErrorCodes.ERR_INVALID_NOTIFICATION_RECIPIENT_TYPE, "Recipient type is invalid, allowed type are: " + ALLOWED_RECIPIENT_TYPE);
         validateCondition(getRecipients().size() == 0, ErrorCodes.ERR_INVALID_NOTIFICATION_RECIPIENTS, "Recipients list is empty");
         validateCondition(StringUtils.isEmpty(getNotificationMessage()), ErrorCodes.ERR_INVALID_NOTIFICATION_MESSAGE, "Notification message is missing or empty");
         validateCondition(StringUtils.isEmpty(getTopicCode()), ErrorCodes.ERR_INVALID_NOTIFICATION_TOPIC_CODE, "Notification topic code cannot be null, empty and other than 'String'");

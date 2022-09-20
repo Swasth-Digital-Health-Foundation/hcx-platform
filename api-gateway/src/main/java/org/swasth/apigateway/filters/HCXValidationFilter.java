@@ -101,8 +101,8 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                         String searchRequest = createSearchRequest(jsonRequest.getRecipients(), PARTICIPANT_CODE, false);
                         recipientsDetails = registryService.getDetails(searchRequest);
                     }
-                    jsonRequest.validateNotificationReq(senderDetails, recipientsDetails, allowedNetworkCodes,
-                            jwtUtils.isValidSignature(jsonRequest.getNotificationPayload(), (String) senderDetails.get(ENCRYPTION_CERT)));
+                    jsonRequest.validateNotificationReq(senderDetails, recipientsDetails, allowedNetworkCodes);
+                    jsonRequest.validateCondition(!jwtUtils.isValidSignature(jsonRequest.getNotificationPayload(), (String) senderDetails.get(ENCRYPTION_CERT)), ErrorCodes.ERR_INVALID_SIGNATURE, "JWS payload is not signed by the request initiator");
                 } else if (requestBody.containsKey(PAYLOAD)) {
                     JWERequest jweRequest = new JWERequest(requestBody, false, path, hcxCode, hcxRoles);
                     requestObj = jweRequest;
@@ -166,7 +166,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                     validateParticipantCtxDetails(getParticipantCtxAuditData(jsonRequest.getHcxSenderCode(), jsonRequest.getHcxRecipientCode(), jsonRequest.getCorrelationId()), path);
                 }
             } catch (Exception e) {
-                logger.error("Exception occurred for request with correlationId: " + correlationId);
+                logger.error("Exception occurred for request with correlationId: {} :: error message: {}", correlationId, e.getMessage());
                 return exceptionHandler.errorResponse(e, exchange, correlationId, apiCallId, requestObj);
             }
             if(path.contains(NOTIFICATION_NOTIFY) || path.contains(NOTIFICATION_SUBSCRIBE) || path.contains(NOTIFICATION_UNSUBSCRIBE) || path.contains(NOTIFICATION_SUBSCRIPTION_LIST) || path.contains(NOTIFICATION_SUBSCRIPTION_UPDATE) || path.contains(NOTIFICATION_ON_SUBSCRIBE)){
