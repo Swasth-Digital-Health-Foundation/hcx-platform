@@ -9,7 +9,7 @@ import static org.junit.Assert.*;
 public class NotificationUtilsTest {
 
     public NotificationUtilsTest() throws IOException {
-        new NotificationUtils("notifications.yaml");
+        new NotificationUtils("src/main/resources/networkNotifications.yaml","src/main/resources/participantNotifications.yaml","src/main/resources/workflowNotifications.yaml");
     }
 
     @Test

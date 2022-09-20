@@ -15,6 +15,8 @@ import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.hcx.managers.HealthCheckManager;
 
+import static org.swasth.common.response.ResponseMessage.SERVICE_UNAVAILABLE;
+
 @Aspect
 @Component
 public class HealthCheckAspect {
@@ -28,14 +30,14 @@ public class HealthCheckAspect {
     public void healthCheckBeforeEachAPICall() throws JsonProcessingException, ServiceUnavailbleException {
         if (!HealthCheckManager.allSystemHealthResult) {
             Response healthResp = healthCheckManager.checkAllSystemHealth();
-            if(!(boolean) healthResp.get(Constants.HEALTHY)) {
+            if (!(boolean) healthResp.get(Constants.HEALTHY)) {
                 logger.error("Health check is failed : " + JSONUtils.serialize(healthResp.get(Constants.CHECKS)));
-                throw new ServiceUnavailbleException(ErrorCodes.ERR_SERVICE_UNAVAILABLE, "The server is temporarily unable to service your request. Please try again later.");
+                throw new ServiceUnavailbleException(ErrorCodes.ERR_SERVICE_UNAVAILABLE, SERVICE_UNAVAILABLE);
             } else getSuccessLogger();
         } else getSuccessLogger();
     }
 
-    private void getSuccessLogger(){
+    private void getSuccessLogger() {
         logger.debug("Health check is successful");
     }
 }

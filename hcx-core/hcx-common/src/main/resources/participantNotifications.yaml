@@ -1,0 +1,201 @@
+- topic_code: notif-participant-system-downtime
+  title: System maintenance/Downtime
+  description: Notification about participant system downtime/maintenance
+  allowed_senders:
+    - payor
+    - provider
+    - agency.tpa
+    - agency.regulator
+    - research
+    - member.isnp
+    - agency.sponsor
+    - HIE/HIO.HCX
+  allowed_recipients:
+    - payor
+    - provider
+    - agency.tpa
+    - agency.regulator
+    - research
+    - member.isnp
+    - agency.sponsor
+    - HIE/HIO.HCX
+  type: Broadcast
+  category: Participant
+  priority: 1
+  template: >-
+    {"message": "${participant_name} will be facing downtime from ${DDMMYYYY} to
+    ${DDMMYYYY} due to planned maintenance. Sorry for inconvenience and please
+    plan your operations accordingly."}
+  status: Active
+- topic_code: notif-participant-new-protocol-version-support
+  title: Support for new version of protocol
+  description: >-
+    Notification about participant system supporting new version of the HCX
+    protocol.
+  allowed_senders:
+    - payor
+    - provider
+    - agency.tpa
+    - agency.regulator
+    - research
+    - member.isnp
+    - agency.sponsor
+    - HIE/HIO.HCX
+  allowed_recipients:
+    - payor
+    - provider
+    - agency.tpa
+    - agency.regulator
+    - research
+    - member.isnp
+    - agency.sponsor
+    - HIE/HIO.HCX
+  type: Broadcast
+  category: Participant
+  priority: 1
+  template: >-
+    {"message": "${participant_name} now supports $(version_code) on its
+    platform. All participants are requested to upgrade to $(version_code) or
+    above to transact with ${participant_name}."}
+  status: Active
+- topic_code: notif-participant-terminology-version-support
+  title: Support for prescribed terminologies
+  description: >-
+    Notification about participant system supporting particular format of
+    terminologies of the HCX protocol.
+  allowed_senders:
+    - payor
+    - provider
+    - agency.tpa
+    - agency.regulator
+    - research
+    - member.isnp
+    - agency.sponsor
+    - HIE/HIO.HCX
+  allowed_recipients:
+    - payor
+    - provider
+    - agency.tpa
+    - agency.regulator
+    - research
+    - member.isnp
+    - agency.sponsor
+    - HIE/HIO.HCX
+  type: Broadcast
+  category: Participant
+  priority: 1
+  template: >-
+    {"message": "${participant_name} now supports $(Master_list_version) on its
+    platform. All participants are requested to upgrade to
+    $(Master_list_version) or above to transact with ${participant_name}."}
+  status: Active
+- topic_code: notif-participant-remove-protocol-feature
+  title: End of life for an existing capability
+  description: >-
+    Notification about participant system ending/discontinuing a particular
+    feature of the HCX protocol.
+  allowed_senders:
+    - payor
+    - provider
+    - agency.tpa
+    - agency.regulator
+    - research
+    - member.isnp
+    - agency.sponsor
+    - HIE/HIO.HCX
+  allowed_recipients:
+    - payor
+    - provider
+    - agency.tpa
+    - agency.regulator
+    - research
+    - member.isnp
+    - agency.sponsor
+    - HIE/HIO.HCX
+  type: Broadcast
+  category: Participant
+  priority: 1
+  template: >-
+    {"message": "${participant_name} now does not support $(feature_code) on its
+    platform."}
+  status: Active
+- topic_code: notif-product-change-support
+  title: 'New insurance plans/products, end of support for existing products/plans'
+  description: >-
+    Notification about participant system adding new product or a particular
+    feature of the HCX protocol.
+  allowed_senders:
+    - payor
+  allowed_recipients:
+    - provider
+    - agency.tpa
+    - agency.regulator
+    - research
+    - member.isnp
+    - agency.sponsor
+    - HIE/HIO.HCX
+  type: Broadcast
+  category: Participant
+  priority: 1
+  template: >-
+    {"message": "${participant_name} now supports $(feature_code) on its
+    platform. All participants can now initiate transactions relationg to
+    $(feature_code)."}
+  status: Active
+- topic_code: notif-participant-policy-update
+  title: Policy Compliance changes  - terms of services
+  description: Notification about participant system changing terms of the services.
+  allowed_senders:
+    - payor
+    - provider
+    - agency.tpa
+    - agency.regulator
+    - research
+    - member.isnp
+    - agency.sponsor
+    - HIE/HIO.HCX
+  allowed_recipients:
+    - payor
+    - provider
+    - agency.tpa
+    - agency.regulator
+    - research
+    - member.isnp
+    - agency.sponsor
+    - HIE/HIO.HCX
+  type: Broadcast
+  category: Participant
+  priority: 1
+  template: >-
+    {"message": "${participant_name} is changing the service terms for policy
+    for the $(Usecase_code) going forward. Please plan your operations
+    accordingly."}
+  status: Active
+- topic_code: notif-participant-policy-sla-update
+  title: Policy Compliance changes  - SLAs
+  description: Notification about participant system SLA of the services.
+  allowed_senders:
+    - payor
+    - provider
+    - agency.tpa
+    - agency.regulator
+    - research
+    - member.isnp
+    - agency.sponsor
+    - HIE/HIO.HCX
+  allowed_recipients:
+    - payor
+    - provider
+    - agency.tpa
+    - agency.regulator
+    - research
+    - member.isnp
+    - agency.sponsor
+    - HIE/HIO.HCX
+  type: Broadcast
+  category: Participant
+  priority: 1
+  template: >-
+    {"message": "${participant_name} is changing the SLA policy for the
+    $(Usecase_code) going forward. Please plan your operations accordingly."}
+  status: Active

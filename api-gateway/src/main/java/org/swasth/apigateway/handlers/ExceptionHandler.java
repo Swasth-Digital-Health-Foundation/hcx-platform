@@ -22,7 +22,10 @@ import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
 import reactor.core.publisher.Mono;
 
+import java.text.MessageFormat;
 import java.util.Map;
+
+import static org.swasth.common.response.ResponseMessage.AUDIT_LOG_MSG;
 
 @Component
 public class ExceptionHandler {
@@ -54,7 +57,7 @@ public class ExceptionHandler {
                 auditService.createAuditLog(request);
             }
         } catch (Exception exception) {
-            ex = new ClientException("Error while creating audit log :: Exception : " + exception.getMessage());
+            ex = new ClientException(MessageFormat.format(AUDIT_LOG_MSG, exception.getMessage()));
         }
         return this.onError(exchange, status, correlationId, apiCallId, errorCode, ex);
     }

@@ -25,17 +25,23 @@ public class GenericConfiguration {
     @Value("${registry.basePath}")
     private String registryUrl;
 
-    @Value("${notification.masterListPath:notifications.yaml}")
-    private String notificationsPath;
+    @Value("${notification.networkPath:networkNotifications.yaml}")
+    private String networkPath;
+
+    @Value("${notification.participantPath:participantNotifications.yaml}")
+    private String participantPath;
+
+    @Value("${notification.workflowPath:workflowNotifications.yaml}")
+    private String workflowPath;
 
     @Bean
-    public RegistryService registryService(){
+    public RegistryService registryService() {
         return new RegistryService(registryUrl);
     }
 
     @Bean
     public NotificationUtils notificationUtils() throws IOException {
-        return new NotificationUtils(notificationsPath);
+        return new NotificationUtils(networkPath, participantPath, workflowPath);
     }
 
     @Bean
@@ -44,33 +50,33 @@ public class GenericConfiguration {
     }
 
     @Bean
-    public EventGenerator eventGenerator(){
-        return new EventGenerator(getProtocolHeaders(), getJoseHeaders(), getRedirectHeaders(), getErrorHeaders(),getNotificationHeaders());
+    public EventGenerator eventGenerator() {
+        return new EventGenerator(getProtocolHeaders(), getJoseHeaders(), getRedirectHeaders(), getErrorHeaders(), getNotificationHeaders());
     }
 
-    private List<String> getProtocolHeaders(){
+    private List<String> getProtocolHeaders() {
         List<String> protocolHeaders = env.getProperty(PROTOCOL_HEADERS_MANDATORY, List.class, new ArrayList<String>());
         protocolHeaders.addAll(env.getProperty(PROTOCOL_HEADERS_OPTIONAL, List.class, new ArrayList<String>()));
         return protocolHeaders;
     }
 
-    private List<String> getJoseHeaders(){
+    private List<String> getJoseHeaders() {
         return env.getProperty(JOSE_HEADERS, List.class);
     }
 
-    private List<String> getRedirectHeaders(){
+    private List<String> getRedirectHeaders() {
         List<String> redirectHeaders = env.getProperty(REDIRECT_HEADERS_MANDATORY, List.class, new ArrayList<String>());
         redirectHeaders.addAll(env.getProperty(REDIRECT_HEADERS_OPTIONAL, List.class, new ArrayList<String>()));
-        return  redirectHeaders;
+        return redirectHeaders;
     }
 
-    private List<String> getErrorHeaders(){
+    private List<String> getErrorHeaders() {
         List<String> errorHeaders = env.getProperty(ERROR_HEADERS_MANDATORY, List.class, new ArrayList<String>());
         errorHeaders.addAll(env.getProperty(ERROR_HEADERS_OPTIONAL, List.class, new ArrayList<String>()));
         return errorHeaders;
     }
 
-    private List<String> getNotificationHeaders(){
+    private List<String> getNotificationHeaders() {
         List<String> notificationHeaders = env.getProperty(NOTIFICATION_HEADERS_MANDATORY, List.class, new ArrayList<String>());
         notificationHeaders.addAll(env.getProperty(NOTIFICATION_HEADERS_OPTIONAL, List.class, new ArrayList<String>()));
         return notificationHeaders;

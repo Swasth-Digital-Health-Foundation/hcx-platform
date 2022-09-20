@@ -50,6 +50,9 @@ public class SubscriptionDispatcherFunction extends BaseNotificationFunction {
             String hcxStatus = hasPendingResponses ? Constants.PARTIAL_RESPONSE() : Constants.COMPLETE_RESPONSE();
             //Create audit event
             auditService.indexAudit(createOnSubscriptionAuditEvent(inputEvent, createErrorMap(result.error() != null ? result.error().get() : null),hcxStatus));
+        } else {
+            //TODO Create audit event for subscribe and unsubscribe post dispatch with status as request.dispatched along with subscription_status and subscription_request_id
+            //auditService.indexAudit(createSubscriptionAuditEvent(action,));
         }
     }
 

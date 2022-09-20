@@ -15,9 +15,11 @@ import org.swasth.common.exception.ErrorCodes;
 import org.swasth.common.utils.Constants;
 import org.swasth.hcx.controllers.BaseController;
 
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
 
+import static org.swasth.common.response.ResponseMessage.*;
 import static org.swasth.common.utils.Constants.HCX_ON_SEARCH;
 import static org.swasth.common.utils.Constants.HCX_SEARCH;
 
@@ -32,15 +34,15 @@ public class SearchController extends BaseController {
     private String responseTopic;
 
     @PostMapping(HCX_SEARCH)
-    public ResponseEntity<Object> search (@RequestBody Map<String, Object> requestBody) throws Exception {
+    public ResponseEntity<Object> search(@RequestBody Map<String, Object> requestBody) throws Exception {
         SearchRequest request = new SearchRequest(requestBody, HCX_SEARCH);
         Response response = new Response(request);
         try {
             // Validations
             validateRegistryCode(request);
-            Map<String,Object> requestMap = request.getSearchRequest();
-            validateSearch(requestMap, "Search details cannot be null, empty and should be 'JSON Object'", Constants.SEARCH_REQ_KEYS, "Search details should contain only: ");
-            if(requestMap.containsKey(Constants.SEARCH_FILTERS)){
+            Map<String, Object> requestMap = request.getSearchRequest();
+            validateSearch(requestMap, VALID_SEARCH_OBJ_MSG, Constants.SEARCH_REQ_KEYS, VALID_SEARCH_MSG);
+            if (requestMap.containsKey(Constants.SEARCH_FILTERS)) {
                 validateSearchFilters(request);
             }
             eventHandler.processAndSendEvent(topic, request);
@@ -51,14 +53,14 @@ public class SearchController extends BaseController {
     }
 
     @PostMapping(HCX_ON_SEARCH)
-    public ResponseEntity<Object> onSearch (@RequestBody Map<String, Object> requestBody) throws Exception {
+    public ResponseEntity<Object> onSearch(@RequestBody Map<String, Object> requestBody) throws Exception {
         SearchRequest request = new SearchRequest(requestBody, HCX_ON_SEARCH);
         Response response = new Response(request);
         try {
             // Validations
             validateRegistryCode(request);
             Map<String, Object> responseMap = request.getSearchResponse();
-            validateSearch(responseMap, "Search response details cannot be null, empty and should be 'JSON Object'", Constants.SEARCH_RES_KEYS, "Search response details should contain only: ");
+            validateSearch(responseMap, VALID_SEARCH_RESP_OBJ_MSG, Constants.SEARCH_RES_KEYS, VALID_SEARCH_RESP_MSG);
             eventHandler.processAndSendEvent(responseTopic, request);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
@@ -67,8 +69,8 @@ public class SearchController extends BaseController {
     }
 
     private void validateRegistryCode(SearchRequest request) throws ClientException {
-        if(Constants.HCX_REGISTRY_CODE.equals(request.getHcxRecipientCode())){
-            throw new ClientException(ErrorCodes.ERR_INVALID_SEARCH, "Search recipient code must be hcx registry code");
+        if (Constants.HCX_REGISTRY_CODE.equals(request.getHcxRecipientCode())) {
+            throw new ClientException(ErrorCodes.ERR_INVALID_SEARCH, VALID_SEARCH_REGISTRY_CODE);
         }
     }
 
@@ -85,9 +87,9 @@ public class SearchController extends BaseController {
         if (MapUtils.isNotEmpty(searchFiltersMap)) {
             if (!searchFiltersMap.containsKey(Constants.SEARCH_FILTERS_RECEIVER)
                     || searchFiltersMap.keySet().stream().noneMatch(key -> Constants.SEARCH_FILTER_KEYS.contains(key)))
-                throw new ClientException(ErrorCodes.ERR_INVALID_SEARCH, "Search Filters should contain only: " + Constants.SEARCH_FILTER_KEYS);
+                throw new ClientException(ErrorCodes.ERR_INVALID_SEARCH, MessageFormat.format(VALID_SEARCH_FILTERS_MSG, Constants.SEARCH_FILTER_KEYS));
         } else
-            throw new ClientException(ErrorCodes.ERR_INVALID_SEARCH, "Search filters cannot be null and should be 'JSON Object'");
+            throw new ClientException(ErrorCodes.ERR_INVALID_SEARCH, VALID_SEARCH_FILTERS_OBJ_MSG);
     }
 
 }

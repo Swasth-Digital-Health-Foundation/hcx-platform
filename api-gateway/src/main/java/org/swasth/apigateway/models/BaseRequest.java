@@ -11,12 +11,14 @@ import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.utils.PayloadUtils;
 import org.swasth.common.utils.UUIDUtils;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static org.swasth.common.response.ResponseMessage.*;
 import static org.swasth.common.utils.Constants.*;
 
 
@@ -25,22 +27,23 @@ public class BaseRequest {
 
     private boolean isJSONRequest;
     private String apiAction = null;
-    private Map<String,Object> protocolHeaders;
-    private Map<String,Object> payload;
+    private Map<String, Object> protocolHeaders;
+    private Map<String, Object> payload;
     private List<String> senderRole = new ArrayList<>();
     private List<String> recipientRole = new ArrayList<>();
     private String payloadWithoutSensitiveData = null;
     private String hcxRoles;
     private String hcxCode;
 
-    public BaseRequest(){}
+    public BaseRequest() {
+    }
 
-    public BaseRequest(Map<String, Object> payload,boolean isJSONRequest,String apiAction, String hcxCode, String hcxRoles) throws Exception{
+    public BaseRequest(Map<String, Object> payload, boolean isJSONRequest, String apiAction, String hcxCode, String hcxRoles) throws Exception {
         this.isJSONRequest = isJSONRequest;
         this.apiAction = apiAction;
         this.payload = payload;
         this.hcxRoles = hcxRoles;
-        this.hcxCode  = hcxCode;
+        this.hcxCode = hcxCode;
         try {
             if (apiAction.contains(NOTIFICATION_NOTIFY)) {
                 this.protocolHeaders = getProtocolHeaders(apiAction, 0);
@@ -52,81 +55,81 @@ public class BaseRequest {
             }
             this.payloadWithoutSensitiveData = PayloadUtils.removeSensitiveData(payload, apiAction);
         } catch (JsonParseException e) {
-            throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, "Error while parsing the payload");
+            throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, PAYLOAD_PARSE_ERR);
         }
     }
 
-    private Map<String,Object> getProtocolHeaders(String apiAction, int i) throws Exception {
+    private Map<String, Object> getProtocolHeaders(String apiAction, int i) throws Exception {
         return JSONUtils.decodeBase64String(validatePayload(apiAction)[i], Map.class);
     }
 
-    public void validate(List<String> mandatoryHeaders,String subject, int timestampRange,Map<String,Object> senderDetails,Map<String,Object> recipientDetails) throws Exception {
+    public void validate(List<String> mandatoryHeaders, String subject, int timestampRange, Map<String, Object> senderDetails, Map<String, Object> recipientDetails) throws Exception {
         for (Map.Entry<String, ClientException> entry : getResponseParamErrors().entrySet()) {
             validateHeader(protocolHeaders, entry.getKey(), entry.getValue());
         }
-        validateCondition(!UUIDUtils.isUUID(getApiCallId()), ErrorCodes.ERR_INVALID_API_CALL_ID, "API call id should be a valid UUID");
-        validateCondition(!UUIDUtils.isUUID(getCorrelationId()), ErrorCodes.ERR_INVALID_CORRELATION_ID, "Correlation id should be a valid UUID");
+        validateCondition(!UUIDUtils.isUUID(getApiCallId()), ErrorCodes.ERR_INVALID_API_CALL_ID, INVALID_API_CALL_UUID);
+        validateCondition(!UUIDUtils.isUUID(getCorrelationId()), ErrorCodes.ERR_INVALID_CORRELATION_ID, INVALID_CORRELATION_UUID);
 
         List<String> missingHeaders = mandatoryHeaders.stream().filter(key -> !protocolHeaders.containsKey(key)).collect(Collectors.toList());
         if (!missingHeaders.isEmpty()) {
-            throw new ClientException(ErrorCodes.ERR_MANDATORY_HEADERFIELD_MISSING, "Mandatory headers are missing: " + missingHeaders);
+            throw new ClientException(ErrorCodes.ERR_MANDATORY_HEADERFIELD_MISSING, MessageFormat.format(MISSING_MANDATORY_HEADERS, missingHeaders));
         }
         for (Map.Entry<String, ClientException> entry : getClientErrors(protocolHeaders).entrySet()) {
             validateHeader(protocolHeaders, entry.getKey(), entry.getValue());
         }
 
-        validateCondition(!DateTimeUtils.validTimestamp(timestampRange, getTimestamp()), ErrorCodes.ERR_INVALID_TIMESTAMP, "Timestamp cannot be in future or cross more than " + timestampRange + " hours in past");
-        validateCondition(protocolHeaders.containsKey(WORKFLOW_ID) && !UUIDUtils.isUUID(getWorkflowId()), ErrorCodes.ERR_INVALID_WORKFLOW_ID, "Workflow id should be a valid UUID");
-        validateCondition(StringUtils.equals(getHcxSenderCode(), getHcxRecipientCode()), ErrorCodes.ERR_INVALID_SENDER_AND_RECIPIENT, "sender and recipient code cannot be the same");
+        validateCondition(!DateTimeUtils.validTimestamp(timestampRange, getTimestamp()), ErrorCodes.ERR_INVALID_TIMESTAMP, MessageFormat.format(TIMESTAMP_FUTURE_MSG, timestampRange));
+        validateCondition(protocolHeaders.containsKey(WORKFLOW_ID) && !UUIDUtils.isUUID(getWorkflowId()), ErrorCodes.ERR_INVALID_WORKFLOW_ID, INVALID_WORKFLOW_UUID);
+        validateCondition(StringUtils.equals(getHcxSenderCode(), getHcxRecipientCode()), ErrorCodes.ERR_INVALID_SENDER_AND_RECIPIENT, SENDER_RECIPIENT_SAME_MSG);
         validateParticipant(recipientDetails, ErrorCodes.ERR_INVALID_RECIPIENT, "recipient", getHcxRecipientCode());
         validateParticipant(senderDetails, ErrorCodes.ERR_INVALID_SENDER, "sender", getHcxSenderCode());
         senderRole = (ArrayList<String>) senderDetails.get(ROLES);
         recipientRole = (ArrayList<String>) recipientDetails.get(ROLES);
-        validateCondition(!StringUtils.equals(((ArrayList) senderDetails.get(OS_OWNER)).get(0).toString(), subject), ErrorCodes.ERR_ACCESS_DENIED, "Caller id and sender code is not matched");
+        validateCondition(!StringUtils.equals(((ArrayList) senderDetails.get(OS_OWNER)).get(0).toString(), subject), ErrorCodes.ERR_ACCESS_DENIED, CALLER_MISMATCH_MSG);
 
         if (protocolHeaders.containsKey(DEBUG_FLAG)) {
-            validateValues(getDebugFlag(), ErrorCodes.ERR_INVALID_DEBUG_FLAG, "Debug flag cannot be null, empty and other than 'String'", DEBUG_FLAG_VALUES, "Debug flag cannot be other than Error, Info or Debug");
+            validateValues(getDebugFlag(), ErrorCodes.ERR_INVALID_DEBUG_FLAG, DEBUG_FLAG_ERR, DEBUG_FLAG_VALUES, DEBUG_FLAG_VALUES_ERR);
         }
 
         if (apiAction.contains("on_")) {
-            validateCondition(!protocolHeaders.containsKey(STATUS), ErrorCodes.ERR_MANDATORY_HEADERFIELD_MISSING, "Mandatory headers are missing: " + STATUS);
-            validateValues(getStatus(), ErrorCodes.ERR_INVALID_STATUS, "Status cannot be null, empty and other than 'String'", RESPONSE_STATUS_VALUES, "Status value for on_* API calls can be only: ");
+            validateCondition(!protocolHeaders.containsKey(STATUS), ErrorCodes.ERR_MANDATORY_HEADERFIELD_MISSING, MessageFormat.format(MANDATORY_STATUS_MISSING, STATUS));
+            validateValues(getStatus(), ErrorCodes.ERR_INVALID_STATUS, STATUS_ERR, RESPONSE_STATUS_VALUES, STATUS_VALUES);
         } else {
             if (protocolHeaders.containsKey(STATUS)) {
-                validateValues(getStatus(), ErrorCodes.ERR_INVALID_STATUS, "Status cannot be null, empty and other than 'String'", REQUEST_STATUS_VALUES, "Status value for *action API calls can be only: ");
+                validateValues(getStatus(), ErrorCodes.ERR_INVALID_STATUS, STATUS_ERR, REQUEST_STATUS_VALUES, STATUS_ON_ACTION_VALUES);
             }
         }
 
         if (protocolHeaders.containsKey(ERROR_DETAILS)) {
-            validateDetails(getErrorDetails(), ErrorCodes.ERR_INVALID_ERROR_DETAILS, "Error details cannot be null, empty and other than 'JSON Object'", ERROR_DETAILS_VALUES, "Error details should contain only: ");
-            validateCondition(!RECIPIENT_ERROR_VALUES.contains(((Map<String, Object>) protocolHeaders.get(ERROR_DETAILS)).get("code")), ErrorCodes.ERR_INVALID_ERROR_DETAILS, "Invalid Error Code");
+            validateDetails(getErrorDetails(), ErrorCodes.ERR_INVALID_ERROR_DETAILS, ERROR_DETAILS_MSG, ERROR_DETAILS_VALUES, ERROR_VALUES);
+            validateCondition(!RECIPIENT_ERROR_VALUES.contains(((Map<String, Object>) protocolHeaders.get(ERROR_DETAILS)).get("code")), ErrorCodes.ERR_INVALID_ERROR_DETAILS, INVALID_ERROR_CODE);
         }
         if (protocolHeaders.containsKey(DEBUG_DETAILS)) {
-            validateDetails(getDebugDetails(), ErrorCodes.ERR_INVALID_DEBUG_DETAILS, "Debug details cannot be null, empty and other than 'JSON Object'", ERROR_DETAILS_VALUES, "Debug details should contain only: ");
+            validateDetails(getDebugDetails(), ErrorCodes.ERR_INVALID_DEBUG_DETAILS, DEBUG_DETAILS_ERR, ERROR_DETAILS_VALUES, DEBUG_DETAILS_VALUES_ERR);
         }
 
     }
 
     protected void validateCondition(Boolean condition, ErrorCodes errorcode, String msg) throws ClientException {
-        if(condition){
+        if (condition) {
             throw new ClientException(errorcode, msg);
         }
     }
 
-    protected void validateParticipant(Map<String,Object> details, ErrorCodes code, String participant, String participantCode) throws ClientException {
+    protected void validateParticipant(Map<String, Object> details, ErrorCodes code, String participant, String participantCode) throws ClientException {
         ArrayList<String> roles = (ArrayList) details.get("roles");
-        if(details.isEmpty()){
-            throw new ClientException(code, participant + " does not exist in registry");
-        } else if(StringUtils.equals((String) details.get(REGISTRY_STATUS), BLOCKED) || StringUtils.equals((String) details.get(REGISTRY_STATUS), INACTIVE)){
-            throw new ClientException(code, participant + "  is blocked or inactive as per the registry");
+        if (details.isEmpty()) {
+            throw new ClientException(code, MessageFormat.format(MISSING_PARTICIPANT, participant));
+        } else if (StringUtils.equals((String) details.get(REGISTRY_STATUS), BLOCKED) || StringUtils.equals((String) details.get(REGISTRY_STATUS), INACTIVE)) {
+            throw new ClientException(code, MessageFormat.format(INVALID_REGISTRY_STATUS, participant));
         }
         if (!apiAction.contains(NOTIFICATION_NOTIFY)) {
-            if(participantCode.equals(hcxCode)) {
-                throw new ClientException(code, participant + " should not be sent as sender/recipient in the incoming requests");
+            if (participantCode.equals(hcxCode)) {
+                throw new ClientException(code, MessageFormat.format(HCX_CODE_ERR, participant));
             }
             for (String notAllowRole : roles) {
                 if (notAllowRole.equalsIgnoreCase(hcxRoles)) {
-                    throw new ClientException(code, participant + " role is not be sent as sender/recipient in the incoming requests");
+                    throw new ClientException(code, MessageFormat.format(HCX_ROLES_ERR, participant));
                 }
             }
         }
@@ -136,10 +139,10 @@ public class BaseRequest {
         if (MapUtils.isEmpty(inputMap)) {
             throw new ClientException(errorCode, msg);
         } else if (!inputMap.containsKey("code") || !inputMap.containsKey("message")) {
-            throw new ClientException(errorCode, "Mandatory fields code or message is missing");
+            throw new ClientException(errorCode, MANDATORY_CODE_MSG);
         }
-        for(String key: inputMap.keySet()){
-            if(!rangeValues.contains(key)){
+        for (String key : inputMap.keySet()) {
+            if (!rangeValues.contains(key)) {
                 throw new ClientException(errorCode, rangeMsg + rangeValues);
             }
         }
@@ -161,90 +164,135 @@ public class BaseRequest {
         } else throw ex;
     }
 
-    protected Map<String, ClientException> getClientErrors(Map<String, Object> hcxHeaders){
+    protected Map<String, ClientException> getClientErrors(Map<String, Object> hcxHeaders) {
         Map<String, ClientException> clientErrors = new HashMap<>();
-        clientErrors.put(HCX_SENDER_CODE, new ClientException(ErrorCodes.ERR_INVALID_SENDER, "Sender code cannot be null, empty and other than 'String'"));
-        clientErrors.put(HCX_RECIPIENT_CODE, new ClientException(ErrorCodes.ERR_INVALID_RECIPIENT, "Recipient code cannot be null, empty and other than 'String'"));
-        clientErrors.put(TIMESTAMP, new ClientException(ErrorCodes.ERR_INVALID_TIMESTAMP, "Invalid timestamp"));
-        if(hcxHeaders.containsKey(WORKFLOW_ID)) {
-            clientErrors.put(WORKFLOW_ID, new ClientException(ErrorCodes.ERR_INVALID_WORKFLOW_ID, "Workflow id cannot be null, empty and other than 'String'"));
+        clientErrors.put(HCX_SENDER_CODE, new ClientException(ErrorCodes.ERR_INVALID_SENDER, SENDER_CODE_ERR_MSG));
+        clientErrors.put(HCX_RECIPIENT_CODE, new ClientException(ErrorCodes.ERR_INVALID_RECIPIENT, RECIPIENT_CODE_ERR_MSG));
+        clientErrors.put(TIMESTAMP, new ClientException(ErrorCodes.ERR_INVALID_TIMESTAMP, TIMESTAMP_INVALID_MSG));
+        if (hcxHeaders.containsKey(WORKFLOW_ID)) {
+            clientErrors.put(WORKFLOW_ID, new ClientException(ErrorCodes.ERR_INVALID_WORKFLOW_ID, INVALID_WORKFLOW_ID_ERR_MSG));
         }
         return clientErrors;
     }
 
-    protected Map<String, ClientException> getResponseParamErrors(){
+    protected Map<String, ClientException> getResponseParamErrors() {
         Map<String, ClientException> errors = new HashMap<>();
-        errors.put(CORRELATION_ID, new ClientException(ErrorCodes.ERR_INVALID_CORRELATION_ID, "Correlation id cannot be null, empty and other than 'String'"));
-        errors.put(API_CALL_ID, new ClientException(ErrorCodes.ERR_INVALID_API_CALL_ID, "Api call id cannot be null, empty and other than 'String'"));
+        errors.put(CORRELATION_ID, new ClientException(ErrorCodes.ERR_INVALID_CORRELATION_ID, INVALID_CORRELATION_ID_ERR_MSG));
+        errors.put(API_CALL_ID, new ClientException(ErrorCodes.ERR_INVALID_API_CALL_ID, INVALID_API_CALL_ID_ERR_MSG));
         return errors;
     }
 
-    public void validateUsingAuditData(List<String> allowedEntitiesForForward, List<String> allowedRolesForForward, Map<String,Object> senderDetails, Map<String,Object> recipientDetails, List<Map<String,Object>> correlationAuditData, List<Map<String,Object>> callAuditData, List<Map<String,Object>> participantCtxAuditData, String path ) throws Exception {
-        validateCondition(!callAuditData.isEmpty(), ErrorCodes.ERR_INVALID_API_CALL_ID, "Request exist with same api call id");
+    public void validateUsingAuditData(List<String> allowedEntitiesForForward, List<String> allowedRolesForForward, Map<String, Object> senderDetails, Map<String, Object> recipientDetails, List<Map<String, Object>> correlationAuditData, List<Map<String, Object>> callAuditData, List<Map<String, Object>> participantCtxAuditData, String path) throws Exception {
+        validateCondition(!callAuditData.isEmpty(), ErrorCodes.ERR_INVALID_API_CALL_ID, API_CALL_SAME_MSG);
         // validate request cycle is not closed
-        for(Map<String,Object> audit: correlationAuditData){
+        for (Map<String, Object> audit : correlationAuditData) {
             String action = (String) audit.get(ACTION);
             String entity = getEntity(action);
-            validateCondition(!OPERATIONAL_ENTITIES.contains(entity) && action.contains("on_") && ((List<String>) audit.get(RECIPIENT_ROLE)).contains(PROVIDER) && audit.get(STATUS).equals(COMPLETE_STATUS), ErrorCodes.ERR_INVALID_CORRELATION_ID, "Invalid request, cycle is closed for correlation id");
+            validateCondition(!OPERATIONAL_ENTITIES.contains(entity) && action.contains("on_") && ((List<String>) audit.get(RECIPIENT_ROLE)).contains(PROVIDER) && audit.get(STATUS).equals(COMPLETE_STATUS), ErrorCodes.ERR_INVALID_CORRELATION_ID, CLOSED_CYCLE_MSG);
         }
-        if(apiAction.contains("on_")) {
-            validateCondition(participantCtxAuditData.isEmpty(), ErrorCodes.ERR_INVALID_CORRELATION_ID, "Invalid on_action request, corresponding action request does not exist");
+        if (apiAction.contains("on_")) {
+            validateCondition(participantCtxAuditData.isEmpty(), ErrorCodes.ERR_INVALID_CORRELATION_ID, INVALID_ON_ACTION);
             validateWorkflowId(participantCtxAuditData.get(0));
         }
         List<String> senderRoles = (List<String>) senderDetails.get(ROLES);
         List<String> recipientRoles = (List<String>) recipientDetails.get(ROLES);
         // forward flow validations
-        if(isForwardRequest(allowedRolesForForward, senderRoles, recipientRoles, correlationAuditData)){
-            validateCondition(!allowedEntitiesForForward.contains(getEntity(apiAction)), ErrorCodes.ERR_INVALID_FORWARD_REQ, "Entity is not allowed for forwarding");
+        if (isForwardRequest(allowedRolesForForward, senderRoles, recipientRoles, correlationAuditData)) {
+            validateCondition(!allowedEntitiesForForward.contains(getEntity(apiAction)), ErrorCodes.ERR_INVALID_FORWARD_REQ, INVALID_FORWARD);
             validateWorkflowId(correlationAuditData.get(0));
-            if(!apiAction.contains("on_")){
+            if (!apiAction.contains("on_")) {
                 for (Map<String, Object> audit : correlationAuditData) {
-                    validateCondition(getHcxRecipientCode().equals(audit.get(HCX_SENDER_CODE)), ErrorCodes.ERR_INVALID_FORWARD_REQ, "Request cannot be forwarded to the forward initiators");
+                    validateCondition(getHcxRecipientCode().equals(audit.get(HCX_SENDER_CODE)), ErrorCodes.ERR_INVALID_FORWARD_REQ, FORWARD_REQ_ERR_MSG);
                 }
             }
-        } else if( !EXCLUDE_ENTITIES.contains(getEntity(path)) && !apiAction.contains("on_") && checkParticipantRole(allowedRolesForForward, senderRoles) && recipientRoles.contains(PROVIDER)) {
-            throw new ClientException("Invalid recipient");
+        } else if (!EXCLUDE_ENTITIES.contains(getEntity(path)) && !apiAction.contains("on_") && checkParticipantRole(allowedRolesForForward, senderRoles) && recipientRoles.contains(PROVIDER)) {
+            throw new ClientException(INVALID_RECIPIENT);
         }
     }
 
-    public String getWorkflowId() { return getHeader(WORKFLOW_ID); }
+    public String getWorkflowId() {
+        return getHeader(WORKFLOW_ID);
+    }
 
-    public String getApiCallId() { return getHeader(API_CALL_ID); }
+    public String getApiCallId() {
+        return getHeader(API_CALL_ID);
+    }
 
-    public String getCorrelationId() { return getHeader(CORRELATION_ID); }
+    public String getCorrelationId() {
+        return getHeader(CORRELATION_ID);
+    }
 
-    public String getHcxSenderCode() { return getHeader(HCX_SENDER_CODE); }
+    public String getHcxSenderCode() {
+        return getHeader(HCX_SENDER_CODE);
+    }
 
-    public String getHcxRecipientCode() { return getHeader(HCX_RECIPIENT_CODE); }
+    public String getHcxRecipientCode() {
+        return getHeader(HCX_RECIPIENT_CODE);
+    }
 
-    public String getTimestamp() { return getHeader(TIMESTAMP); }
+    public String getTimestamp() {
+        return getHeader(TIMESTAMP);
+    }
 
-    protected String getDebugFlag() { return getHeader(DEBUG_FLAG); }
+    protected String getDebugFlag() {
+        return getHeader(DEBUG_FLAG);
+    }
 
-    public String getStatus() { return getHeader(STATUS); }
+    public String getStatus() {
+        return getHeader(STATUS);
+    }
 
-    protected String getHeader(String key) { return (String) protocolHeaders.getOrDefault(key, ""); }
+    protected String getHeader(String key) {
+        return (String) protocolHeaders.getOrDefault(key, "");
+    }
 
-    public void setHeaders(Map<String,Object> headers) { protocolHeaders.putAll(headers);}
+    public void setHeaders(Map<String, Object> headers) {
+        protocolHeaders.putAll(headers);
+    }
 
-    public Map<String,Object> getPayload() { return payload; }
+    public Map<String, Object> getPayload() {
+        return payload;
+    }
 
-    protected List<String> getHeaderList(String key) { return (List<String>) protocolHeaders.getOrDefault(key, new ArrayList<>()); }
+    protected List<String> getHeaderList(String key) {
+        return (List<String>) protocolHeaders.getOrDefault(key, new ArrayList<>());
+    }
 
-    protected Map<String,Object> getHeaderMap(String key){ return (Map<String,Object>) protocolHeaders.getOrDefault(key,null); }
-    private void setHeaderMap(String key, Object value){ protocolHeaders.put(key, value); }
+    protected Map<String, Object> getHeaderMap(String key) {
+        return (Map<String, Object>) protocolHeaders.getOrDefault(key, null);
+    }
 
-    public Map<String,Object> getErrorDetails(){ return getHeaderMap(ERROR_DETAILS); }
-    public void setErrorDetails(Map<String,Object> errorDetails){ setHeaderMap(ERROR_DETAILS, errorDetails); }
+    private void setHeaderMap(String key, Object value) {
+        protocolHeaders.put(key, value);
+    }
 
-    public Map<String,Object> getDebugDetails(){ return getHeaderMap(DEBUG_DETAILS); }
+    public Map<String, Object> getErrorDetails() {
+        return getHeaderMap(ERROR_DETAILS);
+    }
 
-    public String getRedirectTo() { return getHeader(REDIRECT_TO); }
+    public void setErrorDetails(Map<String, Object> errorDetails) {
+        setHeaderMap(ERROR_DETAILS, errorDetails);
+    }
 
-    public List<String> getSenderRole() { return senderRole; }
-    public List<String> getRecipientRole() { return recipientRole; }
+    public Map<String, Object> getDebugDetails() {
+        return getHeaderMap(DEBUG_DETAILS);
+    }
 
-    public String getPayloadWithoutSensitiveData() { return payloadWithoutSensitiveData; }
+    public String getRedirectTo() {
+        return getHeader(REDIRECT_TO);
+    }
+
+    public List<String> getSenderRole() {
+        return senderRole;
+    }
+
+    public List<String> getRecipientRole() {
+        return recipientRole;
+    }
+
+    public String getPayloadWithoutSensitiveData() {
+        return payloadWithoutSensitiveData;
+    }
 
     private String[] validatePayload(String apiAction) throws Exception {
         try {
@@ -256,7 +304,7 @@ public class BaseRequest {
             }
             return payloadValues;
         } catch (Exception e) {
-            throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, "Error while parsing the payload");
+            throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, PAYLOAD_PARSE_ERR);
         }
     }
 
@@ -266,31 +314,31 @@ public class BaseRequest {
 
     private void validatePayloadValues(String[] payloadValues, int payloadLength) throws ClientException {
         if (payloadValues.length != payloadLength)
-            throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, "Malformat payload");
+            throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, MALFORMED_PAYLOAD);
         for (String value : payloadValues) {
             if (value == null || value.isEmpty())
-                throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, "Payload contains null or empty values");
+                throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, INVALID_PAYLOAD);
         }
     }
 
-    public boolean isForwardRequest(List<String> allowedRolesForForward, List<String> senderRoles, List<String> recipientRoles, List<Map<String,Object>> auditData) throws ClientException {
-        if(checkParticipantRole(allowedRolesForForward, senderRoles) && checkParticipantRole(allowedRolesForForward, recipientRoles)){
-            if(!auditData.isEmpty())
+    public boolean isForwardRequest(List<String> allowedRolesForForward, List<String> senderRoles, List<String> recipientRoles, List<Map<String, Object>> auditData) throws ClientException {
+        if (checkParticipantRole(allowedRolesForForward, senderRoles) && checkParticipantRole(allowedRolesForForward, recipientRoles)) {
+            if (!auditData.isEmpty())
                 return true;
             else
-                throw new ClientException(ErrorCodes.ERR_INVALID_FORWARD_REQ, "The request contains invalid correlation id");
+                throw new ClientException(ErrorCodes.ERR_INVALID_FORWARD_REQ, INVALID_FWD_CORRELATION_ID);
         }
         return false;
     }
 
     private void validateWorkflowId(Map<String, Object> auditEvent) throws ClientException {
         if (auditEvent.containsKey(WORKFLOW_ID) && !((String) auditEvent.get(WORKFLOW_ID)).isEmpty()) {
-            validateCondition(!protocolHeaders.containsKey(WORKFLOW_ID) || !getWorkflowId().equals(auditEvent.get(WORKFLOW_ID)), ErrorCodes.ERR_INVALID_WORKFLOW_ID, "The request contains invalid workflow id");
+            validateCondition(!protocolHeaders.containsKey(WORKFLOW_ID) || !getWorkflowId().equals(auditEvent.get(WORKFLOW_ID)), ErrorCodes.ERR_INVALID_WORKFLOW_ID, INVALID_WORKFLOW_ID);
         }
     }
 
-    private boolean checkParticipantRole(List<String> allowedRolesForForward, List<String> roles){
-        for(String role: roles){
+    private boolean checkParticipantRole(List<String> allowedRolesForForward, List<String> roles) {
+        for (String role : roles) {
             if (allowedRolesForForward.contains(role)) {
                 return true;
             }
@@ -298,14 +346,14 @@ public class BaseRequest {
         return false;
     }
 
-    public String getEntity(String path){
+    public String getEntity(String path) {
         if (path.contains("status")) {
             return "status";
         } else if (path.contains("search")) {
             return "search";
         } else {
             String[] str = path.split("/");
-            return str[str.length-2];
+            return str[str.length - 2];
         }
     }
 }

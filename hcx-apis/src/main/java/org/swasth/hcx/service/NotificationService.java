@@ -22,9 +22,11 @@ import org.swasth.kafka.client.IEventService;
 import org.swasth.postgresql.IDatabaseService;
 
 import java.sql.ResultSet;
+import java.text.MessageFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.swasth.common.response.ResponseMessage.*;
 import static org.swasth.common.utils.Constants.*;
 
 @Service
@@ -80,7 +82,7 @@ public class NotificationService {
     public void getNotifications(NotificationListRequest request, Response response) throws Exception {
         for (String key : request.getFilters().keySet()) {
             if (!ALLOWED_NOTIFICATION_FILTER_PROPS.contains(key))
-                throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Invalid notifications filters, allowed properties are: " + ALLOWED_NOTIFICATION_FILTER_PROPS);
+                throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, MessageFormat.format(INVALID_NOTIFICATION_FILTERS, ALLOWED_NOTIFICATION_FILTER_PROPS));
         }
         // TODO: add filter limit condition
         List<Map<String, Object>> list = new ArrayList<>(NotificationUtils.notificationList);
@@ -117,10 +119,10 @@ public class NotificationService {
                     postgresSubscription, request.getTopicCode(), request.getSenderCode(), joined);
             resultSet = (ResultSet) postgreSQLClient.executeQuery(query);
             while (resultSet.next()) {
-                subscriptions.remove(resultSet.getString("subscription_id"));
+                subscriptions.remove(resultSet.getString(SUBSCRIPTION_ID));
             }
-            if (subscriptions.size() ==1 && !subscriptions.isEmpty())
-                throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Invalid subscriptions list: " + subscriptions);
+            if (subscriptions.size() == 1 && !subscriptions.isEmpty())
+                throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, MessageFormat.format(INVALID_SUBSCRIPTION_LIST, subscriptions));
         } finally {
             if (resultSet != null) resultSet.close();
         }
@@ -132,7 +134,8 @@ public class NotificationService {
         //fetch notification recipient based on subscription id
         Subscription subscription = getSubscriptionById(subscriptionId, request.getSenderCode());
         if (subscription == null) {
-            throw new ClientException(ErrorCodes.ERR_INVALID_SUBSCRIPTION_ID, "Invalid subscription id: " + subscriptionId);
+            throw new ClientException(ErrorCodes.ERR_INVALID_SUBSCRIPTION_ID, MessageFormat.format(
+                    INVALID_SUBSCRIPTION_ID, subscriptionId));
         }
         //Update the Database
         String subscriptionFromDB = updateSubscriptionById(subscriptionId, statusCode);
@@ -140,14 +143,15 @@ public class NotificationService {
             LOG.info("Subscription record updated for subscriptionId:" + subscriptionId.replaceAll("[\n\r\t]", "_"));
         } else {
             LOG.info("Subscription record is not updated for subscriptionId:" + subscriptionId.replaceAll("[\n\r\t]", "_"));
-            throw new ClientException(ErrorCodes.ERR_INVALID_SUBSCRIPTION_ID, "Unable to update record with subscription id: " + subscriptionId);
+            throw new ClientException(ErrorCodes.ERR_INVALID_SUBSCRIPTION_ID, MessageFormat.format(
+                    UPDATE_MESSAGE_SUBSCRIPTION_ID, subscriptionId));
         }
         //Send message to kafka topic
         String subscriptionMessage = eventGenerator.generateOnSubscriptionEvent(request.getApiAction(), subscription.getRecipient_code(), request.getSenderCode(), subscriptionId, statusCode);
         kafkaClient.send(onSubscriptionTopic, request.getSenderCode(), subscriptionMessage);
 
         //Create audit event
-        auditIndexer.createDocument(eventGenerator.generateOnSubscriptionAuditEvent(request.getApiAction(),subscription.getRecipient_code(),subscriptionId,QUEUED_STATUS,request.getSenderCode(),statusCode));
+        auditIndexer.createDocument(eventGenerator.generateOnSubscriptionAuditEvent(request.getApiAction(), subscription.getRecipient_code(), subscriptionId, QUEUED_STATUS, request.getSenderCode(), statusCode));
         //Set the response data
         response.setSubscriptionId(subscriptionId);
     }
@@ -159,7 +163,7 @@ public class NotificationService {
         String subscriptionMessage = eventGenerator.generateSubscriptionEvent(request.getApiAction(), request.getRecipientCode(), request.getTopicCode(), senderList);
         kafkaClient.send(subscriptionTopic, request.getRecipientCode(), subscriptionMessage);
         //Create audit event
-        auditIndexer.createDocument(eventGenerator.generateSubscriptionAuditEvent(request,QUEUED_STATUS,senderList));
+        auditIndexer.createDocument(eventGenerator.generateSubscriptionAuditEvent(request, QUEUED_STATUS, senderList));
         //Set the response data
         List<String> subscriptionList = new ArrayList<>(subscriptionMap.values());
         response.setSubscription_list(subscriptionList);
@@ -194,21 +198,21 @@ public class NotificationService {
      */
     public void subscriptionUpdate(Request request, Response response) throws Exception {
         if (StringUtils.isEmpty(request.getTopicCode()) || !NotificationUtils.isValidCode(request.getTopicCode()))
-            throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_TOPIC_CODE, "Topic code is empty or invalid");
+            throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_TOPIC_CODE, INVALID_TOPIC_CODE);
         else if (!request.getPayload().containsKey(SUBSCRIPTION_STATUS) && !request.getPayload().containsKey(IS_DELEGATED) && !request.getPayload().containsKey(EXPIRY))
-            throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Nothing to update");
+            throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, NOTHING_TO_UPDATE);
         else if (request.getPayload().containsKey(EXPIRY) && new DateTime(request.getExpiry()).isBefore(DateTime.now()))
-            throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Expiry cannot be past date");
+            throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, EXPIRY_CANNOT_BE_PAST_DATE);
         else if (request.getPayload().containsKey(SUBSCRIPTION_STATUS) && !ALLOWED_SUBSCRIPTION_STATUS.contains(request.getSubscriptionStatus()))
-            throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Subscription status value is invalid");
+            throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, SUBSCRIPTION_STATUS_VALUE_IS_INVALID);
         else if (request.getPayload().containsKey(IS_DELEGATED) && !(request.getPayload().get(IS_DELEGATED) instanceof Boolean))
-            throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Is delegated value is invalid");
+            throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, IS_DELEGATED_VALUE_IS_INVALID);
         StringBuilder updateProps = new StringBuilder();
         String selectQuery = String.format("SELECT %s FROM %s WHERE %s = '%s' AND %s = '%s' AND %s = '%s'",
                 SUBSCRIPTION_STATUS, postgresSubscription, SENDER_CODE, request.getSenderCode(), RECIPIENT_CODE,
                 request.getRecipientCode(), TOPIC_CODE, request.getTopicCode());
         ResultSet selectResult = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
-        if(selectResult.next()) {
+        if (selectResult.next()) {
             String prevStatus = selectResult.getString(SUBSCRIPTION_STATUS);
             formatDBCondition(request, updateProps, ",", "=");
             updateProps.deleteCharAt(0);
@@ -220,10 +224,12 @@ public class NotificationService {
                 response.setSubscriptionId(updateResult.getString(SUBSCRIPTION_ID));
                 response.setSubscriptionStatus(updateResult.getString(SUBSCRIPTION_STATUS));
             } else {
-                throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Subscription does not exist");
+                throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, SUBSCRIPTION_DOES_NOT_EXIST);
             }
-            Map<String,Object> updatedProps = new HashMap<>();
-            SUBSCRIPTION_UPDATE_PROPS.forEach(prop -> { if(request.getPayload().containsKey(prop)) updatedProps.put(prop,request.getPayload().get(prop));});
+            Map<String, Object> updatedProps = new HashMap<>();
+            SUBSCRIPTION_UPDATE_PROPS.forEach(prop -> {
+                if (request.getPayload().containsKey(prop)) updatedProps.put(prop, request.getPayload().get(prop));
+            });
             eventHandler.createAudit(eventGenerator.createAuditLog(response.getSubscriptionId(), NOTIFICATION, getCData(request),
                     getEData(response.getSubscriptionStatus(), prevStatus, updatedProps)));
         }
@@ -232,28 +238,28 @@ public class NotificationService {
     private void formatDBCondition(Request request, StringBuilder updateProps, String fieldSeparator, String operation) {
         updateProps.delete(0, updateProps.length());
         SUBSCRIPTION_UPDATE_PROPS.forEach(prop -> {
-            if(request.getPayload().containsKey(prop))
+            if (request.getPayload().containsKey(prop))
                 updateProps.append(fieldSeparator + prop + operation + "'" + request.getPayload().get(prop) + "'");
         });
     }
 
-    private Map<String,Object> getCData(Request request) {
-        Map<String,Object> data = new HashMap<>();
+    private Map<String, Object> getCData(Request request) {
+        Map<String, Object> data = new HashMap<>();
         data.put(ACTION, request.getApiAction());
         data.put(SENDER_CODE, request.getSenderCode());
         data.put(RECIPIENT_CODE, request.getRecipientCode());
         return data;
     }
 
-    private Map<String,Object> getEData(String status, String prevStatus, Map<String,Object> props) {
-        Map<String,Object> data = new HashMap<>();
+    private Map<String, Object> getEData(String status, String prevStatus, Map<String, Object> props) {
+        Map<String, Object> data = new HashMap<>();
         data.put(AUDIT_STATUS, status);
         data.put(PROPS, props);
         if (!status.equalsIgnoreCase(prevStatus))
             data.put(PREV_STATUS, prevStatus);
         return data;
     }
-    
+
     public void getSubscriptions(NotificationListRequest request, Response response) throws Exception {
         List<Subscription> subscriptionList = fetchSubscriptions(request);
         response.setSubscriptions(subscriptionList);
@@ -270,7 +276,7 @@ public class NotificationService {
             if (!filterMap.isEmpty()) {
                 for (String key : filterMap.keySet()) {
                     if (!allowedSubscriptionFilters.contains(key))
-                        throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "Invalid notifications filters, allowed properties are: " + allowedSubscriptionFilters);
+                        throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, MessageFormat.format(INVALID_SUBSCRIPTION_FILTERS, allowedSubscriptionFilters));
                     query += " AND " + key + " = '" + filterMap.get(key) + "'";
                 }
             }
@@ -293,7 +299,7 @@ public class NotificationService {
             if (resultSet != null) resultSet.close();
         }
     }
-    
+
     public Subscription getSubscriptionById(String subscriptionId, String senderCode) throws Exception {
         ResultSet resultSet = null;
         Subscription subscription = null;

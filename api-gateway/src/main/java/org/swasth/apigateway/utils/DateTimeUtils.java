@@ -5,6 +5,9 @@ import org.swasth.apigateway.exception.ClientException;
 import org.swasth.apigateway.exception.ErrorCodes;
 import org.joda.time.DateTime;
 
+import java.text.MessageFormat;
+import static org.swasth.common.response.ResponseMessage.INVALID_TIMESTAMP_MSG;
+
 @UtilityClass
 public class DateTimeUtils {
 
@@ -14,7 +17,7 @@ public class DateTimeUtils {
             DateTime currentTime = DateTime.now();
             return (!requestTime.isBefore(currentTime.minusHours(range)) && !requestTime.isAfter(currentTime));
         } catch (Exception e) {
-            throw new ClientException(ErrorCodes.ERR_INVALID_TIMESTAMP, "Timestamp should be a valid ISO-8061 format, " + "Exception msg: " + e.getMessage());
+            throw new ClientException(ErrorCodes.ERR_INVALID_TIMESTAMP, MessageFormat.format(INVALID_TIMESTAMP_MSG, e.getMessage()));
         }
     }
 
