@@ -39,7 +39,7 @@ public class NotificationFilterFunction extends BaseNotificationFunction {
         consolidatedEvent.put(Constants.INPUT_EVENT(), inputEvent);
         List<String> participantCodes;
         List<String> recipients = (List<String>) notificationHeaders.get(Constants.RECIPIENTS());
-        String recipientType = getProtocolStringValue(Constants.RECIPIENT_TYPE(), inputEvent);
+        String recipientType = (String) notificationHeaders.get(Constants.RECIPIENT_TYPE());
         if (recipientType.equalsIgnoreCase(Constants.SUBSCRIPTION())) {
             participantCodes = getParticipantCodes(topicCode, senderCode, Constants.SUBSCRIPTION_ID(), recipients);
         } else {
