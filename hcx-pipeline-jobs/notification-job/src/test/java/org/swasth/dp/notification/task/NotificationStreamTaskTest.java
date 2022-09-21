@@ -41,7 +41,9 @@ public class NotificationStreamTaskTest {
 
     @Before
     public void beforeClass() throws Exception {
+        when(mockKafkaUtil.kafkaMapSource(notificationConfig.kafkaInputTopic)).thenReturn(new NotificationSource());
         when(mockKafkaUtil.kafkaMapSource(notificationConfig.subscriptionInputTopic)).thenReturn(new SubscriptionSource());
+        when(mockKafkaUtil.kafkaMapSource(notificationConfig.onSubscriptionInputTopic)).thenReturn(new SubscriptionSource());
         doNothing().when(mockAuditService).indexAudit(anyMap());
         doNothing().when(mockEsUtil).addIndex(anyString(),anyString(),anyString(),anyString());
         doNothing().when(mockEsUtil).addDocumentWithIndex(anyString(),anyString(),anyString());
@@ -65,6 +67,21 @@ public class NotificationStreamTaskTest {
         public void run(SourceContext<Map<String, Object>> sourceContext) {
             Gson gson = new Gson();
             Map<String,Object> eventMap = (HashMap<String,Object>) gson.fromJson(EventFixture.SUBSCRIPTION_TOPIC(),HashMap.class);
+            sourceContext.collect(eventMap);
+        }
+
+        @Override
+        public void cancel() {
+
+        }
+    }
+
+    private static class NotificationSource implements SourceFunction<Map<String,Object>> {
+
+        @Override
+        public void run(SourceContext<Map<String, Object>> sourceContext) {
+            Gson gson = new Gson();
+            Map<String,Object> eventMap = (HashMap<String,Object>) gson.fromJson(EventFixture.NOTIFICATION_TOPIC(),HashMap.class);
             sourceContext.collect(eventMap);
         }
 
