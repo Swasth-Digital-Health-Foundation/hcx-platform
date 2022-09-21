@@ -100,7 +100,6 @@ public interface ResponseMessage {
     String ON_ACTION_WORKFLOW_ID = "The on_action request should contain the same workflow id as in corresponding action request";
     String CLOSED_REDIRECT_MSG = "The redirected request has been closed with status as response.complete";
     String REDIRECT_INITIATOR_MSG = "Redirect request can not be redirected to one of the initiators";
-    String AUDIT_CREATION_ERR = "Error while creating the audit: {0}"
     String INVALID_ALGO = "Algorithm is missing or invalid";
     String INVALID_JWS = "JWS payload is not signed by the request initiator";
     String NOTIFICATION_TS_MSG = "Notification timestamp is missing or empty";
