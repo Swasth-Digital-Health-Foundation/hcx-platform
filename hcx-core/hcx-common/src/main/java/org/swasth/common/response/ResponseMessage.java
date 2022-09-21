@@ -52,7 +52,7 @@ public interface ResponseMessage {
     String INVALID_JWE_MSG = "Request body should be a proper JWE object for action API calls";
     String INVALID_STATUS_REDIRECT = "Invalid redirect request,{0} status is not allowed for redirect, Allowed status is {1}";
     String INVALID_ACTION_REDIRECT = "Invalid redirect request,{0} is not allowed for redirect, Allowed APIs are: {1}";
-    String CORRELATION_ERR_MSG = "Exception occurred for request with correlationId: {0}";
+    String CORRELATION_ERR_MSG = "Exception occurred for request with correlationId: {0} :: error message: {1}";
     String PAYLOAD_PARSE_ERR = "Error while parsing the payload";
     String INVALID_API_CALL_UUID = "API call id should be a valid UUID";
     String INVALID_CORRELATION_UUID = "Correlation id should be a valid UUID";
@@ -100,6 +100,7 @@ public interface ResponseMessage {
     String ON_ACTION_WORKFLOW_ID = "The on_action request should contain the same workflow id as in corresponding action request";
     String CLOSED_REDIRECT_MSG = "The redirected request has been closed with status as response.complete";
     String REDIRECT_INITIATOR_MSG = "Redirect request can not be redirected to one of the initiators";
+    String AUDIT_CREATION_ERR = "Error while creating the audit: {0}"
     String INVALID_ALGO = "Algorithm is missing or invalid";
     String INVALID_JWS = "JWS payload is not signed by the request initiator";
     String NOTIFICATION_TS_MSG = "Notification timestamp is missing or empty";
@@ -117,4 +118,6 @@ public interface ResponseMessage {
     String NOTIFICATION_MANDATORY_HEADERS = "Notification request does not have mandatory headers: {0} , {1}";
     String NOTIFICATION_NOT_ALLOWED = "Participant is not allowed to receive this notification: {0}";
     String NOTIFICATION_TRIGGER_ERR_MSG = "{0} is not allowed to trigger this notification: {1}";
+    String RECIPIENT_NOT_ALLOWED = "Recipient type is invalid, allowed type are: {0}";
+    
 }
