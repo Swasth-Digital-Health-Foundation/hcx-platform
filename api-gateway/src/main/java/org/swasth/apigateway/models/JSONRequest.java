@@ -68,14 +68,14 @@ public class JSONRequest extends BaseRequest {
     /**
      * This method is to validate notification notify request
      */
-    public void validateNotificationReq(Map<String, Object> senderDetails, List<Map<String, Object>> recipientsDetails, List<String> allowedNetworkCodes, boolean isValidSignature) throws Exception {
+    public void validateNotificationReq(Map<String, Object> senderDetails, List<Map<String, Object>> recipientsDetails, List<String> allowedNetworkCodes) throws Exception {
+        validateCondition(MapUtils.isEmpty(getNotificationHeaders()), ErrorCodes.ERR_INVALID_NOTIFICATION_HEADERS, NOTIFICATION_HEADER_ERR_MSG);
         validateNotificationParticipant(senderDetails, ErrorCodes.ERR_INVALID_SENDER, SENDER);
         validateCondition(StringUtils.isEmpty(getAlg()) || !getAlg().equalsIgnoreCase(Constants.RS256), ErrorCodes.ERR_INVALID_ALGORITHM, INVALID_ALGO);
-        validateCondition(!isValidSignature, ErrorCodes.ERR_INVALID_SIGNATURE, INVALID_JWS);
         validateCondition(getNotificationTimestamp() == null, ErrorCodes.ERR_INVALID_NOTIFICATION_TIMESTAMP, NOTIFICATION_TS_MSG);
-        validateCondition(MapUtils.isEmpty(getNotificationHeaders()), ErrorCodes.ERR_INVALID_NOTIFICATION_HEADERS, NOTIFICATION_HEADER_ERR_MSG);
         validateCondition(getProtocolHeaders().containsKey(EXPIRY) && new DateTime(getExpiry()).isBefore(DateTime.now()), ErrorCodes.ERR_INVALID_NOTIFICATION_EXPIRY, NOTIFICATION_EXPIRY);
         validateCondition(StringUtils.isEmpty(getRecipientType()), ErrorCodes.ERR_INVALID_NOTIFICATION_RECIPIENT_TYPE, NOTIFICATION_RECIPIENT_ERR_MSG);
+        validateCondition(!ALLOWED_RECIPIENT_TYPE.contains(getRecipientType()), ErrorCodes.ERR_INVALID_NOTIFICATION_RECIPIENT_TYPE, MessageFormat.format(RECIPIENT_NOT_ALLOWED, ALLOWED_RECIPIENT_TYPE));
         validateCondition(getRecipients().size() == 0, ErrorCodes.ERR_INVALID_NOTIFICATION_RECIPIENTS, NOTIFICATION_RECIPIENT_LIST);
         validateCondition(StringUtils.isEmpty(getNotificationMessage()), ErrorCodes.ERR_INVALID_NOTIFICATION_MESSAGE, NOTIFICATION_MESSAGE_ERR);
         validateCondition(StringUtils.isEmpty(getTopicCode()), ErrorCodes.ERR_INVALID_NOTIFICATION_TOPIC_CODE, NOTIFICATION_TOPIC_ERR);

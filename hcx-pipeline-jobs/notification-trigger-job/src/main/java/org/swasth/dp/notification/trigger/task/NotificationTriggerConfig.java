@@ -32,6 +32,7 @@ public class NotificationTriggerConfig  extends BaseJobConfig {
     public Map<String,Object> apiActionAndTopicCodeMap;
     public String workflowUpdateTopicCode;
     public List<String> workflowNotificationAllowedEntities;
+    public List<String> workflowNotificationAllowedStatus;
 
     public NotificationTriggerConfig(Config config, String jobName) {
         super(config, jobName);
@@ -52,5 +53,6 @@ public class NotificationTriggerConfig  extends BaseJobConfig {
         apiActionAndTopicCodeMap = (Map<String, Object>) config.getAnyRef("notification.apiActionAndTopicCodeMap");
         workflowUpdateTopicCode = config.getString("notification.topicCode.workflow.update");
         workflowNotificationAllowedEntities = config.getStringList("notification.workflow.allowedEntities");
+        workflowNotificationAllowedStatus = config.getStringList("notification.workflow.allowedStatus");
     }
 }
