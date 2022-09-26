@@ -19,7 +19,9 @@
     "socket.io": "^4.4.1",
     "socket.io-client": "^4.4.1",
     "web-vitals": "^2.1.4",
-    "xstate": "^4.30.5"
+    "xstate": "^4.30.5",
+    "react-datamaps-india": "0.4.0",
+    "react-simple-maps": "2.3.0"
   },
   "scripts": {
     "start": "react-scripts start",

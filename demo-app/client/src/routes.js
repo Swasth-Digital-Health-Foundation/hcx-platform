@@ -1,5 +1,6 @@
 import { EligibilityCheck } from './components/check-eligibility';
 import JsonViewer from './components/json-viewer/json-viewer';
+import MapChart from './components/map_component/MapChart';
 
 export default [
     {
@@ -13,6 +14,13 @@ export default [
         "path": "/json-viewer",
         "exact": true,
         "component": JsonViewer,
+        "children": [],
+        "data": {}
+    },
+    {
+        "path": "/mapchart",
+        "exact": true,
+        "component": MapChart,
         "children": [],
         "data": {}
     }

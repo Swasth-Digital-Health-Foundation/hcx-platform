@@ -12,9 +12,9 @@ function App() {
 
   return (
     <>
-      <Nav></Nav>
+      {location.pathname !== "/mapchart" && <Nav></Nav>}
       <div className="App">
-        {location.pathname === '/' && <header className="App-header">
+        {location.pathname === '/'  && <header className="App-header">
           <p>
             <Link to='/root'>
               <Button variant="outline-primary">Check Eligibility</Button>
