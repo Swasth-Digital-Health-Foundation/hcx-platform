@@ -12,6 +12,7 @@ function App() {
 
   return (
     <>
+      {console.log("location",location.pathname)}
       {location.pathname !== "/mapchart" && <Nav></Nav>}
       <div className="App">
         {location.pathname === '/'  && <header className="App-header">
