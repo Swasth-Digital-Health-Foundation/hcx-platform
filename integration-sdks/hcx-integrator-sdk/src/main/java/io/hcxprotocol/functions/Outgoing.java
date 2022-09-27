@@ -55,7 +55,6 @@ public class Outgoing implements OutgoingInterface {
             output.putAll(error);
         } else {
             result = initializeHCXCall(JSONUtils.serialize(output), response);
-            output.remove(Constants.PAYLOAD);
             output.putAll(response);
         }
         return result;
@@ -71,17 +70,17 @@ public class Outgoing implements OutgoingInterface {
         try {
             headers.put(Constants.ALG, Constants.A256GCM);
             headers.put(Constants.ENC, Constants.RSA_OAEP);
-            headers.put(Constants.API_CALL_ID, UUID.randomUUID().toString());
+            headers.put(Constants.HCX_API_CALL_ID, UUID.randomUUID().toString());
             headers.put(Constants.HCX_TIMESTAMP,  new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").format(new Date()));
             if (!StringUtils.isEmpty(recipientCode)) {
                 headers.put(Constants.HCX_SENDER_CODE, hcxIntegrator.getParticipantCode());
                 headers.put(Constants.HCX_RECIPIENT_CODE, recipientCode);
-                headers.put(Constants.CORRELATION_ID, UUID.randomUUID().toString());
+                headers.put(Constants.HCX_CORRELATION_ID, UUID.randomUUID().toString());
             } else {
                 Map<String,Object> actionHeaders = JSONUtils.decodeBase64String(actionJwe.split("\\.")[0], Map.class);
                 headers.put(Constants.HCX_SENDER_CODE,  actionHeaders.get(Constants.HCX_RECIPIENT_CODE));
                 headers.put(Constants.HCX_RECIPIENT_CODE, actionHeaders.get(Constants.HCX_SENDER_CODE));
-                headers.put(Constants.CORRELATION_ID, actionHeaders.get(Constants.CORRELATION_ID));
+                headers.put(Constants.HCX_CORRELATION_ID, actionHeaders.get(Constants.HCX_CORRELATION_ID));
                 headers.put(Constants.STATUS, onActionStatus);
                 if(headers.containsKey(Constants.WORKFLOW_ID))
                     headers.put(Constants.WORKFLOW_ID, actionHeaders.get(Constants.WORKFLOW_ID));

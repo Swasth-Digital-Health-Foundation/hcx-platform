@@ -46,8 +46,7 @@ public class Incoming implements IncomingInterface {
         } else if (!validatePayload(JSONUtils.serialize(output.get(Constants.PAYLOAD)), operation, error)) {
             sendResponse(error, output);
         } else {
-            sendResponse(error, output);
-            if(output.containsKey("api_call_id")) result = true;
+            if(sendResponse(error, output)) result = true;
         }
         return result;
     }
@@ -74,7 +73,7 @@ public class Incoming implements IncomingInterface {
             Map<String, Object> retrievedPayload = jweRequest.getPayload();
             Map<String, Object> returnObj = new HashMap<>();
             returnObj.put(Constants.HEADERS,retrievedHeader);
-            returnObj.put(Constants.PAYLOAD,retrievedPayload);
+            returnObj.put(Constants.FHIR_PAYLOAD,retrievedPayload);
             output = returnObj;
             return true;
         } catch (Exception e) {
@@ -89,17 +88,20 @@ public class Incoming implements IncomingInterface {
     }
 
     @Override
-    public void sendResponse(Map<String,Object> error, Map<String,Object> output) {
+    public boolean sendResponse(Map<String,Object> error, Map<String,Object> output) {
         Map<String,Object> responseObj = new HashMap<>();
         responseObj.put(Constants.TIMESTAMP, System.currentTimeMillis());
+        boolean result = false;
         if (error.isEmpty()){
-            Map<String,Object> headers = (Map<String,Object>) output.get("headers");
-            responseObj.put("api_call_id", headers.get(Constants.API_CALL_ID));
-            responseObj.put("correlation_id", headers.get(Constants.CORRELATION_ID));
+            Map<String,Object> headers = (Map<String,Object>) output.get(Constants.HEADERS);
+            responseObj.put(Constants.API_CALL_ID, headers.get(Constants.HCX_API_CALL_ID));
+            responseObj.put(Constants.CORRELATION_ID, headers.get(Constants.HCX_CORRELATION_ID));
+            result = true;
         } else {
             String code = (String) error.keySet().toArray()[0];
             responseObj.put(Constants.ERROR, new ResponseError(code, (String) error.get(code), ""));
         }
         output.put(Constants.RESPONSE_OBJ, responseObj);
+        return result;
     }
 }
