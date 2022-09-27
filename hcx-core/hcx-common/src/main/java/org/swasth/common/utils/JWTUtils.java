@@ -44,7 +44,7 @@ public class JWTUtils {
     }
 
     public String generateJWS(Map<String,Object> headers, Map<String,Object> payload, String privateKey) throws NoSuchAlgorithmException, InvalidKeySpecException {
-       byte[] privateKeyDecoded = Base64.getDecoder().decode(privateKey);
+        byte[] privateKeyDecoded = Base64.getDecoder().decode(privateKey);
         PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(privateKeyDecoded);
         PrivateKey rsaPrivateKey = KeyFactory.getInstance("RSA").generatePrivate(spec);
         return Jwts.builder().setHeader(headers).setClaims(payload).signWith(SignatureAlgorithm.RS256, rsaPrivateKey).compact();
