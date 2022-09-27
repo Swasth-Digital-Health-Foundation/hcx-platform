@@ -1,12 +1,12 @@
 package io.hcxprotocol.utils;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.hcxprotocol.dto.HCXIntegrator;
 import kong.unirest.HttpResponse;
-import kong.unirest.Unirest;
 
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class Utils {
 

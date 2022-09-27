@@ -36,7 +36,7 @@ public class Incoming implements IncomingInterface {
      * @throws Exception
      */
     @Override
-    public boolean processFunction(String jwePayload, String operation, Map<String, Object> output) throws Exception {
+    public boolean processFunction(String jwePayload, HCXIntegrator.OPERATIONS operation, Map<String, Object> output) throws Exception {
         Map<String, Object> error = new HashMap<>();
         boolean result = false;
         if (!validateRequest(jwePayload, error)) {
@@ -83,7 +83,7 @@ public class Incoming implements IncomingInterface {
     }
 
     @Override
-    public boolean validatePayload(String fhirPayload, String operation, Map<String,Object> error){
+    public boolean validatePayload(String fhirPayload, HCXIntegrator.OPERATIONS operation, Map<String,Object> error){
         return true;
     }
 
