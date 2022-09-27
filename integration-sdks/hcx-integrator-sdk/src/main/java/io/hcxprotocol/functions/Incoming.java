@@ -74,7 +74,7 @@ public class Incoming implements IncomingInterface {
             Map<String, Object> returnObj = new HashMap<>();
             returnObj.put(Constants.HEADERS,retrievedHeader);
             returnObj.put(Constants.FHIR_PAYLOAD,retrievedPayload);
-            output = returnObj;
+            output.putAll(returnObj);
             return true;
         } catch (Exception e) {
             output.put(HCXIntegrator.ERROR_CODES.ERR_INVALID_ENCRYPTION.toString(), e.getMessage());
