@@ -8,6 +8,7 @@ import io.hcxprotocol.dto.HCXIntegrator;
 import io.hcxprotocol.utils.JSONUtils;
 import io.hcxprotocol.validator.HCXFHIRValidator;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -22,13 +23,15 @@ public class FhirHelper {
             error.put(String.valueOf(HCXIntegrator.ERROR_CODES.ERR_WRONG_DOMAIN_PAYLOAD),"Incorrect eObject is sent as the domain payload");
             return false;
         }
+        ArrayList<String> errMessages = null;
+        boolean returnBool = true;
         for(SingleValidationMessage message: messages){
             if(message.getSeverity() == ResultSeverityEnum.ERROR){
-                error.put(String.valueOf(HCXIntegrator.ERROR_CODES.ERR_INVALID_DOMAIN_PAYLOAD),message.getMessage());
-                return false;
+                error.put(String.valueOf(HCXIntegrator.ERROR_CODES.ERR_INVALID_DOMAIN_PAYLOAD),errMessages.add(message.getMessage()));
+                returnBool = false;
             }
         }
-        return true;
+        return returnBool;
     }
 
 }
