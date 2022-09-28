@@ -22,6 +22,10 @@ public class HCXIntegrator {
         return config.getString("hcx.base.url");
     }
 
+    public String getParticipantCode() {
+        return config.getString("participant.code");
+    }
+
     public String getKeycloakUrl() {
         return config.getString("keycloak.url");
     }
@@ -36,6 +40,10 @@ public class HCXIntegrator {
 
     public String getPrivateKeyUrl() {
         return config.getString("private.key.url");
+    }
+
+    public String getIGUrl() {
+        return config.getString("ig.url");
     }
 
     public enum ERROR_CODES {
