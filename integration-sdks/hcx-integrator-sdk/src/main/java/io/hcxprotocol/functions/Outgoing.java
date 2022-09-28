@@ -1,6 +1,7 @@
 package io.hcxprotocol.functions;
 
 import io.hcxprotocol.dto.HCXIntegrator;
+import io.hcxprotocol.helper.FhirHelper;
 import io.hcxprotocol.interfaces.OutgoingInterface;
 import io.hcxprotocol.utils.Constants;
 import io.hcxprotocol.utils.HttpUtils;
@@ -42,7 +43,7 @@ public class Outgoing implements OutgoingInterface {
      * @throws Exception
      */
     @Override
-    public boolean processFunction(String fhirPayload, String operation, String recipientCode, String actionJwe, String onActionStatus, Map<String,Object> output) throws Exception {
+    public boolean processFunction(String fhirPayload, HCXIntegrator.OPERATIONS operation, String recipientCode, String actionJwe, String onActionStatus, Map<String,Object> output) throws Exception {
         Map<String, Object> error = new HashMap<>();
         Map<String, Object> headers = new HashMap<>();
         Map<String, Object> response = new HashMap<>();
@@ -61,8 +62,8 @@ public class Outgoing implements OutgoingInterface {
     }
 
     @Override
-    public boolean validatePayload(String fhirPayload, String operation, Map<String, Object> error) {
-        return true;
+    public boolean validatePayload(String fhirPayload, HCXIntegrator.OPERATIONS operation, Map<String,Object> error) throws Exception {
+        return FhirHelper.validatePayload(fhirPayload, operation, error);
     }
 
     @Override
