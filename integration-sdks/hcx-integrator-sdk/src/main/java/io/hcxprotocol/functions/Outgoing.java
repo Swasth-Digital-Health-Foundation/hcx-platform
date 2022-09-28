@@ -114,7 +114,7 @@ public class Outgoing implements OutgoingInterface {
     public boolean initializeHCXCall(String jwePayload, Map<String,Object> response) throws Exception {
         Map<String,String> headers = new HashMap<>();
         headers.put(Constants.AUTHORIZATION, "Bearer " + Utils.generateToken());
-        HttpResponse<String> hcxResponse = HttpUtils.post(hcxIntegrator.getHCXBaseUrl(), headers, jwePayload);
+        HttpResponse<String> hcxResponse = HttpUtils.post(hcxIntegrator.getHCXProtocolBasePath(), headers, jwePayload);
         response.put(Constants.RESPONSE_OBJ, JSONUtils.deserialize(hcxResponse.getBody(), Map.class));
         return hcxResponse.getStatus() == 202;
     }

@@ -18,28 +18,28 @@ public class HCXIntegrator {
 
     Config config = ConfigFactory.load();
 
-    public String getHCXBaseUrl() {
-        return config.getString("hcx.base.url");
+    public String getHCXProtocolBasePath() {
+        return config.getString("hcx.protocolBasePath");
     }
 
     public String getParticipantCode() {
-        return config.getString("participant.code");
+        return config.getString("hcx.participantCode");
     }
 
-    public String getKeycloakUrl() {
-        return config.getString("keycloak.url");
+    public String getAuthBasePath() {
+        return config.getString("hcx.authBasePath");
     }
 
-    public String getKeycloakUsername() {
-        return config.getString("keycloak.username");
+    public String getUsername() {
+        return config.getString("hcx.username");
     }
 
-    public String getKeycloakPassword() {
-        return config.getString("keycloak.password");
+    public String getPassword() {
+        return config.getString("hcx.password");
     }
 
-    public String getPrivateKeyUrl() {
-        return config.getString("private.key.url");
+    public String getPrivateKey() {
+        return config.getString("private.key");
     }
 
     public String getIGUrl() {
