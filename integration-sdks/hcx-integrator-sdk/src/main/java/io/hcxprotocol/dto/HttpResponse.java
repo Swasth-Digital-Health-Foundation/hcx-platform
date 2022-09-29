@@ -1,5 +1,8 @@
 package io.hcxprotocol.dto;
 
+/**
+ * The HttpResponse class used to capture the REST API status code and response body.
+ */
 public class HttpResponse {
 
     public int status;

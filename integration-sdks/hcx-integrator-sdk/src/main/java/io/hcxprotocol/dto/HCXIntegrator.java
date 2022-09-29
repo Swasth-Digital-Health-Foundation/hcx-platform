@@ -3,6 +3,10 @@ package io.hcxprotocol.dto;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
+/**
+ * Here the error codes defined in HCX Specs, the operations supported by HCX Gateway and implementation to access the configuration details easily are available.
+ */
+
 public class HCXIntegrator {
 
     private static HCXIntegrator hcxIntegrator = null;
@@ -46,6 +50,9 @@ public class HCXIntegrator {
         return config.getString("hcx.igUrl");
     }
 
+    /**
+     * The ENUM containing all the Error Codes defined in HCX Gateway.
+     */
     public enum ERROR_CODES {
         ERR_INVALID_PAYLOAD,
         ERR_INVALID_ENCRYPTION,
@@ -66,6 +73,9 @@ public class HCXIntegrator {
         ERR_DOMAIN_PROCESSING
     }
 
+    /**
+     * The Operations of HCX Gateway to handle claims processing.
+     */
     public enum OPERATIONS {
         COVERAGE_ELIGIBILITY_CHECK("/coverageeligibility/check", "Bundle"),
         COVERAGE_ELIGIBILITY_ON_CHECK("/coverageeligibility/on_check", "Bundle"),

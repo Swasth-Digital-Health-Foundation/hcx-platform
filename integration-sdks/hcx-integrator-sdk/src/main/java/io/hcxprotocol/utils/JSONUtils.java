@@ -5,6 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.Base64;
 
+/**
+ * The JSON Utils to convert a Java object to JSON string and vise versa.
+ */
+
 public class JSONUtils {
 
     private static final ObjectMapper mapper = new ObjectMapper();

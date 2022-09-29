@@ -3,6 +3,9 @@ package io.hcxprotocol.utils;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * All the constant variables used in HCX Integrator SDK.
+ */
 public class Constants {
 
     public static final String HCX_SENDER_CODE = "x-hcx-sender_code";
