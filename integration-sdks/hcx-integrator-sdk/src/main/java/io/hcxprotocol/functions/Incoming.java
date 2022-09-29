@@ -6,7 +6,6 @@ import io.hcxprotocol.helper.FhirHelper;
 import io.hcxprotocol.interfaces.IncomingInterface;
 import io.hcxprotocol.utils.Constants;
 import io.hcxprotocol.utils.JSONUtils;
-import org.apache.commons.io.IOUtils;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
 import org.swasth.jose.jwe.JweRequest;
@@ -31,7 +30,6 @@ public class Incoming implements IncomingInterface {
      * @param operation
      * @param output
      * @return
-     * @throws Exception
      */
     @Override
     public boolean processFunction(String jwePayload, HCXIntegrator.OPERATIONS operation, Map<String, Object> output) {
@@ -83,9 +81,7 @@ public class Incoming implements IncomingInterface {
         return FhirHelper.validatePayload(fhirPayload, operation, error);
     }
 
-
-
-        @Override
+    @Override
     public boolean sendResponse(Map<String,Object> error, Map<String,Object> output) {
         Map<String, Object> responseObj = new HashMap<>();
         responseObj.put(Constants.TIMESTAMP, System.currentTimeMillis());
