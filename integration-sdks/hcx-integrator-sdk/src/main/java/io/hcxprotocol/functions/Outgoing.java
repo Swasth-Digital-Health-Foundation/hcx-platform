@@ -62,7 +62,7 @@ public class Outgoing implements OutgoingInterface {
     }
 
     @Override
-    public boolean validatePayload(String fhirPayload, HCXIntegrator.OPERATIONS operation, Map<String,Object> error) throws Exception {
+    public boolean validatePayload(String fhirPayload, HCXIntegrator.OPERATIONS operation, Map<String,Object> error){
         return FhirHelper.validatePayload(fhirPayload, operation, error);
     }
 

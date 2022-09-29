@@ -1,17 +1,11 @@
 package io.hcxprotocol.functions;
 
-import ca.uhn.fhir.validation.FhirValidator;
-import ca.uhn.fhir.validation.ResultSeverityEnum;
-import ca.uhn.fhir.validation.SingleValidationMessage;
-import ca.uhn.fhir.validation.ValidationResult;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.hcxprotocol.dto.HCXIntegrator;
 import io.hcxprotocol.dto.ResponseError;
 import io.hcxprotocol.helper.FhirHelper;
 import io.hcxprotocol.interfaces.IncomingInterface;
 import io.hcxprotocol.utils.Constants;
 import io.hcxprotocol.utils.JSONUtils;
-import io.hcxprotocol.validator.HCXFHIRValidator;
 import org.apache.commons.io.IOUtils;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
@@ -27,7 +21,6 @@ import java.security.KeyFactory;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class Incoming implements IncomingInterface {
@@ -91,7 +84,7 @@ public class Incoming implements IncomingInterface {
     }
 
     @Override
-    public boolean validatePayload(String fhirPayload, HCXIntegrator.OPERATIONS operation, Map<String,Object> error) throws Exception {
+    public boolean validatePayload(String fhirPayload, HCXIntegrator.OPERATIONS operation, Map<String,Object> error){
         return FhirHelper.validatePayload(fhirPayload, operation, error);
     }
 
