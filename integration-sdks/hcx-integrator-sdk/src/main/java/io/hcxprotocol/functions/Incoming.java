@@ -24,15 +24,6 @@ public class Incoming implements IncomingInterface {
 
     private final HCXIntegrator hcxIntegrator = HCXIntegrator.getInstance();
 
-    /**
-     * This method is to process the incoming requests.
-     *
-     * @param jwePayload
-     * @param operation
-     * @param output
-     * @return
-     * @throws Exception
-     */
     @Override
     public boolean processFunction(String jwePayload, HCXIntegrator.OPERATIONS operation, Map<String, Object> output) {
         Map<String, Object> error = new HashMap<>();
@@ -83,9 +74,7 @@ public class Incoming implements IncomingInterface {
         return FhirHelper.validatePayload(fhirPayload, operation, error);
     }
 
-
-
-        @Override
+    @Override
     public boolean sendResponse(Map<String,Object> error, Map<String,Object> output) {
         Map<String, Object> responseObj = new HashMap<>();
         responseObj.put(Constants.TIMESTAMP, System.currentTimeMillis());

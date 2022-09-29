@@ -29,17 +29,6 @@ public class Outgoing implements OutgoingInterface {
 
     private final HCXIntegrator hcxIntegrator = HCXIntegrator.getInstance();
 
-    /**
-     * This method is to process the outgoing requests.
-     *
-     * @param fhirPayload
-     * @param operation
-     * @param recipientCode
-     * @param actionJwe
-     * @param onActionStatus
-     * @param output
-     * @return
-     */
     @Override
     public boolean processFunction(String fhirPayload, HCXIntegrator.OPERATIONS operation, String recipientCode, String actionJwe, String onActionStatus, Map<String,Object> output){
         boolean result = false;
