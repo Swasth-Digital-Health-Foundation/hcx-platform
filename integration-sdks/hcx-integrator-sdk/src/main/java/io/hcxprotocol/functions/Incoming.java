@@ -2,11 +2,11 @@ package io.hcxprotocol.functions;
 
 import io.hcxprotocol.dto.HCXIntegrator;
 import io.hcxprotocol.dto.ResponseError;
+import io.hcxprotocol.helper.ValidateHelper;
 import io.hcxprotocol.helper.FhirHelper;
 import io.hcxprotocol.interfaces.IncomingInterface;
 import io.hcxprotocol.utils.Constants;
 import io.hcxprotocol.utils.JSONUtils;
-import org.apache.commons.io.IOUtils;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
 import org.swasth.jose.jwe.JweRequest;
@@ -28,7 +28,7 @@ public class Incoming implements IncomingInterface {
     public boolean processFunction(String jwePayload, HCXIntegrator.OPERATIONS operation, Map<String, Object> output) {
         Map<String, Object> error = new HashMap<>();
         boolean result = false;
-        if (!validateRequest(jwePayload, error)) {
+        if (!validateRequest(jwePayload, operation, error)) {
             sendResponse(error, output);
         } else if (!decryptPayload(jwePayload, output)) {
             sendResponse(output, output);
@@ -41,12 +41,12 @@ public class Incoming implements IncomingInterface {
     }
 
     @Override
-    public boolean validateRequest(String jwePayload, Map<String,Object> error){
-        return true;
+    public boolean validateRequest(String jwePayload, HCXIntegrator.OPERATIONS operation, Map<String, Object> error) {
+        return ValidateHelper.getInstance().validateRequest(jwePayload, operation, error);
     }
 
     @Override
-    public boolean decryptPayload(String jwePayload, Map<String,Object> output) {
+    public boolean decryptPayload(String jwePayload, Map<String, Object> output) {
         try {
             JweRequest jweRequest = new JweRequest(JSONUtils.deserialize(jwePayload, Map.class));
             jweRequest.decryptRequest(getRsaPrivateKey(hcxIntegrator.getPrivateKey()));

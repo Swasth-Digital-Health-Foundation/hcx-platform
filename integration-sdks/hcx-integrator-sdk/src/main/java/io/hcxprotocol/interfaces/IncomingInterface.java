@@ -44,7 +44,7 @@ public interface IncomingInterface {
      * </ol>
      *
      */
-    boolean validateRequest(String jwePayload, Map<String,Object> error);
+    boolean validateRequest(String jwePayload, HCXIntegrator.OPERATIONS operation, Map<String,Object> error);
 
     /**
      * The JWE Payload decrypted using the participant system encryption private key to extract the FHIR object.
