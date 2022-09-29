@@ -12,7 +12,9 @@ import java.util.Map;
 import static io.hcxprotocol.utils.Constants.*;
 import static io.hcxprotocol.utils.ResponseMessage.INVALID_JSON_REQUEST_BODY_ERR_MSG;
 
-
+/**
+ * This is to validate the incoming request protocol headers.
+ */
 public class ValidateHelper {
 
     private static ValidateHelper validateHelper = null;
@@ -95,6 +97,5 @@ public class ValidateHelper {
             return jsonRequest.validateRedirect(error);
         }
     }
-
 
 }

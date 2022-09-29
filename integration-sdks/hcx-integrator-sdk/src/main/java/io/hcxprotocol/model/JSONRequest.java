@@ -9,6 +9,9 @@ import java.util.Map;
 import static io.hcxprotocol.utils.Constants.*;
 import static io.hcxprotocol.utils.ResponseMessage.*;
 
+/**
+ * This is to handle json payload specific validations for error and redirect scenarios.
+ */
 public class JSONRequest extends BaseRequest {
 
     public JSONRequest(Map<String, Object> payload) throws Exception {
