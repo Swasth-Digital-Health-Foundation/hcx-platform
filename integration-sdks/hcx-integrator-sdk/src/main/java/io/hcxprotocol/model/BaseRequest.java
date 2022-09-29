@@ -98,7 +98,7 @@ public class BaseRequest {
             return true;
         if (!validateCondition(!UUIDUtils.isUUID(getCorrelationId()), error, HCXIntegrator.ERROR_CODES.ERR_INVALID_CORRELATION_ID.toString(), INVALID_CORRELATION_ID_ERR_MSG))
             return true;
-        if (!validateCondition(!DateTimeUtils.validTimestamp(getTimestamp()), error, HCXIntegrator.ERROR_CODES.ERR_INVALID_TIMESTAMP.toString(), MessageFormat.format(INVALID_TIMESTAMP_ERR_MSG)))
+        if (!validateCondition(!DateTimeUtils.validTimestamp(getTimestamp()), error, HCXIntegrator.ERROR_CODES.ERR_INVALID_TIMESTAMP.toString(), INVALID_TIMESTAMP_ERR_MSG))
             return true;
         if (!validateCondition(protocolHeaders.containsKey(WORKFLOW_ID) && !UUIDUtils.isUUID(getWorkflowId()), error, HCXIntegrator.ERROR_CODES.ERR_INVALID_WORKFLOW_ID.toString(), INVALID_WORKFLOW_ID_ERR_MSG))
             return true;
