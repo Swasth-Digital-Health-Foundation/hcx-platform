@@ -1,5 +1,9 @@
 package io.hcxprotocol.utils;
 
+/**
+ * All the constant variables used in HCX Integrator SDK.
+ */
+
 public class Constants {
 
     public static final String HCX_SENDER_CODE = "x-hcx-sender_code";
