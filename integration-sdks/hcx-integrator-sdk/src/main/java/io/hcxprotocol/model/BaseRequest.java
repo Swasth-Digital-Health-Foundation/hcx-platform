@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static io.hcxprotocol.utils.Constants.*;
+import static io.hcxprotocol.utils.ResponseMessage.*;
 
 
 public class BaseRequest {
@@ -31,11 +32,11 @@ public class BaseRequest {
     }
 
     public String getApiCallId() {
-        return getHeader(API_CALL_ID);
+        return getHeader(HCX_API_CALL_ID);
     }
 
     public String getCorrelationId() {
-        return getHeader(CORRELATION_ID);
+        return getHeader(HCX_CORRELATION_ID);
     }
 
     public String getHcxSenderCode() {
@@ -43,7 +44,7 @@ public class BaseRequest {
     }
 
     public String getTimestamp() {
-        return getHeader(TIMESTAMP);
+        return getHeader(HCX_TIMESTAMP);
     }
 
     public String getDebugFlag() {
@@ -118,7 +119,7 @@ public class BaseRequest {
                 return true;
         }
 
-        if (operation.toString().contains("on_")) {
+        if (operation.getOperation().contains("on_")) {
             if (!validateCondition(!protocolHeaders.containsKey(STATUS), error, HCXIntegrator.ERROR_CODES.ERR_INVALID_STATUS.toString(), MessageFormat.format(INVALID_MANDATORY_ERR_MSG, STATUS)))
                 return true;
             if (!validateValues(getStatus(), error, HCXIntegrator.ERROR_CODES.ERR_INVALID_STATUS.toString(), INVALID_STATUS_ERR_MSG, RESPONSE_STATUS_VALUES, MessageFormat.format(INVALID_STATUS_ON_ACTION_RANGE_ERR_MSG, RESPONSE_STATUS_VALUES)))
@@ -139,9 +140,10 @@ public class BaseRequest {
         }
         if (payloadArr != null) {
             for (String value : payloadArr) {
-                if (value == null || value.isEmpty())
+                if (value == null || value.isEmpty()) {
                     error.put(HCXIntegrator.ERROR_CODES.ERR_INVALID_PAYLOAD.toString(), INVALID_PAYLOAD_VALUES_ERR_MSG);
-                return true;
+                    return true;
+                }
             }
         }
         return false;

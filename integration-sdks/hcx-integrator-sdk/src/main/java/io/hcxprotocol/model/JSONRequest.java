@@ -7,6 +7,7 @@ import java.text.MessageFormat;
 import java.util.Map;
 
 import static io.hcxprotocol.utils.Constants.*;
+import static io.hcxprotocol.utils.ResponseMessage.*;
 
 public class JSONRequest extends BaseRequest {
 
