@@ -75,4 +75,7 @@ public class Constants {
     public static final String INVALID_REDIRECT_ERR_MSG = "Redirect requests must have valid participant code for field {0}";
     public static final String INVALID_REDIRECT_SELF_ERR_MSG = "Sender can not redirect request to self";
     public static final String INVALID_JSON_REQUEST_BODY_ERR_MSG = "Request body should be a proper JWE object for action API calls";
+
+    public static final String PARTICIPANTS = "participants";
+
 }
