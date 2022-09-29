@@ -2,6 +2,7 @@ package io.hcxprotocol.functions;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.hcxprotocol.dto.HCXIntegrator;
+import io.hcxprotocol.helper.FhirHelper;
 import io.hcxprotocol.dto.HttpResponse;
 import io.hcxprotocol.exception.ServerException;
 import io.hcxprotocol.interfaces.OutgoingInterface;
@@ -65,8 +66,8 @@ public class Outgoing implements OutgoingInterface {
     }
 
     @Override
-    public boolean validatePayload(String fhirPayload, HCXIntegrator.OPERATIONS operation, Map<String, Object> error) {
-        return true;
+    public boolean validatePayload(String fhirPayload, HCXIntegrator.OPERATIONS operation, Map<String,Object> error){
+        return FhirHelper.validatePayload(fhirPayload, operation, error);
     }
 
     @Override
