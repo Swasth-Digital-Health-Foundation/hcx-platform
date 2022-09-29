@@ -1,6 +1,5 @@
 package io.hcxprotocol.functions;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import io.hcxprotocol.dto.HCXIntegrator;
 import io.hcxprotocol.dto.ResponseError;
 import io.hcxprotocol.interfaces.IncomingInterface;
