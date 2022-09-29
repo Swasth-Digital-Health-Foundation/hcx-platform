@@ -2,8 +2,12 @@ package io.hcxprotocol.functions;
 
 import io.hcxprotocol.dto.HCXIntegrator;
 import io.hcxprotocol.dto.ResponseError;
+import io.hcxprotocol.helper.ValidateHelper;
 import io.hcxprotocol.interfaces.IncomingInterface;
+import io.hcxprotocol.model.JSONRequest;
+import io.hcxprotocol.model.JWERequest;
 import io.hcxprotocol.utils.Constants;
+import io.hcxprotocol.utils.HelperUtils;
 import io.hcxprotocol.utils.JSONUtils;
 import org.apache.commons.io.IOUtils;
 import org.bouncycastle.util.io.pem.PemObject;
@@ -22,6 +26,8 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.HashMap;
 import java.util.Map;
 
+import static io.hcxprotocol.utils.Constants.*;
+
 public class Incoming implements IncomingInterface {
 
     private final HCXIntegrator hcxIntegrator = HCXIntegrator.getInstance();
@@ -39,25 +45,25 @@ public class Incoming implements IncomingInterface {
     public boolean processFunction(String jwePayload, HCXIntegrator.OPERATIONS operation, Map<String, Object> output) throws Exception {
         Map<String, Object> error = new HashMap<>();
         boolean result = false;
-        if (!validateRequest(jwePayload, error)) {
+        if (!validateRequest(jwePayload, operation, error)) {
             sendResponse(error, output);
         } else if (!decryptPayload(jwePayload, output)) {
             sendResponse(output, output);
-        } else if (!validatePayload(JSONUtils.serialize(output.get(Constants.PAYLOAD)), operation, error)) {
+        } else if (!validatePayload(JSONUtils.serialize(output.get(PAYLOAD)), operation, error)) {
             sendResponse(error, output);
         } else {
-            if(sendResponse(error, output)) result = true;
+            if (sendResponse(error, output)) result = true;
         }
         return result;
     }
 
     @Override
-    public boolean validateRequest(String jwePayload, Map<String,Object> error){
-        return true;
+    public boolean validateRequest(String payload, HCXIntegrator.OPERATIONS operation, Map<String, Object> error) {
+        return ValidateHelper.getInstance().validateRequest(payload, operation, error);
     }
 
     @Override
-    public boolean decryptPayload(String jwePayload, Map<String,Object> output) {
+    public boolean decryptPayload(String jwePayload, Map<String, Object> output) {
         try {
             String certificate = IOUtils.toString(new URL(hcxIntegrator.getPrivateKeyUrl()), StandardCharsets.UTF_8.toString());
             InputStream stream = new ByteArrayInputStream(certificate.getBytes());
@@ -72,8 +78,8 @@ public class Incoming implements IncomingInterface {
             Map<String, Object> retrievedHeader = jweRequest.getHeaders();
             Map<String, Object> retrievedPayload = jweRequest.getPayload();
             Map<String, Object> returnObj = new HashMap<>();
-            returnObj.put(Constants.HEADERS,retrievedHeader);
-            returnObj.put(Constants.FHIR_PAYLOAD,retrievedPayload);
+            returnObj.put(Constants.HEADERS, retrievedHeader);
+            returnObj.put(Constants.FHIR_PAYLOAD, retrievedPayload);
             output.putAll(returnObj);
             return true;
         } catch (Exception e) {
@@ -83,17 +89,17 @@ public class Incoming implements IncomingInterface {
     }
 
     @Override
-    public boolean validatePayload(String fhirPayload, HCXIntegrator.OPERATIONS operation, Map<String,Object> error){
+    public boolean validatePayload(String fhirPayload, HCXIntegrator.OPERATIONS operation, Map<String, Object> error) {
         return true;
     }
 
     @Override
-    public boolean sendResponse(Map<String,Object> error, Map<String,Object> output) {
-        Map<String,Object> responseObj = new HashMap<>();
+    public boolean sendResponse(Map<String, Object> error, Map<String, Object> output) {
+        Map<String, Object> responseObj = new HashMap<>();
         responseObj.put(Constants.TIMESTAMP, System.currentTimeMillis());
         boolean result = false;
-        if (error.isEmpty()){
-            Map<String,Object> headers = (Map<String,Object>) output.get(Constants.HEADERS);
+        if (error.isEmpty()) {
+            Map<String, Object> headers = (Map<String, Object>) output.get(Constants.HEADERS);
             responseObj.put(Constants.API_CALL_ID, headers.get(Constants.HCX_API_CALL_ID));
             responseObj.put(Constants.CORRELATION_ID, headers.get(Constants.HCX_CORRELATION_ID));
             result = true;
