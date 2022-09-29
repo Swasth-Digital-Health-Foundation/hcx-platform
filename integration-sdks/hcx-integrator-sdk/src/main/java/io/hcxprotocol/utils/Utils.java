@@ -12,7 +12,7 @@ import java.util.Map;
 
 public class Utils {
 
-    // TODO: In initial version we are not handling the token caching, it will be handled in next version
+    // TODO: In the initial version we are not handling the token caching, it will be handled in the next version
     public static String generateToken() throws JsonProcessingException {
         Map<String,String> headers = new HashMap<>();
         headers.put("content-type", "application/x-www-form-urlencoded");

@@ -39,11 +39,11 @@ public class HCXIntegrator {
     }
 
     public String getPrivateKey() {
-        return config.getString("private.key");
+        return config.getString("hcx.encryptionPrivateKey");
     }
 
     public String getIGUrl() {
-        return config.getString("ig.url");
+        return config.getString("hcx.igUrl");
     }
 
     public enum ERROR_CODES {
