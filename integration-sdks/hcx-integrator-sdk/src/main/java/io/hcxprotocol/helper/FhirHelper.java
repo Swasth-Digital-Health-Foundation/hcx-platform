@@ -14,7 +14,9 @@ import java.util.Map;
 
 public class FhirHelper {
 
-    public static boolean validatePayload(String fhirPayload, HCXIntegrator.OPERATIONS operation, Map<String,Object> error) throws Exception {
+    public static boolean validatePayload(String fhirPayload, HCXIntegrator.OPERATIONS operation, Map<String,Object> error) {
+        boolean returnBool = true;
+        try{
         FhirValidator validator = HCXFHIRValidator.getValidator();
         ValidationResult result = validator.validateWithResult(fhirPayload);
         List<SingleValidationMessage> messages = result.getMessages();
@@ -24,14 +26,15 @@ public class FhirHelper {
             return false;
         }
         ArrayList<String> errMessages = null;
-        boolean returnBool = true;
         for(SingleValidationMessage message: messages){
             if(message.getSeverity() == ResultSeverityEnum.ERROR){
                 error.put(String.valueOf(HCXIntegrator.ERROR_CODES.ERR_INVALID_DOMAIN_PAYLOAD),errMessages.add(message.getMessage()));
                 returnBool = false;
             }
         }
+        }catch (Exception e){
+            error.put(String.valueOf(HCXIntegrator.ERROR_CODES.ERR_INVALID_DOMAIN_PAYLOAD),e.getMessage());
+        }
         return returnBool;
     }
-
 }
