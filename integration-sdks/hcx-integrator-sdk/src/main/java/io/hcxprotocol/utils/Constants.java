@@ -44,17 +44,8 @@ public class Constants {
     public static final List<String> ERROR_DETAILS_VALUES = Arrays.asList("code","message","trace");
     public static final String ERROR_RESPONSE = "response.error";
     public static final List<String> RECIPIENT_ERROR_VALUES = Arrays.asList("ERR_INVALID_ENCRYPTION", "ERR_INVALID_PAYLOAD", "ERR_WRONG_DOMAIN_PAYLOAD", "ERR_INVALID_DOMAIN_PAYLOAD", "ERR_SENDER_NOT_SUPPORTED", "ERR_SERVICE_UNAVAILABLE", "ERR_DOMAIN_PROCESSING","ERR_MANDATORY_HEADER_MISSING",
-            "ERR_INVALID_API_CALL_ID",
-            "ERR_INVALID_CORRELATION_ID",
-            "ERR_INVALID_TIMESTAMP",
-            "ERR_INVALID_REDIRECT_TO",
-            "ERR_INVALID_STATUS",
-            "ERR_INVALID_DEBUG_FLAG",
-            "ERR_INVALID_ERROR_DETAILS",
-            "ERR_INVALID_DEBUG_DETAILS",
-            "ERR_INVALID_WORKFLOW_ID");
+            "ERR_INVALID_API_CALL_ID", "ERR_INVALID_CORRELATION_ID", "ERR_INVALID_TIMESTAMP", "ERR_INVALID_REDIRECT_TO", "ERR_INVALID_STATUS", "ERR_INVALID_DEBUG_FLAG", "ERR_INVALID_ERROR_DETAILS", "ERR_INVALID_DEBUG_DETAILS", "ERR_INVALID_WORKFLOW_ID");
     public static final List<String> RESPONSE_STATUS_VALUES = Arrays.asList(COMPLETE_STATUS, PARTIAL_STATUS, ERROR_RESPONSE, REDIRECT_STATUS);
-    public static final int TIMESTAMP_RANGE = 72;
     public static final String CODE = "code";
     public static final String MESSAGE = "message";
     public static final String PARTICIPANTS = "participants";
