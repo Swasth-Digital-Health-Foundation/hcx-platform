@@ -1,35 +1,45 @@
 package io.hcxprotocol.utils;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.hcxprotocol.dto.HCXIntegrator;
-import kong.unirest.HttpResponse;
+import io.hcxprotocol.dto.HttpResponse;
+import io.hcxprotocol.exception.ServerException;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class Utils {
 
-    public static String generateToken() throws Exception {
+    // TODO: In the initial version we are not handling the token caching, it will be handled in the next version
+    public static String generateToken() throws JsonProcessingException {
         Map<String,String> headers = new HashMap<>();
         headers.put("content-type", "application/x-www-form-urlencoded");
         Map<String,Object> fields = new HashMap<>();
         fields.put("client_id", "registry-frontend");
-        fields.put("username", HCXIntegrator.getInstance().getKeycloakUsername());
-        fields.put("password", HCXIntegrator.getInstance().getKeycloakPassword());
+        fields.put("username", HCXIntegrator.getInstance().getUsername());
+        fields.put("password", HCXIntegrator.getInstance().getPassword());
         fields.put("grant_type", "password");
-        HttpResponse<String> response = HttpUtils.post(HCXIntegrator.getInstance().getHCXBaseUrl(), headers, fields);
-        Map<String, String> responseBody = JSONUtils.deserialize(response.getBody(), Map.class);
+        HttpResponse response = HttpUtils.post(HCXIntegrator.getInstance().getAuthBasePath(), headers, fields);
+        Map<String, String> responseBody = null;
+        responseBody = JSONUtils.deserialize(response.getBody(), Map.class);
         return responseBody.get("access_token");
     }
 
-    public static Map<String,Object> searchRegistry(Object participantCode) throws Exception {
+    public static Map<String,Object> searchRegistry(Object participantCode) throws ServerException, JsonProcessingException {
         String filter = "{\"filters\":{\"participant_code\":{\"eq\":\"" + participantCode + "\"}}}";
         Map<String,String> headers = new HashMap<>();
         headers.put(Constants.AUTHORIZATION, "Bearer " + generateToken());
-        HttpResponse<String> response = HttpUtils.post(HCXIntegrator.getInstance().getHCXBaseUrl() + "/participant/search", headers, filter);
-        List<Map<String,Object>> resArray = JSONUtils.deserialize(response.getBody(), ArrayList.class);
-        return resArray.get(0);
+        HttpResponse response = HttpUtils.post(HCXIntegrator.getInstance().getHCXProtocolBasePath() + "/participant/search", headers, filter);
+        Map<String,Object> respMap;
+        List<Map<String,Object>> details;
+        if (response.getStatus() == 200) {
+            respMap = JSONUtils.deserialize(response.getBody(), Map.class);
+            details = (List<Map<String, Object>>) respMap.get(Constants.PARTICIPANTS);
+        } else {
+            throw new ServerException("Error in fetching the participant details" + response.getStatus());
+        }
+        return !details.isEmpty() ? details.get(0) : new HashMap<>();
     }
 
 }

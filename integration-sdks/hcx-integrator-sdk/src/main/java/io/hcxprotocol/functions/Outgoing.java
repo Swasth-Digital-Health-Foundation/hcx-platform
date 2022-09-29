@@ -1,13 +1,15 @@
 package io.hcxprotocol.functions;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.hcxprotocol.dto.HCXIntegrator;
 import io.hcxprotocol.helper.FhirHelper;
+import io.hcxprotocol.dto.HttpResponse;
+import io.hcxprotocol.exception.ServerException;
 import io.hcxprotocol.interfaces.OutgoingInterface;
 import io.hcxprotocol.utils.Constants;
 import io.hcxprotocol.utils.HttpUtils;
 import io.hcxprotocol.utils.JSONUtils;
 import io.hcxprotocol.utils.Utils;
-import kong.unirest.HttpResponse;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.swasth.jose.jwe.JweRequest;
@@ -21,10 +23,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.interfaces.RSAPublicKey;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class Outgoing implements OutgoingInterface {
 
@@ -40,25 +39,30 @@ public class Outgoing implements OutgoingInterface {
      * @param onActionStatus
      * @param output
      * @return
-     * @throws Exception
      */
     @Override
-    public boolean processFunction(String fhirPayload, HCXIntegrator.OPERATIONS operation, String recipientCode, String actionJwe, String onActionStatus, Map<String,Object> output) throws Exception {
-        Map<String, Object> error = new HashMap<>();
-        Map<String, Object> headers = new HashMap<>();
-        Map<String, Object> response = new HashMap<>();
+    public boolean processFunction(String fhirPayload, HCXIntegrator.OPERATIONS operation, String recipientCode, String actionJwe, String onActionStatus, Map<String,Object> output){
         boolean result = false;
-        if (!validatePayload(fhirPayload, operation, error)) {
-            output.putAll(error);
-        } else if (!createHeader(recipientCode, actionJwe, onActionStatus, headers)) {
-            output.putAll(error);
-        } else if (!encryptPayload(headers, fhirPayload, output)) {
-            output.putAll(error);
-        } else {
-            result = initializeHCXCall(JSONUtils.serialize(output), response);
-            output.putAll(response);
+        try {
+            Map<String, Object> error = new HashMap<>();
+            Map<String, Object> headers = new HashMap<>();
+            Map<String, Object> response = new HashMap<>();
+            if (!validatePayload(fhirPayload, operation, error)) {
+                output.putAll(error);
+            } else if (!createHeader(recipientCode, actionJwe, onActionStatus, headers)) {
+                output.putAll(error);
+            } else if (!encryptPayload(headers, fhirPayload, output)) {
+                output.putAll(error);
+            } else {
+                result = initializeHCXCall(JSONUtils.serialize(output), operation, response);
+                output.putAll(response);
+            }
+            return result;
+        } catch (JsonProcessingException ex) {
+            // TODO: JsonProcessingException is handled as domain processing error, we will be enhancing in next version.
+            output.put(HCXIntegrator.ERROR_CODES.ERR_DOMAIN_PROCESSING.toString(), ex.getMessage());
+            return result;
         }
-        return result;
     }
 
     @Override
@@ -94,16 +98,16 @@ public class Outgoing implements OutgoingInterface {
     }
 
     @Override
-    public boolean encryptPayload(Map<String, Object> headers, Object payload, Map<String,Object> output) {
+    public boolean encryptPayload(Map<String,Object> headers, String fhirPayload, Map<String,Object> output) {
         try {
             String publicKeyUrl = (String) Utils.searchRegistry(headers.get(Constants.HCX_RECIPIENT_CODE)).get(Constants.ENCRYPTION_CERT);
             String certificate = IOUtils.toString(new URL(publicKeyUrl), StandardCharsets.UTF_8.toString());
             InputStream stream = new ByteArrayInputStream(certificate.getBytes());
             Reader fileReader = new InputStreamReader(stream);
             RSAPublicKey rsaPublicKey = PublicKeyLoader.loadPublicKeyFromX509Certificate(fileReader);
-            JweRequest jweRequest = new JweRequest(headers, (Map<String, Object>) payload);
+            JweRequest jweRequest = new JweRequest(headers, JSONUtils.deserialize(fhirPayload, Map.class));
             jweRequest.encryptRequest(rsaPublicKey);
-            output.put(Constants.PAYLOAD, jweRequest.getEncryptedObject());
+            output.putAll(jweRequest.getEncryptedObject());
             return true;
         } catch (Exception e) {
             output.put(Constants.ERROR, e.getMessage());
@@ -111,11 +115,12 @@ public class Outgoing implements OutgoingInterface {
         }
     }
 
+    // we are handling the JsonProcessingException in processFunction method
     @Override
-    public boolean initializeHCXCall(String jwePayload, Map<String,Object> response) throws Exception {
+    public boolean initializeHCXCall(String jwePayload, HCXIntegrator.OPERATIONS operation, Map<String,Object> response) throws JsonProcessingException {
         Map<String,String> headers = new HashMap<>();
         headers.put(Constants.AUTHORIZATION, "Bearer " + Utils.generateToken());
-        HttpResponse<String> hcxResponse = HttpUtils.post(hcxIntegrator.getHCXBaseUrl(), headers, jwePayload);
+        HttpResponse hcxResponse = HttpUtils.post(hcxIntegrator.getHCXProtocolBasePath() + operation.toString(), headers, jwePayload);
         response.put(Constants.RESPONSE_OBJ, JSONUtils.deserialize(hcxResponse.getBody(), Map.class));
         return hcxResponse.getStatus() == 202;
     }
