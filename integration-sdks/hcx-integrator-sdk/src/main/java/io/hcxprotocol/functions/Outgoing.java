@@ -1,12 +1,13 @@
 package io.hcxprotocol.functions;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.hcxprotocol.dto.HCXIntegrator;
+import io.hcxprotocol.dto.HttpResponse;
 import io.hcxprotocol.interfaces.OutgoingInterface;
 import io.hcxprotocol.utils.Constants;
 import io.hcxprotocol.utils.HttpUtils;
 import io.hcxprotocol.utils.JSONUtils;
 import io.hcxprotocol.utils.Utils;
-import kong.unirest.HttpResponse;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.swasth.jose.jwe.JweRequest;
@@ -20,10 +21,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.interfaces.RSAPublicKey;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class Outgoing implements OutgoingInterface {
 
@@ -42,7 +40,7 @@ public class Outgoing implements OutgoingInterface {
      * @throws Exception
      */
     @Override
-    public boolean processFunction(String fhirPayload, String operation, String recipientCode, String actionJwe, String onActionStatus, Map<String,Object> output) throws Exception {
+    public boolean processFunction(String fhirPayload, String operation, String recipientCode, String actionJwe, String onActionStatus, Map<String,Object> output) throws JsonProcessingException {
         Map<String, Object> error = new HashMap<>();
         Map<String, Object> headers = new HashMap<>();
         Map<String, Object> response = new HashMap<>();
@@ -54,7 +52,7 @@ public class Outgoing implements OutgoingInterface {
         } else if (!encryptPayload(headers, fhirPayload, output)) {
             output.putAll(error);
         } else {
-            result = initializeHCXCall(JSONUtils.serialize(output), response);
+            result = initializeHCXCall((String) output.get(Constants.PAYLOAD), response);
             output.putAll(response);
         }
         return result;
@@ -102,7 +100,7 @@ public class Outgoing implements OutgoingInterface {
             RSAPublicKey rsaPublicKey = PublicKeyLoader.loadPublicKeyFromX509Certificate(fileReader);
             JweRequest jweRequest = new JweRequest(headers, (Map<String, Object>) payload);
             jweRequest.encryptRequest(rsaPublicKey);
-            output.put(Constants.PAYLOAD, jweRequest.getEncryptedObject());
+            output.put(Constants.PAYLOAD, JSONUtils.serialize(jweRequest.getEncryptedObject()));
             return true;
         } catch (Exception e) {
             output.put(Constants.ERROR, e.getMessage());
@@ -111,10 +109,10 @@ public class Outgoing implements OutgoingInterface {
     }
 
     @Override
-    public boolean initializeHCXCall(String jwePayload, Map<String,Object> response) throws Exception {
+    public boolean initializeHCXCall(String jwePayload, Map<String,Object> response) throws JsonProcessingException {
         Map<String,String> headers = new HashMap<>();
         headers.put(Constants.AUTHORIZATION, "Bearer " + Utils.generateToken());
-        HttpResponse<String> hcxResponse = HttpUtils.post(hcxIntegrator.getHCXProtocolBasePath(), headers, jwePayload);
+        HttpResponse hcxResponse = HttpUtils.post(hcxIntegrator.getHCXProtocolBasePath(), headers, Collections.singletonMap(Constants.PAYLOAD, jwePayload));
         response.put(Constants.RESPONSE_OBJ, JSONUtils.deserialize(hcxResponse.getBody(), Map.class));
         return hcxResponse.getStatus() == 202;
     }

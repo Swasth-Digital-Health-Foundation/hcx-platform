@@ -1,5 +1,6 @@
 package io.hcxprotocol.functions;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.hcxprotocol.dto.HCXIntegrator;
 import io.hcxprotocol.dto.ResponseError;
 import io.hcxprotocol.interfaces.IncomingInterface;
@@ -32,17 +33,17 @@ public class Incoming implements IncomingInterface {
      * @throws Exception
      */
     @Override
-    public boolean processFunction(String jwePayload, HCXIntegrator.OPERATIONS operation, Map<String, Object> output) throws Exception {
+    public boolean processFunction(String jwePayload, HCXIntegrator.OPERATIONS operation, Map<String, Object> output) {
         Map<String, Object> error = new HashMap<>();
         boolean result = false;
         if (!validateRequest(jwePayload, error)) {
             sendResponse(error, output);
         } else if (!decryptPayload(jwePayload, output)) {
             sendResponse(output, output);
-        } else if (!validatePayload(JSONUtils.serialize(output.get(Constants.PAYLOAD)), operation, error)) {
+        } else if (!validatePayload((String) output.get(Constants.FHIR_PAYLOAD), operation, error)) {
             sendResponse(error, output);
         } else {
-            if(sendResponse(error, output)) result = true;
+            if (sendResponse(error, output)) result = true;
         }
         return result;
     }
@@ -58,7 +59,7 @@ public class Incoming implements IncomingInterface {
             JweRequest jweRequest = new JweRequest(JSONUtils.deserialize(jwePayload, Map.class));
             jweRequest.decryptRequest(getRsaPrivateKey(hcxIntegrator.getPrivateKey()));
             output.put(Constants.HEADERS, jweRequest.getHeaders());
-            output.put(Constants.FHIR_PAYLOAD, jweRequest.getPayload());
+            output.put(Constants.FHIR_PAYLOAD, JSONUtils.serialize(jweRequest.getPayload()));
             return true;
         } catch (Exception e) {
             output.put(HCXIntegrator.ERROR_CODES.ERR_INVALID_ENCRYPTION.toString(), e.getMessage());

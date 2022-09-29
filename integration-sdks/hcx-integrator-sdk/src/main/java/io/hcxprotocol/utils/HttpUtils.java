@@ -8,13 +8,15 @@ import java.util.Map;
 public class HttpUtils {
 
 
-    public static HttpResponse<String> post(String url, Map<String,String> headers, String requestBody){
+    public static io.hcxprotocol.dto.HttpResponse post(String url, Map<String,String> headers, String requestBody){
         headers.put("Content-Type","application/json");
-        return Unirest.post(url).headers(headers).body(requestBody).asString();
+        HttpResponse<String> response = Unirest.post(url).headers(headers).body(requestBody).asString();
+        return new io.hcxprotocol.dto.HttpResponse(response.getStatus(), response.getBody());
     }
 
-    public static HttpResponse<String> post(String url, Map<String,String> headers, Map<String,Object> fields) {
-        return Unirest.post(url).headers(headers).fields(fields).asString();
+    public static io.hcxprotocol.dto.HttpResponse post(String url, Map<String,String> headers, Map<String,Object> fields) {
+        HttpResponse<String> response =  Unirest.post(url).headers(headers).fields(fields).asString();
+        return new io.hcxprotocol.dto.HttpResponse(response.getStatus(), response.getBody());
     }
 
 }
