@@ -51,7 +51,7 @@ public class Constants {
             "ERR_INVALID_DEBUG_DETAILS",
             "ERR_INVALID_WORKFLOW_ID");
     public static final List<String> RESPONSE_STATUS_VALUES = Arrays.asList(COMPLETE_STATUS, PARTIAL_STATUS, ERROR_RESPONSE, REDIRECT_STATUS);
-    public static final int TIMESTAMP_RANGE = 10000;
+    public static final int TIMESTAMP_RANGE = 72;
     public static final String CODE = "code";
     public static final String MESSAGE = "message";
     public static final String PARTICIPANTS = "participants";
