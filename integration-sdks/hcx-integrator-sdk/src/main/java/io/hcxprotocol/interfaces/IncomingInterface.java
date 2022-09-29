@@ -26,12 +26,12 @@ public interface IncomingInterface {
 
     /**
      *
-     * @param payload
+     * @param jwePayload
      * @param operation
      * @param error
      * @return
      */
-    boolean validateRequest(String payload, HCXIntegrator.OPERATIONS operation, Map<String,Object> error);
+    boolean validateRequest(String jwePayload, HCXIntegrator.OPERATIONS operation, Map<String,Object> error);
 
     /**
      *

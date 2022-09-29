@@ -41,8 +41,8 @@ public class Incoming implements IncomingInterface {
     }
 
     @Override
-    public boolean validateRequest(String payload, HCXIntegrator.OPERATIONS operation, Map<String, Object> error) {
-        return ValidateHelper.getInstance().validateRequest(payload, operation, error);
+    public boolean validateRequest(String jwePayload, HCXIntegrator.OPERATIONS operation, Map<String, Object> error) {
+        return ValidateHelper.getInstance().validateRequest(jwePayload, operation, error);
     }
 
     @Override
