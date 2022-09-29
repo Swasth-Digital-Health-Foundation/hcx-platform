@@ -7,7 +7,7 @@ public interface ResponseMessage {
      String INVALID_API_CALL_ID_ERR_MSG = "API call id should be a valid UUID";
      String INVALID_CORRELATION_ID_ERR_MSG = "Correlation id should be a valid UUID";
      String INVALID_WORKFLOW_ID_ERR_MSG = "Workflow id should be a valid UUID";
-     String INVALID_TIMESTAMP_ERR_MSG = "Timestamp cannot be in future or cross more than {0} hours in past";
+     String INVALID_TIMESTAMP_ERR_MSG = "Timestamp cannot be in future date";
      String INVALID_DEBUG_FLAG_ERR_MSG = "Debug flag cannot be null, empty and other than 'String'";
      String INVALID_DEBUG_FLAG_RANGE_ERR_MSG = "Debug flag cannot be other than {0}";
      String INVALID_ERROR_DETAILS_ERR_MSG = "Error details cannot be null, empty and other than 'JSON Object' with mandatory fields code or message";
