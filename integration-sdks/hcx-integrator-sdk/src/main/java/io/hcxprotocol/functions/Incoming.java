@@ -2,6 +2,7 @@ package io.hcxprotocol.functions;
 
 import io.hcxprotocol.dto.HCXIntegrator;
 import io.hcxprotocol.dto.ResponseError;
+import io.hcxprotocol.helper.ValidateHelper;
 import io.hcxprotocol.helper.FhirHelper;
 import io.hcxprotocol.interfaces.IncomingInterface;
 import io.hcxprotocol.utils.Constants;
@@ -19,23 +20,20 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.HashMap;
 import java.util.Map;
 
+
+/**
+ * The <b>Incoming</b> provide the methods to help in processing the JWE Payload and extract FHIR Object.
+ * The implementation of this class is to process the JWE Payload, to extract the FHIR Object and validate it using HCX FHIR IG.
+ */
 public class Incoming implements IncomingInterface {
 
     private final HCXIntegrator hcxIntegrator = HCXIntegrator.getInstance();
 
-    /**
-     * This method is to process the incoming requests.
-     *
-     * @param jwePayload
-     * @param operation
-     * @param output
-     * @return
-     */
     @Override
     public boolean processFunction(String jwePayload, HCXIntegrator.OPERATIONS operation, Map<String, Object> output) {
         Map<String, Object> error = new HashMap<>();
         boolean result = false;
-        if (!validateRequest(jwePayload, error)) {
+        if (!validateRequest(jwePayload, operation, error)) {
             sendResponse(error, output);
         } else if (!decryptPayload(jwePayload, output)) {
             sendResponse(output, output);
@@ -48,12 +46,12 @@ public class Incoming implements IncomingInterface {
     }
 
     @Override
-    public boolean validateRequest(String jwePayload, Map<String,Object> error){
-        return true;
+    public boolean validateRequest(String jwePayload, HCXIntegrator.OPERATIONS operation, Map<String, Object> error) {
+        return ValidateHelper.getInstance().validateRequest(jwePayload, operation, error);
     }
 
     @Override
-    public boolean decryptPayload(String jwePayload, Map<String,Object> output) {
+    public boolean decryptPayload(String jwePayload, Map<String, Object> output) {
         try {
             JweRequest jweRequest = new JweRequest(JSONUtils.deserialize(jwePayload, Map.class));
             jweRequest.decryptRequest(getRsaPrivateKey(hcxIntegrator.getPrivateKey()));

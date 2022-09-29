@@ -9,6 +9,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * The common utils functionality used in HCX Integrator SDK.
+ * <ol>
+ *     <li>Generation of authentication token using HCX Gateway and Participant System Credentials.</li>
+ *     <li>HCX Gateway Participant Registry Search.</li>
+ * </ol>
+ */
+
 public class Utils {
 
     // TODO: In the initial version we are not handling the token caching, it will be handled in the next version

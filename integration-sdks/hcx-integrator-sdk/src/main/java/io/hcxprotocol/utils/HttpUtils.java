@@ -5,6 +5,10 @@ import kong.unirest.Unirest;
 
 import java.util.Map;
 
+/**
+ * The REST API Util using Unirest library.
+ */
+
 public class HttpUtils {
 
 

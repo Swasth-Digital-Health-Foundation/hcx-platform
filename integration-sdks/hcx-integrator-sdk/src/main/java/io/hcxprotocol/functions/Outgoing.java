@@ -25,21 +25,14 @@ import java.security.interfaces.RSAPublicKey;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+/**
+ * The <b>Outgoing</b> provide the methods to help in creating the JWE Payload and send the request to the sender system from HCX Gateway.
+ * The implementation of this class is to process the FHIR object, generates the JWE Payload and call the HCX Gateway API based on operation.
+ */
 public class Outgoing implements OutgoingInterface {
 
     private final HCXIntegrator hcxIntegrator = HCXIntegrator.getInstance();
 
-    /**
-     * This method is to process the outgoing requests.
-     *
-     * @param fhirPayload
-     * @param operation
-     * @param recipientCode
-     * @param actionJwe
-     * @param onActionStatus
-     * @param output
-     * @return
-     */
     @Override
     public boolean processFunction(String fhirPayload, HCXIntegrator.OPERATIONS operation, String recipientCode, String actionJwe, String onActionStatus, Map<String,Object> output){
         boolean result = false;
