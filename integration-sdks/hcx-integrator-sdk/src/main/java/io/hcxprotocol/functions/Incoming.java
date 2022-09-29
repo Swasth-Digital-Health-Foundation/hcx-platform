@@ -20,6 +20,11 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.HashMap;
 import java.util.Map;
 
+
+/**
+ * The <b>Incoming</b> provide the methods to help in processing the JWE Payload and extract FHIR Object.
+ * The implementation of this class is to process the JWE Payload, to extract the FHIR Object and validate it using HCX FHIR IG.
+ */
 public class Incoming implements IncomingInterface {
 
     private final HCXIntegrator hcxIntegrator = HCXIntegrator.getInstance();

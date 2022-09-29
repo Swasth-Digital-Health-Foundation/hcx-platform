@@ -1,5 +1,8 @@
 package io.hcxprotocol.utils;
 
+/**
+ * All the error messages used in HCX Integrator SDK.
+ */
 public interface ResponseMessage {
 
      String INVALID_PAYLOAD_LENGTH_ERR_MSG = "Mandatory elements of JWE token are missing.Should have all 5 elements";

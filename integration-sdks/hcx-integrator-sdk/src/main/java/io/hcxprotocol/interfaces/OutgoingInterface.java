@@ -9,7 +9,6 @@ import java.util.Map;
 /**
  * The <b>Outgoing</b> Interface provide the methods to help in creating the JWE Payload and send the request to the sender system from HCX Gateway.
  * The implementation of this interface process the FHIR object, generates the JWE Payload and call the HCX Gateway API based on operation.
-
  */
 public interface OutgoingInterface {
 
@@ -30,6 +29,34 @@ public interface OutgoingInterface {
      * @param actionJwe The JWE Payload from the incoming request for which the response JWE Payload created here.
      * @param onActionStatus The HCX Protocol header status (x-hcx-status) value to use while creating the JEW Payload.
      * @param output A wrapper map to collect the outcome (errors or response) of the JWE Payload generation process using FHIR object.
+     * <ol>
+     *    <li>output -
+     *    <pre>
+     *    {@code {
+     *       "payload":{}, -  jwe payload
+     *       "responseObj":{} - success/error response object
+     *    }}</pre>
+     *    </li>
+     *    <li>success response object -
+     *    <pre>
+     *    {@code {
+     *       "timestamp": , - unix timestamp
+     *       "correlation_id": "", - fetched from incoming request
+     *       "api_call_id": "" - fetched from incoming request
+     *    }}</pre>
+     *    </li>
+     *    <li>error response object -
+     *    <pre>
+     *    {@code {
+     *       "timestamp": , - unix timestamp
+     *       "error": {
+     *           "code" : "", - error code
+     *           "message": "", - error message
+     *           "trace":"" - error trace
+     *        }
+     *    }}</pre>
+     *    </li>
+     *  </ol>
      * @return It is a boolean value to understand the outgoing request generation is successful or not.
      *
      * <ol>
@@ -46,6 +73,10 @@ public interface OutgoingInterface {
      * @param fhirPayload The FHIR object created by the participant system.
      * @param operation The HCX operation or action defined by specs to understand the functional behaviour.
      * @param error A wrapper map to collect the errors from the FHIR Payload validation.
+     * <pre>
+     *    {@code {
+     *       "error_code": "error_message"
+     *    }}</pre>
      * @return It is a boolean value to understand the validation status of FHIR Payload.
      *  <ol>
      *      <li>true - Validation is successful.</li>
@@ -75,6 +106,20 @@ public interface OutgoingInterface {
      * @param headers The HCX Protocol headers to create the JWE Payload.
      * @param fhirPayload The FHIR object created by the participant system.
      * @param output A wrapper map to collect the JWE Payload or the error details in case of failure.
+     * <ol>
+     *    <li>success output -
+     *    <pre>
+     *     {@code {
+     *       "payload": "" - jwe payload
+     *     }}</pre>
+     *    </li>
+     *    <li>error output -
+     *    <pre>
+     *    {@code {
+     *       "error_code": "error_message"
+     *    }}</pre>
+     *    </li>
+     *  </ol>
      * @return It is a boolean value to understand the encryption of FHIR object is successful or not.
      * <ol>
      *     <li>true - It is successful.</li>
@@ -89,6 +134,31 @@ public interface OutgoingInterface {
      * @param jwePayload The JWE Payload created using HCX Protocol Headers and FHIR object.
      * @param operation The HCX operation or action defined by specs to understand the functional behaviour.
      * @param response A wrapper map to collect response of the REST API call.
+     * <ol>
+     *    <li>success response -
+     *    <pre>
+     *    {@code {
+     *       "responseObj": {
+     *       "timestamp": , - unix timestamp
+     *       "correlation_id": "", - fetched from incoming request
+     *       "api_call_id": "" - fetched from incoming request
+     *      }
+     *    }}</pre>
+     *    </li>
+     *    <li>error response -
+     *    <pre>
+     *    {@code {
+     *      "responseObj":{
+     *       "timestamp": , - unix timestamp
+     *       "error": {
+     *           "code" : "", - error code
+     *           "message": "", - error message
+     *           "trace":"" - error trace
+     *        }
+     *      }
+     *    }}</pre>
+     *    </li>
+     *  </ol>
      * @return It is a boolean value to understand the REST API call execution is successful or not.
      *
      * @throws JsonProcessingException The exception throws when it is having issues in parsing the JSON object.

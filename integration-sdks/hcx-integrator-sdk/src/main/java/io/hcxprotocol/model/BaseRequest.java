@@ -16,7 +16,9 @@ import java.util.stream.Collectors;
 import static io.hcxprotocol.utils.Constants.*;
 import static io.hcxprotocol.utils.ResponseMessage.*;
 
-
+/**
+ * This is base class to extract the protocol headers from the jwe/json payload.
+ */
 public class BaseRequest {
 
     public Map<String, Object> protocolHeaders;

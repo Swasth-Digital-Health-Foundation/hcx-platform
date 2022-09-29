@@ -4,9 +4,9 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
 /**
- * Here the error codes defined in HCX Specs, the operations supported by HCX Gateway and implementation to access the configuration details easily are available.
+ * Here the error codes defined in HCX Specs, the operations supported by HCX Gateway
+ * and implementation to access the configuration details easily are available.
  */
-
 public class HCXIntegrator {
 
     private static HCXIntegrator hcxIntegrator = null;

@@ -2,6 +2,9 @@ package io.hcxprotocol.utils;
 
 import org.joda.time.DateTime;
 
+/**
+ * The Date time Util to validate timestamp.
+ */
 public class DateTimeUtils {
 
     public static boolean validTimestamp(String timestamp) throws Exception {
