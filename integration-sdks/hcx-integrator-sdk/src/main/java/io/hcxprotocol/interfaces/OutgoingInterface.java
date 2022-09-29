@@ -1,13 +1,16 @@
 package io.hcxprotocol.interfaces;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import io.hcxprotocol.dto.HCXIntegrator;
+
 import java.util.Map;
 
 public interface OutgoingInterface {
 
-    boolean processFunction(String fhirPayload, String operation, String recipientCode, String actionJwe, String onActionStatus, Map<String,Object> output) throws Exception;
-    boolean validatePayload(String fhirPayload, String operation, Map<String,Object> error);
-    boolean createHeader(String recipient_key, String actionJwe, String onActionStatus, Map<String,Object> headers) throws Exception;
-    boolean encryptPayload(Map<String,Object> Headers, Object Payload, Map<String,Object> output);
-    boolean initializeHCXCall(String JWSPayload, Map<String,Object> response) throws Exception;
+    boolean processFunction(String fhirPayload, HCXIntegrator.OPERATIONS operation, String recipientCode, String actionJwe, String onActionStatus, Map<String,Object> output);
+    boolean validatePayload(String fhirPayload, HCXIntegrator.OPERATIONS operation, Map<String,Object> error);
+    boolean createHeader(String recipientCode, String actionJwe, String onActionStatus, Map<String,Object> headers);
+    boolean encryptPayload(Map<String,Object> headers, String fhirPayload, Map<String,Object> output);
+    boolean initializeHCXCall(String jwePayload, HCXIntegrator.OPERATIONS operation, Map<String,Object> response) throws JsonProcessingException;
 
 }

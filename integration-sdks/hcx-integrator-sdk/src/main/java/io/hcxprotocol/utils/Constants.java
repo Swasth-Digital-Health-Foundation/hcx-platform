@@ -23,4 +23,5 @@ public class Constants {
     public static final String TIMESTAMP = "timestamp";
     public static final String API_CALL_ID = "api_call_id";
     public static final String CORRELATION_ID = "correlation_id";
+    public static final String PARTICIPANTS = "participants";
 }
