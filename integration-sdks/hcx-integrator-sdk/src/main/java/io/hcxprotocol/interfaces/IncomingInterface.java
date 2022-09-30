@@ -1,6 +1,7 @@
 package io.hcxprotocol.interfaces;
 
 import io.hcxprotocol.dto.HCXIntegrator;
+import io.hcxprotocol.utils.Operations;
 
 import java.util.Map;
 
@@ -57,7 +58,7 @@ public interface IncomingInterface {
      *  </ol>
      *
      */
-    boolean processFunction(String jwePayload, HCXIntegrator.OPERATIONS operation, Map<String,Object> output);
+    boolean processFunction(String jwePayload, Operations operation, Map<String,Object> output);
 
     /**
      * The JWE Payload of the incoming request to the participant system requires HCX Protocol headers validation.
@@ -76,7 +77,7 @@ public interface IncomingInterface {
      * </ol>
      *
      */
-    boolean validateRequest(String jwePayload, HCXIntegrator.OPERATIONS operation, Map<String,Object> error);
+    boolean validateRequest(String jwePayload, Operations operation, Map<String,Object> error);
 
     /**
      * The JWE Payload decrypted using the participant system encryption private key to extract the FHIR object.
@@ -123,7 +124,7 @@ public interface IncomingInterface {
      *     <li>false - Validation is failure.</li>
      * </ol>
      */
-    boolean validatePayload(String fhirPayload, HCXIntegrator.OPERATIONS operation, Map<String,Object> error);
+    boolean validatePayload(String fhirPayload, Operations operation, Map<String,Object> error);
 
     /**
      * Here the final output object to return to the HCX Gateway crated using the error and output maps.
@@ -132,30 +133,35 @@ public interface IncomingInterface {
      * @param error A wrapper map to collect the errors from the JWE or FHIR Payload validations.
      * @param output A wrapper map to collect the response of the JWE Payload processing.
      * <ol>
-     *    <li>success output -
+     *    <li>output -
      *    <pre>
      *    {@code {
-     *       "responseObj": {
+     *       "headers":{}, - protocol headers
+     *       "fhirPayload":{}, - fhir object
+     *       "responseObj":{} - success/error response object
+     *    }}</pre>
+     *    </li>
+     *    <li>success response object -
+     *    <pre>
+     *    {@code {
      *       "timestamp": , - unix timestamp
      *       "correlation_id": "", - fetched from incoming request
      *       "api_call_id": "" - fetched from incoming request
-     *      }
      *    }}</pre>
      *    </li>
-     *    <li>error output -
+     *    <li>error response object -
      *    <pre>
      *    {@code {
-     *      "responseObj":{
      *       "timestamp": , - unix timestamp
      *       "error": {
      *           "code" : "", - error code
      *           "message": "", - error message
      *           "trace":"" - error trace
      *        }
-     *      }
      *    }}</pre>
      *    </li>
      *  </ol>
+     *
      * @return It is a boolean value to understand the final status is successful or failure.
      */
     boolean sendResponse(Map<String,Object> error, Map<String,Object> output);

@@ -1,9 +1,11 @@
 package io.hcxprotocol.helper;
 
 import io.hcxprotocol.dto.HCXIntegrator;
+import io.hcxprotocol.exception.ErrorCodes;
 import io.hcxprotocol.model.JSONRequest;
 import io.hcxprotocol.model.JWERequest;
 import io.hcxprotocol.utils.JSONUtils;
+import io.hcxprotocol.utils.Operations;
 
 import java.util.HashMap;
 import java.util.List;
@@ -54,7 +56,7 @@ public class ValidateHelper {
      * @param error     holds any validation errors
      * @return true if it is valid request otherwise returns false along with proper error message in the error map
      */
-    public boolean validateRequest(String payload, HCXIntegrator.OPERATIONS operation, Map<String, Object> error) {
+    public boolean validateRequest(String payload, Operations operation, Map<String, Object> error) {
         try {
             // Convert the input string into a Map
             Map<String, Object> requestBody = JSONUtils.deserialize(payload, HashMap.class);
@@ -62,19 +64,19 @@ public class ValidateHelper {
                 if (validateJWERequest(operation, error, requestBody)) return false;
             } else {
                 if (!operation.toString().contains("on_")) {
-                    error.put(HCXIntegrator.ERROR_CODES.ERR_INVALID_PAYLOAD.toString(), INVALID_JSON_REQUEST_BODY_ERR_MSG);
+                    error.put(ErrorCodes.ERR_INVALID_PAYLOAD.toString(), INVALID_JSON_REQUEST_BODY_ERR_MSG);
                     return false;
                 }
                 if (validateJsonRequest(operation, error, requestBody)) return false;
             }
         } catch (Exception e) {
-            error.put(HCXIntegrator.ERROR_CODES.ERR_INVALID_PAYLOAD.toString(), e.getMessage());
+            error.put(ErrorCodes.ERR_INVALID_PAYLOAD.toString(), e.getMessage());
             return false;
         }
         return true;
     }
 
-    private boolean validateJWERequest(HCXIntegrator.OPERATIONS operation, Map<String, Object> error, Map<String, Object> requestBody) throws Exception {
+    private boolean validateJWERequest(Operations operation, Map<String, Object> error, Map<String, Object> requestBody) throws Exception {
         // Fetch the value of the only key(payload) from the map
         JWERequest jweRequest = new JWERequest(requestBody);
         // Split the extracted above value into an array using . as delimiter
@@ -85,7 +87,7 @@ public class ValidateHelper {
         return jweRequest.validateHeadersData(List.of(ALG,ENC,HCX_SENDER_CODE,HCX_RECIPIENT_CODE,HCX_API_CALL_ID,HCX_TIMESTAMP,HCX_CORRELATION_ID), operation, error);
     }
 
-    private boolean validateJsonRequest(HCXIntegrator.OPERATIONS operation, Map<String, Object> error, Map<String, Object> requestBody) throws Exception {
+    private boolean validateJsonRequest(Operations operation, Map<String, Object> error, Map<String, Object> requestBody) throws Exception {
         JSONRequest jsonRequest = new JSONRequest(requestBody);
         if (ERROR_RESPONSE.equalsIgnoreCase(jsonRequest.getStatus())) {
             //error_mandatory_headers:x-hcx-status, x-hcx-sender_code, x-hcx-recipient_code, x-hcx-error_details, x-hcx-correlation_id, x-hcx-api_call_id, x-hcx-timestamp

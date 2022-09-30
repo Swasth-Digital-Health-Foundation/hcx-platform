@@ -3,6 +3,7 @@ package io.hcxprotocol.interfaces;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.hcxprotocol.dto.HCXIntegrator;
+import io.hcxprotocol.utils.Operations;
 
 import java.util.Map;
 
@@ -64,7 +65,7 @@ public interface OutgoingInterface {
      *      <li>false - It is failure.</li>
      * </ol>
      */
-    boolean processFunction(String fhirPayload, HCXIntegrator.OPERATIONS operation, String recipientCode, String actionJwe, String onActionStatus, Map<String,Object> output);
+    boolean processFunction(String fhirPayload, Operations operation, String recipientCode, String actionJwe, String onActionStatus, Map<String,Object> output);
 
     /**
      * The FHIR object resource type validation based on the operation executed here.
@@ -83,7 +84,7 @@ public interface OutgoingInterface {
      *      <li>false - Validation is failure.</li>
      *  </ol>
      */
-    boolean validatePayload(String fhirPayload, HCXIntegrator.OPERATIONS operation, Map<String,Object> error);
+    boolean validatePayload(String fhirPayload, Operations operation, Map<String,Object> error);
 
     /**
      * The HCX Protocol Headers created using the input parameters to generate the JWE Payload.
@@ -163,6 +164,6 @@ public interface OutgoingInterface {
      *
      * @throws JsonProcessingException The exception throws when it is having issues in parsing the JSON object.
      */
-    boolean initializeHCXCall(String jwePayload, HCXIntegrator.OPERATIONS operation, Map<String,Object> response) throws JsonProcessingException;
+    boolean initializeHCXCall(String jwePayload, Operations operation, Map<String,Object> response) throws JsonProcessingException;
 
 }

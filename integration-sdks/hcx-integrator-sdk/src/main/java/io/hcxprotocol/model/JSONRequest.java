@@ -1,6 +1,7 @@
 package io.hcxprotocol.model;
 
 import io.hcxprotocol.dto.HCXIntegrator;
+import io.hcxprotocol.exception.ErrorCodes;
 import org.apache.commons.lang3.StringUtils;
 
 import java.text.MessageFormat;
@@ -19,9 +20,9 @@ public class JSONRequest extends BaseRequest {
     }
 
     public boolean validateRedirect(Map<String, Object> error) {
-        if (!validateCondition(StringUtils.isEmpty(getRedirectTo()), error, HCXIntegrator.ERROR_CODES.ERR_INVALID_REDIRECT_TO.toString(), MessageFormat.format(INVALID_REDIRECT_ERR_MSG, REDIRECT_TO)))
+        if (!validateCondition(StringUtils.isEmpty(getRedirectTo()), error, ErrorCodes.ERR_INVALID_REDIRECT_TO.toString(), MessageFormat.format(INVALID_REDIRECT_ERR_MSG, REDIRECT_TO)))
             return true;
-        if (!validateCondition(getHcxSenderCode().equalsIgnoreCase(getRedirectTo()), error, HCXIntegrator.ERROR_CODES.ERR_INVALID_REDIRECT_TO.toString(), INVALID_REDIRECT_SELF_ERR_MSG))
+        if (!validateCondition(getHcxSenderCode().equalsIgnoreCase(getRedirectTo()), error, ErrorCodes.ERR_INVALID_REDIRECT_TO.toString(), INVALID_REDIRECT_SELF_ERR_MSG))
             return true;
         return false;
     }

@@ -1,8 +1,10 @@
 package io.hcxprotocol.model;
 
 import io.hcxprotocol.dto.HCXIntegrator;
+import io.hcxprotocol.exception.ErrorCodes;
 import io.hcxprotocol.utils.DateTimeUtils;
 import io.hcxprotocol.utils.JSONUtils;
+import io.hcxprotocol.utils.Operations;
 import io.hcxprotocol.utils.UUIDUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -89,46 +91,46 @@ public class BaseRequest {
         return ((String) getPayload().get(PAYLOAD)).split("\\.");
     }
 
-    public boolean validateHeadersData(List<String> mandatoryHeaders, HCXIntegrator.OPERATIONS operation, Map<String, Object> error) throws Exception {
+    public boolean validateHeadersData(List<String> mandatoryHeaders, Operations operation, Map<String, Object> error) throws Exception {
         List<String> missingHeaders = mandatoryHeaders.stream().filter(key -> !protocolHeaders.containsKey(key)).collect(Collectors.toList());
         if (!missingHeaders.isEmpty()) {
-            error.put(HCXIntegrator.ERROR_CODES.ERR_MANDATORY_HEADER_MISSING.toString(), MessageFormat.format(INVALID_MANDATORY_ERR_MSG, missingHeaders));
+            error.put(ErrorCodes.ERR_MANDATORY_HEADER_MISSING.toString(), MessageFormat.format(INVALID_MANDATORY_ERR_MSG, missingHeaders));
             return true;
         }
         // Validate Header values
-        if (!validateCondition(!UUIDUtils.isUUID(getApiCallId()), error, HCXIntegrator.ERROR_CODES.ERR_INVALID_API_CALL_ID.toString(), INVALID_API_CALL_ID_ERR_MSG))
+        if (!validateCondition(!UUIDUtils.isUUID(getApiCallId()), error, ErrorCodes.ERR_INVALID_API_CALL_ID.toString(), INVALID_API_CALL_ID_ERR_MSG))
             return true;
-        if (!validateCondition(!UUIDUtils.isUUID(getCorrelationId()), error, HCXIntegrator.ERROR_CODES.ERR_INVALID_CORRELATION_ID.toString(), INVALID_CORRELATION_ID_ERR_MSG))
+        if (!validateCondition(!UUIDUtils.isUUID(getCorrelationId()), error, ErrorCodes.ERR_INVALID_CORRELATION_ID.toString(), INVALID_CORRELATION_ID_ERR_MSG))
             return true;
-        if (!validateCondition(!DateTimeUtils.validTimestamp(getTimestamp()), error, HCXIntegrator.ERROR_CODES.ERR_INVALID_TIMESTAMP.toString(), INVALID_TIMESTAMP_ERR_MSG))
+        if (!validateCondition(!DateTimeUtils.validTimestamp(getTimestamp()), error, ErrorCodes.ERR_INVALID_TIMESTAMP.toString(), INVALID_TIMESTAMP_ERR_MSG))
             return true;
-        if (!validateCondition(protocolHeaders.containsKey(WORKFLOW_ID) && !UUIDUtils.isUUID(getWorkflowId()), error, HCXIntegrator.ERROR_CODES.ERR_INVALID_WORKFLOW_ID.toString(), INVALID_WORKFLOW_ID_ERR_MSG))
+        if (!validateCondition(protocolHeaders.containsKey(WORKFLOW_ID) && !UUIDUtils.isUUID(getWorkflowId()), error, ErrorCodes.ERR_INVALID_WORKFLOW_ID.toString(), INVALID_WORKFLOW_ID_ERR_MSG))
             return true;
 
         if (protocolHeaders.containsKey(DEBUG_FLAG)) {
-            if (!validateValues(getDebugFlag(), error, HCXIntegrator.ERROR_CODES.ERR_INVALID_DEBUG_FLAG.toString(), INVALID_DEBUG_FLAG_ERR_MSG, DEBUG_FLAG_VALUES, MessageFormat.format(INVALID_DEBUG_FLAG_RANGE_ERR_MSG, DEBUG_FLAG_VALUES)))
+            if (!validateValues(getDebugFlag(), error, ErrorCodes.ERR_INVALID_DEBUG_FLAG.toString(), INVALID_DEBUG_FLAG_ERR_MSG, DEBUG_FLAG_VALUES, MessageFormat.format(INVALID_DEBUG_FLAG_RANGE_ERR_MSG, DEBUG_FLAG_VALUES)))
                 return true;
         }
 
         if (protocolHeaders.containsKey(ERROR_DETAILS)) {
-            if (!validateDetails(getErrorDetails(), error, HCXIntegrator.ERROR_CODES.ERR_INVALID_ERROR_DETAILS.toString(), INVALID_ERROR_DETAILS_ERR_MSG, ERROR_DETAILS_VALUES, MessageFormat.format(INVALID_ERROR_DETAILS_RANGE_ERR_MSG, ERROR_DETAILS_VALUES)))
+            if (!validateDetails(getErrorDetails(), error, ErrorCodes.ERR_INVALID_ERROR_DETAILS.toString(), INVALID_ERROR_DETAILS_ERR_MSG, ERROR_DETAILS_VALUES, MessageFormat.format(INVALID_ERROR_DETAILS_RANGE_ERR_MSG, ERROR_DETAILS_VALUES)))
                 return true;
-            if (!validateCondition(!RECIPIENT_ERROR_VALUES.contains(((Map<String, Object>) protocolHeaders.get(ERROR_DETAILS)).get(CODE)), error, HCXIntegrator.ERROR_CODES.ERR_INVALID_ERROR_DETAILS.toString(), INVALID_ERROR_DETAILS_CODE_ERR_MSG))
+            if (!validateCondition(!RECIPIENT_ERROR_VALUES.contains(((Map<String, Object>) protocolHeaders.get(ERROR_DETAILS)).get(CODE)), error, ErrorCodes.ERR_INVALID_ERROR_DETAILS.toString(), INVALID_ERROR_DETAILS_CODE_ERR_MSG))
                 return true;
         }
         if (protocolHeaders.containsKey(DEBUG_DETAILS)) {
-            if (!validateDetails(getDebugDetails(), error, HCXIntegrator.ERROR_CODES.ERR_INVALID_DEBUG_DETAILS.toString(), INVALID_DEBUG_DETAILS_ERR_MSG, ERROR_DETAILS_VALUES, MessageFormat.format(INVALID_DEBUG_DETAILS_RANGE_ERR_MSG, ERROR_DETAILS_VALUES)))
+            if (!validateDetails(getDebugDetails(), error, ErrorCodes.ERR_INVALID_DEBUG_DETAILS.toString(), INVALID_DEBUG_DETAILS_ERR_MSG, ERROR_DETAILS_VALUES, MessageFormat.format(INVALID_DEBUG_DETAILS_RANGE_ERR_MSG, ERROR_DETAILS_VALUES)))
                 return true;
         }
 
         if (operation.getOperation().contains("on_")) {
-            if (!validateCondition(!protocolHeaders.containsKey(STATUS), error, HCXIntegrator.ERROR_CODES.ERR_INVALID_STATUS.toString(), MessageFormat.format(INVALID_MANDATORY_ERR_MSG, STATUS)))
+            if (!validateCondition(!protocolHeaders.containsKey(STATUS), error, ErrorCodes.ERR_INVALID_STATUS.toString(), MessageFormat.format(INVALID_MANDATORY_ERR_MSG, STATUS)))
                 return true;
-            if (!validateValues(getStatus(), error, HCXIntegrator.ERROR_CODES.ERR_INVALID_STATUS.toString(), INVALID_STATUS_ERR_MSG, RESPONSE_STATUS_VALUES, MessageFormat.format(INVALID_STATUS_ON_ACTION_RANGE_ERR_MSG, RESPONSE_STATUS_VALUES)))
+            if (!validateValues(getStatus(), error, ErrorCodes.ERR_INVALID_STATUS.toString(), INVALID_STATUS_ERR_MSG, RESPONSE_STATUS_VALUES, MessageFormat.format(INVALID_STATUS_ON_ACTION_RANGE_ERR_MSG, RESPONSE_STATUS_VALUES)))
                 return true;
         } else {
             if (protocolHeaders.containsKey(STATUS)) {
-                if (!validateValues(getStatus(), error, HCXIntegrator.ERROR_CODES.ERR_INVALID_STATUS.toString(), INVALID_STATUS_ERR_MSG, REQUEST_STATUS_VALUES, MessageFormat.format(INVALID_STATUS_ACTION_RANGE_ERR_MSG, REQUEST_STATUS_VALUES)))
+                if (!validateValues(getStatus(), error, ErrorCodes.ERR_INVALID_STATUS.toString(), INVALID_STATUS_ERR_MSG, REQUEST_STATUS_VALUES, MessageFormat.format(INVALID_STATUS_ACTION_RANGE_ERR_MSG, REQUEST_STATUS_VALUES)))
                     return true;
             }
         }
@@ -137,13 +139,13 @@ public class BaseRequest {
 
     public boolean validateJwePayload(Map<String, Object> error, String[] payloadArr) {
         if (payloadArr != null && payloadArr.length != PROTOCOL_PAYLOAD_LENGTH) {
-            error.put(HCXIntegrator.ERROR_CODES.ERR_INVALID_PAYLOAD.toString(), INVALID_PAYLOAD_LENGTH_ERR_MSG);
+            error.put(ErrorCodes.ERR_INVALID_PAYLOAD.toString(), INVALID_PAYLOAD_LENGTH_ERR_MSG);
             return true;
         }
         if (payloadArr != null) {
             for (String value : payloadArr) {
                 if (value == null || value.isEmpty()) {
-                    error.put(HCXIntegrator.ERROR_CODES.ERR_INVALID_PAYLOAD.toString(), INVALID_PAYLOAD_VALUES_ERR_MSG);
+                    error.put(ErrorCodes.ERR_INVALID_PAYLOAD.toString(), INVALID_PAYLOAD_VALUES_ERR_MSG);
                     return true;
                 }
             }
