@@ -3,12 +3,10 @@ package io.hcxprotocol.functions;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.hcxprotocol.dto.HCXIntegrator;
 import io.hcxprotocol.dto.HttpResponse;
+import io.hcxprotocol.exception.ErrorCodes;
 import io.hcxprotocol.helper.FhirHelper;
 import io.hcxprotocol.interfaces.OutgoingInterface;
-import io.hcxprotocol.utils.Constants;
-import io.hcxprotocol.utils.HttpUtils;
-import io.hcxprotocol.utils.JSONUtils;
-import io.hcxprotocol.utils.Utils;
+import io.hcxprotocol.utils.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.swasth.jose.jwe.JweRequest;
@@ -36,7 +34,7 @@ public class Outgoing implements OutgoingInterface {
     private final HCXIntegrator hcxIntegrator = HCXIntegrator.getInstance();
 
     @Override
-    public boolean processFunction(String fhirPayload, HCXIntegrator.OPERATIONS operation, String recipientCode, String actionJwe, String onActionStatus, Map<String,Object> output){
+    public boolean processFunction(String fhirPayload, Operations operation, String recipientCode, String actionJwe, String onActionStatus, Map<String,Object> output){
         boolean result = false;
         try {
             Map<String, Object> error = new HashMap<>();
@@ -55,13 +53,13 @@ public class Outgoing implements OutgoingInterface {
             return result;
         } catch (JsonProcessingException ex) {
             // TODO: JsonProcessingException is handled as domain processing error, we will be enhancing in next version.
-            output.put(HCXIntegrator.ERROR_CODES.ERR_DOMAIN_PROCESSING.toString(), ex.getMessage());
+            output.put(ErrorCodes.ERR_DOMAIN_PROCESSING.toString(), ex.getMessage());
             return result;
         }
     }
 
     @Override
-    public boolean validatePayload(String fhirPayload, HCXIntegrator.OPERATIONS operation, Map<String,Object> error){
+    public boolean validatePayload(String fhirPayload, Operations operation, Map<String,Object> error){
         return FhirHelper.validatePayload(fhirPayload, operation, error);
     }
 
@@ -112,7 +110,7 @@ public class Outgoing implements OutgoingInterface {
 
     // we are handling the JsonProcessingException in processFunction method
     @Override
-    public boolean initializeHCXCall(String jwePayload, HCXIntegrator.OPERATIONS operation, Map<String,Object> response) throws JsonProcessingException {
+    public boolean initializeHCXCall(String jwePayload, Operations operation, Map<String,Object> response) throws JsonProcessingException {
         Map<String,String> headers = new HashMap<>();
         headers.put(Constants.AUTHORIZATION, "Bearer " + Utils.generateToken());
         HttpResponse hcxResponse = HttpUtils.post(hcxIntegrator.getHCXProtocolBasePath() + operation.getOperation(), headers, jwePayload);

@@ -2,11 +2,13 @@ package io.hcxprotocol.functions;
 
 import io.hcxprotocol.dto.HCXIntegrator;
 import io.hcxprotocol.dto.ResponseError;
+import io.hcxprotocol.exception.ErrorCodes;
 import io.hcxprotocol.helper.ValidateHelper;
 import io.hcxprotocol.helper.FhirHelper;
 import io.hcxprotocol.interfaces.IncomingInterface;
 import io.hcxprotocol.utils.Constants;
 import io.hcxprotocol.utils.JSONUtils;
+import io.hcxprotocol.utils.Operations;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
 import org.swasth.jose.jwe.JweRequest;
@@ -30,7 +32,7 @@ public class Incoming implements IncomingInterface {
     private final HCXIntegrator hcxIntegrator = HCXIntegrator.getInstance();
 
     @Override
-    public boolean processFunction(String jwePayload, HCXIntegrator.OPERATIONS operation, Map<String, Object> output) {
+    public boolean processFunction(String jwePayload, Operations operation, Map<String, Object> output) {
         Map<String, Object> error = new HashMap<>();
         boolean result = false;
         if (!validateRequest(jwePayload, operation, error)) {
@@ -46,7 +48,7 @@ public class Incoming implements IncomingInterface {
     }
 
     @Override
-    public boolean validateRequest(String jwePayload, HCXIntegrator.OPERATIONS operation, Map<String, Object> error) {
+    public boolean validateRequest(String jwePayload, Operations operation, Map<String, Object> error) {
         return ValidateHelper.getInstance().validateRequest(jwePayload, operation, error);
     }
 
@@ -59,7 +61,7 @@ public class Incoming implements IncomingInterface {
             output.put(Constants.FHIR_PAYLOAD, JSONUtils.serialize(jweRequest.getPayload()));
             return true;
         } catch (Exception e) {
-            output.put(HCXIntegrator.ERROR_CODES.ERR_INVALID_ENCRYPTION.toString(), e.getMessage());
+            output.put(ErrorCodes.ERR_INVALID_ENCRYPTION.toString(), e.getMessage());
             return false;
         }
     }
@@ -75,7 +77,7 @@ public class Incoming implements IncomingInterface {
     }
 
     @Override
-    public boolean validatePayload(String fhirPayload, HCXIntegrator.OPERATIONS operation, Map<String,Object> error){
+    public boolean validatePayload(String fhirPayload, Operations operation, Map<String,Object> error){
         return FhirHelper.validatePayload(fhirPayload, operation, error);
     }
 

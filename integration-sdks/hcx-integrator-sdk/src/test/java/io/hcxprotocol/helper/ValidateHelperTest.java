@@ -3,6 +3,7 @@ package io.hcxprotocol.helper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.hcxprotocol.dto.HCXIntegrator;
 import io.hcxprotocol.utils.JSONUtils;
+import io.hcxprotocol.utils.Operations;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -23,13 +24,13 @@ public class ValidateHelperTest {
 
     @Test
     public void testActionJWEPayloadSuccess() throws Exception {
-        boolean isValid = ValidateHelper.getInstance().validateRequest(JSONUtils.serialize(getRequestBody()), HCXIntegrator.OPERATIONS.COVERAGE_ELIGIBILITY_CHECK,new HashMap<>());
+        boolean isValid = ValidateHelper.getInstance().validateRequest(JSONUtils.serialize(getRequestBody()), Operations.COVERAGE_ELIGIBILITY_CHECK,new HashMap<>());
         assertEquals(true, isValid);
     }
 
     @Test
     public void testOnActionJWEPayloadSuccess() throws Exception {
-        boolean isValid = ValidateHelper.getInstance().validateRequest(JSONUtils.serialize(getOnRequestBody()), HCXIntegrator.OPERATIONS.COVERAGE_ELIGIBILITY_ON_CHECK,new HashMap<>());
+        boolean isValid = ValidateHelper.getInstance().validateRequest(JSONUtils.serialize(getOnRequestBody()), Operations.COVERAGE_ELIGIBILITY_ON_CHECK,new HashMap<>());
         assertEquals(true, isValid);
     }
 }

@@ -1,6 +1,7 @@
 package io.hcxprotocol.interfaces;
 
 import io.hcxprotocol.dto.HCXIntegrator;
+import io.hcxprotocol.utils.Operations;
 
 import java.util.Map;
 
@@ -57,7 +58,7 @@ public interface IncomingInterface {
      *  </ol>
      *
      */
-    boolean processFunction(String jwePayload, HCXIntegrator.OPERATIONS operation, Map<String,Object> output);
+    boolean processFunction(String jwePayload, Operations operation, Map<String,Object> output);
 
     /**
      * The JWE Payload of the incoming request to the participant system requires HCX Protocol headers validation.
@@ -76,7 +77,7 @@ public interface IncomingInterface {
      * </ol>
      *
      */
-    boolean validateRequest(String jwePayload, HCXIntegrator.OPERATIONS operation, Map<String,Object> error);
+    boolean validateRequest(String jwePayload, Operations operation, Map<String,Object> error);
 
     /**
      * The JWE Payload decrypted using the participant system encryption private key to extract the FHIR object.
@@ -123,7 +124,7 @@ public interface IncomingInterface {
      *     <li>false - Validation is failure.</li>
      * </ol>
      */
-    boolean validatePayload(String fhirPayload, HCXIntegrator.OPERATIONS operation, Map<String,Object> error);
+    boolean validatePayload(String fhirPayload, Operations operation, Map<String,Object> error);
 
     /**
      * Here the final output object to return to the HCX Gateway crated using the error and output maps.
