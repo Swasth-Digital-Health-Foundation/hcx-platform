@@ -132,30 +132,35 @@ public interface IncomingInterface {
      * @param error A wrapper map to collect the errors from the JWE or FHIR Payload validations.
      * @param output A wrapper map to collect the response of the JWE Payload processing.
      * <ol>
-     *    <li>success output -
+     *    <li>output -
      *    <pre>
      *    {@code {
-     *       "responseObj": {
+     *       "headers":{}, - protocol headers
+     *       "fhirPayload":{}, - fhir object
+     *       "responseObj":{} - success/error response object
+     *    }}</pre>
+     *    </li>
+     *    <li>success response object -
+     *    <pre>
+     *    {@code {
      *       "timestamp": , - unix timestamp
      *       "correlation_id": "", - fetched from incoming request
      *       "api_call_id": "" - fetched from incoming request
-     *      }
      *    }}</pre>
      *    </li>
-     *    <li>error output -
+     *    <li>error response object -
      *    <pre>
      *    {@code {
-     *      "responseObj":{
      *       "timestamp": , - unix timestamp
      *       "error": {
      *           "code" : "", - error code
      *           "message": "", - error message
      *           "trace":"" - error trace
      *        }
-     *      }
      *    }}</pre>
      *    </li>
      *  </ol>
+     *
      * @return It is a boolean value to understand the final status is successful or failure.
      */
     boolean sendResponse(Map<String,Object> error, Map<String,Object> output);

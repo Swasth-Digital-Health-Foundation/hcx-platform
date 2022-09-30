@@ -2,9 +2,8 @@ package io.hcxprotocol.functions;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.hcxprotocol.dto.HCXIntegrator;
-import io.hcxprotocol.helper.FhirHelper;
 import io.hcxprotocol.dto.HttpResponse;
-import io.hcxprotocol.exception.ServerException;
+import io.hcxprotocol.helper.FhirHelper;
 import io.hcxprotocol.interfaces.OutgoingInterface;
 import io.hcxprotocol.utils.Constants;
 import io.hcxprotocol.utils.HttpUtils;
@@ -23,7 +22,10 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.interfaces.RSAPublicKey;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * The <b>Outgoing</b> provide the methods to help in creating the JWE Payload and send the request to the sender system from HCX Gateway.
