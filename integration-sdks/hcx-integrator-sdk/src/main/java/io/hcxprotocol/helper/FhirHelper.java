@@ -7,6 +7,7 @@ import ca.uhn.fhir.validation.ValidationResult;
 import io.hcxprotocol.dto.HCXIntegrator;
 import io.hcxprotocol.utils.JSONUtils;
 import io.hcxprotocol.validator.HCXFHIRValidator;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,14 +25,15 @@ public class FhirHelper {
             ValidationResult result = validator.validateWithResult(fhirPayload);
             List<SingleValidationMessage> messages = result.getMessages();
             Map<String, Object> map = JSONUtils.deserialize(fhirPayload, Map.class);
-            if (map.get("resourceType") != operation.getFhirResourceType()) {
+            if (!StringUtils.equalsIgnoreCase((String) map.get("resourceType"), operation.getFhirResourceType())) {
                 error.put(String.valueOf(HCXIntegrator.ERROR_CODES.ERR_WRONG_DOMAIN_PAYLOAD), "Incorrect eObject is sent as the domain payload");
                 return false;
             }
             List<String> errMessages = new ArrayList<>();
             for (SingleValidationMessage message : messages) {
                 if (message.getSeverity() == ResultSeverityEnum.ERROR) {
-                    error.put(String.valueOf(HCXIntegrator.ERROR_CODES.ERR_INVALID_DOMAIN_PAYLOAD), errMessages.add(message.getMessage()));
+                    errMessages.add(message.getMessage());
+                    error.put(String.valueOf(HCXIntegrator.ERROR_CODES.ERR_INVALID_DOMAIN_PAYLOAD), errMessages);
                     returnBool = false;
                 }
             }
