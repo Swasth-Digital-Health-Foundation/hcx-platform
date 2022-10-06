@@ -4,7 +4,7 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
 /**
- * The implementation to access the configuration details easily.
+ * The methods and variables to access the configuration. Enumeration of error codes and operations.
  */
 public class HCXIntegrator {
 

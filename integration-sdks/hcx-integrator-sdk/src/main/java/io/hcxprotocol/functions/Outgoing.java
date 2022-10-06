@@ -26,8 +26,31 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * The <b>Outgoing</b> provide the methods to help in creating the JWE Payload and send the request to the sender system from HCX Gateway.
- * The implementation of this class is to process the FHIR object, generates the JWE Payload and call the HCX Gateway API based on operation.
+ * The <b>Outgoing</b> class provide the methods to help in creating the JWE Payload and send the request to the sender system from HCX Gateway.
+ *
+ * <ul>
+ *     <li><b>processFunction</b> is the main method to use by the integrator(s) to generate JWE Payload.
+ *     <ul>
+ *         <li>This method handles two types of requests.
+ *         <ol>
+ *            <li>
+ *              Sending an initial request of HCX workflow action.
+ *              <ul><li>In this scenario, <i>actionJwe, onActionStatus</i> are optional.</li></ul>
+ *            </li>
+ *            <li>Sending a response to the incoming HCX workflow action.
+     *            <ul>
+     *                <li>In this scenario, <i>actionJwe, onActionStatus</i> are required.</li>
+     *                <li>The input request JEW should be used as <i>actionJwe</i>.</li>
+     *            </ul>
+ *            </li>
+ *        </ol></li>
+ *     </ul></li>
+ *     <li>
+ *         <b>validatePayload, createHeader, encryptPayload, initializeHCXCall</b> methods are used by <b>processFunction</b> to compose the JWE payload generation functionality.
+ *         These methods are available for the integrator(s) to use them based on different scenario(s) or use cases.
+ *     </li>
+ * </ul>
+ *
  */
 public class Outgoing implements OutgoingInterface {
 

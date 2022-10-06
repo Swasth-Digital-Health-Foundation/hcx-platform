@@ -1,7 +1,7 @@
 package io.hcxprotocol.dto;
 
 /**
- * The ResponseError class used to wrap the error details and create an instance of it.
+ * The ResponseError class which wrap the error details and helps in creating an instance of it.
  */
 public class ResponseError {
 

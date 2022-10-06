@@ -1,7 +1,7 @@
 package io.hcxprotocol.utils;
 
 /**
- * The UUID Util to validate uuid format.
+ * The UUID Util to validate its format.
  */
 public class UUIDUtils {
     public static boolean isUUID(String s) {

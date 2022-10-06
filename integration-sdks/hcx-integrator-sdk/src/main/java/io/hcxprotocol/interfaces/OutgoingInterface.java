@@ -9,12 +9,12 @@ import java.util.Map;
 
 /**
  * The <b>Outgoing</b> Interface provide the methods to help in creating the JWE Payload and send the request to the sender system from HCX Gateway.
- * The implementation of this interface process the FHIR object, generates the JWE Payload and call the HCX Gateway API based on operation.
+ *
  */
 public interface OutgoingInterface {
 
     /**
-     * The outgoing request from participant system to the HCX Gateway generated using FHIR Object.
+     * Generates the JWE Payload using FHIR Object, Operation and other parameters part of input.
      * It has the implementation of the below steps to create JWE Payload and send the request.
      * <ul>
      *     <li>Validating the FHIR object using HCX FHIR IG.</li>
@@ -22,7 +22,7 @@ public interface OutgoingInterface {
      *     <li>Fetch the sender encryption public key from the HCX participant registry.</li>
      *     <li>Encrypt the FHIR object along with HCX Protocol headers using <b>RFC7516</b> to create JWE Payload.</li>
      *     <li>Generate or fetch the authorization token of HCX Gateway.</li>
-     *     <li>Trigger HCX Gateway REST API based on operation using the above JWE Payload.</li>
+     *     <li>Trigger HCX Gateway REST API based on operation.</li>
      * </ul>
      * @param fhirPayload The FHIR object created by the participant system.
      * @param operation The HCX operation or action defined by specs to understand the functional behaviour.
@@ -68,8 +68,7 @@ public interface OutgoingInterface {
     boolean processFunction(String fhirPayload, Operations operation, String recipientCode, String actionJwe, String onActionStatus, Map<String,Object> output);
 
     /**
-     * The FHIR object resource type validation based on the operation executed here.
-     * Also, it uses the HCX FHIR IG to validate the format, structure and minimum required attributes.
+     * Validates the FHIR Object structure and required attributes using HCX FHIR IG.
      *
      * @param fhirPayload The FHIR object created by the participant system.
      * @param operation The HCX operation or action defined by specs to understand the functional behaviour.
@@ -87,7 +86,7 @@ public interface OutgoingInterface {
     boolean validatePayload(String fhirPayload, Operations operation, Map<String,Object> error);
 
     /**
-     * The HCX Protocol Headers created using the input parameters to generate the JWE Payload.
+     * Creates the HCX Protocol Headers using the input parameters.
      *
      * @param recipientCode The recipient code from HCX Participant registry.
      * @param actionJwe The JWE Payload from the incoming request for which the response JWE Payload created here.
@@ -102,7 +101,7 @@ public interface OutgoingInterface {
     boolean createHeader(String recipientCode, String actionJwe, String onActionStatus, Map<String,Object> headers);
 
     /**
-     * It uses the HCX Protocol Headers and FHIR object to generate the JWE Payload using RFC7516.
+     * It generates JWE Payload using the HCX Protocol Headers and FHIR object. The JWE Payload follows RFC7516.
      *
      * @param headers The HCX Protocol headers to create the JWE Payload.
      * @param fhirPayload The FHIR object created by the participant system.

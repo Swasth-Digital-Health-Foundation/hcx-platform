@@ -7,11 +7,10 @@ import java.util.Map;
 
 /**
  * The <b>Incoming</b> Interface provide the methods to help in processing the JWE Payload and extract FHIR Object.
- * The implementation of this interface process the JWE Payload, to extract the FHIR Object and validate it using HCX FHIR IG.
  */
 public interface IncomingInterface {
     /**
-     * The incoming request to the participant system processed to extract and validate the FHIR object.
+     * Process the JWE Payload based on the Operation to validate and extract the FHIR Object.
      * It has the implementation of below steps.
      * <ol>
      *     <li>Validating HCX Protocol headers</li>
@@ -61,8 +60,8 @@ public interface IncomingInterface {
     boolean processFunction(String jwePayload, Operations operation, Map<String,Object> output);
 
     /**
-     * The JWE Payload of the incoming request to the participant system requires HCX Protocol headers validation.
-     * This method is used by {@index IncomingInterface.processFunction} to validate the headers.
+     * Validates the HCX Protocol Headers from the JWE Payload.
+     * This method is used by {@index IncomingInterface.processFunction} for validate the headers.
      * @param jwePayload The JWE payload from the incoming API request body.
      * @param operation The HCX operation or action defined by specs to understand the functional behaviour.
      * @param error A wrapper map to collect the errors from the JWE Payload.
@@ -80,7 +79,8 @@ public interface IncomingInterface {
     boolean validateRequest(String jwePayload, Operations operation, Map<String,Object> error);
 
     /**
-     * The JWE Payload decrypted using the participant system encryption private key to extract the FHIR object.
+     * Decrypt the JWE Payload using the Participant System Private Key (which is available from the configuration).
+     * The JWE Payload follows RFC7516.
      *
      * @param jwePayload The JWE payload from the incoming API request body.
      * @param output A wrapper map to collect the outcome (errors or response) of the JWE Payload after decryption.
@@ -108,8 +108,7 @@ public interface IncomingInterface {
     boolean decryptPayload(String jwePayload, Map<String,Object> output);
 
     /**
-     * The FHIR object resource type validation based on the operation executed here.
-     * Also, it used the HCX FHIR IG to validate the format, structure and minimum required attributes.
+     * Validates the FHIR Object structure and required attributes using HCX FHIR IG.
      *
      * @param fhirPayload The FHIR object extracted from the incoming JWE Payload.
      * @param operation The HCX operation or action defined by specs to understand the functional behaviour.
@@ -127,8 +126,7 @@ public interface IncomingInterface {
     boolean validatePayload(String fhirPayload, Operations operation, Map<String,Object> error);
 
     /**
-     * Here the final output object to return to the HCX Gateway crated using the error and output maps.
-     * This method has the logic to generate the output of the incoming request from HCX Gateway. It is used internally.
+     * Generates the HCX Protocol API response using validation errors and the output object.
      *
      * @param error A wrapper map to collect the errors from the JWE or FHIR Payload validations.
      * @param output A wrapper map to collect the response of the JWE Payload processing.
