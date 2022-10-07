@@ -93,20 +93,16 @@
                     <target>11</target>
                 </configuration>
             </plugin>
-        </plugins>
-    </build>
-
-    <reporting>
-        <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>3.4.1</version>
                 <configuration>
                     <show>public</show>
+                    <excludePackageNames>io.hcxprotocol.exception:io.hcxprotocol.dto:io.hcxprotocol.helper:io.hcxprotocol.model:io.hcxprotocol.utils</excludePackageNames>
                 </configuration>
             </plugin>
         </plugins>
-    </reporting>
+    </build>
 
 </project>
