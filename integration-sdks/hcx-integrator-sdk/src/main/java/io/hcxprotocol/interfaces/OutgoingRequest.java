@@ -2,16 +2,17 @@ package io.hcxprotocol.interfaces;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.hcxprotocol.dto.HCXIntegrator;
 import io.hcxprotocol.utils.Operations;
 
 import java.util.Map;
 
 /**
- * The <b>Outgoing</b> Interface provide the methods to help in creating the JWE Payload and send the request to the sender system from HCX Gateway.
+ * The <b>Outgoing Request</b> Interface provide the methods to help in creating the JWE Payload and send the request to the sender system from HCX Gateway.
  *
  */
-public interface OutgoingInterface {
+public interface OutgoingRequest {
+
+    boolean generate(String fhirPayload, Operations operation, String recipientCode, Map<String,Object> output);
 
     /**
      * Generates the JWE Payload using FHIR Object, Operation and other parameters part of input.
@@ -26,7 +27,6 @@ public interface OutgoingInterface {
      * </ul>
      * @param fhirPayload The FHIR object created by the participant system.
      * @param operation The HCX operation or action defined by specs to understand the functional behaviour.
-     * @param recipientCode The recipient code from HCX Participant registry.
      * @param actionJwe The JWE Payload from the incoming request for which the response JWE Payload created here.
      * @param onActionStatus The HCX Protocol header status (x-hcx-status) value to use while creating the JEW Payload.
      * @param output A wrapper map to collect the outcome (errors or response) of the JWE Payload generation process using FHIR object.
@@ -65,7 +65,7 @@ public interface OutgoingInterface {
      *      <li>false - It is failure.</li>
      * </ol>
      */
-    boolean processFunction(String fhirPayload, Operations operation, String recipientCode, String actionJwe, String onActionStatus, Map<String,Object> output);
+    boolean generate(String fhirPayload, Operations operation, String actionJwe, String onActionStatus, Map<String,Object> output);
 
     /**
      * Validates the FHIR Object structure and required attributes using HCX FHIR IG.

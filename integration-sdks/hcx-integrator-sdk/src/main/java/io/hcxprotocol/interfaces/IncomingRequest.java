@@ -1,14 +1,13 @@
 package io.hcxprotocol.interfaces;
 
-import io.hcxprotocol.dto.HCXIntegrator;
 import io.hcxprotocol.utils.Operations;
 
 import java.util.Map;
 
 /**
- * The <b>Incoming</b> Interface provide the methods to help in processing the JWE Payload and extract FHIR Object.
+ * The <b>Incoming Request</b> Interface provide the methods to help in processing the JWE Payload and extract FHIR Object.
  */
-public interface IncomingInterface {
+public interface IncomingRequest {
     /**
      * Process the JWE Payload based on the Operation to validate and extract the FHIR Object.
      * It has the implementation of below steps.
@@ -57,7 +56,7 @@ public interface IncomingInterface {
      *  </ol>
      *
      */
-    boolean processFunction(String jwePayload, Operations operation, Map<String,Object> output);
+    boolean process(String jwePayload, Operations operation, Map<String,Object> output);
 
     /**
      * Validates the HCX Protocol Headers from the JWE Payload.
