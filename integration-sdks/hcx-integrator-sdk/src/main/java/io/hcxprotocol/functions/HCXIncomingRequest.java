@@ -27,12 +27,12 @@ import java.util.Map;
  * The <b>HCX Incoming Request</b> class provide the methods to help in processing the JWE Payload and extract FHIR Object.
  *
  * <ul>
- *     <li><b>process</b> is the main method to use by the integrator(s) to process JWE Payload and fetch FHIR Object.
+ *     <li><b>process</b> is the main method to use by the integrator(s) to validate the JWE Payload and fetch FHIR Object.
  *      <ul>
  *         <li>This method takes the JWE Payload and Operation as input parameters to validate and extract the respective FHIR Object.</li>
  *     </ul>
  *     <li>
- *         <b>validateRequest, validatePayload, decryptPayload, sendResponse</b> methods are used by <b>process</b> to compose functionality of validating JWE Payload and extracting FHIR Object.
+ *         <b>validateRequest, validatePayload, decryptPayload, sendResponse</b> methods are used by <b>process</b> method to compose functionality of validating JWE Payload and extracting FHIR Object.
  *         These methods are available for the integrator(s) to use them based on different scenario(s) or use cases.
  *     </li>
  * </ul>

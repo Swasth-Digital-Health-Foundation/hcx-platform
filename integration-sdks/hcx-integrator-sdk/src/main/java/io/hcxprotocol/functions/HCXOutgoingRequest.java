@@ -26,27 +26,25 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * The <b>Outgoing</b> class provide the methods to help in creating the JWE Payload and send the request to the sender system from HCX Gateway.
+ * The <b>HCX Outgoing Request</b> class provide the methods to help in creating the JWE Payload and send the request to the sender system from HCX Gateway.
  *
  * <ul>
  *     <li><b>generate</b> is the main method to use by the integrator(s) to generate JWE Payload.
  *     <ul>
- *         <li>This method handles two types of requests.
+ *         <li>This method handles two types of requests. There are two implementations of <b>generate</b> method to handle action, on_action API calls.
  *         <ol>
  *            <li>
  *              Sending an initial request of HCX workflow action.
- *              <ul><li>In this scenario, <i>actionJwe, onActionStatus</i> are optional.</li></ul>
  *            </li>
  *            <li>Sending a response to the incoming HCX workflow action.
-     *            <ul>
-     *                <li>In this scenario, <i>actionJwe, onActionStatus</i> are required.</li>
-     *                <li>The input request JEW should be used as <i>actionJwe</i>.</li>
-     *            </ul>
+ *              <ul>
+ *                  <li>The input request JEW should be used as <i>actionJwe</i>.</li>
+ *              </ul>
  *            </li>
  *        </ol></li>
  *     </ul></li>
  *     <li>
- *         <b>validatePayload, createHeader, encryptPayload, initializeHCXCall</b> methods are used by <b>generate</b> to compose the JWE payload generation functionality.
+ *         <b>validatePayload, createHeader, encryptPayload, initializeHCXCall</b> methods are used by <b>generate</b> method to compose the JWE payload generation functionality.
  *         These methods are available for the integrator(s) to use them based on different scenario(s) or use cases.
  *     </li>
  * </ul>
@@ -56,13 +54,11 @@ public class HCXOutgoingRequest extends FhirPayload implements OutgoingRequest {
 
     private final HCXIntegrator hcxIntegrator = HCXIntegrator.getInstance();
 
-    // generate request for action API calls
     @Override
     public boolean generate(String fhirPayload, Operations operation, String recipientCode, Map<String,Object> output){
         return process(fhirPayload, operation, recipientCode, "", "", output);
     }
 
-    // generate request for on_action API calls
     @Override
     public boolean generate(String fhirPayload, Operations operation, String actionJwe, String onActionStatus, Map<String,Object> output){
         return process(fhirPayload, operation, "", actionJwe, onActionStatus, output);
