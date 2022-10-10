@@ -38,7 +38,7 @@ import java.util.UUID;
  *            </li>
  *            <li>Sending a response to the incoming HCX workflow action.
  *              <ul>
- *                  <li>The input request JEW should be used as <i>actionJwe</i>.</li>
+ *                  <li>The input request JWE should be used as <i>actionJwe</i>.</li>
  *              </ul>
  *            </li>
  *        </ol></li>
