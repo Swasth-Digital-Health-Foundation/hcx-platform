@@ -18,9 +18,9 @@ import java.util.Map;
 /**
  * Implementation of FHIR validation using HCX FHIR IG.
  */
-public class FhirHelper {
+public abstract class FhirPayload {
 
-    public static boolean validatePayload(String fhirPayload, Operations operation, Map<String,Object> error) {
+    public boolean validatePayload(String fhirPayload, Operations operation, Map<String,Object> error) {
         boolean returnBool = true;
         try {
             FhirValidator validator = HCXFHIRValidator.getValidator();

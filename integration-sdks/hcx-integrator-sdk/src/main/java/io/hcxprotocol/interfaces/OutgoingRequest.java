@@ -2,19 +2,18 @@ package io.hcxprotocol.interfaces;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.hcxprotocol.dto.HCXIntegrator;
 import io.hcxprotocol.utils.Operations;
 
 import java.util.Map;
 
 /**
- * The <b>Outgoing</b> Interface provide the methods to help in creating the JWE Payload and send the request to the sender system from HCX Gateway.
+ * The <b>Outgoing Request</b> Interface provide the methods to help in creating the JWE Payload and send the request to the sender system from HCX Gateway.
  *
  */
-public interface OutgoingInterface {
+public interface OutgoingRequest {
 
     /**
-     * Generates the JWE Payload using FHIR Object, Operation and other parameters part of input.
+     * Generates the JWE Payload using FHIR Object, Operation and other parameters part of input. This method is used to handle the action API request.
      * It has the implementation of the below steps to create JWE Payload and send the request.
      * <ul>
      *     <li>Validating the FHIR object using HCX FHIR IG.</li>
@@ -26,7 +25,57 @@ public interface OutgoingInterface {
      * </ul>
      * @param fhirPayload The FHIR object created by the participant system.
      * @param operation The HCX operation or action defined by specs to understand the functional behaviour.
-     * @param recipientCode The recipient code from HCX Participant registry.
+     * @param output A wrapper map to collect the outcome (errors or response) of the JWE Payload generation process using FHIR object.
+     * <ol>
+     *    <li>output -
+     *    <pre>
+     *    {@code {
+     *       "payload":{}, -  jwe payload
+     *       "responseObj":{} - success/error response object
+     *    }}</pre>
+     *    </li>
+     *    <li>success response object -
+     *    <pre>
+     *    {@code {
+     *       "timestamp": , - unix timestamp
+     *       "correlation_id": "", - fetched from incoming request
+     *       "api_call_id": "" - fetched from incoming request
+     *    }}</pre>
+     *    </li>
+     *    <li>error response object -
+     *    <pre>
+     *    {@code {
+     *       "timestamp": , - unix timestamp
+     *       "error": {
+     *           "code" : "", - error code
+     *           "message": "", - error message
+     *           "trace":"" - error trace
+     *        }
+     *    }}</pre>
+     *    </li>
+     *  </ol>
+     * @return It is a boolean value to understand the outgoing request generation is successful or not.
+     *
+     * <ol>
+     *      <li>true - It is successful.</li>
+     *      <li>false - It is failure.</li>
+     * </ol>
+     */
+    boolean generate(String fhirPayload, Operations operation, String recipientCode, Map<String,Object> output);
+
+    /**
+     * Generates the JWE Payload using FHIR Object, Operation and other parameters part of input. This method is used to handle the on_action API request.
+     * It has the implementation of the below steps to create JWE Payload and send the request.
+     * <ul>
+     *     <li>Validating the FHIR object using HCX FHIR IG.</li>
+     *     <li>Crate HCX Protocol headers based on the request and <b>actionJWE</b> payload.</li>
+     *     <li>Fetch the sender encryption public key from the HCX participant registry.</li>
+     *     <li>Encrypt the FHIR object along with HCX Protocol headers using <b>RFC7516</b> to create JWE Payload.</li>
+     *     <li>Generate or fetch the authorization token of HCX Gateway.</li>
+     *     <li>Trigger HCX Gateway REST API based on operation.</li>
+     * </ul>
+     * @param fhirPayload The FHIR object created by the participant system.
+     * @param operation The HCX operation or action defined by specs to understand the functional behaviour.
      * @param actionJwe The JWE Payload from the incoming request for which the response JWE Payload created here.
      * @param onActionStatus The HCX Protocol header status (x-hcx-status) value to use while creating the JEW Payload.
      * @param output A wrapper map to collect the outcome (errors or response) of the JWE Payload generation process using FHIR object.
@@ -65,7 +114,7 @@ public interface OutgoingInterface {
      *      <li>false - It is failure.</li>
      * </ol>
      */
-    boolean processFunction(String fhirPayload, Operations operation, String recipientCode, String actionJwe, String onActionStatus, Map<String,Object> output);
+    boolean generate(String fhirPayload, Operations operation, String actionJwe, String onActionStatus, Map<String,Object> output);
 
     /**
      * Validates the FHIR Object structure and required attributes using HCX FHIR IG.

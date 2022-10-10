@@ -4,8 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import io.hcxprotocol.dto.HCXIntegrator;
 import io.hcxprotocol.dto.HttpResponse;
 import io.hcxprotocol.exception.ErrorCodes;
-import io.hcxprotocol.helper.FhirHelper;
-import io.hcxprotocol.interfaces.OutgoingInterface;
+import io.hcxprotocol.helper.FhirPayload;
+import io.hcxprotocol.interfaces.OutgoingRequest;
 import io.hcxprotocol.utils.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -26,38 +26,45 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * The <b>Outgoing</b> class provide the methods to help in creating the JWE Payload and send the request to the sender system from HCX Gateway.
+ * The <b>HCX Outgoing Request</b> class provide the methods to help in creating the JWE Payload and send the request to the sender system from HCX Gateway.
  *
  * <ul>
- *     <li><b>processFunction</b> is the main method to use by the integrator(s) to generate JWE Payload.
+ *     <li><b>generate</b> is the main method to use by the integrator(s) to generate JWE Payload.
  *     <ul>
- *         <li>This method handles two types of requests.
+ *         <li>This method handles two types of requests. There are two implementations of <b>generate</b> method to handle action, on_action API calls.
  *         <ol>
  *            <li>
  *              Sending an initial request of HCX workflow action.
- *              <ul><li>In this scenario, <i>actionJwe, onActionStatus</i> are optional.</li></ul>
  *            </li>
  *            <li>Sending a response to the incoming HCX workflow action.
-     *            <ul>
-     *                <li>In this scenario, <i>actionJwe, onActionStatus</i> are required.</li>
-     *                <li>The input request JEW should be used as <i>actionJwe</i>.</li>
-     *            </ul>
+ *              <ul>
+ *                  <li>The input request JWE should be used as <i>actionJwe</i>.</li>
+ *              </ul>
  *            </li>
  *        </ol></li>
  *     </ul></li>
  *     <li>
- *         <b>validatePayload, createHeader, encryptPayload, initializeHCXCall</b> methods are used by <b>processFunction</b> to compose the JWE payload generation functionality.
+ *         <b>validatePayload, createHeader, encryptPayload, initializeHCXCall</b> methods are used by <b>generate</b> method to compose the JWE payload generation functionality.
  *         These methods are available for the integrator(s) to use them based on different scenario(s) or use cases.
  *     </li>
  * </ul>
  *
  */
-public class Outgoing implements OutgoingInterface {
+public class HCXOutgoingRequest extends FhirPayload implements OutgoingRequest {
 
     private final HCXIntegrator hcxIntegrator = HCXIntegrator.getInstance();
 
     @Override
-    public boolean processFunction(String fhirPayload, Operations operation, String recipientCode, String actionJwe, String onActionStatus, Map<String,Object> output){
+    public boolean generate(String fhirPayload, Operations operation, String recipientCode, Map<String,Object> output){
+        return process(fhirPayload, operation, recipientCode, "", "", output);
+    }
+
+    @Override
+    public boolean generate(String fhirPayload, Operations operation, String actionJwe, String onActionStatus, Map<String,Object> output){
+        return process(fhirPayload, operation, "", actionJwe, onActionStatus, output);
+    }
+
+    private boolean process(String fhirPayload, Operations operation, String recipientCode, String actionJwe, String onActionStatus, Map<String,Object> output){
         boolean result = false;
         try {
             Map<String, Object> error = new HashMap<>();
@@ -79,11 +86,6 @@ public class Outgoing implements OutgoingInterface {
             output.put(ErrorCodes.ERR_DOMAIN_PROCESSING.toString(), ex.getMessage());
             return result;
         }
-    }
-
-    @Override
-    public boolean validatePayload(String fhirPayload, Operations operation, Map<String,Object> error){
-        return FhirHelper.validatePayload(fhirPayload, operation, error);
     }
 
     @Override
