@@ -1,4 +1,4 @@
-package io.hcxprotocol.model;
+package io.hcxprotocol.dto;
 
 import io.hcxprotocol.dto.HCXIntegrator;
 import io.hcxprotocol.exception.ErrorCodes;

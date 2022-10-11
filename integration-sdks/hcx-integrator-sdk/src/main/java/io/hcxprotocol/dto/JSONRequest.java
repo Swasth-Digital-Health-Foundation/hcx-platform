@@ -1,6 +1,6 @@
-package io.hcxprotocol.model;
+package io.hcxprotocol.dto;
 
-import io.hcxprotocol.dto.HCXIntegrator;
+import io.hcxprotocol.dto.BaseRequest;
 import io.hcxprotocol.exception.ErrorCodes;
 import org.apache.commons.lang3.StringUtils;
 
