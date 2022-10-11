@@ -1,4 +1,4 @@
-package io.hcxprotocol.functions;
+package io.hcxprotocol.impl;
 
 import io.hcxprotocol.dto.HCXIntegrator;
 import io.hcxprotocol.dto.ResponseError;

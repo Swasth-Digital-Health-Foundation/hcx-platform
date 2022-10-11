@@ -1,4 +1,4 @@
-package io.hcxprotocol.functions;
+package io.hcxprotocol.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.hcxprotocol.dto.HCXIntegrator;
