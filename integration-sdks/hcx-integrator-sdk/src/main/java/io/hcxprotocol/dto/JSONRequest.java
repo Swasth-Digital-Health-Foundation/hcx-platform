@@ -1,14 +1,14 @@
-package io.hcxprotocol.model;
+package io.hcxprotocol.dto;
 
-import io.hcxprotocol.dto.HCXIntegrator;
 import io.hcxprotocol.exception.ErrorCodes;
 import org.apache.commons.lang3.StringUtils;
 
 import java.text.MessageFormat;
 import java.util.Map;
 
-import static io.hcxprotocol.utils.Constants.*;
-import static io.hcxprotocol.utils.ResponseMessage.*;
+import static io.hcxprotocol.utils.Constants.REDIRECT_TO;
+import static io.hcxprotocol.utils.ResponseMessage.INVALID_REDIRECT_ERR_MSG;
+import static io.hcxprotocol.utils.ResponseMessage.INVALID_REDIRECT_SELF_ERR_MSG;
 
 /**
  * This is to handle json payload specific validations for error and redirect scenarios.

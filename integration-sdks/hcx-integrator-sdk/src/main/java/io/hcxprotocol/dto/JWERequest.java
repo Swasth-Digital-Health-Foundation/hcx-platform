@@ -1,4 +1,4 @@
-package io.hcxprotocol.model;
+package io.hcxprotocol.dto;
 
 import java.util.Map;
 

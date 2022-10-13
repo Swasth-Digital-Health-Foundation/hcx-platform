@@ -1,9 +1,8 @@
 package io.hcxprotocol.helper;
 
-import io.hcxprotocol.dto.HCXIntegrator;
 import io.hcxprotocol.exception.ErrorCodes;
-import io.hcxprotocol.model.JSONRequest;
-import io.hcxprotocol.model.JWERequest;
+import io.hcxprotocol.dto.JSONRequest;
+import io.hcxprotocol.dto.JWERequest;
 import io.hcxprotocol.utils.JSONUtils;
 import io.hcxprotocol.utils.Operations;
 
