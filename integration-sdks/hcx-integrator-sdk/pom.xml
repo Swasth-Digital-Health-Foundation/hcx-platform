@@ -99,7 +99,7 @@
                 <version>3.4.1</version>
                 <configuration>
                     <show>public</show>
-                    <excludePackageNames>io.hcxprotocol.exception:io.hcxprotocol.dto:io.hcxprotocol.helper:io.hcxprotocol.model:io.hcxprotocol.utils</excludePackageNames>
+                    <excludePackageNames>io.hcxprotocol.exception:io.hcxprotocol.dto:io.hcxprotocol.helper:io.hcxprotocol.utils</excludePackageNames>
                 </configuration>
             </plugin>
         </plugins>

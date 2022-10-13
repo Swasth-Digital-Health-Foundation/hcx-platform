@@ -1,6 +1,5 @@
 package io.hcxprotocol.dto;
 
-import io.hcxprotocol.dto.HCXIntegrator;
 import io.hcxprotocol.exception.ErrorCodes;
 import io.hcxprotocol.utils.DateTimeUtils;
 import io.hcxprotocol.utils.JSONUtils;

@@ -1,7 +1,5 @@
 package io.hcxprotocol.dto;
 
-import io.hcxprotocol.dto.BaseRequest;
-
 import java.util.Map;
 
 /**
