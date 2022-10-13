@@ -158,9 +158,10 @@ public class NotificationService {
 
     public void processSubscription(Request request, String statusCode, Response response) throws Exception {
         List<String> senderList = request.getSenderList();
+        //Key as senderCode and value as subscriptionId generated for each sender code
         Map<String, String> subscriptionMap = insertRecords(request.getTopicCode(), statusCode, senderList, request.getRecipientCode());
         //Push the event to kafka
-        String subscriptionMessage = eventGenerator.generateSubscriptionEvent(request.getApiAction(), request.getRecipientCode(), request.getTopicCode(), senderList);
+        String subscriptionMessage = eventGenerator.generateSubscriptionEvent(request.getApiAction(), request.getRecipientCode(), request.getTopicCode(), senderList, subscriptionMap);
         kafkaClient.send(subscriptionTopic, request.getRecipientCode(), subscriptionMessage);
         //Create audit event
         auditIndexer.createDocument(eventGenerator.generateSubscriptionAuditEvent(request, QUEUED_STATUS, senderList));

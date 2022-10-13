@@ -122,21 +122,22 @@ public class EventGenerator {
         return  event;
     }
 
-    public String generateSubscriptionEvent(String apiAction,String recipientCode,String topicCode,List<String> senderList) throws JsonProcessingException {
+    public String generateSubscriptionEvent(String apiAction,String recipientCode,String topicCode,List<String> senderList,Map<String, String> subscriptionMap) throws JsonProcessingException {
         Map<String,Object> event = new HashMap<>();
         event.put(MID, UUID.randomUUID().toString());
         event.put(ETS, System.currentTimeMillis());
         event.put(ACTION, apiAction);
         event.put(AUDIT_STATUS, QUEUED_STATUS);
-        event.put(PAYLOAD, createSubscriptionPayload(topicCode,senderList));
+        event.put(PAYLOAD, createSubscriptionPayload(topicCode,senderList,subscriptionMap));
         event.put(HCX_SENDER_CODE,recipientCode);
         return JSONUtils.serialize(event);
     }
 
-    private Map<String,Object> createSubscriptionPayload(String topicCode, List<String> senderList) {
+    private Map<String,Object> createSubscriptionPayload(String topicCode, List<String> senderList,Map<String, String> subscriptionMap) {
         Map<String,Object> event = new HashMap<>();
         event.put(TOPIC_CODE,topicCode);
         event.put(SENDER_LIST,senderList);
+        event.put(SUBSCRIPTION_MAP,subscriptionMap);
         return event;
     }
 

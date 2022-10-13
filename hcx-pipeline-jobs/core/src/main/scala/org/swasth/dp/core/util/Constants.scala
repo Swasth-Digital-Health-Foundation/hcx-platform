@@ -161,4 +161,5 @@ object Constants {
   val NOTIFICATION_UNSUBSCRIBE = "/notification/unsubscribe"
   val NOTIFICATION_ONSUBSCRIBE = "/notification/on_subscribe"
   val SENDER_LIST = "sender_list"
+  val SUBSCRIPTION_MAP = "subscription_map"
 }

@@ -72,7 +72,7 @@ public interface ResponseMessage {
     String INVALID_ERROR_CODE = "Invalid Error Code";
     String DEBUG_DETAILS_ERR = "Debug details cannot be null, empty and other than 'JSON Object'";
     String DEBUG_DETAILS_VALUES_ERR = "Debug details should contain only: ";
-    String MISSING_PARTICIPANT = "{0} does not exist in registry";
+    String MISSING_PARTICIPANT = "{0} does not exist in the registry";
     String INVALID_REGISTRY_STATUS = "{0}  is blocked or inactive as per the registry";
     String HCX_CODE_ERR = "{0} should not be sent as sender/recipient in the incoming requests";
     String HCX_ROLES_ERR = "{0} role is not be sent as sender/recipient in the incoming requests";
@@ -118,5 +118,6 @@ public interface ResponseMessage {
     String NOTIFICATION_NOT_ALLOWED = "Participant is not allowed to receive this notification: {0}";
     String NOTIFICATION_TRIGGER_ERR_MSG = "{0} is not allowed to trigger this notification: {1}";
     String RECIPIENT_NOT_ALLOWED = "Recipient type is invalid, allowed type are: {0}";
+    String UNSUBSCRIBE_ERR_MSG = "Provide proper senders as * is not allowed for unsubscribe";
     
 }

@@ -24,6 +24,7 @@ public class SubscriptionFilterFunction extends BaseNotificationFunction {
             Map<String, Object> payloadMap = (Map) eventMap.get(Constants.PAYLOAD());
             String topicCode = (String) payloadMap.get(Constants.TOPIC_CODE());
             List<String> senderList = (List<String>) payloadMap.get(Constants.SENDER_LIST());
+            Map<String, Object> subscriptionMap = (Map) payloadMap.get(Constants.SUBSCRIPTION_MAP());
             //Remove existing payload with all the sender details
             inputEvent.remove(Constants.PAYLOAD());
             for (String senderCode : senderList) {
@@ -31,7 +32,7 @@ public class SubscriptionFilterFunction extends BaseNotificationFunction {
                     //add senderCode as HCX_RECIPIENT_CODE inorder to dispatch the request to the sender for accepting the subscription
                     inputEvent.put(Constants.HCX_RECIPIENT_CODE(), senderCode);
                     //add payload with only single user details
-                    inputEvent.put(Constants.PAYLOAD(), createPayload(topicCode, senderCode));
+                    inputEvent.put(Constants.PAYLOAD(), createPayload(topicCode, senderCode, subscriptionMap, recipientCode));
                     //Create audit event
                     auditService.indexAudit(createSubscriptionAuditEvent(action, topicCode, senderCode, recipientCode, Constants.QUEUED_STATUS()));
                     //process each sender record with the modified payload
@@ -45,12 +46,14 @@ public class SubscriptionFilterFunction extends BaseNotificationFunction {
         }
     }
 
-    private Map<String, Object> createPayload(String topicCode, String senderCode) {
+    private Map<String, Object> createPayload(String topicCode, String senderCode, Map<String, Object> subscriptionMap, String recipientCode) {
         Map<String, Object> event = new HashMap<>();
         event.put(Constants.TOPIC_CODE(), topicCode);
         event.put(Constants.SENDER_LIST(), new ArrayList() {{
             add(senderCode);
         }});
+        event.put(Constants.RECIPIENT_CODE(), recipientCode);
+        event.put(Constants.SUBSCRIPTION_ID(),subscriptionMap.get(senderCode));
         return event;
     }
 

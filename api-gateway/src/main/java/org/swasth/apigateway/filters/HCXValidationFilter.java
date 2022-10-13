@@ -119,9 +119,13 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                 } else if (path.contains(NOTIFICATION_SUBSCRIBE) || path.contains(NOTIFICATION_UNSUBSCRIBE)) { //for validating /notification/subscribe, /notification/unsubscribe
                     JSONRequest jsonRequest = new JSONRequest(requestBody, true, path, hcxCode, hcxRoles);
                     requestObj = jsonRequest;
+                    // Do not allow * in the request body for unsubscribe
+                    if (jsonRequest.getSenderList().contains("*") && path.contains(NOTIFICATION_UNSUBSCRIBE)) {
+                        throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, UNSUBSCRIBE_ERR_MSG);
+                    }
                     Map<String, Object> recipientDetails = registryService.fetchDetails(OS_OWNER, subject);
                     List<Map<String, Object>> senderListDetails = new ArrayList<>();
-                    //Check for * in the request body in sendersList and send subscription for all valid participants who roles
+                    //Check for * in the request body in sendersList and send subscription for all valid participants
                     Map<String, Object> notification = NotificationUtils.getNotification(jsonRequest.getTopicCode());
                     if (jsonRequest.getSenderList().contains("*")) {
                         String searchRequest = createSearchRequest((List<String>) notification.get(Constants.ALLOWED_SENDERS), ROLES, true);

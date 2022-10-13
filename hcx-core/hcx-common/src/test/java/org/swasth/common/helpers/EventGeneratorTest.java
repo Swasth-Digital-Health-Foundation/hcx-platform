@@ -164,7 +164,7 @@ public class EventGeneratorTest {
 
     @Test
     public void testGenerateSubscriptionEvent() throws Exception {
-        String result = eventGenerator.generateSubscriptionEvent(NOTIFICATION_SUBSCRIBE,"hcx-apollo-12345","hcx-notification-001",new ArrayList<>(){{add("icici-67890");add("Payor1"); add("Payor2");}});
+        String result = eventGenerator.generateSubscriptionEvent(NOTIFICATION_SUBSCRIBE,"hcx-apollo-12345","hcx-notification-001",new ArrayList<>(){{add("icici-67890");add("Payor1"); add("Payor2");}},new HashMap<>(){{put("icici-67890","subscription_1");put("Payor1","subscription_2");put("Payor2","subscription_3");}});
         assertNotNull(result);
         assertTrue(result.contains(QUEUED_STATUS));
         assertTrue(result.contains(NOTIFICATION_SUBSCRIBE));

@@ -93,6 +93,6 @@ notification:
   subscription:
     expiry: ${notification_subscription_expiry:100}
     allowedFilters: ${notification_subscription_allowedFilters:subscription_id, topic_code, subscription_status}
-  networkPath: ${notification_networkPath:/src/main/resources/networkNotifications.yaml}
-  participantPath: ${notification_participantPath:/src/main/resources/participantNotifications.yaml}
-  workflowPath: ${notification_workflowPath:/src/main/resources/workflowNotifications.yaml}
+  networkPath: ${notification_networkPath:networkNotifications.yaml}
+  participantPath: ${notification_participantPath:participantNotifications.yaml}
+  workflowPath: ${notification_workflowPath:workflowNotifications.yaml}

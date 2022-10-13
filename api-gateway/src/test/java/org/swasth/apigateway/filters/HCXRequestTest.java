@@ -684,7 +684,7 @@ class HCXRequestTest extends BaseSpec {
                 .consumeWith(result -> {
                     assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
                     assertEquals(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ.name(), getResponseErrorCode(result));
-                    assertTrue(getResponseErrorMessage(result).contains("Recipients does not exist in the registry"));
+                    assertTrue(getResponseErrorMessage(result).contains(" does not exist in the registry"));
                 });
     }
 
@@ -706,7 +706,7 @@ class HCXRequestTest extends BaseSpec {
                 .consumeWith(result -> {
                     assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
                     assertEquals(ErrorCodes.ERR_INVALID_SENDER.name(), getResponseErrorCode(result));
-                    assertTrue(getResponseErrorMessage(result).contains("does not exist in registry"));
+                    assertTrue(getResponseErrorMessage(result).contains("does not exist in the registry"));
                 });
     }
 
@@ -776,7 +776,7 @@ class HCXRequestTest extends BaseSpec {
                 .consumeWith(result -> {
                     assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
                     assertEquals(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ.name(), getResponseErrorCode(result));
-                    assertTrue(getResponseErrorMessage(result).contains("Recipients does not exist in the registry"));
+                    assertTrue(getResponseErrorMessage(result).contains(" does not exist in the registry"));
                 });
     }
 
@@ -863,7 +863,7 @@ class HCXRequestTest extends BaseSpec {
                 .consumeWith(result -> {
                     assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
                     assertEquals(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ.name(), getResponseErrorCode(result));
-                    assertTrue(getResponseErrorMessage(result).contains("Senders does not exist in the registry"));
+                    assertTrue(getResponseErrorMessage(result).contains(" does not exist in the registry"));
                 });
     }
 
@@ -1003,7 +1003,7 @@ class HCXRequestTest extends BaseSpec {
                 .consumeWith(result -> {
                     assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
                     assertEquals(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ.name(), getResponseErrorCode(result));
-                    assertTrue(getResponseErrorMessage(result).contains("Senders does not exist in the registry"));
+                    assertTrue(getResponseErrorMessage(result).contains(" does not exist in the registry"));
                 });
     }
 

@@ -189,6 +189,7 @@ public class Constants {
     public static final String SENDER_CODE = "sender_code";
     public static final String MESSAGE = "message";
     public static final String SENDER_LIST = "sender_list";
+    public static final String SUBSCRIPTION_MAP = "subscription_map";
     public static final String SUBSCRIPTION_STATUS = "subscription_status";
     public static final String RECIPIENT_CODE = "recipient_code";
     public static final String IS_DELEGATED = "is_delegated";

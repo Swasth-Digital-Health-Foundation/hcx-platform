@@ -1,6 +1,5 @@
 package org.swasth.common.utils;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -19,9 +18,9 @@ public class NotificationUtils {
     public static List<String> topicCodeList = new ArrayList<>();
 
     private void loadNotifications(String networkPath, String participantPath, String workflowPath) throws IOException {
-        List<Map<String, Object>> networkList = YamlUtils.convertYaml(new FileInputStream(networkPath), List.class);
-        List<Map<String, Object>> participantList = YamlUtils.convertYaml(new FileInputStream(participantPath), List.class);
-        List<Map<String, Object>> workflowList = YamlUtils.convertYaml(new FileInputStream(workflowPath), List.class);
+        List<Map<String, Object>> networkList = YamlUtils.convertYaml(getClass().getClassLoader().getResourceAsStream(networkPath), List.class);
+        List<Map<String, Object>> participantList = YamlUtils.convertYaml(getClass().getClassLoader().getResourceAsStream(participantPath), List.class);
+        List<Map<String, Object>> workflowList = YamlUtils.convertYaml(getClass().getClassLoader().getResourceAsStream(workflowPath), List.class);
         notificationList = Stream.of(networkList, participantList, workflowList).flatMap(Collection::stream).collect(Collectors.toList());
         notificationList.forEach(obj -> topicCodeList.add((String) obj.get(TOPIC_CODE)));
     }
