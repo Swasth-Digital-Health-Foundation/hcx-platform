@@ -1,7 +1,6 @@
 package io.hcxprotocol.utils;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import io.hcxprotocol.dto.HCXIntegrator;
+import io.hcxprotocol.init.HCXIntegrator;
 import io.hcxprotocol.dto.HttpResponse;
 import io.hcxprotocol.exception.ServerException;
 

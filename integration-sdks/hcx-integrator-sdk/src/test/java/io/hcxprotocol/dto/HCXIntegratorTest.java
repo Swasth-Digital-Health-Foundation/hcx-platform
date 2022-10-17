@@ -1,5 +1,6 @@
 package io.hcxprotocol.dto;
 
+import io.hcxprotocol.init.HCXIntegrator;
 import org.junit.Test;
 
 import java.util.HashMap;
