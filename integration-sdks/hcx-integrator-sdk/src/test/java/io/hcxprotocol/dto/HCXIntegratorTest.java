@@ -54,8 +54,7 @@ public class HCXIntegratorTest {
     }
 
     @Test(expected = Exception.class)
-    public void testInitializeException() throws Exception {
+    public void testWithoutConfigVariablesInitialization() throws Exception {
         HCXIntegrator hcxIntegrator = HCXIntegrator.getInstance();
-        assertEquals("http://localhost:8095", hcxIntegrator.getHCXProtocolBasePath());
     }
 }
