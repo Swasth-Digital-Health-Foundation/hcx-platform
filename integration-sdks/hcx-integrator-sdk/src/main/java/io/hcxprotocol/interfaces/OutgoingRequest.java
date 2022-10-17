@@ -212,6 +212,6 @@ public interface OutgoingRequest {
      *
      * @throws JsonProcessingException The exception throws when it is having issues in parsing the JSON object.
      */
-    boolean initializeHCXCall(String jwePayload, Operations operation, Map<String,Object> response) throws JsonProcessingException;
+    boolean initializeHCXCall(String jwePayload, Operations operation, Map<String,Object> response) throws Exception;
 
 }

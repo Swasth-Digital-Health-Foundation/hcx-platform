@@ -41,6 +41,9 @@ public class HCXIncomingRequest extends FhirPayload implements IncomingRequest {
 
     private final HCXIntegrator hcxIntegrator = HCXIntegrator.getInstance();
 
+    public HCXIncomingRequest() throws Exception {
+    }
+
     @Override
     public boolean process(String jwePayload, Operations operation, Map<String, Object> output) {
         Map<String, Object> error = new HashMap<>();
