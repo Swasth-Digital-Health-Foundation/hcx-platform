@@ -1,4 +1,4 @@
-package io.hcxprotocol.dto;
+package io.hcxprotocol.init;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -25,12 +25,22 @@ public class HCXIntegrator {
         return hcxIntegrator;
     }
 
-    // To initialize config factory by passing the configuration as Map
+
+    /**
+     * This method is to initialize config factory by passing the configuration as Map.
+     *
+     * @param configMap A Map that contains configuration variables and its values.
+     */
     public static void init(Map<String,Object> configMap) {
         config = ConfigFactory.parseMap(configMap);
     }
 
-    // To initialize config factory by passing the configuration as JSON String
+
+    /**
+     * This method is to initialize config factory by passing the configuration as JSON String.
+     *
+     * @param configStr A String that contains configuration variables and its values in a JSON format.
+     */
     public static void init(String configStr) {
         config = ConfigFactory.parseString(configStr);
     }

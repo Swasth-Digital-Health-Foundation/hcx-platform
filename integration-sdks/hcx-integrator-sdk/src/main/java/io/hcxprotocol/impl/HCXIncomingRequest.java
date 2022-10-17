@@ -1,6 +1,6 @@
 package io.hcxprotocol.impl;
 
-import io.hcxprotocol.dto.HCXIntegrator;
+import io.hcxprotocol.init.HCXIntegrator;
 import io.hcxprotocol.dto.ResponseError;
 import io.hcxprotocol.exception.ErrorCodes;
 import io.hcxprotocol.helper.ValidateHelper;
