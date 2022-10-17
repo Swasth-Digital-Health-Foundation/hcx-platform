@@ -3,12 +3,16 @@ package io.hcxprotocol.dto;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
+import java.util.Map;
+
 /**
  * The methods and variables to access the configuration. Enumeration of error codes and operations.
  */
 public class HCXIntegrator {
 
     private static HCXIntegrator hcxIntegrator = null;
+
+    private static Config config = null;
 
     private HCXIntegrator() {
     }
@@ -19,34 +23,42 @@ public class HCXIntegrator {
         return hcxIntegrator;
     }
 
-    Config config = ConfigFactory.load();
+    // To initialize config factory by passing the configuration as Map
+    public static void init(Map<String,Object> configMap) {
+        config = ConfigFactory.parseMap(configMap);
+    }
+
+    // To initialize config factory by passing the configuration as String
+    public static void init(String configStr) {
+        config = ConfigFactory.parseString(configStr);
+    }
 
     public String getHCXProtocolBasePath() {
-        return config.getString("hcx.protocolBasePath");
+        return config.getString("protocolBasePath");
     }
 
     public String getParticipantCode() {
-        return config.getString("hcx.participantCode");
+        return config.getString("participantCode");
     }
 
     public String getAuthBasePath() {
-        return config.getString("hcx.authBasePath");
+        return config.getString("authBasePath");
     }
 
     public String getUsername() {
-        return config.getString("hcx.username");
+        return config.getString("username");
     }
 
     public String getPassword() {
-        return config.getString("hcx.password");
+        return config.getString("password");
     }
 
     public String getPrivateKey() {
-        return config.getString("hcx.encryptionPrivateKey");
+        return config.getString("encryptionPrivateKey");
     }
 
     public String getIGUrl() {
-        return config.getString("hcx.igUrl");
+        return config.getString("igUrl");
     }
 
 }
