@@ -54,6 +54,9 @@ public class HCXOutgoingRequest extends FhirPayload implements OutgoingRequest {
 
     private final HCXIntegrator hcxIntegrator = HCXIntegrator.getInstance();
 
+    public HCXOutgoingRequest() throws Exception {
+    }
+
     @Override
     public boolean generate(String fhirPayload, Operations operation, String recipientCode, Map<String,Object> output){
         return process(fhirPayload, operation, recipientCode, "", "", output);
@@ -81,8 +84,8 @@ public class HCXOutgoingRequest extends FhirPayload implements OutgoingRequest {
                 output.putAll(response);
             }
             return result;
-        } catch (JsonProcessingException ex) {
-            // TODO: JsonProcessingException is handled as domain processing error, we will be enhancing in next version.
+        } catch (Exception ex) {
+            // TODO: Exception is handled as domain processing error, we will be enhancing in next version.
             output.put(ErrorCodes.ERR_DOMAIN_PROCESSING.toString(), ex.getMessage());
             return result;
         }
@@ -133,9 +136,9 @@ public class HCXOutgoingRequest extends FhirPayload implements OutgoingRequest {
         }
     }
 
-    // we are handling the JsonProcessingException in processFunction method
+    // we are handling the Exception in processFunction method
     @Override
-    public boolean initializeHCXCall(String jwePayload, Operations operation, Map<String,Object> response) throws JsonProcessingException {
+    public boolean initializeHCXCall(String jwePayload, Operations operation, Map<String,Object> response) throws Exception {
         Map<String,String> headers = new HashMap<>();
         headers.put(Constants.AUTHORIZATION, "Bearer " + Utils.generateToken());
         HttpResponse hcxResponse = HttpUtils.post(hcxIntegrator.getHCXProtocolBasePath() + operation.getOperation(), headers, jwePayload);

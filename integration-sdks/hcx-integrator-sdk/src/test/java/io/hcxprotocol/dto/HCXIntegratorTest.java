@@ -10,7 +10,7 @@ import static org.junit.Assert.assertEquals;
 public class HCXIntegratorTest {
 
     @Test
-    public void testInitializeConfigMap() {
+    public void testInitializeConfigMap() throws Exception {
         Map<String,Object> configMap = new HashMap<>();
         configMap.put("protocolBasePath", "http://localhost:8095");
         configMap.put("participantCode", "participant@01");
@@ -38,7 +38,7 @@ public class HCXIntegratorTest {
     }
 
     @Test
-    public void testInitializeConfigString() {
+    public void testInitializeConfigString() throws Exception {
         String configStr = "{\"password\":\"12345\",\"protocolBasePath\":\"http://localhost:8095\",\"igUrl\":\"http://localhost:8090\",\"authBasePath\":\"http://localhost:8080\",\"encryptionPrivateKey\":\"Mz-VPPyU4RlcuYv1IwIvzw\",\"participantCode\":\"participant@01\",\"username\":\"participant@gmail.com\"}";
 
         HCXIntegrator.init(configStr);
@@ -51,5 +51,11 @@ public class HCXIntegratorTest {
         assertEquals("12345", hcxIntegrator.getPassword());
         assertEquals("Mz-VPPyU4RlcuYv1IwIvzw", hcxIntegrator.getPrivateKey());
         assertEquals("http://localhost:8090", hcxIntegrator.getIGUrl());
+    }
+
+    @Test(expected = Exception.class)
+    public void testInitializeException() throws Exception {
+        HCXIntegrator hcxIntegrator = HCXIntegrator.getInstance();
+        assertEquals("http://localhost:8095", hcxIntegrator.getHCXProtocolBasePath());
     }
 }

@@ -17,7 +17,9 @@ public class HCXIntegrator {
     private HCXIntegrator() {
     }
 
-    public static HCXIntegrator getInstance() {
+    public static HCXIntegrator getInstance() throws Exception {
+        if(config == null)
+            throw new Exception("Please initialize the configuration variables, in order to initialize the SDK");
         if (hcxIntegrator == null)
             hcxIntegrator = new HCXIntegrator();
         return hcxIntegrator;
@@ -28,7 +30,7 @@ public class HCXIntegrator {
         config = ConfigFactory.parseMap(configMap);
     }
 
-    // To initialize config factory by passing the configuration as String
+    // To initialize config factory by passing the configuration as JSON String
     public static void init(String configStr) {
         config = ConfigFactory.parseString(configStr);
     }
