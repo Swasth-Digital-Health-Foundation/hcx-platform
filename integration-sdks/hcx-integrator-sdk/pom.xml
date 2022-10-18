@@ -46,7 +46,7 @@
             <artifactId>bcprov-jdk15on</artifactId>
             <version>1.70</version>
         </dependency>
-        <!-- run mvn clean to store dependencies in local repo -->
+        <!-- run mvn clean to store jwe-helper dependency in local repo -->
         <dependency>
             <groupId>org.swasth</groupId>
             <artifactId>jwe-helper</artifactId>
