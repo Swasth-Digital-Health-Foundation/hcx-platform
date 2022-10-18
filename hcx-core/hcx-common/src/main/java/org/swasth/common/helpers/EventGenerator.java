@@ -1,6 +1,7 @@
 package org.swasth.common.helpers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.apache.commons.lang3.StringUtils;
 import org.swasth.common.dto.Request;
 import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
@@ -109,7 +110,7 @@ public class EventGenerator {
         event.put(DEBUG_DETAILS, request.getDebugDetails());
         event.put(MID, request.getMid());
         event.put(ACTION, request.getApiAction());
-        if(request.getStatus() == null)
+        if(StringUtils.isEmpty(request.getStatus()))
             event.put(STATUS, QUEUED_STATUS);
         else
             event.put(STATUS, request.getStatus());
