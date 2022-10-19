@@ -46,7 +46,7 @@ public abstract class BaseNotificationFunction extends ProcessFunction<Map<Strin
     }
 
     protected String addQuotes(List<String> list){
-        return list.stream().map(plain ->  StringUtils.wrap(plain, "\"")).collect(Collectors.joining(","));
+        return list.stream().map(plain ->  "\"" + plain + "\"").collect(Collectors.joining(","));
     }
 
     protected String getProtocolStringValue(String key,Map<String,Object> event) {
