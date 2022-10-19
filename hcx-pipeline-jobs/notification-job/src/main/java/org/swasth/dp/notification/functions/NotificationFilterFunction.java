@@ -64,7 +64,7 @@ public class NotificationFilterFunction extends BaseNotificationFunction {
 
     private List<String> getParticipantCodes(String topicCode, String senderCode, String id, List<String> recipients) throws SQLException {
         List<String> participantCodes = new ArrayList<>();
-        String formatRecipients = recipients.stream().map(plain ->  StringUtils.wrap(plain, "'")).collect(Collectors.joining(","));
+        String formatRecipients = recipients.stream().map(plain ->  "'" + plain + "'").collect(Collectors.joining(","));
         String query = String.format("SELECT %s,%s FROM %s WHERE %s = '%s' AND %s = '%s' AND %s = 'Active' AND %s IN (%s)", Constants.RECIPIENT_CODE(), Constants.EXPIRY(),
                 config.subscriptionTableName, Constants.SENDER_CODE(), senderCode, Constants.TOPIC_CODE(), topicCode, Constants.SUBSCRIPTION_STATUS(), id, formatRecipients);
         ResultSet resultSet = postgresConnect.executeQuery(query);
