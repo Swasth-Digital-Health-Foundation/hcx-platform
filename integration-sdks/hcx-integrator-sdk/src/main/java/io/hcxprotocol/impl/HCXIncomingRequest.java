@@ -1,6 +1,6 @@
 package io.hcxprotocol.impl;
 
-import io.hcxprotocol.dto.HCXIntegrator;
+import io.hcxprotocol.init.HCXIntegrator;
 import io.hcxprotocol.dto.ResponseError;
 import io.hcxprotocol.exception.ErrorCodes;
 import io.hcxprotocol.helper.ValidateHelper;
@@ -40,6 +40,9 @@ import java.util.Map;
 public class HCXIncomingRequest extends FhirPayload implements IncomingRequest {
 
     private final HCXIntegrator hcxIntegrator = HCXIntegrator.getInstance();
+
+    public HCXIncomingRequest() throws Exception {
+    }
 
     @Override
     public boolean process(String jwePayload, Operations operation, Map<String, Object> output) {

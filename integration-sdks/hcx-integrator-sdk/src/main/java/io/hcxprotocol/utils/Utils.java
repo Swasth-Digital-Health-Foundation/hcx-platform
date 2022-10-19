@@ -1,7 +1,6 @@
 package io.hcxprotocol.utils;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import io.hcxprotocol.dto.HCXIntegrator;
+import io.hcxprotocol.init.HCXIntegrator;
 import io.hcxprotocol.dto.HttpResponse;
 import io.hcxprotocol.exception.ServerException;
 
@@ -20,7 +19,7 @@ import java.util.Map;
 public class Utils {
 
     // TODO: In the initial version we are not handling the token caching, it will be handled in the next version
-    public static String generateToken() throws JsonProcessingException {
+    public static String generateToken() throws Exception {
         Map<String,String> headers = new HashMap<>();
         headers.put("content-type", "application/x-www-form-urlencoded");
         Map<String,Object> fields = new HashMap<>();
@@ -34,7 +33,7 @@ public class Utils {
         return responseBody.get("access_token");
     }
 
-    public static Map<String,Object> searchRegistry(Object participantCode) throws ServerException, JsonProcessingException {
+    public static Map<String,Object> searchRegistry(Object participantCode) throws Exception {
         String filter = "{\"filters\":{\"participant_code\":{\"eq\":\"" + participantCode + "\"}}}";
         Map<String,String> headers = new HashMap<>();
         headers.put(Constants.AUTHORIZATION, "Bearer " + generateToken());

@@ -1,7 +1,5 @@
 package io.hcxprotocol.helper;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import io.hcxprotocol.dto.HCXIntegrator;
 import io.hcxprotocol.utils.JSONUtils;
 import io.hcxprotocol.utils.Operations;
 import org.junit.Test;
