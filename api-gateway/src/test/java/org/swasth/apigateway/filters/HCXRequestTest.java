@@ -858,7 +858,7 @@ class HCXRequestTest extends BaseSpec {
                 .consumeWith(result -> {
                     assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
                     assertEquals(ErrorCodes.ERR_INVALID_ALGORITHM.name(), getResponseErrorCode(result));
-                    assertEquals(getResponseErrorMessage(result), INVALID_ALGO);
+                    assertEquals(INVALID_ALGO, getResponseErrorMessage(result));
                 });
     }
 
@@ -883,7 +883,7 @@ class HCXRequestTest extends BaseSpec {
                 .consumeWith(result -> {
                     assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
                     assertEquals(ErrorCodes.ERR_INVALID_NOTIFICATION_TIMESTAMP.name(), getResponseErrorCode(result));
-                    assertEquals(getResponseErrorMessage(result), NOTIFICATION_TS_MSG);
+                    assertEquals(NOTIFICATION_TS_MSG, getResponseErrorMessage(result));
                 });
     }
 
@@ -908,7 +908,7 @@ class HCXRequestTest extends BaseSpec {
                 .consumeWith(result -> {
                     assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
                     assertEquals(ErrorCodes.ERR_INVALID_NOTIFICATION_EXPIRY.name(), getResponseErrorCode(result));
-                    assertEquals(getResponseErrorMessage(result), NOTIFICATION_EXPIRY);
+                    assertEquals(NOTIFICATION_EXPIRY, getResponseErrorMessage(result));
                 });
     }
 
@@ -1152,6 +1152,28 @@ class HCXRequestTest extends BaseSpec {
                 .exchange()
                 .expectBody(Map.class)
                 .consumeWith(result -> assertEquals(HttpStatus.ACCEPTED, result.getStatus()));
+    }
+
+    @Test
+    void test_notification_unsubscribe_participant_all_failure() throws Exception {
+        server.enqueue(new MockResponse()
+                .setResponseCode(202)
+                .addHeader("Content-Type", "application/json"));
+
+        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
+                .thenReturn(getProviderDetails());
+        Mockito.when(registryService.getDetails(anyString()))
+                .thenReturn(Arrays.asList(getPayorDetails()));
+        client.post().uri(versionPrefix + Constants.NOTIFICATION_UNSUBSCRIBE)
+                .header(Constants.AUTHORIZATION, getProviderToken())
+                .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
+                .bodyValue(getSubscriptionRequest("notif-claim-particular-disease", Arrays.asList("*")))
+                .exchange()
+                .expectBody(Map.class)
+                .consumeWith(result -> {
+                    assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
+                    assertEquals(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ.name(), getResponseErrorCode(result));
+                });
     }
 
     @Test

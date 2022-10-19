@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.swasth.apigateway.exception.ErrorCodes;
 import org.swasth.apigateway.exception.ServerException;
@@ -47,7 +48,7 @@ public class AuditService {
             throw new ServerException(ErrorCodes.SERVICE_UNAVAILABLE, MessageFormat.format(AUDIT_SERVICE_ERROR, e.getMessage()));
         }
         List<Map<String, Object>> details;
-        if (response != null && response.getStatus() == 200) {
+        if (response.getStatus() == HttpStatus.OK.value()) {
             details = JSONUtils.deserialize((String) response.getBody(), ArrayList.class);
             System.out.println("Audit filters: " + filters + " Audit data count: " + details.size() + " Audit data: " + details);
         } else {

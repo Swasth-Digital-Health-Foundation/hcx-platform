@@ -76,7 +76,7 @@ public class JSONRequest extends BaseRequest {
         validateCondition(getProtocolHeaders().containsKey(EXPIRY) && new DateTime(getExpiry()).isBefore(DateTime.now()), ErrorCodes.ERR_INVALID_NOTIFICATION_EXPIRY, NOTIFICATION_EXPIRY);
         validateCondition(StringUtils.isEmpty(getRecipientType()), ErrorCodes.ERR_INVALID_NOTIFICATION_RECIPIENT_TYPE, NOTIFICATION_RECIPIENT_ERR_MSG);
         validateCondition(!ALLOWED_RECIPIENT_TYPE.contains(getRecipientType()), ErrorCodes.ERR_INVALID_NOTIFICATION_RECIPIENT_TYPE, MessageFormat.format(RECIPIENT_NOT_ALLOWED, ALLOWED_RECIPIENT_TYPE));
-        validateCondition(getRecipients().size() == 0, ErrorCodes.ERR_INVALID_NOTIFICATION_RECIPIENTS, NOTIFICATION_RECIPIENT_LIST);
+        validateCondition(getRecipients().isEmpty(), ErrorCodes.ERR_INVALID_NOTIFICATION_RECIPIENTS, NOTIFICATION_RECIPIENT_LIST);
         validateCondition(StringUtils.isEmpty(getNotificationMessage()), ErrorCodes.ERR_INVALID_NOTIFICATION_MESSAGE, NOTIFICATION_MESSAGE_ERR);
         validateCondition(StringUtils.isEmpty(getTopicCode()), ErrorCodes.ERR_INVALID_NOTIFICATION_TOPIC_CODE, NOTIFICATION_TOPIC_ERR);
         validateCondition(!NotificationUtils.isValidCode(getTopicCode()), ErrorCodes.ERR_INVALID_NOTIFICATION_TOPIC_CODE, MessageFormat.format(NOTIFICATION_INVALID_TOPIC, getTopicCode()));
