@@ -14,6 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.swasth.common.response.ResponseMessage.*;
 
 class HCXRequestTest extends BaseSpec {
 
@@ -248,6 +249,20 @@ class HCXRequestTest extends BaseSpec {
                 .consumeWith(result -> {
                     assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
                     assertEquals(ErrorCodes.ERR_INVALID_API_CALL_ID.name(), getResponseErrorCode(result));
+                });
+    }
+
+    @Test
+    void check_hcx_request_invalid_correlation_id_scenario() {
+        client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_CHECK)
+                .header(Constants.AUTHORIZATION, getProviderToken())
+                .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
+                .bodyValue(Collections.singletonMap("payload", "eyJlbmMiOiJBMjU2R0NNIiwKImFsZyI6IlJTQS1PQUVQIiwKIngtaGN4LXNlbmRlcl9jb2RlIjoiMS0zYTNiZDY4YS04NDhhLTRkNTItOWVjMi0wN2E5MmQ3NjVmYjQiLAoieC1oY3gtcmVjaXBpZW50X2NvZGUiOiIxLWNlMjNjY2RjLWU2NDUtNGUzNS05N2I4LTBiZDhmZWY0M2VjZCIsCiJ4LWhjeC1hcGlfY2FsbF9pZCI6IjVlOTM0ZjkwLTExMWQtNGYwYi1iMDE2LWMyMmQ4MjA2NzRlMSIsCiJ4LWhjeC1jb3JyZWxhdGlvbl9pZCI6IjFlODMtNDYwMC05NjEyLWVhMzFlMGNhNTA5MyIsCiJ4LWhjeC10aW1lc3RhbXAiOiIyMDIxLTEwLTI3VDIwOjM1OjUyLjYzNiswNTMwIiwKIngtaGN4LXN0YXR1cyI6InJlcXVlc3QucXVldWVkIiwKIngtaGN4LXdvcmtmbG93X2lkIjoiMjZiMTA2MGMtMWU4My00NjAwLTk2MTItZWEzMWUwY2E1MDk0Igp9.6KB707dM9YTIgHtLvtgWQ8mKwboJW3of9locizkDTHzBC2IlrT1oOQ.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.KDlTtXchhZTGufMYmOYGS4HffxPSUrfmqCHXaI9wOGY.Mz-VPPyU4RlcuYv1IwIvzw"))
+                .exchange()
+                .expectBody(Map.class)
+                .consumeWith(result -> {
+                    assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
+                    assertEquals(ErrorCodes.ERR_INVALID_CORRELATION_ID.name(), getResponseErrorCode(result));
                 });
     }
 
@@ -583,6 +598,25 @@ class HCXRequestTest extends BaseSpec {
     }
 
     @Test
+    void check_hcx_redirect_request_invalid_role_scenario() throws Exception {
+        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
+                .thenReturn(getPayorDetails())
+                .thenReturn(getProviderDetails())
+                .thenReturn(getProviderDetails());
+
+        client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_ONCHECK)
+                .header(Constants.AUTHORIZATION, getPayorToken())
+                .header("X-jwt-sub", "20bd4228-a87f-4175-a30a-20fb28983afb")
+                .bodyValue("{ \"x-hcx-recipient_code\": \"1-3a3bd68a-848a-4d52-9ec2-07a92d765fb4\", \"x-hcx-timestamp\": \"2021-10-27T20:35:52.636+0530\", \"x-hcx-sender_code\": \"1-2ff1f493-c4d4-4fc7-8d41-aaabb997af23\", \"x-hcx-correlation_id\": \"5e934f90-111d-4f0b-b016-c22d820674e1\", \"x-hcx-workflow_id\":\"26b1060c-1e83-4600-9612-ea31e0ca5094\", \"x-hcx-api_call_id\": \"26b1060c-1e83-4600-9612-ea31e0ca5194\", \"x-hcx-status\": \"response.redirect\", \"x-hcx-redirect_to\": \"1-74f6cb29-4116-42d0-9fbb-adb65e6a64ac\" }")
+                .exchange()
+                .expectBody(Map.class)
+                .consumeWith(result -> {
+                    assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
+                    assertEquals(ErrorCodes.ERR_INVALID_REDIRECT_TO.name(), getResponseErrorCode(result));
+                });
+    }
+
+    @Test
     void check_hcx_request_invalid_payload_action_scenario() throws Exception {
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getProviderDetails())
@@ -800,6 +834,81 @@ class HCXRequestTest extends BaseSpec {
                     assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
                     assertEquals(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ.name(), getResponseErrorCode(result));
                     assertTrue(getResponseErrorMessage(result).contains("Recipient roles are out of range"));
+                });
+    }
+
+    @Test
+    void test_notification_notify_invalid_alg_scenario() throws Exception {
+        server.enqueue(new MockResponse()
+                .setResponseCode(202)
+                .addHeader("Content-Type", "application/json"));
+
+        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
+                .thenReturn(getProviderDetails());
+        Mockito.when(registryService.getDetails(anyString()))
+                .thenReturn(Arrays.asList(getPayorDetails()));
+        Mockito.when(jwtUtils.isValidSignature(anyString(), anyString()))
+                .thenReturn(Boolean.TRUE);
+        client.post().uri(versionPrefix + Constants.NOTIFICATION_NOTIFY)
+                .header(Constants.AUTHORIZATION, getProviderToken())
+                .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
+                .bodyValue(getNotificationRequestInvalidAlg("notif-admission-case", Constants.SUBSCRIPTION, Arrays.asList("subscription-123")))
+                .exchange()
+                .expectBody(Map.class)
+                .consumeWith(result -> {
+                    assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
+                    assertEquals(ErrorCodes.ERR_INVALID_ALGORITHM.name(), getResponseErrorCode(result));
+                    assertEquals(getResponseErrorMessage(result), INVALID_ALGO);
+                });
+    }
+
+    @Test
+    void test_notification_notify_invalid_timestamp_scenario() throws Exception {
+        server.enqueue(new MockResponse()
+                .setResponseCode(202)
+                .addHeader("Content-Type", "application/json"));
+
+        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
+                .thenReturn(getProviderDetails());
+        Mockito.when(registryService.getDetails(anyString()))
+                .thenReturn(Arrays.asList(getPayorDetails()));
+        Mockito.when(jwtUtils.isValidSignature(anyString(), anyString()))
+                .thenReturn(Boolean.TRUE);
+        client.post().uri(versionPrefix + Constants.NOTIFICATION_NOTIFY)
+                .header(Constants.AUTHORIZATION, getProviderToken())
+                .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
+                .bodyValue(getNotificationRequestInvalidTimestamp("notif-admission-case", Constants.SUBSCRIPTION, Arrays.asList("subscription-123")))
+                .exchange()
+                .expectBody(Map.class)
+                .consumeWith(result -> {
+                    assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
+                    assertEquals(ErrorCodes.ERR_INVALID_NOTIFICATION_TIMESTAMP.name(), getResponseErrorCode(result));
+                    assertEquals(getResponseErrorMessage(result), NOTIFICATION_TS_MSG);
+                });
+    }
+
+    @Test
+    void test_notification_notify_invalid_expiry_scenario() throws Exception {
+        server.enqueue(new MockResponse()
+                .setResponseCode(202)
+                .addHeader("Content-Type", "application/json"));
+
+        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
+                .thenReturn(getProviderDetails());
+        Mockito.when(registryService.getDetails(anyString()))
+                .thenReturn(Arrays.asList(getPayorDetails()));
+        Mockito.when(jwtUtils.isValidSignature(anyString(), anyString()))
+                .thenReturn(Boolean.TRUE);
+        client.post().uri(versionPrefix + Constants.NOTIFICATION_NOTIFY)
+                .header(Constants.AUTHORIZATION, getProviderToken())
+                .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
+                .bodyValue(getNotificationRequestInvalidExpiry("notif-admission-case", Constants.SUBSCRIPTION, Arrays.asList("subscription-123")))
+                .exchange()
+                .expectBody(Map.class)
+                .consumeWith(result -> {
+                    assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
+                    assertEquals(ErrorCodes.ERR_INVALID_NOTIFICATION_EXPIRY.name(), getResponseErrorCode(result));
+                    assertEquals(getResponseErrorMessage(result), NOTIFICATION_EXPIRY);
                 });
     }
 

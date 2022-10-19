@@ -126,6 +126,62 @@ public class BaseSpec {
         return JSONUtils.serialize(jwsPayload);
     }
 
+    protected String getNotificationRequestInvalidAlg(String topicCode, String recipientType, List<String> recipients) throws JsonProcessingException {
+        Map<String,Object> notificationHeaders = new HashMap<>();
+        notificationHeaders.put(SENDER_CODE, "hcx-apollo-12345");
+        notificationHeaders.put("timestamp", System.currentTimeMillis());
+        notificationHeaders.put(RECIPIENT_TYPE, recipientType);
+        notificationHeaders.put(RECIPIENTS, recipients);
+        notificationHeaders.put("correlation_id", "5e934f90-111d-4f0b-b016-c22d820674e4");
+        notificationHeaders.put(EXPIRY, new Date(new Date().getTime() + 86400000).getTime());
+        Map<String,Object> headers = new HashMap<>();
+        headers.put(ALG, "RS257");
+        headers.put(NOTIFICATION_HEADERS, notificationHeaders);
+        Map<String,Object> payload = new HashMap<>();
+        payload.put(TOPIC_CODE, topicCode);
+        payload.put(MESSAGE, "Participant has been successfully onboarded");
+        Map<String,Object> jwsPayload = new HashMap<>();
+        jwsPayload.put(PAYLOAD, JSONUtils.encodeBase64String(JSONUtils.serialize(headers)) + "." + JSONUtils.encodeBase64String(JSONUtils.serialize(payload)) + ".L14NMRVoQq7TMEUt0IiG36P0NgDH1Poz4Nbh5BRZ7BcFXQzUI4SBduIJKY-WFCMPdKBl_LjlSm9JpNULn-gwLiDQ8ipQ3fZhzOkdzyjg0kUfpYN_aLQVgMaZ8Nrw3WytXIHserNxmka3wJQuSLvPnz9aJoFABij2evurnTsKq3oNbR0Oac3FJrpPO2O8fKaXs0Pi5Stf81eqcJ3Xs7oncJqBzgbp_jWShX8Ljfrf_TvM1patR-_h4E0O0HoVb0zD7SQmlKYOy0hw1bli5vdCnkh0tc1dF9yYrTEgofOjRemycFz_wEJ6FjFO1RryaBETw7qQ8hdGLemD545yUxCUng");
+        return JSONUtils.serialize(jwsPayload);
+    }
+
+    protected String getNotificationRequestInvalidExpiry(String topicCode, String recipientType, List<String> recipients) throws JsonProcessingException {
+        Map<String,Object> notificationHeaders = new HashMap<>();
+        notificationHeaders.put(SENDER_CODE, "hcx-apollo-12345");
+        notificationHeaders.put("timestamp", System.currentTimeMillis());
+        notificationHeaders.put(RECIPIENT_TYPE, recipientType);
+        notificationHeaders.put(RECIPIENTS, recipients);
+        notificationHeaders.put("correlation_id", "5e934f90-111d-4f0b-b016-c22d820674e4");
+        notificationHeaders.put(EXPIRY, new Date(new Date().getTime() - 86400000).getTime());
+        Map<String,Object> headers = new HashMap<>();
+        headers.put(ALG, RS256);
+        headers.put(NOTIFICATION_HEADERS, notificationHeaders);
+        Map<String,Object> payload = new HashMap<>();
+        payload.put(TOPIC_CODE, topicCode);
+        payload.put(MESSAGE, "Participant has been successfully onboarded");
+        Map<String,Object> jwsPayload = new HashMap<>();
+        jwsPayload.put(PAYLOAD, JSONUtils.encodeBase64String(JSONUtils.serialize(headers)) + "." + JSONUtils.encodeBase64String(JSONUtils.serialize(payload)) + ".L14NMRVoQq7TMEUt0IiG36P0NgDH1Poz4Nbh5BRZ7BcFXQzUI4SBduIJKY-WFCMPdKBl_LjlSm9JpNULn-gwLiDQ8ipQ3fZhzOkdzyjg0kUfpYN_aLQVgMaZ8Nrw3WytXIHserNxmka3wJQuSLvPnz9aJoFABij2evurnTsKq3oNbR0Oac3FJrpPO2O8fKaXs0Pi5Stf81eqcJ3Xs7oncJqBzgbp_jWShX8Ljfrf_TvM1patR-_h4E0O0HoVb0zD7SQmlKYOy0hw1bli5vdCnkh0tc1dF9yYrTEgofOjRemycFz_wEJ6FjFO1RryaBETw7qQ8hdGLemD545yUxCUng");
+        return JSONUtils.serialize(jwsPayload);
+    }
+
+    protected String getNotificationRequestInvalidTimestamp(String topicCode, String recipientType, List<String> recipients) throws JsonProcessingException {
+        Map<String,Object> notificationHeaders = new HashMap<>();
+        notificationHeaders.put(SENDER_CODE, "hcx-apollo-12345");
+        notificationHeaders.put(RECIPIENT_TYPE, recipientType);
+        notificationHeaders.put(RECIPIENTS, recipients);
+        notificationHeaders.put("correlation_id", "5e934f90-111d-4f0b-b016-c22d820674e4");
+        notificationHeaders.put(EXPIRY, new Date(new Date().getTime() - 86400000).getTime());
+        Map<String,Object> headers = new HashMap<>();
+        headers.put(ALG, RS256);
+        headers.put(NOTIFICATION_HEADERS, notificationHeaders);
+        Map<String,Object> payload = new HashMap<>();
+        payload.put(TOPIC_CODE, topicCode);
+        payload.put(MESSAGE, "Participant has been successfully onboarded");
+        Map<String,Object> jwsPayload = new HashMap<>();
+        jwsPayload.put(PAYLOAD, JSONUtils.encodeBase64String(JSONUtils.serialize(headers)) + "." + JSONUtils.encodeBase64String(JSONUtils.serialize(payload)) + ".L14NMRVoQq7TMEUt0IiG36P0NgDH1Poz4Nbh5BRZ7BcFXQzUI4SBduIJKY-WFCMPdKBl_LjlSm9JpNULn-gwLiDQ8ipQ3fZhzOkdzyjg0kUfpYN_aLQVgMaZ8Nrw3WytXIHserNxmka3wJQuSLvPnz9aJoFABij2evurnTsKq3oNbR0Oac3FJrpPO2O8fKaXs0Pi5Stf81eqcJ3Xs7oncJqBzgbp_jWShX8Ljfrf_TvM1patR-_h4E0O0HoVb0zD7SQmlKYOy0hw1bli5vdCnkh0tc1dF9yYrTEgofOjRemycFz_wEJ6FjFO1RryaBETw7qQ8hdGLemD545yUxCUng");
+        return JSONUtils.serialize(jwsPayload);
+    }
+
     protected String getInvalidNotificationRequest() throws JsonProcessingException {
         Map<String,Object> obj = new HashMap<>();
         obj.put(TOPIC_CODE, "be0e578d-b391-42f9-96f7-1e6bacd91c20");
