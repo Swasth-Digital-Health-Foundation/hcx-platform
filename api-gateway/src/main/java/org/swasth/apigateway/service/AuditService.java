@@ -6,22 +6,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.swasth.apigateway.exception.ErrorCodes;
 import org.swasth.apigateway.exception.ServerException;
 import org.swasth.apigateway.models.BaseRequest;
+import org.swasth.apigateway.utils.Utils;
 import org.swasth.auditindexer.function.AuditIndexer;
 import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.HttpUtils;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.utils.UUIDUtils;
 
-import java.text.MessageFormat;
 import java.util.*;
-
-import static org.swasth.common.response.ResponseMessage.AUDIT_LOG_FETCH_MSG;
-import static org.swasth.common.response.ResponseMessage.AUDIT_SERVICE_ERROR;
 import static org.swasth.common.utils.Constants.*;
 
 
@@ -39,20 +35,20 @@ public class AuditService {
     @Autowired
     private AuditIndexer auditIndexer;
 
-    public List<Map<String, Object>> getAuditLogs(Map<String, String> filters) throws Exception {
+    public List<Map<String, Object>> getAuditLogs(Map<String,String> filters) throws Exception {
         String url = hcxApiUrl + "/" + internalVersion + Constants.AUDIT_SEARCH;
         HttpResponse response;
         try {
             response = HttpUtils.post(url, JSONUtils.serialize(Collections.singletonMap("filters", filters)));
         } catch (UnirestException e) {
-            throw new ServerException(ErrorCodes.SERVICE_UNAVAILABLE, MessageFormat.format(AUDIT_SERVICE_ERROR, e.getMessage()));
+            throw new ServerException(ErrorCodes.SERVICE_UNAVAILABLE, "Error connecting to audit service: " + e.getMessage());
         }
-        List<Map<String, Object>> details;
-        if (response.getStatus() == HttpStatus.OK.value()) {
+        List<Map<String,Object>> details;
+        if (response != null && response.getStatus() == 200) {
             details = JSONUtils.deserialize((String) response.getBody(), ArrayList.class);
             System.out.println("Audit filters: " + filters + " Audit data count: " + details.size() + " Audit data: " + details);
         } else {
-            throw new Exception(MessageFormat.format(AUDIT_LOG_FETCH_MSG, response.getStatus()));
+            throw new Exception("Error in fetching the audit logs" + response.getStatus());
         }
         return details;
     }
@@ -61,12 +57,12 @@ public class AuditService {
         auditIndexer.createDocument(createAuditEvent(request));
     }
 
-    public void updateAuditLog(Map<String, Object> event) throws Exception {
+    public void updateAuditLog(Map<String,Object> event) throws Exception {
         auditIndexer.createDocument(event);
     }
 
-    public Map<String, Object> createAuditEvent(BaseRequest request) {
-        Map<String, Object> event = new HashMap<>();
+    public Map<String,Object> createAuditEvent(BaseRequest request) {
+        Map<String,Object> event = new HashMap<>();
         event.put(EID, AUDIT);
         event.put(HCX_RECIPIENT_CODE, request.getHcxRecipientCode());
         event.put(HCX_SENDER_CODE, request.getHcxSenderCode());
