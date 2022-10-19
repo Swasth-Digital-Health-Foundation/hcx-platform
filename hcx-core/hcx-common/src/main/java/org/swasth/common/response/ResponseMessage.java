@@ -1,5 +1,8 @@
 package org.swasth.common.response;
 
+import lombok.experimental.UtilityClass;
+
+@UtilityClass
 public class ResponseMessage {
     public static final String INVALID_TOPIC_CODE = "Topic code is empty or invalid";
     public static final String NOTHING_TO_UPDATE = "Nothing to update";
