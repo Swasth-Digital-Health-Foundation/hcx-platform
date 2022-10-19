@@ -31,6 +31,9 @@ notification:
   subscription:
     headers:
       mandatory: ${notification_subscription_mandatory_headers:topic_code,sender_list}
+  networkPath: ${notification_networkPath:networkNotifications.yaml}
+  participantPath: ${notification_participantPath:participantNotifications.yaml}
+  workflowPath: ${notification_workflowPath:workflowNotifications.yaml}
 
 notify:
   network:

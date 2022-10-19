@@ -251,7 +251,7 @@ class NotificationControllerTest extends BaseSpec {
         assertEquals(400, status);
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
         assertEquals(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, resObj.getError().getCode());
-        assertTrue(resObj.getError().getMessage().contains("Invalid notifications filters"));
+        assertTrue(resObj.getError().getMessage().contains("Invalid notification subscription filters"));
     }
 
     @Test

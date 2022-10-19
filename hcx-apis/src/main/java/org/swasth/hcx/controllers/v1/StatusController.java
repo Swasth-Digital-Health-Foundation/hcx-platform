@@ -7,16 +7,22 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.swasth.common.dto.*;
+import org.swasth.common.dto.AuditSearchRequest;
+import org.swasth.common.dto.Request;
+import org.swasth.common.dto.Response;
+import org.swasth.common.dto.StatusResponse;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.hcx.controllers.BaseController;
 
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.swasth.common.response.ResponseMessage.CORRELATION_ID_MISSING;
+import static org.swasth.common.response.ResponseMessage.INVALID_STATUS_SEARCH_ENTITY;
 import static org.swasth.common.utils.Constants.*;
 
 @RestController()
@@ -34,20 +40,20 @@ public class StatusController extends BaseController {
         Request request = new Request(requestBody, HCX_STATUS);
         Response response = new Response(request);
         try {
-            Map<String,String> auditFilters = new HashMap<>();
+            Map<String, String> auditFilters = new HashMap<>();
             auditFilters.put(HCX_SENDER_CODE, request.getHcxSenderCode());
             auditFilters.put(CORRELATION_ID, request.getCorrelationId());
             List<Map<String,Object>> auditResponse = auditService.search(new AuditSearchRequest(auditFilters), HCX_STATUS);
             if(auditResponse.isEmpty()){
-                throw new ClientException("Invalid correlation id, details do not exist");
+                throw new ClientException(CORRELATION_ID_MISSING);
             }
-            Map<String,Object> auditData = auditResponse.get(auditResponse.size()-1);
+            Map<String, Object> auditData = auditResponse.get(auditResponse.size() - 1);
             String entityType = ((String) auditData.get(ACTION)).split("/")[1];
             if (!allowedEntitiesForStatusSearch.contains(entityType)) {
-                throw new ClientException("Invalid entity, status search allowed only for entities: " + allowedEntitiesForStatusSearch);
+                throw new ClientException(MessageFormat.format(INVALID_STATUS_SEARCH_ENTITY, allowedEntitiesForStatusSearch));
             }
             StatusResponse statusResponse = new StatusResponse(entityType, (String) auditData.get(HCX_SENDER_CODE), (String) auditData.get(HCX_RECIPIENT_CODE), (String) auditData.get(STATUS));
-            Map<String,Object> statusResponseMap = JSONUtils.convert(statusResponse, HashMap.class);
+            Map<String, Object> statusResponseMap = JSONUtils.convert(statusResponse, HashMap.class);
             if (auditData.get(STATUS).equals(QUEUED_STATUS)) {
                 response.setResult(statusResponseMap);
             } else if (auditData.get(STATUS).equals(DISPATCHED_STATUS)) {

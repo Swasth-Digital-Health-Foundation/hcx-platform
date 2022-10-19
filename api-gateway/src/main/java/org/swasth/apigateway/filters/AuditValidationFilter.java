@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.CACHED_REQUEST_BODY_ATTR;
+import static org.swasth.common.response.ResponseMessage.INVALID_SENDER;
 
 @Component
 public class AuditValidationFilter extends AbstractGatewayFilterFactory<AuditValidationFilter.Config> {
@@ -45,7 +46,7 @@ public class AuditValidationFilter extends AbstractGatewayFilterFactory<AuditVal
     @Override
     public GatewayFilter apply(Config config) {
         return (exchange, chain) -> {
-            Map<String,Object> filterMap;
+            Map<String, Object> filterMap;
             try {
                 String sub = exchange.getRequest().getHeaders().getFirst("X-jwt-sub");
                 StringBuilder cachedBody = new StringBuilder(StandardCharsets.UTF_8.decode(((DataBuffer) exchange.getAttribute(CACHED_REQUEST_BODY_ATTR)).asByteBuffer()));
@@ -57,13 +58,13 @@ public class AuditValidationFilter extends AbstractGatewayFilterFactory<AuditVal
                     ArrayList<String> roles = (ArrayList<String>) participant.get("roles");
                     String code = (String) participant.get(Constants.PARTICIPANT_CODE);
                     Map<String, String> filters = (Map<String, String>) filterMap.get("filters");
-                    if(roles.contains("payor") || roles.contains("provider")) {
+                    if (roles.contains("payor") || roles.contains("provider")) {
                         filters.put("x-hcx-sender_code", code);
                         filterMap.put("filters", filters);
                         logger.debug("updated filters: {}", filterMap);
                     }
                 } else {
-                    throw new ClientException(ErrorCodes.ERR_INVALID_SENDER, "Sender is not exist in registry");
+                    throw new ClientException(ErrorCodes.ERR_INVALID_SENDER, INVALID_SENDER);
                 }
             } catch (Exception e) {
                 return exceptionHandler.errorResponse(e, exchange, null, null, new BaseRequest());

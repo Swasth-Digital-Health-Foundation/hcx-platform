@@ -19,6 +19,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.swasth.common.response.ResponseMessage.INVALID_CORRELATION_ID;
+import static org.swasth.common.response.ResponseMessage.INVALID_WORKFLOW_ID;
 import static org.swasth.common.utils.Constants.*;
 
 @RestController()
@@ -38,11 +40,11 @@ public class CommunicationController extends BaseController {
             filters.put(CORRELATION_ID,request.getCorrelationId());
             List<Map<String,Object>> auditResponse = auditService.search(new AuditSearchRequest(filters), COMMUNICATION_REQUEST);
             if(auditResponse.isEmpty()){
-                throw new ClientException(ErrorCodes.ERR_INVALID_CORRELATION_ID,"Invalid Correlation Id");
+                throw new ClientException(ErrorCodes.ERR_INVALID_CORRELATION_ID,INVALID_CORRELATION_ID);
             }
-            Map<String,Object> auditData = auditResponse.get(0);
+            Map<String, Object> auditData = auditResponse.get(0);
             if (auditData.get(WORKFLOW_ID) != null && (!hcxHeaders.containsKey(WORKFLOW_ID) || !request.getWorkflowId().equals(auditData.get(WORKFLOW_ID)))) {
-                throw new ClientException(ErrorCodes.ERR_INVALID_WORKFLOW_ID, "The request contains invalid workflow id");
+                throw new ClientException(ErrorCodes.ERR_INVALID_WORKFLOW_ID, INVALID_WORKFLOW_ID);
             }
             eventHandler.processAndSendEvent(kafkaTopic, request);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);

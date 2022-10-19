@@ -14,8 +14,14 @@ public class GenericConfiguration {
     @Value("${registry.basePath}")
     private String registryUrl;
 
-    @Value("${notification.masterListPath:notifications.yaml}")
-    private String notificationsPath;
+    @Value("${notification.networkPath:networkNotifications.yaml}")
+    private String networkPath;
+
+    @Value("${notification.participantPath:participantNotifications.yaml}")
+    private String participantPath;
+
+    @Value("${notification.workflowPath:workflowNotifications.yaml}")
+    private String workflowPath;
 
     @Bean
     public RegistryService registryService(){
@@ -24,6 +30,6 @@ public class GenericConfiguration {
 
     @Bean
     public NotificationUtils notificationUtils() throws IOException {
-        return new NotificationUtils(notificationsPath);
+        return new NotificationUtils(networkPath, participantPath, workflowPath);
     }
 }

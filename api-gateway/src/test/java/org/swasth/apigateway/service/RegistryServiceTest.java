@@ -76,7 +76,7 @@ class RegistryServiceTest {
                 .addHeader("Content-Type", "application/json"));
 
         Exception exception = assertThrows(Exception.class, () -> registryService.fetchDetails("osid", "test_123"));
-        assertEquals("Error in fetching the participant details400", exception.getMessage());
+        assertEquals("Error in fetching the participant details. Status Code is 400", exception.getMessage());
     }
 
 }

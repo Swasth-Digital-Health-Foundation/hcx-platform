@@ -13,10 +13,14 @@ import org.swasth.common.utils.HttpUtils;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.redis.cache.RedisCache;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.swasth.common.response.ResponseMessage.REGISTRY_SERVICE_ERROR;
+import static org.swasth.common.response.ResponseMessage.REGISTRY_SERVICE_FETCH_MSG;
 
 @Service
 public class RegistryService {
@@ -32,11 +36,11 @@ public class RegistryService {
     @Value("${redis.expires}")
     private int redisExpires;
 
-    public Map<String,Object> fetchDetails(String filterKey, String filterValue) throws Exception {
+    public Map<String, Object> fetchDetails(String filterKey, String filterValue) throws Exception {
         String requestBody = "{\"filters\":{\"" + filterKey + "\":{\"eq\":\"" + filterValue + "\"}}}";
         try {
-            Map<String,Object> details;
-            if(redisCache.isExists(filterValue) == true) {
+            Map<String, Object> details;
+            if (redisCache.isExists(filterValue) == true) {
                 details = JSONUtils.deserialize(redisCache.get(filterValue), HashMap.class);
             } else {
                 details = getParticipant(getDetails(requestBody));
@@ -49,23 +53,23 @@ public class RegistryService {
         }
     }
 
-    private Map<String,Object> getParticipant(List<Map<String,Object>> searchResult){
-        return !searchResult.isEmpty() ? searchResult.get(0):new HashMap<>();
+    private Map<String, Object> getParticipant(List<Map<String, Object>> searchResult) {
+        return !searchResult.isEmpty() ? searchResult.get(0) : new HashMap<>();
     }
 
-    public List<Map<String,Object>> getDetails(String requestBody) throws Exception {
+    public List<Map<String, Object>> getDetails(String requestBody) throws Exception {
         String url = registryUrl + "/api/v1/Organisation/search";
         HttpResponse response = null;
         try {
             response = HttpUtils.post(url, requestBody);
         } catch (UnirestException e) {
-            throw new ServerException(ErrorCodes.SERVICE_UNAVAILABLE, "Error connecting to registry service: " + e.getMessage());
+            throw new ServerException(ErrorCodes.SERVICE_UNAVAILABLE, MessageFormat.format(REGISTRY_SERVICE_ERROR, e.getMessage()));
         }
-        List<Map<String,Object>> details;
+        List<Map<String, Object>> details;
         if (response.getStatus() == 200) {
             details = JSONUtils.deserialize((String) response.getBody(), ArrayList.class);
         } else {
-            throw new Exception("Error in fetching the participant details" + response.getStatus());
+            throw new Exception(MessageFormat.format(REGISTRY_SERVICE_FETCH_MSG, response.getStatus()));
         }
         return details;
     }
