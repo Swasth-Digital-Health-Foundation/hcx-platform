@@ -110,7 +110,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
 
         List<String> headers = request.getHeaders().get("Authorization");
         if (headers == null || headers.isEmpty()) {
-            throw new JWTVerificationException(ErrorCodes.ERR_ACCESS_DENIED, AUTH_HEADER_EMPTY);
+            throw new JWTVerificationException(ErrorCodes.ERR_ACCESS_DENIED, "Authorization header is empty");
         }
 
         String credential = headers.get(0).trim();
