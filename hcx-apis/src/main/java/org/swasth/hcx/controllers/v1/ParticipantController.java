@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import org.swasth.common.dto.ParticipantResponse;
 import org.swasth.common.dto.Response;
 import org.swasth.common.exception.*;
-import org.swasth.common.response.ResponseCode;
 import org.swasth.common.utils.*;
 import org.swasth.hcx.controllers.BaseController;
 import org.swasth.redis.cache.RedisCache;
@@ -189,7 +188,7 @@ public class ParticipantController extends BaseController {
 
     //TODO Remove this unnecessary code post moving changes into service layer
     public ResponseEntity<Object> responseHandler(HttpResponse<String> response, String participantCode) throws Exception {
-        if (response.getStatus() == ResponseCode.OK.getResponseCode()) {
+        if (response.getStatus() == HttpStatus.OK.value()) {
             if (response.getBody().isEmpty()) {
                 return getSuccessResponse("");
             } else {
@@ -198,11 +197,11 @@ public class ParticipantController extends BaseController {
                 else
                     return getSuccessResponse(new ParticipantResponse(participantCode));
             }
-        } else if (response.getStatus() == ResponseCode.CLIENT_ERROR.getResponseCode()) {
+        } else if (response.getStatus() == HttpStatus.BAD_REQUEST.value()) {
             throw new ClientException(getErrorMessage(response));
-        } else if (response.getStatus() == ResponseCode.UNAUTHORIZED.getResponseCode()) {
+        } else if (response.getStatus() == HttpStatus.UNAUTHORIZED.value()) {
             throw new AuthorizationException(getErrorMessage(response));
-        } else if (response.getStatus() == ResponseCode.RESOURCE_NOT_FOUND.getResponseCode()) {
+        } else if (response.getStatus() == HttpStatus.NOT_FOUND.value()) {
             throw new ResourceNotFoundException(getErrorMessage(response));
         } else {
             throw new ServerException(getErrorMessage(response));
