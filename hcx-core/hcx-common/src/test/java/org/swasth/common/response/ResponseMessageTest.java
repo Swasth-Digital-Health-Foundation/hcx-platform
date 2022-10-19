@@ -570,6 +570,12 @@ public class ResponseMessageTest {
     }
 
     @Test
+    public void testInvalidJws(){
+        String invalidTopicCode = ResponseMessage.INVALID_JWS;
+        assertTrue(invalidTopicCode.contains("payload"));
+    }
+
+    @Test
     public void testNotificationTimeStampMessage(){
         String invalidTopicCode = ResponseMessage.NOTIFICATION_TS_MSG;
         assertTrue(invalidTopicCode.contains("timestamp"));
