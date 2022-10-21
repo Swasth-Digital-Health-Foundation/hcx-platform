@@ -170,10 +170,10 @@ public class EventGenerator {
     public String createNotifyEvent(String topicCode, String senderCode, String recipientType, List<String> recipients, long expiry, String message, String privateKey) throws Exception {
         Map<String,Object> notificationHeaders = new HashMap<>();
         notificationHeaders.put(SENDER_CODE, senderCode);
-        notificationHeaders.put(TIMESTAMP, System.currentTimeMillis());
+        notificationHeaders.put(NOTIFICATION_TIMESTAMP, System.currentTimeMillis());
         notificationHeaders.put(RECIPIENT_TYPE, recipientType);
         notificationHeaders.put(RECIPIENTS, recipients);
-        notificationHeaders.put(CORRELATION_ID, UUID.randomUUID().toString());
+        notificationHeaders.put(NOTIFICATION_CORRELATION_ID, UUID.randomUUID().toString());
         notificationHeaders.put(EXPIRY, expiry);
 
         Map<String,Object> protocolHeaders = new HashMap<>();

@@ -118,6 +118,7 @@ public class Constants {
     public static final String DEBUG_DETAILS = "x-hcx-debug_details";
     public static final String NOTIFICATION_HEADERS = "x-hcx-notification_headers";
     public static final String NOTIFICATION_TIMESTAMP = "timestamp";
+    public static final String NOTIFICATION_CORRELATION_ID = "correlation_id";
     public static final String ALG = "alg";
     public static final String KAFKA_TOPIC_PAYLOAD = "kafka.topic.payload";
     public static final String ENDPOINT_URL = "endpoint_url";
