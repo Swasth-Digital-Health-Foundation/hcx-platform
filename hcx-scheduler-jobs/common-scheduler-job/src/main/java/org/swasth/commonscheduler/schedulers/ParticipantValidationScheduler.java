@@ -11,10 +11,7 @@ import org.swasth.common.service.RegistryService;
 import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.NotificationUtils;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -38,7 +35,7 @@ public class ParticipantValidationScheduler extends BaseScheduler {
     private String hcxPrivateKey;
 
     @Value("${notification.expiry}")
-    private String notificationExpiry;
+    private int notificationExpiry;
 
     @Scheduled(fixedDelayString = "${fixedDelay.in.milliseconds.participantVerify}")
     public void process() throws Exception {
@@ -48,7 +45,9 @@ public class ParticipantValidationScheduler extends BaseScheduler {
         if(!participants.isEmpty()) {
             List<String> participantCodes = participants.stream().map(obj -> obj.get(Constants.PARTICIPANT_CODE).toString()).collect(Collectors.toList());
             String message = (String) NotificationUtils.getNotification(topicCode).get(Constants.MESSAGE);
-            String notifyEvent = eventGenerator.createNotifyEvent(topicCode, hcxParticipantCode, Constants.PARTICIPANT_CODE, participantCodes, new Date(new Date().getTime() + notificationExpiry).getTime(), message, hcxPrivateKey);
+            Calendar cal = Calendar.getInstance();
+            cal.add(Calendar.MILLISECOND, notificationExpiry);
+            String notifyEvent = eventGenerator.createNotifyEvent(topicCode, hcxParticipantCode, Constants.PARTICIPANT_CODE, participantCodes, cal.getTime().toInstant().toEpochMilli(), message, hcxPrivateKey);
             kafkaClient.send(notifyTopic, Constants.NOTIFICATION, notifyEvent);
             logger.info("Notify event is pushed to kafka: {}", notifyEvent);
         }

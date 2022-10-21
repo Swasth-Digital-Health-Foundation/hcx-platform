@@ -73,7 +73,6 @@ public class RetryScheduler extends BaseScheduler {
             if(result != null) result.close();
             if(createStatement != null) createStatement.close();
             connection.close();
-            postgreSQLClient.close();
         }
     }
 
