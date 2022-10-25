@@ -36,7 +36,7 @@ public class JSONRequest extends BaseRequest {
         validateCondition(!callAuditData.isEmpty(), ErrorCodes.ERR_INVALID_API_CALL_ID, MessageFormat.format(INVALID_API_CALL, getApiCallId()));
         validateCondition(correlationAuditData.isEmpty(), ErrorCodes.ERR_INVALID_CORRELATION_ID, ON_ACTION_CORRELATION_ERR_MSG);
         Map<String, Object> auditEvent = (Map<String, Object>) correlationAuditData.get(0);
-        if (auditEvent.containsKey(WORKFLOW_ID) && !((String) auditEvent.get(WORKFLOW_ID)).isEmpty()) {
+        if (auditEvent.containsKey(WORKFLOW_ID) && !StringUtils.isEmpty((String) auditEvent.get(WORKFLOW_ID))) {
             validateCondition(!getProtocolHeaders().containsKey(WORKFLOW_ID) || !getWorkflowId().equals(auditEvent.get(WORKFLOW_ID)), ErrorCodes.ERR_INVALID_WORKFLOW_ID, ON_ACTION_WORKFLOW_ID);
         }
 
