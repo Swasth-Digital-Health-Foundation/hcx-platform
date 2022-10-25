@@ -554,7 +554,7 @@ class HCXRequestTest extends BaseSpec {
         client.post().uri("/v1/coverageeligibility/on_check")
                 .header(Constants.AUTHORIZATION, getPayorToken())
                 .header("X-jwt-sub", "20bd4228-a87f-4175-a30a-20fb28983afb")
-                .bodyValue("{ \"x-hcx-recipient_code\": \"1-3a3bd68a-848a-4d52-9ec2-07a92d765fb4\", \"x-hcx-timestamp\": \"2021-10-27T20:35:52.636+0530\", \"x-hcx-sender_code\": \"1-2ff1f493-c4d4-4fc7-8d41-aaabb997af23\", \"x-hcx-correlation_id\": \"5e934f90-111d-4f0b-b016-c22d820674e1\", \"x-hcx-workflow_id\":\"26b1060c-1e83-4600-9612-ea31e0ca5094\", \"x-hcx-api_call_id\": \"26b1060c-1e83-4600-9612-ea31e0ca5194\", \"x-hcx-status\": \"response.redirect\", \"x-hcx-redirect_to\": \"1-74f6cb29-4116-42d0-9fbb-adb65e6a64ac\" }")
+                .bodyValue("{ \"x-hcx-recipient_code\": \"1-3a3bd68a-848a-4d52-9ec2-07a92d765fb4\", \"x-hcx-timestamp\": \"2021-10-27T20:35:52.636+0530\", \"x-hcx-sender_code\": \"1-2ff1f493-c4d4-4fc7-8d41-aaabb997af23\", \"x-hcx-correlation_id\": \"5e934f90-111d-4f0b-b016-c22d820674e1\", \"x-hcx-api_call_id\": \"26b1060c-1e83-4600-9612-ea31e0ca5194\", \"x-hcx-status\": \"response.redirect\", \"x-hcx-redirect_to\": \"1-74f6cb29-4116-42d0-9fbb-adb65e6a64ac\" }")
                 .exchange()
                 .expectBody(Map.class)
                 .consumeWith(result -> {
@@ -613,6 +613,28 @@ class HCXRequestTest extends BaseSpec {
                 .consumeWith(result -> {
                     assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
                     assertEquals(ErrorCodes.ERR_INVALID_PAYLOAD.name(), getResponseErrorCode(result));
+                });
+    }
+
+    @Test
+    void check_hcx_redirect_invalid_workflow_id() throws Exception {
+        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
+                .thenReturn(getPayorDetails())
+                .thenReturn(getProviderDetails())
+                .thenReturn(getPayor2Details());
+        Mockito.when(auditService.getAuditLogs(any()))
+                .thenReturn(new ArrayList<>())
+                .thenReturn(getOnActionAuditLogs());
+
+        client.post().uri("/v1/coverageeligibility/on_check")
+                .header(Constants.AUTHORIZATION, getPayorToken())
+                .header("X-jwt-sub", "20bd4228-a87f-4175-a30a-20fb28983afb")
+                .bodyValue("{ \"x-hcx-recipient_code\": \"1-3a3bd68a-848a-4d52-9ec2-07a92d765fb4\", \"x-hcx-timestamp\": \"2021-10-27T20:35:52.636+0530\", \"x-hcx-sender_code\": \"1-2ff1f493-c4d4-4fc7-8d41-aaabb997af23\", \"x-hcx-correlation_id\": \"5e934f90-111d-4f0b-b016-c22d820674e1\", \"x-hcx-workflow_id\":\"26b1060c-1e83-4600-9612-ea31e0ca5094\", \"x-hcx-api_call_id\": \"26b1060c-1e83-4600-9612-ea31e0ca5194\", \"x-hcx-status\": \"response.redirect\", \"x-hcx-redirect_to\": \"1-74f6cb29-4116-42d0-9fbb-adb65e6a64ac\" }")
+                .exchange()
+                .expectBody(Map.class)
+                .consumeWith(result -> {
+                    assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
+                    assertEquals(ErrorCodes.ERR_INVALID_WORKFLOW_ID.name(), getResponseErrorCode(result));
                 });
     }
 
