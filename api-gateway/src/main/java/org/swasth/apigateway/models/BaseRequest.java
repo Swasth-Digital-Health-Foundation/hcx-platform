@@ -333,7 +333,7 @@ public class BaseRequest {
     }
 
     private void validateWorkflowId(Map<String, Object> auditEvent) throws ClientException {
-        if (auditEvent.containsKey(WORKFLOW_ID) && !((String) auditEvent.get(WORKFLOW_ID)).isEmpty()) {
+        if (auditEvent.containsKey(WORKFLOW_ID) && !StringUtils.isEmpty((String) auditEvent.get(WORKFLOW_ID))) {
             validateCondition(!protocolHeaders.containsKey(WORKFLOW_ID) || !getWorkflowId().equals(auditEvent.get(WORKFLOW_ID)), ErrorCodes.ERR_INVALID_WORKFLOW_ID, INVALID_WORKFLOW_ID);
         }
     }
