@@ -224,8 +224,6 @@ public class NotificationService {
             if (updateResult.next()) {
                 response.setSubscriptionId(updateResult.getString(SUBSCRIPTION_ID));
                 response.setSubscriptionStatus(updateResult.getString(SUBSCRIPTION_STATUS));
-            } else {
-                throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, SUBSCRIPTION_DOES_NOT_EXIST);
             }
             Map<String, Object> updatedProps = new HashMap<>();
             SUBSCRIPTION_UPDATE_PROPS.forEach(prop -> {
@@ -233,6 +231,8 @@ public class NotificationService {
             });
             eventHandler.createAudit(eventGenerator.createAuditLog(response.getSubscriptionId(), NOTIFICATION, getCData(request),
                     getEData(response.getSubscriptionStatus(), prevStatus, updatedProps)));
+        } else {
+            throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, SUBSCRIPTION_DOES_NOT_EXIST);
         }
     }
 
