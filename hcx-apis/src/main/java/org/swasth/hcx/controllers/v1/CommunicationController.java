@@ -44,7 +44,7 @@ public class CommunicationController extends BaseController {
                 throw new ClientException(ErrorCodes.ERR_INVALID_CORRELATION_ID,INVALID_CORRELATION_ID);
             }
             Map<String, Object> auditData = auditResponse.get(0);
-            if (StringUtils.isEmpty((String) auditData.get(WORKFLOW_ID)) && (!hcxHeaders.containsKey(WORKFLOW_ID) || !request.getWorkflowId().equals(auditData.get(WORKFLOW_ID)))) {
+            if (!StringUtils.isEmpty((String) auditData.get(WORKFLOW_ID)) && (!hcxHeaders.containsKey(WORKFLOW_ID) || !request.getWorkflowId().equals(auditData.get(WORKFLOW_ID)))) {
                 throw new ClientException(ErrorCodes.ERR_INVALID_WORKFLOW_ID, INVALID_WORKFLOW_ID);
             }
             eventHandler.processAndSendEvent(kafkaTopic, request);
