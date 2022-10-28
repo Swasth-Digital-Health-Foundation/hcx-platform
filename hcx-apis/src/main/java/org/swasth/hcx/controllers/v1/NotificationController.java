@@ -104,7 +104,7 @@ public class NotificationController extends BaseController {
     @PostMapping(Constants.NOTIFICATION_SUBSCRIPTION_UPDATE)
     public ResponseEntity<Object> notificationSubscriptionUpdate(@RequestBody Map<String, Object> requestBody) throws Exception {
         Request request = new Request(requestBody, NOTIFICATION_SUBSCRIPTION_UPDATE);
-        Response response = new Response(request);
+        Response response = new Response();
         try {
             notificationService.subscriptionUpdate(request, response);
             return new ResponseEntity<>(response, HttpStatus.OK);
