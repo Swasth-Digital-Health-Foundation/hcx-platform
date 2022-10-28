@@ -176,21 +176,19 @@ public class NotificationService {
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DAY_OF_MONTH, subscriptionExpiry);
         UUID subRequestId = UUID.randomUUID();
-        senderList.stream().forEach(senderCode -> {
-            String status = senderCode.equalsIgnoreCase(hcxRegistryCode) ? statusCode : PENDING;
+        String status = INACTIVE;
+        for (String senderCode : senderList) {
+            if (statusCode.equalsIgnoreCase(ACTIVE))
+                status = senderCode.equalsIgnoreCase(hcxRegistryCode) ? statusCode : PENDING;
             UUID subscriptionId = UUID.randomUUID();
-            subscriptionMap.put(senderCode, subscriptionId.toString());
             String query = String.format(insertSubscription, postgresSubscription, subscriptionId, subRequestId, topicCode, senderCode,
                     notificationRecipientCode, status, System.currentTimeMillis(), System.currentTimeMillis(), cal.getTimeInMillis(), false, status, System.currentTimeMillis(), cal.getTimeInMillis(), false);
-            try {
-                postgreSQLClient.addBatch(query);
-            } catch (Exception e) {
-                LOG.error("Exception while adding query to batch ", e);
-            }
-        });
-        //Execute the batch
-        int[] batchArr = postgreSQLClient.executeBatch();
-        LOG.info("Number of records inserted into DB:" + batchArr.length);
+                ResultSet updateResult = (ResultSet) postgreSQLClient.executeQuery(query);
+                if (updateResult.next()) {
+                    subscriptionMap.put(senderCode, updateResult.getString(SUBSCRIPTION_ID));
+                }
+        }
+        LOG.info("Records inserted/Updated into DB");
         return subscriptionMap;
     }
 
