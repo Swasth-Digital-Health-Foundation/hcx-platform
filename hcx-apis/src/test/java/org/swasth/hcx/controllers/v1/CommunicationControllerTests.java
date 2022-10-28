@@ -17,6 +17,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 class CommunicationControllerTests extends BaseSpec {
+
     @Test
     void check_communication_request_success_scenario() throws Exception {
         when(auditService.search(any(), any())).thenReturn(List.of(getAuditData(Constants.COVERAGE_ELIGIBILITY_CHECK, Constants.QUEUED_STATUS)));
@@ -30,7 +31,7 @@ class CommunicationControllerTests extends BaseSpec {
 
     @Test
     void check_communication_request_success_headerAuditService_error_scenario() throws Exception {
-        when(auditService.search(any(), any())).thenReturn(List.of(getAuditData(Constants.COVERAGE_ELIGIBILITY_CHECK, Constants.QUEUED_STATUS)));
+        when(auditService.search(any(), any())).thenReturn(List.of(getAuditDataWithEmptyWorkflowId(Constants.COVERAGE_ELIGIBILITY_CHECK, Constants.QUEUED_STATUS)));
         doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.COMMUNICATION_REQUEST).content(getCommunicationRequestBody()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();

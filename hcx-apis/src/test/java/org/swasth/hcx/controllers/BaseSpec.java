@@ -182,6 +182,29 @@ public class BaseSpec {
         return obj;
     }
 
+    protected Map<String,Object> getAuditDataWithEmptyWorkflowId(String action, String status){
+        Map<String,Object> obj = new HashMap();
+        obj.put(Constants.EID, "AUDIT");
+        obj.put(Constants.ERROR_DETAILS, new Object());
+        obj.put(Constants.DEBUG_DETAILS, new Object());
+        obj.put(Constants.HCX_RECIPIENT_CODE, "1-2799b6a4-cf2d-45fe-a5e1-5f1c82979e0d");
+        obj.put(Constants.HCX_SENDER_CODE, "93f908ba");
+        obj.put(Constants.API_CALL_ID, "27b1060c-1e83-4600-9612-ea31e0ca5091");
+        obj.put(Constants.WORKFLOW_ID, "");
+        obj.put(Constants.CORRELATION_ID, "5e934f90-111d-4f0b-b016-c22d820674e1");
+        obj.put(Constants.TIMESTAMP, "2022-01-06T09:50:23+00");
+        obj.put(Constants.REQUEST_TIME, "1642781091234");
+        obj.put(Constants.AUDIT_TIMESTAMP, "1642781091234");
+        obj.put(Constants.UPDATED_TIME, "1642781091234");
+        obj.put(Constants.ACTION, action);
+        obj.put(Constants.MID, "59cefda2-a4cc-4795-95f3-fb9e82e21cef");
+        obj.put(Constants.STATUS, status);
+        obj.put(Constants.SENDER_ROLE, Arrays.asList("provider"));
+        obj.put(Constants.RECIPIENT_ROLE, Arrays.asList("payor"));
+        obj.put(Constants.PAYLOAD, "test_payload");
+        return obj;
+    }
+
     public String getParticipantCreateBody() throws JsonProcessingException {
         Map<String,Object> obj = new HashMap<>();
         obj.put("participant_name","test user");
