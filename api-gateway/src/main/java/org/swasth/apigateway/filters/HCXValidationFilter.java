@@ -124,6 +124,10 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                         throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, UNSUBSCRIBE_ERR_MSG);
                     }
                     Map<String, Object> recipientDetails = registryService.fetchDetails(OS_OWNER, subject);
+                    // Do not allow requester to send his participant code in the sender_list
+                    if (jsonRequest.getSenderList().contains(recipientDetails.get(PARTICIPANT_CODE))) {
+                        throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, NOTIFICATION_SUBSCRIBE_ERR_MSG);
+                    }
                     List<Map<String, Object>> senderListDetails = new ArrayList<>();
                     //Check for * in the request body in sendersList and send subscription for all valid participants
                     Map<String, Object> notification = NotificationUtils.getNotification(jsonRequest.getTopicCode());
@@ -135,6 +139,8 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                     } else if (!jsonRequest.getSenderList().isEmpty()) {
                         String searchRequest = createSearchRequest(jsonRequest.getSenderList(), PARTICIPANT_CODE, false);
                         senderListDetails = registryService.getDetails(searchRequest);
+                    } else {
+                        throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, EMPTY_SENDER_LIST_ERR_MSG);
                     }
                     jsonRequest.validateSubscriptionRequests(jsonRequest.getTopicCode(), senderListDetails, recipientDetails, getSubscriptionMandatoryHeaders(), notification);
                     requestBody.put(RECIPIENT_CODE, recipientDetails.get(PARTICIPANT_CODE));
