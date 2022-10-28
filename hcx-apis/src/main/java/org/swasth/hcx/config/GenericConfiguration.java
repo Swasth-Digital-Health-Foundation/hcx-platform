@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import org.swasth.auditindexer.utils.ElasticSearchUtil;
 import org.swasth.common.helpers.EventGenerator;
 import org.swasth.common.service.RegistryService;
 import org.swasth.common.utils.JWTUtils;
@@ -34,6 +35,11 @@ public class GenericConfiguration {
     @Value("${notification.workflowPath:workflowNotifications.yaml}")
     private String workflowPath;
 
+    @Value("${es.host}")
+    private String esHost;
+    @Value("${es.port}")
+    private int esPort;
+
     @Bean
     public RegistryService registryService() {
         return new RegistryService(registryUrl);
@@ -52,6 +58,12 @@ public class GenericConfiguration {
     @Bean
     public EventGenerator eventGenerator() {
         return new EventGenerator(getProtocolHeaders(), getJoseHeaders(), getRedirectHeaders(), getErrorHeaders(), getNotificationHeaders());
+    }
+
+
+    @Bean
+    public ElasticSearchUtil elasticSearchUtil() throws Exception {
+        return new ElasticSearchUtil(esHost, esPort);
     }
 
     private List<String> getProtocolHeaders() {
@@ -81,5 +93,6 @@ public class GenericConfiguration {
         notificationHeaders.addAll(env.getProperty(NOTIFICATION_HEADERS_OPTIONAL, List.class, new ArrayList<String>()));
         return notificationHeaders;
     }
+
 
 }

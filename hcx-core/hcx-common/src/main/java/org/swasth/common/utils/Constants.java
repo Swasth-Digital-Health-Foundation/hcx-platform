@@ -66,7 +66,12 @@ public class Constants {
     public static final String HEALTHY = "healthy";
     public static final String NAME = "name";
     public static final String KAFKA = "kafka";
+
+    public static final String REDIS ="redis";
     public static final String POSTGRESQL = "postgreSQL";
+
+    public static final String ELASTICSEARCH = "elasticsearch";
+
     public static final String CHECKS = "checks";
 
     //event generator props

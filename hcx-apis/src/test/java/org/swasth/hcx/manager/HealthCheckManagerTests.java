@@ -25,7 +25,7 @@ public class HealthCheckManagerTests {
   HealthCheckManager healthCheckManager;
 
   @Test
-  public void checkAllSystemHealth_test() {
+  public void checkAllSystemHealth_test() throws Exception {
     when(kafkaClient.isHealthy()).thenReturn(true);
     when(postgreSQLClient.isHealthy()).thenReturn(true);
     Response resp = healthCheckManager.checkAllSystemHealth();

@@ -70,4 +70,17 @@ public class RedisCache {
             jedis.close();
         }
     }
+
+    public boolean isHealthy() throws Exception {
+        try {
+            Jedis jedis = getConnection();
+            jedis.get(redisHost);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+
+
+    }
+
 }

@@ -1,6 +1,7 @@
 package org.swasth.auditindexer.function;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.swasth.auditindexer.utils.ElasticSearchUtil;
 import org.swasth.common.utils.JSONUtils;
 
@@ -37,14 +38,15 @@ public class AuditIndexer {
         }
     }
 
-    private String getIndexName(long ets){
+    private String getIndexName(long ets) {
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("IST"));
         cal.setTime(new Date(ets));
         return auditIndex + "_" + cal.get(Calendar.YEAR) + "_" + cal.get(Calendar.WEEK_OF_YEAR);
     }
 
-    private InputStream getStream(String filename){
+    private InputStream getStream(String filename) {
         return getClass().getClassLoader().getResourceAsStream(filename);
     }
+
 
 }

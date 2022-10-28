@@ -24,36 +24,37 @@ public class ElasticSearchUtil {
     private static final ObjectMapper mapper = new ObjectMapper();
 
     public ElasticSearchUtil(String esHost, int esPort) throws Exception {
-       this.esHost = esHost;
-       this.esPort = esPort;
-       this.esClient = createClient();
+        this.esHost = esHost;
+        this.esPort = esPort;
+        this.esClient = createClient();
     }
 
     public RestHighLevelClient createClient() throws Exception {
         try {
             return new RestHighLevelClient(RestClient.builder(new HttpHost(esHost, esPort)));
-        }  catch (Exception e) {
+        } catch (Exception e) {
             throw new Exception("ElasticSearchUtil :: Error while creating elastic search connection : " + e.getMessage());
         }
     }
 
     public void addDocumentWithIndex(String document, String indexName, String identifier) throws Exception {
         try {
-            Map<String,Object> doc = mapper.readValue(document, Map.class);
+            Map<String, Object> doc = mapper.readValue(document, Map.class);
             IndexRequest indexRequest = new IndexRequest(indexName);
             indexRequest.id(identifier);
             esClient.index(indexRequest.source(doc), RequestOptions.DEFAULT);
-        }  catch (Exception e) {
+        } catch (Exception e) {
             throw new Exception("ElasticSearchUtil :: Error while adding document to index : " + indexName + " : " + e.getMessage());
         }
     }
 
     public void addIndex(String settings, String mappings, String indexName, String alias) throws Exception {
         try {
-            if(!isIndexExists(indexName)) {
+            if (!isIndexExists(indexName)) {
                 CreateIndexRequest createRequest = new CreateIndexRequest(indexName);
                 if (StringUtils.isNotBlank(alias)) createRequest.alias(new Alias(alias));
-                if (StringUtils.isNotBlank(settings)) createRequest.settings(Settings.builder().loadFromSource(settings, XContentType.JSON));
+                if (StringUtils.isNotBlank(settings))
+                    createRequest.settings(Settings.builder().loadFromSource(settings, XContentType.JSON));
                 if (StringUtils.isNotBlank(mappings)) createRequest.mapping(mappings, XContentType.JSON);
                 esClient.indices().create(createRequest, RequestOptions.DEFAULT);
             }
@@ -62,7 +63,7 @@ public class ElasticSearchUtil {
         }
     }
 
-    public boolean isIndexExists(String indexName){
+    public boolean isIndexExists(String indexName) {
         try {
             return esClient.indices().exists(new GetIndexRequest(indexName), RequestOptions.DEFAULT);
         } catch (IOException e) {
@@ -70,13 +71,22 @@ public class ElasticSearchUtil {
         }
     }
 
-     public void close() throws Exception {
-         if (null != esClient)
-             try {
-                 esClient.close();
-             } catch (IOException e) {
-                 throw new Exception("ElasticSearchUtil :: Error while closing elastic search connection : " + e.getMessage());
-             }
-     }
+    public void close() throws Exception {
+        if (null != esClient)
+            try {
+                esClient.close();
+            } catch (IOException e) {
+                throw new Exception("ElasticSearchUtil :: Error while closing elastic search connection : " + e.getMessage());
+            }
+    }
 
+    public boolean isHealthy() {
+        try {
+            boolean result = esClient.indices().exists(new GetIndexRequest("test"),RequestOptions.DEFAULT);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }
+

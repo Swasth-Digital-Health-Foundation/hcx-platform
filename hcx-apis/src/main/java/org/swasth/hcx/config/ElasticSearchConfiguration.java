@@ -1,7 +1,8 @@
 package org.swasth.hcx.config;
 
 
-
+import org.elasticsearch.action.get.GetRequest;
+import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -11,6 +12,11 @@ import org.springframework.data.elasticsearch.client.ClientConfiguration;
 import org.springframework.data.elasticsearch.client.RestClients;
 import org.springframework.data.elasticsearch.config.AbstractElasticsearchConfiguration;
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.swasth.common.utils.Constants;
+
+import static java.lang.invoke.VarHandle.AccessMode.GET;
 
 @Configuration
 @EnableElasticsearchRepositories(basePackages = "org.swasth.hcx.repository")
@@ -32,4 +38,6 @@ public class ElasticSearchConfiguration extends AbstractElasticsearchConfigurati
 
         return RestClients.create(config).rest();
     }
+
+
 }
