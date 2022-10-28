@@ -670,4 +670,15 @@ public class ResponseMessageTest {
         assertTrue(invalidTopicCode.contains("unsubscribe"));
     }
 
+    @Test
+    public void testEmptySenderList(){
+        String invalidTopicCode = ResponseMessage.EMPTY_SENDER_LIST_ERR_MSG;
+        assertTrue(invalidTopicCode.contains("participant"));
+    }
+    @Test
+    public void testNotificationSubscribeMessage(){
+        String invalidTopicCode = ResponseMessage.NOTIFICATION_SUBSCRIBE_ERR_MSG;
+        assertTrue(invalidTopicCode.contains("participant"));
+    }
+
 }

@@ -121,6 +121,8 @@ public class ResponseMessage {
     public static final String NOTIFICATION_NOT_ALLOWED = "Participant is not allowed to receive this notification: {0}";
     public static final String NOTIFICATION_TRIGGER_ERR_MSG = "{0} is not allowed to trigger this notification: {1}";
     public static final String RECIPIENT_NOT_ALLOWED = "Recipient type is invalid, allowed type are: {0}";
-    public static final String UNSUBSCRIBE_ERR_MSG = "Provide proper senders as * is not allowed for unsubscribe";
-    
+    public static final String UNSUBSCRIBE_ERR_MSG = "Provide valid participant code(s) as * is not allowed for unsubscribe";
+    public static final String EMPTY_SENDER_LIST_ERR_MSG = "Provide valid participant code(s) in the request. sender_list can not be empty";
+    public static final String NOTIFICATION_SUBSCRIBE_ERR_MSG = "Requester participant code can not be sent in the sender_list";
+
 }

@@ -30,7 +30,8 @@ class NotificationControllerTest extends BaseSpec {
     void testNotificationSubscribeOneSender() throws Exception {
         doNothing().when(auditIndexer).createDocument(anyMap());
         doNothing().when(mockKafkaClient).send(anyString(), anyString(), any());
-        when(postgreSQLClient.executeBatch()).thenReturn(new int[2]);
+        ResultSet mockResultSet = getSubscriptionsResultSet();
+        doReturn(mockResultSet).when(postgreSQLClient).executeQuery(anyString());
         String requestBody = getOnePayorSubscriptionRequest();
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIBE).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -46,8 +47,8 @@ class NotificationControllerTest extends BaseSpec {
     void testNotificationSubscribeValidTopic() throws Exception {
         doNothing().when(auditIndexer).createDocument(anyMap());
         doNothing().when(mockKafkaClient).send(anyString(), anyString(), any());
-        doNothing().when(postgreSQLClient).addBatch(anyString());
-        when(postgreSQLClient.executeBatch()).thenReturn(new int[2]);
+        ResultSet mockResultSet = getSubscriptionListResultSet();
+        doReturn(mockResultSet).when(postgreSQLClient).executeQuery(anyString());
         String requestBody = getSubscriptionRequest();
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIBE).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -62,7 +63,7 @@ class NotificationControllerTest extends BaseSpec {
 
     @Test
     void testNotificationUnSubscribeException() throws Exception {
-        doThrow(new ClientException(ErrorCodes.INTERNAL_SERVER_ERROR, "Test Internal Server Error")).when(postgreSQLClient).executeBatch();
+        doThrow(new ClientException(ErrorCodes.INTERNAL_SERVER_ERROR, "Test Internal Server Error")).when(postgreSQLClient).executeQuery(anyString());
         String requestBody = getSubscriptionRequest();
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_UNSUBSCRIBE).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -77,8 +78,8 @@ class NotificationControllerTest extends BaseSpec {
     void testNotificationUnSubscribeSuccess() throws Exception {
         doNothing().when(auditIndexer).createDocument(anyMap());
         doNothing().when(mockKafkaClient).send(anyString(), anyString(), any());
-        doNothing().when(postgreSQLClient).addBatch(anyString());
-        when(postgreSQLClient.executeBatch()).thenReturn(new int[2]);
+        ResultSet mockResultSet = getSubscriptionListResultSet();
+        doReturn(mockResultSet).when(postgreSQLClient).executeQuery(anyString());
         String requestBody = getSubscriptionRequest();
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_UNSUBSCRIBE).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -94,8 +95,8 @@ class NotificationControllerTest extends BaseSpec {
     void testNotificationUnSubscribeHcxSuccess() throws Exception {
         doNothing().when(auditIndexer).createDocument(anyMap());
         doNothing().when(mockKafkaClient).send(anyString(), anyString(), any());
-        doNothing().when(postgreSQLClient).addBatch(anyString());
-        when(postgreSQLClient.executeBatch()).thenReturn(new int[1]);
+        ResultSet mockResultSet = getSubscriptionsResultSet();
+        doReturn(mockResultSet).when(postgreSQLClient).executeQuery(anyString());
         String requestBody = getSubscriptionHcxRequest();
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_UNSUBSCRIBE).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -109,7 +110,7 @@ class NotificationControllerTest extends BaseSpec {
 
     @Test
     void testNotificationSubscribeException() throws Exception {
-        doThrow(new ClientException(ErrorCodes.INTERNAL_SERVER_ERROR, "Test Internal Server Error")).when(postgreSQLClient).executeBatch();
+        doThrow(new ClientException(ErrorCodes.INTERNAL_SERVER_ERROR, "Test Internal Server Error")).when(postgreSQLClient).executeQuery(anyString());
         String requestBody = getSubscriptionRequest();
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIBE).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -124,8 +125,8 @@ class NotificationControllerTest extends BaseSpec {
     void testNotificationSubscribeHcxValidTopic() throws Exception {
         doNothing().when(auditIndexer).createDocument(anyMap());
         doNothing().when(mockKafkaClient).send(anyString(), anyString(), any());
-        doNothing().when(postgreSQLClient).addBatch(anyString());
-        when(postgreSQLClient.executeBatch()).thenReturn(new int[1]);
+        ResultSet mockResultSet = getSubscriptionsResultSet();
+        doReturn(mockResultSet).when(postgreSQLClient).executeQuery(anyString());
         String requestBody = getSubscriptionHcxRequest();
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIBE).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -309,6 +310,15 @@ class NotificationControllerTest extends BaseSpec {
                 new String[]{"subscription_id"}, //columns
                 new Object[][]{ // data
                         {"subscription-123"}
+                });
+    }
+
+    private ResultSet getSubscriptionListResultSet() throws SQLException {
+        return MockResultSet.createStringMock(
+                new String[]{"subscription_id"}, //columns
+                new Object[][]{ // data
+                        {"subscription-123"},
+                        {"subscription-456"}
                 });
     }
 
@@ -617,7 +627,7 @@ class NotificationControllerTest extends BaseSpec {
 
     @Test
     void testSubscriptionUpdateWithInvalidSubscriptionDetails() throws Exception {
-        doReturn(getSubscriptionUpdateSelectResultSet()).when(postgreSQLClient).executeQuery(anyString());
+        doReturn(getSubscriptionUpdateEmptyResultSet()).when(postgreSQLClient).executeQuery(anyString());
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIPTION_UPDATE)
                 .content(getSubscriptionUpdateRequest("notif-participant-onboarded", ACTIVE, true)).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -626,14 +636,6 @@ class NotificationControllerTest extends BaseSpec {
         assertEquals(400, status);
         assertEquals(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, resObj.getError().getCode());
         assertTrue(resObj.getError().getMessage().contains("Subscription does not exist"));
-    }
-
-    private ResultSet getSubscriptionUpdateSelectResultSet() throws SQLException {
-        return MockResultSet.createStringMock(
-                new String[]{"subscription_id", "subscription_status"}, //columns
-                new Object[][]{ // data
-                        {"subscription-123", ACTIVE}
-                });
     }
 
     private ResultSet getSubscriptionUpdateEmptyResultSet() throws SQLException {
