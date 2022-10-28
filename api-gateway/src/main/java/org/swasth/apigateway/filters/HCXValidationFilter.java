@@ -104,7 +104,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                         recipientsDetails = registryService.getDetails(searchRequest);
                     }
                     jsonRequest.validateNotificationReq(senderDetails, recipientsDetails, allowedNetworkCodes);
-                    jsonRequest.validateCondition(!jwtUtils.isValidSignature(jsonRequest.getNotificationPayload(), (String) senderDetails.get(ENCRYPTION_CERT)), ErrorCodes.ERR_INVALID_SIGNATURE, INVALID_JWS);
+                    jsonRequest.validateCondition(!jwtUtils.isValidSignature(jsonRequest.getNotificationPayload(), (String) senderDetails.get(SIGNING_CERT_PATH)), ErrorCodes.ERR_INVALID_SIGNATURE, INVALID_JWS);
                 } else if (requestBody.containsKey(PAYLOAD)) {
                     JWERequest jweRequest = new JWERequest(requestBody, false, path, hcxCode, hcxRoles);
                     requestObj = jweRequest;
