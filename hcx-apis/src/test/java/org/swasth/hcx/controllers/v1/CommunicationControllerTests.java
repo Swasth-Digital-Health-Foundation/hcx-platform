@@ -17,6 +17,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 class CommunicationControllerTests extends BaseSpec {
+
     @Test
     void check_communication_request_success_scenario() throws Exception {
         when(auditService.search(any(), any())).thenReturn(List.of(getAuditData(Constants.COVERAGE_ELIGIBILITY_CHECK, Constants.QUEUED_STATUS)));
