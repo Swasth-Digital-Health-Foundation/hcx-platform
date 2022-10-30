@@ -103,7 +103,7 @@ object Constants {
   val ID = "id"
   val PARTICIPANT_NAME = "participant_name"
   val HCX_NAME = "hcx_name"
-  val DDMMYY = "DDMMYY"
+  val DDMMYYYY = "DDMMYYYY"
   val WORKFLOW = "Workflow"
   val PROPERTIES = "properties"
   val PROPS = "props"
