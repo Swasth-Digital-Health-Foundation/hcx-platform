@@ -27,7 +27,7 @@ public class ElasticSearchConfiguration extends AbstractElasticsearchConfigurati
     public String esHost;
 
     @Value("${es.port}")
-    public String esPort;
+    public int esPort;
 
     @Bean
     @Override
