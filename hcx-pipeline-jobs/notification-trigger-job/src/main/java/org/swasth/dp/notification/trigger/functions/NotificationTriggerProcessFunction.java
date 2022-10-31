@@ -62,7 +62,7 @@ public class NotificationTriggerProcessFunction extends ProcessFunction<Map<Stri
                     Map<String, Object> nData = new HashMap<>();
                     nData.put(Constants.PARTICIPANT_NAME(), cdata.get(Constants.PARTICIPANT_NAME()));
                     nData.put(Constants.HCX_NAME(), config.hcxInstanceName());
-                    nData.put(Constants.DDMMYY(), new SimpleDateFormat("dd-MM-yyyy").format(event.get(Constants.ETS())));
+                    nData.put(Constants.DDMMYYYY(), new SimpleDateFormat("dd-MM-yyyy").format(event.get(Constants.ETS())));
                     nData.put(Constants.PARTICIPANT_NAME(), cdata.get(Constants.PARTICIPANT_NAME()));
                     nData.put(Constants.PARTICIPANT_CODE(), cdata.get(Constants.PARTICIPANT_CODE()));
                     String message = resolveTemplate(notification, nData);
