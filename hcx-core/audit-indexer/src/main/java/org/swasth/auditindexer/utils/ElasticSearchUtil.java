@@ -82,7 +82,7 @@ public class ElasticSearchUtil {
 
     public boolean isHealthy() {
         try {
-            boolean result = esClient.indices().exists(new GetIndexRequest("test"),RequestOptions.DEFAULT);
+            esClient.indices().exists(new GetIndexRequest("test"), RequestOptions.DEFAULT);
             return true;
         } catch (Exception e) {
             return false;
