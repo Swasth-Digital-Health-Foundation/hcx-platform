@@ -1,13 +1,4 @@
 **/target/**
 **/.idea/**
 **/*.iml
-.DS_Store
-**/.cache-main
-**/.project
-**/.classpath
-**/.cache-tests
-**/.settings/**
-
-# gitignore for Gradle project(s).
-**/.gradle/**
-**/lib/build/**
+**/hcx-apis.iml

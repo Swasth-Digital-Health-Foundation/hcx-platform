@@ -2,26 +2,24 @@ package org.swasth.hcx.controllers;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.swasth.common.dto.Response;
-import org.swasth.common.utils.Constants;
-import org.swasth.hcx.managers.HealthCheckManager;
+
+import java.util.*;
 
 @RestController
 public class HealthController extends BaseController {
 
-    @Autowired
-    private HealthCheckManager healthCheckManager;
-
-    @GetMapping(Constants.SERVICE_HEALTH)
+    @RequestMapping(value = "/service/health", method = RequestMethod.GET)
     public ResponseEntity<Object> serviceHealth() {
         Response response = getHealthResponse();
         response.put("healthy", true);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @GetMapping(Constants.HEALTH)
+    @RequestMapping(value = "/health", method = RequestMethod.GET)
     public ResponseEntity<Object> health() {
         Response response = getHealthResponse();
         List<Map<String,Object>> allChecks = new ArrayList<>();

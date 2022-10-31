@@ -1,9 +1,0 @@
-{
-    "REQUEST_SUBMITTING": "Submitting your request !!!",
-    "REQUEST_SUBMITTED": "Request Submitted. Please wait while we are validating your Request ...",
-    "ELIGIBLE_SUCCESS": "Congratulations, you are Eligible",
-    "ELIGIBLE_FAILURE": "Unfortunately, Your Request is Rejected",
-    "SOMETHING_WENT_WRONG": "Something went wrong.",
-    "CLAIM_SUCCESS": "Your claimed amount is xxx INR.",
-    "PRE_AUTH_SUCCESS": "Your pre auth claim amount is xxx INR."
-}
