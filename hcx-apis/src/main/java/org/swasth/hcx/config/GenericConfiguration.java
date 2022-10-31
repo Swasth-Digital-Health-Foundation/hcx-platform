@@ -35,10 +35,7 @@ public class GenericConfiguration {
     @Value("${notification.workflowPath:workflowNotifications.yaml}")
     private String workflowPath;
 
-    @Value("${es.host}")
-    private String esHost;
-    @Value("${es.port}")
-    private int esPort;
+
 
     @Bean
     public RegistryService registryService() {
@@ -61,10 +58,6 @@ public class GenericConfiguration {
     }
 
 
-    @Bean
-    public ElasticSearchUtil elasticSearchUtil() throws Exception {
-        return new ElasticSearchUtil(esHost, esPort);
-    }
 
     private List<String> getProtocolHeaders() {
         List<String> protocolHeaders = env.getProperty(PROTOCOL_HEADERS_MANDATORY, List.class, new ArrayList<String>());

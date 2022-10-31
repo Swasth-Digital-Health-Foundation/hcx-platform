@@ -14,6 +14,7 @@ import org.springframework.data.elasticsearch.config.AbstractElasticsearchConfig
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.swasth.auditindexer.utils.ElasticSearchUtil;
 import org.swasth.common.utils.Constants;
 
 import static java.lang.invoke.VarHandle.AccessMode.GET;
@@ -38,6 +39,9 @@ public class ElasticSearchConfiguration extends AbstractElasticsearchConfigurati
 
         return RestClients.create(config).rest();
     }
-
+    @Bean
+    public ElasticSearchUtil elasticSearchUtil() throws Exception {
+        return new ElasticSearchUtil(esHost, esPort);
+    }
 
 }
