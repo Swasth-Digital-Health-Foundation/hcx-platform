@@ -1,0 +1,315 @@
+{
+  "resourceType": "Bundle",
+  "id": "d4484cdd-1aae-4d21-a92e-8ef749d6d366",
+  "meta": {
+    "lastUpdated": "2022-02-08T21:49:55.458+05:30"
+  },
+  "identifier": {
+    "system": "https://www.tmh.in/bundle",
+    "value": "d4484cdd-1aae-4d21-a92e-8ef749d6d366"
+  },
+  "type": "document",
+  "timestamp": "2022-02-08T21:49:55.458+05:30",
+  "entry": [
+    {
+      "fullUrl": "Composition/42ff4a07-3e36-402f-a99e-29f16c0c9eee",
+      "resource": {
+        "resourceType": "Composition",
+        "id": "42ff4a07-3e36-402f-a99e-29f16c0c9eee",
+        "identifier": {
+          "system": "https://www.tmh.in/hcx-documents",
+          "value": "42ff4a07-3e36-402f-a99e-29f16c0c9eee"
+        },
+        "status": "final",
+        "type": {
+          "coding": [
+            {
+              "system": "https://www.hcx.org/document-type",
+              "code": "HcxClaimRequest",
+              "display": "Claim Request Doc"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/RVH1003"
+        },
+        "date": "2022-02-08T21:49:55+05:30",
+        "author": [
+          {
+            "reference": "Organization/Tmh01"
+          }
+        ],
+        "title": "Claim Request",
+        "section": [
+          {
+            "title": "# Claim Request",
+            "code": {
+              "coding": [
+                {
+                  "system": "http://hl7.org/fhir/ValueSet/resource-types",
+                  "code": "ClaimRequest",
+                  "display": "Claim Request"
+                }
+              ]
+            },
+            "entry": [
+              {
+                "reference": "ClaimRequest/dc82673b-8c71-48c2-8a17-16dcb3b035f6"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Organization/Tmh01",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "Tmh01",
+        "identifier": [
+          {
+            "system": "http://abdm.gov.in/facilities",
+            "value": "HFR-ID-FOR-TMH"
+          },
+          {
+            "system": "http://irdai.gov.in/facilities",
+            "value": "IRDA-ID-FOR-TMH"
+          }
+        ],
+        "name": "Tata Memorial Hospital",
+        "alias": [
+          "TMH",
+          "TMC"
+        ],
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "(+91) 022-2417-7000"
+          }
+        ],
+        "address": [
+          {
+            "line": [
+              "Dr Ernest Borges Rd, Parel East, Parel, Mumbai, Maharashtra 400012"
+            ],
+            "city": "Mumbai",
+            "state": "Maharashtra",
+            "postalCode": "400012",
+            "country": "INDIA"
+          }
+        ],
+        "endpoint": [
+          {
+            "reference": "https://www.tmc.gov.in/",
+            "display": "Website"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Patient/RVH1003",
+      "resource": {
+        "resourceType": "Patient",
+        "id": "RVH1003",
+        "identifier": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "SN",
+                  "display": "Subscriber Number"
+                }
+              ]
+            },
+            "system": "http://gicofIndia.com/beneficiaries",
+            "value": "BEN-101"
+          },
+          {
+            "system": "http://abdm.gov.in/patients",
+            "value": "hinapatel@abdm"
+          } 
+        ],
+        "name": [
+          {
+            "text": "Hina Patel"
+          }
+        ],
+        "gender": "female"
+      }
+    },
+    {
+      "fullUrl": "ClaimRequest/dc82673b-8c71-48c2-8a17-16dcb3b035f6",
+      "resource": {
+  "resourceType": "Claim",
+  "id": "1532676",
+  "meta": {
+    "versionId": "1",
+    "lastUpdated": "2020-10-07T03:26:09.060+00:00",
+    "source": "#BHZcRrcF4oS0JQ42"
+  },
+  "status": "active",
+  "type": {
+    "coding": [ {
+      "system": "http://terminology.hl7.org/CodeSystem/claim-type",
+      "code": "institutional"
+    } ]
+  },
+  "use": "claim",
+  "patient": {
+    "reference": "Patient/1531634",
+    "display": "Hina Patel"
+  },
+  "billablePeriod": {
+    "start": "1979-02-27T16:01:08-05:00",
+    "end": "1979-02-28T16:01:08-05:00"
+  },
+  "created": "1979-02-28T16:01:08-05:00",
+  "provider": {
+    "reference": "Organization/2",
+    "display": "PMJAY, MoHFW, Govt Of India"
+  },
+  "priority": {
+    "coding": [ {
+      "system": "http://terminology.hl7.org/CodeSystem/processpriority",
+      "code": "normal"
+    } ]
+  },
+  "procedure": [ {
+    "sequence": 1,
+    "procedureReference": {
+      "reference": "Procedure/1532663"
+    }
+  }, {
+    "sequence": 2,
+    "procedureReference": {
+      "reference": "Procedure/1532664"
+    }
+  }, {
+    "sequence": 3,
+    "procedureReference": {
+      "reference": "Procedure/1532665"
+    }
+  } ],
+  "insurance": [ {
+    "sequence": 1,
+    "focal": true,
+    "coverage": {
+      "display": "Cigna Health"
+    }
+  } ],
+  "item": [ {
+    "sequence": 1,
+    "productOrService": {
+      "coding": [ {
+        "system": "http://snomed.info/sct",
+        "code": "185347001",
+        "display": "Encounter for problem"
+      } ],
+      "text": "Encounter for problem"
+    },
+    "encounter": [ {
+      "reference": "Encounter/1532617"
+    } ]
+  }, {
+    "sequence": 2,
+    "procedureSequence": [ 1 ],
+    "productOrService": {
+      "coding": [ {
+        "system": "http://snomed.info/sct",
+        "code": "398171003",
+        "display": "Hearing examination (procedure)"
+      } ],
+      "text": "Hearing examination (procedure)"
+    },
+    "net": {
+      "value": 516.65,
+      "currency": "USD"
+    }
+  }, {
+    "sequence": 3,
+    "procedureSequence": [ 2 ],
+    "productOrService": {
+      "coding": [ {
+        "system": "http://snomed.info/sct",
+        "code": "703423002",
+        "display": "Combined chemotherapy and radiation therapy (procedure)"
+      } ],
+      "text": "Combined chemotherapy and radiation therapy (procedure)"
+    },
+    "net": {
+      "value": 16924.49,
+      "currency": "USD"
+    }
+  }, {
+    "sequence": 4,
+    "procedureSequence": [ 3 ],
+    "productOrService": {
+      "coding": [ {
+        "system": "http://snomed.info/sct",
+        "code": "16335031000119103",
+        "display": "High resolution computed tomography of chest without contrast (procedure)"
+      } ],
+      "text": "High resolution computed tomography of chest without contrast (procedure)"
+    },
+    "net": {
+      "value": 516.65,
+      "currency": "USD"
+    }
+  } ],
+  "total": {
+    "value": 129.16,
+    "currency": "USD"
+  }
+}
+    },
+    {
+      "fullUrl": "Organization/GICOFINDIA",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "GICOFINDIA",
+        "identifier": [
+          {
+            "system": "http://irdai.gov.in/insurers",
+            "value": "112"
+          }
+        ],
+        "name": "General Insurance Corporation of India"
+      }
+    },
+    {
+      "fullUrl": "Coverage/dadde132-ad64-4d18-8c18-1d52d7e86abc",
+      "resource": {
+        "resourceType": "Coverage",
+        "id": "dadde132-ad64-4d18-8c18-1d52d7e86abc",
+        "identifier": [
+          {
+            "system": "https://www.gicofIndia.in/policies",
+            "value": "policy-RVH1003"
+          }
+        ],
+        "status": "active",
+        "subscriber": {
+          "reference": "Patient/RVH1003"
+        },
+        "subscriberId": "SN-RVH1003",
+        "beneficiary": {
+          "reference": "Patient/RVH1003"
+        },
+        "relationship": {
+          "coding": [
+            {
+              "system": "http://hl7.org/fhir/ValueSet/subscriber-relationship",
+              "code": "self"
+            }
+          ]
+        },
+        "payor": [
+          {
+            "reference": "Organization/GICOFINDIA"
+          }
+        ]
+      }
+    }
+  ]
+}

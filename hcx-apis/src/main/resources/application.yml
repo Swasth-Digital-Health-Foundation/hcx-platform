@@ -1,21 +1,99 @@
-#kafka configuration
+#kafka config
 bootstrap-servers: ${bootstrap_servers:localhost:9092}
+
+env: local
 
 kafka:
   topic:
-    payload: ${kafka_payload_topic:local.hcx.request.payload}
-    ingest: ${kafka_ingest_topic:local.hcx.request.ingest}
+    payload: ${kafka_payload_topic:${env}.hcx.request.payload}
+    coverageeligibility: ${kafka_coverageeligibility_topic:${env}.hcx.request.coverageeligibility}
+    preauth: ${kafka_preauth_topic:${env}.hcx.request.preauth}
+    claim: ${kafka_claim_topic:${env}.hcx.request.claim}
+    payment: ${kafka_payment_topic:${env}.hcx.request.payment}
+    status: ${kafka_status_topic:${env}.hcx.request.status.search}
+    search: ${kafka_search_topic:${env}.hcx.request.search}
+    searchresponse: ${kafka_search_response_topic:${env}.hcx.response.search}
+    communication: ${kafka_communication_topic:${env}.hcx.request.communication}
+    predetermination: ${kafka_predetermination_topic:${env}.hcx.request.predetermination}
+    notification: ${kafka_notification_topic:${env}.hcx.request.notification}
+    subscription: ${kafka_subscription_topic:${env}.hcx.request.subscription}
+    audit: ${kafka_audit_topic:${env}.hcx.audit}
+    onsubscription: ${kafka_onsubscription_topic:${env}.hcx.request.onsubscription}
+
+registry:
+  basePath: ${registry_basePath:http://a0b2bab079318431d8ca99f1efb1c25c-874274596.ap-south-1.elb.amazonaws.com:8081}
+  hcxcode: ${registry_hcxcode:1-d2d56996-1b77-4abb-b9e9-0e6e7343c72e}
+
+participantCode:
+  fieldSeparator: ${participant_code_field_separator:.}
+
+#postgres config
+postgres:
+  url: ${postgres_url:jdbc:postgresql://localhost:5432/postgres}
+  user: ${postgres_user:postgres}
+  password: ${postgres_password:postgres}
+  tablename: ${postgres_tablename:payload}
+  subscription:
+    tablename: ${postgres_subscription_tablename:subscription}
+    insertQuery: ${postgres_subscription_insertQuery:INSERT INTO %s as sub(subscription_id,subscription_request_id,topic_code,sender_code,recipient_code,subscription_status,lastUpdatedOn,createdOn,expiry,is_delegated) VALUES ('%s','%s','%s','%s','%s','%s',%d,%d,%d,%s) ON CONFLICT ON CONSTRAINT subscription_pkey DO UPDATE SET subscription_status='%s',lastUpdatedOn=%d,expiry=%d,is_delegated=%s WHERE sub.sender_code=EXCLUDED.sender_code AND sub.topic_code=EXCLUDED.topic_code AND sub.recipient_code=EXCLUDED.recipient_code RETURNING sub.subscription_id}
+    subscriptionQuery: ${postgres_subscription_subscriptionQuery:SELECT subscription_id,subscription_request_id,subscription_status,topic_code,sender_code,recipient_code,expiry,is_delegated FROM %s WHERE recipient_code = '%s'}
+    subscriptionSelectQuery: ${postgres_subscription_subscriptionSelectQuery:SELECT subscription_id,subscription_request_id,subscription_status,topic_code,sender_code,recipient_code,expiry,is_delegated FROM %s WHERE subscription_id = '%s' AND sender_code = '%s' }
+    updateSubscriptionQuery: ${postgres_subscription_updateSubscriptionQuery:UPDATE %s SET subscription_status = '%s'  WHERE subscription_id = '%s' RETURNING %s }
+
+
+#hcx error headers
+plainrequest:
+  headers:
+    mandatory: ${error_mandatory_headers:x-hcx-status, x-hcx-sender_code, x-hcx-recipient_code, x-hcx-error_details, x-hcx-correlation_id, x-hcx-api_call_id, x-hcx-timestamp}
+    optional: ${error_optional_headers:x-hcx-workflow_id}
 
 #hcx headers
 protocol:
   headers:
-    mandatory: ${protocol_mandatory_headers:x-hcx-sender_code, x-hcx-recipient_code, x-hcx-request_id, x-hcx-correlation_id, x-hcx-timestamp, x-hcx-status, jws_header, jwe_header}
+    mandatory: ${protocol_mandatory_headers:x-hcx-sender_code, x-hcx-recipient_code, x-hcx-api_call_id, x-hcx-timestamp, x-hcx-status, x-hcx-correlation_id}
     optional: ${protocol_optional_headers:x-hcx-workflow_id, x-hcx-debug_flag, x-hcx-error_details, x-hcx-debug_details}
 headers:
   domain: ${domain_headers:use_case_name, parameter_name}
   jose: ${jose_headers:alg, enc}
 
-#hcx payload properties
-payload:
-  mandatory:
-    properties: ${payload_mandatory_properties:protected, encrypted_key, aad, iv, ciphertext, tag}
+allowedEntitiesForStatusSearch: ${allowed_entities_for_status_search:coverageeligibility, preauth, claim, predetermination}
+
+#elasticsearch config
+es:
+  host: ${es_host:localhost}
+  port: ${es_port:9200}
+
+#redis config
+redis:
+  host: ${redis_host:localhost}
+  port: ${redis_port:6379}
+  expires: ${redis_expires:3600}
+
+#Audit config
+audit:
+  index: ${audit_index:hcx_audit}
+  alias: ${audit_alias:hcx_audit}
+
+#hcx redirect headers
+redirect:
+  headers:
+    mandatory: ${redirect_mandatory_headers:x-hcx-sender_code, x-hcx-recipient_code, x-hcx-api_call_id, x-hcx-timestamp, x-hcx-correlation_id, x-hcx-status, x-hcx-redirect_to}
+    optional: ${redirect_optional_headers:x-hcx-workflow_id}
+
+#hcx config
+hcx:
+  instanceName: ${hcx_instance_name:swasth-hcx}
+  urls:
+    notallowed: ${not_allowed_urls:http://dev-hcx.swasth.app/api,http://staging-hcx.swasth.app/api}
+
+#Notifications related configurations
+notification:
+  headers:
+    mandatory: ${notification_mandatory_headers:alg, x-hcx-notification_headers, sender_code, timestamp, recipient_type, recipients}
+    optional: ${notification_optional_headers:x-hcx-correlation_id, expiry}
+  subscription:
+    expiry: ${notification_subscription_expiry:100}
+    allowedFilters: ${notification_subscription_allowedFilters:subscription_id, topic_code, subscription_status}
+  networkPath: ${notification_networkPath:networkNotifications.yaml}
+  participantPath: ${notification_participantPath:participantNotifications.yaml}
+  workflowPath: ${notification_workflowPath:workflowNotifications.yaml}

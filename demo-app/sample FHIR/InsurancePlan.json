@@ -1,0 +1,429 @@
+{
+  "resourceType": "InsurancePlan",
+  "id": "AB-GUJ-UniqueIdForTheObject",
+    "meta": {
+    "lastUpdated": "2022-06-27T23:43:30.918+00:00",
+    "source": "#lSkr2tR0GfhcsntI",
+    "profile": [ "https://ig.hcxprotocol.io/v0.7/StructureDefinition-HCXInsurancePlan.html"]
+  },
+  "identifier": [
+    {
+      "use": "usual",
+      "value": "AB_GUJ_Plan1",
+      "period": {
+        "start": "2001-05-06"
+      }
+    }
+  ],
+  "status": "active",
+  "type": [{
+    "coding": [
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/insurance-plan-type",
+        "code": "medical"
+      }
+    ]
+  }],
+  "name": "PMJAY-Mukhyamantri Amrutam & Mukhyamantri Vatsalya",
+  "period": {
+    "start": "2020-09-23"
+  },
+  "ownedBy": {
+    "reference": "Organization/AB_GUJ_SHA",
+    "display": "Gujarat State Health Protection Society"
+  },
+  "administeredBy": {
+    "reference": "Organization/AB_GUJ_TPA_1",
+    "display": "MD India Healthcare Service (TPA) Pvt. Ltd."
+  },
+  "coverageArea": [{
+    "reference": "Location/GUJARAT",
+    "display": "Gujarat"
+  }],
+  "coverage": [
+    {
+      "type": {
+        "coding": [
+          {
+            "system": "http://terminologyServer/ValueSets/coverage-type",
+            "code": "Medical"
+          }
+        ]
+      },
+      "benefit": [
+        {
+          "type": {
+            "coding": [
+              {
+                "system": "http://terminologyServer/ValueSets/benefit-type",
+                "code": "Inpatient"
+              }
+            ]
+          },
+          "limit": [{
+            "value": {
+              "value": 500000,
+              "unit": "INR"
+            }
+          }]
+        }
+      ]
+    }
+  ],
+  "plan": [
+    {
+      "type": {
+        "coding": [
+          {
+            "system": "http://terminologyServer/ValueSets/plan-type",
+            "code": "PMJAY_GUJ_GOLD_CARD"
+          }
+        ]
+      },
+      "extension": [
+        {
+          "url": "https://ig.hcxprotocol.io/v0.7/StructureDefinition-HCXProofOfIdentificationExtension.html",
+          "extension": [
+            {
+              "url": "ProofOfIdentificationDocumentCode",
+              "valueCodeableConcept": {
+                "coding":  [
+                    {
+                        "system": "https://hcx-valuesets/proofOfIdentificationDocumentCodes",
+                        "version": "1.0.0",
+                        "code": "12345",
+                        "display": "Aadhar Card"
+                    }
+                ]
+              }
+            },
+            {
+              "url": "ProofOfIdentificationDocumentRequiredFlag",
+              "valueBoolean": true
+            },
+            {
+              "url": "ProofOfIdentificationDocumentMimeType",
+              "valueCode": "application/pdf"
+            },
+            {
+              "url": "ClinicalDiagnosticDocumentClaimUse",
+              "valueCode": "preauthorization"
+            },
+            {
+              "url": "DocumentationUrl",
+              "valueUrl": "http://documentation-url"
+            }
+          ]
+        },
+        {
+          "url": "https://ig.hcxprotocol.io/v0.7/StructureDefinition-HCXProofOfPresenceExtension.html",
+          "extension": [
+            {
+              "url": "ProofOfPresenceDocumentCode",
+              "valueCodeableConcept": {
+                "coding":  [
+                    {
+                        "system": "https://hcx-valuesets/proofOfPresenceDocumentCodes",
+                        "version": "1.0.0",
+                        "code": "45678",
+                        "display": "Aadhar Verification XML"
+                    }
+                ]
+              }
+            },
+            {
+              "url": "ProofOfPresenceDocumentRequiredFlag",
+              "valueBoolean": true
+            },
+            {
+              "url": "ProofOfPresenceDocumentMimeType",
+              "valueCode": "application/xml"
+            },
+            {
+              "url": "ClinicalDiagnosticDocumentClaimUse",
+              "valueCode": "preauthorization"
+            },
+            {
+              "url": "DocumentationUrl",
+              "valueUrl": "http://documentation-url"
+            }
+          ]
+        }
+      ],
+      "specificCost": [
+        {
+          "category": {
+            "coding": [
+              {
+                "system": "http://terminologyServer/ValueSets/cost-category",
+                "code": "Inpatient-packages"
+              }
+            ]
+          },
+          "benefit": [
+            {
+              "type": {
+                "coding": [
+                  {
+                    "system": "http://terminologyServer/ValueSets/packages",
+                    "code": "IN010",
+                    "display": "Vertebroplasty"
+                  }
+                ]
+              },
+              "cost": [
+                {
+                  "type": {
+                    "coding": [
+                      {
+                        "system": "http://terminologyServer/ValueSets/pacakgeCostTypes",
+                        "code": "hospitalization"
+                      }
+                    ]
+                  },
+                  "applicability": {
+                    "coding": [
+                      {
+                        "system": "http://terminology.hl7.org/CodeSystem/applicability",
+                        "code": "in-network",
+                        "display": "Gujarat SHA empaneled hospitals"
+                      }
+                    ]
+                  },
+                  "value": {
+                    "value": 22800,
+                    "unit": "INR"
+                  }
+                }
+              ]
+            },
+            {
+              "type": {
+                "coding": [
+                  {
+                    "system": "http://terminologyServer/ValueSets/procedures",
+                    "code": "MC999A",
+                    "display": "ABC Surgery"
+                  },
+                  {
+                    "system":  "http://terminologyServer/ValueSets/benefit-type",
+                    "code": "ICD_PCS_001"
+                  }
+                ]
+              },
+              "cost": [
+                {
+                  "type": {
+                    "coding": [
+                      {
+                        "system": "http://terminologyServer/ValueSets/pacakgeCostTypes",
+                        "code": "hospitalization"
+                      }
+                    ]
+                  },
+                  "applicability": {
+                    "coding": [
+                      {
+                        "system": "http://terminology.hl7.org/CodeSystem/applicability",
+                        "code": "in-network",
+                        "display": "Gujarat SHA empaneled hospitals"
+                      }
+                    ]
+                  },
+                  "value": {
+                    "value": 11000,
+                    "unit": "INR"
+                  }
+                },
+                {
+                  "type": {
+                    "coding": [
+                      {
+                        "system": "http://terminologyServer/ValueSets/pacakgeCostTypes",
+                        "code": "hospitalization"
+                      }
+                    ]
+                  },
+                  "applicability": {
+                    "coding": [
+                      {
+                        "system": "http://terminology.hl7.org/CodeSystem/applicability",
+                        "code": "in-network",
+                        "display": "Gujarat SHA empaneled hospitals"
+                      }
+                    ]
+                  },
+                  "qualifiers": [
+                    {
+                      "coding": [
+                        {
+                          "system": "http://terminologyServer/ValueSets/stratificationTypes",
+                          "code": "STRAT002"
+                        }
+                      ]
+                    },
+                    {
+                      "coding": [
+                        {
+                          "system": "http://terminologyServer/ValueSets/implantCodes",
+                          "code": "IMP0005"
+                        }
+                      ]
+                    }
+                  ],
+                  "value": {
+                    "value": 12000,
+                    "unit": "INR"
+                  }
+                }
+              ]
+            },
+            {
+              "type": {
+                "coding": [
+                  {
+                    "system": "http://terminologyServer/ValueSets/packages",
+                    "code": "HBP_PACKAGE_00003",
+                    "display": "Microlaryngoscopic Surgery"
+                  }
+                ]
+              },
+              "cost": [
+                {
+                  "type": {
+                    "coding": [
+                      {
+                        "system": "http://terminologyServer/ValueSets/pacakgeCostTypes",
+                        "code": "hospitalization"
+                      }
+                    ]
+                  },
+                  "applicability": {
+                    "coding": [
+                      {
+                        "system": "http://terminology.hl7.org/CodeSystem/applicability",
+                        "code": "in-network",
+                        "display": "Gujarat SHA empaneled hospitals"
+                      }
+                    ]
+                  },
+                  "qualifiers": [
+                    {
+                      "coding": [
+                        {
+                          "system": "http://terminologyServer/ValueSets/stratificationTypes",
+                          "code": "STRAT002"
+                        }
+                      ]
+                    },
+                    {
+                      "coding": [
+                        {
+                          "system": "http://terminologyServer/ValueSets/implantCodes",
+                          "code": "IMP0005"
+                        }
+                      ]
+                    }
+                  ],
+                  "value": {
+                    "value": 18500,
+                    "unit": "INR"
+                  }
+                }
+              ],
+              "extension": [
+                {
+                  "url": "https://ig.hcxprotocol.io/v0.7/StructureDefinition-HCXDiagnosticDocumentsExtension.html",
+                  "extension": [
+                    {
+                      "url": "ClinicalDiagnosticDocumentCode",
+                      "valueCodeableConcept": {
+                        "coding":  [
+                            {
+                                "system": "https://hcx-valuesets/proofOfIdentificationDocumentCodes",
+                                "version": "0.7.0",
+                                "code": "MAND0001",
+                                "display": "Post Treatment clinical photograph"
+                            }
+                        ]
+                      }
+                    },
+                    {
+                      "url": "ClinicalDiagnosticDocumentRequiredFlag",
+                      "valueBoolean": true
+                    },
+                    {
+                      "url": "ClinicalDiagnosticDocumentMimeType",
+                      "valueCode": "application/pdf"
+                    },
+                    {
+                      "url": "ClinicalDiagnosticDocumentClaimUse",
+                      "valueCode": "claim"
+                    },
+                    {
+                      "url": "DocumentationUrl",
+                      "valueUrl": "http://documentation-url"
+                    }
+                  ]
+                },
+                {
+                  "url": "https://ig.hcxprotocol.io/v0.7/StructureDefinition-HCXInformationalMessagesExtension.html",
+                  "extension": [
+                    {
+                      "url": "InformationalMessagesCode",
+                      "valueCodeableConcept": {
+                        "coding":  [
+                            {
+                                "system": "https://hcx-valuesets/InformationalMessagesCodes",
+                                "version": "1.0.0",
+                                "code": "INF-001",
+                                "display": "Information Message 1"
+                            }
+                        ]
+                      }
+                    },
+                    {
+                      "url": "InformationalMessageCode",
+                      "valueCode": "information"
+                    },
+                    {
+                      "url": "InformationalMessageClaimUse",
+                      "valueCode": "claim"
+                    },
+                    {
+                      "url": "DocumentationUrl",
+                      "valueUrl": "http://documentation-url"
+                    }
+                  ]
+                },
+                {
+                  "url": "https://ig.hcxprotocol.io/v0.7/StructureDefinition-HCXQuestionnairesExtension.html",
+                  "extension": [
+                    {
+                      "url": "Questionnaire",
+                      "valueReference": {
+                        "reference": "Questionnnaire/1"
+                      }
+                    },
+                    {
+                      "url": "QuestionnaireRequiredFlag",
+                      "valueBoolean": true
+                    },
+                    {
+                      "url": "QuestionnaireClaimUse",
+                      "valueCode": "claim"
+                    },
+                    {
+                      "url": "DocumentationUrl",
+                      "valueUrl": "http://documentation-url"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

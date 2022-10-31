@@ -1,66 +1,42 @@
 package org.swasth.hcx.controllers.v1;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.MockitoAnnotations;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.swasth.common.utils.Constants;
+import org.swasth.common.utils.JSONUtils;
 import org.swasth.hcx.controllers.BaseSpec;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
-
-public class CoverageEligibilityTests extends BaseSpec {
-    
-    @InjectMocks
-    CoverageEligibilityController coverageEligibilityController;
-
-    @BeforeEach
-    public void setup() {
-        /* this must be called for the @Mock annotations above to be processed
-         and for the mock service to be injected into the controller under test. */
-        MockitoAnnotations.openMocks(this);
-        this.mockMvc = MockMvcBuilders.standaloneSetup(coverageEligibilityController).build();
-    }
+class CoverageEligibilityTests extends BaseSpec {
 
     @Test
-    public void check_coverage_eligibility_success_scenario() throws Exception {
-      when(mockEnv.getProperty("protocol.headers.mandatory", List.class, new ArrayList<String>())).thenReturn(new ArrayList<>(Arrays.asList("x-hcx-sender_code", "x-hcx-recipient_code", "x-hcx-request_id", "x-hcx-correlation_id", "x-hcx-timestamp", "x-hcx-status")));
-      when(mockEnv.getProperty("headers.domain", List.class, new ArrayList<String>())).thenReturn(new ArrayList<>(Arrays.asList("use_case_name", "parameter_name")));
-      when(mockEnv.getProperty("headers.jose", List.class, new ArrayList<String>())).thenReturn(new ArrayList<>(Arrays.asList("alg", "enc")));
-      when(mockEnv.getProperty("payload.mandatory.properties", List.class, new ArrayList<String>())).thenReturn(new ArrayList<>(Arrays.asList("protected", "encrypted_key", "aad", "iv", "ciphertext", "tag")));
-      doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
-      String requestBody = getRequestBody();
-      MvcResult mvcResult = mockMvc.perform(post("/v1/coverageeligibility/check").content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
-      MockHttpServletResponse response = mvcResult.getResponse();
-      int status = response.getStatus();
-      assertEquals(202, status);
-    }
-
-    @Test
-    public void check_coverage_eligibility_headers_missing_scenario() throws Exception {
-        when(mockEnv.getProperty("protocol.headers.mandatory", List.class, new ArrayList<String>())).thenReturn(new ArrayList<>(Arrays.asList("x-hcx-sender_code", "x-hcx-recipient_code", "x-hcx-request_id", "x-hcx-correlation_id", "x-hcx-timestamp", "x-hcx-status")));
-        when(mockEnv.getProperty("headers.domain", List.class, new ArrayList<String>())).thenReturn(new ArrayList<>(Arrays.asList("use_case_name", "parameter_name")));
-        when(mockEnv.getProperty("headers.jose", List.class, new ArrayList<String>())).thenReturn(new ArrayList<>(Arrays.asList("alg", "enc")));
-        when(mockEnv.getProperty("payload.mandatory.properties", List.class, new ArrayList<String>())).thenReturn(new ArrayList<>(Arrays.asList("protected", "encrypted_key", "aad", "iv", "ciphertext", "tag")));
+    void check_coverage_eligibility_success_scenario() throws Exception {
         doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
-        String requestBody = getHeadersMissingRequestBody();
-        MvcResult mvcResult = mockMvc.perform(post("/v1/coverageeligibility/check").content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        String requestBody = getRequestBody();
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.COVERAGE_ELIGIBILITY_CHECK).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
-        assertEquals(400, status);
+        assertEquals(202, status);
+    }
+
+    @Test
+    void check_coverage_eligibility_subscription_scenario() throws Exception {
+        doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
+        String requestBody = getRequestBody();
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.COVERAGE_ELIGIBILITY_CHECK).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        assertEquals(202, status);
     }
 
     @Test
@@ -71,56 +47,63 @@ public class CoverageEligibilityTests extends BaseSpec {
         assertEquals(400, status);
     }
 
-    @Test
-    public void check_coverage_eligibility_client_exception_scenario() throws Exception {
-        when(mockEnv.getProperty("payload.mandatory.properties", List.class, new ArrayList<String>())).thenReturn(new ArrayList<>(Arrays.asList("protected", "encrypted_key", "aad", "iv", "ciphertext", "tag")));
-        String requestBody = getBadRequestBody();
-        MvcResult mvcResult = mockMvc.perform(post("/v1/coverageeligibility/check").content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
-        MockHttpServletResponse response = mvcResult.getResponse();
-        int status = response.getStatus();
-        assertEquals(400, status);
-    }
 
     @Test
-    public void check_coverage_eligibility_exception_scenario() throws Exception {
-        String requestBody = getRequestBody();
-        MvcResult mvcResult = mockMvc.perform(post("/v1/coverageeligibility/check").content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+    void check_coverage_eligibility_exception_scenario() throws Exception {
+        String requestBody = getExceptionRequestBody();
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.COVERAGE_ELIGIBILITY_CHECK).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         assertEquals(500, status);
     }
 
     @Test
-    public void on_check_coverage_eligibility_success_scenario() throws Exception {
-        when(mockEnv.getProperty("protocol.headers.mandatory", List.class, new ArrayList<String>())).thenReturn(new ArrayList<>(Arrays.asList("x-hcx-sender_code", "x-hcx-recipient_code", "x-hcx-request_id", "x-hcx-correlation_id", "x-hcx-timestamp", "x-hcx-status")));
-        when(mockEnv.getProperty("headers.domain", List.class, new ArrayList<String>())).thenReturn(new ArrayList<>(Arrays.asList("use_case_name", "parameter_name")));
-        when(mockEnv.getProperty("headers.jose", List.class, new ArrayList<String>())).thenReturn(new ArrayList<>(Arrays.asList("alg", "enc")));
-        when(mockEnv.getProperty("payload.mandatory.properties", List.class, new ArrayList<String>())).thenReturn(new ArrayList<>(Arrays.asList("protected", "encrypted_key", "aad", "iv", "ciphertext", "tag")));
+    void on_check_coverage_eligibility_success_scenario() throws Exception {
         doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
+        Map<String, Object> participantMap = JSONUtils.deserialize(getParticipantPayorBody(), Map.class);
+        when(mockRegistryService.getDetails(anyString())).thenReturn(Arrays.asList(participantMap));
         String requestBody = getRequestBody();
-        MvcResult mvcResult = mockMvc.perform(post("/v1/coverageeligibility/on_check").content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.COVERAGE_ELIGIBILITY_ONCHECK).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         assertEquals(202, status);
     }
 
     @Test
-    public void on_check_coverage_eligibility_client_exception_scenario() throws Exception {
-        when(mockEnv.getProperty("payload.mandatory.properties", List.class, new ArrayList<String>())).thenReturn(new ArrayList<>(Arrays.asList("protected", "encrypted_key", "aad", "iv", "ciphertext", "tag")));
-        String requestBody = getBadRequestBody();
-        MvcResult mvcResult = mockMvc.perform(post("/v1/coverageeligibility/on_check").content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+    void on_check_coverage_eligibility_subscription_success_scenario() throws Exception {
+        when(mockRegistryService.getDetails(anyString())).thenReturn(Arrays.asList(getHIUParticipant()));
+        doNothing().when(auditIndexer).createDocument(anyMap());
+        when(postgreSQLClient.execute(anyString())).thenReturn(true);
+        doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
+        Map<String, Object> participantMap = JSONUtils.deserialize(getParticipantPayorBody(), Map.class);
+        when(mockRegistryService.getDetails(anyString())).thenReturn(Arrays.asList(participantMap));
+        String requestBody = getRequestBody();
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.COVERAGE_ELIGIBILITY_ONCHECK).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
-        assertEquals(400, status);
+        assertEquals(202, status);
     }
 
     @Test
-    public void on_check_coverage_eligibility_exception_scenario() throws Exception {
-        String requestBody = getRequestBody();
-        MvcResult mvcResult = mockMvc.perform(post("/v1/coverageeligibility/on_check").content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+    void on_check_coverage_eligibility_exception_scenario() throws Exception {
+        Map<String, Object> participantMap = JSONUtils.deserialize(getParticipantPayorBody(), Map.class);
+        when(mockRegistryService.getDetails(anyString())).thenReturn(Arrays.asList(participantMap));
+        String requestBody = getExceptionRequestBody();
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.COVERAGE_ELIGIBILITY_ONCHECK).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         assertEquals(500, status);
+    }
+
+    @Test
+    void on_check_coverage_eligibility_redirect() throws Exception {
+        Map<String, Object> participantMap = JSONUtils.deserialize(getParticipantPayorBody(), Map.class);
+        when(mockRegistryService.getDetails(anyString())).thenReturn(Arrays.asList(participantMap));
+        String requestBody = "{ \"x-hcx-recipient_code\": \"1-3a3bd68a-848a-4d52-9ec2-07a92d765fb4\", \"x-hcx-timestamp\": \"2021-10-27T20:35:52.636+0530\", \"x-hcx-sender_code\": \"1-2ff1f493-c4d4-4fc7-8d41-aaabb997af23\", \"x-hcx-correlation_id\": \"5e934f90-111d-4f0b-b016-c22d820674e1\", \"x-hcx-workflow_id\": \"26b1060c-1e83-4600-9612-ea31e0ca5094\", \"x-hcx-api_call_id\": \"26b1060c-1e83-4600-9612-ea31e0ca5194\", \"x-hcx-status\": \"response.redirect\", \"x-hcx-redirect_to\": \"1-74f6cb29-4116-42d0-9fbb-adb65e6a64ac\" }";
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.COVERAGE_ELIGIBILITY_ONCHECK).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        assertEquals(202, status);
     }
 
 }
