@@ -1,12 +1,14 @@
 package org.swasth.auditindexer.function;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import org.elasticsearch.client.RestHighLevelClient;
 import org.swasth.auditindexer.utils.ElasticSearchUtil;
 import org.swasth.common.utils.JSONUtils;
 
 import java.io.InputStream;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Map;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 public class AuditIndexer {

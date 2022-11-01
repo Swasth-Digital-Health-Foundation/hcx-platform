@@ -18,8 +18,8 @@ import java.util.Map;
 
 public class ElasticSearchUtil {
 
-    private String esHost;
-    private int esPort;
+    private final  String esHost;
+    private final  int esPort;
     private final RestHighLevelClient esClient;
     private static final ObjectMapper mapper = new ObjectMapper();
 

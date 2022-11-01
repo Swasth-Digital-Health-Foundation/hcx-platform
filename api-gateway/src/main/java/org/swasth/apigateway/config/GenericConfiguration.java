@@ -60,4 +60,7 @@ public class GenericConfiguration {
         return new JWTUtils();
     }
 
+    public void setEsPort(int esPort) {
+        this.esPort = esPort;
+    }
 }
