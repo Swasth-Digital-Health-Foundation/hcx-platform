@@ -16,10 +16,10 @@ import org.swasth.auditindexer.utils.ElasticSearchUtil;
 //@ComponentScan(basePackages = {"org.swasth.hcx"})
 public class ElasticSearchConfiguration extends AbstractElasticsearchConfiguration {
 
-    @Value("${es.host}")
+    @Value("${es_host:localhost}")
     public String esHost;
 
-    @Value("${es.port}")
+    @Value("${es.port:9200}")
     public int esPort;
 
     @Bean
