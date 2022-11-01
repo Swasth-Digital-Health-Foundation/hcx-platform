@@ -76,6 +76,7 @@ CREATE TABLE IF NOT EXISTS public.payload
     CONSTRAINT payload_pkey PRIMARY KEY (mid)
 );
 ```
+
 ### Running protocol-service:
 1. Go to the path: `/hcx-platform` and run the below maven command to build the application.
 ```shell
