@@ -75,7 +75,7 @@ class RedisCacheTest {
     }
 
     @Test
-    void testHealthySuccess() throws Exception {
+    void testHealthSuccess() throws Exception {
        boolean isValid =  redis.isHealthy();
         assertTrue(isValid);
     }

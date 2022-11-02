@@ -7,6 +7,7 @@ import org.elasticsearch.action.admin.indices.alias.Alias;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.CreateIndexRequest;
 import org.elasticsearch.client.indices.GetIndexRequest;
@@ -28,6 +29,8 @@ public class ElasticSearchUtil {
         this.esPort = esPort;
         this.esClient = createClient();
     }
+
+
 
     public RestHighLevelClient createClient() throws Exception {
         try {

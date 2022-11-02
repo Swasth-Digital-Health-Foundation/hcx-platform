@@ -63,26 +63,8 @@ public class HealthControllerTests extends BaseSpec {
         assertEquals(false, healthy);
     }
 
-    @Test
-     void ElasticSearchTestSuccess() {
-        boolean isValid = elasticSearchUtil.isHealthy();
-        assertFalse(isValid);
-        //        when(elasticSearchUtil.isHealthy()).thenReturn(ElasticSearchhealthSuccess());
-//        MvcResult mvcResult = mockMvc.perform(get(Constants.HEALTH)).andReturn();
-//        MockHttpServletResponse response = mvcResult.getResponse();
-//        int status = response.getStatus();
-//        System.out.println("----------------------------------------------");
-//        System.out.println(status);
-//        assertEquals(200, status);
-
-
-
-
-
-
-
-
-    }
-
 
 }
+
+
+
