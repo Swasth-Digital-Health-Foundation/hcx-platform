@@ -40,7 +40,7 @@ jobs:
           username: swasth2021
           password: dckr_pat_uO0inNVbSs_V4G_gD39R9gdwkzg
 
-      - name: Build and push Docker image for hcx-pipeline-jobs
+      - name: Build and push Docker image for hcx-scheduler-jobs
         uses: docker/build-push-action@v3
         with:
           context: ./hcx-scheduler-jobs
