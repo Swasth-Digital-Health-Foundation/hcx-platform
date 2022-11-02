@@ -6,7 +6,7 @@ import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
-public class ElasticsearchConfigurationTest {
+ class ElasticsearchConfigurationTest {
 
     ApplicationContextRunner applicationContextRunner = new ApplicationContextRunner().
             withUserConfiguration(ElasticSearchConfiguration.class);

@@ -16,6 +16,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.swasth.auditindexer.function.AuditIndexer;
+import org.swasth.auditindexer.utils.ElasticSearchUtil;
 import org.swasth.common.dto.Response;
 import org.swasth.common.helpers.EventGenerator;
 import org.swasth.common.service.RegistryService;
@@ -63,6 +64,9 @@ public class BaseSpec {
 
     @MockBean
     protected RedisCache redisCache;
+
+    @MockBean
+    protected ElasticSearchUtil elasticSearchUtil;
 
     @MockBean
     protected AuditService auditService;
@@ -158,6 +162,10 @@ public class BaseSpec {
     public Response validHealthResponse() {
         return new Response("healthy",true);
     }
+    public Boolean ElasticSearchhealthSuccess() {
+        return Boolean.TRUE;
+    }
+
 
     protected Map<String,Object> getAuditData(String action, String status){
         Map<String,Object> obj = new HashMap();

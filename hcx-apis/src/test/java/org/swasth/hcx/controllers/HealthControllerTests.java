@@ -21,6 +21,8 @@ public class HealthControllerTests extends BaseSpec {
     @InjectMocks
     HealthController healthController;
 
+
+
     @BeforeEach
     public void setup() {
         /* this must be called for the @Mock annotations above to be processed
@@ -61,5 +63,16 @@ public class HealthControllerTests extends BaseSpec {
         assertEquals(200, status);
         assertEquals(false, healthy);
     }
+
+    @Test
+    public void ElasticSearchTestSuccess() throws Exception {
+        when(elasticSearchUtil.isHealthy()).thenReturn(ElasticSearchhealthSuccess());
+        MvcResult mvcResult = mockMvc.perform(get(Constants.HEALTH)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        assertEquals(200,status);
+
+    }
+
 
 }
