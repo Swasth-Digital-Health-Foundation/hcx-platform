@@ -7,6 +7,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class GenericConfigurationTest {
 
+
     private final ApplicationContextRunner context = new ApplicationContextRunner()
             .withUserConfiguration(GenericConfiguration.class);
 
