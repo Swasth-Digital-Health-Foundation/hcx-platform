@@ -14,10 +14,10 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - name: Set up JDK 8
+      - name: Set up JDK 11
         uses: actions/setup-java@v1
         with:
-          java-version: 8
+          java-version: 11
       - name: Cache Maven packages
         uses: actions/cache@v1
         with:
@@ -26,9 +26,7 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
 
       - name: Maven Build
-        run : |
-          cd hcx-pipeline-jobs /
-          mvn clean install
+        run : mvn clean install
 
       - name: set up env var
         run: echo "IMAGE_TAG=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
@@ -45,8 +43,8 @@ jobs:
       - name: Build and push Docker image for hcx-pipeline-jobs
         uses: docker/build-push-action@v3
         with:
-          context: ./hcx-pipeline-jobs/jobs-distribution
+          context: ./hcx-scheduler-jobs
           push: true
           tags: swasth2021/hcx-pipeline-jobs:${{ env.IMAGE_TAG }}
-          labels: hcx-pipeline-jobs image
+          labels: hcx-scheduler-jobs image
 
