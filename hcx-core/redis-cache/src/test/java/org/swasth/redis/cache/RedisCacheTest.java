@@ -52,13 +52,13 @@ class RedisCacheTest {
 
     @Test
     void testSetException() {
-        Exception exception = assertThrows(Exception.class, () -> invalidRedis.set("exception","123",10000000));
+        Exception exception = assertThrows(Exception.class, () -> invalidRedis.set("exception", "123", 10000000));
         assertTrue(exception.getMessage().contains("Exception Occurred While Saving Data to Redis Cache for Key : exception"));
     }
 
     @Test
     void testIsExistException() {
-        Exception exception = assertThrows(Exception.class,() -> invalidRedis.isExists("test"));
+        Exception exception = assertThrows(Exception.class, () -> invalidRedis.isExists("test"));
         assertTrue(exception.getMessage().contains("Exception occurred while checking key exist or not in Redis Cache: test"));
     }
 
@@ -70,13 +70,13 @@ class RedisCacheTest {
 
     @Test
     void testDeleteException() {
-        Exception exception = assertThrows(Exception.class,() -> invalidRedis.delete("test"));
+        Exception exception = assertThrows(Exception.class, () -> invalidRedis.delete("test"));
         assertTrue(exception.getMessage().contains("Exception occurred while deleting the record in redis cache for Key : test"));
     }
 
     @Test
     void testHealthSuccess() throws Exception {
-       boolean isValid =  redis.isHealthy();
+        boolean isValid = redis.isHealthy();
         assertTrue(isValid);
     }
 
