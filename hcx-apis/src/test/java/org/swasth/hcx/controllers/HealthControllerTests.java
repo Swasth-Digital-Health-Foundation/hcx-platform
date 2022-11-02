@@ -8,6 +8,7 @@ import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.swasth.auditindexer.utils.ElasticSearchUtil;
 import org.swasth.common.dto.Response;
 import org.swasth.common.utils.Constants;
 
@@ -63,19 +64,13 @@ public class HealthControllerTests extends BaseSpec {
         assertEquals(false, healthy);
     }
 
+
     @Test
-    void ElasticSearchTestSuccess() throws Exception {
-
-        when(elasticSearchUtil.isHealthy()).thenReturn(ElasticSearchhealthSuccess());
-        MvcResult mvcResult = mockMvc.perform(get(Constants.HEALTH)).andReturn();
-        MockHttpServletResponse response = mvcResult.getResponse();
-        int status = response.getStatus();
-        System.out.println("----------------------------------------------");
-        System.out.println(status);
-        assertEquals(200, status);
-
+    void healthy() throws Exception {
+        ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil("localhost", 9200);
+        boolean isValid = elasticSearchUtil.isHealthy();
+        assertFalse(isValid);
 
     }
-
 
 }
