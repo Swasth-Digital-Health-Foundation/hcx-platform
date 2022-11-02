@@ -52,7 +52,6 @@ public class ElasticSearchUtil {
         try {
             if(!isIndexExists(indexName)) {
                 CreateIndexRequest createRequest = new CreateIndexRequest(indexName);
-
                 if (StringUtils.isNotBlank(alias)) createRequest.alias(new Alias(alias));
                 if (StringUtils.isNotBlank(settings)) createRequest.settings(Settings.builder().loadFromSource(settings, XContentType.JSON));
                 if (StringUtils.isNotBlank(mappings)) createRequest.mapping(mappings, XContentType.JSON);
