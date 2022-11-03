@@ -25,7 +25,8 @@ jobs:
         run: | 
             cd hcx-core 
             mvn clean install
-            cd ../
+      - name : Maven Build
+        run: |
             cd hcx-scheduler-jobs
             mvn clean install
 
