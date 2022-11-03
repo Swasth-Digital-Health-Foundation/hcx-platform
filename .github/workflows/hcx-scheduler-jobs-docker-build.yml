@@ -22,12 +22,9 @@ jobs:
           java-version: 11
 
       - name: Maven Build
-        run: | 
-             cd hcx-core  
+        run: |   
              mvn clean install 
-             pwd
              cd ../hcx-scheduler-jobs
-             pwd
              mvn clean install
 
       - name: Cache Maven packages
