@@ -27,9 +27,7 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
 
       - name: Maven Build
-        run : |
-          cd hcx-pipeline-jobs /
-          mvn clean install
+        run : cd hcx-pipeline-jobs && mvn clean install
 
       - name: set up env var
         run: echo "IMAGE_TAG=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
