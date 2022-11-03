@@ -1,8 +1,9 @@
-name: Docker Image CI
+name: Build and push Docker image for hcx-scheduler-jobs
 
 on:
   push:
     branches:
+      - docker-image
       - main
       - sprint-*
 
@@ -18,6 +19,8 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 11
+      - name: Maven Build
+        run: mvn clean install -DskipTests
       - name: Cache Maven packages
         uses: actions/cache@v1
         with:
@@ -25,8 +28,7 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      - name: Maven Build
-        run : mvn clean install
+
 
       - name: set up env var
         run: echo "IMAGE_TAG=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
