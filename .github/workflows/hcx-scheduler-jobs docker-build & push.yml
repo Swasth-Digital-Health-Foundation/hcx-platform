@@ -26,11 +26,10 @@ jobs:
       - name: Maven Build
         run: | 
             cd hcx-core 
-            mvn clean install   
-      - name : Maven Build
-        run : |   
-             cd hcx-scheduler-jobs
-             mvn clean install 
+            mvn clean install
+            pwd 
+            cd hcx-scheduler-jobs
+            mvn clean install
 
       - name: Cache Maven packages
         uses: actions/cache@v1
