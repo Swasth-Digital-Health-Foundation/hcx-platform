@@ -24,7 +24,11 @@ jobs:
         run : cd hcx-core && mvn clean install -DskipTests
 
       - name: Maven Build
-        run: cd hcx-scheduler-jobs && mvn clean install -DskipTests
+        run: | 
+            cd hcx-core 
+            mvn clean install   
+            cd hcx-scheduler-jobs
+            mvn clean install 
 
       - name: Cache Maven packages
         uses: actions/cache@v1
