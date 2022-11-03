@@ -21,8 +21,7 @@ jobs:
         with:
           java-version: 11
 
-     
-     - name: Maven Build
+      - name: Maven Build
         run: | 
              cd hcx-core  
              mvn clean install 
