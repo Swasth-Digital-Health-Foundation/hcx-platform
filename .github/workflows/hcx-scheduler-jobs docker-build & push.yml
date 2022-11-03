@@ -27,7 +27,7 @@ jobs:
         run: | 
             cd hcx-core 
             mvn clean install
-            cd ../
+            echo pwd
             cd hcx-scheduler-jobs
             mvn clean install
 
