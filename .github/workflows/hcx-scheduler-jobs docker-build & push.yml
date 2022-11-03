@@ -25,7 +25,9 @@ jobs:
         run: | 
             cd hcx-core 
             mvn clean install
+            pwd
             cd ../hcx-scheduler-jobs
+            pwd
             mvn clean install
 
       - name: Cache Maven packages
