@@ -28,6 +28,8 @@ jobs:
              echo -------------------
              pwd
              cd ../hcx-scheduler-jobs
+             echo ---------------
+             pwd
              mvn clean install
 
       - name: Cache Maven packages
