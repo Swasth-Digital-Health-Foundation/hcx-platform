@@ -21,7 +21,7 @@ jobs:
           java-version: 11
 
       - name: Maven Build
-        run: cd common-scheduler-job mvn clean install -DskipTests
+        run: cd common-scheduler-job && mvn clean install -DskipTests
 
       - name: Cache Maven packages
         uses: actions/cache@v1
