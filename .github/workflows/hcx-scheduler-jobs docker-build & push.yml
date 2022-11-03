@@ -20,8 +20,11 @@ jobs:
         with:
           java-version: 11
 
+      - name : Maven Build
+        run : cd hcx-core && mvn clean install -DskipTests
+
       - name: Maven Build
-        run:  cd hcx-core && cd hcx-scheduler-jobs && mvn clean install -DskipTests
+        run: cd hcx-scheduler-jobs && mvn clean install -DskipTests
 
       - name: Cache Maven packages
         uses: actions/cache@v1
