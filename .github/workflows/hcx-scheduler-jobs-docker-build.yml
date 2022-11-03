@@ -24,7 +24,7 @@ jobs:
       - name: Maven Build
         run: |   
              mvn clean install 
-             cd ../hcx-scheduler-jobs
+             cd hcx-scheduler-jobs
              mvn clean install
 
       - name: Cache Maven packages
