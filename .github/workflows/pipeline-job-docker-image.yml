@@ -1,4 +1,4 @@
-name: Build and push Docker image for hcx-pipeline-jobs
+name: Build and push docker image for hcx-pipeline-jobs
 
 on:
   push:
