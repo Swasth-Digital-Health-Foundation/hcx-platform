@@ -3,6 +3,7 @@ name: Build and push Docker image for hcx-pipeline-jobs
 on:
   push:
     branches:
+      - docker-image
       - main
       - sprint-*
 
