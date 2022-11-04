@@ -8,8 +8,6 @@
         <version>2.5.5</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-
-
     <groupId>org.swasth</groupId>
     <artifactId>common-scheduler-job</artifactId>
     <version>1.0.0</version>
