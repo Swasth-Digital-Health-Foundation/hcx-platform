@@ -35,6 +35,7 @@ public class BaseSpec {
     protected MockWebServer server =  new MockWebServer();
 
     public final String versionPrefix = "/v0.7";
+    public final String versionPrefix08 = "/v0.8";
 
     @MockBean
     protected RegistryService registryService;
@@ -222,7 +223,7 @@ public class BaseSpec {
 
 
     protected Map<String,Object> getHCXAdminDetails() throws Exception {
-        return JSONUtils.deserialize("{ \"participant_code\": \"1-d2d56996-1b77-4abb-b9e9-0e6e7343c72e\", \"participant_name\": \"HCX Gateway\", \"primary_mobile\": \"\", \"primary_email\": \"hcxgateway@gmail.com\", \"roles\": [ \"HIE/HIO.HCX\" ], \"status\": \"Created\", \"endpoint_url\": \"http://a54c5bc648f1a41b8871b77ac01060ed-1840123973.ap-south-1.elb.amazonaws.com:8080\", \"encryption_cert\": \"urn:isbn:0-4234\", \"osOwner\": [ \"f7c0e759-bec3-431b-8c4f-6b294d103a74\" ], \"osid\": \"d2d56996-1b77-4abb-b9e9-0e6e7343c72e\" }", Map.class);
+        return JSONUtils.deserialize("{ \"participant_code\": \"1-d2d56996-1b77-4abb-b9e9-0e6e7343c72e\", \"participant_name\": \"HCX Gateway\", \"primary_mobile\": \"\", \"primary_email\": \"hcxgateway@gmail.com\", \"roles\": [ \"HIE/HIO.HCX\" ], \"status\": \"Created\", \"endpoint_url\": \"http://a54c5bc648f1a41b8871b77ac01060ed-1840123973.ap-south-1.elb.amazonaws.com:8080\", \"encryption_cert\": \"urn:isbn:0-4234\", \"osOwner\": [ \"f7c0e759-bec3-431b-8c4f-6b294d103a74\" ], \"osid\": \"d2d56996-1b77-4abb-b9e9-0e6e7343c72e\", \"signing_cert_path\": \"urn:isbn:0-476-27557-4\"}", Map.class);
     }
 
     protected List<Map<String,Object>> getAuditLogs() throws Exception {
