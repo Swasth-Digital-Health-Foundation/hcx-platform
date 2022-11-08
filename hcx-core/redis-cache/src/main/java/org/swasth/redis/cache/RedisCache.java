@@ -69,12 +69,10 @@ public class RedisCache {
 
     public boolean isHealthy() throws Exception {
         try {
-            Jedis jedis = getConnection();
-            jedis.get(redisHost);
+            getConnection().get("test-key");
             return true;
         } catch (Exception e) {
             return false;
         }
-
     }
 }

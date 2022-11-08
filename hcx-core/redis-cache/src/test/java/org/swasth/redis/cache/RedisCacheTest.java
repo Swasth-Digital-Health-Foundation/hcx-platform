@@ -84,7 +84,6 @@ class RedisCacheTest {
     void testHealthFail() throws Exception {
         boolean isInvalid = invalidRedis.isHealthy();
         assertFalse(isInvalid);
-
     }
 
 }
