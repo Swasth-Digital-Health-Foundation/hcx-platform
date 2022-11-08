@@ -16,8 +16,8 @@ public class RedisCache {
     }
 
     public Jedis getConnection() throws Exception {
-        try{
-            return new Jedis(redisHost,redisPort);
+        try {
+            return new Jedis(redisHost, redisPort);
         } catch (Exception e) {
             throw new ServerException(ErrorCodes.INTERNAL_SERVER_ERROR, "Error connecting to redis server " + e);
         }
@@ -25,49 +25,56 @@ public class RedisCache {
 
     public void set(String key, String value, int ttl) throws Exception {
         Jedis jedis = getConnection();
-        try{
+        try {
             jedis.setex(key, ttl, value);
         } catch (Exception e) {
             throw new ServerException(ErrorCodes.INTERNAL_SERVER_ERROR, "Exception Occurred While Saving Data to Redis Cache for Key : " + key + "| Exception is:" + e);
-        }
-        finally {
+        } finally {
             jedis.close();
         }
     }
 
     public String get(String key) throws Exception {
         Jedis jedis = getConnection();
-        try{
+        try {
             return jedis.get(key);
         } catch (Exception e) {
             throw new ServerException(ErrorCodes.INTERNAL_SERVER_ERROR, "Exception Occurred While Fetching Data from Redis Cache for Key : " + key + "| Exception is:" + e);
-        }
-        finally {
+        } finally {
             jedis.close();
         }
     }
 
     public boolean isExists(String key) throws Exception {
         Jedis jedis = getConnection();
-        try{
+        try {
             return jedis.exists(key);
         } catch (Exception e) {
             throw new ServerException(ErrorCodes.INTERNAL_SERVER_ERROR, "Exception occurred while checking key exist or not in Redis Cache: " + key + "| Exception is:" + e);
-        }
-        finally {
+        } finally {
             jedis.close();
         }
     }
 
     public Long delete(String key) throws Exception {
         Jedis jedis = getConnection();
-        try{
+        try {
             return jedis.del(key);
         } catch (Exception e) {
             throw new ServerException(ErrorCodes.INTERNAL_SERVER_ERROR, "Exception occurred while deleting the record in redis cache for Key : " + key + "| Exception is:" + e);
-        }
-        finally {
+        } finally {
             jedis.close();
         }
+    }
+
+    public boolean isHealthy() throws Exception {
+        try {
+            Jedis jedis = getConnection();
+            jedis.get(redisHost);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+
     }
 }

@@ -74,4 +74,17 @@ class RedisCacheTest {
         assertTrue(exception.getMessage().contains("Exception occurred while deleting the record in redis cache for Key : test"));
     }
 
+    @Test
+    void testHealthSuccess() throws Exception {
+        boolean isValid = redis.isHealthy();
+        assertTrue(isValid);
+    }
+
+    @Test
+    void testHealthFail() throws Exception {
+        boolean isInvalid = invalidRedis.isHealthy();
+        assertFalse(isInvalid);
+
+    }
+
 }

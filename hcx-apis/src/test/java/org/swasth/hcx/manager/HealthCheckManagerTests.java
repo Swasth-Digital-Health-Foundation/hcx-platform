@@ -8,6 +8,7 @@ import org.swasth.common.dto.Response;
 import org.swasth.hcx.managers.HealthCheckManager;
 import org.swasth.kafka.client.IEventService;
 import org.swasth.postgresql.IDatabaseService;
+import org.swasth.redis.cache.RedisCache;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
@@ -19,15 +20,19 @@ public class HealthCheckManagerTests {
   IEventService kafkaClient;
 
   @MockBean
+  RedisCache redisCache;
+
+  @MockBean
   IDatabaseService postgreSQLClient;
 
   @Autowired
   HealthCheckManager healthCheckManager;
 
   @Test
-  public void checkAllSystemHealth_test() {
+  public void checkAllSystemHealth_test() throws Exception {
     when(kafkaClient.isHealthy()).thenReturn(true);
     when(postgreSQLClient.isHealthy()).thenReturn(true);
+    when(redisCache.isHealthy()).thenReturn(true);
     Response resp = healthCheckManager.checkAllSystemHealth();
     assertEquals(true, resp.get("healthy"));
   }
