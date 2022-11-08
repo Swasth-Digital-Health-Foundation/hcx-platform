@@ -67,7 +67,7 @@ public class RedisCache {
         }
     }
 
-    public boolean isHealthy() throws Exception {
+    public boolean isHealthy() {
         try {
             getConnection().get("test-key");
             return true;

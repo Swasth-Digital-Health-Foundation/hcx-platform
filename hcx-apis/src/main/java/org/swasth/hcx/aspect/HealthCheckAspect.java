@@ -1,6 +1,7 @@
 package org.swasth.hcx.aspect;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.slf4j.Logger;
@@ -24,7 +25,7 @@ public class HealthCheckAspect {
     private HealthCheckManager healthCheckManager;
 
     @Before("execution(* org.swasth.hcx.controllers.v1.*.*(..))")
-    public void healthCheckBeforeEachAPICall() throws Exception {
+    public void healthCheckBeforeEachAPICall() throws JsonProcessingException, ServiceUnavailbleException {
         if (!HealthCheckManager.allSystemHealthResult) {
             Response healthResp = healthCheckManager.checkAllSystemHealth();
             if (!(boolean) healthResp.get(Constants.HEALTHY)) {

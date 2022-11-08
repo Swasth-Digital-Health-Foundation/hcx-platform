@@ -22,7 +22,7 @@ public class HealthController extends BaseController {
     }
 
     @GetMapping(Constants.HEALTH)
-    public ResponseEntity<Object> health() throws Exception {
+    public ResponseEntity<Object> health() {
         return new ResponseEntity<>(healthCheckManager.checkAllSystemHealth(), HttpStatus.OK);
     }
 

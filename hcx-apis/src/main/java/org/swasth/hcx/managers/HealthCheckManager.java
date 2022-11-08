@@ -26,11 +26,11 @@ public class HealthCheckManager {
     public static boolean allSystemHealthResult = true;
 
     @PostConstruct
-    public void init() throws Exception {
+    public void init() {
         checkAllSystemHealth();
     }
 
-    public Response checkAllSystemHealth() throws Exception {
+    public Response checkAllSystemHealth() {
         List<Map<String,Object>> allChecks = new ArrayList<>();
         allChecks.add(generateCheck(Constants.KAFKA, kafkaClient.isHealthy()));
         allChecks.add(generateCheck(Constants.POSTGRESQL, postgreSQLClient.isHealthy()));
