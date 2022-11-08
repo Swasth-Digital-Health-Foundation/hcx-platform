@@ -17,13 +17,24 @@ rbac:
       - /v0.7/audit/notification/search
       - /v0.7/participant/search
       - /v0.7/participant/update
-      - /v0.7/notification/subscribe
-      - /v0.7/notification/unsubscribe
-      - /v0.7/notification/subscription/list
-      - /v0.7/notification/topic/list
-      - /v0.7/notification/notify
-      - /v0.7/notification/subscription/update
-      - /v0.7/notification/on_subscribe
+      - /v0.8/coverageeligibility/check
+      - /v0.8/predetermination/submit
+      - /v0.8/preauth/submit
+      - /v0.8/claim/submit
+      - /v0.8/paymentnotice/on_request
+      - /v0.8/communication/on_request
+      - /v0.8/hcx/status
+      - /v0.8/audit/search
+      - /v0.8/audit/notification/search
+      - /v0.8/participant/search
+      - /v0.8/participant/update
+      - /v0.8/notification/subscribe
+      - /v0.8/notification/unsubscribe
+      - /v0.8/notification/subscription/list
+      - /v0.8/notification/topic/list
+      - /v0.8/notification/notify
+      - /v0.8/notification/subscription/update
+      - /v0.8/notification/on_subscribe
   - role: payor
     paths:
       - /v0.7/coverageeligibility/check
@@ -41,13 +52,28 @@ rbac:
       - /v0.7/audit/notification/search
       - /v0.7/participant/search
       - /v0.7/participant/update
-      - /v0.7/notification/subscribe
-      - /v0.7/notification/unsubscribe
-      - /v0.7/notification/subscription/list
-      - /v0.7/notification/topic/list
-      - /v0.7/notification/notify
-      - /v0.7/notification/subscription/update
-      - /v0.7/notification/on_subscribe
+      - /v0.8/coverageeligibility/check
+      - /v0.8/preauth/submit
+      - /v0.8/claim/submit
+      - /v0.8/predetermination/submit
+      - /v0.8/coverageeligibility/on_check
+      - /v0.8/predetermination/on_submit
+      - /v0.8/preauth/on_submit
+      - /v0.8/claim/on_submit
+      - /v0.8/paymentnotice/request
+      - /v0.8/communication/request
+      - /v0.8/hcx/on_status
+      - /v0.8/audit/search
+      - /v0.8/audit/notification/search
+      - /v0.8/participant/search
+      - /v0.8/participant/update
+      - /v0.8/notification/subscribe
+      - /v0.8/notification/unsubscribe
+      - /v0.8/notification/subscription/list
+      - /v0.8/notification/topic/list
+      - /v0.8/notification/notify
+      - /v0.8/notification/subscription/update
+      - /v0.8/notification/on_subscribe
   - role: agency.tpa
     paths:
       - /v0.7/coverageeligibility/check
@@ -65,6 +91,21 @@ rbac:
       - /v0.7/audit/notification/search
       - /v0.7/participant/search
       - /v0.7/participant/update
+      - /v0.8/coverageeligibility/check
+      - /v0.8/preauth/submit
+      - /v0.8/claim/submit
+      - /v0.8/predetermination/submit
+      - /v0.8/coverageeligibility/on_check
+      - /v0.8/predetermination/on_submit
+      - /v0.8/preauth/on_submit
+      - /v0.8/claim/on_submit
+      - /v0.8/paymentnotice/request
+      - /v0.8/communication/request
+      - /v0.8/hcx/on_status
+      - /v0.8/audit/search
+      - /v0.8/audit/notification/search
+      - /v0.8/participant/search
+      - /v0.8/participant/update
   - role: agency.regulator
     pahts:
       - /v0.7/hcx/status
@@ -72,6 +113,11 @@ rbac:
       - /v0.7/audit/notification/search
       - /v0.7/participant/search
       - /v0.7/participant/update
+      - /v0.8/hcx/status
+      - /v0.8/audit/search
+      - /v0.8/audit/notification/search
+      - /v0.8/participant/search
+      - /v0.8/participant/update
   - role: research
     paths:
       - /v0.7/coverageeligibility/on_check
@@ -81,6 +127,13 @@ rbac:
       - /v0.7/audit/notification/search
       - /v0.7/participant/search
       - /v0.7/participant/update
+      - /v0.8/coverageeligibility/on_check
+      - /v0.8/predetermination/on_submit
+      - /v0.8/hcx/status
+      - /v0.8/audit/search
+      - /v0.8/audit/notification/search
+      - /v0.8/participant/search
+      - /v0.8/participant/update
   - role: member.isnp
     paths:
       - /v0.7/coverageeligibility/on_check
@@ -91,6 +144,14 @@ rbac:
       - /v0.7/audit/notification/search
       - /v0.7/participant/search
       - /v0.7/participant/update
+      - /v0.8/coverageeligibility/on_check
+      - /v0.8/coverageeligibility/check
+      - /v0.8/predetermination/on_submit
+      - /v0.8/hcx/status
+      - /v0.8/audit/search
+      - /v0.8/audit/notification/search
+      - /v0.8/participant/search
+      - /v0.8/participant/update
   - role: agency.sponsor
     paths:
       - /v0.7/coverageeligibility/on_check
@@ -104,7 +165,19 @@ rbac:
       - /v0.7/audit/notification/search
       - /v0.7/participant/search
       - /v0.7/participant/update
+      - /v0.8/coverageeligibility/on_check
+      - /v0.8/predetermination/on_submit
+      - /v0.8/preauth/on_submit
+      - /v0.8/claim/on_submit
+      - /v0.8/paymentnotice/request
+      - /v0.8/communication/request
+      - /v0.8/hcx/on_status
+      - /v0.8/audit/search
+      - /v0.8/audit/notification/search
+      - /v0.8/participant/search
+      - /v0.8/participant/update
   - role: HIE/HIO.HCX
     paths:
     regexPaths:
       - /v0.7/**
+      - /v0.8/**

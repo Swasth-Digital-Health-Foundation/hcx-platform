@@ -73,7 +73,7 @@ public class AuditService {
         event.put(ERROR_DETAILS, request.getErrorDetails());
         event.put(DEBUG_DETAILS, request.getDebugDetails());
         event.put(MID, UUIDUtils.getUUID());
-        event.put(ACTION, request.getApiAction());
+        event.put(ACTION, request.getApiAction().replaceAll("/" + internalVersion, ""));
         event.put(STATUS, ERROR_STATUS);
         event.put(REQUESTED_TIME, System.currentTimeMillis());
         event.put(UPDATED_TIME, System.currentTimeMillis());
