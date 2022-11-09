@@ -48,5 +48,5 @@ jobs:
         with:
           context: ./hcx-pipeline-jobs/jobs-distribution
           push: true
-          tags: swasth2021/hcx-pipeline-jobs:${{ env.IMAGE_TAG }}
+          tags: swasth2021/hcx-pipeline-jobs:${{ env.IMAGE_TAG }}_${{ github.run_number }}
           labels: hcx-pipeline-jobs image
