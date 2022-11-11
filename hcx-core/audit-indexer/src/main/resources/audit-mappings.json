@@ -31,13 +31,13 @@
       "type":"keyword"
     },
     "ets":{
-      "type":"keyword"
+      "type":"long"
     },
     "requestTimeStamp":{
-      "type":"keyword"
+      "type":"long"
     },
     "updatedTimestamp":{
-      "type":"keyword"
+      "type":"long"
     },
     "x-hcx-error_details":{
       "type":"object"
