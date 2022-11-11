@@ -50,7 +50,7 @@ jobs:
         with:
           context: ./api-gateway
           push: true
-          tags: swasth2021/api-gateway:${{ env.IMAGE_TAG }}
+          tags: swasth2021/api-gateway:${{ env.IMAGE_TAG }}_${{ github.run_number }}
           labels: api-gateway image
 
       - name: Build and push Docker image for HCX-APIs
@@ -58,7 +58,7 @@ jobs:
         with:
           context: ./hcx-apis
           push: true
-          tags: swasth2021/hcx-api:${{ env.IMAGE_TAG }}
+          tags: swasth2021/hcx-api:${{ env.IMAGE_TAG }}_${{ github.run_number }}
           labels: hcx-api image
 
       - name: Build and push Docker image for HCX Scheduler Job
@@ -66,5 +66,5 @@ jobs:
           with:
             context: ./hcx-scheduler-jobs
             push: true
-            tags: swasth2021/hcx-scheduler-jobs:${{ env.IMAGE_TAG }}
+            tags: swasth2021/hcx-scheduler-jobs:${{ env.IMAGE_TAG }}_${{ github.run_number }}
             labels: hcx-scheduler-jobs image
