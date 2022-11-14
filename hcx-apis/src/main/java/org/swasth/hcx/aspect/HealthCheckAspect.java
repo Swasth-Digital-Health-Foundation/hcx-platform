@@ -15,8 +15,6 @@ import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.hcx.managers.HealthCheckManager;
 
-import static org.swasth.common.response.ResponseMessage.SERVICE_UNAVAILABLE;
-
 @Aspect
 @Component
 public class HealthCheckAspect {
