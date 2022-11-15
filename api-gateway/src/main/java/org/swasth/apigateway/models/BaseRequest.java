@@ -81,8 +81,8 @@ public class BaseRequest {
         validateCondition(!DateTimeUtils.validTimestamp(timestampRange, getTimestamp()), ErrorCodes.ERR_INVALID_TIMESTAMP, MessageFormat.format(TIMESTAMP_FUTURE_MSG, timestampRange));
         validateCondition(protocolHeaders.containsKey(WORKFLOW_ID) && !UUIDUtils.isUUID(getWorkflowId()), ErrorCodes.ERR_INVALID_WORKFLOW_ID, INVALID_WORKFLOW_UUID);
         validateCondition(StringUtils.equals(getHcxSenderCode(), getHcxRecipientCode()), ErrorCodes.ERR_INVALID_SENDER_AND_RECIPIENT, SENDER_RECIPIENT_SAME_MSG);
-        validateParticipant(recipientDetails, ErrorCodes.ERR_INVALID_RECIPIENT, "recipient", getHcxRecipientCode());
-        validateParticipant(senderDetails, ErrorCodes.ERR_INVALID_SENDER, "sender", getHcxSenderCode());
+        validateParticipant(recipientDetails, ErrorCodes.ERR_INVALID_RECIPIENT, "Recipient", getHcxRecipientCode());
+        validateParticipant(senderDetails, ErrorCodes.ERR_INVALID_SENDER, "Sender", getHcxSenderCode());
         senderRole = (ArrayList<String>) senderDetails.get(ROLES);
         recipientRole = (ArrayList<String>) recipientDetails.get(ROLES);
         validateCondition(!StringUtils.equals(((ArrayList) senderDetails.get(OS_OWNER)).get(0).toString(), subject), ErrorCodes.ERR_ACCESS_DENIED, CALLER_MISMATCH_MSG);

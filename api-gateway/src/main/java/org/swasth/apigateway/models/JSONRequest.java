@@ -29,7 +29,7 @@ public class JSONRequest extends BaseRequest {
         validateCondition(StringUtils.isEmpty(getRedirectTo()), ErrorCodes.ERR_INVALID_REDIRECT_TO, MessageFormat.format(INVALID_REDIRECT_MSG, REDIRECT_TO));
         validateCondition(getHcxSenderCode().equalsIgnoreCase(getRedirectTo()), ErrorCodes.ERR_INVALID_REDIRECT_TO, INVALID_REDIRECT_SELF);
 
-        validateParticipant(redirectDetails, ErrorCodes.ERR_INVALID_REDIRECT_TO, "Redirected", getRedirectTo());
+        validateParticipant(redirectDetails, ErrorCodes.ERR_INVALID_REDIRECT_TO, "Redirected participant", getRedirectTo());
         List<String> redirectRoles = (List<String>) redirectDetails.get(ROLES);
         validateCondition(!hasRole(allowedRoles, redirectRoles), ErrorCodes.ERR_INVALID_REDIRECT_TO, INVALID_REDIRECT_PARTICIPANT);
 
