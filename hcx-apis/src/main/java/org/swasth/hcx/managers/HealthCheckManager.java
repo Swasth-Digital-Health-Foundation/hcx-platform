@@ -6,6 +6,7 @@ import org.swasth.common.dto.Response;
 import org.swasth.common.utils.Constants;
 import org.swasth.kafka.client.IEventService;
 import org.swasth.postgresql.IDatabaseService;
+import org.swasth.redis.cache.RedisCache;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
@@ -20,7 +21,8 @@ public class HealthCheckManager {
     private IEventService kafkaClient;
     @Autowired
     private IDatabaseService postgreSQLClient;
-
+    @Autowired
+    private RedisCache redisClient;
     public static boolean allSystemHealthResult = true;
 
     @PostConstruct
@@ -28,10 +30,11 @@ public class HealthCheckManager {
         checkAllSystemHealth();
     }
 
-    public Response checkAllSystemHealth(){
+    public Response checkAllSystemHealth() {
         List<Map<String,Object>> allChecks = new ArrayList<>();
         allChecks.add(generateCheck(Constants.KAFKA, kafkaClient.isHealthy()));
         allChecks.add(generateCheck(Constants.POSTGRESQL, postgreSQLClient.isHealthy()));
+        allChecks.add(generateCheck(Constants.REDIS, redisClient.isHealthy()));
         for(Map<String,Object> check:allChecks) {
             if((boolean)check.get(Constants.HEALTHY)) {
                 allSystemHealthResult = true;
@@ -51,5 +54,4 @@ public class HealthCheckManager {
             put(Constants.HEALTHY, health);
         }};
     }
-
 }
