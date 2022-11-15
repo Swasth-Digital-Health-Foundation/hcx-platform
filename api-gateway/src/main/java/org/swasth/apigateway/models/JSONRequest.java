@@ -33,7 +33,7 @@ public class JSONRequest extends BaseRequest {
         List<String> redirectRoles = (List<String>) redirectDetails.get(ROLES);
         validateCondition(!hasRole(allowedRoles, redirectRoles), ErrorCodes.ERR_INVALID_REDIRECT_TO, INVALID_REDIRECT_PARTICIPANT);
 
-        validateCondition(!callAuditData.isEmpty(), ErrorCodes.ERR_INVALID_API_CALL_ID, MessageFormat.format(INVALID_API_CALL, getApiCallId()));
+        validateCondition(!callAuditData.isEmpty(), ErrorCodes.ERR_INVALID_API_CALL_ID, MessageFormat.format(INVALID_API_CALL_ID, getApiCallId()));
         validateCondition(correlationAuditData.isEmpty(), ErrorCodes.ERR_INVALID_CORRELATION_ID, ON_ACTION_CORRELATION_ERR_MSG);
         Map<String, Object> auditEvent = (Map<String, Object>) correlationAuditData.get(0);
         if (auditEvent.containsKey(WORKFLOW_ID) && !StringUtils.isEmpty((String) auditEvent.get(WORKFLOW_ID))) {

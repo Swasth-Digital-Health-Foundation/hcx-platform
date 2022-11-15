@@ -91,14 +91,15 @@ public class ResponseMessage {
     public static final String INVALID_ON_ACTION = "Invalid on_action request, corresponding action request does not exist";
     public static final String INVALID_FORWARD = "Entity is not allowed for forwarding";
     public static final String FORWARD_REQ_ERR_MSG = "Request cannot be forwarded to the forward initiators";
-    public static final String INVALID_RECIPIENT = "Invalid forward request, cannot forward to this recipient";
+    public static final String INVALID_API_CALL = "API should be used only in forwarding the request";
+    public static final String INVALID_FORWARD_TO_PROVIDER = "Request cannot be forwarded to provider";
     public static final String MALFORMED_PAYLOAD = "Malformed payload";
     public static final String INVALID_PAYLOAD = "Payload contains null or empty values";
     public static final String INVALID_FWD_CORRELATION_ID = "The request contains invalid correlation id";
     public static final String INVALID_REDIRECT_MSG = "Redirect requests must have valid participant code for field {0}";
     public static final String INVALID_REDIRECT_SELF = "Sender can not redirect request to self";
     public static final String INVALID_REDIRECT_PARTICIPANT = "Redirected participant do not have access to send across callbacks (on_* API calls)";
-    public static final String INVALID_API_CALL = "Already request exists with same api call id:{0}";
+    public static final String INVALID_API_CALL_ID = "Already request exists with same api call id:{0}";
     public static final String ON_ACTION_CORRELATION_ERR_MSG = "The on_action request should contain the same correlation id as in corresponding action request";
     public static final String ON_ACTION_WORKFLOW_ID = "The on_action request should contain the same workflow id as in corresponding action request";
     public static final String CLOSED_REDIRECT_MSG = "The redirected request has been closed with status as response.complete";

@@ -198,7 +198,8 @@ public class BaseRequest {
         List<String> senderRoles = (List<String>) senderDetails.get(ROLES);
         List<String> recipientRoles = (List<String>) recipientDetails.get(ROLES);
         // forward flow validations
-        if (isForwardRequest(allowedRolesForForward, senderRoles, recipientRoles, correlationAuditData)) {
+        boolean isForwardReq = isForwardRequest(allowedRolesForForward, senderRoles, recipientRoles, correlationAuditData);
+        if (isForwardReq) {
             validateCondition(!allowedEntitiesForForward.contains(getEntity(apiAction)), ErrorCodes.ERR_INVALID_FORWARD_REQ, INVALID_FORWARD);
             validateWorkflowId(correlationAuditData.get(0));
             if (!apiAction.contains("on_")) {
@@ -207,8 +208,13 @@ public class BaseRequest {
                 }
             }
         } else if (!EXCLUDE_ENTITIES.contains(getEntity(path)) && !apiAction.contains("on_") && checkParticipantRole(allowedRolesForForward, senderRoles) && recipientRoles.contains(PROVIDER)) {
-            throw new ClientException(INVALID_RECIPIENT);
+            throw new ClientException(ErrorCodes.ERR_ACCESS_DENIED, INVALID_API_CALL);
         }
+        // validation to check if participant is forwarding the request to provider
+        if (isForwardReq && recipientRoles.contains(PROVIDER)) {
+            throw new ClientException(ErrorCodes.ERR_INVALID_FORWARD_REQ, INVALID_FORWARD_TO_PROVIDER);
+        }
+
     }
 
     public String getWorkflowId() {
