@@ -124,7 +124,7 @@ public class ResponseMessageTest {
     @Test
     public void testInvalidRolesProperty(){
         String invalidTopicCode = ResponseMessage.INVALID_ROLES_PROPERTY;
-        assertTrue(invalidTopicCode.contains("roles"));
+        assertTrue(invalidTopicCode.contains("Roles"));
     }
 
     @Test
@@ -135,7 +135,7 @@ public class ResponseMessageTest {
     @Test
     public void testUnknownProperty(){
         String invalidTopicCode = ResponseMessage.UNKNOWN_PROPERTY;
-        assertTrue(invalidTopicCode.contains("unknown"));
+        assertTrue(invalidTopicCode.contains("Unknown"));
     }
 
     @Test
@@ -334,7 +334,7 @@ public class ResponseMessageTest {
     @Test
     public void testSenderRecipientSame(){
         String invalidTopicCode = ResponseMessage.SENDER_RECIPIENT_SAME_MSG;
-        assertTrue(invalidTopicCode.contains("sender"));
+        assertTrue(invalidTopicCode.contains("Sender"));
     }
 
     @Test

@@ -97,7 +97,7 @@ class ParticipantControllerTests extends BaseSpec{
         Map<String,Object> responseBody = JSONUtils.deserialize(response.getContentAsString(), Map.class);
         assertEquals(400, status);
         assertEquals(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS.name(), getResponseErrorCode(responseBody));
-        assertEquals("encryption_cert is missing or invalid", getResponseErrorMessage(responseBody));
+        assertEquals("Property 'encryption_cert' is missing or invalid", getResponseErrorMessage(responseBody));
     }
 
     @Test
@@ -176,7 +176,7 @@ class ParticipantControllerTests extends BaseSpec{
         int status = response.getStatus();
         assertEquals(400, status);
         assertEquals(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS.name(), getResponseErrorCode(responseBody));
-        assertEquals("roles property cannot be null, empty or other than 'ArrayList'", getResponseErrorMessage(responseBody));
+        assertEquals("Roles property cannot be null, empty or other than 'ArrayList'", getResponseErrorMessage(responseBody));
     }
 
     @Test
@@ -187,7 +187,7 @@ class ParticipantControllerTests extends BaseSpec{
         int status = response.getStatus();
         assertEquals(400, status);
         assertEquals(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS.name(), getResponseErrorCode(responseBody));
-        assertEquals("primary_email is missing or invalid", getResponseErrorMessage(responseBody));
+        assertEquals("Property 'primary_email' is missing or invalid", getResponseErrorMessage(responseBody));
     }
 
     @Test
