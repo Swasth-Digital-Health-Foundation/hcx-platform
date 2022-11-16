@@ -493,8 +493,14 @@ public class ResponseMessageTest {
 
     @Test
     public void testInvalidRecipient(){
-        String invalidTopicCode = ResponseMessage.INVALID_RECIPIENT;
-        assertTrue(invalidTopicCode.contains("Invalid"));
+        String invalidTopicCode = ResponseMessage.INVALID_API_CALL;
+        assertTrue(invalidTopicCode.contains("API"));
+    }
+
+    @Test
+    public void testInvalidForwardToProvider(){
+        String invalidTopicCode = ResponseMessage.INVALID_FORWARD_TO_PROVIDER;
+        assertTrue(invalidTopicCode.contains("Request"));
     }
 
     @Test
@@ -535,7 +541,7 @@ public class ResponseMessageTest {
 
     @Test
     public void testInvalidApiCall(){
-        String invalidTopicCode = ResponseMessage.INVALID_API_CALL;
+        String invalidTopicCode = ResponseMessage.INVALID_API_CALL_ID;
         assertTrue(invalidTopicCode.contains("call"));
     }
 

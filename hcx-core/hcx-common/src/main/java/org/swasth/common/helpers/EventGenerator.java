@@ -123,6 +123,82 @@ public class EventGenerator {
         return  event;
     }
 
+    public String createNotifyEvent(String topicCode, String senderCode, String recipientType, List<String> recipients, long expiry, String message, String privateKey) throws Exception {
+        Map<String,Object> notificationHeaders = new HashMap<>();
+        notificationHeaders.put(SENDER_CODE, senderCode);
+        notificationHeaders.put(NOTIFICATION_TIMESTAMP, System.currentTimeMillis());
+        notificationHeaders.put(RECIPIENT_TYPE, recipientType);
+        notificationHeaders.put(RECIPIENTS, recipients);
+        notificationHeaders.put(NOTIFICATION_CORRELATION_ID, UUID.randomUUID().toString());
+        notificationHeaders.put(EXPIRY, expiry);
+
+        Map<String,Object> protocolHeaders = new HashMap<>();
+        protocolHeaders.put(ALG, RS256);
+        protocolHeaders.put(NOTIFICATION_HEADERS, notificationHeaders);
+
+        Map<String,Object> payload = new HashMap<>();
+        payload.put(TOPIC_CODE, topicCode);
+        payload.put(MESSAGE, message);
+
+        Map<String,Object> event = new HashMap<>();
+        event.put(MID, UUID.randomUUID().toString());
+        event.put(ETS, System.currentTimeMillis());
+        event.put(ACTION, NOTIFICATION_NOTIFY);
+        event.put(TOPIC_CODE, topicCode);
+        event.put(MESSAGE, message);
+        event.put(PAYLOAD, jwtUtils.generateJWS(protocolHeaders, payload, privateKey));
+        event.put(HEADERS, Collections.singletonMap(PROTOCOL, protocolHeaders));
+
+        return JSONUtils.serialize(event);
+    }
+
+    public Map<String,Object> createAuditLog(String id, String objectType, Map<String,Object> cdata, Map<String,Object> edata) {
+        Map<String,Object> event = new HashMap<>();
+        event.put(EID, AUDIT);
+        event.put(ETS, System.currentTimeMillis());
+        event.put(MID, UUID.randomUUID().toString());
+        Map<String,Object> objectMap = new HashMap<>();
+        objectMap.put(ID, id);
+        objectMap.put(TYPE, objectType);
+        event.put(OBJECT, objectMap);
+        event.put(CDATA, cdata);
+        event.put(EDATA, edata);
+        return event;
+    }
+
+    public String generateOnSubscriptionEvent(String apiAction,String recipientCode,String senderCode,String subscriptionId,String status) throws JsonProcessingException {
+        Map<String,Object> event = new HashMap<>();
+        event.put(MID, UUID.randomUUID().toString());
+        event.put(ETS, System.currentTimeMillis());
+        event.put(ACTION, apiAction);
+        event.put(AUDIT_STATUS, QUEUED_STATUS);
+        event.put(PAYLOAD, createOnSubscriptionPayload(subscriptionId,status));
+        event.put(HCX_RECIPIENT_CODE,recipientCode);
+        event.put(HCX_SENDER_CODE, senderCode);
+        return JSONUtils.serialize(event);
+    }
+
+    public Map<String,Object> generateOnSubscriptionAuditEvent(String apiAction,String recipientCode,String subscriptionId,String status,String senderCode,String subscriptionStatus) {
+        Map<String,Object> event = new HashMap<>();
+        event.put(EID, AUDIT);
+        event.put(MID, UUID.randomUUID().toString());
+        event.put(ACTION, apiAction);
+        event.put(SUBSCRIPTION_ID, subscriptionId);
+        event.put(SUBSCRIPTION_STATUS, subscriptionStatus);
+        event.put(HCX_SENDER_CODE,senderCode);
+        event.put(HCX_RECIPIENT_CODE,recipientCode);
+        event.put(ETS,System.currentTimeMillis());
+        event.put(AUDIT_STATUS, status);
+        return  event;
+    }
+
+    private Map<String,Object> createOnSubscriptionPayload(String subscriptionId, String status) {
+        Map<String,Object> event = new HashMap<>();
+        event.put(SUBSCRIPTION_ID,subscriptionId);
+        event.put(SUBSCRIPTION_STATUS,status);
+        return event;
+    }
+
     public String generateSubscriptionEvent(String apiAction,String recipientCode,String topicCode,List<String> senderList,Map<String, String> subscriptionMap) throws JsonProcessingException {
         Map<String,Object> event = new HashMap<>();
         event.put(MID, UUID.randomUUID().toString());
@@ -153,82 +229,6 @@ public class EventGenerator {
         event.put(ETS,System.currentTimeMillis());
         event.put(AUDIT_STATUS, status);
         return  event;
-    }
-
-    public String generateOnSubscriptionEvent(String apiAction,String recipientCode,String senderCode,String subscriptionId,String status) throws JsonProcessingException {
-        Map<String,Object> event = new HashMap<>();
-        event.put(MID, UUID.randomUUID().toString());
-        event.put(ETS, System.currentTimeMillis());
-        event.put(ACTION, apiAction);
-        event.put(AUDIT_STATUS, QUEUED_STATUS);
-        event.put(PAYLOAD, createOnSubscriptionPayload(subscriptionId,status));
-        event.put(HCX_RECIPIENT_CODE,recipientCode);
-        event.put(HCX_SENDER_CODE, senderCode);
-        return JSONUtils.serialize(event);
-    }
-
-    public String createNotifyEvent(String topicCode, String senderCode, String recipientType, List<String> recipients, long expiry, String message, String privateKey) throws Exception {
-        Map<String,Object> notificationHeaders = new HashMap<>();
-        notificationHeaders.put(SENDER_CODE, senderCode);
-        notificationHeaders.put(NOTIFICATION_TIMESTAMP, System.currentTimeMillis());
-        notificationHeaders.put(RECIPIENT_TYPE, recipientType);
-        notificationHeaders.put(RECIPIENTS, recipients);
-        notificationHeaders.put(NOTIFICATION_CORRELATION_ID, UUID.randomUUID().toString());
-        notificationHeaders.put(EXPIRY, expiry);
-
-        Map<String,Object> protocolHeaders = new HashMap<>();
-        protocolHeaders.put(ALG, RS256);
-        protocolHeaders.put(NOTIFICATION_HEADERS, notificationHeaders);
-
-        Map<String,Object> payload = new HashMap<>();
-        payload.put(TOPIC_CODE, topicCode);
-        payload.put(MESSAGE, message);
-
-        Map<String,Object> event = new HashMap<>();
-        event.put(MID, UUID.randomUUID().toString());
-        event.put(ETS, System.currentTimeMillis());
-        event.put(ACTION, NOTIFICATION_NOTIFY);
-        event.put(TOPIC_CODE, topicCode);
-        event.put(MESSAGE, message);
-        event.put(PAYLOAD, jwtUtils.generateJWS(protocolHeaders, payload, privateKey));
-        event.put(HEADERS, Collections.singletonMap(PROTOCOL, protocolHeaders));
-
-        return JSONUtils.serialize(event);
-    }
-
-    public Map<String,Object> generateOnSubscriptionAuditEvent(String apiAction,String recipientCode,String subscriptionId,String status,String senderCode,String subscriptionStatus) {
-        Map<String,Object> event = new HashMap<>();
-        event.put(EID, AUDIT);
-        event.put(MID, UUID.randomUUID().toString());
-        event.put(ACTION, apiAction);
-        event.put(SUBSCRIPTION_ID, subscriptionId);
-        event.put(SUBSCRIPTION_STATUS, subscriptionStatus);
-        event.put(HCX_SENDER_CODE,senderCode);
-        event.put(HCX_RECIPIENT_CODE,recipientCode);
-        event.put(ETS,System.currentTimeMillis());
-        event.put(AUDIT_STATUS, status);
-        return  event;
-    }
-
-    public Map<String,Object> createAuditLog(String id, String objectType, Map<String,Object> cdata, Map<String,Object> edata) {
-        Map<String,Object> event = new HashMap<>();
-        event.put(EID, AUDIT);
-        event.put(ETS, System.currentTimeMillis());
-        event.put(MID, UUID.randomUUID().toString());
-        Map<String,Object> objectMap = new HashMap<>();
-        objectMap.put(ID, id);
-        objectMap.put(TYPE, objectType);
-        event.put(OBJECT, objectMap);
-        event.put(CDATA, cdata);
-        event.put(EDATA, edata);
-        return event;
-    }
-
-    private Map<String,Object> createOnSubscriptionPayload(String subscriptionId, String status) {
-        Map<String,Object> event = new HashMap<>();
-        event.put(SUBSCRIPTION_ID,subscriptionId);
-        event.put(SUBSCRIPTION_STATUS,status);
-        return event;
     }
 
 }
