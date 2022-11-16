@@ -3,7 +3,6 @@ name: Build and push docker image for api-gateway, hcx-apis and hcx-scheduler-jo
 on:
   push:
     branches:
-      - hcx-platform-docker-build
       - main
       - sprint-*
 
