@@ -3,6 +3,7 @@ name: Build and push docker image for api-gateway, hcx-apis and hcx-scheduler-jo
 on:
   push:
     branches:
+      - hcx-platform-docker-build
       - main
       - sprint-*
 
@@ -62,9 +63,9 @@ jobs:
           labels: hcx-api image
 
       - name: Build and push Docker image for HCX Scheduler Job
-          uses: docker/build-push-action@v3
-          with:
-            context: ./hcx-scheduler-jobs
-            push: true
-            tags: swasth2021/hcx-scheduler-jobs:${{ env.IMAGE_TAG }}_${{ github.run_number }}
-            labels: hcx-scheduler-jobs image
+        uses: docker/build-push-action@v3
+        with:
+          context: ./hcx-scheduler-jobs
+          push: true
+          tags: swasth2021/hcx-scheduler-jobs:${{ env.IMAGE_TAG }}_${{ github.run_number }}
+          labels: hcx-scheduler-jobs image
