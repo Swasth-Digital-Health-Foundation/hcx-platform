@@ -91,7 +91,7 @@ public class ResponseMessage {
     public static final String INVALID_ON_ACTION = "Invalid on_action request, corresponding action request does not exist";
     public static final String INVALID_FORWARD = "Entity is not allowed for forwarding";
     public static final String FORWARD_REQ_ERR_MSG = "Request cannot be forwarded to the forward initiators";
-    public static final String INVALID_API_CALL = "API should be used only in forwarding the request";
+    public static final String INVALID_API_CALL = "API should be used only to forward the request";
     public static final String INVALID_FORWARD_TO_PROVIDER = "Request cannot be forwarded to provider";
     public static final String MALFORMED_PAYLOAD = "Malformed payload";
     public static final String INVALID_PAYLOAD = "Payload contains null or empty values";
