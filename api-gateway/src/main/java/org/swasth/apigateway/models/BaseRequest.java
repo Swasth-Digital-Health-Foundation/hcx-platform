@@ -34,6 +34,10 @@ public class BaseRequest {
     private String payloadWithoutSensitiveData = null;
     private String hcxRoles;
     private String hcxCode;
+    private String sender_name;
+    private String recipient_name;
+    private String sender_primary_email;
+    private String recipient_primary_email ;
 
     public BaseRequest() {
     }
@@ -63,7 +67,13 @@ public class BaseRequest {
         return JSONUtils.decodeBase64String(validatePayload(apiAction)[i], Map.class);
     }
 
-    public void validate(List<String> mandatoryHeaders, String subject, int timestampRange, Map<String, Object> senderDetails, Map<String, Object> recipientDetails) throws Exception {
+    public void validate(List<String> mandatoryHeaders, String subject, int timestampRange, Map<String, Object> senderDetails, Map<String, Object> recipientDetails ) throws Exception {
+        senderRole = (ArrayList<String>) senderDetails.get(ROLES);
+        recipientRole = (ArrayList<String>) recipientDetails.get(ROLES);
+        sender_name = (String) senderDetails.get(PARTICIPANT_NAME);
+        recipient_name = (String) recipientDetails.get(PARTICIPANT_NAME);
+        sender_primary_email = (String) senderDetails.get(PRIMARY_EMAIL);
+        recipient_primary_email = (String) recipientDetails.get(PRIMARY_EMAIL);
         for (Map.Entry<String, ClientException> entry : getResponseParamErrors().entrySet()) {
             validateHeader(protocolHeaders, entry.getKey(), entry.getValue());
         }
@@ -83,8 +93,6 @@ public class BaseRequest {
         validateCondition(StringUtils.equals(getHcxSenderCode(), getHcxRecipientCode()), ErrorCodes.ERR_INVALID_SENDER_AND_RECIPIENT, SENDER_RECIPIENT_SAME_MSG);
         validateParticipant(recipientDetails, ErrorCodes.ERR_INVALID_RECIPIENT, "Recipient", getHcxRecipientCode());
         validateParticipant(senderDetails, ErrorCodes.ERR_INVALID_SENDER, "Sender", getHcxSenderCode());
-        senderRole = (ArrayList<String>) senderDetails.get(ROLES);
-        recipientRole = (ArrayList<String>) recipientDetails.get(ROLES);
         validateCondition(!StringUtils.equals(((ArrayList) senderDetails.get(OS_OWNER)).get(0).toString(), subject), ErrorCodes.ERR_ACCESS_DENIED, CALLER_MISMATCH_MSG);
 
         if (protocolHeaders.containsKey(DEBUG_FLAG)) {
@@ -236,7 +244,7 @@ public class BaseRequest {
         return getHeader(HCX_RECIPIENT_CODE);
     }
 
-    public String getTimestamp() {
+   public String getTimestamp() {
         return getHeader(TIMESTAMP);
     }
 
@@ -271,35 +279,37 @@ public class BaseRequest {
     private void setHeaderMap(String key, Object value) {
         protocolHeaders.put(key, value);
     }
-
     public Map<String, Object> getErrorDetails() {
         return getHeaderMap(ERROR_DETAILS);
     }
-
     public void setErrorDetails(Map<String, Object> errorDetails) {
         setHeaderMap(ERROR_DETAILS, errorDetails);
     }
-
     public Map<String, Object> getDebugDetails() {
         return getHeaderMap(DEBUG_DETAILS);
     }
-
     public String getRedirectTo() {
         return getHeader(REDIRECT_TO);
     }
-
     public List<String> getSenderRole() {
         return senderRole;
     }
-
+    public String getSenderName(){
+        return sender_name;
+    }
+    public String getRecipientName(){
+        return recipient_name;
+    }
+    public String getSenderPrimaryEmail(){
+        return sender_primary_email;
+    }
+    public String getRecipientPrimaryEmail(){return recipient_primary_email;}
     public List<String> getRecipientRole() {
         return recipientRole;
     }
-
     public String getPayloadWithoutSensitiveData() {
         return payloadWithoutSensitiveData;
     }
-
     private String[] validatePayload(String apiAction) throws Exception {
         try {
             String[] payloadValues = getPayloadValues();

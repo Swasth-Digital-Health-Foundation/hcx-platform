@@ -1,79 +1,82 @@
 {
-  "properties":{
-    "eid":{
-      "type":"text"
+  "properties": {
+    "eid": {
+      "type": "text"
     },
-    "x-hcx-sender_code":{
-      "type":"keyword"
+    "x-hcx-sender_code": {
+      "type": "keyword"
     },
-    "x-hcx-recipient_code":{
-      "type":"keyword"
+    "x-hcx-recipient_code": {
+      "type": "keyword"
     },
-    "x-hcx-api_call_id":{
-      "type":"keyword"
+    "x-hcx-api_call_id": {
+      "type": "keyword"
     },
-    "x-hcx-correlation_id":{
-      "type":"keyword"
+    "x-hcx-correlation_id": {
+      "type": "keyword"
     },
-    "x-hcx-workflow_id":{
-      "type":"keyword"
+    "x-hcx-workflow_id": {
+      "type": "keyword"
     },
-    "x-hcx-timestamp":{
-      "type":"keyword"
+    "x-hcx-timestamp": {
+      "type": "date"
     },
-    "mid":{
-      "type":"keyword"
+    "mid": {
+      "type": "keyword"
     },
-    "action":{
-      "type":"keyword"
+    "action": {
+      "type": "keyword"
     },
-    "x-hcx-status":{
-      "type":"keyword"
+    "x-hcx-status": {
+      "type": "keyword"
     },
-    "ets":{
-      "type":"long"
+    "ets": {
+      "type": "long"
     },
-    "requestTimeStamp":{
-      "type":"long"
+    "requestTimeStamp": {
+      "type": "long"
     },
-    "updatedTimestamp":{
-      "type":"long"
+    "updatedTimestamp": {
+      "type": "long"
     },
-    "x-hcx-error_details":{
-      "type":"object"
+    "x-hcx-error_details": {
+      "type": "object"
     },
-    "x-hcx-debug_details":{
-      "type":"object"
+    "x-hcx-debug_details": {
+      "type": "object"
     },
-    "senderRole":{
-      "type":"keyword"
+    "senderRole": {
+      "type": "keyword"
     },
-    "recipientRole":{
-      "type":"keyword"
+    "recipientRole": {
+      "type": "keyword"
     },
-    "payload":{
-      "type":"text"
+    "payload": {
+      "type": "text"
     },
-    "topic_code":{
-      "type":"keyword"
+    "topic_code": {
+      "type": "keyword"
     },
-    "sender_code":{
-      "type":"keyword"
+    "sender_name": {
+      "type": "keyword"
     },
-    "recipient_code":{
-      "type":"keyword"
+    "recipient_name": {
+      "type": "keyword"
     },
-    "status":{
-      "type":"keyword"
+    "sender_primary_email": {
+      "type": "keyword"
     },
-    "subscription_id":{
-      "type":"keyword"
+    "recipient_primary_email": {
+      "type": "keyword"
     },
-    "subscription_status":{
-      "type":"keyword"
+    "subscription_id": {
+      "type": "keyword"
     },
-    "x-hcx-notification_headers":{
-      "type":"object"
+    "subscription_status": {
+      "type": "keyword"
+    },
+    "x-hcx-notification_headers": {
+      "type": "object"
     }
   }
 }

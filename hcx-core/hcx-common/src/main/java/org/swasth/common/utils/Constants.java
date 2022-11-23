@@ -67,7 +67,7 @@ public class Constants {
     public static final String NAME = "name";
     public static final String KAFKA = "kafka";
     public static final String POSTGRESQL = "postgreSQL";
-    public static final String REDIS ="redis";
+    public static final String REDIS = "redis";
     public static final String CHECKS = "checks";
 
     //event generator props
@@ -76,7 +76,7 @@ public class Constants {
     public static final String ETS = "ets";
     public static final String ACTION = "action";
     public static final String HEADERS = "headers";
-    public static final String JOSE="jose";
+    public static final String JOSE = "jose";
     public static final String PROTOCOL = "protocol";
     public static final String DOMAIN = "domain";
     public static final String RETRY_COUNT = "retryCount";
@@ -88,15 +88,15 @@ public class Constants {
     public static final String AUDIT_TIMESTAMP = "auditTimeStamp";
     public static final String UPDATED_TIME = "updatedTimestamp";
     public static final String REQUEST_TIME = "requestTimeStamp";
-    public static  final String OBJECT = "object";
-    public static  final String CDATA = "cdata";
-    public static  final String EDATA = "edata";
-    public static  final String ID = "id";
-    public static  final String TYPE = "type";
-    public static  final String AUDIT_STATUS = "status";
-    public static  final String PREV_STATUS = "prevStatus";
-    public static  final String PROPS = "props";
-    public static  final String CREATED = "Created";
+    public static final String OBJECT = "object";
+    public static final String CDATA = "cdata";
+    public static final String EDATA = "edata";
+    public static final String ID = "id";
+    public static final String TYPE = "type";
+    public static final String AUDIT_STATUS = "status";
+    public static final String PREV_STATUS = "prevStatus";
+    public static final String PROPS = "props";
+    public static final String CREATED = "Created";
 
     //Request props
     public static final String PROTOCOL_HEADERS_MANDATORY = "protocol.headers.mandatory";
@@ -106,10 +106,20 @@ public class Constants {
     public static final String REDIRECT_HEADERS_MANDATORY = "redirect.headers.mandatory";
     public static final String REDIRECT_HEADERS_OPTIONAL = "redirect.headers.optional";
     public static final String JOSE_HEADERS = "headers.jose";
+
     public static final String DOMAIN_HEADERS = "headers.domain";
+
     public static final String HCX_SENDER_CODE = "x-hcx-sender_code";
+
     public static final String HCX_RECIPIENT_CODE = "x-hcx-recipient_code";
+    public static final String SENDER_NAME = "sender_name";
+    public static final String RECIPIENT_NAME = "recipient_name";
+
+    public static final String PARTICIPANT_NAME = "participant_name";
+    public static final String SENDER_PRIMARY_EMAIL = "sender_primary_email";
+    public static final String RECIPIENT_PRIMARY_EMAIL = "recipient_primary_email";
     public static final String API_CALL_ID = "x-hcx-api_call_id";
+
     public static final String CORRELATION_ID = "x-hcx-correlation_id";
     public static final String WORKFLOW_ID = "x-hcx-workflow_id";
     public static final String TIMESTAMP = "x-hcx-timestamp";
@@ -133,7 +143,6 @@ public class Constants {
     public static final String ROLES = "roles";
     public static final String SCHEME_CODE = "scheme_code";
     public static final String PARTICIPANT_CODE = "participant_code";
-    public static final String PARTICIPANT_NAME = "participant_name";
     public static final String PARTICIPANT_ROLE = "participant_role";
     public static final String PRIMARY_EMAIL = "primary_email";
     public static final String SIGNING_CERT_PATH = "signing_cert_path";
@@ -148,13 +157,13 @@ public class Constants {
     public static final String START_DATETIME = "start_datetime";
     public static final String STOP_DATETIME = "stop_datetime";
 
-    public static final String SEARCH_REQ ="x-hcx-search";
+    public static final String SEARCH_REQ = "x-hcx-search";
     public static final String SEARCH_RESP = "x-hcx-search_response";
-    public static final List<String> SEARCH_REQ_KEYS = Arrays.asList("filters","time_period");
+    public static final List<String> SEARCH_REQ_KEYS = Arrays.asList("filters", "time_period");
     public static final String SEARCH_FILTERS = "filters";
-    public static final List<String>  SEARCH_FILTER_KEYS = Arrays.asList("senders","receivers","entity_types","workflow_ids","case_ids","entity_status");
+    public static final List<String> SEARCH_FILTER_KEYS = Arrays.asList("senders", "receivers", "entity_types", "workflow_ids", "case_ids", "entity_status");
     public static final String SEARCH_FILTERS_RECEIVER = "receivers";
-    public static final List<String> SEARCH_RES_KEYS = Arrays.asList("count","entity_counts");
+    public static final List<String> SEARCH_RES_KEYS = Arrays.asList("count", "entity_counts");
     public static final String HCX_REGISTRY_CODE = "hcx-registry-code";
     public static final String ERROR_STATUS = "response.error";
     public static final String REDIRECT_STATUS = "response.redirect";
@@ -178,6 +187,7 @@ public class Constants {
     public static final String BROADCAST = "Broadcast";
     public static final String WORKFLOW = "Workflow";
     public static final String NETWORK = "Network";
+
     public static final String TOPIC_CODE = "topic_code";
     public static final List<String> ALLOWED_NOTIFICATION_FILTER_PROPS = Arrays.asList(CATEGORY, PRIORITY);
     public static final String RECIPIENT = "Recipient";
@@ -214,14 +224,14 @@ public class Constants {
     public static final String AUTH_REQUIRED = "AUTH_REQUIRED";
     public static final String X_JWT_SUB_HEADER = "X-jwt-sub";
     public static final String REDIRECT_TO = "x-hcx-redirect_to";
-    public static final List<String> DEBUG_FLAG_VALUES = Arrays.asList("Error","Info","Debug");
+    public static final List<String> DEBUG_FLAG_VALUES = Arrays.asList("Error", "Info", "Debug");
     public static final List<String> REQUEST_STATUS_VALUES = Arrays.asList("request.queued", "request.dispatched");
-    public static final List<String> ERROR_DETAILS_VALUES = Arrays.asList("code","message","trace");
+    public static final List<String> ERROR_DETAILS_VALUES = Arrays.asList("code", "message", "trace");
     public static final String REQUESTED_TIME = "requestTimeStamp";
     public static final String BLOCKED = "Blocked";
     public static final String OS_OWNER = "osOwner";
     public static final String ERROR_RESPONSE = "response.error";
-    public static final List<String> RECIPIENT_ERROR_VALUES = Arrays.asList("ERR_INVALID_ENCRYPTION", "ERR_INVALID_PAYLOAD", "ERR_WRONG_DOMAIN_PAYLOAD", "ERR_INVALID_DOMAIN_PAYLOAD", "ERR_SENDER_NOT_SUPPORTED", "ERR_SERVICE_UNAVAILABLE", "ERR_DOMAIN_PROCESSING","ERR_MANDATORY_HEADER_MISSING",
+    public static final List<String> RECIPIENT_ERROR_VALUES = Arrays.asList("ERR_INVALID_ENCRYPTION", "ERR_INVALID_PAYLOAD", "ERR_WRONG_DOMAIN_PAYLOAD", "ERR_INVALID_DOMAIN_PAYLOAD", "ERR_SENDER_NOT_SUPPORTED", "ERR_SERVICE_UNAVAILABLE", "ERR_DOMAIN_PROCESSING", "ERR_MANDATORY_HEADER_MISSING",
             "ERR_INVALID_API_CALL_ID",
             "ERR_INVALID_CORRELATION_ID",
             "ERR_INVALID_TIMESTAMP",

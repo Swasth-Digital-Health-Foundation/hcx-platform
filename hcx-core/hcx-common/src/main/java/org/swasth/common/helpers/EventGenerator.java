@@ -120,6 +120,10 @@ public class EventGenerator {
         event.put(SENDER_ROLE, new ArrayList<>());
         event.put(RECIPIENT_ROLE, new ArrayList<>());
         event.put(PAYLOAD, request.getPayloadWithoutSensitiveData());
+        event.put(SENDER_NAME,request.getSenderName());
+        event.put(RECIPIENT_NAME,request.getRecipientName());
+        event.put(SENDER_PRIMARY_EMAIL,request.getSenderPrimaryEmail());
+        event.put(RECIPIENT_PRIMARY_EMAIL,request.getRecipientPrimaryEmail());
         return  event;
     }
 

@@ -19,7 +19,7 @@ import org.swasth.apigateway.models.BaseRequest;
 import org.swasth.apigateway.models.JSONRequest;
 import org.swasth.apigateway.models.JWERequest;
 import org.swasth.apigateway.service.AuditService;
-import org.swasth.apigateway.service.RegistryService;
+import org.swasth.common.service.RegistryService;
 import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.utils.JWTUtils;
@@ -38,6 +38,7 @@ import static org.swasth.common.utils.Constants.*;
 public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidationFilter.Config> {
 
     private static final Logger logger = LoggerFactory.getLogger(HCXValidationFilter.class);
+
 
     @Autowired
     RegistryService registryService;

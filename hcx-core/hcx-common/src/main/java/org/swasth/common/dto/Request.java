@@ -1,8 +1,10 @@
 package org.swasth.common.dto;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
+import org.swasth.common.service.RegistryService;
 import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.utils.PayloadUtils;
@@ -12,13 +14,24 @@ import java.util.*;
 
 import static org.swasth.common.utils.Constants.*;
 
-public class Request {
+public class Request  {
+
+    @Autowired
+    RegistryService registryService;
 
     private final Map<String, Object> payload;
     protected Map<String, Object> hcxHeaders = null;
     private String mid = UUIDUtils.getUUID();
     private String apiAction;
+    private String sender_name;
+    private String recipient_name;
+    private String sender_primary_email;
+    private String recipient_primary_email ;
+
+
+    private Map<String, Object> recipientDetails;
     private final String payloadWithoutSensitiveData;
+
 
     public Request(Map<String, Object> body, String apiAction) throws Exception {
         this.apiAction = apiAction;
@@ -48,35 +61,34 @@ public class Request {
         return JSONUtils.decodeBase64String(getPayloadValues()[0], Map.class);
     }
 
-    private String[] getPayloadValues() {
+    private String[] getPayloadValues() throws Exception {
         return ((String) getPayload().get(PAYLOAD)).split("\\.");
     }
+
+
 
     // TODO remove this method. We should restrict accessing it to have a clean code.
     public Map<String, Object> getPayload() {
         return payload;
     }
 
-    public String getWorkflowId() {
-        return getHeader(WORKFLOW_ID);
-    }
-
+    public String getWorkflowId() { return getHeader(WORKFLOW_ID);}
     public String getApiCallId() {
         return getHeader(API_CALL_ID);
     }
-
     public String getCorrelationId() {
         return getHeader(CORRELATION_ID);
     }
-
     public String getHcxSenderCode() {
         return getHeader(HCX_SENDER_CODE);
     }
-
-    public String getHcxRecipientCode() {
-        return getHeader(HCX_RECIPIENT_CODE);
+    public String getHcxRecipientCode() {  return getHeader(HCX_RECIPIENT_CODE);}
+    public String getSenderName(){  return sender_name ;}
+    public String getRecipientName(){ return recipient_name ;}
+    public String getSenderPrimaryEmail(){ return sender_primary_email ;}
+    public String getRecipientPrimaryEmail(){
+        return recipient_primary_email ;
     }
-
     public String getTimestamp() {
         return getHeader(TIMESTAMP);
     }
