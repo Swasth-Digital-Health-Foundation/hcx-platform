@@ -115,6 +115,10 @@ public class Constants {
     public static final String SENDER_NAME = "sender_name";
     public static final String RECIPIENT_NAME = "recipient_name";
 
+    public static final String SENDERDETAILS = "senderDetails";
+
+    public static final String RECIPIENTDETAILS = "recipientDetails";
+
     public static final String PARTICIPANT_NAME = "participant_name";
     public static final String SENDER_PRIMARY_EMAIL = "sender_primary_email";
     public static final String RECIPIENT_PRIMARY_EMAIL = "recipient_primary_email";
@@ -124,6 +128,7 @@ public class Constants {
     public static final String WORKFLOW_ID = "x-hcx-workflow_id";
     public static final String TIMESTAMP = "x-hcx-timestamp";
     public static final String DEBUG_FLAG = "x-hcx-debug_flag";
+
     public static final String STATUS = "x-hcx-status";
     public static final String ERROR_DETAILS = "x-hcx-error_details";
     public static final String DEBUG_DETAILS = "x-hcx-debug_details";

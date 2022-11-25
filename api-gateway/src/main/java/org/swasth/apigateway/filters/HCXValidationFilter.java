@@ -94,6 +94,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                 path = request.getPath().value();
                 String subject = request.getHeaders().getFirst("X-jwt-sub");
                 requestBody = JSONUtils.deserialize(cachedBody.toString(), HashMap.class);
+
                 if (path.contains(NOTIFICATION_NOTIFY)) { //for validating notify api request
                     JSONRequest jsonRequest = new JSONRequest(requestBody, false, path, hcxCode, hcxRoles);
                     jsonRequest.setHeaders(jsonRequest.getNotificationHeaders());
@@ -117,6 +118,8 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                     jweRequest.validate(getMandatoryHeaders(), subject, timestampRange, senderDetails, recipientDetails);
                     jweRequest.validateUsingAuditData(allowedEntitiesForForward, allowedRolesForForward, senderDetails, recipientDetails, getCorrelationAuditData(jweRequest.getCorrelationId()), getCallAuditData(jweRequest.getApiCallId()), participantCtxAuditDetails, path);
                     validateParticipantCtxDetails(participantCtxAuditDetails, path);
+                    requestBody.put("senderDetails",senderDetails);
+                    requestBody.put("recipientDetails",recipientDetails);
                 } else if (path.contains(NOTIFICATION_SUBSCRIBE) || path.contains(NOTIFICATION_UNSUBSCRIBE)) { //for validating /notification/subscribe, /notification/unsubscribe
                     JSONRequest jsonRequest = new JSONRequest(requestBody, true, path, hcxCode, hcxRoles);
                     requestObj = jsonRequest;
@@ -182,11 +185,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                 logger.error(MessageFormat.format(CORRELATION_ERR_MSG, correlationId,  e.getMessage()));
                 return exceptionHandler.errorResponse(e, exchange, correlationId, apiCallId, requestObj);
             }
-            if (path.contains(NOTIFICATION_NOTIFY) || path.contains(NOTIFICATION_SUBSCRIBE) || path.contains(NOTIFICATION_UNSUBSCRIBE) || path.contains(NOTIFICATION_SUBSCRIPTION_LIST) || path.contains(NOTIFICATION_SUBSCRIPTION_UPDATE) || path.contains(NOTIFICATION_ON_SUBSCRIBE)) {
-                return requestHandler.getUpdatedBody(exchange, chain, requestBody);
-            } else {
-                return chain.filter(exchange);
-            }
+            return requestHandler.getUpdatedBody(exchange, chain, requestBody);
         };
     }
 

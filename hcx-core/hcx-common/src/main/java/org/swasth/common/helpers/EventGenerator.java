@@ -3,11 +3,9 @@ package org.swasth.common.helpers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.StringUtils;
 import org.swasth.common.dto.Request;
-import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.utils.JWTUtils;
 
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static org.swasth.common.utils.Constants.*;
@@ -117,13 +115,13 @@ public class EventGenerator {
         event.put(REQUEST_TIME, System.currentTimeMillis());
         event.put(UPDATED_TIME, System.currentTimeMillis());
         event.put(ETS, System.currentTimeMillis());
-        event.put(SENDER_ROLE, new ArrayList<>());
-        event.put(RECIPIENT_ROLE, new ArrayList<>());
+        event.put(SENDER_ROLE, request.getSenderRole());
+        event.put(RECIPIENT_ROLE, request.getRecipientRole());
         event.put(PAYLOAD, request.getPayloadWithoutSensitiveData());
-        event.put(SENDER_NAME,request.getSenderName());
-        event.put(RECIPIENT_NAME,request.getRecipientName());
-        event.put(SENDER_PRIMARY_EMAIL,request.getSenderPrimaryEmail());
-        event.put(RECIPIENT_PRIMARY_EMAIL,request.getRecipientPrimaryEmail());
+        event.put(SENDER_NAME, request.getSenderName());
+        event.put(RECIPIENT_NAME, request.getRecipientName());
+        event.put(SENDER_PRIMARY_EMAIL, request.getSenderPrimaryEmail());
+        event.put(RECIPIENT_PRIMARY_EMAIL, request.getRecipientPrimaryEmail());
         return  event;
     }
 

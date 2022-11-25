@@ -21,7 +21,6 @@ public class GenericConfiguration {
 
     @Autowired
     protected Environment env;
-
     @Value("${registry.basePath}")
     private String registryUrl;
 

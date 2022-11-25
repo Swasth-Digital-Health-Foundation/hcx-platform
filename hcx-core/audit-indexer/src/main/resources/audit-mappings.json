@@ -57,16 +57,16 @@
     "topic_code": {
       "type": "keyword"
     },
-    "sender_name": {
+    "senderName": {
       "type": "keyword"
     },
-    "recipient_name": {
+    "recipientName": {
       "type": "keyword"
     },
-    "sender_primary_email": {
+    "senderPrimaryEmail": {
       "type": "keyword"
     },
-    "recipient_primary_email": {
+    "recipientPrimaryEmail": {
       "type": "keyword"
     },
     "subscription_id": {

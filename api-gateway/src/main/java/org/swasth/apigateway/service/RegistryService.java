@@ -1,4 +1,4 @@
-package org.swasth.common.service;
+package org.swasth.apigateway.service;
 
 import kong.unirest.HttpResponse;
 import kong.unirest.UnirestException;

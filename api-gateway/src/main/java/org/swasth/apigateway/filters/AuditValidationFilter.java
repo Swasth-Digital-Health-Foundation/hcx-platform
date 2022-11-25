@@ -30,8 +30,9 @@ public class AuditValidationFilter extends AbstractGatewayFilterFactory<AuditVal
 
     private static final Logger logger = LoggerFactory.getLogger(AuditValidationFilter.class);
 
+
     @Autowired
-    RegistryService registryService;
+    RegistryService registryService ;
 
     @Autowired
     ExceptionHandler exceptionHandler;

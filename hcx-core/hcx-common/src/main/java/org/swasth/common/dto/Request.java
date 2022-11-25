@@ -1,37 +1,39 @@
 package org.swasth.common.dto;
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
-import org.swasth.common.service.RegistryService;
 import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.utils.PayloadUtils;
 import org.swasth.common.utils.UUIDUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.swasth.common.utils.Constants.*;
 
-public class Request  {
-
-    @Autowired
-    RegistryService registryService;
-
+public class Request {
     private final Map<String, Object> payload;
     protected Map<String, Object> hcxHeaders = null;
+    protected Map<String, Object> senderDetails = null;
     private String mid = UUIDUtils.getUUID();
     private String apiAction;
-    private String sender_name;
-    private String recipient_name;
-    private String sender_primary_email;
-    private String recipient_primary_email ;
 
+    private String senderName;
 
-    private Map<String, Object> recipientDetails;
+    private String recipientName;
+
+    private String senderPrimaryEmail;
+
+    private String recipientPrimaryEmail;
+
+    private final List<String> senderRole = new ArrayList<>();
+
+    private final List<String> recipientRole = new ArrayList<>();
     private final String payloadWithoutSensitiveData;
-
 
     public Request(Map<String, Object> body, String apiAction) throws Exception {
         this.apiAction = apiAction;
@@ -57,7 +59,7 @@ public class Request  {
         }
     }
 
-    private Map<String,Object> getHeadersFromPayload() throws Exception {
+    private Map<String, Object> getHeadersFromPayload() throws Exception {
         return JSONUtils.decodeBase64String(getPayloadValues()[0], Map.class);
     }
 
@@ -65,30 +67,47 @@ public class Request  {
         return ((String) getPayload().get(PAYLOAD)).split("\\.");
     }
 
-
-
     // TODO remove this method. We should restrict accessing it to have a clean code.
     public Map<String, Object> getPayload() {
         return payload;
     }
 
-    public String getWorkflowId() { return getHeader(WORKFLOW_ID);}
+    public String getWorkflowId() {
+        return getHeader(WORKFLOW_ID);
+    }
+
     public String getApiCallId() {
         return getHeader(API_CALL_ID);
     }
+
     public String getCorrelationId() {
         return getHeader(CORRELATION_ID);
     }
+
     public String getHcxSenderCode() {
         return getHeader(HCX_SENDER_CODE);
     }
-    public String getHcxRecipientCode() {  return getHeader(HCX_RECIPIENT_CODE);}
-    public String getSenderName(){  return sender_name ;}
-    public String getRecipientName(){ return recipient_name ;}
-    public String getSenderPrimaryEmail(){ return sender_primary_email ;}
-    public String getRecipientPrimaryEmail(){
-        return recipient_primary_email ;
+
+    public String getHcxRecipientCode() {
+        return getHeader(HCX_RECIPIENT_CODE);
     }
+
+    public String getSenderName() {
+        return (String) senderDetails().get(PARTICIPANT_NAME);
+    }
+
+    public String getRecipientName() {
+        return (String) recipientDetails().get(PARTICIPANT_NAME);
+    }
+
+    public String getSenderPrimaryEmail() {
+        return (String) senderDetails().get(PRIMARY_EMAIL);
+    }
+
+    public String getRecipientPrimaryEmail() {
+        return (String) recipientDetails().get(PRIMARY_EMAIL);
+    }
+
     public String getTimestamp() {
         return getHeader(TIMESTAMP);
     }
@@ -101,7 +120,9 @@ public class Request  {
         return getHeader(STATUS);
     }
 
-    public void  setStatus(String status) { setHeaderMap(STATUS, status);}
+    public void setStatus(String status) {
+        setHeaderMap(STATUS, status);
+    }
 
     public Map<String, Object> getHcxHeaders() {
         return hcxHeaders;
@@ -111,7 +132,7 @@ public class Request  {
         return (String) hcxHeaders.getOrDefault(key, "");
     }
 
-    public void setHeaders(Map<String,Object> headers) {
+    public void setHeaders(Map<String, Object> headers) {
         hcxHeaders.putAll(headers);
     }
 
@@ -124,7 +145,7 @@ public class Request  {
     }
 
     private void setHeaderMap(String key, Object value) {
-            hcxHeaders.put(key, value);
+        hcxHeaders.put(key, value);
     }
 
     public Map<String, Object> getErrorDetails() {
@@ -135,44 +156,93 @@ public class Request  {
         return getHeaderMap(DEBUG_DETAILS);
     }
 
-    public String getMid() { return mid; }
+    public String getMid() {
+        return mid;
+    }
 
     public void setApiAction(String apiAction) {
         this.apiAction = apiAction;
     }
 
-    public String getApiAction() { return apiAction; }
+    public String getApiAction() {
+        return apiAction;
+    }
 
-    public String getPayloadWithoutSensitiveData() { return payloadWithoutSensitiveData; }
+    public String getPayloadWithoutSensitiveData() {
+        return payloadWithoutSensitiveData;
+    }
 
     public void setMid(String mid) {
         this.mid = mid;
     }
 
-    public String getTopicCode() { return getHeader(Constants.TOPIC_CODE);}
+    public String getTopicCode() {
+        return getHeader(Constants.TOPIC_CODE);
+    }
 
-    public String getSenderCode() { return getHeader(SENDER_CODE); }
+    public String getSenderCode() {
+        return getHeader(SENDER_CODE);
+    }
 
-    public String getRecipientType() { return getHeader(RECIPIENT_TYPE); }
+    public String getRecipientType() {
+        return getHeader(RECIPIENT_TYPE);
+    }
 
-    public List<String> getRecipients() { return getHeaderList(Constants.RECIPIENTS); }
+    public List<String> getRecipients() {
+        return getHeaderList(Constants.RECIPIENTS);
+    }
 
-    public Map<String,Object> getNotificationHeaders() { return getHeaderMap(NOTIFICATION_HEADERS); }
+    public Map<String, Object> getNotificationHeaders() {
+        return getHeaderMap(NOTIFICATION_HEADERS);
+    }
 
-    public Map<String,Object> getNotificationData() { return getHeaderMap(Constants.NOTIFICATION_DATA); }
+    public Map<String, Object> getNotificationData() {
+        return getHeaderMap(Constants.NOTIFICATION_DATA);
+    }
 
-    public List<String> getSenderList() { return getHeaderList(SENDER_LIST); }
+    public List<String> getSenderList() {
+        return getHeaderList(SENDER_LIST);
+    }
 
-    public String getRecipientCode() { return getHeader(RECIPIENT_CODE); }
+    public String getRecipientCode() {
+        return getHeader(RECIPIENT_CODE);
+    }
 
-    public String getSubscriptionStatus() { return (String) payload.getOrDefault(SUBSCRIPTION_STATUS, null);}
-    
-    public String getNotificationMessage() { return getHeader(MESSAGE); }
+    public String getSubscriptionStatus() {
+        return (String) payload.getOrDefault(SUBSCRIPTION_STATUS, null);
+    }
 
-    public boolean getIsDelegated(){ return (boolean) payload.getOrDefault(IS_DELEGATED, null);}
+    public String getNotificationMessage() {
+        return getHeader(MESSAGE);
+    }
 
-    public Long getExpiry(){ return (Long) payload.getOrDefault(EXPIRY, null); }
+    public boolean getIsDelegated() {
+        return (boolean) payload.getOrDefault(IS_DELEGATED, null);
+    }
 
-    public String getSubscriptionId() { return (String) payload.get(SUBSCRIPTION_ID); }
+    public Long getExpiry() {
+        return (Long) payload.getOrDefault(EXPIRY, null);
+    }
+
+    public String getSubscriptionId() {
+        return (String) payload.get(SUBSCRIPTION_ID);
+    }
+
+    public List<String> getSenderRole() {
+        return (List<String>) senderDetails().get(ROLES);
+    }
+
+    public List<String> getRecipientRole() {
+        return (List<String>) recipientDetails().get(ROLES);
+    }
+
+    public Map<String, Object> senderDetails() {
+        return (Map<String, Object>) payload.get(SENDERDETAILS);
+
+    }
+
+    public Map<String, Object> recipientDetails() {
+        return (Map<String, Object>) payload.get(RECIPIENTDETAILS);
+    }
 }
 

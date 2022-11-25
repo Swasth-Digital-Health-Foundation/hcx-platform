@@ -15,7 +15,7 @@ import org.swasth.hcx.service.AuditService;
 
 import java.util.Map;
 
-import static org.swasth.common.utils.Constants.ERROR_STATUS;
+import static org.swasth.common.utils.Constants.*;
 
 public class BaseController {
 
