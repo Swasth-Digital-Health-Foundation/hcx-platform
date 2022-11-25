@@ -6,8 +6,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.swasth.common.exception.ErrorCodes;
-import org.swasth.common.exception.ServerException;
+import org.springframework.stereotype.Service;
+import org.swasth.apigateway.exception.ErrorCodes;
+import org.swasth.apigateway.exception.ServerException;
 import org.swasth.common.utils.HttpUtils;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.redis.cache.RedisCache;
@@ -21,13 +22,11 @@ import java.util.Map;
 import static org.swasth.common.response.ResponseMessage.REGISTRY_SERVICE_ERROR;
 import static org.swasth.common.response.ResponseMessage.REGISTRY_SERVICE_FETCH_MSG;
 
-
+@Service
 public class RegistryService {
 
- private static final Logger logger = LoggerFactory.getLogger(RegistryService.class);
-  public RegistryService(String registryUrl) {
-        this.registryUrl = registryUrl;
-    }
+    private static final Logger logger = LoggerFactory.getLogger(RegistryService.class);
+
     @Autowired
     RedisCache redisCache;
 
@@ -37,7 +36,6 @@ public class RegistryService {
     @Value("${redis.expires}")
     private int redisExpires;
 
-
     public Map<String, Object> fetchDetails(String filterKey, String filterValue) throws Exception {
         String requestBody = "{\"filters\":{\"" + filterKey + "\":{\"eq\":\"" + filterValue + "\"}}}";
         try {
@@ -46,7 +44,6 @@ public class RegistryService {
                 details = JSONUtils.deserialize(redisCache.get(filterValue), HashMap.class);
             } else {
                 details = getParticipant(getDetails(requestBody));
-                int redisExpires = 3600;
                 redisCache.set(filterValue, JSONUtils.serialize(details), redisExpires);
             }
             return details;
@@ -59,6 +56,7 @@ public class RegistryService {
     private Map<String, Object> getParticipant(List<Map<String, Object>> searchResult) {
         return !searchResult.isEmpty() ? searchResult.get(0) : new HashMap<>();
     }
+
     public List<Map<String, Object>> getDetails(String requestBody) throws Exception {
         String url = registryUrl + "/api/v1/Organisation/search";
         HttpResponse response = null;
@@ -75,7 +73,4 @@ public class RegistryService {
         }
         return details;
     }
-
-
-
 }

@@ -12,7 +12,7 @@ import org.swasth.apigateway.exception.ErrorCodes;
 import org.swasth.apigateway.handlers.ExceptionHandler;
 import org.swasth.apigateway.handlers.RequestHandler;
 import org.swasth.apigateway.models.BaseRequest;
-import org.swasth.common.service.RegistryService;
+import org.swasth.apigateway.service.RegistryService;
 import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
 
@@ -30,10 +30,8 @@ public class AuditValidationFilter extends AbstractGatewayFilterFactory<AuditVal
 
     private static final Logger logger = LoggerFactory.getLogger(AuditValidationFilter.class);
 
-
     @Autowired
     RegistryService registryService ;
-
     @Autowired
     ExceptionHandler exceptionHandler;
 

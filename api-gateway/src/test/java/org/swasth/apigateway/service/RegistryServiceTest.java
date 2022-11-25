@@ -30,7 +30,7 @@ class RegistryServiceTest {
     private RedisServer redisServer;
 
     @Autowired
-    private RegistryService registryService;
+    private org.swasth.apigateway.service.RegistryService registryService;
 
     @MockBean
     private RedisCache redisCache;
