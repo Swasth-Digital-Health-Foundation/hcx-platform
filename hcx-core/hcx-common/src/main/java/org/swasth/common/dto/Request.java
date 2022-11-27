@@ -107,6 +107,7 @@ public class Request {
         return getHeader(STATUS);
     }
 
+    public String setStatus(String status){ return getHeader(STATUS); }
     public Map<String, Object> getHcxHeaders() {
         return hcxHeaders;
     }
