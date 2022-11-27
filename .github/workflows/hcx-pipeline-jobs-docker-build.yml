@@ -1,4 +1,4 @@
-name: Build and push docker image for hcx-pipeline-jobs
+name: HCX Pipeline Jobs - Build
 
 on:
   push:
@@ -31,7 +31,7 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      - name: set up env var
+      - name: Set the Image TAG
         run: echo "IMAGE_TAG=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
       - name: Set up Docker Buildx
