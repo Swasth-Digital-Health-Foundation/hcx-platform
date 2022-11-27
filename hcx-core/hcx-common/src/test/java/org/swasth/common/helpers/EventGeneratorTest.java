@@ -293,4 +293,9 @@ public class EventGeneratorTest {
         assertEquals(QUEUED_STATUS, resultMap.get(STATUS));
     }
 
+    @Test
+    public void getSenderDetails() throws Exception {
+        assertEquals("new-payor-3",getRequest().getSenderName());
+        assertEquals("New payor 2",getRequest().getRecipientName());
+    }
 }
