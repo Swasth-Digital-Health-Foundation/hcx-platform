@@ -3,6 +3,7 @@ package org.swasth.common.helpers;
 
 import org.junit.Test;
 import org.swasth.common.dto.Request;
+import org.swasth.common.dto.Response;
 import org.swasth.common.utils.Constants;
 
 import java.util.*;
@@ -164,13 +165,18 @@ public class EventGeneratorTest {
 
     @Test
     public void testGenerateSubscriptionEvent() throws Exception {
-        String result = eventGenerator.generateSubscriptionEvent(NOTIFICATION_SUBSCRIBE,"hcx-apollo-12345","hcx-notification-001",new ArrayList<>(){{add("icici-67890");add("Payor1"); add("Payor2");}},new HashMap<>(){{put("icici-67890","subscription_1");put("Payor1","subscription_2");put("Payor2","subscription_3");}});
+        Map<String,Object> requestBody = new HashMap<>();
+        requestBody.put(TOPIC_CODE, "hcx-notification-001");
+        requestBody.put(SENDER_LIST, new ArrayList<>(){{add("hcx-participant-67890");add("Payor1"); add("Payor2");}});
+        requestBody.put(RECIPIENT_CODE, "hcx-participant-12345");
+        Request request = new Request(requestBody, NOTIFICATION_SUBSCRIBE);
+        String result = eventGenerator.generateSubscriptionEvent(request ,new HashMap<>(){{put("icici-67890","subscription_1");put("Payor1","subscription_2");put("Payor2","subscription_3");}});
         assertNotNull(result);
         assertTrue(result.contains(QUEUED_STATUS));
         assertTrue(result.contains(NOTIFICATION_SUBSCRIBE));
-        assertTrue(result.contains("hcx-apollo-12345"));
+        assertTrue(result.contains("hcx-participant-12345"));
         assertTrue(result.contains("hcx-notification-001"));
-        assertTrue(result.contains("icici-67890"));
+        assertTrue(result.contains("hcx-participant-67890"));
     }
 
     @Test
@@ -208,18 +214,23 @@ public class EventGeneratorTest {
     }
 
     @Test
-    public void testGenerateOnSubscriptionAuditEvent() {
-        Map<String,Object> resultMap = eventGenerator.generateOnSubscriptionAuditEvent(NOTIFICATION_ON_SUBSCRIBE,"hcx-apollo-12345","subscription_id-001",QUEUED_STATUS,"icici-67890","Active");
+    public void testGenerateOnSubscriptionAuditEvent() throws Exception {
+        Map<String,Object> requestBody = new HashMap<>();
+        requestBody.put(SUBSCRIPTION_ID, "subscription_id-001");
+        requestBody.put(SUBSCRIPTION_STATUS, ACTIVE);
+        requestBody.put(SENDER_CODE, "hcx-participant-67890");
+        Request request = new Request(requestBody, NOTIFICATION_ON_SUBSCRIBE);
+        Map<String,Object> resultMap = eventGenerator.generateOnSubscriptionAuditEvent(request, "hcx-participant-12345", "subscription_id-001", QUEUED_STATUS,"Active");
         assertNotNull(resultMap);
-        assertEquals(AUDIT,resultMap.get(EID));
+        assertEquals(AUDIT, resultMap.get(EID));
         assertNotNull(resultMap.get(MID));
-        assertEquals(NOTIFICATION_ON_SUBSCRIBE,resultMap.get(ACTION));
-        assertEquals(ACTIVE,resultMap.get(SUBSCRIPTION_STATUS));
-        assertEquals("hcx-apollo-12345",resultMap.get(HCX_RECIPIENT_CODE));
-        assertEquals("icici-67890",resultMap.get(HCX_SENDER_CODE));
-        assertEquals("subscription_id-001",resultMap.get(SUBSCRIPTION_ID));
+        assertEquals(NOTIFICATION_ON_SUBSCRIBE, resultMap.get(ACTION));
+        assertEquals(ACTIVE, resultMap.get(SUBSCRIPTION_STATUS));
+        assertEquals("hcx-participant-12345", resultMap.get(HCX_RECIPIENT_CODE));
+        assertEquals("hcx-participant-67890", resultMap.get(HCX_SENDER_CODE));
+        assertEquals("subscription_id-001", resultMap.get(SUBSCRIPTION_ID));
         assertNotNull(resultMap.get(ETS));
-        assertEquals(QUEUED_STATUS,resultMap.get(AUDIT_STATUS));
+        assertEquals(QUEUED_STATUS, resultMap.get(STATUS));
     }
 
     @Test
@@ -234,6 +245,32 @@ public class EventGeneratorTest {
         assertEquals("participant", ((Map<String,Object>) resultMap.get(OBJECT)).get(TYPE));
         assertEquals(PARTICIPANT_CREATE, ((Map<String,Object>) resultMap.get(CDATA)).get(ACTION));
         assertEquals(CREATED, ((Map<String,Object>) resultMap.get(EDATA)).get(AUDIT_STATUS));
+    }
+
+    @Test
+    public void testGenerateSubscriptionUpdateAuditEvent() throws Exception {
+        Map<String,Object> requestBody = new HashMap<>();
+        requestBody.put(SENDER_CODE, "hcx-participant-67890");
+        requestBody.put(RECIPIENT_CODE, "hcx-participant-12345");
+        requestBody.put(TOPIC_CODE, "topic-001");
+        requestBody.put(SUBSCRIPTION_STATUS, ACTIVE);
+        Request request = new Request(requestBody, NOTIFICATION_SUBSCRIPTION_UPDATE);
+
+        Response response = new Response();
+        response.setSubscriptionId("subscription_id-001");
+        response.setSubscriptionStatus(ACTIVE);
+
+        Map<String,Object> resultMap = eventGenerator.generateSubscriptionUpdateAuditEvent(request, response);
+        assertNotNull(resultMap);
+        assertEquals(AUDIT, resultMap.get(EID));
+        assertNotNull(resultMap.get(MID));
+        assertEquals(NOTIFICATION_SUBSCRIPTION_UPDATE, resultMap.get(ACTION));
+        assertEquals(ACTIVE, resultMap.get(SUBSCRIPTION_STATUS));
+        assertEquals("hcx-participant-12345", resultMap.get(HCX_RECIPIENT_CODE));
+        assertEquals("hcx-participant-67890", resultMap.get(HCX_SENDER_CODE));
+        assertEquals("subscription_id-001", resultMap.get(SUBSCRIPTION_ID));
+        assertNotNull(resultMap.get(ETS));
+        assertEquals(QUEUED_STATUS, resultMap.get(STATUS));
     }
 
 }

@@ -151,20 +151,19 @@ public class NotificationService {
         kafkaClient.send(onSubscriptionTopic, request.getSenderCode(), subscriptionMessage);
 
         //Create audit event
-        auditIndexer.createDocument(eventGenerator.generateOnSubscriptionAuditEvent(request.getApiAction(), subscription.getRecipient_code(), subscriptionId, QUEUED_STATUS, request.getSenderCode(), statusCode));
+        auditIndexer.createDocument(eventGenerator.generateOnSubscriptionAuditEvent(request, subscription.getRecipient_code(), subscriptionId, QUEUED_STATUS, statusCode));
         //Set the response data
         response.setSubscriptionId(subscriptionId);
     }
 
     public void processSubscription(Request request, String statusCode, Response response) throws Exception {
-        List<String> senderList = request.getSenderList();
         //Key as senderCode and value as subscriptionId generated for each sender code
-        Map<String, String> subscriptionMap = insertRecords(request.getTopicCode(), statusCode, senderList, request.getRecipientCode());
+        Map<String, String> subscriptionMap = insertRecords(request.getTopicCode(), statusCode, request.getSenderList(), request.getRecipientCode());
         //Push the event to kafka
-        String subscriptionMessage = eventGenerator.generateSubscriptionEvent(request.getApiAction(), request.getRecipientCode(), request.getTopicCode(), senderList, subscriptionMap);
+        String subscriptionMessage = eventGenerator.generateSubscriptionEvent(request, subscriptionMap);
         kafkaClient.send(subscriptionTopic, request.getRecipientCode(), subscriptionMessage);
         //Create audit event
-        auditIndexer.createDocument(eventGenerator.generateSubscriptionAuditEvent(request, QUEUED_STATUS, senderList));
+        auditIndexer.createDocument(eventGenerator.generateSubscriptionAuditEvent(request, QUEUED_STATUS, request.getSenderList()));
         //Set the response data
         List<String> subscriptionList = new ArrayList<>(subscriptionMap.values());
         response.setSubscription_list(subscriptionList);
@@ -229,6 +228,7 @@ public class NotificationService {
             });
             eventHandler.createAudit(eventGenerator.createAuditLog(response.getSubscriptionId(), NOTIFICATION, getCData(request),
                     getEData(response.getSubscriptionStatus(), prevStatus, updatedProps)));
+            auditIndexer.createDocument(eventGenerator.generateSubscriptionUpdateAuditEvent(request, response));
         } else {
             throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, SUBSCRIPTION_DOES_NOT_EXIST);
         }
