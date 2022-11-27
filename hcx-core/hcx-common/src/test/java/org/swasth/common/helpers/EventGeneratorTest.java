@@ -74,13 +74,33 @@ public class EventGeneratorTest {
     public Request getRequest() throws Exception {
         Map<String,Object> obj = new HashMap<>();
         obj.put("payload","eyJlbmMiOiJBMjU2R0NNIiwKImFsZyI6IlJTQS1PQUVQIiwKIngtaGN4LXNlbmRlcl9jb2RlIjoiIiwKIngtaGN4LXJlY2lwaWVudF9jb2RlIjoiMS0yNzk5YjZhNC1jZjJkLTQ1ZmUtYTVlMS01ZjFjODI5NzllMGQiLAoieC1oY3gtcmVxdWVzdF9pZCI6IjI2YjEwNjBjLTFlODMtNDYwMC05NjEyLWVhMzFlMGNhNTA5MSIsCiJ4LWhjeC1jb3JyZWxhdGlvbl9pZCI6IjVlOTM0ZjkwLTExMWQtNGYwYi1iMDE2LWMyMmQ4MjA2NzRlMSIsCiJ4LWhjeC10aW1lc3RhbXAiOiIyMDIyLTAxLTA2VDA5OjUwOjIzKzAwIiwKIngtaGN4LXN0YXR1cyI6InJlcXVlc3QuaW5pdGlhdGUiLAoieC1oY3gtd29ya2Zsb3dfaWQiOiIxZTgzLTQ2MGEtNGYwYi1iMDE2LWMyMmQ4MjA2NzRlMSIsCiJ4LWhjeC1kZWJ1Z19mbGFnIjoiSW5mbyIsCiJ4LWhjeC1lcnJvcl9kZXRhaWxzIjp7ImVycm9yLmNvZGUiOiAiYmFkLmlucHV0IiwgImVycm9yLm1lc3NhZ2UiOiAiUHJvdmlkZXIgY29kZSBub3QgZm91bmQiLCAidHJhY2UiOiAiIn0sCiJ4LWhjeC1kZWJ1Z19kZXRhaWxzIjp7ImVycm9yLmNvZGUiOiAiYmFkLmlucHV0IiwgImVycm9yLm1lc3NhZ2UiOiAiUHJvdmlkZXIgY29kZSBub3QgZm91bmQiLCJ0cmFjZSI6IiJ9LAoiandzX2hlYWRlciI6eyJ0eXAiOiJKV1QiLCAiYWxnIjoiUlMyNTYifSwKImp3ZV9oZWFkZXIiOnsiYWxnIjoiUlNBLU9BRVAiLCJlbmMiOiJBMjU2R0NNIn0KfQ==.6KB707dM9YTIgHtLvtgWQ8mKwboJW3of9locizkDTHzBC2IlrT1oOQ.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.AxY8DCtDaGlsbGljb3RoZQ.KDlTtXchhZTGufMYmOYGS4HffxPSUrfmqCHXaI9wOGY.Mz-VPPyU4RlcuYv1IwIvzw");
+        Map<String,Object> senderDetails = new HashMap<>();
+        senderDetails.put(SENDER_ROLE,List.of("payor"));
+        senderDetails.put(PARTICIPANT_NAME,"new-payor-3");
+        senderDetails.put(SENDER_PRIMARY_EMAIL,"newpayor003@gmail.com");
+        Map<String,Object> recipentDetails = new HashMap<>();
+        recipentDetails.put(RECIPIENT_ROLE,List.of("payor"));
+        recipentDetails.put(PARTICIPANT_NAME,"New payor 2");
+        recipentDetails.put(RECIPIENT_PRIMARY_EMAIL,"newpayor002@gmail.com");
         Request request = new Request(obj, COVERAGE_ELIGIBILITY_CHECK);
+        obj.put(SENDERDETAILS,senderDetails);
+        obj.put(RECIPIENTDETAILS,recipentDetails);
         request.setApiAction("/test");
         return request;
     }
 
     public Request getJSONRequest(String status) throws Exception {
         Map<String,Object> obj = new HashMap<>();
+        Map<String,Object> senderDetails = new HashMap<>();
+        senderDetails.put(SENDER_ROLE,List.of("payor"));
+        senderDetails.put(PARTICIPANT_NAME,"new-payor-3");
+        senderDetails.put(SENDER_PRIMARY_EMAIL,"newpayor003@gmail.com");
+        Map<String,Object> recipentDetails = new HashMap<>();
+        recipentDetails.put(RECIPIENT_ROLE,List.of("payor"));
+        recipentDetails.put(PARTICIPANT_NAME,"New payor 2");
+        recipentDetails.put(RECIPIENT_PRIMARY_EMAIL,"newpayor002@gmail.com");
+        obj.put(SENDERDETAILS,senderDetails);
+        obj.put(RECIPIENTDETAILS,recipentDetails);
         obj.put("x-hcx-status",status);
         obj.put("x-hcx-sender_code","1-0756766c-ad43-4145-86ea-d1b17b729a3f");
         obj.put("x-hcx-recipient_code","1-68c5deca-8299-4feb-b441-923bb649a9a3");
