@@ -11,3 +11,4 @@
 # gitignore for Gradle project(s).
 **/.gradle/**
 **/lib/build/**
+dependency-reduced-pom.xml

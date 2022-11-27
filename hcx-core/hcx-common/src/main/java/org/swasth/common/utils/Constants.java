@@ -117,12 +117,10 @@ public class Constants {
     public static final String SENDER_PRIMARY_EMAIL = "senderPrimaryEmail";
     public static final String RECIPIENT_PRIMARY_EMAIL = "recipientPrimaryEmail";
     public static final String API_CALL_ID = "x-hcx-api_call_id";
-
     public static final String CORRELATION_ID = "x-hcx-correlation_id";
     public static final String WORKFLOW_ID = "x-hcx-workflow_id";
     public static final String TIMESTAMP = "x-hcx-timestamp";
     public static final String DEBUG_FLAG = "x-hcx-debug_flag";
-
     public static final String STATUS = "x-hcx-status";
     public static final String ERROR_DETAILS = "x-hcx-error_details";
     public static final String DEBUG_DETAILS = "x-hcx-debug_details";
@@ -155,7 +153,6 @@ public class Constants {
     public static final String OFFSET = "offset";
     public static final String START_DATETIME = "start_datetime";
     public static final String STOP_DATETIME = "stop_datetime";
-
     public static final String SEARCH_REQ ="x-hcx-search";
     public static final String SEARCH_RESP = "x-hcx-search_response";
     public static final List<String> SEARCH_REQ_KEYS = Arrays.asList("filters","time_period");
@@ -185,7 +182,6 @@ public class Constants {
     public static final String BROADCAST = "Broadcast";
     public static final String WORKFLOW = "Workflow";
     public static final String NETWORK = "Network";
-
     public static final String TOPIC_CODE = "topic_code";
     public static final List<String> ALLOWED_NOTIFICATION_FILTER_PROPS = Arrays.asList(CATEGORY, PRIORITY);
     public static final String RECIPIENT = "Recipient";
