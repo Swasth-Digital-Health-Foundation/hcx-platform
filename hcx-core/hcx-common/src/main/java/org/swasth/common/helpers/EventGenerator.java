@@ -3,6 +3,7 @@ package org.swasth.common.helpers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.StringUtils;
 import org.swasth.common.dto.Request;
+import org.swasth.common.dto.Response;
 import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.utils.JWTUtils;
@@ -123,6 +124,53 @@ public class EventGenerator {
         return  event;
     }
 
+    public Map<String,Object> createAuditLog(String id, String objectType, Map<String,Object> cdata, Map<String,Object> edata) {
+        Map<String,Object> event = new HashMap<>();
+        event.put(EID, AUDIT);
+        event.put(ETS, System.currentTimeMillis());
+        event.put(MID, UUID.randomUUID().toString());
+        Map<String,Object> objectMap = new HashMap<>();
+        objectMap.put(ID, id);
+        objectMap.put(TYPE, objectType);
+        event.put(OBJECT, objectMap);
+        event.put(CDATA, cdata);
+        event.put(EDATA, edata);
+        return event;
+    }
+
+    public String generateOnSubscriptionEvent(String apiAction,String recipientCode,String senderCode,String subscriptionId,String status) throws JsonProcessingException {
+        Map<String,Object> event = new HashMap<>();
+        event.put(MID, UUID.randomUUID().toString());
+        event.put(ETS, System.currentTimeMillis());
+        event.put(ACTION, apiAction);
+        event.put(AUDIT_STATUS, QUEUED_STATUS);
+        event.put(PAYLOAD, createOnSubscriptionPayload(subscriptionId,status));
+        event.put(HCX_RECIPIENT_CODE,recipientCode);
+        event.put(HCX_SENDER_CODE, senderCode);
+        return JSONUtils.serialize(event);
+    }
+
+    public Map<String,Object> generateOnSubscriptionAuditEvent(Request request, String recipientCode, String subscriptionId, String status, String subscriptionStatus) {
+        Map<String,Object> event = new HashMap<>();
+        event.put(EID, AUDIT);
+        event.put(MID, request.getMid());
+        event.put(ACTION, request.getApiAction());
+        event.put(SUBSCRIPTION_ID, subscriptionId);
+        event.put(SUBSCRIPTION_STATUS, subscriptionStatus);
+        event.put(HCX_SENDER_CODE, request.getSenderCode());
+        event.put(HCX_RECIPIENT_CODE, recipientCode);
+        event.put(ETS, System.currentTimeMillis());
+        event.put(STATUS, status);
+        return  event;
+    }
+
+    private Map<String,Object> createOnSubscriptionPayload(String subscriptionId, String status) {
+        Map<String,Object> event = new HashMap<>();
+        event.put(SUBSCRIPTION_ID,subscriptionId);
+        event.put(SUBSCRIPTION_STATUS,status);
+        return event;
+    }
+
     public String createNotifyEvent(String topicCode, String senderCode, String recipientType, List<String> recipients, long expiry, String message, String privateKey) throws Exception {
         Map<String,Object> notificationHeaders = new HashMap<>();
         notificationHeaders.put(SENDER_CODE, senderCode);
@@ -152,61 +200,14 @@ public class EventGenerator {
         return JSONUtils.serialize(event);
     }
 
-    public Map<String,Object> createAuditLog(String id, String objectType, Map<String,Object> cdata, Map<String,Object> edata) {
+    public String generateSubscriptionEvent(Request request, Map<String, String> subscriptionMap) throws JsonProcessingException {
         Map<String,Object> event = new HashMap<>();
-        event.put(EID, AUDIT);
+        event.put(MID, request.getMid());
         event.put(ETS, System.currentTimeMillis());
-        event.put(MID, UUID.randomUUID().toString());
-        Map<String,Object> objectMap = new HashMap<>();
-        objectMap.put(ID, id);
-        objectMap.put(TYPE, objectType);
-        event.put(OBJECT, objectMap);
-        event.put(CDATA, cdata);
-        event.put(EDATA, edata);
-        return event;
-    }
-
-    public String generateOnSubscriptionEvent(String apiAction,String recipientCode,String senderCode,String subscriptionId,String status) throws JsonProcessingException {
-        Map<String,Object> event = new HashMap<>();
-        event.put(MID, UUID.randomUUID().toString());
-        event.put(ETS, System.currentTimeMillis());
-        event.put(ACTION, apiAction);
+        event.put(ACTION, request.getApiAction());
         event.put(AUDIT_STATUS, QUEUED_STATUS);
-        event.put(PAYLOAD, createOnSubscriptionPayload(subscriptionId,status));
-        event.put(HCX_RECIPIENT_CODE,recipientCode);
-        event.put(HCX_SENDER_CODE, senderCode);
-        return JSONUtils.serialize(event);
-    }
-
-    public Map<String,Object> generateOnSubscriptionAuditEvent(String apiAction,String recipientCode,String subscriptionId,String status,String senderCode,String subscriptionStatus) {
-        Map<String,Object> event = new HashMap<>();
-        event.put(EID, AUDIT);
-        event.put(MID, UUID.randomUUID().toString());
-        event.put(ACTION, apiAction);
-        event.put(SUBSCRIPTION_ID, subscriptionId);
-        event.put(SUBSCRIPTION_STATUS, subscriptionStatus);
-        event.put(HCX_SENDER_CODE,senderCode);
-        event.put(HCX_RECIPIENT_CODE,recipientCode);
-        event.put(ETS,System.currentTimeMillis());
-        event.put(AUDIT_STATUS, status);
-        return  event;
-    }
-
-    private Map<String,Object> createOnSubscriptionPayload(String subscriptionId, String status) {
-        Map<String,Object> event = new HashMap<>();
-        event.put(SUBSCRIPTION_ID,subscriptionId);
-        event.put(SUBSCRIPTION_STATUS,status);
-        return event;
-    }
-
-    public String generateSubscriptionEvent(String apiAction,String recipientCode,String topicCode,List<String> senderList,Map<String, String> subscriptionMap) throws JsonProcessingException {
-        Map<String,Object> event = new HashMap<>();
-        event.put(MID, UUID.randomUUID().toString());
-        event.put(ETS, System.currentTimeMillis());
-        event.put(ACTION, apiAction);
-        event.put(AUDIT_STATUS, QUEUED_STATUS);
-        event.put(PAYLOAD, createSubscriptionPayload(topicCode,senderList,subscriptionMap));
-        event.put(HCX_SENDER_CODE,recipientCode);
+        event.put(PAYLOAD, createSubscriptionPayload(request.getTopicCode(), request.getSenderList(),subscriptionMap));
+        event.put(HCX_SENDER_CODE, request.getRecipientCode());
         return JSONUtils.serialize(event);
     }
 
@@ -221,13 +222,32 @@ public class EventGenerator {
     public Map<String,Object> generateSubscriptionAuditEvent(Request request,String status,List<String> senderList) {
         Map<String,Object> event = new HashMap<>();
         event.put(EID, AUDIT);
-        event.put(MID, UUID.randomUUID().toString());
+        event.put(MID, request.getMid());
         event.put(ACTION, request.getApiAction());
         event.put(TOPIC_CODE,request.getTopicCode() == null ? "" : request.getTopicCode());
         event.put(SENDER_LIST,senderList);
         event.put(HCX_RECIPIENT_CODE,request.getRecipientCode());
         event.put(ETS,System.currentTimeMillis());
-        event.put(AUDIT_STATUS, status);
+        event.put(STATUS, status);
+        return  event;
+    }
+
+    public Map<String,Object> generateSubscriptionUpdateAuditEvent(Request request, Response response) {
+        Map<String,Object> event = new HashMap<>();
+        event.put(EID, AUDIT);
+        event.put(MID, request.getMid());
+        event.put(ETS, System.currentTimeMillis());
+        event.put(ACTION, request.getApiAction());
+        event.put(TOPIC_CODE, request.getTopicCode() == null ? "" : request.getTopicCode());
+        event.put(HCX_RECIPIENT_CODE, request.getRecipientCode());
+        event.put(HCX_SENDER_CODE, request.getSenderCode());
+        event.put(SUBSCRIPTION_ID, response.getSubscriptionId());
+        event.put(SUBSCRIPTION_STATUS, response.getSubscriptionStatus());
+        if(request.getHcxHeaders().containsKey(EXPIRY))
+            event.put(EXPIRY, request.getExpiry());
+        if(request.getHcxHeaders().containsKey(IS_DELEGATED))
+            event.put(IS_DELEGATED, request.getIsDelegated());
+        event.put(STATUS, QUEUED_STATUS);
         return  event;
     }
 

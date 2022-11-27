@@ -226,6 +226,10 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
     audit.put(Constants.ETS, Calendar.getInstance().getTime())
     audit.put(Constants.SENDER_ROLE, getCDataListValue(event, Constants.SENDER, Constants.ROLES))
     audit.put(Constants.RECIPIENT_ROLE, getCDataListValue(event, Constants.RECIPIENT, Constants.ROLES))
+    audit.put(Constants.SENDER_NAME, getCDataStringValue(event, Constants.SENDER, Constants.PARTICIPANT_NAME))
+    audit.put(Constants.RECIPIENT_NAME, getCDataStringValue(event, Constants.RECIPIENT, Constants.PARTICIPANT_NAME))
+    audit.put(Constants.SENDER_PRIMARY_EMAIL, getCDataStringValue(event, Constants.SENDER, Constants.PRIMARY_EMAIL))
+    audit.put(Constants.RECIPIENT_PRIMARY_EMAIL, getCDataStringValue(event, Constants.RECIPIENT, Constants.PRIMARY_EMAIL))
     audit.put(Constants.PAYLOAD, removeSensitiveData(payload))
     audit
   }
