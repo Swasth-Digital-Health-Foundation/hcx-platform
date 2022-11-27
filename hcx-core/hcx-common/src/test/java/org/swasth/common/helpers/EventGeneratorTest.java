@@ -267,7 +267,6 @@ public class EventGeneratorTest {
         assertEquals(CREATED, ((Map<String,Object>) resultMap.get(EDATA)).get(AUDIT_STATUS));
     }
 
-}
     @Test
     public void testGenerateSubscriptionUpdateAuditEvent() throws Exception {
         Map<String,Object> requestBody = new HashMap<>();
