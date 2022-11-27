@@ -19,7 +19,7 @@
       "type":"keyword"
     },
     "x-hcx-timestamp":{
-      "type":"keyword"
+      "type":"date"
     },
     "mid":{
       "type":"keyword"

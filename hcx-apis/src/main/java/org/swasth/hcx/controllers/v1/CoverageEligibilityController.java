@@ -28,7 +28,6 @@ public class CoverageEligibilityController extends BaseController {
 
     @Autowired
     private RegistryService registryService;
-    
     @PostMapping(Constants.COVERAGE_ELIGIBILITY_CHECK)
     public ResponseEntity<Object> checkCoverageEligibility(@RequestBody Map<String, Object> requestBody) throws Exception {
         return validateReqAndPushToKafka(requestBody, Constants.COVERAGE_ELIGIBILITY_CHECK, kafkaTopic);
