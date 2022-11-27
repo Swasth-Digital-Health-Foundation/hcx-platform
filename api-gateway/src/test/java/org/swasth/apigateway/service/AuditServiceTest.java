@@ -7,6 +7,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.swasth.apigateway.models.BaseRequest;
 import org.swasth.auditindexer.function.AuditIndexer;
+import org.swasth.common.helpers.EventGenerator;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -24,11 +25,8 @@ class AuditServiceTest{
     @MockBean
     private AuditIndexer auditIndexer;
 
-    @Test
-    void check_audit_event_generation() throws Exception {
-        Map<String,Object> result = auditService.createAuditEvent(getRequest());
-        assertFalse(result.isEmpty());
-    }
+    @MockBean
+    private EventGenerator eventGenerator;
 
     @Test
     void check_audit_log_creation() throws Exception {

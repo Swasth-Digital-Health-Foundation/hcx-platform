@@ -299,15 +299,15 @@ public class BaseRequest {
         return senderRole;
     }
     public String getSenderName(){
-        return senderName;
+        return senderName == null ? "" : senderName;
     }
     public String getRecipientName(){
-        return recipientName;
+        return recipientName == null ? "" : recipientName;
     }
     public String getSenderPrimaryEmail(){
-        return senderPrimaryEmail;
+        return senderPrimaryEmail == null ? "" :senderPrimaryEmail;
     }
-    public String getRecipientPrimaryEmail(){return recipientPrimaryEmail   ;}
+    public String getRecipientPrimaryEmail(){return recipientPrimaryEmail == null ? "" : recipientPrimaryEmail ;}
     public List<String> getRecipientRole() {
         return recipientRole;
     }

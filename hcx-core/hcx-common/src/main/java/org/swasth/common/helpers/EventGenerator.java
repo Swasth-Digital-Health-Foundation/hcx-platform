@@ -20,6 +20,9 @@ public class EventGenerator {
     private List<String> errorHeaders;
     private List<String> notificationHeaders;
 
+    public EventGenerator(){
+    }
+
     public EventGenerator(List<String> protocolHeaders, List<String> joseHeaders, List<String> redirectHeaders, List<String> errorHeaders,List<String> notificationHeaders) {
         this.protocolHeaders = protocolHeaders;
         this.joseHeaders = joseHeaders;

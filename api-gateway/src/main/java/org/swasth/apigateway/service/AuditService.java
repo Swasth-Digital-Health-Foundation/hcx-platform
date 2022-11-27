@@ -12,6 +12,8 @@ import org.swasth.apigateway.exception.ServerException;
 import org.swasth.apigateway.models.BaseRequest;
 import org.swasth.apigateway.utils.Utils;
 import org.swasth.auditindexer.function.AuditIndexer;
+import org.swasth.common.dto.Request;
+import org.swasth.common.helpers.EventGenerator;
 import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.HttpUtils;
 import org.swasth.common.utils.JSONUtils;
@@ -35,6 +37,9 @@ public class AuditService {
     @Autowired
     private AuditIndexer auditIndexer;
 
+    @Autowired
+    private EventGenerator eventGenerator;
+
     public List<Map<String, Object>> getAuditLogs(Map<String,String> filters) throws Exception {
         String url = hcxApiUrl + "/" + internalVersion + Constants.AUDIT_SEARCH;
         HttpResponse response;
@@ -54,34 +59,13 @@ public class AuditService {
     }
 
     public void createAuditLog(BaseRequest request) throws Exception {
-        auditIndexer.createDocument(createAuditEvent(request));
+        Request req = new Request(request.getPayload(), request.getApiAction().replaceAll("/" + internalVersion, ""));
+        req.setStatus(ERROR_STATUS);
+        req.setErrorDetails(request.getErrorDetails());
+        auditIndexer.createDocument(eventGenerator.generateAuditEvent(req));
     }
 
     public void updateAuditLog(Map<String,Object> event) throws Exception {
         auditIndexer.createDocument(event);
     }
-
-    public Map<String,Object> createAuditEvent(BaseRequest request) {
-        Map<String,Object> event = new HashMap<>();
-        event.put(EID, AUDIT);
-        event.put(HCX_RECIPIENT_CODE, request.getHcxRecipientCode());
-        event.put(HCX_SENDER_CODE, request.getHcxSenderCode());
-        event.put(API_CALL_ID, request.getApiCallId());
-        event.put(CORRELATION_ID, request.getCorrelationId());
-        event.put(WORKFLOW_ID, request.getWorkflowId());
-        event.put(TIMESTAMP, request.getTimestamp());
-        event.put(ERROR_DETAILS, request.getErrorDetails());
-        event.put(DEBUG_DETAILS, request.getDebugDetails());
-        event.put(MID, UUIDUtils.getUUID());
-        event.put(ACTION, request.getApiAction().replaceAll("/" + internalVersion, ""));
-        event.put(STATUS, ERROR_STATUS);
-        event.put(REQUESTED_TIME, System.currentTimeMillis());
-        event.put(UPDATED_TIME, System.currentTimeMillis());
-        event.put(ETS, System.currentTimeMillis());
-        event.put(SENDER_ROLE, request.getSenderRole());
-        event.put(RECIPIENT_ROLE, request.getRecipientRole());
-        event.put(PAYLOAD, request.getPayloadWithoutSensitiveData());
-        return event;
-    }
-
 }

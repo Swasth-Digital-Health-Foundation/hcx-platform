@@ -80,19 +80,19 @@ public class Request {
     }
 
     public String getSenderName() {
-        return (String) senderDetails().get(PARTICIPANT_NAME);
+        return senderDetails().isEmpty() ? "" : (String) senderDetails().get(PARTICIPANT_NAME);
     }
 
     public String getRecipientName() {
-        return (String) recipientDetails().get(PARTICIPANT_NAME);
+        return recipientDetails().isEmpty() ? "" : (String) recipientDetails().get(PARTICIPANT_NAME);
     }
 
     public String getSenderPrimaryEmail() {
-        return (String) senderDetails().get(PRIMARY_EMAIL);
+        return senderDetails().isEmpty() ? "" : (String) senderDetails().get(PRIMARY_EMAIL);
     }
 
     public String getRecipientPrimaryEmail() {
-        return (String) recipientDetails().get(PRIMARY_EMAIL);
+        return recipientDetails().isEmpty() ? "" : (String) recipientDetails().get(PRIMARY_EMAIL);
     }
 
     public String getTimestamp() {
@@ -108,6 +108,10 @@ public class Request {
     }
 
     public void  setStatus(String status) { setHeaderMap(STATUS, status);}
+
+    public void setErrorDetails(Map<String,Object> errorDetails){
+        setHeaderMap(ERROR_DETAILS, errorDetails);
+    }
     public Map<String, Object> getHcxHeaders() {
         return hcxHeaders;
     }
@@ -184,13 +188,14 @@ public class Request {
 
     public String getSubscriptionId() { return (String) payload.get(SUBSCRIPTION_ID); }
 
-    public List<String> getSenderRole() { return (List<String>) senderDetails().get(ROLES); }
+    public List<String> getSenderRole() { return senderDetails().isEmpty() ? new ArrayList<>() : (List<String>) senderDetails().get(ROLES); }
 
-    public List<String> getRecipientRole() { return (List<String>) recipientDetails().get(ROLES); }
+    public List<String> getRecipientRole() { return recipientDetails().isEmpty() ? new ArrayList<>() : (List<String>) recipientDetails().get(ROLES);
+    }
 
-    public Map<String, Object> senderDetails() { return (Map<String, Object>) payload.get(SENDERDETAILS); }
+    public Map<String, Object> senderDetails() { return (Map<String, Object>) payload.getOrDefault(SENDERDETAILS,new HashMap<>()); }
     public Map<String, Object> recipientDetails() {
-        return (Map<String, Object>) payload.get(RECIPIENTDETAILS);
+        return (Map<String, Object>) payload.getOrDefault(RECIPIENTDETAILS,new HashMap<>());
     }
 }
 
