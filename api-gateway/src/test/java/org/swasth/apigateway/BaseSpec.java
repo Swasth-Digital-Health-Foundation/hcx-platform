@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.web.server.LocalServerPort;
@@ -15,6 +16,7 @@ import org.swasth.apigateway.config.GenericConfiguration;
 import org.swasth.apigateway.service.AuditService;
 import org.swasth.apigateway.service.RegistryService;
 import org.swasth.auditindexer.function.AuditIndexer;
+import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.utils.JWTUtils;
 import org.swasth.redis.cache.RedisCache;
@@ -258,7 +260,7 @@ public class BaseSpec {
     protected String getInvalidSubscriptionRequest(boolean hasTopic) throws JsonProcessingException {
         Map<String,Object> obj = new HashMap<>();
         if(hasTopic)
-        obj.put(TOPIC_CODE,"topicCode");
+            obj.put(TOPIC_CODE,"topicCode");
         else obj.put(SENDER_LIST,Arrays.asList("new-payor-3"));
         return JSONUtils.serialize(obj);
     }

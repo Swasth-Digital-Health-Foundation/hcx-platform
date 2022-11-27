@@ -59,4 +59,5 @@ public class GenericConfiguration {
     public JWTUtils jwtUtils() throws IOException {
         return new JWTUtils();
     }
+
 }

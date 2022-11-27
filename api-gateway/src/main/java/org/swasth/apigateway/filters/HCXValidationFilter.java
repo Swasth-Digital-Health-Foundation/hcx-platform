@@ -39,7 +39,6 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
 
     private static final Logger logger = LoggerFactory.getLogger(HCXValidationFilter.class);
 
-
     @Autowired
     RegistryService registryService;
 
@@ -94,7 +93,6 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                 path = request.getPath().value();
                 String subject = request.getHeaders().getFirst("X-jwt-sub");
                 requestBody = JSONUtils.deserialize(cachedBody.toString(), HashMap.class);
-
                 if (path.contains(NOTIFICATION_NOTIFY)) { //for validating notify api request
                     JSONRequest jsonRequest = new JSONRequest(requestBody, false, path, hcxCode, hcxRoles);
                     jsonRequest.setHeaders(jsonRequest.getNotificationHeaders());

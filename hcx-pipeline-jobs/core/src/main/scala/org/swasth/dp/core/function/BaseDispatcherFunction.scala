@@ -227,7 +227,6 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
     audit.put(Constants.SENDER_ROLE, getCDataListValue(event, Constants.SENDER, Constants.ROLES))
     audit.put(Constants.RECIPIENT_ROLE, getCDataListValue(event, Constants.RECIPIENT, Constants.ROLES))
     audit.put(Constants.PAYLOAD, removeSensitiveData(payload))
-    audit.put(Constants.SENDERNAME,event.g)
     audit
   }
 

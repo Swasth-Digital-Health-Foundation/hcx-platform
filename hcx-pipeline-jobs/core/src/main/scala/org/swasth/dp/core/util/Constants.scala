@@ -112,7 +112,6 @@ object Constants {
   val PARTICIPANT_ROLE = "participant_role"
   val RECIPIENTS = "recipients"
   val CORRELATIONID = "correlation_id"
-  val SENDERNAME ="sender_name"
 
   // Notification topic codes
   val PARTICIPANT_ONBOARD = "notif-participant-onboarded"

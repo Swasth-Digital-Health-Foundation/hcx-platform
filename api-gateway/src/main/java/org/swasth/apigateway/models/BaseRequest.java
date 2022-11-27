@@ -36,10 +36,14 @@ public class BaseRequest {
     private String payloadWithoutSensitiveData = null;
     private String hcxRoles;
     private String hcxCode;
-    private String sender_name;
-    private String recipient_name;
-    private String sender_primary_email;
-    private String recipient_primary_email ;
+
+    private String senderName;
+
+    private String recipientName;
+
+    private String senderPrimaryEmail;
+
+    private String recipientPrimaryEmail ;
 
     public BaseRequest() {
     }
@@ -72,10 +76,10 @@ public class BaseRequest {
     public void validate(List<String> mandatoryHeaders, String subject, int timestampRange, Map<String, Object> senderDetails, Map<String, Object> recipientDetails ) throws Exception {
         senderRole = (ArrayList<String>) senderDetails.get(ROLES);
         recipientRole = (ArrayList<String>) recipientDetails.get(ROLES);
-        sender_name = (String) senderDetails.get(PARTICIPANT_NAME);
-        recipient_name = (String) recipientDetails.get(PARTICIPANT_NAME);
-        sender_primary_email = (String) senderDetails.get(PRIMARY_EMAIL);
-        recipient_primary_email = (String) recipientDetails.get(PRIMARY_EMAIL);
+        senderName = (String) senderDetails.get(PARTICIPANT_NAME);
+        recipientName = (String) recipientDetails.get(PARTICIPANT_NAME);
+        senderPrimaryEmail = (String) senderDetails.get(PRIMARY_EMAIL);
+        recipientPrimaryEmail = (String) recipientDetails.get(PRIMARY_EMAIL);
         for (Map.Entry<String, ClientException> entry : getResponseParamErrors().entrySet()) {
             validateHeader(protocolHeaders, entry.getKey(), entry.getValue());
         }
@@ -224,7 +228,6 @@ public class BaseRequest {
         if (isForwardReq && !apiAction.contains("on_") && recipientRoles.contains(PROVIDER)) {
             throw new ClientException(ErrorCodes.ERR_INVALID_FORWARD_REQ, INVALID_FORWARD_TO_PROVIDER);
         }
-
     }
 
     public String getWorkflowId() {
@@ -247,7 +250,7 @@ public class BaseRequest {
         return getHeader(HCX_RECIPIENT_CODE);
     }
 
-   public String getTimestamp() {
+    public String getTimestamp() {
         return getHeader(TIMESTAMP);
     }
 
@@ -298,15 +301,15 @@ public class BaseRequest {
         return senderRole;
     }
     public String getSenderName(){
-        return sender_name;
+        return senderName;
     }
     public String getRecipientName(){
-        return recipient_name;
+        return recipientName;
     }
     public String getSenderPrimaryEmail(){
-        return sender_primary_email;
+        return senderPrimaryEmail;
     }
-    public String getRecipientPrimaryEmail(){return recipient_primary_email;}
+    public String getRecipientPrimaryEmail(){return recipientPrimaryEmail   ;}
     public List<String> getRecipientRole() {
         return recipientRole;
     }

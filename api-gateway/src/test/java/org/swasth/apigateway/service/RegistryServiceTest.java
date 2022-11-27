@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
-import org.swasth.common.service.RegistryService;
 import org.swasth.redis.cache.RedisCache;
 
 import java.io.IOException;
@@ -30,7 +29,7 @@ class RegistryServiceTest {
     private RedisServer redisServer;
 
     @Autowired
-    private org.swasth.apigateway.service.RegistryService registryService;
+    private RegistryService registryService;
 
     @MockBean
     private RedisCache redisCache;

@@ -9,43 +9,41 @@ import org.springframework.stereotype.Component;
 import org.swasth.auditindexer.function.AuditIndexer;
 import org.swasth.common.dto.Request;
 import org.swasth.common.helpers.EventGenerator;
-import org.swasth.common.service.RegistryService;
 import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.kafka.client.IEventService;
 import org.swasth.postgresql.IDatabaseService;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import static org.swasth.common.utils.Constants.*;
+import static org.swasth.common.utils.Constants.KAFKA_TOPIC_PAYLOAD;
+import static org.swasth.common.utils.Constants.QUEUED_STATUS;
 
 @Component
 public class EventHandler {
+
     private static final Logger logger = LoggerFactory.getLogger(EventHandler.class);
+
     @Autowired
     protected Environment env;
+
     @Autowired
     private IEventService kafkaClient;
+
     @Autowired
     protected IDatabaseService postgreSQLClient;
+
     @Autowired
     protected AuditIndexer auditIndexer;
+
     @Autowired
     protected EventGenerator eventGenerator;
-    @Autowired
-    private RegistryService registryService;
+
     @Value("${postgres.tablename}")
     private String postgresTableName;
+
     @Value("${kafka.topic.audit}")
     private String auditTopic;
-
-    private List<String> senderRole = new ArrayList<>();
-
-    private List<String> recipientRole = new ArrayList<>();
-
 
     public void processAndSendEvent(String metadataTopic, Request request) throws Exception {
         String payloadTopic = env.getProperty(KAFKA_TOPIC_PAYLOAD);
@@ -61,11 +59,8 @@ public class EventHandler {
         auditIndexer.createDocument(eventGenerator.generateAuditEvent(request));
     }
 
-    public void createAudit(Map<String, Object> event) throws Exception {
-        kafkaClient.send(auditTopic, (String) ((Map<String, Object>) event.get(Constants.OBJECT)).get(Constants.TYPE), JSONUtils.serialize(event));
+    public void createAudit(Map<String,Object> event) throws Exception {
+        kafkaClient.send(auditTopic , (String) ((Map<String,Object>) event.get(Constants.OBJECT)).get(Constants.TYPE) , JSONUtils.serialize(event));
     }
+
 }
-
-
-
-

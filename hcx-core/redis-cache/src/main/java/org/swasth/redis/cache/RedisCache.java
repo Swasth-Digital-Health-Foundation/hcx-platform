@@ -1,7 +1,7 @@
 package org.swasth.redis.cache;
 
-import org.swasth.redis.cache.exception.ErrorCodes;
-import org.swasth.redis.cache.exception.ServerException;
+import org.swasth.common.exception.ErrorCodes;
+import org.swasth.common.exception.ServerException;
 import redis.clients.jedis.Jedis;
 
 
