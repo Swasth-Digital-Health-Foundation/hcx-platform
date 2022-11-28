@@ -105,16 +105,6 @@ public class EventGeneratorTest {
     }
     public Request getJSONRequest(String status) throws Exception {
         Map<String,Object> obj = new HashMap<>();
-        Map<String,Object> senderDetails = new HashMap<>();
-        senderDetails.put(SENDER_ROLE,List.of("payor"));
-        senderDetails.put(PARTICIPANT_NAME,"new-payor-3");
-        senderDetails.put(SENDER_PRIMARY_EMAIL,"newpayor003@gmail.com");
-        Map<String,Object> recipentDetails = new HashMap<>();
-        recipentDetails.put(RECIPIENT_ROLE,List.of("payor"));
-        recipentDetails.put(PARTICIPANT_NAME,"New payor 2");
-        recipentDetails.put(RECIPIENT_PRIMARY_EMAIL,"newpayor002@gmail.com");
-        obj.put(SENDERDETAILS,senderDetails);
-        obj.put(RECIPIENTDETAILS,recipentDetails);
         obj.put("x-hcx-status",status);
         obj.put("x-hcx-sender_code","1-0756766c-ad43-4145-86ea-d1b17b729a3f");
         obj.put("x-hcx-recipient_code","1-68c5deca-8299-4feb-b441-923bb649a9a3");
