@@ -34,15 +34,6 @@ public class BaseRequest {
     private String payloadWithoutSensitiveData = null;
     private String hcxRoles;
     private String hcxCode;
-
-    private String senderName;
-
-    private String recipientName;
-
-    private String senderPrimaryEmail;
-
-    private String recipientPrimaryEmail ;
-
     public BaseRequest() {
     }
 
@@ -72,12 +63,7 @@ public class BaseRequest {
     }
 
     public void validate(List<String> mandatoryHeaders, String subject, int timestampRange, Map<String, Object> senderDetails, Map<String, Object> recipientDetails ) throws Exception {
-        senderRole = (ArrayList<String>) senderDetails.get(ROLES);
-        recipientRole = (ArrayList<String>) recipientDetails.get(ROLES);
-        senderName = (String) senderDetails.get(PARTICIPANT_NAME);
-        recipientName = (String) recipientDetails.get(PARTICIPANT_NAME);
-        senderPrimaryEmail = (String) senderDetails.get(PRIMARY_EMAIL);
-        recipientPrimaryEmail = (String) recipientDetails.get(PRIMARY_EMAIL);
+
         for (Map.Entry<String, ClientException> entry : getResponseParamErrors().entrySet()) {
             validateHeader(protocolHeaders, entry.getKey(), entry.getValue());
         }
