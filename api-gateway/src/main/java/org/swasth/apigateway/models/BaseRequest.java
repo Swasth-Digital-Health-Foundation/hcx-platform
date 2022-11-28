@@ -295,22 +295,6 @@ public class BaseRequest {
     public String getRedirectTo() {
         return getHeader(REDIRECT_TO);
     }
-    public List<String> getSenderRole() {
-        return senderRole;
-    }
-    public String getSenderName(){
-        return senderName == null ? "" : senderName;
-    }
-    public String getRecipientName(){
-        return recipientName == null ? "" : recipientName;
-    }
-    public String getSenderPrimaryEmail(){
-        return senderPrimaryEmail == null ? "" :senderPrimaryEmail;
-    }
-    public String getRecipientPrimaryEmail(){return recipientPrimaryEmail == null ? "" : recipientPrimaryEmail ;}
-    public List<String> getRecipientRole() {
-        return recipientRole;
-    }
     public String getPayloadWithoutSensitiveData() {
         return payloadWithoutSensitiveData;
     }
