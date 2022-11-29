@@ -35,6 +35,7 @@ public class BaseSpec {
     protected MockWebServer server =  new MockWebServer();
 
     public final String versionPrefix = "/v0.7";
+    public final String versionPrefix08 = "/v0.8";
 
     @MockBean
     protected RegistryService registryService;
