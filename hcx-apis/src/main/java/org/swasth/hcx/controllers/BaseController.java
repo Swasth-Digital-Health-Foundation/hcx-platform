@@ -84,7 +84,4 @@ public class BaseController {
         }
         return new ResponseEntity<>(errorResponse(response, errorCode, e), status);
     }
-
-
-
 }

@@ -17,7 +17,8 @@ import java.util.List;
 import static org.swasth.common.utils.Constants.*;
 
 @Configuration
-public class GenericConfiguration {
+public class
+GenericConfiguration {
 
     @Autowired
     protected Environment env;
@@ -81,5 +82,4 @@ public class GenericConfiguration {
         notificationHeaders.addAll(env.getProperty(NOTIFICATION_HEADERS_OPTIONAL, List.class, new ArrayList<String>()));
         return notificationHeaders;
     }
-
 }

@@ -60,10 +60,8 @@ public class GenericConfiguration {
     public JWTUtils jwtUtils() throws IOException {
         return new JWTUtils();
     }
-
     @Bean
     public EventGenerator eventGenerator(){
         return new EventGenerator();
     }
-
 }

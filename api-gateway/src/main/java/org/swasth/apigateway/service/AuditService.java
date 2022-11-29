@@ -39,7 +39,6 @@ public class AuditService {
 
     @Autowired
     private EventGenerator eventGenerator;
-
     public List<Map<String, Object>> getAuditLogs(Map<String,String> filters) throws Exception {
         String url = hcxApiUrl + "/" + internalVersion + Constants.AUDIT_SEARCH;
         HttpResponse response;

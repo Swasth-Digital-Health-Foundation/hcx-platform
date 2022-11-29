@@ -260,7 +260,7 @@ public class BaseSpec {
     protected String getInvalidSubscriptionRequest(boolean hasTopic) throws JsonProcessingException {
         Map<String,Object> obj = new HashMap<>();
         if(hasTopic)
-            obj.put(TOPIC_CODE,"topicCode");
+        obj.put(TOPIC_CODE,"topicCode");
         else obj.put(SENDER_LIST,Arrays.asList("new-payor-3"));
         return JSONUtils.serialize(obj);
     }
@@ -297,5 +297,4 @@ public class BaseSpec {
         obj.put(SUBSCRIPTION_STATUS, 1);
         return JSONUtils.serialize(obj);
     }
-
 }

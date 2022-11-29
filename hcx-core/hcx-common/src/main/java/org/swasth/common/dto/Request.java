@@ -16,6 +16,7 @@ import java.util.Map;
 import static org.swasth.common.utils.Constants.*;
 
 public class Request {
+
     private final Map<String, Object> payload;
     protected Map<String, Object> hcxHeaders = null;
     private String mid = UUIDUtils.getUUID();
@@ -55,7 +56,7 @@ public class Request {
     }
 
     // TODO remove this method. We should restrict accessing it to have a clean code.
-    public Map<String,Object> getPayload() {
+    public Map<String, Object> getPayload() {
         return payload;
     }
 
@@ -133,7 +134,7 @@ public class Request {
     }
 
     private void setHeaderMap(String key,Object value) {
-        hcxHeaders.put(key, value);
+            hcxHeaders.put(key, value);
     }
 
     public Map<String, Object> getErrorDetails() {

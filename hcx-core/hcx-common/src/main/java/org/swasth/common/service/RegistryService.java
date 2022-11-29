@@ -35,5 +35,4 @@ public class RegistryService {
         }
         return details;
     }
-
 }

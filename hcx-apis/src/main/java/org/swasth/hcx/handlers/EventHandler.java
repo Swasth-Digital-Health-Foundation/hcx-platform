@@ -64,5 +64,4 @@ public class EventHandler {
     public void createAudit(Map<String,Object> event) throws Exception {
         kafkaClient.send(auditTopic , (String) ((Map<String,Object>) event.get(Constants.OBJECT)).get(Constants.TYPE) , JSONUtils.serialize(event));
     }
-
 }
