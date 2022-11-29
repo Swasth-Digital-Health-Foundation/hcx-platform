@@ -7,6 +7,7 @@ import org.swasth.common.exception.ServerException;
 import org.swasth.common.utils.HttpUtils;
 import org.swasth.common.utils.JSONUtils;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,4 +36,5 @@ public class RegistryService {
         }
         return details;
     }
+
 }

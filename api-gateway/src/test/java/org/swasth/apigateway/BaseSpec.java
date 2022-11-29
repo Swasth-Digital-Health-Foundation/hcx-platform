@@ -35,7 +35,6 @@ public class BaseSpec {
     protected MockWebServer server =  new MockWebServer();
 
     public final String versionPrefix = "/v0.7";
-    public final String versionPrefix08 = "/v0.8";
 
     @MockBean
     protected RegistryService registryService;
@@ -260,7 +259,7 @@ public class BaseSpec {
     protected String getInvalidSubscriptionRequest(boolean hasTopic) throws JsonProcessingException {
         Map<String,Object> obj = new HashMap<>();
         if(hasTopic)
-        obj.put(TOPIC_CODE,"topicCode");
+            obj.put(TOPIC_CODE,"topicCode");
         else obj.put(SENDER_LIST,Arrays.asList("new-payor-3"));
         return JSONUtils.serialize(obj);
     }
@@ -297,4 +296,5 @@ public class BaseSpec {
         obj.put(SUBSCRIPTION_STATUS, 1);
         return JSONUtils.serialize(obj);
     }
+
 }
