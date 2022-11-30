@@ -109,7 +109,7 @@ public class JSONRequest extends BaseRequest {
     public void validateNotificationParticipant(Map<String, Object> details, ErrorCodes code, String participant, List<String> allowedParticipantStatus) throws ClientException {
         if (details.isEmpty()) {
             throw new ClientException(code, MessageFormat.format(MISSING_PARTICIPANT, participant));
-        } else if (!allowedParticipantStatus.contains((String) details.get(REGISTRY_STATUS))) {
+        } else if (!allowedParticipantStatus.contains(details.get(REGISTRY_STATUS))) {
             throw new ClientException(code, MessageFormat.format(INVALID_REGISTRY_STATUS, allowedParticipantStatus, details.get(REGISTRY_STATUS)));
         }
     }
