@@ -764,7 +764,7 @@ class HCXRequestTest extends BaseSpec {
                 .consumeWith(result -> {
                     assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
                     assertEquals(ErrorCodes.ERR_INVALID_SENDER.name(), getResponseErrorCode(result));
-                    assertTrue(getResponseErrorMessage(result).contains("Participant with only Active status, can make an API call"));
+                    assertTrue(getResponseErrorMessage(result).contains("Participant with status"));
                 });
     }
 
@@ -1039,7 +1039,7 @@ class HCXRequestTest extends BaseSpec {
                 .consumeWith(result -> {
                     assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
                     assertEquals(ErrorCodes.ERR_INVALID_SENDER.name(), getResponseErrorCode(result));
-                    assertTrue(getResponseErrorMessage(result).contains("Participant with only Active status, can make an API call"));
+                    assertTrue(getResponseErrorMessage(result).contains("Participant with status"));
                 });
     }
 
@@ -1290,7 +1290,7 @@ class HCXRequestTest extends BaseSpec {
                 .consumeWith(result -> {
                     assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
                     assertEquals(ErrorCodes.ERR_INVALID_SENDER.name(), getResponseErrorCode(result));
-                    assertTrue(getResponseErrorMessage(result).contains("Participant with only Active status, can make an API call"));
+                    assertTrue(getResponseErrorMessage(result).contains("Participant with status"));
                 });
     }
 
