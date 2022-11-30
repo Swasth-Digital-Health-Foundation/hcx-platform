@@ -45,7 +45,7 @@ timestamp:
 
 allowedEntitiesForForward: ${allowed_entities_for_forward:coverageeligibility, preauth, claim}
 allowedRolesForForward: ${allowed_roles_for_forward:payor, agency.tpa}
-allowedParticipantStatusToCallAPIs: ${allowed_participant_status_to_call_apis:Active}
+allowedParticipantStatus: ${allowed_participant_status:Active}
 
 jwt:
   enabled: ${JWT_ENABLED:true}

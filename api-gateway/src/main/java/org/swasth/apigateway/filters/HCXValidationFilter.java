@@ -75,7 +75,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
     @Value("${notify.network.allowedCodes}")
     private List<String> allowedNetworkCodes;
 
-    @Value("${allowedParticipantStatusToCallAPIs}")
+    @Value("${allowedParticipantStatus}")
     private List<String> allowedParticipantStatus;
 
     public HCXValidationFilter() {
