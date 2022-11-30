@@ -76,7 +76,7 @@ public class ResponseMessage {
     public static final String DEBUG_DETAILS_ERR = "Debug details cannot be null, empty and other than 'JSON Object'";
     public static final String DEBUG_DETAILS_VALUES_ERR = "Debug details should contain only: ";
     public static final String MISSING_PARTICIPANT = "{0} does not exist in the registry";
-    public static final String INVALID_REGISTRY_STATUS = "{0}  is blocked or inactive as per the registry";
+    public static final String INVALID_REGISTRY_STATUS = "Participant with only 'Active' status, can make an API call. Current status: {0}";
     public static final String HCX_CODE_ERR = "{0} should not be sent as sender/recipient in the incoming requests";
     public static final String HCX_ROLES_ERR = "{0} role is not be sent as sender/recipient in the incoming requests";
     public static final String MANDATORY_CODE_MSG = "Mandatory fields code or message is missing";

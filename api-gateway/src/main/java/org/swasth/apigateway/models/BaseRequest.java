@@ -121,8 +121,8 @@ public class BaseRequest {
         ArrayList<String> roles = (ArrayList) details.get("roles");
         if (details.isEmpty()) {
             throw new ClientException(code, MessageFormat.format(MISSING_PARTICIPANT, participant));
-        } else if (StringUtils.equals((String) details.get(REGISTRY_STATUS), BLOCKED) || StringUtils.equals((String) details.get(REGISTRY_STATUS), INACTIVE)) {
-            throw new ClientException(code, MessageFormat.format(INVALID_REGISTRY_STATUS, participant));
+        } else if (!StringUtils.equals((String) details.get(REGISTRY_STATUS), ACTIVE)) {
+            throw new ClientException(code, MessageFormat.format(INVALID_REGISTRY_STATUS, details.get(REGISTRY_STATUS)));
         }
         if (!apiAction.contains(NOTIFICATION_NOTIFY)) {
             if (participantCode.equals(hcxCode)) {
