@@ -1,11 +1,13 @@
 package org.swasth.apigateway.filters;
 
+import okhttp3.Response;
 import okhttp3.mockwebserver.MockResponse;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 import org.swasth.apigateway.BaseSpec;
 import org.swasth.apigateway.exception.ErrorCodes;
+import org.swasth.common.response.ResponseMessage;
 import org.swasth.common.utils.Constants;
 
 import java.util.*;
@@ -762,7 +764,7 @@ class HCXRequestTest extends BaseSpec {
                 .consumeWith(result -> {
                     assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
                     assertEquals(ErrorCodes.ERR_INVALID_SENDER.name(), getResponseErrorCode(result));
-                    assertTrue(getResponseErrorMessage(result).contains("blocked or inactive as per the registry"));
+                    assertTrue(getResponseErrorMessage(result).contains("Participant with status"));
                 });
     }
 
@@ -1037,7 +1039,7 @@ class HCXRequestTest extends BaseSpec {
                 .consumeWith(result -> {
                     assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
                     assertEquals(ErrorCodes.ERR_INVALID_SENDER.name(), getResponseErrorCode(result));
-                    assertTrue(getResponseErrorMessage(result).contains("blocked or inactive as per the registry"));
+                    assertTrue(getResponseErrorMessage(result).contains("Participant with status"));
                 });
     }
 
@@ -1288,7 +1290,7 @@ class HCXRequestTest extends BaseSpec {
                 .consumeWith(result -> {
                     assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
                     assertEquals(ErrorCodes.ERR_INVALID_SENDER.name(), getResponseErrorCode(result));
-                    assertTrue(getResponseErrorMessage(result).contains("Sender  is blocked or inactive as per the registry"));
+                    assertTrue(getResponseErrorMessage(result).contains("Participant with status"));
                 });
     }
 
