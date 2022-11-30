@@ -68,9 +68,9 @@ public class JSONRequest extends BaseRequest {
     /**
      * This method is to validate notification notify request
      */
-    public void validateNotificationReq(Map<String, Object> senderDetails, List<Map<String, Object>> recipientsDetails, List<String> allowedNetworkCodes) throws Exception {
+    public void validateNotificationReq(Map<String, Object> senderDetails, List<Map<String, Object>> recipientsDetails, List<String> allowedNetworkCodes, List<String> allowedParticipantStatus) throws Exception {
         validateCondition(MapUtils.isEmpty(getNotificationHeaders()), ErrorCodes.ERR_INVALID_NOTIFICATION_HEADERS, NOTIFICATION_HEADER_ERR_MSG);
-        validateNotificationParticipant(senderDetails, ErrorCodes.ERR_INVALID_SENDER, SENDER);
+        validateNotificationParticipant(senderDetails, ErrorCodes.ERR_INVALID_SENDER, SENDER, allowedParticipantStatus);
         validateCondition(StringUtils.isEmpty(getAlg()) || !getAlg().equalsIgnoreCase(Constants.RS256), ErrorCodes.ERR_INVALID_ALGORITHM, INVALID_ALGO);
         validateCondition(getNotificationTimestamp() == null, ErrorCodes.ERR_INVALID_NOTIFICATION_TIMESTAMP, NOTIFICATION_TS_MSG);
         validateCondition(getProtocolHeaders().containsKey(EXPIRY) && new DateTime(getExpiry()).isBefore(DateTime.now()), ErrorCodes.ERR_INVALID_NOTIFICATION_EXPIRY, NOTIFICATION_EXPIRY);
@@ -93,7 +93,7 @@ public class JSONRequest extends BaseRequest {
             if (getRecipients().size() == 1 && !invalidRecipients.isEmpty())
                 throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, MessageFormat.format(MISSING_PARTICIPANT, invalidRecipients));
             for (Map<String, Object> recipient : recipientsDetails) {
-                validateNotificationParticipant(recipient, ErrorCodes.ERR_INVALID_RECIPIENT, Constants.RECIPIENT);
+                validateNotificationParticipant(recipient, ErrorCodes.ERR_INVALID_RECIPIENT, Constants.RECIPIENT, allowedParticipantStatus);
                 validateCondition(!hasRole((List<String>) notification.get(Constants.ALLOWED_RECIPIENTS), (List<String>) recipient.get(ROLES)),
                         ErrorCodes.ERR_INVALID_RECIPIENT, MessageFormat.format(NOTIFICATION_RECIPIENT_ERR, recipient.get(Constants.PARTICIPANT_CODE), getTopicCode()));
             }
@@ -106,11 +106,11 @@ public class JSONRequest extends BaseRequest {
         }
     }
 
-    public void validateNotificationParticipant(Map<String, Object> details, ErrorCodes code, String participant) throws ClientException {
+    public void validateNotificationParticipant(Map<String, Object> details, ErrorCodes code, String participant, List<String> allowedParticipantStatus) throws ClientException {
         if (details.isEmpty()) {
             throw new ClientException(code, MessageFormat.format(MISSING_PARTICIPANT, participant));
-        } else if (!StringUtils.equals((String) details.get(REGISTRY_STATUS), ACTIVE)) {
-            throw new ClientException(code, MessageFormat.format(INVALID_REGISTRY_STATUS, details.get(REGISTRY_STATUS)));
+        } else if (!allowedParticipantStatus.contains((String) details.get(REGISTRY_STATUS))) {
+            throw new ClientException(code, MessageFormat.format(INVALID_REGISTRY_STATUS, allowedParticipantStatus, details.get(REGISTRY_STATUS)));
         }
     }
 
@@ -156,13 +156,13 @@ public class JSONRequest extends BaseRequest {
         return getHeader(SENDER_CODE);
     }
 
-    public void validateSubscriptionRequests(String topicCode, List<Map<String, Object>> senderListDetails, Map<String, Object> recipientDetails, List<String> subscriptionMandatoryHeaders, Map<String, Object> notification) throws ClientException {
+    public void validateSubscriptionRequests(String topicCode, List<Map<String, Object>> senderListDetails, Map<String, Object> recipientDetails, List<String> subscriptionMandatoryHeaders, Map<String, Object> notification, List<String> allowedParticipantStatus) throws ClientException {
         for (String subscriptionMandatoryHeader : subscriptionMandatoryHeaders) {
             validateCondition(!getProtocolHeaders().containsKey(subscriptionMandatoryHeader), ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, MessageFormat.format(NOTIFICATION_MANDATORY_HEADERS, TOPIC_CODE, SENDER_LIST));
         }
 
         // validate recipient details who was intended notification recipient post successful subscription
-        validateNotificationParticipant(recipientDetails, ErrorCodes.ERR_INVALID_SENDER, SENDER);
+        validateNotificationParticipant(recipientDetails, ErrorCodes.ERR_INVALID_SENDER, SENDER, allowedParticipantStatus);
         // topicCode is present in the notifications list
         validateCondition(StringUtils.isEmpty(topicCode), ErrorCodes.ERR_INVALID_NOTIFICATION_TOPIC_CODE, NOTIFICATION_TOPIC_ERR);
         validateCondition(!NotificationUtils.isValidCode(topicCode), ErrorCodes.ERR_INVALID_NOTIFICATION_TOPIC_CODE, MessageFormat.format(NOTIFICATION_INVALID_TOPIC, topicCode));
@@ -178,7 +178,7 @@ public class JSONRequest extends BaseRequest {
             if (!invalidSenders.isEmpty())
                 throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, MessageFormat.format(MISSING_PARTICIPANT, invalidSenders));
             for (Map<String, Object> recipient : senderListDetails) {
-                validateNotificationParticipant(recipient, ErrorCodes.ERR_INVALID_SENDER, RECIPIENT);
+                validateNotificationParticipant(recipient, ErrorCodes.ERR_INVALID_SENDER, RECIPIENT, allowedParticipantStatus);
                 validateCondition(!hasRole((List<String>) notification.get(Constants.ALLOWED_SENDERS), (List<String>) recipient.get(ROLES)),
                         ErrorCodes.ERR_INVALID_SENDER, MessageFormat.format(NOTIFICATION_TRIGGER_ERR_MSG, recipient.get(Constants.PARTICIPANT_CODE), getTopicCode()));
             }

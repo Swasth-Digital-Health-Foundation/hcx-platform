@@ -106,7 +106,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                         String searchRequest = createSearchRequest(jsonRequest.getRecipients(), PARTICIPANT_CODE, false);
                         recipientsDetails = registryService.getDetails(searchRequest);
                     }
-                    jsonRequest.validateNotificationReq(senderDetails, recipientsDetails, allowedNetworkCodes);
+                    jsonRequest.validateNotificationReq(senderDetails, recipientsDetails, allowedNetworkCodes, allowedParticipantStatus);
                     jsonRequest.validateCondition(!jwtUtils.isValidSignature(jsonRequest.getNotificationPayload(), (String) senderDetails.get(SIGNING_CERT_PATH)), ErrorCodes.ERR_INVALID_SIGNATURE, INVALID_JWS);
                 } else if (requestBody.containsKey(PAYLOAD)) {
                     JWERequest jweRequest = new JWERequest(requestBody, false, path, hcxCode, hcxRoles);
@@ -145,7 +145,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                     } else {
                         throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, EMPTY_SENDER_LIST_ERR_MSG);
                     }
-                    jsonRequest.validateSubscriptionRequests(jsonRequest.getTopicCode(), senderListDetails, recipientDetails, getSubscriptionMandatoryHeaders(), notification);
+                    jsonRequest.validateSubscriptionRequests(jsonRequest.getTopicCode(), senderListDetails, recipientDetails, getSubscriptionMandatoryHeaders(), notification, allowedParticipantStatus);
                     requestBody.put(RECIPIENT_CODE, recipientDetails.get(PARTICIPANT_CODE));
                 } else if (path.contains(NOTIFICATION_SUBSCRIPTION_LIST)) { //for validating /notification/subscription/list
                     JSONRequest jsonRequest = new JSONRequest(requestBody, true, path, hcxCode, hcxRoles);
@@ -156,7 +156,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                     JSONRequest jsonRequest = new JSONRequest(requestBody, true, path, hcxCode, hcxRoles);
                     requestObj = jsonRequest;
                     Map<String, Object> senderDetails = registryService.fetchDetails(OS_OWNER, subject);
-                    jsonRequest.validateNotificationParticipant(senderDetails, ErrorCodes.ERR_INVALID_SENDER, SENDER);
+                    jsonRequest.validateNotificationParticipant(senderDetails, ErrorCodes.ERR_INVALID_SENDER, SENDER, allowedParticipantStatus);
                     requestBody.put(SENDER_CODE, senderDetails.get(PARTICIPANT_CODE));
                 } else { //for validating redirect and error plain JSON on_check calls
                     if (!path.contains("on_")) {
