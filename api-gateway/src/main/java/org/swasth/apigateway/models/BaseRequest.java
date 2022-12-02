@@ -63,6 +63,7 @@ public class BaseRequest {
     }
 
     public void validate(List<String> mandatoryHeaders, String subject, int timestampRange, Map<String, Object> senderDetails, Map<String, Object> recipientDetails ) throws Exception {
+    public void validate(List<String> mandatoryHeaders, String subject, int timestampRange, Map<String, Object> senderDetails, Map<String, Object> recipientDetails, List<String> allowedParticipantStatus) throws Exception {
         for (Map.Entry<String, ClientException> entry : getResponseParamErrors().entrySet()) {
             validateHeader(protocolHeaders, entry.getKey(), entry.getValue());
         }
@@ -82,6 +83,10 @@ public class BaseRequest {
         validateCondition(StringUtils.equals(getHcxSenderCode(), getHcxRecipientCode()), ErrorCodes.ERR_INVALID_SENDER_AND_RECIPIENT, SENDER_RECIPIENT_SAME_MSG);
         validateParticipant(recipientDetails, ErrorCodes.ERR_INVALID_RECIPIENT, "Recipient", getHcxRecipientCode());
         validateParticipant(senderDetails, ErrorCodes.ERR_INVALID_SENDER, "Sender", getHcxSenderCode());
+        validateParticipant(recipientDetails, ErrorCodes.ERR_INVALID_RECIPIENT, "Recipient", getHcxRecipientCode(), allowedParticipantStatus);
+        validateParticipant(senderDetails, ErrorCodes.ERR_INVALID_SENDER, "Sender", getHcxSenderCode(), allowedParticipantStatus);
+        senderRole = (ArrayList<String>) senderDetails.get(ROLES);
+        recipientRole = (ArrayList<String>) recipientDetails.get(ROLES);
         validateCondition(!StringUtils.equals(((ArrayList) senderDetails.get(OS_OWNER)).get(0).toString(), subject), ErrorCodes.ERR_ACCESS_DENIED, CALLER_MISMATCH_MSG);
 
         if (protocolHeaders.containsKey(DEBUG_FLAG)) {
@@ -114,12 +119,12 @@ public class BaseRequest {
         }
     }
 
-    protected void validateParticipant(Map<String, Object> details, ErrorCodes code, String participant, String participantCode) throws ClientException {
+    protected void validateParticipant(Map<String, Object> details, ErrorCodes code, String participant, String participantCode, List<String> allowedParticipantStatus) throws ClientException {
         ArrayList<String> roles = (ArrayList) details.get("roles");
         if (details.isEmpty()) {
             throw new ClientException(code, MessageFormat.format(MISSING_PARTICIPANT, participant));
-        } else if (StringUtils.equals((String) details.get(REGISTRY_STATUS), BLOCKED) || StringUtils.equals((String) details.get(REGISTRY_STATUS), INACTIVE)) {
-            throw new ClientException(code, MessageFormat.format(INVALID_REGISTRY_STATUS, participant));
+        } else if (!allowedParticipantStatus.contains(details.get(REGISTRY_STATUS))) {
+            throw new ClientException(code, MessageFormat.format(INVALID_REGISTRY_STATUS, allowedParticipantStatus, details.get(REGISTRY_STATUS)));
         }
         if (!apiAction.contains(NOTIFICATION_NOTIFY)) {
             if (participantCode.equals(hcxCode)) {

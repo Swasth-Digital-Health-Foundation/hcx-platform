@@ -412,7 +412,7 @@ public class ResponseMessageTest {
     @Test
     public void testInvalidRegistryStatus(){
         String invalidTopicCode = ResponseMessage.INVALID_REGISTRY_STATUS;
-        assertTrue(invalidTopicCode.contains("registry"));
+        assertTrue(invalidTopicCode.contains("Participant"));
     }
 
     @Test
