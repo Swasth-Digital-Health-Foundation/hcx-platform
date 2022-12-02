@@ -34,6 +34,7 @@ public class BaseRequest {
     private String payloadWithoutSensitiveData = null;
     private String hcxRoles;
     private String hcxCode;
+
     public BaseRequest() {
     }
 
@@ -62,8 +63,7 @@ public class BaseRequest {
         return JSONUtils.decodeBase64String(validatePayload(apiAction)[i], Map.class);
     }
 
-    public void validate(List<String> mandatoryHeaders, String subject, int timestampRange, Map<String, Object> senderDetails, Map<String, Object> recipientDetails ) throws Exception {
-    public void validate(List<String> mandatoryHeaders, String subject, int timestampRange, Map<String, Object> senderDetails, Map<String, Object> recipientDetails, List<String> allowedParticipantStatus) throws Exception {
+    public void validate(List<String> mandatoryHeaders, String subject, int timestampRange, Map<String, Object> senderDetails, Map<String, Object> recipientDetails) throws Exception {
         for (Map.Entry<String, ClientException> entry : getResponseParamErrors().entrySet()) {
             validateHeader(protocolHeaders, entry.getKey(), entry.getValue());
         }
@@ -83,8 +83,6 @@ public class BaseRequest {
         validateCondition(StringUtils.equals(getHcxSenderCode(), getHcxRecipientCode()), ErrorCodes.ERR_INVALID_SENDER_AND_RECIPIENT, SENDER_RECIPIENT_SAME_MSG);
         validateParticipant(recipientDetails, ErrorCodes.ERR_INVALID_RECIPIENT, "Recipient", getHcxRecipientCode());
         validateParticipant(senderDetails, ErrorCodes.ERR_INVALID_SENDER, "Sender", getHcxSenderCode());
-        validateParticipant(recipientDetails, ErrorCodes.ERR_INVALID_RECIPIENT, "Recipient", getHcxRecipientCode(), allowedParticipantStatus);
-        validateParticipant(senderDetails, ErrorCodes.ERR_INVALID_SENDER, "Sender", getHcxSenderCode(), allowedParticipantStatus);
         senderRole = (ArrayList<String>) senderDetails.get(ROLES);
         recipientRole = (ArrayList<String>) recipientDetails.get(ROLES);
         validateCondition(!StringUtils.equals(((ArrayList) senderDetails.get(OS_OWNER)).get(0).toString(), subject), ErrorCodes.ERR_ACCESS_DENIED, CALLER_MISMATCH_MSG);
@@ -119,12 +117,12 @@ public class BaseRequest {
         }
     }
 
-    protected void validateParticipant(Map<String, Object> details, ErrorCodes code, String participant, String participantCode, List<String> allowedParticipantStatus) throws ClientException {
+    protected void validateParticipant(Map<String, Object> details, ErrorCodes code, String participant, String participantCode) throws ClientException {
         ArrayList<String> roles = (ArrayList) details.get("roles");
         if (details.isEmpty()) {
             throw new ClientException(code, MessageFormat.format(MISSING_PARTICIPANT, participant));
-        } else if (!allowedParticipantStatus.contains(details.get(REGISTRY_STATUS))) {
-            throw new ClientException(code, MessageFormat.format(INVALID_REGISTRY_STATUS, allowedParticipantStatus, details.get(REGISTRY_STATUS)));
+        } else if (StringUtils.equals((String) details.get(REGISTRY_STATUS), BLOCKED) || StringUtils.equals((String) details.get(REGISTRY_STATUS), INACTIVE)) {
+            throw new ClientException(code, MessageFormat.format(INVALID_REGISTRY_STATUS, participant));
         }
         if (!apiAction.contains(NOTIFICATION_NOTIFY)) {
             if (participantCode.equals(hcxCode)) {
@@ -273,21 +271,35 @@ public class BaseRequest {
     private void setHeaderMap(String key, Object value) {
         protocolHeaders.put(key, value);
     }
+
     public Map<String, Object> getErrorDetails() {
         return getHeaderMap(ERROR_DETAILS);
     }
+
     public void setErrorDetails(Map<String, Object> errorDetails) {
         setHeaderMap(ERROR_DETAILS, errorDetails);
     }
+
     public Map<String, Object> getDebugDetails() {
         return getHeaderMap(DEBUG_DETAILS);
     }
+
     public String getRedirectTo() {
         return getHeader(REDIRECT_TO);
     }
+
+    public List<String> getSenderRole() {
+        return senderRole;
+    }
+
+    public List<String> getRecipientRole() {
+        return recipientRole;
+    }
+
     public String getPayloadWithoutSensitiveData() {
         return payloadWithoutSensitiveData;
     }
+
     private String[] validatePayload(String apiAction) throws Exception {
         try {
             String[] payloadValues = getPayloadValues();
