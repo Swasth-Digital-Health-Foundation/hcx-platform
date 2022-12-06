@@ -162,5 +162,33 @@ public class Request {
     public Long getExpiry(){ return (Long) payload.getOrDefault(EXPIRY, null); }
 
     public String getSubscriptionId() { return (String) payload.get(SUBSCRIPTION_ID); }
+    public String getSenderName() {
+        return senderDetails().isEmpty() ? "" : (String) senderDetails().get(PARTICIPANT_NAME);
+    }
+
+    public String getRecipientName() {
+        return recipientDetails().isEmpty() ? "" : (String) recipientDetails().get(PARTICIPANT_NAME);
+    }
+
+    public String getSenderPrimaryEmail() {
+        return senderDetails().isEmpty() ? "" : (String) senderDetails().get(PRIMARY_EMAIL);
+    }
+
+    public String getRecipientPrimaryEmail() {
+        return recipientDetails().isEmpty() ? "" : (String) recipientDetails().get(PRIMARY_EMAIL);
+    }
+    public void setErrorDetails(Map<String,Object> errorDetails){
+        setHeaderMap(ERROR_DETAILS, errorDetails);
+    }
+    public List<String> getSenderRole() { return senderDetails().isEmpty() ? new ArrayList<>() : (List<String>) senderDetails().get(ROLES); }
+
+    public List<String> getRecipientRole() { return recipientDetails().isEmpty() ? new ArrayList<>() : (List<String>) recipientDetails().get(ROLES);
+    }
+
+    public Map<String, Object> senderDetails() { return (Map<String, Object>) payload.getOrDefault(SENDERDETAILS,new HashMap<>()); }
+    public Map<String, Object> recipientDetails() {
+        return (Map<String, Object>) payload.getOrDefault(RECIPIENTDETAILS,new HashMap<>());
+    }
+
 }
 

@@ -14,10 +14,10 @@ import org.swasth.common.utils.JSONUtils;
 import org.swasth.kafka.client.IEventService;
 import org.swasth.postgresql.IDatabaseService;
 
+import java.util.HashMap;
 import java.util.Map;
 
-import static org.swasth.common.utils.Constants.KAFKA_TOPIC_PAYLOAD;
-import static org.swasth.common.utils.Constants.QUEUED_STATUS;
+import static org.swasth.common.utils.Constants.*;
 
 @Component
 public class EventHandler {
@@ -51,7 +51,9 @@ public class EventHandler {
         // TODO: check and remove writing payload event to kafka
         String payloadEvent = eventGenerator.generatePayloadEvent(request);
         String metadataEvent = eventGenerator.generateMetadataEvent(request);
-        String query = String.format("INSERT INTO %s (mid,data,action,status,retrycount,lastupdatedon) VALUES ('%s','%s','%s','%s',%d,%d)", postgresTableName, request.getMid(), JSONUtils.serialize(request.getPayload()), request.getApiAction(), QUEUED_STATUS, 0, System.currentTimeMillis());
+        Map<String, Object> payloadMap = new HashMap<>();
+        payloadMap.put(PAYLOAD, request.getPayload().get(PAYLOAD));
+        String query = String.format("INSERT INTO %s (mid,data,action,status,retrycount,lastupdatedon) VALUES ('%s','%s','%s','%s',%d,%d)", postgresTableName, request.getMid(),JSONUtils.serialize(payloadMap), request.getApiAction(), QUEUED_STATUS, 0, System.currentTimeMillis());
         logger.debug("Mid: " + request.getMid() + " :: Event: " + metadataEvent);
         postgreSQLClient.execute(query);
         kafkaClient.send(payloadTopic, key, payloadEvent);

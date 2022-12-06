@@ -115,6 +115,8 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                     apiCallId = jweRequest.getApiCallId();
                     Map<String, Object> senderDetails = getDetails(jweRequest.getHcxSenderCode());
                     Map<String, Object> recipientDetails = getDetails(jweRequest.getHcxRecipientCode());
+                    requestObj.getPayload().put(SENDERDETAILS, senderDetails);
+                    requestObj.getPayload().put(RECIPIENTDETAILS, recipientDetails);
                     List<Map<String, Object>> participantCtxAuditDetails = getParticipantCtxAuditData(jweRequest.getHcxSenderCode(), jweRequest.getHcxRecipientCode(), jweRequest.getCorrelationId());
                     jweRequest.validate(getMandatoryHeaders(), subject, timestampRange, senderDetails, recipientDetails, allowedParticipantStatus);
                     jweRequest.validateUsingAuditData(allowedEntitiesForForward, allowedRolesForForward, senderDetails, recipientDetails, getCorrelationAuditData(jweRequest.getCorrelationId()), getCallAuditData(jweRequest.getApiCallId()), participantCtxAuditDetails, path);
@@ -166,6 +168,10 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                     requestObj = jsonRequest;
                     correlationId = jsonRequest.getCorrelationId();
                     apiCallId = jsonRequest.getApiCallId();
+                    Map<String, Object> senderDetails = getDetails(jsonRequest.getHcxSenderCode());
+                    Map<String, Object> recipientDetails = getDetails(jsonRequest.getHcxRecipientCode());
+                    requestObj.getPayload().put(SENDERDETAILS,senderDetails);
+                    requestObj.getPayload().put(RECIPIENTDETAILS,recipientDetails);
                     if (ERROR_RESPONSE.equalsIgnoreCase(jsonRequest.getStatus())) {
                         jsonRequest.validate(getErrorMandatoryHeaders(), subject, timestampRange, getDetails(jsonRequest.getHcxSenderCode()), getDetails(jsonRequest.getHcxRecipientCode()), allowedParticipantStatus);
                     } else {
@@ -184,11 +190,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                 logger.error(MessageFormat.format(CORRELATION_ERR_MSG, correlationId,  e.getMessage()));
                 return exceptionHandler.errorResponse(e, exchange, correlationId, apiCallId, requestObj);
             }
-            if (path.contains(NOTIFICATION_NOTIFY) || path.contains(NOTIFICATION_SUBSCRIBE) || path.contains(NOTIFICATION_UNSUBSCRIBE) || path.contains(NOTIFICATION_SUBSCRIPTION_LIST) || path.contains(NOTIFICATION_SUBSCRIPTION_UPDATE) || path.contains(NOTIFICATION_ON_SUBSCRIBE)) {
-                return requestHandler.getUpdatedBody(exchange, chain, requestBody);
-            } else {
-                return chain.filter(exchange);
-            }
+            return requestHandler.getUpdatedBody(exchange, chain, requestObj.getPayload());
         };
     }
 
