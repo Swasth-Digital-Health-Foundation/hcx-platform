@@ -119,9 +119,9 @@ public class EventGenerator {
         event.put(REQUEST_TIME, System.currentTimeMillis());
         event.put(UPDATED_TIME, System.currentTimeMillis());
         event.put(ETS, System.currentTimeMillis());
+        event.put(PAYLOAD, request.getPayloadWithoutSensitiveData());
         event.put(SENDER_ROLE, request.getSenderRole());
         event.put(RECIPIENT_ROLE, request.getRecipientRole());
-        event.put(PAYLOAD, request.getPayloadWithoutSensitiveData());
         event.put(SENDER_NAME, request.getSenderName());
         event.put(RECIPIENT_NAME, request.getRecipientName());
         event.put(SENDER_PRIMARY_EMAIL, request.getSenderPrimaryEmail());
