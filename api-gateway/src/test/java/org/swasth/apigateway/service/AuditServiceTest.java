@@ -11,9 +11,8 @@ import org.swasth.common.helpers.EventGenerator;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest(classes = AuditService.class)
 @ActiveProfiles("test")
@@ -27,12 +26,6 @@ class AuditServiceTest{
 
     @MockBean
     private EventGenerator eventGenerator;
-
-    @Test
-    void check_audit_event_generation() throws Exception {
-        Map<String,Object> result = auditService.createAuditEvent(getRequest());
-        assertFalse(result.isEmpty());
-    }
 
     @Test
     void check_audit_log_creation() throws Exception {
