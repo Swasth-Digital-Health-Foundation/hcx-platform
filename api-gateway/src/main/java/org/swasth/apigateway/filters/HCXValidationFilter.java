@@ -117,7 +117,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                     Map<String, Object> recipientDetails = getDetails(jweRequest.getHcxRecipientCode());
                     requestObj.getPayload().put(SENDERDETAILS, senderDetails);
                     requestObj.getPayload().put(RECIPIENTDETAILS, recipientDetails);
-                    List<Map<String, Object>> participantCtxAuditDetails = getParticipantCtxAuditData(jweRequest.getHcxSenderCode(), jweRequest.getHcxRecipientCode(), jweRequest.getCorrelationId());
+                    List<Map<String, Object>> participantCtxAuditDetails = getParticipantCtxAuditData(senderDetails.toString(), recipientDetails.toString(), jweRequest.getCorrelationId());
                     jweRequest.validate(getMandatoryHeaders(), subject, timestampRange, senderDetails, recipientDetails, allowedParticipantStatus);
                     jweRequest.validateUsingAuditData(allowedEntitiesForForward, allowedRolesForForward, senderDetails, recipientDetails, getCorrelationAuditData(jweRequest.getCorrelationId()), getCallAuditData(jweRequest.getApiCallId()), participantCtxAuditDetails, path);
                     validateParticipantCtxDetails(participantCtxAuditDetails, path);
@@ -184,7 +184,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                         } else
                             throw new ClientException(ErrorCodes.ERR_INVALID_REDIRECT_TO, MessageFormat.format(INVALID_ACTION_REDIRECT, jsonRequest.getApiAction(), getApisForRedirect()));
                     }
-                    validateParticipantCtxDetails(getParticipantCtxAuditData(jsonRequest.getHcxSenderCode(), jsonRequest.getHcxRecipientCode(), jsonRequest.getCorrelationId()), path);
+                    validateParticipantCtxDetails(getParticipantCtxAuditData(senderDetails.toString(), recipientDetails.toString(), jsonRequest.getCorrelationId()), path);
                 }
             } catch (Exception e) {
                 logger.error(MessageFormat.format(CORRELATION_ERR_MSG, correlationId,  e.getMessage()));
