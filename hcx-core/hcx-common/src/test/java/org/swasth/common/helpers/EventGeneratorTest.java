@@ -88,6 +88,7 @@ public class EventGeneratorTest {
         obj.put(RECIPIENTDETAILS,recipentDetails);
         Request request = new Request(obj, ACTION);
         request.setApiAction("/test");
+        request.setErrorDetails(new HashMap<>());
         return request;
     }
     public Request getEmptyDetails() throws Exception {
