@@ -15,7 +15,6 @@ import static org.swasth.common.utils.Constants.*;
 public class EventGeneratorTest {
 
     private final EventGenerator eventGenerator = new EventGenerator(Arrays.asList("x-hcx-sender_code", "x-hcx-recipient_code", "x-hcx-api_call_id", "x-hcx-timestamp", "x-hcx-status", "x-hcx-correlation_id"), Arrays.asList("alg", "enc"), Arrays.asList("x-hcx-sender_code", "x-hcx-recipient_code", "x-hcx-api_call_id", "x-hcx-timestamp", "x-hcx-status", "x-hcx-correlation_id"), Arrays.asList("x-hcx-sender_code", "x-hcx-recipient_code", "x-hcx-api_call_id", "x-hcx-timestamp", "x-hcx-status", "x-hcx-correlation_id"),Arrays.asList("x-hcx-notification_id","x-hcx-notification_data","x-hcx-sender_code", "x-hcx-recipient_code", "x-hcx-api_call_id", "x-hcx-timestamp", "x-hcx-correlation_id"));
-
     @Test
     public void check_generatePayloadEvent() throws Exception {
         String result = eventGenerator.generatePayloadEvent(getRequest());
@@ -312,4 +311,9 @@ public class EventGeneratorTest {
         assertEquals(Collections.emptyMap(), getEmptyDetails().recipientDetails());
     }
 
+    @Test
+    public void emptyEventgeneartorConstructor(){
+        EventGenerator eventGenerator1 = new EventGenerator();
+        assertNotNull(eventGenerator1);
+    }
 }

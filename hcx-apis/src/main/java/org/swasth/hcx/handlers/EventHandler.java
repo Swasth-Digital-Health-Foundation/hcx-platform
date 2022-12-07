@@ -15,10 +15,10 @@ import org.swasth.common.utils.PayloadUtils;
 import org.swasth.kafka.client.IEventService;
 import org.swasth.postgresql.IDatabaseService;
 
-import java.util.HashMap;
 import java.util.Map;
 
-import static org.swasth.common.utils.Constants.*;
+import static org.swasth.common.utils.Constants.KAFKA_TOPIC_PAYLOAD;
+import static org.swasth.common.utils.Constants.QUEUED_STATUS;
 
 @Component
 public class EventHandler {
