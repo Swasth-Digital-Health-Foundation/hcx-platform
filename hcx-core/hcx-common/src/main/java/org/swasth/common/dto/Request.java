@@ -163,19 +163,19 @@ public class Request {
 
     public String getSubscriptionId() { return (String) payload.get(SUBSCRIPTION_ID); }
     public String getSenderName() {
-        return senderDetails().isEmpty() ? "" : (String) senderDetails().get(PARTICIPANT_NAME);
+        return (String) senderDetails().getOrDefault(PARTICIPANT_NAME,"");
     }
 
     public String getRecipientName() {
-        return recipientDetails().isEmpty() ? "" : (String) recipientDetails().get(PARTICIPANT_NAME);
+        return (String) recipientDetails().getOrDefault(PARTICIPANT_NAME,"");
     }
 
     public String getSenderPrimaryEmail() {
-        return senderDetails().isEmpty() ? "" : (String) senderDetails().get(PRIMARY_EMAIL);
+        return (String) senderDetails().getOrDefault(PRIMARY_EMAIL,"");
     }
 
     public String getRecipientPrimaryEmail() {
-        return recipientDetails().isEmpty() ? "" : (String) recipientDetails().get(PRIMARY_EMAIL);
+        return (String) recipientDetails().getOrDefault(PRIMARY_EMAIL,"");
     }
     public void setErrorDetails(Map<String,Object> errorDetails){
         setHeaderMap(ERROR_DETAILS, errorDetails);
