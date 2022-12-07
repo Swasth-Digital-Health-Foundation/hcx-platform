@@ -180,10 +180,9 @@ public class Request {
     public void setErrorDetails(Map<String,Object> errorDetails){
         setHeaderMap(ERROR_DETAILS, errorDetails);
     }
-    public List<String> getSenderRole() { return senderDetails().isEmpty() ? new ArrayList<>() : (List<String>) senderDetails().get(ROLES); }
+    public List<String> getSenderRole() { return (List<String>) senderDetails().getOrDefault(ROLES,new ArrayList<>());}
 
-    public List<String> getRecipientRole() { return recipientDetails().isEmpty() ? new ArrayList<>() : (List<String>) recipientDetails().get(ROLES);
-    }
+    public List<String> getRecipientRole() { return (List<String>) recipientDetails().getOrDefault(ROLES,new ArrayList<>());}
 
     public Map<String, Object> senderDetails() { return (Map<String, Object>) payload.getOrDefault(SENDERDETAILS,new HashMap<>()); }
     public Map<String, Object> recipientDetails() {
