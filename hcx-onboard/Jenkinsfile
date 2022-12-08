@@ -14,10 +14,10 @@ node('java11') {
                 java --version
                 cd hcx-core
                 pwd
-                mvn clean install
+                mvn clean install -DskipTests
                 cd ../hcx-onboard
                 pwd
-                mvn clean install - DskipTests
+                mvn clean install -DskipTests
               """
             }
           }
