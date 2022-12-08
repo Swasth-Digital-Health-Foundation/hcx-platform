@@ -28,7 +28,7 @@ node('java11') {
                 cd ${env.WORKSPACE}/hcx-onboard
                 pwd
                 /kaniko/executor --dockerfile Dockerfile --context `pwd` --destination ${env.DOCKER_HUB_URL}/hcx-onboard:${build_tag}
-                echo {\\"image_name\\" : \\"hcx-api\\", \\"image_tag\\" : \\"${build_tag}\\"} > ${env.WORKSPACE}/metadata.json
+                echo {\\"image_name\\" : \\"hcx-onboard\\", \\"image_tag\\" : \\"${build_tag}\\"} > ${env.WORKSPACE}/metadata.json
               """
               archiveArtifacts "metadata.json"
             }
