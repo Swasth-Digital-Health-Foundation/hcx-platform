@@ -173,19 +173,20 @@ public class ParticipantController extends BaseController {
             participantCode = (String) participantData.get("participant_code");
             Map<String, Object> responseMap = new HashMap<>();
             responseMap.put("participant_code",participantCode);
-            auditIndexer.createDocument(createVerifyAuditEvent(email,emailOtp,phoneOtp));
+            auditIndexer.createDocument(createVerifyAuditEvent(email,emailOtp,phoneOtp,participantCode));
             return getSuccessResponse(responseMap);
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }
     }
 
-    public Map<String,Object> createVerifyAuditEvent(String email,String emailOtp,String phoneOtp) {
+    public Map<String,Object> createVerifyAuditEvent(String email,String emailOtp,String phoneOtp,String participantCode) {
         Map<String,Object> event = new HashMap<>();
         event.put(EID, AUDIT);
         event.put("primary_email", email);
         event.put("email_otp", emailOtp);
         event.put("phone_otp", phoneOtp);
+        event.put("participant_code", participantCode);
         event.put(MID, UUIDUtils.getUUID());
         event.put(ACTION, PARTICIPANT_VERIFY);
         event.put("status", "success");
