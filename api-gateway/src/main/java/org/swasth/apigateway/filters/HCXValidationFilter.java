@@ -148,18 +148,18 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                         throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, EMPTY_SENDER_LIST_ERR_MSG);
                     }
                     jsonRequest.validateSubscriptionRequests(jsonRequest.getTopicCode(), senderListDetails, recipientDetails, getSubscriptionMandatoryHeaders(), notification, allowedParticipantStatus);
-                    requestBody.put(RECIPIENT_CODE, recipientDetails.get(PARTICIPANT_CODE));
+                    requestObj.getPayload().put(RECIPIENT_CODE, recipientDetails.get(PARTICIPANT_CODE));
                 } else if (path.contains(NOTIFICATION_SUBSCRIPTION_LIST)) { //for validating /notification/subscription/list
                     JSONRequest jsonRequest = new JSONRequest(requestBody, true, path, hcxCode, hcxRoles);
                     requestObj = jsonRequest;
                     Map<String, Object> recipientDetails = registryService.fetchDetails(OS_OWNER, subject);
-                    requestBody.put(RECIPIENT_CODE, recipientDetails.get(PARTICIPANT_CODE));
+                    requestObj.getPayload().put(RECIPIENT_CODE, recipientDetails.get(PARTICIPANT_CODE))
                 } else if (path.contains(NOTIFICATION_SUBSCRIPTION_UPDATE) || path.contains(NOTIFICATION_ON_SUBSCRIBE)) {
                     JSONRequest jsonRequest = new JSONRequest(requestBody, true, path, hcxCode, hcxRoles);
                     requestObj = jsonRequest;
                     Map<String, Object> senderDetails = registryService.fetchDetails(OS_OWNER, subject);
                     jsonRequest.validateNotificationParticipant(senderDetails, ErrorCodes.ERR_INVALID_SENDER, SENDER, allowedParticipantStatus);
-                    requestBody.put(SENDER_CODE, senderDetails.get(PARTICIPANT_CODE));
+                    requestObj.getPayload().put(SENDER_CODE, senderDetails.get(PARTICIPANT_CODE));
                 } else { //for validating redirect and error plain JSON on_check calls
                     if (!path.contains("on_")) {
                         throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, INVALID_JWE_MSG);
