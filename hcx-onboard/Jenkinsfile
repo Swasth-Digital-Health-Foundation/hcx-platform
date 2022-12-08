@@ -17,7 +17,7 @@ node('java11') {
                 mvn clean install
                 cd ../hcx-onboard
                 pwd
-                mvn clean install
+                mvn clean install - DskipTests
               """
             }
           }
