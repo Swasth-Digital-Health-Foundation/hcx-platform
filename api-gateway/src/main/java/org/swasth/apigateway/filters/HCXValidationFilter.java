@@ -153,7 +153,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                     JSONRequest jsonRequest = new JSONRequest(requestBody, true, path, hcxCode, hcxRoles);
                     requestObj = jsonRequest;
                     Map<String, Object> recipientDetails = registryService.fetchDetails(OS_OWNER, subject);
-                    requestObj.getPayload().put(RECIPIENT_CODE, recipientDetails.get(PARTICIPANT_CODE))
+                    requestObj.getPayload().put(RECIPIENT_CODE, recipientDetails.get(PARTICIPANT_CODE));
                 } else if (path.contains(NOTIFICATION_SUBSCRIPTION_UPDATE) || path.contains(NOTIFICATION_ON_SUBSCRIBE)) {
                     JSONRequest jsonRequest = new JSONRequest(requestBody, true, path, hcxCode, hcxRoles);
                     requestObj = jsonRequest;
