@@ -12,6 +12,7 @@ node('java11') {
               // Building jar
               sh """
                 java --version
+                cd hcx-onboard
                 pwd
                 mvn clean install
               """
