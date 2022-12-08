@@ -59,6 +59,9 @@ public class Constants {
     public static final String PARTICIPANT_SEARCH = "/participant/search";
     public static final String PARTICIPANT_UPDATE = "/participant/update";
     public static final String PARTICIPANT_DELETE = "/participant/delete";
+    public static final String PARTICIPANT_REGISTRY_UPDATE = "/participant/registry/update";
+    public static final String PARTICIPANT_OTP = "/participant/otp";
+    public static final String PARTICIPANT_VERIFY = "/participant/verify";
 
     // Object Types
     public static final String PARTICIPANT = "participant";
