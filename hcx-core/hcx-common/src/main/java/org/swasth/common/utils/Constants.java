@@ -60,8 +60,8 @@ public class Constants {
     public static final String PARTICIPANT_UPDATE = "/participant/update";
     public static final String PARTICIPANT_DELETE = "/participant/delete";
     public static final String PARTICIPANT_REGISTRY_UPDATE = "/participant/registry/update";
-    public static final String PARTICIPANT_OTP = "/participant/otp";
-    public static final String PARTICIPANT_VERIFY = "/participant/verify";
+    public static final String PARTICIPANT_SEND_OTP = "/participant/send/otp";
+    public static final String PARTICIPANT_VERIFY_OTP = "/participant/verify/otp";
 
     // Object Types
     public static final String PARTICIPANT = "participant";

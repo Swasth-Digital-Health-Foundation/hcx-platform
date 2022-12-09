@@ -1,13 +1,9 @@
 package org.swasth.hcx.helpers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import org.apache.commons.lang3.StringUtils;
-import org.swasth.common.dto.Request;
-import org.swasth.common.dto.Response;
-import org.swasth.common.utils.JSONUtils;
-import org.swasth.common.utils.JWTUtils;
+import org.swasth.common.utils.UUIDUtils;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.swasth.common.utils.Constants.*;
 
@@ -17,46 +13,44 @@ public class EventGenerator {
     public EventGenerator() {
     }
 
-    public Map<String,Object> createAuditLog(String id, String objectType, Map<String,Object> cdata, Map<String,Object> edata) {
+    public Map<String, Object> createRegistryUpdateAuditEvent(String endPoint, String encryptionCert, String signingCertPath, String email) {
         Map<String,Object> event = new HashMap<>();
         event.put(EID, AUDIT);
+        event.put(MID, UUIDUtils.getUUID());
+        event.put(ACTION, PARTICIPANT_REGISTRY_UPDATE);
+        event.put("endpoint_url", endPoint);
+        event.put("encryption_cert", encryptionCert);
+        event.put("signing_cert_path", signingCertPath);
+        event.put("email", email);
+        event.put("status", "success");
         event.put(ETS, System.currentTimeMillis());
-        event.put(MID, UUID.randomUUID().toString());
-        Map<String,Object> objectMap = new HashMap<>();
-        objectMap.put(ID, id);
-        objectMap.put(TYPE, objectType);
-        event.put(OBJECT, objectMap);
-        event.put(CDATA, cdata);
-        event.put(EDATA, edata);
         return event;
     }
 
-    public Map<String,Object> generateOnSubscriptionAuditEvent(Request request, String recipientCode, String subscriptionId, String status, String subscriptionStatus) {
+    public Map<String, Object> createOtpAuditEvent(String phone, String phoneOtp) {
         Map<String,Object> event = new HashMap<>();
         event.put(EID, AUDIT);
-        event.put(MID, request.getMid());
-        event.put(ACTION, request.getApiAction());
-        event.put(SUBSCRIPTION_ID, subscriptionId);
-        event.put(SUBSCRIPTION_STATUS, subscriptionStatus);
-        event.put(HCX_SENDER_CODE, request.getSenderCode());
-        event.put(HCX_RECIPIENT_CODE, recipientCode);
+        event.put("primary_mobile", phone);
+        event.put("phone_otp", phoneOtp);
+        event.put(MID, UUIDUtils.getUUID());
+        event.put(ACTION, PARTICIPANT_SEND_OTP);
+        event.put("status", "success");
         event.put(ETS, System.currentTimeMillis());
-        event.put(STATUS, status);
-        return  event;
+        return event;
     }
 
-
-    public Map<String,Object> generateSubscriptionAuditEvent(Request request,String status,List<String> senderList) {
+    public Map<String,Object> createVerifyAuditEvent(String email,String emailOtp,String phoneOtp,String participantCode) {
         Map<String,Object> event = new HashMap<>();
         event.put(EID, AUDIT);
-        event.put(MID, request.getMid());
-        event.put(ACTION, request.getApiAction());
-        event.put(TOPIC_CODE,request.getTopicCode() == null ? "" : request.getTopicCode());
-        event.put(SENDER_LIST,senderList);
-        event.put(HCX_RECIPIENT_CODE,request.getRecipientCode());
-        event.put(ETS,System.currentTimeMillis());
-        event.put(STATUS, status);
-        return  event;
+        event.put("primary_email", email);
+        event.put("email_otp", emailOtp);
+        event.put("phone_otp", phoneOtp);
+        event.put("participant_code", participantCode);
+        event.put(MID, UUIDUtils.getUUID());
+        event.put(ACTION, PARTICIPANT_VERIFY_OTP);
+        event.put("status", "success");
+        event.put(ETS, System.currentTimeMillis());
+        return event;
     }
 
 }
