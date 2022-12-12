@@ -95,6 +95,7 @@ public class ParticipantController extends BaseController {
             participantData.put("endpoint_url",endPoint);
             participantData.put("encryption_cert",encryptionCert);
             participantData.put("signing_cert_path",signingCertPath);
+            participantData.put("status","Active");
             String osid = (String) participantData.get(OSID);
             String participantCode = (String) participantData.get("participant_code");
             //Update the participant details
@@ -166,7 +167,7 @@ public class ParticipantController extends BaseController {
     }
 
     private Map<String, Object> getParticipant(String key, String value) throws Exception {
-        ResponseEntity<Object> searchResponse = participantSearch(JSONUtils.deserialize("{ \"filters\": { \"key\": { \"eq\": \" " + value + "\" } } }", Map.class));
+        ResponseEntity<Object> searchResponse = participantSearch(JSONUtils.deserialize("{ \"filters\": { "+key+": { \"eq\": \" " + value + "\" } } }", Map.class));
         ParticipantResponse participantResponse = (ParticipantResponse) Objects.requireNonNull(searchResponse.getBody());
         if (participantResponse.getParticipants().isEmpty())
             throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_CODE, INVALID_PARTICIPANT_CODE);
