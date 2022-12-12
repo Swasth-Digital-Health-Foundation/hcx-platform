@@ -102,7 +102,7 @@ public class ParticipantController extends BaseController {
             String url = registryUrl + "/api/v1/Organisation/" + osid;
             Map<String, String> headersMap = new HashMap<>();
             headersMap.put(AUTHORIZATION, "Bearer "+jwtToken);
-            HttpResponse<String> response = HttpUtils.put(url, JSONUtils.serialize(requestBody), headersMap);
+            HttpResponse<String> response = HttpUtils.put(url, JSONUtils.serialize(participantData), headersMap);
             auditIndexer.createDocument(eventGenerator.createRegistryUpdateAuditEvent(endPoint,encryptionCert,signingCertPath,email));
             if (response.getStatus() == 200 || response.getStatus() == 202) {
                 return getSuccessResponse(new HashMap<>(){{put("primary_email",email);put("participant_code",participantCode);}});
