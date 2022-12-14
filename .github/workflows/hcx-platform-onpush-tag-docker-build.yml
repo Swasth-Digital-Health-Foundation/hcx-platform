@@ -2,12 +2,12 @@ name: HCX APIs - Build
 
 on:
   push:
-    tags :
+    tags:
       - '*'
 
 jobs:
   build:
-    name: Build and Push Docker Image
+    name: Build and Tag Docker Image
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
