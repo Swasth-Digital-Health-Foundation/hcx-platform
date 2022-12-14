@@ -16,7 +16,7 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-streaming-java_${scala.maj.version}</artifactId>
+            <artifactId>flink-streaming-java_${scala.version}</artifactId>
             <version>${flink.version}</version>
             <type>jar</type>
         </dependency>
@@ -101,7 +101,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
                 <configuration>
-                    <release>${java.target.runtime}</release>
+                    <release>${target.java.version}</release>
                 </configuration>
             </plugin>
 
