@@ -63,7 +63,7 @@ public class BaseRequest {
         return JSONUtils.decodeBase64String(validatePayload(apiAction)[i], Map.class);
     }
 
-    public void validate(List<String> mandatoryHeaders, String subject, int timestampRange, Map<String, Object> senderDetails, Map<String, Object> recipientDetails) throws Exception {
+    public void validate(List<String> mandatoryHeaders, String subject, int timestampRange, Map<String, Object> senderDetails, Map<String, Object> recipientDetails, List<String> allowedParticipantStatus) throws Exception {
         for (Map.Entry<String, ClientException> entry : getResponseParamErrors().entrySet()) {
             validateHeader(protocolHeaders, entry.getKey(), entry.getValue());
         }
@@ -81,8 +81,8 @@ public class BaseRequest {
         validateCondition(!DateTimeUtils.validTimestamp(timestampRange, getTimestamp()), ErrorCodes.ERR_INVALID_TIMESTAMP, MessageFormat.format(TIMESTAMP_FUTURE_MSG, timestampRange));
         validateCondition(protocolHeaders.containsKey(WORKFLOW_ID) && !UUIDUtils.isUUID(getWorkflowId()), ErrorCodes.ERR_INVALID_WORKFLOW_ID, INVALID_WORKFLOW_UUID);
         validateCondition(StringUtils.equals(getHcxSenderCode(), getHcxRecipientCode()), ErrorCodes.ERR_INVALID_SENDER_AND_RECIPIENT, SENDER_RECIPIENT_SAME_MSG);
-        validateParticipant(recipientDetails, ErrorCodes.ERR_INVALID_RECIPIENT, "recipient", getHcxRecipientCode());
-        validateParticipant(senderDetails, ErrorCodes.ERR_INVALID_SENDER, "sender", getHcxSenderCode());
+        validateParticipant(recipientDetails, ErrorCodes.ERR_INVALID_RECIPIENT, "Recipient", getHcxRecipientCode(), allowedParticipantStatus);
+        validateParticipant(senderDetails, ErrorCodes.ERR_INVALID_SENDER, "Sender", getHcxSenderCode(), allowedParticipantStatus);
         senderRole = (ArrayList<String>) senderDetails.get(ROLES);
         recipientRole = (ArrayList<String>) recipientDetails.get(ROLES);
         validateCondition(!StringUtils.equals(((ArrayList) senderDetails.get(OS_OWNER)).get(0).toString(), subject), ErrorCodes.ERR_ACCESS_DENIED, CALLER_MISMATCH_MSG);
@@ -117,12 +117,12 @@ public class BaseRequest {
         }
     }
 
-    protected void validateParticipant(Map<String, Object> details, ErrorCodes code, String participant, String participantCode) throws ClientException {
+    protected void validateParticipant(Map<String, Object> details, ErrorCodes code, String participant, String participantCode, List<String> allowedParticipantStatus) throws ClientException {
         ArrayList<String> roles = (ArrayList) details.get("roles");
         if (details.isEmpty()) {
             throw new ClientException(code, MessageFormat.format(MISSING_PARTICIPANT, participant));
-        } else if (StringUtils.equals((String) details.get(REGISTRY_STATUS), BLOCKED) || StringUtils.equals((String) details.get(REGISTRY_STATUS), INACTIVE)) {
-            throw new ClientException(code, MessageFormat.format(INVALID_REGISTRY_STATUS, participant));
+        } else if (!allowedParticipantStatus.contains(details.get(REGISTRY_STATUS))) {
+            throw new ClientException(code, MessageFormat.format(INVALID_REGISTRY_STATUS, allowedParticipantStatus, details.get(REGISTRY_STATUS)));
         }
         if (!apiAction.contains(NOTIFICATION_NOTIFY)) {
             if (participantCode.equals(hcxCode)) {
@@ -198,7 +198,8 @@ public class BaseRequest {
         List<String> senderRoles = (List<String>) senderDetails.get(ROLES);
         List<String> recipientRoles = (List<String>) recipientDetails.get(ROLES);
         // forward flow validations
-        if (isForwardRequest(allowedRolesForForward, senderRoles, recipientRoles, correlationAuditData)) {
+        boolean isForwardReq = isForwardRequest(allowedRolesForForward, senderRoles, recipientRoles, correlationAuditData);
+        if (isForwardReq) {
             validateCondition(!allowedEntitiesForForward.contains(getEntity(apiAction)), ErrorCodes.ERR_INVALID_FORWARD_REQ, INVALID_FORWARD);
             validateWorkflowId(correlationAuditData.get(0));
             if (!apiAction.contains("on_")) {
@@ -207,7 +208,11 @@ public class BaseRequest {
                 }
             }
         } else if (!EXCLUDE_ENTITIES.contains(getEntity(path)) && !apiAction.contains("on_") && checkParticipantRole(allowedRolesForForward, senderRoles) && recipientRoles.contains(PROVIDER)) {
-            throw new ClientException(INVALID_RECIPIENT);
+            throw new ClientException(ErrorCodes.ERR_ACCESS_DENIED, INVALID_API_CALL);
+        }
+        // validation to check if participant is forwarding the request to provider
+        if (isForwardReq && !apiAction.contains("on_") && recipientRoles.contains(PROVIDER)) {
+            throw new ClientException(ErrorCodes.ERR_INVALID_FORWARD_REQ, INVALID_FORWARD_TO_PROVIDER);
         }
     }
 
@@ -282,15 +287,6 @@ public class BaseRequest {
     public String getRedirectTo() {
         return getHeader(REDIRECT_TO);
     }
-
-    public List<String> getSenderRole() {
-        return senderRole;
-    }
-
-    public List<String> getRecipientRole() {
-        return recipientRole;
-    }
-
     public String getPayloadWithoutSensitiveData() {
         return payloadWithoutSensitiveData;
     }

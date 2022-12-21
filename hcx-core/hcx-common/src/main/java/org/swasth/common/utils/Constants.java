@@ -67,6 +67,7 @@ public class Constants {
     public static final String NAME = "name";
     public static final String KAFKA = "kafka";
     public static final String POSTGRESQL = "postgreSQL";
+    public static final String REDIS ="redis";
     public static final String CHECKS = "checks";
 
     //event generator props
@@ -108,6 +109,12 @@ public class Constants {
     public static final String DOMAIN_HEADERS = "headers.domain";
     public static final String HCX_SENDER_CODE = "x-hcx-sender_code";
     public static final String HCX_RECIPIENT_CODE = "x-hcx-recipient_code";
+    public static final String SENDER_NAME = "senderName";
+    public static final String RECIPIENT_NAME = "recipientName";
+    public static final String SENDERDETAILS = "senderDetails";
+    public static final String RECIPIENTDETAILS = "recipientDetails";
+    public static final String SENDER_PRIMARY_EMAIL = "senderPrimaryEmail";
+    public static final String RECIPIENT_PRIMARY_EMAIL = "recipientPrimaryEmail";
     public static final String API_CALL_ID = "x-hcx-api_call_id";
     public static final String CORRELATION_ID = "x-hcx-correlation_id";
     public static final String WORKFLOW_ID = "x-hcx-workflow_id";
@@ -146,7 +153,6 @@ public class Constants {
     public static final String OFFSET = "offset";
     public static final String START_DATETIME = "start_datetime";
     public static final String STOP_DATETIME = "stop_datetime";
-
     public static final String SEARCH_REQ ="x-hcx-search";
     public static final String SEARCH_RESP = "x-hcx-search_response";
     public static final List<String> SEARCH_REQ_KEYS = Arrays.asList("filters","time_period");
@@ -163,7 +169,6 @@ public class Constants {
     public static final String DISPATCHED_STATUS = "request.dispatched";
     public static final String RETRY_STATUS = "request.retry";
     public static final String RETRY_PROCESSING_STATUS = "request.retry.processing";
-
     //Notification constants
     public static final String ACTIVE = "Active";
     public static final String INACTIVE = "Inactive";

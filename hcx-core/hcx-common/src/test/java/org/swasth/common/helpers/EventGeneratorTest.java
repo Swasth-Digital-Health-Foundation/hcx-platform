@@ -3,6 +3,7 @@ package org.swasth.common.helpers;
 
 import org.junit.Test;
 import org.swasth.common.dto.Request;
+import org.swasth.common.dto.Response;
 import org.swasth.common.utils.Constants;
 
 import java.util.*;
@@ -14,7 +15,6 @@ import static org.swasth.common.utils.Constants.*;
 public class EventGeneratorTest {
 
     private final EventGenerator eventGenerator = new EventGenerator(Arrays.asList("x-hcx-sender_code", "x-hcx-recipient_code", "x-hcx-api_call_id", "x-hcx-timestamp", "x-hcx-status", "x-hcx-correlation_id"), Arrays.asList("alg", "enc"), Arrays.asList("x-hcx-sender_code", "x-hcx-recipient_code", "x-hcx-api_call_id", "x-hcx-timestamp", "x-hcx-status", "x-hcx-correlation_id"), Arrays.asList("x-hcx-sender_code", "x-hcx-recipient_code", "x-hcx-api_call_id", "x-hcx-timestamp", "x-hcx-status", "x-hcx-correlation_id"),Arrays.asList("x-hcx-notification_id","x-hcx-notification_data","x-hcx-sender_code", "x-hcx-recipient_code", "x-hcx-api_call_id", "x-hcx-timestamp", "x-hcx-correlation_id"));
-
     @Test
     public void check_generatePayloadEvent() throws Exception {
         String result = eventGenerator.generatePayloadEvent(getRequest());
@@ -74,7 +74,30 @@ public class EventGeneratorTest {
     public Request getRequest() throws Exception {
         Map<String,Object> obj = new HashMap<>();
         obj.put("payload","eyJlbmMiOiJBMjU2R0NNIiwKImFsZyI6IlJTQS1PQUVQIiwKIngtaGN4LXNlbmRlcl9jb2RlIjoiIiwKIngtaGN4LXJlY2lwaWVudF9jb2RlIjoiMS0yNzk5YjZhNC1jZjJkLTQ1ZmUtYTVlMS01ZjFjODI5NzllMGQiLAoieC1oY3gtcmVxdWVzdF9pZCI6IjI2YjEwNjBjLTFlODMtNDYwMC05NjEyLWVhMzFlMGNhNTA5MSIsCiJ4LWhjeC1jb3JyZWxhdGlvbl9pZCI6IjVlOTM0ZjkwLTExMWQtNGYwYi1iMDE2LWMyMmQ4MjA2NzRlMSIsCiJ4LWhjeC10aW1lc3RhbXAiOiIyMDIyLTAxLTA2VDA5OjUwOjIzKzAwIiwKIngtaGN4LXN0YXR1cyI6InJlcXVlc3QuaW5pdGlhdGUiLAoieC1oY3gtd29ya2Zsb3dfaWQiOiIxZTgzLTQ2MGEtNGYwYi1iMDE2LWMyMmQ4MjA2NzRlMSIsCiJ4LWhjeC1kZWJ1Z19mbGFnIjoiSW5mbyIsCiJ4LWhjeC1lcnJvcl9kZXRhaWxzIjp7ImVycm9yLmNvZGUiOiAiYmFkLmlucHV0IiwgImVycm9yLm1lc3NhZ2UiOiAiUHJvdmlkZXIgY29kZSBub3QgZm91bmQiLCAidHJhY2UiOiAiIn0sCiJ4LWhjeC1kZWJ1Z19kZXRhaWxzIjp7ImVycm9yLmNvZGUiOiAiYmFkLmlucHV0IiwgImVycm9yLm1lc3NhZ2UiOiAiUHJvdmlkZXIgY29kZSBub3QgZm91bmQiLCJ0cmFjZSI6IiJ9LAoiandzX2hlYWRlciI6eyJ0eXAiOiJKV1QiLCAiYWxnIjoiUlMyNTYifSwKImp3ZV9oZWFkZXIiOnsiYWxnIjoiUlNBLU9BRVAiLCJlbmMiOiJBMjU2R0NNIn0KfQ==.6KB707dM9YTIgHtLvtgWQ8mKwboJW3of9locizkDTHzBC2IlrT1oOQ.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.AxY8DCtDaGlsbGljb3RoZQ.KDlTtXchhZTGufMYmOYGS4HffxPSUrfmqCHXaI9wOGY.Mz-VPPyU4RlcuYv1IwIvzw");
-        Request request = new Request(obj, COVERAGE_ELIGIBILITY_CHECK);
+        Request request1 = new Request(obj, COVERAGE_ELIGIBILITY_CHECK);
+        Map<String,Object> senderDetails = new HashMap<>();
+        senderDetails.put(ROLES,List.of("payor"));
+        senderDetails.put(PARTICIPANT_NAME,"new-payor-3");
+        senderDetails.put(PRIMARY_EMAIL,"newpayor003@gmail.com");
+        Map<String,Object> recipentDetails = new HashMap<>();
+        recipentDetails.put(ROLES,List.of("payor"));
+        recipentDetails.put(PARTICIPANT_NAME,"New payor 2");
+        recipentDetails.put(PRIMARY_EMAIL,"newpayor002@gmail.com");
+        obj.put(SENDERDETAILS,senderDetails);
+        obj.put(RECIPIENTDETAILS,recipentDetails);
+        Request request = new Request(obj, ACTION);
+        request.setApiAction("/test");
+        request.setErrorDetails(new HashMap<>());
+        return request;
+    }
+    public Request getEmptyDetails() throws Exception {
+        Map<String,Object> obj = new HashMap<>();
+        obj.put("payload","eyJlbmMiOiJBMjU2R0NNIiwKImFsZyI6IlJTQS1PQUVQIiwKIngtaGN4LXNlbmRlcl9jb2RlIjoiIiwKIngtaGN4LXJlY2lwaWVudF9jb2RlIjoiMS0yNzk5YjZhNC1jZjJkLTQ1ZmUtYTVlMS01ZjFjODI5NzllMGQiLAoieC1oY3gtcmVxdWVzdF9pZCI6IjI2YjEwNjBjLTFlODMtNDYwMC05NjEyLWVhMzFlMGNhNTA5MSIsCiJ4LWhjeC1jb3JyZWxhdGlvbl9pZCI6IjVlOTM0ZjkwLTExMWQtNGYwYi1iMDE2LWMyMmQ4MjA2NzRlMSIsCiJ4LWhjeC10aW1lc3RhbXAiOiIyMDIyLTAxLTA2VDA5OjUwOjIzKzAwIiwKIngtaGN4LXN0YXR1cyI6InJlcXVlc3QuaW5pdGlhdGUiLAoieC1oY3gtd29ya2Zsb3dfaWQiOiIxZTgzLTQ2MGEtNGYwYi1iMDE2LWMyMmQ4MjA2NzRlMSIsCiJ4LWhjeC1kZWJ1Z19mbGFnIjoiSW5mbyIsCiJ4LWhjeC1lcnJvcl9kZXRhaWxzIjp7ImVycm9yLmNvZGUiOiAiYmFkLmlucHV0IiwgImVycm9yLm1lc3NhZ2UiOiAiUHJvdmlkZXIgY29kZSBub3QgZm91bmQiLCAidHJhY2UiOiAiIn0sCiJ4LWhjeC1kZWJ1Z19kZXRhaWxzIjp7ImVycm9yLmNvZGUiOiAiYmFkLmlucHV0IiwgImVycm9yLm1lc3NhZ2UiOiAiUHJvdmlkZXIgY29kZSBub3QgZm91bmQiLCJ0cmFjZSI6IiJ9LAoiandzX2hlYWRlciI6eyJ0eXAiOiJKV1QiLCAiYWxnIjoiUlMyNTYifSwKImp3ZV9oZWFkZXIiOnsiYWxnIjoiUlNBLU9BRVAiLCJlbmMiOiJBMjU2R0NNIn0KfQ==.6KB707dM9YTIgHtLvtgWQ8mKwboJW3of9locizkDTHzBC2IlrT1oOQ.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.AxY8DCtDaGlsbGljb3RoZQ.KDlTtXchhZTGufMYmOYGS4HffxPSUrfmqCHXaI9wOGY.Mz-VPPyU4RlcuYv1IwIvzw");
+        Map<String,Object> senderDetails = Collections.emptyMap();
+        Map<String,Object> recipentDetails = Collections.emptyMap();
+        obj.put(SENDERDETAILS,senderDetails);
+        obj.put(RECIPIENTDETAILS, recipentDetails);
+        Request request = new Request(obj, ACTION);
         request.setApiAction("/test");
         return request;
     }
@@ -164,13 +187,18 @@ public class EventGeneratorTest {
 
     @Test
     public void testGenerateSubscriptionEvent() throws Exception {
-        String result = eventGenerator.generateSubscriptionEvent(NOTIFICATION_SUBSCRIBE,"hcx-apollo-12345","hcx-notification-001",new ArrayList<>(){{add("icici-67890");add("Payor1"); add("Payor2");}},new HashMap<>(){{put("icici-67890","subscription_1");put("Payor1","subscription_2");put("Payor2","subscription_3");}});
+        Map<String,Object> requestBody = new HashMap<>();
+        requestBody.put(TOPIC_CODE, "hcx-notification-001");
+        requestBody.put(SENDER_LIST, new ArrayList<>(){{add("hcx-participant-67890");add("Payor1"); add("Payor2");}});
+        requestBody.put(RECIPIENT_CODE, "hcx-participant-12345");
+        Request request = new Request(requestBody, NOTIFICATION_SUBSCRIBE);
+        String result = eventGenerator.generateSubscriptionEvent(request ,new HashMap<>(){{put("icici-67890","subscription_1");put("Payor1","subscription_2");put("Payor2","subscription_3");}});
         assertNotNull(result);
         assertTrue(result.contains(QUEUED_STATUS));
         assertTrue(result.contains(NOTIFICATION_SUBSCRIBE));
-        assertTrue(result.contains("hcx-apollo-12345"));
+        assertTrue(result.contains("hcx-participant-12345"));
         assertTrue(result.contains("hcx-notification-001"));
-        assertTrue(result.contains("icici-67890"));
+        assertTrue(result.contains("hcx-participant-67890"));
     }
 
     @Test
@@ -208,18 +236,23 @@ public class EventGeneratorTest {
     }
 
     @Test
-    public void testGenerateOnSubscriptionAuditEvent() {
-        Map<String,Object> resultMap = eventGenerator.generateOnSubscriptionAuditEvent(NOTIFICATION_ON_SUBSCRIBE,"hcx-apollo-12345","subscription_id-001",QUEUED_STATUS,"icici-67890","Active");
+    public void testGenerateOnSubscriptionAuditEvent() throws Exception {
+        Map<String,Object> requestBody = new HashMap<>();
+        requestBody.put(SUBSCRIPTION_ID, "subscription_id-001");
+        requestBody.put(SUBSCRIPTION_STATUS, ACTIVE);
+        requestBody.put(SENDER_CODE, "hcx-participant-67890");
+        Request request = new Request(requestBody, NOTIFICATION_ON_SUBSCRIBE);
+        Map<String,Object> resultMap = eventGenerator.generateOnSubscriptionAuditEvent(request, "hcx-participant-12345", "subscription_id-001", QUEUED_STATUS,"Active");
         assertNotNull(resultMap);
-        assertEquals(AUDIT,resultMap.get(EID));
+        assertEquals(AUDIT, resultMap.get(EID));
         assertNotNull(resultMap.get(MID));
-        assertEquals(NOTIFICATION_ON_SUBSCRIBE,resultMap.get(ACTION));
-        assertEquals(ACTIVE,resultMap.get(SUBSCRIPTION_STATUS));
-        assertEquals("hcx-apollo-12345",resultMap.get(HCX_RECIPIENT_CODE));
-        assertEquals("icici-67890",resultMap.get(HCX_SENDER_CODE));
-        assertEquals("subscription_id-001",resultMap.get(SUBSCRIPTION_ID));
+        assertEquals(NOTIFICATION_ON_SUBSCRIBE, resultMap.get(ACTION));
+        assertEquals(ACTIVE, resultMap.get(SUBSCRIPTION_STATUS));
+        assertEquals("hcx-participant-12345", resultMap.get(HCX_RECIPIENT_CODE));
+        assertEquals("hcx-participant-67890", resultMap.get(HCX_SENDER_CODE));
+        assertEquals("subscription_id-001", resultMap.get(SUBSCRIPTION_ID));
         assertNotNull(resultMap.get(ETS));
-        assertEquals(QUEUED_STATUS,resultMap.get(AUDIT_STATUS));
+        assertEquals(QUEUED_STATUS, resultMap.get(STATUS));
     }
 
     @Test
@@ -236,4 +269,51 @@ public class EventGeneratorTest {
         assertEquals(CREATED, ((Map<String,Object>) resultMap.get(EDATA)).get(AUDIT_STATUS));
     }
 
+    @Test
+    public void testGenerateSubscriptionUpdateAuditEvent() throws Exception {
+        Map<String,Object> requestBody = new HashMap<>();
+        requestBody.put(SENDER_CODE, "hcx-participant-67890");
+        requestBody.put(RECIPIENT_CODE, "hcx-participant-12345");
+        requestBody.put(TOPIC_CODE, "topic-001");
+        requestBody.put(SUBSCRIPTION_STATUS, ACTIVE);
+        Request request = new Request(requestBody, NOTIFICATION_SUBSCRIPTION_UPDATE);
+
+        Response response = new Response();
+        response.setSubscriptionId("subscription_id-001");
+        response.setSubscriptionStatus(ACTIVE);
+
+        Map<String,Object> resultMap = eventGenerator.generateSubscriptionUpdateAuditEvent(request, response);
+        assertNotNull(resultMap);
+        assertEquals(AUDIT, resultMap.get(EID));
+        assertNotNull(resultMap.get(MID));
+        assertEquals(NOTIFICATION_SUBSCRIPTION_UPDATE, resultMap.get(ACTION));
+        assertEquals(ACTIVE, resultMap.get(SUBSCRIPTION_STATUS));
+        assertEquals("hcx-participant-12345", resultMap.get(HCX_RECIPIENT_CODE));
+        assertEquals("hcx-participant-67890", resultMap.get(HCX_SENDER_CODE));
+        assertEquals("subscription_id-001", resultMap.get(SUBSCRIPTION_ID));
+        assertNotNull(resultMap.get(ETS));
+        assertEquals(QUEUED_STATUS, resultMap.get(STATUS));
+    }
+    @Test
+    public void getSenderDetails() throws Exception {
+        Map<String, Object> output = eventGenerator.generateAuditEvent(getRequest());
+        assertEquals("new-payor-3",getRequest().getSenderName());
+        assertEquals("New payor 2",getRequest().getRecipientName());
+        assertEquals("newpayor003@gmail.com",getRequest().getSenderPrimaryEmail());
+        assertEquals("newpayor002@gmail.com" ,getRequest().getRecipientPrimaryEmail());
+        assertEquals(List.of("payor"),getRequest().getSenderRole());
+        assertEquals(List.of("payor"),getRequest().getSenderRole());
+    }
+    @Test
+    public void getSenderDetailsEmptyCheck() throws Exception {
+        eventGenerator.generateAuditEvent(getEmptyDetails());
+        assertEquals(Collections.emptyMap(), getEmptyDetails().senderDetails());
+        assertEquals(Collections.emptyMap(), getEmptyDetails().recipientDetails());
+    }
+
+    @Test
+    public void emptyEventgeneartorConstructor(){
+        EventGenerator eventGenerator1 = new EventGenerator();
+        assertNotNull(eventGenerator1);
+    }
 }
