@@ -1,4 +1,4 @@
-# Data - migration
+# Data migration script
 
 - This script is to update existing audit events with new fields. The script will take the 2 inputs, one is
   participant.json(participant details) and second is input.json(existing audit data). The script will process and gives
@@ -8,23 +8,15 @@
 
 ` Nodejs -v` : v18.12.1
 
-## Execute script :
-
-#### Go to /data-migration folder and run the below command to execute the script and an output.json will be generated.
-
-```shell
-node app.js
-```
-
 ## Steps:
 
-#### 1. Export existing elastic search audit-data into JSON file using curl command.
+1. Export existing elastic search audit-data into JSON file using curl command.
 
 ```shell
  curl -o input.json --location --request GET '<http://localhost:9200/<index_name>/_search?pretty=true&size=10000
 ```
 
-#### 2. Need to fetch partcipants list from registry using search API and save it in participants.json file.
+2. Need to fetch partcipants list from registry using search API and save it in participants.json file.
 
 ```json
 [
@@ -33,36 +25,25 @@ node app.js
 ]
 ```
 
-#### 3. Following are the steps in the scripts:
+3. Go to /data-migration folder and run the below command to execute the script and an output.json will be generated.
 
-- Read the JSON files and update with new fields .
-- Adding data to new fields using Participants list .
-- Reformating the output of the script ,since we are using Bulk API update which needs specific format.
+```shell
+node app.js
+```
 
-#### 4. Need to `Reindex` existing elastic search data to new index .
+4. Need to `Reindex` existing elastic search data to new index .
 
 - curl command to create new index with new mapping .
 
 ```shell
- curl -X PUT "localhost:9200/my-index-000001?pretty"
- ```
-
-- command to reindex .
-
-```shell
-   curl -X POST "localhost:9200/_reindex?pretty" -H 'Content-Type: application/json' -d'
-   {
-   "source": {
-   "index": "my-index-000001"
-   },
-   "dest": {
-   "index": "my-new-index-000001"
-   }
-   }
-   '
+curl -X PUT "localhost:9200/my-new-index-000001?pretty" -H 'Content-Type: application/json' -d'
+{
+  "settings": {},
+  "mappings": {}
+}
 ```
 
-#### 5. Alias the new index with hcx_audit index.
+5. Alias the new index with hcx_audit index.
 
 ```shell
 curl -X POST "localhost:9200/_aliases?pretty" -H 'Content-Type: application/json' -d'
@@ -79,7 +60,7 @@ curl -X POST "localhost:9200/_aliases?pretty" -H 'Content-Type: application/json
 '
 ```
 
-#### 6. Using Bulk API will insert data into elastic search database.
+6. Using Bulk API will insert data into elastic search database.
 
 ```shell
  curl -H 'Content-Type: application/x-ndjson' -XPOST 'localhost:9200/index-name/_doc/_bulk?pretty' --data-binary @output.json
