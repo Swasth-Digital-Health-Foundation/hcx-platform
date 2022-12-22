@@ -15,14 +15,14 @@ import static org.swasth.common.utils.Constants.*;
 
 
 public class EventGenerator {
-
     private final JWTUtils jwtUtils = new JWTUtils();
     private List<String> protocolHeaders;
     private List<String> joseHeaders;
     private List<String> redirectHeaders;
     private List<String> errorHeaders;
     private List<String> notificationHeaders;
-
+    public EventGenerator(){
+    }
     public EventGenerator(List<String> protocolHeaders, List<String> joseHeaders, List<String> redirectHeaders, List<String> errorHeaders,List<String> notificationHeaders) {
         this.protocolHeaders = protocolHeaders;
         this.joseHeaders = joseHeaders;
@@ -118,9 +118,13 @@ public class EventGenerator {
         event.put(REQUEST_TIME, System.currentTimeMillis());
         event.put(UPDATED_TIME, System.currentTimeMillis());
         event.put(ETS, System.currentTimeMillis());
-        event.put(SENDER_ROLE, new ArrayList<>());
-        event.put(RECIPIENT_ROLE, new ArrayList<>());
         event.put(PAYLOAD, request.getPayloadWithoutSensitiveData());
+        event.put(SENDER_ROLE, request.getSenderRole());
+        event.put(RECIPIENT_ROLE, request.getRecipientRole());
+        event.put(SENDER_NAME, request.getSenderName());
+        event.put(RECIPIENT_NAME, request.getRecipientName());
+        event.put(SENDER_PRIMARY_EMAIL, request.getSenderPrimaryEmail());
+        event.put(RECIPIENT_PRIMARY_EMAIL, request.getRecipientPrimaryEmail());
         return  event;
     }
 
