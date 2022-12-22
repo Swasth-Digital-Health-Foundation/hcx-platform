@@ -21,6 +21,7 @@ import org.swasth.common.exception.*;
 import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.HttpUtils;
 import org.swasth.common.utils.JSONUtils;
+import org.swasth.common.utils.JWTUtils;
 import org.swasth.hcx.controllers.BaseController;
 
 import java.util.ArrayList;
@@ -38,14 +39,11 @@ public class ParticipantController extends BaseController {
     @Value("${registry.basePath}")
     private String registryUrl;
 
-    @Value("${aws.accessKey}")
-    private String accessKey;
+    @Value("${email.subject}")
+    private String subject;
 
-    @Value("${aws.accessSecret}")
-    private String accessSecret;
-
-    @Value("${aws.region}")
-    private String awsRegion;
+    @Value("${email.message}")
+    private String message;
 
     //TODO Remove this unnecessary code post moving changes into service layer
     public ResponseEntity<Object> responseHandler(HttpResponse<String> response, String participantCode) throws Exception {
@@ -77,74 +75,6 @@ public class ParticipantController extends BaseController {
         Map<String, Object> result = JSONUtils.deserialize(response.getBody(), HashMap.class);
         return (String) ((Map<String, Object>) result.get("params")).get("errmsg");
     }
-
-    //Onboard APIs move them to separate module if required
-    @PostMapping(PARTICIPANT_REGISTRY_UPDATE)
-    public ResponseEntity<Object> participantRegistryUpdate(@RequestBody Map<String, Object> requestBody) {
-        try {
-            String jwtToken = (String) requestBody.get("jwt_token");
-            String endPoint = (String) requestBody.get("endpoint_url");
-            String encryptionCert = (String) requestBody.get("encryption_cert");
-            String signingCertPath = (String) requestBody.get("signing_cert_path");
-
-            //split into 3 parts with . delimiter
-            String[] parts = jwtToken.split("\\.");
-            Map<String,Object> payload = JSONUtils.decodeBase64String(parts[1],Map.class);
-            String email = (String) payload.get("email");
-            Map<String, Object> participantData = getParticipant("primary_email",email);
-            participantData.put("endpoint_url",endPoint);
-            participantData.put("encryption_cert",encryptionCert);
-            participantData.put("signing_cert_path",signingCertPath);
-            participantData.put("status","Active");
-            String osid = (String) participantData.get(OSID);
-            String participantCode = (String) participantData.get("participant_code");
-            //Update the participant details
-            String url = registryUrl + "/api/v1/Organisation/" + osid;
-            Map<String, String> headersMap = new HashMap<>();
-            headersMap.put(AUTHORIZATION, "Bearer "+jwtToken);
-            HttpResponse<String> response = HttpUtils.put(url, JSONUtils.serialize(participantData), headersMap);
-            auditIndexer.createDocument(eventGenerator.createRegistryUpdateAuditEvent(endPoint,encryptionCert,signingCertPath,email));
-            if (response.getStatus() == 200 || response.getStatus() == 202) {
-                return getSuccessResponse(new HashMap<>(){{put("primary_email",email);put("participant_code",participantCode);}});
-            }
-            return responseHandler(response, null);
-        } catch (Exception e) {
-            return exceptionHandler(new Response(), e);
-        }
-    }
-
-
-
-    @PostMapping(PARTICIPANT_SEND_OTP)
-    public ResponseEntity<Object> participantOtp(@RequestBody Map<String, Object> requestBody) {
-        try {
-            String phone = (String) requestBody.get("primary_mobile");
-            String phoneOtp = (String) requestBody.get("phoneOtp");
-            String message = "HCX mobile verification code is:" +phoneOtp;
-            String phoneNumber = "+91"+ phone;  // Ex: +91XXX4374XX
-            AmazonSNS snsClient = AmazonSNSClient.builder().withCredentials(new AWSCredentialsProvider() {
-                @Override
-                public AWSCredentials getCredentials() {
-                    return new BasicAWSCredentials(accessKey, accessSecret);
-                }
-
-                @Override
-                public void refresh() {
-
-                }
-            }).withRegion(awsRegion).build();
-
-            PublishResult result = snsClient.publish(new PublishRequest()
-                    .withMessage(message)
-                    .withPhoneNumber(phoneNumber));
-            auditIndexer.createDocument(eventGenerator.createOtpAuditEvent(phone,phoneOtp));
-            return getSuccessResponse(new HashMap<>(){{put("responseId",result.getMessageId());}});
-        } catch (Exception e) {
-            return exceptionHandler(new Response(), e);
-        }
-    }
-
-
 
     @PostMapping(PARTICIPANT_VERIFY_OTP)
     public ResponseEntity<Object> participantVerify(@RequestBody Map<String, Object> requestBody) {

@@ -20,6 +20,12 @@ hcx:
     notallowed: ${not_allowed_urls:http://dev-hcx.swasth.app/api,http://staging-hcx.swasth.app/api}
 
 aws:
-  accessKey: ${aws_accessKey:AKIAQPEQMNBRMBH7HZN4}
-  accessSecret: ${aws_accessSecret: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}
+  accessKey: ${aws_accessKey:AKIA6I75KJYE2AIRJ24B}
+  accessSecret: ${aws_accessSecret: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}
   region: ${aws_region:ap-southeast-1}
+
+email:
+  id: ${email_id:contact@hcxprotocol.io}
+  pwd: ${email_pwd:swasthdevops}
+  subject: ${email_subject:HCX Onboarding Mail}
+  message: ${email_messsage:Hi User,<br />Please use this OTP for verification:RANDOM_CODE <br /> Use this below link to verify the OTPs:<br /><a href="USER_LINK" target="_blank">Verify OTP</a> <br /> Thanks,<br /> HCX Team}
