@@ -59,10 +59,10 @@ public class Constants {
     public static final String PARTICIPANT_SEARCH = "/participant/search";
     public static final String PARTICIPANT_UPDATE = "/participant/update";
     public static final String PARTICIPANT_DELETE = "/participant/delete";
-    public static final String PARTICIPANT_REGISTRY_UPDATE = "/participant/registry/update";
+    public static final String PARTICIPANT_VERIFY = "/participant/verify";
+    public static final String PARTICIPANT_GET_INFO = "/participant/get/info/";
     public static final String PARTICIPANT_SEND_OTP = "/participant/send/otp";
     public static final String PARTICIPANT_VERIFY_OTP = "/participant/verify/otp";
-
     // Object Types
     public static final String PARTICIPANT = "participant";
 
@@ -145,6 +145,7 @@ public class Constants {
     public static final String PARTICIPANT_NAME = "participant_name";
     public static final String PARTICIPANT_ROLE = "participant_role";
     public static final String PRIMARY_EMAIL = "primary_email";
+    public static final String PRIMARY_MOBILE = "primary_mobile";
     public static final String SIGNING_CERT_PATH = "signing_cert_path";
     public static final String ENCRYPTION_CERT = "encryption_cert";
     public static final String ENCRYPTION_CERT_EXPIRY = "encryption_cert_expiry";
@@ -244,4 +245,12 @@ public class Constants {
     public static final List<String> EXCLUDE_ENTITIES = Arrays.asList(COMMUNICATION, PAYMENT, NOTIFICATION);
     public static final List<String> RESPONSE_STATUS_VALUES = Arrays.asList(COMPLETE_STATUS, PARTIAL_STATUS, ERROR_RESPONSE, REDIRECT_STATUS);
     public static final List<String> ALLOWED_ENTITIES_ERROR_AUDIT_CREATION = Arrays.asList("coverageeligibility", "preauth", "claim", PAYMENT, COMMUNICATION, "predetermination", REGISTRY_STATUS, "search");
+    public static final String JWT_TOKEN = "jwt_token";
+    public static final String SPONSOR_CODE = "sponsor_code";
+    public static final String APPLICANT_CODE = "applicant_code";
+    public static final String PHONE_OTP = "phoneOtp";
+    public static final String EMAIL_OTP = "emailOtp";
+    public static final String SUCCESSFUL = "successful";
+    public static final String FAILED = "failed";
+    public static final String PAYOR_CODE = "payor_code";
 }

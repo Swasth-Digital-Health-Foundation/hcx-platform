@@ -13,20 +13,6 @@ public class EventGenerator {
     public EventGenerator() {
     }
 
-    public Map<String, Object> createRegistryUpdateAuditEvent(String endPoint, String encryptionCert, String signingCertPath, String email) {
-        Map<String,Object> event = new HashMap<>();
-        event.put(EID, AUDIT);
-        event.put(MID, UUIDUtils.getUUID());
-        event.put(ACTION, PARTICIPANT_REGISTRY_UPDATE);
-        event.put("endpoint_url", endPoint);
-        event.put("encryption_cert", encryptionCert);
-        event.put("signing_cert_path", signingCertPath);
-        event.put("email", email);
-        event.put("status", "success");
-        event.put(ETS, System.currentTimeMillis());
-        return event;
-    }
-
     public Map<String, Object> createOtpAuditEvent(String phone, String phoneOtp) {
         Map<String,Object> event = new HashMap<>();
         event.put(EID, AUDIT);

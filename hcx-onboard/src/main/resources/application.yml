@@ -27,5 +27,21 @@ aws:
 email:
   id: ${email_id:contact@hcxprotocol.io}
   pwd: ${email_pwd:swasthdevops}
-  subject: ${email_subject:HCX Onboarding Mail}
-  message: ${email_messsage:Hi User,<br />Please use this OTP for verification:RANDOM_CODE <br /> Use this below link to verify the OTPs:<br /><a href="USER_LINK" target="_blank">Verify OTP</a> <br /> Thanks,<br /> HCX Team}
+  otpSubject: ${email_subject:HCX Onboarding Mail}
+  otpMessage: ${otp_messsage:Hi User,<br />Please use this OTP for verification:RANDOM_CODE <br /> Use this below link to verify the OTPs:<br /><a href="USER_LINK" target="_blank">Verify OTP</a> <br /> Thanks,<br /> HCX Team}
+  prefillUrl: ${email_prefill_url:https://docs.google.com/forms/d/e/1FAIpQLSc1lmHjmsDG-wStSGrKRNoKZoyRApzqy0NO4q0wdFwb9EsEJQ/viewform?usp=pp_url&entry.902795366=primary_email&entry.54643771=primary_mobile}
+  otpVerifySubject: ${otp_verify_subject:HCX Participant Onboarded}
+  otpVerifyMessage: ${otp_verify_messsage:Hi User,<br /> Please use this participant code with HCX REGISTRY_CODE <br /> Use this below link to update details in registry<br /> <a href="https://forms.gle/cGhvs5yqZxHtza77A" target="_blank">Update Registry</a> <br />NOTE You will not be able to make calls without updating the endPoint and encryption cert path <br />Thanks,<br /> HCX Team}
+
+hcx-api:
+  basePath: ${HCX_API_BASEPATH:http://localhost:8080}
+
+#postgres config
+postgres:
+  url: ${postgres_url:jdbc:postgresql://localhost:5432/postgres}
+  user: ${postgres_user:postgres}
+  password: ${postgres_password:postgres}
+  onboardingTable: ${onboarding_table:onboarding}
+
+otp:
+  expiry: ${otp_expiry:600000}
