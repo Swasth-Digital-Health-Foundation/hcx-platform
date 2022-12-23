@@ -171,17 +171,17 @@ public class ParticipantController extends BaseController {
     @PostMapping(PARTICIPANT_SEND_OTP)
     public ResponseEntity<Object> sendOTP(@RequestBody Map<String, Object> requestBody) {
         try {
-            String phoneOtp = String.valueOf(Math.floor(Math.random() * 900000 + 100000));
-            smsService.sendOTP("+91" + requestBody.get(PRIMARY_EMAIL), phoneOtp);
-            prefillUrl.replace(PRIMARY_EMAIL, (String) requestBody.get(PRIMARY_EMAIL));
-            prefillUrl.replace(PRIMARY_MOBILE, (String) requestBody.get(PRIMARY_MOBILE));
-            String emailOtp = String.valueOf(Math.floor(Math.random() * 900000 + 100000));
-            otpMessage.replace("RANDOM_CODE", emailOtp);
-            otpMessage.replace("USER_LINK", prefillUrl);
-            emailService.sendMail((String) requestBody.get(PRIMARY_EMAIL), otpSubject, otpMessage);
-            String query = String.format("UPDATE %s SET phone_otp='%s',email_otp='%s',updatedOn=%d,expiry=%d WHERE primary_email='%s'",
-                    onboardingOtpTable, phoneOtp, emailOtp, System.currentTimeMillis(), System.currentTimeMillis() + otpExpiry, requestBody.get(PRIMARY_EMAIL));
-            postgreSQLClient.execute(query);
+//            String phoneOtp = String.valueOf(Math.floor(Math.random() * 900000 + 100000));
+//            smsService.sendOTP("+91" + requestBody.get(PRIMARY_EMAIL), phoneOtp);
+//            prefillUrl.replace(PRIMARY_EMAIL, (String) requestBody.get(PRIMARY_EMAIL));
+//            prefillUrl.replace(PRIMARY_MOBILE, (String) requestBody.get(PRIMARY_MOBILE));
+//            String emailOtp = String.valueOf(Math.floor(Math.random() * 900000 + 100000));
+//            otpMessage.replace("RANDOM_CODE", emailOtp);
+//            otpMessage.replace("USER_LINK", prefillUrl);
+//            emailService.sendMail((String) requestBody.get(PRIMARY_EMAIL), otpSubject, otpMessage);
+//            String query = String.format("UPDATE %s SET phone_otp='%s',email_otp='%s',updatedOn=%d,expiry=%d WHERE primary_email='%s'",
+//                    onboardingOtpTable, phoneOtp, emailOtp, System.currentTimeMillis(), System.currentTimeMillis() + otpExpiry, requestBody.get(PRIMARY_EMAIL));
+//            postgreSQLClient.execute(query);
             return getSuccessResponse(new Response());
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
