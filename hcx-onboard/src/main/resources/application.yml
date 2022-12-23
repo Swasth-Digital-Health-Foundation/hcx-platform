@@ -41,7 +41,10 @@ postgres:
   url: ${postgres_url:jdbc:postgresql://localhost:5432/postgres}
   user: ${postgres_user:postgres}
   password: ${postgres_password:postgres}
+  onboardingOtpTable: ${onboarding_otp_table:onboarding_otp}
   onboardingTable: ${onboarding_table:onboarding}
+
 
 otp:
   expiry: ${otp_expiry:600000}
+  maxAttempt: ${otp_max_attempt:3}

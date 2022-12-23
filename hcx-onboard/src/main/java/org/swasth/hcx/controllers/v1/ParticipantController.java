@@ -22,6 +22,7 @@ import org.swasth.common.utils.*;
 import org.swasth.hcx.controllers.BaseController;
 import org.swasth.hcx.services.EmailService;
 import org.swasth.hcx.services.SMSService;
+import org.swasth.postgresql.IDatabaseService;
 import org.swasth.postgresql.PostgreSQLClient;
 
 import java.sql.ResultSet;
@@ -45,8 +46,8 @@ public class ParticipantController extends BaseController {
     @Value("${registry.basePath}")
     private String registryUrl;
 
-    @Value("${email.subject}")
-    private String subject;
+    @Value("${email.otpSubject}")
+    private String otpSubject;
 
     @Value("${email.otpMessage}")
     private String otpMessage;
@@ -63,11 +64,17 @@ public class ParticipantController extends BaseController {
     @Value("${hcx-api.basePath}")
     private String hcxAPIBasePath;
 
+    @Value("${postgres.onboardingOtpTable}")
+    private String onboardingOtpTable;
+
     @Value("${postgres.onboardingTable}")
     private String onboardingTable;
 
     @Value("${otp.expiry}")
     private int otpExpiry;
+
+    @Value("${otp.maxAttempt}")
+    private int otpMaxAttempt;
 
     @Autowired
     private SMSService smsService;
@@ -76,7 +83,7 @@ public class ParticipantController extends BaseController {
     private EmailService emailService;
 
     @Autowired
-    private PostgreSQLClient postgreSQLClient;
+    private IDatabaseService postgreSQLClient;
 
     //TODO Remove this unnecessary code post moving changes into service layer
     public ResponseEntity<Object> responseHandler(HttpResponse<String> response, String participantCode) throws Exception {
@@ -112,17 +119,17 @@ public class ParticipantController extends BaseController {
     @PostMapping(PARTICIPANT_VERIFY)
     public ResponseEntity<Object> participantVerify(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
         try {
-            if (requestBody.containsKey(JWT_TOKEN)) {
-                String jwtToken = (String) requestBody.get(JWT_TOKEN);
-                Map<String, Object> payload = JSONUtils.decodeBase64String(jwtToken.split("\\.")[1], Map.class);
-                requestBody.remove(JWT_TOKEN);
-                onboardParticipant(header, requestBody, (String) payload.get(SPONSOR_CODE), (String) payload.get(APPLICANT_CODE));
-            } else if (requestBody.containsKey(PAYOR_CODE)) {
-                requestBody.remove(PAYOR_CODE);
-                onboardParticipant(header, requestBody, (String) requestBody.get(PAYOR_CODE), (String) requestBody.get(PRIMARY_EMAIL));
-            } else {
-                createParticipantAndSendOTP(header, requestBody, "");
-            }
+//            if (requestBody.containsKey(JWT_TOKEN)) {
+//                String jwtToken = (String) requestBody.get(JWT_TOKEN);
+//                Map<String, Object> payload = JSONUtils.decodeBase64String(jwtToken.split("\\.")[1], Map.class);
+//                requestBody.remove(JWT_TOKEN);
+//                onboardParticipant(header, requestBody, (String) payload.get(SPONSOR_CODE), (String) payload.get(APPLICANT_CODE));
+//            } else if (requestBody.containsKey(PAYOR_CODE)) {
+//                requestBody.remove(PAYOR_CODE);
+//                onboardParticipant(header, requestBody, (String) requestBody.get(PAYOR_CODE), (String) requestBody.get(PRIMARY_EMAIL));
+//            } else {
+//                createParticipantAndSendOTP(header, requestBody, "");
+//            }
             return getSuccessResponse(new Response());
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
@@ -130,6 +137,7 @@ public class ParticipantController extends BaseController {
     }
 
     private void onboardParticipant(HttpHeaders header, Map<String, Object> requestBody, String sponsorCode, String applicantCode) throws Exception {
+        Map<String,Object> participant = (Map<String, Object>) requestBody.getOrDefault(PARTICIPANT, new HashMap<>());
         Map<String,Object> sponsorDetails = getParticipant(PARTICIPANT_CODE, sponsorCode);
         HttpResponse<String> response = HttpUtils.get(sponsorDetails.get(ENDPOINT_URL) + PARTICIPANT_GET_INFO + applicantCode);
         if(response.getStatus() == 200) {
@@ -154,8 +162,8 @@ public class ParticipantController extends BaseController {
         }
         String participantCode = (String) JSONUtils.deserialize(createResponse.getBody(), Map.class).get(PARTICIPANT_CODE);
         String query = String.format("INSERT INTO %s (participant_code,sponsor_code,primary_email,primary_mobile,email_otp,phone_otp,createdOn," +
-                "updatedOn,expiry,identity_verified,phone_otp_verified,email_otp_verified) VALUES ('%s','%s','%s','%s','%s','%s',%d,%d,%d,'%s','%s','%s')", onboardingTable, participantCode, sponsorCode,
-                requestBody.get(PRIMARY_EMAIL), requestBody.get(PRIMARY_MOBILE), "", "", System.currentTimeMillis(), System.currentTimeMillis(), System.currentTimeMillis(), SUCCESSFUL, PENDING, PENDING);
+                "updatedOn,expiry,identity_verified,phone_otp_verified,email_otp_verified,status,attempt_count) VALUES ('%s','%s','%s','%s','%s','%s',%d,%d,%d,%b,%b,%b,'%s',%d)", onboardingOtpTable, participantCode, sponsorCode,
+                requestBody.get(PRIMARY_EMAIL), requestBody.get(PRIMARY_MOBILE), "", "", System.currentTimeMillis(), System.currentTimeMillis(), System.currentTimeMillis(), true, false, false, PENDING, 0);
         postgreSQLClient.execute(query);
         sendOTP(requestBody);
     }
@@ -170,9 +178,9 @@ public class ParticipantController extends BaseController {
             String emailOtp = String.valueOf(Math.floor(Math.random() * 900000 + 100000));
             otpMessage.replace("RANDOM_CODE", emailOtp);
             otpMessage.replace("USER_LINK", prefillUrl);
-            emailService.sendMail((String) requestBody.get(PRIMARY_EMAIL), subject, otpMessage);
+            emailService.sendMail((String) requestBody.get(PRIMARY_EMAIL), otpSubject, otpMessage);
             String query = String.format("UPDATE %s SET phone_otp='%s',email_otp='%s',updatedOn=%d,expiry=%d WHERE primary_email='%s'",
-                    onboardingTable, phoneOtp, emailOtp, System.currentTimeMillis(), System.currentTimeMillis() + otpExpiry, requestBody.get(PRIMARY_EMAIL));
+                    onboardingOtpTable, phoneOtp, emailOtp, System.currentTimeMillis(), System.currentTimeMillis() + otpExpiry, requestBody.get(PRIMARY_EMAIL));
             postgreSQLClient.execute(query);
             return getSuccessResponse(new Response());
         } catch (Exception e) {
@@ -181,30 +189,36 @@ public class ParticipantController extends BaseController {
     }
 
     @PostMapping(PARTICIPANT_VERIFY_OTP)
-    public ResponseEntity<Object> verifyOTP(@RequestBody Map<String, Object> requestBody) throws SQLException {
+    public ResponseEntity<Object> verifyOTP(@RequestBody Map<String, Object> requestBody) throws Exception {
         ResultSet resultSet = null;
+        boolean emailOtpVerified = false;
+        boolean phoneOtpVerified = false;
+        int attemptCount = 0;
         try {
-            String emailOtpVerified = FAILED;
-            String phoneOtpVerified = FAILED;
-            String selectQuery = String.format("SELECT * FROM %s WHERE primary_email='%s'", onboardingTable, requestBody.get(PRIMARY_EMAIL));
-            resultSet = postgreSQLClient.executeQuery(selectQuery);
+            String selectQuery = String.format("SELECT * FROM %s WHERE primary_email='%s'", onboardingOtpTable, requestBody.get(PRIMARY_EMAIL));
+            resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
             if (resultSet.next()) {
+                attemptCount = resultSet.getInt(ATTEMPT_COUNT);
                 if (resultSet.getLong(EXPIRY) > System.currentTimeMillis()) {
-                    if (resultSet.getString(EMAIL_OTP).equals(requestBody.get(EMAIL_OTP))) emailOtpVerified = SUCCESSFUL;
-                    if (resultSet.getString(PHONE_OTP).equals(requestBody.get(PHONE_OTP))) phoneOtpVerified = SUCCESSFUL;
+                    if(attemptCount >= otpMaxAttempt) {
+                        if (resultSet.getString(EMAIL_OTP).equals(requestBody.get(EMAIL_OTP))) emailOtpVerified = true; else throw new ClientException("Email OTP is invalid, please try again!");
+                        if (resultSet.getString(PHONE_OTP).equals(requestBody.get(PHONE_OTP))) phoneOtpVerified = true; else throw new ClientException("Phone OTP is invalid, please try again!");
+                    } else {
+                        throw new ClientException("OTP retry limit has reached, please re-generate otp and try again!");
+                    }
                 } else {
-                    throw new ClientException("OTP has expired, re-generate otp and try again!");
+                    throw new ClientException("OTP has expired, please re-generate otp and try again!");
                 }
             } else {
                 throw new ClientException("Participant record does not exist");
             }
-            String updateQuery = String.format("UPDATE %s SET email_otp_verified='%s',phone_otp_verified='%s,updatedOn=%d WHERE primary_email='%s'",
-                    onboardingTable, emailOtpVerified, phoneOtpVerified, System.currentTimeMillis(), requestBody.get(PRIMARY_EMAIL));
-            postgreSQLClient.execute(updateQuery);
             otpVerifyMessage.replace("REGISTRY_CODE", (String) requestBody.get(PARTICIPANT_CODE));
             emailService.sendMail((String) requestBody.get(PRIMARY_EMAIL), otpVerifySubject, otpVerifyMessage);
             return getSuccessResponse(new Response());
         } catch (Exception e) {
+            String updateQuery = String.format("UPDATE %s SET email_otp_verified=%b,phone_otp_verified=%b,updatedOn=%d,attempt_count=%d WHERE primary_email='%s'",
+                    onboardingOtpTable, emailOtpVerified, phoneOtpVerified, System.currentTimeMillis(), attemptCount + 1, requestBody.get(PRIMARY_EMAIL));
+            postgreSQLClient.execute(updateQuery);
             return exceptionHandler(new Response(), e);
         } finally {
             if (resultSet != null) resultSet.close();

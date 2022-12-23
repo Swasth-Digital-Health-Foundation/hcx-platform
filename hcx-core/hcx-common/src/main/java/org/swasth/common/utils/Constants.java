@@ -253,4 +253,5 @@ public class Constants {
     public static final String SUCCESSFUL = "successful";
     public static final String FAILED = "failed";
     public static final String PAYOR_CODE = "payor_code";
+    public static final String ATTEMPT_COUNT = "attempt_count";
 }
