@@ -60,9 +60,8 @@ public class Constants {
     public static final String PARTICIPANT_UPDATE = "/participant/update";
     public static final String PARTICIPANT_DELETE = "/participant/delete";
     public static final String PARTICIPANT_VERIFY = "/participant/verify";
-    public static final String PARTICIPANT_GET_INFO = "/participant/get/info/";
+    public static final String PARTICIPANT_GET_INFO = "/participant/getInfo";
     public static final String PARTICIPANT_SEND_OTP = "/participant/send/otp";
-    public static final String PARTICIPANT_VERIFY_OTP = "/participant/verify/otp";
     // Object Types
     public static final String PARTICIPANT = "participant";
 
@@ -254,4 +253,7 @@ public class Constants {
     public static final String FAILED = "failed";
     public static final String PAYOR_CODE = "payor_code";
     public static final String ATTEMPT_COUNT = "attempt_count";
+    public static final String REJECTED = "rejected";
+    public static final String ACCEPTED = "accepted";
+
 }

@@ -1,5 +1,7 @@
 package org.swasth.hcx.controllers;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
@@ -12,6 +14,8 @@ import org.swasth.hcx.helpers.EventGenerator;
 
 
 public class BaseController {
+
+    private static final Logger logger = LoggerFactory.getLogger(BaseController.class);
 
     @Autowired
     protected Environment env;
@@ -28,6 +32,7 @@ public class BaseController {
     }
 
     protected ResponseEntity<Object> exceptionHandler(Response response, Exception e){
+        logger.error("Exception: " + e.getMessage());
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         ErrorCodes errorCode = ErrorCodes.INTERNAL_SERVER_ERROR;
         if (e instanceof ClientException) {
