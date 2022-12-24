@@ -19,15 +19,16 @@ public class EmailService {
 
     public void sendMail(String to,String subject,String message){
         //Get properties object
-        Properties props = new Properties();
-        props.put("mail.smtp.host", "smtp.gmail.com");
-        props.put("mail.smtp.socketFactory.port", "465");
-        props.put("mail.smtp.socketFactory.class",
-                "javax.net.ssl.SSLSocketFactory");
-        props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.port", "465");
+        Properties properties = new Properties();
+        properties.put("mail.smtp.host", "smtp.gmail.com");
+        properties.put("mail.smtp.port", "465");
+        properties.put("mail.smtp.auth", "true");
+        properties.put("mail.smtp.starttls.enable", "true");
+        properties.put("mail.smtp.starttls.required", "true");
+        properties.put("mail.smtp.ssl.protocols", "TLSv1.2");
+        properties.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
         //get Session
-        Session session = Session.getDefaultInstance(props,
+        Session session = Session.getDefaultInstance(properties,
                 new javax.mail.Authenticator() {
                     protected PasswordAuthentication getPasswordAuthentication() {
                         return new PasswordAuthentication(adminMail,adminPwd);
@@ -41,7 +42,6 @@ public class EmailService {
             mimeMessage.setText(message);
             //send message
             Transport.send(mimeMessage);
-            System.out.println("message sent successfully");
         } catch (MessagingException e) {throw new RuntimeException(e);}
     }
 }
