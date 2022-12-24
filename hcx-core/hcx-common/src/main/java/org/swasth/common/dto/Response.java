@@ -53,6 +53,10 @@ public class Response {
         this.put(key, val);
     }
 
+    public Response(Map<String,Object> result) {
+        this.result = result;
+    }
+
     public List<Map<String,Object>> getNotifications() {
         return notifications;
     }

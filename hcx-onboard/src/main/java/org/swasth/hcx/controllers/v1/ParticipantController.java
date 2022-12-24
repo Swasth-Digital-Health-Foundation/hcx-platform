@@ -17,6 +17,7 @@ import org.swasth.common.exception.*;
 import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.HttpUtils;
 import org.swasth.common.utils.JSONUtils;
+import org.swasth.common.utils.JWTUtils;
 import org.swasth.hcx.controllers.BaseController;
 import org.swasth.hcx.exception.OTPVerificationException;
 import org.swasth.hcx.services.EmailService;
@@ -91,6 +92,9 @@ public class ParticipantController extends BaseController {
     @Autowired
     private IDatabaseService postgreSQLClient;
 
+    @Autowired
+    private JWTUtils jwtUtils;
+
     @PostMapping(PARTICIPANT_VERIFY)
     public ResponseEntity<Object> participantVerify(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
         String email = "";
@@ -98,19 +102,20 @@ public class ParticipantController extends BaseController {
             logger.info("Participant verification :: " + requestBody);
             Map<String, Object> participant = (Map<String, Object>) requestBody.getOrDefault(PARTICIPANT, new HashMap<>());
             email = (String) participant.getOrDefault(PRIMARY_EMAIL, "");
+            Map<String,Object> output = new HashMap<>();
             if (requestBody.containsKey(JWT_TOKEN)) {
                 String jwtToken = (String) requestBody.get(JWT_TOKEN);
                 Map<String, Object> payload = JSONUtils.decodeBase64String(jwtToken.split("\\.")[1], Map.class);
-                onboardParticipant(header, participant, (String) payload.get(SPONSOR_CODE), (String) payload.get(APPLICANT_CODE));
+                onboardParticipant(header, participant, (String) payload.get(SPONSOR_CODE), (String) payload.get(APPLICANT_CODE), (String) requestBody.get(JWT_TOKEN), output);
             } else if (requestBody.containsKey(PAYOR_CODE)) {
-                onboardParticipant(header, participant, (String) requestBody.get(PAYOR_CODE), (String) requestBody.get(PRIMARY_EMAIL));
+                onboardParticipant(header, participant, (String) requestBody.get(PAYOR_CODE), (String) requestBody.get(PRIMARY_EMAIL), "", output);
             } else if (requestBody.containsKey(EMAIL_OTP)) {
                 email = (String) requestBody.get(PRIMARY_EMAIL);
-                verifyOTP(requestBody);
+                verifyOTP(requestBody, output);
             } else {
-                createParticipantAndSendOTP(header, participant, "");
+                createParticipantAndSendOTP(header, participant, "", output);
             }
-            return getSuccessResponse(new Response());
+            return getSuccessResponse(new Response(output));
         } catch (Exception e) {
             if (!(e instanceof OTPVerificationException)) {
                 onboadingFailedMsg = onboadingFailedMsg.replace("ERROR_MSG", " " + e.getMessage());
@@ -120,19 +125,23 @@ public class ParticipantController extends BaseController {
         }
     }
 
-    private void onboardParticipant(HttpHeaders header, Map<String, Object> participant, String sponsorCode, String applicantCode) throws Exception {
+    private void onboardParticipant(HttpHeaders header, Map<String, Object> participant, String sponsorCode, String applicantCode, String jwtToken, Map<String,Object> output) throws Exception {
         Map<String,Object> sponsorDetails = getParticipant(PARTICIPANT_CODE, sponsorCode);
+        if(!jwtUtils.isValidSignature(jwtToken, (String) sponsorDetails.get(SIGNING_CERT_PATH)))
+            throw new ClientException("Invalid JWT token signature");
         // TODO: remove dummy getinfo and implement getinfo as post method
         //HttpResponse<String> response = HttpUtils.get(sponsorDetails.get(ENDPOINT_URL) + PARTICIPANT_GET_INFO + applicantCode);
         String email = (String) participant.get(PRIMARY_EMAIL);
         Map<String, Object> resp = participant;
         if(!StringUtils.equalsIgnoreCase((String) participant.get(PARTICIPANT_NAME), (String) resp.get(PARTICIPANT_NAME)) ||
                 !StringUtils.equalsIgnoreCase(email, (String) resp.get(PRIMARY_EMAIL))){
+            output.put(IDENTITY_VERIFIED, false);
             updateIdentityVerificationStatus(email, sponsorCode, REJECTED);
             throw new ClientException("Identity verification failed, participant name or email is not matched with details in sponsor system");
         } else {
+            output.put(IDENTITY_VERIFIED, true);
             updateIdentityVerificationStatus((String) participant.get(PRIMARY_EMAIL), sponsorCode, ACCEPTED);
-            createParticipantAndSendOTP(header, participant, sponsorCode);
+            createParticipantAndSendOTP(header, participant, sponsorCode, output);
         }
     }
 
@@ -142,7 +151,7 @@ public class ParticipantController extends BaseController {
         postgreSQLClient.execute(query);
     }
 
-    private void createParticipantAndSendOTP(HttpHeaders header, Map<String, Object> participant, String sponsorCode) throws Exception {
+    private void createParticipantAndSendOTP(HttpHeaders header, Map<String, Object> participant, String sponsorCode, Map<String,Object> output) throws Exception {
         participant.put(ENDPOINT_URL, "http://testurl/v0.7");
         participant.put(ENCRYPTION_CERT, "https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/jwe-helper/main/src/test/resources/x509-self-signed-certificate.pem");
         Map<String, String> headersMap = new HashMap<>();
@@ -157,6 +166,7 @@ public class ParticipantController extends BaseController {
                 participant.get(PRIMARY_EMAIL), participant.get(PRIMARY_MOBILE), "", "", System.currentTimeMillis(), System.currentTimeMillis(), System.currentTimeMillis(), false, false, PENDING, 0);
         postgreSQLClient.execute(query);
         sendOTP(participant);
+        output.put(PARTICIPANT_CODE, participantCode);
         logger.info("OTP has been sent successfully :: participant code : " + participantCode + " :: primary email : " + participant.get(PRIMARY_EMAIL));
     }
 
@@ -181,7 +191,7 @@ public class ParticipantController extends BaseController {
         }
     }
 
-    public void verifyOTP(@RequestBody Map<String, Object> requestBody) throws Exception {
+    public void verifyOTP(@RequestBody Map<String, Object> requestBody, Map<String,Object> output) throws Exception {
         ResultSet resultSet = null;
         boolean emailOtpVerified = false;
         boolean phoneOtpVerified = false;
@@ -197,7 +207,6 @@ public class ParticipantController extends BaseController {
                     status = SUCCESSFUL;
                     throw new ClientException("OTP has already verified.");
                 }
-
                 if (resultSet.getLong(EXPIRY) > System.currentTimeMillis()) {
                     if(attemptCount < otpMaxAttempt) {
                         logger.info(attemptCount + resultSet.getString(EMAIL_OTP) + resultSet.getString(EMAIL_OTP).equals(requestBody.get(EMAIL_OTP)));
@@ -214,8 +223,11 @@ public class ParticipantController extends BaseController {
             }
             updateOtpStatus(true, true, attemptCount, SUCCESSFUL, email);
             emailService.sendMail(email, otpVerifySub, otpVerifyMsg.replace("REGISTRY_CODE", (String) requestBody.get(PARTICIPANT_CODE)));
+            output.put(EMAIL_OTP_VERIFIED, true);
+            output.put(PHONE_OTP_VERIFIED, true);
             logger.info("OTP verification is successful :: primary email : " + email);
         } catch (Exception e) {
+            e.printStackTrace();
             updateOtpStatus(emailOtpVerified, phoneOtpVerified, attemptCount, status, email);
             emailService.sendMail(email, otpFailedSub, otpFailedMsg.replace("ERROR_MSG", " " + e.getMessage()));
             throw new OTPVerificationException(e.getMessage());
@@ -231,43 +243,11 @@ public class ParticipantController extends BaseController {
     }
 
     private Map<String, Object> getParticipant(String key, String value) throws Exception {
-        HttpResponse<String> searchResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_SEARCH, "{ \"filters\": { \""+key+"\": { \"eq\": \" " + value + "\" } } }", new HashMap<>());
+        HttpResponse<String> searchResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_SEARCH, "{ \"filters\": { \"" + key + "\": { \"eq\": \" " + value + "\" } } }", new HashMap<>());
         ParticipantResponse participantResponse = JSONUtils.deserialize(searchResponse.getBody(), ParticipantResponse.class);
         if (participantResponse.getParticipants().isEmpty())
             throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_CODE, INVALID_PARTICIPANT_CODE);
         return (Map<String, Object>) participantResponse.getParticipants().get(0);
     }
-
-    //TODO Remove this unnecessary code post moving changes into service layer
-    public ResponseEntity<Object> responseHandler(HttpResponse<String> response, String participantCode) throws Exception {
-        if (response.getStatus() == HttpStatus.OK.value()) {
-            if (response.getBody().isEmpty()) {
-                return getSuccessResponse("");
-            } else {
-                if (response.getBody().startsWith("["))
-                    return getSuccessResponse(new ParticipantResponse(JSONUtils.deserialize(response.getBody(), ArrayList.class)));
-                else
-                    return getSuccessResponse(new ParticipantResponse(participantCode));
-            }
-        } else if (response.getStatus() == HttpStatus.BAD_REQUEST.value()) {
-            throw new ClientException(getErrorMessage(response));
-        } else if (response.getStatus() == HttpStatus.UNAUTHORIZED.value()) {
-            throw new AuthorizationException(getErrorMessage(response));
-        } else if (response.getStatus() == HttpStatus.NOT_FOUND.value()) {
-            throw new ResourceNotFoundException(getErrorMessage(response));
-        } else {
-            throw new ServerException(getErrorMessage(response));
-        }
-    }
-
-    private ResponseEntity<Object> getSuccessResponse(Object response) {
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-    private String getErrorMessage(HttpResponse<String> response) throws Exception {
-        Map<String, Object> result = JSONUtils.deserialize(response.getBody(), HashMap.class);
-        return (String) ((Map<String, Object>) result.get("params")).get("errmsg");
-    }
-
 
 }

@@ -1,5 +1,6 @@
 package org.swasth.hcx.controllers;
 
+import kong.unirest.HttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +11,11 @@ import org.swasth.auditindexer.function.AuditIndexer;
 import org.swasth.common.dto.Response;
 import org.swasth.common.dto.ResponseError;
 import org.swasth.common.exception.*;
+import org.swasth.common.utils.JSONUtils;
 import org.swasth.hcx.helpers.EventGenerator;
+
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class BaseController {
@@ -29,6 +34,15 @@ public class BaseController {
     protected Response errorResponse(Response response, ErrorCodes code, Exception e) {
         response.setError(new ResponseError(code, e.getMessage(), e.getCause()));
         return response;
+    }
+
+    protected ResponseEntity<Object> getSuccessResponse(Object response) {
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    protected String getErrorMessage(HttpResponse<String> response) throws Exception {
+        Map<String, Object> result = JSONUtils.deserialize(response.getBody(), HashMap.class);
+        return (String) ((Map<String, Object>) result.get("params")).get("errmsg");
     }
 
     protected ResponseEntity<Object> exceptionHandler(Response response, Exception e){
