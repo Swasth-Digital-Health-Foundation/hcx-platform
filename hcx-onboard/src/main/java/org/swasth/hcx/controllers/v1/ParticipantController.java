@@ -199,7 +199,7 @@ public class ParticipantController extends BaseController {
         int attemptCount = 0;
         String status = FAILED;
         String email = (String) requestBody.get(PRIMARY_EMAIL);
-        String participantCode;
+        String participantCode = "";
         try {
             String selectQuery = String.format("SELECT * FROM %s WHERE primary_email='%s'", onboardingOtpTable, requestBody.get(PRIMARY_EMAIL));
             resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
@@ -212,7 +212,6 @@ public class ParticipantController extends BaseController {
                 }
                 if (resultSet.getLong(EXPIRY) > System.currentTimeMillis()) {
                     if(attemptCount < otpMaxAttempt) {
-                        logger.info(attemptCount + resultSet.getString(EMAIL_OTP) + resultSet.getString(EMAIL_OTP).equals(requestBody.get(EMAIL_OTP)));
                         if (resultSet.getString(EMAIL_OTP).equals(requestBody.get(EMAIL_OTP))) emailOtpVerified = true; else throw new ClientException("Email OTP is invalid, please try again!");
                         if (resultSet.getString(PHONE_OTP).equals(requestBody.get(PHONE_OTP))) phoneOtpVerified = true; else throw new ClientException("Phone OTP is invalid, please try again!");
                     } else {
@@ -225,7 +224,7 @@ public class ParticipantController extends BaseController {
                 throw new ClientException(ErrorCodes.ERR_INVALID_OTP, "Participant record does not exist");
             }
             updateOtpStatus(true, true, attemptCount, SUCCESSFUL, email);
-            emailService.sendMail(email, otpVerifySub, otpVerifyMsg.replace("REGISTRY_CODE", participantCode));
+            emailService.sendMail(email, otpVerifySub, otpVerifyMsg.replace("REGISTRY_CODE", " " + participantCode));
             output.put(EMAIL_OTP_VERIFIED, true);
             output.put(PHONE_OTP_VERIFIED, true);
             logger.info("OTP verification is successful :: primary email : " + email);

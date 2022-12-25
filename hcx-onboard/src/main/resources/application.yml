@@ -1,5 +1,5 @@
-server:
-  port: ${SERVER_PORT:8080}
+#server:
+#  port: ${SERVER_PORT:8082}
 
 logging:
   level:
@@ -40,7 +40,7 @@ email:
   otpMsg: ${otp_msg:Hi User,<br/>Please use this OTP for verification:RANDOM_CODE <br/> Use this below link to verify the OTPs:<br/><a href="USER_LINK" target="_blank">Verify OTP</a> <br/> Thanks,<br/> HCX Team}
   prefillUrl: ${prefill_url:https://docs.google.com/forms/d/e/1FAIpQLSc1lmHjmsDG-wStSGrKRNoKZoyRApzqy0NO4q0wdFwb9EsEJQ/viewform?usp=pp_url&entry.902795366=primary_email&entry.54643771=primary_mobile}
   otpVerifySub: ${otp_verify_sub:HCX Participant Onboarded}
-  otpVerifyMsg: ${otp_verify_msg:Hi User,<br/> Please use this participant code with HCX REGISTRY_CODE <br/> Use this below link to update details in registry<br/> <a href="https://forms.gle/cGhvs5yqZxHtza77A" target="_blank">Update Registry</a> <br/>NOTE You will not be able to make calls without updating the endPoint and encryption cert path <br/>Thanks,<br/> HCX Team}
+  otpVerifyMsg: ${otp_verify_msg:Hi User,<br/> Please use this participant code with HCX:REGISTRY_CODE <br/> Use this below link to update details in registry<br/> <a href="https://forms.gle/cGhvs5yqZxHtza77A" target="_blank">Update Registry</a> <br/>NOTE You will not be able to make calls without updating the end point url and encryption cert path in the registry.<br/>Thanks,<br/> HCX Team}
   otpFailedSub: ${otp_failed_sub:HCX Verify OTP Failed}
   otpFailedMsg: ${otp_failed_msg:Hi User,<br/> OTP verification failed due to error:ERROR_MSG<br/> Thanks,<br/> HCX Team}
 
