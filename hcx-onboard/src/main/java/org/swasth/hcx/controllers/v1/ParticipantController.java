@@ -156,6 +156,8 @@ public class ParticipantController extends BaseController {
     private void createParticipantAndSendOTP(HttpHeaders header, Map<String, Object> participant, String sponsorCode, Map<String,Object> output) throws Exception {
         participant.put(ENDPOINT_URL, "http://testurl/v0.7");
         participant.put(ENCRYPTION_CERT, "https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/jwe-helper/main/src/test/resources/x509-self-signed-certificate.pem");
+        if(((ArrayList<String>) participant.get(ROLES)).contains(PAYOR))
+        participant.put(SCHEME_CODE,"default");
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put(AUTHORIZATION, Objects.requireNonNull(header.get(AUTHORIZATION)).get(0));
         HttpResponse<String> createResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_CREATE, JSONUtils.serialize(participant), headersMap);
@@ -200,12 +202,14 @@ public class ParticipantController extends BaseController {
         String status = FAILED;
         String email = (String) requestBody.get(PRIMARY_EMAIL);
         String participantCode = "";
+        String phoneNumber = "";
         try {
             String selectQuery = String.format("SELECT * FROM %s WHERE primary_email='%s'", onboardingOtpTable, requestBody.get(PRIMARY_EMAIL));
             resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
             if (resultSet.next()) {
                 attemptCount = resultSet.getInt(ATTEMPT_COUNT);
                 participantCode = resultSet.getString(PARTICIPANT_CODE);
+                phoneNumber = resultSet.getString(PRIMARY_MOBILE);
                 if(resultSet.getString("status").equals(SUCCESSFUL)) {
                     status = SUCCESSFUL;
                     throw new ClientException(ErrorCodes.ERR_INVALID_OTP, "OTP has already verified.");
@@ -224,14 +228,14 @@ public class ParticipantController extends BaseController {
                 throw new ClientException(ErrorCodes.ERR_INVALID_OTP, "Participant record does not exist");
             }
             updateOtpStatus(true, true, attemptCount, SUCCESSFUL, email);
-            emailService.sendMail(email, otpVerifySub, otpVerifyMsg.replace("REGISTRY_CODE", " " + participantCode));
+            emailService.sendMail(email, otpVerifySub, otpVerifyMsg.replaceAll("REGISTRY_CODE", participantCode));
             output.put(EMAIL_OTP_VERIFIED, true);
             output.put(PHONE_OTP_VERIFIED, true);
             logger.info("OTP verification is successful :: primary email : " + email);
         } catch (ClientException e) {
             e.printStackTrace();
             updateOtpStatus(emailOtpVerified, phoneOtpVerified, attemptCount, status, email);
-            emailService.sendMail(email, otpFailedSub, otpFailedMsg.replace("ERROR_MSG", " " + e.getMessage()));
+            emailService.sendMail(email, otpFailedSub, otpFailedMsg.replace("ERROR_MSG", " " + e.getMessage()).replace(PRIMARY_EMAIL,email).replace(PRIMARY_MOBILE,phoneNumber));
             throw new OTPVerificationException(e.getErrCode(), e.getMessage());
         } finally {
             if (resultSet != null) resultSet.close();
