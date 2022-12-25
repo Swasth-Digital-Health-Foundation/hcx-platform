@@ -39,7 +39,7 @@ public class EmailService {
             MimeMessage mimeMessage = new MimeMessage(session);
             mimeMessage.addRecipient(Message.RecipientType.TO,new InternetAddress(to));
             mimeMessage.setSubject(subject);
-            mimeMessage.setText(message);
+            mimeMessage.setContent(message, "text/html");
             //send message
             Transport.send(mimeMessage);
         } catch (MessagingException e) {throw new RuntimeException(e);}

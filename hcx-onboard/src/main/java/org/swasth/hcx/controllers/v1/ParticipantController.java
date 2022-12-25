@@ -1,6 +1,5 @@
 package org.swasth.hcx.controllers.v1;
 
-import com.amazonaws.services.xray.model.Http;
 import kong.unirest.HttpResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -8,9 +7,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.swasth.common.dto.OnboardRequest;
 import org.swasth.common.dto.ParticipantResponse;
 import org.swasth.common.dto.Response;
 import org.swasth.common.exception.*;
@@ -19,7 +18,7 @@ import org.swasth.common.utils.HttpUtils;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.utils.JWTUtils;
 import org.swasth.hcx.controllers.BaseController;
-import org.swasth.hcx.exception.OTPVerificationException;
+import org.swasth.common.exception.OTPVerificationException;
 import org.swasth.hcx.services.EmailService;
 import org.swasth.hcx.services.SMSService;
 import org.swasth.postgresql.IDatabaseService;
@@ -96,10 +95,12 @@ public class ParticipantController extends BaseController {
     private JWTUtils jwtUtils;
 
     @PostMapping(PARTICIPANT_VERIFY)
-    public ResponseEntity<Object> participantVerify(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
+    public ResponseEntity<Object> participantVerify(@RequestHeader HttpHeaders header, @RequestBody ArrayList<Map<String,Object>> body) {
         String email = "";
         try {
-            logger.info("Participant verification :: " + requestBody);
+            OnboardRequest request = new OnboardRequest(body);
+            Map<String,Object> requestBody = request.getBody();
+            logger.info("Participant verification :: " + request);
             Map<String, Object> participant = (Map<String, Object>) requestBody.getOrDefault(PARTICIPANT, new HashMap<>());
             email = (String) participant.getOrDefault(PRIMARY_EMAIL, "");
             Map<String,Object> output = new HashMap<>();
@@ -128,7 +129,7 @@ public class ParticipantController extends BaseController {
     private void onboardParticipant(HttpHeaders header, Map<String, Object> participant, String sponsorCode, String applicantCode, String jwtToken, Map<String,Object> output) throws Exception {
         Map<String,Object> sponsorDetails = getParticipant(PARTICIPANT_CODE, sponsorCode);
         if(!jwtUtils.isValidSignature(jwtToken, (String) sponsorDetails.get(SIGNING_CERT_PATH)))
-            throw new ClientException("Invalid JWT token signature");
+            throw new ClientException(ErrorCodes.ERR_INVALID_JWT, "Invalid JWT token signature");
         // TODO: remove dummy getinfo and implement getinfo as post method
         //HttpResponse<String> response = HttpUtils.get(sponsorDetails.get(ENDPOINT_URL) + PARTICIPANT_GET_INFO + applicantCode);
         String email = (String) participant.get(PRIMARY_EMAIL);
@@ -137,7 +138,7 @@ public class ParticipantController extends BaseController {
                 !StringUtils.equalsIgnoreCase(email, (String) resp.get(PRIMARY_EMAIL))){
             output.put(IDENTITY_VERIFIED, false);
             updateIdentityVerificationStatus(email, sponsorCode, REJECTED);
-            throw new ClientException("Identity verification failed, participant name or email is not matched with details in sponsor system");
+            throw new ClientException(ErrorCodes.ERR_INVALID_IDENTITY, "Identity verification failed, participant name or email is not matched with details in sponsor system");
         } else {
             output.put(IDENTITY_VERIFIED, true);
             updateIdentityVerificationStatus((String) participant.get(PRIMARY_EMAIL), sponsorCode, ACCEPTED);
@@ -205,7 +206,7 @@ public class ParticipantController extends BaseController {
                 attemptCount = resultSet.getInt(ATTEMPT_COUNT);
                 if(resultSet.getString("status").equals(SUCCESSFUL)) {
                     status = SUCCESSFUL;
-                    throw new ClientException("OTP has already verified.");
+                    throw new ClientException(ErrorCodes.ERR_INVALID_OTP, "OTP has already verified.");
                 }
                 if (resultSet.getLong(EXPIRY) > System.currentTimeMillis()) {
                     if(attemptCount < otpMaxAttempt) {
@@ -213,24 +214,24 @@ public class ParticipantController extends BaseController {
                         if (resultSet.getString(EMAIL_OTP).equals(requestBody.get(EMAIL_OTP))) emailOtpVerified = true; else throw new ClientException("Email OTP is invalid, please try again!");
                         if (resultSet.getString(PHONE_OTP).equals(requestBody.get(PHONE_OTP))) phoneOtpVerified = true; else throw new ClientException("Phone OTP is invalid, please try again!");
                     } else {
-                        throw new ClientException("OTP retry limit has reached, please re-generate otp and try again!");
+                        throw new ClientException(ErrorCodes.ERR_INVALID_OTP, "OTP retry limit has reached, please re-generate otp and try again!");
                     }
                 } else {
-                    throw new ClientException("OTP has expired, please re-generate otp and try again!");
+                    throw new ClientException(ErrorCodes.ERR_INVALID_OTP, "OTP has expired, please re-generate otp and try again!");
                 }
             } else {
-                throw new ClientException("Participant record does not exist");
+                throw new ClientException(ErrorCodes.ERR_INVALID_OTP, "Participant record does not exist");
             }
             updateOtpStatus(true, true, attemptCount, SUCCESSFUL, email);
             emailService.sendMail(email, otpVerifySub, otpVerifyMsg.replace("REGISTRY_CODE", (String) requestBody.get(PARTICIPANT_CODE)));
             output.put(EMAIL_OTP_VERIFIED, true);
             output.put(PHONE_OTP_VERIFIED, true);
             logger.info("OTP verification is successful :: primary email : " + email);
-        } catch (Exception e) {
+        } catch (ClientException e) {
             e.printStackTrace();
             updateOtpStatus(emailOtpVerified, phoneOtpVerified, attemptCount, status, email);
             emailService.sendMail(email, otpFailedSub, otpFailedMsg.replace("ERROR_MSG", " " + e.getMessage()));
-            throw new OTPVerificationException(e.getMessage());
+            throw new OTPVerificationException(e.getErrCode(), e.getMessage());
         } finally {
             if (resultSet != null) resultSet.close();
         }
