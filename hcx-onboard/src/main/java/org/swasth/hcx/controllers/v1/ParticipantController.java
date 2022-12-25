@@ -109,7 +109,7 @@ public class ParticipantController extends BaseController {
                 Map<String, Object> payload = JSONUtils.decodeBase64String(jwtToken.split("\\.")[1], Map.class);
                 onboardParticipant(header, participant, (String) payload.get(SPONSOR_CODE), (String) payload.get(APPLICANT_CODE), (String) requestBody.get(JWT_TOKEN), output);
             } else if (requestBody.containsKey(PAYOR_CODE)) {
-                onboardParticipant(header, participant, (String) requestBody.get(PAYOR_CODE), (String) requestBody.get(PRIMARY_EMAIL), "", output);
+                onboardParticipant(header, participant, (String) requestBody.get(PAYOR_CODE), "", "", output);
             } else if (requestBody.containsKey(EMAIL_OTP)) {
                 email = (String) requestBody.get(PRIMARY_EMAIL);
                 verifyOTP(requestBody, output);
@@ -138,18 +138,18 @@ public class ParticipantController extends BaseController {
         if(!StringUtils.equalsIgnoreCase((String) participant.get(PARTICIPANT_NAME), (String) resp.get(PARTICIPANT_NAME)) ||
                 !StringUtils.equalsIgnoreCase(email, (String) resp.get(PRIMARY_EMAIL))){
             output.put(IDENTITY_VERIFIED, false);
-            updateIdentityVerificationStatus(email, sponsorCode, REJECTED);
+            updateIdentityVerificationStatus(email, applicantCode, sponsorCode, REJECTED);
             throw new ClientException(ErrorCodes.ERR_INVALID_IDENTITY, "Identity verification failed, participant name or email is not matched with details in sponsor system");
         } else {
             output.put(IDENTITY_VERIFIED, true);
-            updateIdentityVerificationStatus((String) participant.get(PRIMARY_EMAIL), sponsorCode, ACCEPTED);
+            updateIdentityVerificationStatus(email, applicantCode, sponsorCode, ACCEPTED);
             createParticipantAndSendOTP(header, participant, sponsorCode, output);
         }
     }
 
-    private void updateIdentityVerificationStatus(String applicantEmail, String sponsorCode, String status) throws Exception {
-        String query = String.format("INSERT INTO %s (applicant_email,sponsor_code,status,createdOn,updatedOn) VALUES ('%s','%s','%s',%d,%d)",
-                onboardingTable, applicantEmail, sponsorCode, status, System.currentTimeMillis(), System.currentTimeMillis());
+    private void updateIdentityVerificationStatus(String applicantEmail, String applicantCode, String sponsorCode, String status) throws Exception {
+        String query = String.format("INSERT INTO %s (applicant_email,applicant_code,sponsor_code,status,createdOn,updatedOn) VALUES ('%s','%s','%s','%s',%d,%d)",
+                onboardingTable, applicantEmail, applicantCode, sponsorCode, status, System.currentTimeMillis(), System.currentTimeMillis());
         postgreSQLClient.execute(query);
     }
 
