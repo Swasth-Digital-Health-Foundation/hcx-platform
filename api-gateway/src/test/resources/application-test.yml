@@ -41,7 +41,7 @@ notify:
     allowedCodes: ${notify_network_allowedCodes:${registry.hcxCode}}
 
 timestamp:
-  range: ${timestamp_range:10000}
+  range: ${timestamp_range:100000}
 
 allowedEntitiesForForward: ${allowed_entities_for_forward:coverageeligibility, preauth, claim}
 allowedRolesForForward: ${allowed_roles_for_forward:payor, agency.tpa}
