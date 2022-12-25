@@ -249,6 +249,7 @@ public class Constants {
     public static final String APPLICANT_CODE = "applicant_code";
     public static final String PHONE_OTP = "phone_otp";
     public static final String EMAIL_OTP = "email_otp";
+    public static final String OTP = "otp";
     public static final String SUCCESSFUL = "successful";
     public static final String FAILED = "failed";
     public static final String PAYOR_CODE = "payor_code";

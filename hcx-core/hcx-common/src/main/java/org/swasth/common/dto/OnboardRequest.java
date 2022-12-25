@@ -13,9 +13,16 @@ public class OnboardRequest {
     private Map<String,Object> requestBody = new HashMap<>();
 
     public OnboardRequest(ArrayList<Map<String,Object>> body) {
-        if (!body.isEmpty() && body.get(0).containsKey(EMAIL_OTP)) {
-            requestBody.putAll(body.get(0));
-            requestBody.putAll(body.get(1));
+        if (!body.isEmpty() && (body.get(0).containsKey(PRIMARY_EMAIL) || body.get(0).containsKey(PRIMARY_MOBILE))) {
+            for(Map<String,Object> map: body) {
+                if(map.containsKey(PRIMARY_EMAIL)) {
+                    requestBody.put(PRIMARY_EMAIL, map.get(PRIMARY_EMAIL));
+                    requestBody.put(EMAIL_OTP, map.get(OTP));
+                } else if (map.containsKey(PRIMARY_MOBILE)) {
+                    requestBody.put(PRIMARY_MOBILE, map.get(PRIMARY_MOBILE));
+                    requestBody.put(PHONE_OTP, map.get(OTP));
+                }
+            }
         } else {
             requestBody.putAll(body.get(0));
         }
