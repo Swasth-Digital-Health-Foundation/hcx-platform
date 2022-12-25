@@ -100,7 +100,7 @@ public class ParticipantController extends BaseController {
         try {
             OnboardRequest request = new OnboardRequest(body);
             Map<String,Object> requestBody = request.getBody();
-            logger.info("Participant verification :: " + request);
+            logger.info("Participant verification :: " + requestBody);
             Map<String, Object> participant = (Map<String, Object>) requestBody.getOrDefault(PARTICIPANT, new HashMap<>());
             email = (String) participant.getOrDefault(PRIMARY_EMAIL, "");
             Map<String,Object> output = new HashMap<>();
@@ -118,9 +118,10 @@ public class ParticipantController extends BaseController {
             }
             return getSuccessResponse(new Response(output));
         } catch (Exception e) {
+            e.printStackTrace();
             if (!(e instanceof OTPVerificationException)) {
                 onboadingFailedMsg = onboadingFailedMsg.replace("ERROR_MSG", " " + e.getMessage());
-                emailService.sendMail(email, onboardingFailedSub, onboadingFailedMsg);
+                //emailService.sendMail(email, onboardingFailedSub, onboadingFailedMsg);
             }
             return exceptionHandler(new Response(), e);
         }
@@ -176,12 +177,10 @@ public class ParticipantController extends BaseController {
         try {
             String phoneOtp = new DecimalFormat("000000").format(new Random().nextInt(999999));
             smsService.sendOTP((String) requestBody.get(PRIMARY_MOBILE), phoneOtp);
-            prefillUrl = prefillUrl.replace(PRIMARY_EMAIL, (String) requestBody.get(PRIMARY_EMAIL));
-            prefillUrl = prefillUrl.replace(PRIMARY_MOBILE, (String) requestBody.get(PRIMARY_MOBILE));
+            prefillUrl = prefillUrl.replace(PRIMARY_EMAIL, (String) requestBody.get(PRIMARY_EMAIL))
+                    .replace(PRIMARY_MOBILE, (String) requestBody.get(PRIMARY_MOBILE));
             String emailOtp = new DecimalFormat("000000").format(new Random().nextInt(999999));
-            otpMsg = otpMsg.replace("RANDOM_CODE", emailOtp);
-            otpMsg = otpMsg.replace("USER_LINK", prefillUrl);
-            logger.info(otpMsg);
+            otpMsg = otpMsg.replace("RANDOM_CODE", emailOtp).replace("USER_LINK", prefillUrl);
             emailService.sendMail((String) requestBody.get(PRIMARY_EMAIL), otpSub, otpMsg);
             String query = String.format("UPDATE %s SET phone_otp='%s',email_otp='%s',updatedOn=%d,expiry=%d WHERE primary_email='%s'",
                     onboardingOtpTable, phoneOtp, emailOtp, System.currentTimeMillis(), System.currentTimeMillis() + otpExpiry, requestBody.get(PRIMARY_EMAIL));
