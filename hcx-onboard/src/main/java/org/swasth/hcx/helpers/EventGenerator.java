@@ -19,7 +19,7 @@ public class EventGenerator {
         event.put("primary_mobile", phone);
         event.put("phone_otp", phoneOtp);
         event.put(MID, UUIDUtils.getUUID());
-        event.put(ACTION, PARTICIPANT_SEND_OTP);
+        event.put(ACTION, PARTICIPANT_OTP_SEND);
         event.put("status", "success");
         event.put(ETS, System.currentTimeMillis());
         return event;

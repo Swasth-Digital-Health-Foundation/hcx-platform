@@ -173,7 +173,7 @@ public class ParticipantController extends BaseController {
         logger.info("OTP has been sent successfully :: participant code : " + participantCode + " :: primary email : " + participant.get(PRIMARY_EMAIL));
     }
 
-    @PostMapping(PARTICIPANT_SEND_OTP)
+    @PostMapping(PARTICIPANT_OTP_SEND)
     public ResponseEntity<Object> sendOTP(@RequestBody Map<String, Object> requestBody) {
         try {
             String phoneOtp = new DecimalFormat("000000").format(new Random().nextInt(999999));
@@ -199,11 +199,13 @@ public class ParticipantController extends BaseController {
         int attemptCount = 0;
         String status = FAILED;
         String email = (String) requestBody.get(PRIMARY_EMAIL);
+        String participantCode;
         try {
             String selectQuery = String.format("SELECT * FROM %s WHERE primary_email='%s'", onboardingOtpTable, requestBody.get(PRIMARY_EMAIL));
             resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
             if (resultSet.next()) {
                 attemptCount = resultSet.getInt(ATTEMPT_COUNT);
+                participantCode = resultSet.getString(PARTICIPANT_CODE);
                 if(resultSet.getString("status").equals(SUCCESSFUL)) {
                     status = SUCCESSFUL;
                     throw new ClientException(ErrorCodes.ERR_INVALID_OTP, "OTP has already verified.");
@@ -223,7 +225,7 @@ public class ParticipantController extends BaseController {
                 throw new ClientException(ErrorCodes.ERR_INVALID_OTP, "Participant record does not exist");
             }
             updateOtpStatus(true, true, attemptCount, SUCCESSFUL, email);
-            emailService.sendMail(email, otpVerifySub, otpVerifyMsg.replace("REGISTRY_CODE", (String) requestBody.get(PARTICIPANT_CODE)));
+            emailService.sendMail(email, otpVerifySub, otpVerifyMsg.replace("REGISTRY_CODE", participantCode));
             output.put(EMAIL_OTP_VERIFIED, true);
             output.put(PHONE_OTP_VERIFIED, true);
             logger.info("OTP verification is successful :: primary email : " + email);
