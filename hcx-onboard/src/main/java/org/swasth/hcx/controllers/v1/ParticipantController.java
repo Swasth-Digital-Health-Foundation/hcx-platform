@@ -183,8 +183,9 @@ public class ParticipantController extends BaseController {
             prefillUrl = prefillUrl.replace(PRIMARY_EMAIL, (String) requestBody.get(PRIMARY_EMAIL))
                     .replace(PRIMARY_MOBILE, (String) requestBody.get(PRIMARY_MOBILE));
             String emailOtp = new DecimalFormat("000000").format(new Random().nextInt(999999));
-            otpMsg = otpMsg.replace("RANDOM_CODE", emailOtp).replace("USER_LINK", prefillUrl);
-            emailService.sendMail((String) requestBody.get(PRIMARY_EMAIL), otpSub, otpMsg);
+            String emailMsg = otpMsg;
+            emailMsg = emailMsg.replace("RANDOM_CODE", emailOtp).replace("USER_LINK", prefillUrl);
+            emailService.sendMail((String) requestBody.get(PRIMARY_EMAIL), otpSub, emailMsg);
             String query = String.format("UPDATE %s SET phone_otp='%s',email_otp='%s',updatedOn=%d,expiry=%d WHERE primary_email='%s'",
                     onboardingOtpTable, phoneOtp, emailOtp, System.currentTimeMillis(), System.currentTimeMillis() + otpExpiry, requestBody.get(PRIMARY_EMAIL));
             postgreSQLClient.execute(query);
