@@ -164,7 +164,7 @@ public class ParticipantController extends BaseController {
         HttpResponse<String> createResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_CREATE, JSONUtils.serialize(participant), headersMap);
         ParticipantResponse pcptResponse = JSONUtils.deserialize(createResponse.getBody(), ParticipantResponse.class);
         if (createResponse.getStatus() != 200) {
-            throw new ClientException(pcptResponse.getError().getCode(), pcptResponse.getError().getMessage());
+            throw new ClientException(pcptResponse.getError().getCode() == null ? ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS : pcptResponse.getError().getCode(), pcptResponse.getError().getMessage());
         }
         String participantCode = (String) JSONUtils.deserialize(createResponse.getBody(), Map.class).get(PARTICIPANT_CODE);
         String query = String.format("INSERT INTO %s (participant_code,primary_email,primary_mobile,email_otp,phone_otp,createdOn," +
@@ -231,14 +231,16 @@ public class ParticipantController extends BaseController {
                 throw new ClientException(ErrorCodes.ERR_INVALID_OTP, "Participant record does not exist");
             }
             updateOtpStatus(true, true, attemptCount, SUCCESSFUL, email);
-            emailService.sendMail(email, otpVerifySub, otpVerifyMsg.replaceAll("REGISTRY_CODE", participantCode));
+            String otpVerifyMessage = otpVerifyMsg;
+            emailService.sendMail(email, otpVerifySub, otpVerifyMessage.replace("REGISTRY_CODE", participantCode));
             output.put(EMAIL_OTP_VERIFIED, true);
             output.put(PHONE_OTP_VERIFIED, true);
             logger.info("OTP verification is successful :: primary email : " + email);
         } catch (ClientException e) {
             e.printStackTrace();
             updateOtpStatus(emailOtpVerified, phoneOtpVerified, attemptCount, status, email);
-            emailService.sendMail(email, otpFailedSub, otpFailedMsg.replace("ERROR_MSG", " " + e.getMessage()).replace(PRIMARY_EMAIL,email).replace(PRIMARY_MOBILE,phoneNumber));
+            String otpFailedMessage = otpFailedMsg;
+            emailService.sendMail(email, otpFailedSub, otpFailedMessage.replace("ERROR_MSG", " " + e.getMessage()).replace(PRIMARY_EMAIL,email).replace(PRIMARY_MOBILE,phoneNumber));
             throw new OTPVerificationException(e.getErrCode(), e.getMessage());
         } finally {
             if (resultSet != null) resultSet.close();
