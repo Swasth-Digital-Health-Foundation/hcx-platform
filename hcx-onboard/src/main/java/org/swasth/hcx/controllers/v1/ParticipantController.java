@@ -126,7 +126,7 @@ public class ParticipantController extends BaseController {
                 email = (String) requestBody.get(PRIMARY_EMAIL);
                 verifyOTP(requestBody, output);
             } else {
-                updateIdentityVerificationStatus(participant, "", "", PENDING);
+                updateIdentityVerificationStatus(email, "", "", PENDING);
                 createParticipantAndSendOTP(header, participant, "", output);
             }
             return getSuccessResponse(new Response(output));
@@ -152,18 +152,18 @@ public class ParticipantController extends BaseController {
         if(!StringUtils.equalsIgnoreCase((String) participant.get(PARTICIPANT_NAME), (String) resp.get(PARTICIPANT_NAME)) ||
                 !StringUtils.equalsIgnoreCase(email, (String) resp.get(PRIMARY_EMAIL))){
             output.put(IDENTITY_VERIFIED, false);
-            updateIdentityVerificationStatus(participant, applicantCode, sponsorCode, REJECTED);
+            updateIdentityVerificationStatus(email, applicantCode, sponsorCode, REJECTED);
             throw new ClientException(ErrorCodes.ERR_INVALID_IDENTITY, "Identity verification failed, participant name or email is not matched with details in sponsor system");
         } else {
             output.put(IDENTITY_VERIFIED, true);
-            updateIdentityVerificationStatus(participant, applicantCode, sponsorCode, ACCEPTED);
+            updateIdentityVerificationStatus(email, applicantCode, sponsorCode, ACCEPTED);
             createParticipantAndSendOTP(header, participant, sponsorCode, output);
         }
     }
 
-    private void updateIdentityVerificationStatus(Map<String, Object> participant, String applicantCode, String sponsorCode, String  status) throws Exception {
+    private void updateIdentityVerificationStatus(String email, String applicantCode, String sponsorCode, String  status) throws Exception {
         String query = String.format("INSERT INTO %s (applicant_email,applicant_code,sponsor_code,status,createdOn,updatedOn) VALUES ('%s','%s','%s','%s',%d,%d)",
-                onboardingTable, participant.get(PRIMARY_EMAIL), applicantCode, sponsorCode, status, System.currentTimeMillis(), System.currentTimeMillis());
+                onboardingTable, email, applicantCode, sponsorCode, status, System.currentTimeMillis(), System.currentTimeMillis());
         postgreSQLClient.execute(query);
     }
 
@@ -286,8 +286,9 @@ public class ParticipantController extends BaseController {
             boolean phoneOtpVerified = false;
             String identityStatus = "";
             String jwtToken = (String) requestBody.get("jwt_token");
+            Map<String, Object> payload = JSONUtils.decodeBase64String(jwtToken.split("\\.")[1], Map.class);
             Map<String,Object> participant = (Map<String, Object>) requestBody.get(PARTICIPANT);
-            String email = (String) participant.get(PRIMARY_EMAIL);
+            String email = (String) payload.get("email");
             participant.put(REGISTRY_STATUS, ACTIVE);
             Map<String, String> headersMap = new HashMap<>();
             headersMap.put(AUTHORIZATION, "Bearer "+ jwtToken);
@@ -322,5 +323,19 @@ public class ParticipantController extends BaseController {
         }
     }
 
+    @PostMapping(PARTICIPANT_IDENTITY_VERIFY)
+    public ResponseEntity<Object> participantIdentityVerify(@RequestBody Map<String, Object> requestBody) {
+        try {
+            String applicantEmail = (String) requestBody.get(PRIMARY_EMAIL);
+            String status = (String) requestBody.get(REGISTRY_STATUS);
+            //Update status for the user
+            String query = String.format("UPDATE %s SET status='%s',updatedOn=%d WHERE applicant_email='%s'",
+                    onboardingTable, status, System.currentTimeMillis(), applicantEmail);
+            postgreSQLClient.execute(query);
+            return getSuccessResponse(new Response());
+        } catch (Exception e) {
+            return exceptionHandler(new Response(), e);
+        }
+    }
 
 }
