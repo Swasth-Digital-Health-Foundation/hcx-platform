@@ -120,8 +120,9 @@ public class ParticipantController extends BaseController {
         } catch (Exception e) {
             e.printStackTrace();
             if (!(e instanceof OTPVerificationException)) {
-                onboadingFailedMsg = onboadingFailedMsg.replace("ERROR_MSG", " " + e.getMessage());
-                //emailService.sendMail(email, onboardingFailedSub, onboadingFailedMsg);
+                String onboardingErrorMsg = onboadingFailedMsg;
+                onboardingErrorMsg = onboardingErrorMsg.replace("ERROR_MSG", " " + e.getMessage());
+                emailService.sendMail(email, onboardingFailedSub, onboardingErrorMsg);
             }
             return exceptionHandler(new Response(), e);
         }
@@ -180,11 +181,12 @@ public class ParticipantController extends BaseController {
         try {
             String phoneOtp = new DecimalFormat("000000").format(new Random().nextInt(999999));
             smsService.sendOTP((String) requestBody.get(PRIMARY_MOBILE), phoneOtp);
-            prefillUrl = prefillUrl.replace(PRIMARY_EMAIL, (String) requestBody.get(PRIMARY_EMAIL))
+            String emailPrefillUrl = prefillUrl;
+            emailPrefillUrl = emailPrefillUrl.replace(PRIMARY_EMAIL, (String) requestBody.get(PRIMARY_EMAIL))
                     .replace(PRIMARY_MOBILE, (String) requestBody.get(PRIMARY_MOBILE));
             String emailOtp = new DecimalFormat("000000").format(new Random().nextInt(999999));
             String emailMsg = otpMsg;
-            emailMsg = emailMsg.replace("RANDOM_CODE", emailOtp).replace("USER_LINK", prefillUrl);
+            emailMsg = emailMsg.replace("RANDOM_CODE", emailOtp).replace("USER_LINK", emailPrefillUrl);
             emailService.sendMail((String) requestBody.get(PRIMARY_EMAIL), otpSub, emailMsg);
             String query = String.format("UPDATE %s SET phone_otp='%s',email_otp='%s',updatedOn=%d,expiry=%d WHERE primary_email='%s'",
                     onboardingOtpTable, phoneOtp, emailOtp, System.currentTimeMillis(), System.currentTimeMillis() + otpExpiry, requestBody.get(PRIMARY_EMAIL));
