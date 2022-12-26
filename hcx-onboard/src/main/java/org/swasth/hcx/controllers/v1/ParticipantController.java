@@ -129,7 +129,7 @@ public class ParticipantController extends BaseController {
 
     private void onboardParticipant(HttpHeaders header, Map<String, Object> participant, String sponsorCode, String applicantCode, String jwtToken, Map<String,Object> output) throws Exception {
         Map<String,Object> sponsorDetails = getParticipant(PARTICIPANT_CODE, sponsorCode);
-        if(!jwtUtils.isValidSignature(jwtToken, (String) sponsorDetails.get(SIGNING_CERT_PATH)))
+        if(!jwtToken.isEmpty() && !jwtUtils.isValidSignature(jwtToken, (String) sponsorDetails.get(SIGNING_CERT_PATH)))
             throw new ClientException(ErrorCodes.ERR_INVALID_JWT, "Invalid JWT token signature");
         // TODO: remove dummy getinfo and implement getinfo as post method
         //HttpResponse<String> response = HttpUtils.get(sponsorDetails.get(ENDPOINT_URL) + PARTICIPANT_GET_INFO + applicantCode);
