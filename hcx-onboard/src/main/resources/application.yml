@@ -41,8 +41,6 @@ email:
   prefillUrl: ${prefill_url:https://docs.google.com/forms/d/e/1FAIpQLSc1lmHjmsDG-wStSGrKRNoKZoyRApzqy0NO4q0wdFwb9EsEJQ/viewform?usp=pp_url&entry.902795366=primary_email&entry.54643771=primary_mobile}
   otpVerifySub: ${otp_verify_sub:HCX Participant Onboarded}
   otpVerifyMsg: ${otp_verify_msg:Hi User,<br/> Please use this participant code with HCX:&nbsp;REGISTRY_CODE <br/> Use this below link to update details in registry<br/> <a href="https://docs.google.com/forms/d/e/1FAIpQLSefK275MU861GCvXK70RnC4V2hM7zVzhSJTgcUiOU5CD_NGpg/viewform?usp=pp_url&entry.599501370=REGISTRY_CODE" target="_blank">Update Registry</a> <br/>NOTE You will not be able to make calls without updating the end point url and encryption cert path in the registry.<br/>Thanks,<br/> HCX Team}
-  otpFailedIdentitySub: ${otp_failed_identity_sub:HCX Identity Verification Failed}
-  otpFailedIdentityMsg: ${otp_failed_identity_msg:Hi User,<br/> Email and phone OTP verification is successful, but identity verification is failed. Please reach out to HCX Team.<br/>Thanks,<br/> HCX Team}
   otpFailedSub: ${otp_failed_sub:HCX Verify OTP Failed}
   otpFailedMsg: ${otp_failed_msg:Hi User,<br/> OTP verification failed due to error:ERROR_MSG<br/> Use this below link to regenerate OTPs<br/> <a href="https://docs.google.com/forms/d/e/1FAIpQLSfgJ-ZKBOfdIQMxSCchA4QawP1pnBeaAglRcFMYCOChKYD0KQ/viewform?usp=pp_url&entry.1212464776=primary_email&entry.2080042002=primary_mobile" target="_blank">Regenerate OTPs</a> <br/>Thanks,<br/> HCX Team}
   otpVerifiedSub: ${otp_failed_sub:HCX Verify OTP Failed}
