@@ -179,7 +179,7 @@ public class ParticipantController extends BaseController {
 
     private void validateUpdateParticipant(Map<String, Object> requestBody) throws ClientException, CertificateException, IOException {
         List<String> notAllowedUrls = env.getProperty(HCX_NOT_ALLOWED_URLS, List.class, new ArrayList<String>());
-        if (notAllowedUrls.contains(requestBody.get(ENDPOINT_URL)))
+        if (notAllowedUrls.contains(requestBody.getOrDefault(ENDPOINT_URL, "")))
             throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, INVALID_END_POINT);
         else if (requestBody.containsKey(ENCRYPTION_CERT))
             requestBody.put(ENCRYPTION_CERT_EXPIRY, jwtUtils.getCertificateExpiry((String) requestBody.get(ENCRYPTION_CERT)));
