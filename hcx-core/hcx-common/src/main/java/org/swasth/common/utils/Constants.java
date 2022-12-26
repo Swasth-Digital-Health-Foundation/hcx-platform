@@ -62,6 +62,8 @@ public class Constants {
     public static final String PARTICIPANT_VERIFY = "/participant/verify";
     public static final String PARTICIPANT_GET_INFO = "/participant/getInfo";
     public static final String PARTICIPANT_OTP_SEND = "/participant/otp/send";
+    public static final String PARTICIPANT_ONBOARD_UPDATE = "/participant/onboard/update";
+
     // Object Types
     public static final String PARTICIPANT = "participant";
 

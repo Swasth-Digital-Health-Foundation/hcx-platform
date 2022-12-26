@@ -70,6 +70,12 @@ public class ParticipantController extends BaseController {
     @Value("${email.otpVerifiedMsg}")
     private String otpVerifiedMsg;
 
+    @Value("${email.failedIdentitySub}")
+    private String failedIdentitySub;
+
+    @Value("${email.failedIdentityMsg}")
+    private String failedIdentityMsg;
+
     @Value("${email.prefillUrl}")
     private String prefillUrl;
 
@@ -115,11 +121,12 @@ public class ParticipantController extends BaseController {
                 Map<String, Object> payload = JSONUtils.decodeBase64String(jwtToken.split("\\.")[1], Map.class);
                 onboardParticipant(header, participant, (String) payload.get(SPONSOR_CODE), (String) payload.get(APPLICANT_CODE), (String) requestBody.get(JWT_TOKEN), output);
             } else if (requestBody.containsKey(PAYOR_CODE)) {
-                onboardParticipant(header, participant, (String) requestBody.get(PAYOR_CODE), "", "", output);
+                onboardParticipant(header, participant, (String) requestBody.get(PAYOR_CODE), (String) requestBody.get(APPLICANT_CODE), "", output);
             } else if (requestBody.containsKey(EMAIL_OTP)) {
                 email = (String) requestBody.get(PRIMARY_EMAIL);
                 verifyOTP(requestBody, output);
             } else {
+                updateIdentityVerificationStatus(participant, "", "", PENDING);
                 createParticipantAndSendOTP(header, participant, "", output);
             }
             return getSuccessResponse(new Response(output));
@@ -213,7 +220,6 @@ public class ParticipantController extends BaseController {
         String email = (String) requestBody.get(PRIMARY_EMAIL);
         String participantCode = "";
         String phoneNumber = "";
-        boolean identityVerified = false;
         try {
             String selectQuery = String.format("SELECT * FROM %s WHERE primary_email='%s'", onboardingOtpTable, requestBody.get(PRIMARY_EMAIL));
             resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
@@ -221,7 +227,6 @@ public class ParticipantController extends BaseController {
                 attemptCount = resultSet.getInt(ATTEMPT_COUNT);
                 participantCode = resultSet.getString(PARTICIPANT_CODE);
                 phoneNumber = resultSet.getString(PRIMARY_MOBILE);
-                identityVerified = resultSet.getBoolean(IDENTITY_VERIFIED);
                 if(resultSet.getString("status").equals(SUCCESSFUL)) {
                     status = SUCCESSFUL;
                     throw new ClientException(ErrorCodes.ERR_INVALID_OTP, "Email and phone OTP has already verified.");
@@ -244,7 +249,6 @@ public class ParticipantController extends BaseController {
             emailService.sendMail(email, otpVerifySub, otpVerifyMessage.replace("REGISTRY_CODE", participantCode));
             output.put(EMAIL_OTP_VERIFIED, true);
             output.put(PHONE_OTP_VERIFIED, true);
-            output.put(IDENTITY_VERIFIED, identityVerified);
             logger.info("Communication details verification is successful : " + output + " :: primary email : " + email);
         } catch (ClientException e) {
             e.printStackTrace();
@@ -273,5 +277,50 @@ public class ParticipantController extends BaseController {
             throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_CODE, INVALID_PARTICIPANT_CODE);
         return (Map<String, Object>) participantResponse.getParticipants().get(0);
     }
+
+
+    @PostMapping(PARTICIPANT_ONBOARD_UPDATE)
+    public ResponseEntity<Object> onboardUpdate(@RequestBody Map<String, Object> requestBody) {
+        try {
+            boolean emailOtpVerified = false;
+            boolean phoneOtpVerified = false;
+            String identityStatus = "";
+            String jwtToken = (String) requestBody.get("jwt_token");
+            Map<String,Object> participant = (Map<String, Object>) requestBody.get(PARTICIPANT);
+            String email = (String) participant.get(PRIMARY_EMAIL);
+            participant.put(REGISTRY_STATUS, ACTIVE);
+            Map<String, String> headersMap = new HashMap<>();
+            headersMap.put(AUTHORIZATION, "Bearer "+ jwtToken);
+
+            String otpQuery = String.format("SELECT * FROM %s WHERE primary_email='%s'", onboardingOtpTable, email);
+            ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(otpQuery);
+            if(resultSet.next()) {
+                emailOtpVerified = resultSet.getBoolean(EMAIL_OTP_VERIFIED);
+                phoneOtpVerified = resultSet.getBoolean(PHONE_OTP_VERIFIED);
+            }
+
+            String onboardingQuery = String.format("SELECT * FROM %s WHERE applicant_email='%s'", onboardingTable, email);
+            ResultSet resultSet1 = (ResultSet) postgreSQLClient.executeQuery(onboardingQuery);
+            if(resultSet1.next()) {
+                identityStatus = resultSet1.getString("status");
+            }
+
+
+            if(emailOtpVerified && phoneOtpVerified && StringUtils.equalsIgnoreCase(identityStatus, ACCEPTED)) {
+                HttpResponse<String> response = HttpUtils.put(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_UPDATE, JSONUtils.serialize(participant), headersMap);
+                if (response.getStatus() == 200) {
+                    logger.info("Participant details are updated successfully :: participant code : " + participant.get(PARTICIPANT_CODE));
+                    return getSuccessResponse(new Response(PARTICIPANT_CODE, participant.get(PARTICIPANT_CODE)));
+                } else return responseHandler(response, null);
+            } else {
+                logger.info("Participant details are not updated, due to failed identity verification :: participant code : " + participant.get(PARTICIPANT_CODE));
+                emailService.sendMail(email, failedIdentitySub, failedIdentityMsg);
+                throw new ClientException(ErrorCodes.ERR_UPDATE_PARTICIPANT_DETAILS, "Participant details are not updated, due to failed identity verification");
+            }
+        } catch (Exception e) {
+            return exceptionHandler(new Response(), e);
+        }
+    }
+
 
 }
