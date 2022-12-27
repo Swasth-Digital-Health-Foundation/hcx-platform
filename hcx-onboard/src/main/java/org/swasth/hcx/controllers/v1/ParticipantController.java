@@ -342,6 +342,8 @@ public class ParticipantController extends BaseController {
         try {
             String applicantEmail = (String) requestBody.get(PRIMARY_EMAIL);
             String status = (String) requestBody.get(REGISTRY_STATUS);
+            if(!ALLOWED_ONBOARD_STATUS.contains(status))
+                throw new ClientException(ErrorCodes.ERR_INVALID_ONBOARD_STATUS, "Invalid onboard status, allowed values are: " + ALLOWED_ONBOARD_STATUS);
             //Update status for the user
             String query = String.format("UPDATE %s SET status='%s',updatedOn=%d WHERE applicant_email='%s'",
                     onboardingTable, status, System.currentTimeMillis(), applicantEmail);

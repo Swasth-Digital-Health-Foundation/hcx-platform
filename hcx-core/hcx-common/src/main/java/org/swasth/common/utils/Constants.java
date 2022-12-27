@@ -263,4 +263,6 @@ public class Constants {
     public static final String EMAIL_OTP_VERIFIED = "email_otp_verified";
     public static final String PHONE_OTP_VERIFIED = "phone_otp_verified";
 
+    public static final List<String> ALLOWED_ONBOARD_STATUS = Arrays.asList(REJECTED, ACCEPTED);
+
 }
