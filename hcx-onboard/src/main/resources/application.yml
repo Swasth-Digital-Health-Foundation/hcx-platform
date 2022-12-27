@@ -38,13 +38,13 @@ email:
   onboardingFailedMsg: ${onboarding_failed_msg:Hi User,<br/> We are unable to onboard you on to HCX due to:ERROR_MSG.<br/> Thanks,<br/> HCX Team}
   otpSub: ${otp_sub:HCX Onboarding Mail}
   otpMsg: ${otp_msg:Hi User,<br/>Please use this OTP for verification:RANDOM_CODE <br/> Use this below link to verify the OTPs:<br/><a href="USER_LINK" target="_blank">Verify OTP</a> <br/> Thanks,<br/> HCX Team}
-  prefillUrl: ${prefill_url:https://script.google.com/macros/s/AKfycbx7ce_kFVbY7vD1B7-761P9Ib74Sy-MO44AMKrHq1_NbWy8OvCwRpmifQg7BAl7Fz7k/exec?primary_email=USER_MAIL&primary_mobile=PHONE}
+  prefillUrl: ${prefill_url:https://script.google.com/macros/s/AKfycbzA7ape-0lt9JfPRlagaqn3tHqGt72dSTabZtKCOUBuegCSvq8qgEmJeu5cq4SA0To9/exec?primary_email=USER_MAIL&primary_mobile=PHONE}
   otpVerifySub: ${otp_verify_sub:HCX Participant Onboarded}
-  otpVerifyMsg: ${otp_verify_msg:Hi User,<br/> Please use this participant code with HCX:&nbsp;REGISTRY_CODE <br/> Use this below link to update details in registry<br/> <a href="https://script.google.com/macros/s/AKfycbyRDK9cWcINNPEm8bbErs9WkDnjfbIgeyf4FgcraQVOk_ex_ah8PPqRtcIwyVtbpssq-A/exec?participant_code=REGISTRY_CODE" target="_blank">Update Registry</a> <br/>NOTE You will not be able to make calls without updating the end point url and encryption cert path in the registry.<br/>Thanks,<br/> HCX Team}
+  otpVerifyMsg: ${otp_verify_msg:Hi User,<br/> Please use this participant code with HCX:&nbsp;REGISTRY_CODE <br/> Use this below link to update details in registry<br/> <a href="https://script.google.com/macros/s/AKfycbzdNyBJM0BhR8bPoFHuk88IATl4iLB2V5LX_MArkcdW7WDC53VraUEa-4GaSK1Gx6tjjQ/exec?participant_code=REGISTRY_CODE" target="_blank">Update Registry</a> <br/>NOTE You will not be able to make calls without updating the end point url and encryption cert path in the registry.<br/>Thanks,<br/> HCX Team}
   failedIdentitySub: ${failed_identity_sub:HCX Participant Registry Updated Failed}
   failedIdentityMsg: ${failed_identity_msg:Hi User,<br/>Identity verification is failed. Please do the identity verification, to update the details in the registry.<br/>Thanks,<br/> HCX Team}
   otpFailedSub: ${otp_failed_sub:HCX Verify OTP Failed}
-  otpFailedMsg: ${otp_failed_msg:Hi User,<br/> OTP verification failed due to error:ERROR_MSG<br/> Use this below link to regenerate OTPs<br/> <a href="https://script.google.com/macros/s/AKfycbwyT2CyboEcMTh8XlyBN_4ure-aWRE63AsN10P0lpxaHDKw0_SPPKwtO041BVMFHThOvw/exec?primary_email=USER_MAIL&primary_mobile=PHONE" target="_blank">Regenerate OTPs</a> <br/>Thanks,<br/> HCX Team}
+  otpFailedMsg: ${otp_failed_msg:Hi User,<br/> OTP verification failed due to error:ERROR_MSG<br/> Use this below link to regenerate OTPs<br/> <a href="https://script.google.com/macros/s/AKfycbwCLC_9IchKZdwlHtoZsaLzjUMo-m4LjAI7442c3JmANS3yMB_m5jqaPE1DqSulZ3U9nQ/exec?primary_email=USER_MAIL&primary_mobile=PHONE" target="_blank">Regenerate OTPs</a> <br/>Thanks,<br/> HCX Team}
   otpFailedWithoutLinkMsg: ${otp_failed_msg:Hi User,<br/> OTP verification failed due to error:ERROR_MSG<br/>Thanks,<br/> HCX Team}
   registryUpdateSub: ${registry_update_sub:HCX Registry Updated}
   registryUpdateMsg: ${registry_update_msg:Hi User,<br/> Registry has been updated for your participant code:REGISTRY_CODE <br/> Thanks,<br/> HCX Team}
