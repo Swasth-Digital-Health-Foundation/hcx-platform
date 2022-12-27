@@ -1,10 +1,9 @@
-name: HCX Platform - PUSH Build
+name: HCX Platform - Tag Build
 
 on:
   push:
-    branches:
-      - main
-      - sprint-*
+    tags:
+      - '*'
 
 jobs:
   build:
