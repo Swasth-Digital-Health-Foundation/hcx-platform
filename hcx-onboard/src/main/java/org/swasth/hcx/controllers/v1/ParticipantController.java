@@ -316,13 +316,15 @@ public class ParticipantController extends BaseController {
                 identityStatus = resultSet1.getString("status");
             }
 
+            logger.info("Onboard update: " + participant);
             if (emailOtpVerified && phoneOtpVerified && StringUtils.equalsIgnoreCase(identityStatus, ACCEPTED)) {
-                HttpResponse<String> response = HttpUtils.put(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_UPDATE, JSONUtils.serialize(participant), headersMap);
+                HttpResponse<String> response = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_UPDATE, JSONUtils.serialize(participant), headersMap);
+                logger.info("Registry response: " + response.getBody());
                 if (response.getStatus() == 200) {
                     logger.info("Participant details are updated successfully :: participant code : " + participant.get(PARTICIPANT_CODE));
                     emailService.sendMail(email, registryUpdateSub, registryUpdateMsg);
                     return getSuccessResponse(new Response(PARTICIPANT_CODE, participant.get(PARTICIPANT_CODE)));
-                } else return responseHandler(response, null);
+                } else return responseHandler(response, (String) participant.get(PARTICIPANT_CODE));
             } else {
                 logger.info("Participant details are not updated, due to failed identity verification :: participant code : " + participant.get(PARTICIPANT_CODE));
                 emailService.sendMail(email, failedIdentitySub, failedIdentityMsg);
