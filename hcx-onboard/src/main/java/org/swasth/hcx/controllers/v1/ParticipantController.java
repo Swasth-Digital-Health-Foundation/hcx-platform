@@ -75,6 +75,12 @@ public class ParticipantController extends BaseController {
     @Value("${email.failedIdentityMsg}")
     private String failedIdentityMsg;
 
+    @Value("${email.registryUpdateSub}")
+    private String registryUpdateSub;
+
+    @Value("${email.registryUpdateMsg}")
+    private String registryUpdateMsg;
+
     @Value("${email.prefillUrl}")
     private String prefillUrl;
 
@@ -196,8 +202,8 @@ public class ParticipantController extends BaseController {
             String phoneOtp = new DecimalFormat("000000").format(new Random().nextInt(999999));
             smsService.sendOTP((String) requestBody.get(PRIMARY_MOBILE), phoneOtp);
             String emailPrefillUrl = prefillUrl;
-            emailPrefillUrl = emailPrefillUrl.replace(PRIMARY_EMAIL, (String) requestBody.get(PRIMARY_EMAIL))
-                    .replace(PRIMARY_MOBILE, (String) requestBody.get(PRIMARY_MOBILE));
+            emailPrefillUrl = emailPrefillUrl.replace("USER_MAIL", (String) requestBody.get(PRIMARY_EMAIL))
+                    .replace("PHONE", (String) requestBody.get(PRIMARY_MOBILE));
             String emailOtp = new DecimalFormat("000000").format(new Random().nextInt(999999));
             String emailMsg = otpMsg;
             emailMsg = emailMsg.replace("RANDOM_CODE", emailOtp).replace("USER_LINK", emailPrefillUrl);
@@ -259,7 +265,7 @@ public class ParticipantController extends BaseController {
                 String otpFailedWithoutLinkMessage = otpFailedWithoutLinkMsg;
                 emailService.sendMail(email, otpFailedSub, otpFailedWithoutLinkMessage.replace("ERROR_MSG", " " + e.getMessage()));
             } else {
-                emailService.sendMail(email, otpFailedSub, otpFailedMessage.replace("ERROR_MSG", " " + e.getMessage()).replace(PRIMARY_EMAIL, email).replace(PRIMARY_MOBILE, phoneNumber));
+                emailService.sendMail(email, otpFailedSub, otpFailedMessage.replace("ERROR_MSG", " " + e.getMessage()).replace("USER_MAIL", email).replace("PHONE", phoneNumber));
             }
             throw new OTPVerificationException(e.getErrCode(), e.getMessage());
         } finally {
@@ -315,6 +321,7 @@ public class ParticipantController extends BaseController {
                 HttpResponse<String> response = HttpUtils.put(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_UPDATE, JSONUtils.serialize(participant), headersMap);
                 if (response.getStatus() == 200) {
                     logger.info("Participant details are updated successfully :: participant code : " + participant.get(PARTICIPANT_CODE));
+                    emailService.sendMail(email, registryUpdateSub, registryUpdateMsg);
                     return getSuccessResponse(new Response(PARTICIPANT_CODE, participant.get(PARTICIPANT_CODE)));
                 } else return responseHandler(response, null);
             } else {
