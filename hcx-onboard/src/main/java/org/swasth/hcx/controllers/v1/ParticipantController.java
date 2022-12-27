@@ -290,9 +290,8 @@ public class ParticipantController extends BaseController {
 
     @PostMapping(PARTICIPANT_ONBOARD_UPDATE)
     public ResponseEntity<Object> onboardUpdate(@RequestBody Map<String, Object> requestBody) throws SQLException {
-        ResultSet resultSet = null;
-        ResultSet resultSet1 = null;
         try {
+            logger.info("Onboard update: " + requestBody);
             boolean emailOtpVerified = false;
             boolean phoneOtpVerified = false;
             String identityStatus = "";
@@ -305,14 +304,14 @@ public class ParticipantController extends BaseController {
             headersMap.put(AUTHORIZATION, "Bearer " + jwtToken);
 
             String otpQuery = String.format("SELECT * FROM %s WHERE primary_email='%s'", onboardingOtpTable, email);
-            resultSet = (ResultSet) postgreSQLClient.executeQuery(otpQuery);
+            ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(otpQuery);
             if (resultSet.next()) {
                 emailOtpVerified = resultSet.getBoolean(EMAIL_OTP_VERIFIED);
                 phoneOtpVerified = resultSet.getBoolean(PHONE_OTP_VERIFIED);
             }
 
             String onboardingQuery = String.format("SELECT * FROM %s WHERE applicant_email='%s'", onboardingTable, email);
-            resultSet1 = (ResultSet) postgreSQLClient.executeQuery(onboardingQuery);
+            ResultSet resultSet1 = (ResultSet) postgreSQLClient.executeQuery(onboardingQuery);
             if (resultSet1.next()) {
                 identityStatus = resultSet1.getString("status");
             }
@@ -330,10 +329,9 @@ public class ParticipantController extends BaseController {
                 throw new ClientException(ErrorCodes.ERR_UPDATE_PARTICIPANT_DETAILS, "Participant details are not updated, due to failed identity verification");
             }
         } catch (Exception e) {
+            // TODO: remove stack trace
+            e.printStackTrace();
             return exceptionHandler(new Response(), e);
-        } finally {
-            if (resultSet != null) resultSet.close();
-            if (resultSet1 != null) resultSet1.close();
         }
     }
 
