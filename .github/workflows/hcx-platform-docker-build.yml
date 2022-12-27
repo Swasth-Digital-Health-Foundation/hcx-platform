@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - sprint-*
+      - common-Dockerbuild
 
 jobs:
   build:
