@@ -45,8 +45,7 @@ email:
   failedIdentityMsg: ${failed_identity_msg:Hi User,<br/>Identity verification is failed. Please do the identity verification, to update the details in the registry.<br/>Thanks,<br/> HCX Team}
   otpFailedSub: ${otp_failed_sub:HCX Verify OTP Failed}
   otpFailedMsg: ${otp_failed_msg:Hi User,<br/> OTP verification failed due to error:ERROR_MSG<br/> Use this below link to regenerate OTPs<br/> <a href="https://docs.google.com/forms/d/e/1FAIpQLSfgJ-ZKBOfdIQMxSCchA4QawP1pnBeaAglRcFMYCOChKYD0KQ/viewform?usp=pp_url&entry.1212464776=primary_email&entry.2080042002=primary_mobile" target="_blank">Regenerate OTPs</a> <br/>Thanks,<br/> HCX Team}
-  otpVerifiedSub: ${otp_failed_sub:HCX Verify OTP Failed}
-  otpVerifiedMsg: ${otp_failed_msg:Hi User,<br/>Email and phone OTP has already verified.<br/>Thanks,<br/> HCX Team}
+  otpFailedWithoutLinkMsg: ${otp_failed_msg:Hi User,<br/> OTP verification failed due to error:ERROR_MSG<br/>Thanks,<br/> HCX Team}
 
 hcx-api:
   basePath: ${HCX_API_BASEPATH:http://localhost:8080}
