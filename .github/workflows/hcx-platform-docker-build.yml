@@ -5,7 +5,6 @@ on:
     branches:
       - main
       - sprint-*
-      - common-Dockerbuild
 
 jobs:
   build:
@@ -25,6 +24,8 @@ jobs:
         run: |
           mvn clean install
           cd hcx-scheduler-jobs
+          mvn clean install
+          cd  hcx-pipeline-jobs 
           mvn clean install
 
       - name: Cache Maven packages
