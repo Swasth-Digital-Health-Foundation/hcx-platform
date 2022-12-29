@@ -23,7 +23,7 @@ public class SMSService {
     @Value("${aws.region}")
     private String awsRegion;
 
-    public String sendOTP(String phone,String phoneOtp){
+    public String sendOTP(String phone,String phoneOtp) {
             String message = "HCX mobile verification code is:" +phoneOtp;
             String phoneNumber = "+91"+ phone;  // Ex: +91XXX4374XX
             AmazonSNS snsClient = AmazonSNSClient.builder().withCredentials(new AWSCredentialsProvider() {
