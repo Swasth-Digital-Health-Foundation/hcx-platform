@@ -99,6 +99,9 @@ public class ParticipantController extends BaseController {
     @Value("${otp.maxAttempt}")
     private int otpMaxAttempt;
 
+    @Value("${env}")
+    private String env;
+
     @Autowired
     private SMSService smsService;
 
@@ -294,7 +297,7 @@ public class ParticipantController extends BaseController {
             logger.info("Onboard update: " + requestBody);
             boolean emailOtpVerified = false;
             boolean phoneOtpVerified = false;
-            String identityStatus = "";
+            String identityStatus = REJECTED;
             String jwtToken = (String) requestBody.get("jwt_token");
             Map<String, Object> payload = JSONUtils.decodeBase64String(jwtToken.split("\\.")[1], Map.class);
             Map<String, Object> participant = (Map<String, Object>) requestBody.get(PARTICIPANT);
@@ -315,6 +318,8 @@ public class ParticipantController extends BaseController {
             if (resultSet1.next()) {
                 identityStatus = resultSet1.getString("status");
             }
+
+            if(env.equalsIgnoreCase(STAGING)) identityStatus = ACCEPTED;
 
             if (emailOtpVerified && phoneOtpVerified && StringUtils.equalsIgnoreCase(identityStatus, ACCEPTED)) {
                 HttpResponse<String> response = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_UPDATE, JSONUtils.serialize(participant), headersMap);
