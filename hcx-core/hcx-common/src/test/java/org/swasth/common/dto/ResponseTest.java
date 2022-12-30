@@ -6,10 +6,7 @@ import org.mockito.Mockito;
 import org.swasth.common.exception.ErrorCodes;
 import org.swasth.common.utils.Constants;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -104,4 +101,14 @@ public class ResponseTest {
         assertEquals("Active", response.getSubscriptionStatus());
         assertEquals("636109b8-3d95-4b55-a6b6-34daf53a6ee7", response.getSubscriptionId());
     }
+
+    @Test
+    public void testCreateResponseWithResult(){
+        Map<String,Object> result = new HashMap<>();
+        result.put(HEALTHY, true);
+        Response response = new Response(result);
+        assertEquals(true, response.getResult().get(HEALTHY));
+    }
+
+
 }
