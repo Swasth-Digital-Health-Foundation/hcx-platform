@@ -49,7 +49,7 @@ public class ParticipantController extends BaseController {
     @PostMapping(PARTICIPANT_CREATE)
     public ResponseEntity<Object> participantCreate(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
         try {
-            validateParticipant(requestBody);
+            validateCreateParticipant(requestBody);
             String primaryEmail = (String) requestBody.get(PRIMARY_EMAIL);
             String participantCode = SlugUtils.makeSlug(primaryEmail, "", fieldSeparator, hcxInstanceName);
             while (isParticipantCodeExists(participantCode)) {
@@ -76,7 +76,7 @@ public class ParticipantController extends BaseController {
     @PostMapping(PARTICIPANT_UPDATE)
     public ResponseEntity<Object> participantUpdate(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
         try {
-            validateParticipant(requestBody);
+            validateUpdateParticipant(requestBody);
             String participantCode = (String) requestBody.get(PARTICIPANT_CODE);
             Map<String, Object> participant = getParticipant(participantCode);
             String url = registryUrl + "/api/v1/Organisation/" + participant.get(OSID);
@@ -158,7 +158,7 @@ public class ParticipantController extends BaseController {
         }
     }
 
-    private void validateParticipant(Map<String, Object> requestBody) throws ClientException, CertificateException, IOException {
+    private void validateCreateParticipant(Map<String, Object> requestBody) throws ClientException, CertificateException, IOException {
         List<String> notAllowedUrls = env.getProperty(HCX_NOT_ALLOWED_URLS, List.class, new ArrayList<String>());
         if (!requestBody.containsKey(ROLES) || !(requestBody.get(ROLES) instanceof ArrayList) || ((ArrayList<String>) requestBody.get(ROLES)).isEmpty())
             throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, INVALID_ROLES_PROPERTY);
@@ -176,6 +176,15 @@ public class ParticipantController extends BaseController {
         // add encryption certificate expiry
         requestBody.put(ENCRYPTION_CERT_EXPIRY, jwtUtils.getCertificateExpiry((String) requestBody.get(ENCRYPTION_CERT)));
     }
+
+    private void validateUpdateParticipant(Map<String, Object> requestBody) throws ClientException, CertificateException, IOException {
+        List<String> notAllowedUrls = env.getProperty(HCX_NOT_ALLOWED_URLS, List.class, new ArrayList<String>());
+        if (notAllowedUrls.contains(requestBody.getOrDefault(ENDPOINT_URL, "")))
+            throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, INVALID_END_POINT);
+        else if (requestBody.containsKey(ENCRYPTION_CERT))
+            requestBody.put(ENCRYPTION_CERT_EXPIRY, jwtUtils.getCertificateExpiry((String) requestBody.get(ENCRYPTION_CERT)));
+    }
+
 
     private Map<String, Object> getEData(String status, String prevStatus, List<String> props) {
         Map<String, Object> data = new HashMap<>();
