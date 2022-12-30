@@ -16,7 +16,7 @@ public class OnboardingRequestTest {
 
     @Test
     public void testOnboardRequestWithOTPBody() throws Exception {
-        ArrayList<Map<String,Object>> body = JSONUtils.deserialize("[ { \"primary_email\": \"\", \"otp\": \"282515\" }, { \"primary_mobile\": \"8522875123\", \"otp\": \"443535\" } ]", ArrayList.class);
+        ArrayList<Map<String,Object>> body = JSONUtils.deserialize("[ { \"primary_email\": \"testhcx20@yopmail.com\", \"otp\": \"282515\" }, { \"primary_mobile\": \"8522875123\", \"otp\": \"443535\" } ]", ArrayList.class);
         OnboardRequest request = new OnboardRequest(body);
         assertEquals("testhcx20@yopmail.com", request.getBody().get(PRIMARY_EMAIL));
         assertEquals("8522875123", request.getBody().get(PRIMARY_MOBILE));
