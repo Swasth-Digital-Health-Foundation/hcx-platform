@@ -122,8 +122,8 @@ public class ParticipantController extends BaseController {
             Map<String,Object> output = new HashMap<>();
             if (requestBody.containsKey(JWT_TOKEN)) {
                 String jwtToken = (String) requestBody.get(JWT_TOKEN);
-                Map<String, Object> payload = JSONUtils.decodeBase64String(jwtToken.split("\\.")[1], Map.class);
-                onboardParticipant(header, participant, (String) payload.get(SPONSOR_CODE), (String) payload.get(APPLICANT_CODE), (String) requestBody.get(JWT_TOKEN), output);
+                Map<String, Object> jwtPayload = JSONUtils.decodeBase64String(jwtToken.split("\\.")[1], Map.class);
+                onboardParticipant(header, participant, (String) jwtPayload.get(ISS), (String) jwtPayload.get(SUB), (String) requestBody.get(JWT_TOKEN), output);
             } else if (requestBody.containsKey(PAYOR_CODE)) {
                 onboardParticipant(header, participant, (String) requestBody.get(PAYOR_CODE), (String) requestBody.get(APPLICANT_CODE), "", output);
             } else if (requestBody.containsKey(EMAIL_OTP)) {
@@ -135,8 +135,6 @@ public class ParticipantController extends BaseController {
             }
             return getSuccessResponse(new Response(output));
         } catch (Exception e) {
-            // TODO: remove stack trace
-            e.printStackTrace();
             if (!(e instanceof OTPVerificationException)) {
                 String onboardingErrorMsg = onboadingFailedMsg;
                 onboardingErrorMsg = onboardingErrorMsg.replace("ERROR_MSG", " " + e.getMessage());
@@ -256,8 +254,6 @@ public class ParticipantController extends BaseController {
             output.put(PHONE_OTP_VERIFIED, true);
             logger.info("Communication details verification is successful : " + output + " :: primary email : " + email);
         } catch (ClientException e) {
-            // TODO: remove stack trace
-            e.printStackTrace();
             updateOtpStatus(emailOtpVerified, phoneOtpVerified, attemptCount, status, email);
             String otpFailedMessage = otpFailedMsg;
             if (e.getMessage().contains(OTP_ALREADY_VERIFIED) || e.getMessage().contains(OTP_RECORD_NOT_EXIST)) {
@@ -330,8 +326,6 @@ public class ParticipantController extends BaseController {
                 throw new ClientException(ErrorCodes.ERR_UPDATE_PARTICIPANT_DETAILS, "Participant details are not updated, due to failed identity verification");
             }
         } catch (Exception e) {
-            // TODO: remove stack trace
-            e.printStackTrace();
             return exceptionHandler(new Response(), e);
         }
     }
