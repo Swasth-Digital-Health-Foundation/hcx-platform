@@ -35,11 +35,7 @@ import static org.swasth.common.utils.Constants.*;
 @RequestMapping(Constants.VERSION_PREFIX)
 public class ParticipantController extends BaseController {
 
-
     private static final Logger logger = LoggerFactory.getLogger(BaseController.class);
-
-    @Value("${registry.basePath}")
-    private String registryUrl;
 
     @Value("${email.otpSub}")
     private String otpSub;
