@@ -1,14 +1,11 @@
-#server:
-#  port: ${SERVER_PORT:8082}
+server:
+  port: ${SERVER_PORT:8082}
 
 logging:
   level:
     root: ${LOGGING_LEVEL_ROOT:INFO}
 
-#registry
-registry:
-  basePath: ${registry_basePath:http://a0b2bab079318431d8ca99f1efb1c25c-874274596.ap-south-1.elb.amazonaws.com:8081}
-  hcxcode: ${registry_hcxcode:1-d2d56996-1b77-4abb-b9e9-0e6e7343c72e}
+env: ${env:local}
 
 #elasticsearch config
 es:
@@ -19,12 +16,6 @@ es:
 audit:
   index: ${audit_index:hcx_audit}
   alias: ${audit_alias:hcx_audit}
-
-#hcx config
-hcx:
-  instanceName: ${hcx_instance_name:swasth-hcx}
-  urls:
-    notallowed: ${not_allowed_urls:http://dev-hcx.swasth.app/api,http://staging-hcx.swasth.app/api}
 
 aws:
   accessKey: ${aws_accessKey:AKIA6I75KJYE2AIRJ24B}
