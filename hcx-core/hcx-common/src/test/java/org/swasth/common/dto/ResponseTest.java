@@ -107,6 +107,8 @@ public class ResponseTest {
         Map<String,Object> result = new HashMap<>();
         result.put(HEALTHY, true);
         Response response = new Response(result);
+        response.setStatus(SUCCESSFUL.toUpperCase());
+        assertEquals(SUCCESSFUL.toUpperCase(), response.getStatus());
         assertEquals(true, response.getResult().get(HEALTHY));
     }
 
