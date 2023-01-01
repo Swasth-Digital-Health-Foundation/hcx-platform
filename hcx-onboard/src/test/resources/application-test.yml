@@ -1,0 +1,25 @@
+#registry
+registry:
+  basePath: ${registry_basePath:http://localhost:8082}
+  hcxcode: ${registry_hcxcode:hcx-registry-code}
+
+#elasticsearch config
+es:
+  host: ${es_host:localhost}
+  port: ${es_port:9200}
+
+#Audit config
+audit:
+  index: ${audit_index:hcx_audit}
+  alias: ${audit_alias:hcx_audit}
+
+#hcx config
+hcx:
+  instanceName: ${hcx_instance_name:swasth-hcx}
+  urls:
+    notallowed: ${not_allowed_urls:http://localhost:8095}
+
+aws:
+  accessKey: ${aws_accessKey:testAccessKey}
+  accessSecret: ${aws_accessSecret:testAccessSecret}
+  region: ${aws_region:ap-southeast-1}
