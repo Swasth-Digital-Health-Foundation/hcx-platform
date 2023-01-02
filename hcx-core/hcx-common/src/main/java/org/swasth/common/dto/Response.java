@@ -28,6 +28,8 @@ public class Response {
     @JsonProperty("subscription_status")
     private String subscriptionStatus;
 
+    private String status;
+
     public Response() {}
 
     public Response(String correlationId) {
@@ -149,5 +151,11 @@ public class Response {
     }
 
     public String getSubscriptionId() {return  subscriptionId;}
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getStatus() {return  status;}
 }
 

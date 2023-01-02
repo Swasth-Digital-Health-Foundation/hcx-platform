@@ -248,6 +248,8 @@ public class Constants {
     public static final List<String> RESPONSE_STATUS_VALUES = Arrays.asList(COMPLETE_STATUS, PARTIAL_STATUS, ERROR_RESPONSE, REDIRECT_STATUS);
     public static final List<String> ALLOWED_ENTITIES_ERROR_AUDIT_CREATION = Arrays.asList("coverageeligibility", "preauth", "claim", PAYMENT, COMMUNICATION, "predetermination", REGISTRY_STATUS, "search");
     public static final String JWT_TOKEN = "jwt_token";
+    public static final String SUB = "sub";
+    public static final String ISS = "iss";
     public static final String SPONSOR_CODE = "sponsor_code";
     public static final String APPLICANT_CODE = "applicant_code";
     public static final String PHONE_OTP = "phone_otp";
@@ -262,7 +264,8 @@ public class Constants {
     public static final String IDENTITY_VERIFIED = "identity_verified";
     public static final String EMAIL_OTP_VERIFIED = "email_otp_verified";
     public static final String PHONE_OTP_VERIFIED = "phone_otp_verified";
-
     public static final List<String> ALLOWED_ONBOARD_STATUS = Arrays.asList(REJECTED, ACCEPTED);
+
+    public static final String STAGING = "staging";
 
 }

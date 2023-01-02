@@ -35,11 +35,7 @@ import static org.swasth.common.utils.Constants.*;
 @RequestMapping(Constants.VERSION_PREFIX)
 public class ParticipantController extends BaseController {
 
-
     private static final Logger logger = LoggerFactory.getLogger(BaseController.class);
-
-    @Value("${registry.basePath}")
-    private String registryUrl;
 
     @Value("${email.otpSub}")
     private String otpSub;
@@ -99,6 +95,9 @@ public class ParticipantController extends BaseController {
     @Value("${otp.maxAttempt}")
     private int otpMaxAttempt;
 
+    @Value("${env}")
+    private String env;
+
     @Autowired
     private SMSService smsService;
 
@@ -123,8 +122,8 @@ public class ParticipantController extends BaseController {
             Map<String,Object> output = new HashMap<>();
             if (requestBody.containsKey(JWT_TOKEN)) {
                 String jwtToken = (String) requestBody.get(JWT_TOKEN);
-                Map<String, Object> payload = JSONUtils.decodeBase64String(jwtToken.split("\\.")[1], Map.class);
-                onboardParticipant(header, participant, (String) payload.get(SPONSOR_CODE), (String) payload.get(APPLICANT_CODE), (String) requestBody.get(JWT_TOKEN), output);
+                Map<String, Object> jwtPayload = JSONUtils.decodeBase64String(jwtToken.split("\\.")[1], Map.class);
+                onboardParticipant(header, participant, (String) jwtPayload.get(ISS), (String) jwtPayload.get(SUB), (String) requestBody.get(JWT_TOKEN), output);
             } else if (requestBody.containsKey(PAYOR_CODE)) {
                 onboardParticipant(header, participant, (String) requestBody.get(PAYOR_CODE), (String) requestBody.get(APPLICANT_CODE), "", output);
             } else if (requestBody.containsKey(EMAIL_OTP)) {
@@ -136,8 +135,6 @@ public class ParticipantController extends BaseController {
             }
             return getSuccessResponse(new Response(output));
         } catch (Exception e) {
-            // TODO: remove stack trace
-            e.printStackTrace();
             if (!(e instanceof OTPVerificationException)) {
                 String onboardingErrorMsg = onboadingFailedMsg;
                 onboardingErrorMsg = onboardingErrorMsg.replace("ERROR_MSG", " " + e.getMessage());
@@ -257,8 +254,6 @@ public class ParticipantController extends BaseController {
             output.put(PHONE_OTP_VERIFIED, true);
             logger.info("Communication details verification is successful : " + output + " :: primary email : " + email);
         } catch (ClientException e) {
-            // TODO: remove stack trace
-            e.printStackTrace();
             updateOtpStatus(emailOtpVerified, phoneOtpVerified, attemptCount, status, email);
             String otpFailedMessage = otpFailedMsg;
             if (e.getMessage().contains(OTP_ALREADY_VERIFIED) || e.getMessage().contains(OTP_RECORD_NOT_EXIST)) {
@@ -294,7 +289,7 @@ public class ParticipantController extends BaseController {
             logger.info("Onboard update: " + requestBody);
             boolean emailOtpVerified = false;
             boolean phoneOtpVerified = false;
-            String identityStatus = "";
+            String identityStatus = REJECTED;
             String jwtToken = (String) requestBody.get("jwt_token");
             Map<String, Object> payload = JSONUtils.decodeBase64String(jwtToken.split("\\.")[1], Map.class);
             Map<String, Object> participant = (Map<String, Object>) requestBody.get(PARTICIPANT);
@@ -316,13 +311,13 @@ public class ParticipantController extends BaseController {
                 identityStatus = resultSet1.getString("status");
             }
 
-            logger.info("Onboard update: " + participant);
+            if(env.equalsIgnoreCase(STAGING)) identityStatus = ACCEPTED;
+
             if (emailOtpVerified && phoneOtpVerified && StringUtils.equalsIgnoreCase(identityStatus, ACCEPTED)) {
                 HttpResponse<String> response = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_UPDATE, JSONUtils.serialize(participant), headersMap);
-                logger.info("Registry response: " + response.getBody());
                 if (response.getStatus() == 200) {
                     logger.info("Participant details are updated successfully :: participant code : " + participant.get(PARTICIPANT_CODE));
-                    emailService.sendMail(email, registryUpdateSub, registryUpdateMsg);
+                    emailService.sendMail(email, registryUpdateSub, registryUpdateMsg.replace("REGISTRY_CODE", (String) participant.get(PARTICIPANT_CODE)));
                     return getSuccessResponse(new Response(PARTICIPANT_CODE, participant.get(PARTICIPANT_CODE)));
                 } else return responseHandler(response, (String) participant.get(PARTICIPANT_CODE));
             } else {
@@ -331,8 +326,6 @@ public class ParticipantController extends BaseController {
                 throw new ClientException(ErrorCodes.ERR_UPDATE_PARTICIPANT_DETAILS, "Participant details are not updated, due to failed identity verification");
             }
         } catch (Exception e) {
-            // TODO: remove stack trace
-            e.printStackTrace();
             return exceptionHandler(new Response(), e);
         }
     }
