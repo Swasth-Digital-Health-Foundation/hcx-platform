@@ -152,7 +152,7 @@ spring:
             - RewritePath=/${version.external08}/participant/(?<segment>/?.*), /${version.internal}/participant/$\{segment}
             - RewritePath=/${version.external08}/notification/topic/list, /${version.internal}/notification/topic/list
           predicates:
-            - Path=/${version.external07}/participant/**, /${version.external08}/participant/**, /health, /service/health, /${version.external08}/notification/topic/list
+            - Path=/${version.external07}/participant/create, /${version.external07}/participant/update, /${version.external07}/participant/search, /${version.external07}/participant/delete, /${version.external08}/participant/create, /${version.external08}/participant/update, /${version.external08}/participant/search, /${version.external08}/participant/delete, /health, /service/health, /${version.external08}/notification/topic/list
 
         - id: hcx-onboard-api-route
           uri: ${hcx-onboard.basePath}
@@ -163,4 +163,4 @@ spring:
                 redis-rate-limiter.burstCapacity: 20
             - RewritePath=/${version.external08}/participant/(?<segment>/?.*), /${version.internal}/participant/$\{segment}
           predicates:
-            - Path=/${version.external08}/participant/**
+            - Path=/${version.external08}/participant/verify, /${version.external08}/participant/verify/identity, /${version.external08}/participant/otp/send, /${version.external08}/participant/onboard/update
