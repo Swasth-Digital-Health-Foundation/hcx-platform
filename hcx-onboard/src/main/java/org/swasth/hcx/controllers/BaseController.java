@@ -1,6 +1,7 @@
 package org.swasth.hcx.controllers;
 
 import kong.unirest.HttpResponse;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,9 @@ import org.swasth.hcx.helpers.EventGenerator;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.swasth.common.utils.Constants.FAILED;
+import static org.swasth.common.utils.Constants.SUCCESSFUL;
 
 
 public class BaseController {
@@ -44,11 +48,13 @@ public class BaseController {
     }
 
     protected ResponseEntity<Object> getSuccessResponse(Object response) {
+        ((Response) response).setStatus(SUCCESSFUL.toUpperCase());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     protected ResponseEntity<Object> exceptionHandler(Response response, Exception e){
-        logger.error("Exception: " + e.getMessage());
+        logger.error("Exception: {} :: Trace: {}", e.getMessage(), ExceptionUtils.getStackTrace(e));
+        response.setStatus(FAILED.toUpperCase());
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         ErrorCodes errorCode = ErrorCodes.INTERNAL_SERVER_ERROR;
         if (e instanceof ClientException) {
