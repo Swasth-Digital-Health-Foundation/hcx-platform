@@ -126,7 +126,6 @@ public class ParticipantController extends BaseController {
     public ResponseEntity<Object> participantVerify(@RequestHeader HttpHeaders header, @RequestBody ArrayList<Map<String,Object>> body) {
         String email = "";
         try {
-            System.out.println(otpSub);
             OnboardRequest request = new OnboardRequest(body);
             Map<String,Object> requestBody = request.getBody();
             logger.info("Participant verification :: " + requestBody);
