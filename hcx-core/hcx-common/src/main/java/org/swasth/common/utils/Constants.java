@@ -265,7 +265,10 @@ public class Constants {
     public static final String EMAIL_OTP_VERIFIED = "email_otp_verified";
     public static final String PHONE_OTP_VERIFIED = "phone_otp_verified";
     public static final List<String> ALLOWED_ONBOARD_STATUS = Arrays.asList(REJECTED, ACCEPTED);
-
     public static final String STAGING = "staging";
+    public static final String MODE = "mode";
+    public static final String MOCK_VALID = "mock-valid";
+    public static final String MOCK_INVALID = "mock-invalid";
+    public static final String ACTUAL = "actual";
 
 }
