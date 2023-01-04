@@ -20,7 +20,7 @@ audit:
 aws:
   accessKey: ${aws_accessKey:AKIA6I75KJYE2AIRJ24B}
   accessSecret: ${aws_accessSecret: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}
-  region: ${aws_region:ap-southeast-1}
+  region: ${aws_region:ap-south-1}
 
 form:
   verifyOTP:  ${verify_otp_form:https://script.google.com/macros/s/AKfycbyh82T-2Jb4UdZmPnA7w7rd9CCEz-Zr0NbV6fVPMkkFQf1FYQU2u1L5rEXaKRAu7azd/exec?primary_email=USER_MAIL&primary_mobile=PHONE}
