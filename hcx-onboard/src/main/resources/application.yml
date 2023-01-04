@@ -5,7 +5,7 @@ logging:
   level:
     root: ${LOGGING_LEVEL_ROOT:INFO}
 
-env: ${env:local}
+env: ${ENV:local}
 
 #elasticsearch config
 es:
@@ -22,23 +22,32 @@ aws:
   accessSecret: ${aws_accessSecret:mWOYkG1VNHIUOEyFrotrK0slNIbHbVTK1eDiEEcO}
   region: ${aws_region:ap-south-1}
 
+form:
+  verifyOTP:  ${verify_otp_form:https://script.google.com/macros/s/AKfycbyh82T-2Jb4UdZmPnA7w7rd9CCEz-Zr0NbV6fVPMkkFQf1FYQU2u1L5rEXaKRAu7azd/exec?primary_email=USER_MAIL&primary_mobile=PHONE}
+  otpRegenerate: ${otp_regenerate_form:https://script.google.com/macros/s/AKfycbxdkdENBMDD74wHvTPpGHoZVqXlsoKr3iy59Hmk7Q1IfbZOlCvnUmsgBvOeVZqYCKaeFw/exec?primary_email=USER_MAIL&primary_mobile=PHONE}
+  updateRegistry: ${update_regenerate_form:https://script.google.com/macros/s/AKfycbwwKSpZ3kqDE0Gg9jSJxBF2UyHeVFcMF7j7n8OqUOgtq4UexmFDp5v9_nl2eZKEkrowDA/exec?participant_code=REGISTRY_CODE}
+
 email:
   id: ${email_id:contact@hcxprotocol.io}
   pwd: ${email_pwd:swasthdevops}
-  onboardingFailedSub: ${onboarding_failed_sub:HCX Onboarding Failed}
-  onboardingFailedMsg: ${onboarding_failed_msg:Hi User,<br/> We are unable to onboard you on to HCX due to:ERROR_MSG.<br/> Thanks,<br/> HCX Team}
-  otpSub: ${otp_sub:HCX Onboarding Mail}
-  otpMsg: ${otp_msg:Hi User,<br/>Please use this OTP for verification:RANDOM_CODE <br/> Use this below link to verify the OTPs:<br/><a href="USER_LINK" target="_blank">Verify OTP</a> <br/> Thanks,<br/> HCX Team}
-  prefillUrl: ${prefill_url:https://script.google.com/macros/s/AKfycbyh82T-2Jb4UdZmPnA7w7rd9CCEz-Zr0NbV6fVPMkkFQf1FYQU2u1L5rEXaKRAu7azd/exec?primary_email=USER_MAIL&primary_mobile=PHONE}
-  otpVerifySub: ${otp_verify_sub:HCX Participant Onboarded}
-  otpVerifyMsg: ${otp_verify_msg:Hi User,<br/> Please use this participant code with HCX:&nbsp;REGISTRY_CODE <br/> Use this below link to update details in registry<br/> <a href="https://script.google.com/macros/s/AKfycbwwKSpZ3kqDE0Gg9jSJxBF2UyHeVFcMF7j7n8OqUOgtq4UexmFDp5v9_nl2eZKEkrowDA/exec?participant_code=REGISTRY_CODE" target="_blank">Update Registry</a> <br/>NOTE You will not be able to make calls without updating the end point url and encryption cert path in the registry.<br/>Thanks,<br/> HCX Team}
-  failedIdentitySub: ${failed_identity_sub:HCX Participant Registry Updated Failed}
-  failedIdentityMsg: ${failed_identity_msg:Hi User,<br/>Identity verification is failed. Please do the identity verification, to update the details in the registry.<br/>Thanks,<br/> HCX Team}
-  otpFailedSub: ${otp_failed_sub:HCX Verify OTP Failed}
-  otpFailedMsg: ${otp_failed_msg:Hi User,<br/> OTP verification failed due to error:ERROR_MSG<br/> Use this below link to regenerate OTPs<br/> <a href="https://script.google.com/macros/s/AKfycbxdkdENBMDD74wHvTPpGHoZVqXlsoKr3iy59Hmk7Q1IfbZOlCvnUmsgBvOeVZqYCKaeFw/exec?primary_email=USER_MAIL&primary_mobile=PHONE" target="_blank">Regenerate OTPs</a> <br/>Thanks,<br/> HCX Team}
-  otpFailedWithoutLinkMsg: ${otp_failed_msg:Hi User,<br/> OTP verification failed due to error:ERROR_MSG<br/>Thanks,<br/> HCX Team}
-  registryUpdateSub: ${registry_update_sub:HCX Registry Updated}
-  registryUpdateMsg: ${registry_update_msg:Hi User,<br/> Registry has been updated for your participant code:REGISTRY_CODE <br/> Thanks,<br/> HCX Team}
+  onboardingFailedSub: ${onboarding_failed_sub:HCX - Onboarding Failed}
+  onboardingFailedMsg: ${onboarding_failed_msg:Hi User,<br/>Sorry, we are unable to onboard you on to HCX due to:ERROR_MSG.<br/> Thanks,<br/> HCX Team}
+  otpSub: ${otp_sub:HCX - Onboarding Started}
+  otpMsg: ${otp_msg:Hi User,<br/>Use the following OTP to verify your email address:RANDOM_CODE <br/>Open the below link to verify the OTPs:<br/><a href="USER_LINK" target="_blank">Verify OTP</a> <br/> Thanks,<br/> HCX Team}
+  prefillUrl: ${form.verifyOTP}
+  otpVerifySub: ${otp_verify_sub:HCX - OTP Verification Successful}
+  otpVerifyMsg: ${otp_verify_msg:Hi User,<br/>Your participant code is REGISTRY_CODE.<br/> Use this below link to update details in registry<br/> <a href="${form.updateRegistry}" target="_blank">Update Registry</a> <br/>Note:- You will not be able to make request calls on HCX Gateway without updating the encryption cert path, signing cert path and end point url in the registry.<br/>Thanks,<br/> HCX Team}
+  successIdentitySub: ${success_identity_sub:HCX - Identity Verified}
+  successIdentityMsg: ${success_identity_msg:Hi User,<br/>Identity verification is successful.<br/>Thanks,<br/> HCX Team}
+  failedIdentitySub: ${failed_identity_sub:HCX - Identity Verification Failed}
+  failedIdentityMsg: ${failed_identity_msg:Hi User,<br/>Identity verification is failed. Please reach out to HCX Team.<br/>Thanks,<br/> HCX Team}
+  otpFailedSub: ${otp_failed_sub:HCX - OTP Verification Failed}
+  otpFailedMsg: ${otp_failed_msg:Hi User,<br/>OTP verification failed due to error:ERROR_MSG<br/> Use the below link to regenerate the OTPs<br/> <a href="${form.otpRegenerate}" target="_blank">Regenerate OTPs</a> <br/>Thanks,<br/> HCX Team}
+  otpFailedWithoutLinkMsg: ${otp_failed_msg:Hi User,<br/>OTP verification failed due to error:ERROR_MSG<br/>Thanks,<br/> HCX Team}
+  registryUpdateSub: ${registry_update_sub:HCX - Participant Details Updated}
+  registryUpdateMsg: ${registry_update_msg:Hi User,<br/>Participant details has been successfully updated in the registry. <br/> Participant Code:REGISTRY_CODE <br/> Thanks,<br/> HCX Team}
+  registryUpdateFailedSub: ${registry_update_failed_sub:HCX - Updating Participant Details Failed}
+  registryUpdateFailedMsg: ${registry_update_failed_msg:Hi User,<br/>Updating participant details in the registry is failed due to ERROR_MSG. <br/>Participant Code:REGISTRY_CODE<br/>Thanks,<br/> HCX Team}
 
 hcx-api:
   basePath: ${HCX_API_BASEPATH:http://localhost:8080}
