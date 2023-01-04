@@ -20,7 +20,7 @@ audit:
 aws:
   accessKey: ${aws_accessKey:AKIA6I75KJYE2AIRJ24B}
   accessSecret: ${aws_accessSecret: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}
-  region: ${aws_region:ap-southeast-1}
+  region: ${aws_region:ap-south-1}
 
 email:
   id: ${email_id:contact@hcxprotocol.io}
