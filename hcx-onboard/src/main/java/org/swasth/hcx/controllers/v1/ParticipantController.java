@@ -135,9 +135,11 @@ public class ParticipantController extends BaseController {
             if (requestBody.containsKey(JWT_TOKEN)) {
                 String jwtToken = (String) requestBody.get(JWT_TOKEN);
                 Map<String, Object> jwtPayload = JSONUtils.decodeBase64String(jwtToken.split("\\.")[1], Map.class);
-                onboardParticipant(header, participant, (String) jwtPayload.get(ISS), (String) jwtPayload.get(SUB), (String) requestBody.get(JWT_TOKEN), output);
+                updateEmail(email, (String) jwtPayload.get(SUB));
+                createParticipantAndSendOTP(header, participant, "", output);
             } else if (requestBody.containsKey(PAYOR_CODE)) {
-                onboardParticipant(header, participant, (String) requestBody.get(PAYOR_CODE), (String) requestBody.get(APPLICANT_CODE), "", output);
+                updateEmail(email, (String) requestBody.get(APPLICANT_CODE));
+                createParticipantAndSendOTP(header, participant, "", output);
             } else if (requestBody.containsKey(EMAIL_OTP)) {
                 email = (String) requestBody.get(PRIMARY_EMAIL);
                 verifyOTP(requestBody, output);
@@ -156,43 +158,9 @@ public class ParticipantController extends BaseController {
         }
     }
 
-    private void onboardParticipant(HttpHeaders header, Map<String, Object> participant, String sponsorCode, String applicantCode, String jwtToken, Map<String,Object> output) throws Exception {
-        Map<String, Object> sponsorDetails = getParticipant(PARTICIPANT_CODE, sponsorCode);
-        String email = (String) participant.get(PRIMARY_EMAIL);
-        String mode = header.get(MODE).get(0);
-        Map<String, Object> payorResp = new HashMap<>();
-
-        if (!jwtToken.isEmpty() && !jwtUtils.isValidSignature(jwtToken, (String) sponsorDetails.get(SIGNING_CERT_PATH)))
-            throw new ClientException(ErrorCodes.ERR_INVALID_JWT, "Invalid JWT token signature");
-
-        if (mode.equalsIgnoreCase(MOCK_VALID)) {
-            payorResp.putAll(payorResp);
-        } else if (mode.equalsIgnoreCase(MOCK_INVALID)) {
-            payorResp.putAll(payorResp);
-            payorResp.put(PARTICIPANT_NAME, "");
-        } else if (mode.equalsIgnoreCase(ACTUAL)) {
-            Map<String,Object> reqBody = new HashMap<>();
-            reqBody.put(APPLICANT_CODE, applicantCode);
-            reqBody.put(PRIMARY_EMAIL, email);
-            HttpResponse<String> response = HttpUtils.post(sponsorDetails.get(ENDPOINT_URL) + PARTICIPANT_GET_INFO, JSONUtils.serialize(reqBody));
-            if(response.getStatus() == 200){
-                payorResp.putAll(JSONUtils.deserialize(response.getBody(), Map.class));
-            } else{
-                // TODO: Fetch error message from response and add to exception message
-                throw new ClientException(ErrorCodes.ERR_PAYOR_SYSTEM, "Error while fetching the applicant details from payor system");
-            }
-        }
-
-        if (!StringUtils.equalsIgnoreCase((String) participant.get(PARTICIPANT_NAME), (String) payorResp.get(PARTICIPANT_NAME)) ||
-                !StringUtils.equalsIgnoreCase(email, (String) payorResp.get(PRIMARY_EMAIL))) {
-            output.put(IDENTITY_VERIFIED, false);
-            updateIdentityVerificationStatus(email, applicantCode, sponsorCode, REJECTED);
-            throw new ClientException(ErrorCodes.ERR_INVALID_IDENTITY, "Identity verification failed, participant name or email is not matched with details in sponsor system");
-        } else {
-            output.put(IDENTITY_VERIFIED, true);
-            updateIdentityVerificationStatus(email, applicantCode, sponsorCode, ACCEPTED);
-            createParticipantAndSendOTP(header, participant, sponsorCode, output);
-        }
+    private void updateEmail(String email, String applicantCode) throws Exception {
+        String query = String.format("INSERT %s SET applicant_email='%s',updatedOn=%d WHERE applicant_code='%s'", onboardingTable, email, System.currentTimeMillis(), applicantCode);
+        postgreSQLClient.execute(query);
     }
 
     private void updateIdentityVerificationStatus(String email, String applicantCode, String sponsorCode, String  status) throws Exception {
@@ -376,6 +344,52 @@ public class ParticipantController extends BaseController {
             return getSuccessResponse(new Response());
         } catch (Exception e) {
             emailService.sendMail(applicantEmail, failedIdentitySub, failedIdentityMsg);
+            return exceptionHandler(new Response(), e);
+        }
+    }
+
+    @PostMapping(PARTICIPANT_GET_INFO)
+    public ResponseEntity<Object> participantGetInfo(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
+        try {
+            String applicantCode;
+            String sponsorCode;
+            Map<String, Object> sponsorDetails;
+            String identityVerification  = REJECTED;
+            if (requestBody.containsKey(JWT_TOKEN)) {
+                String jwtToken = (String) requestBody.get(JWT_TOKEN);
+                Map<String, Object> jwtPayload = JSONUtils.decodeBase64String(jwtToken.split("\\.")[1], Map.class);
+                sponsorCode = (String) jwtPayload.get(ISS);
+                applicantCode = (String) jwtPayload.get(SUB);
+                sponsorDetails = getParticipant(PARTICIPANT_CODE, sponsorCode);
+                if (!jwtToken.isEmpty() && !jwtUtils.isValidSignature(jwtToken, (String) sponsorDetails.get(SIGNING_CERT_PATH)))
+                    throw new ClientException(ErrorCodes.ERR_INVALID_JWT, "Invalid JWT token signature");
+            } else {
+                applicantCode = (String) requestBody.get(APPLICANT_CODE);
+                sponsorCode = (String) requestBody.get(PAYOR_CODE);
+                sponsorDetails = getParticipant(PARTICIPANT_CODE, sponsorCode);
+            }
+
+            String mode = header.get(MODE).get(0);
+            Map<String, Object> payorResp = new HashMap<>();
+
+            if (mode.equalsIgnoreCase(MOCK_VALID)) {
+                payorResp.put(PRIMARY_EMAIL, applicantCode + "@yopmail.com");
+                payorResp.put(PRIMARY_MOBILE, "8522875773");
+                payorResp.put(PARTICIPANT_NAME, applicantCode);
+                payorResp.putAll(payorResp);
+            } else if (mode.equalsIgnoreCase(ACTUAL)) {
+                Map<String, Object> reqBody = new HashMap<>();
+                reqBody.put(APPLICANT_CODE, reqBody.get(APPLICANT_CODE));
+                HttpResponse<String> response = HttpUtils.post(sponsorDetails.get(ENDPOINT_URL) + PARTICIPANT_GET_INFO, JSONUtils.serialize(reqBody));
+                if (response.getStatus() == 200) {
+                    payorResp.putAll(JSONUtils.deserialize(response.getBody(), Map.class));
+                }
+            }
+
+            if(!payorResp.isEmpty()) identityVerification = ACCEPTED;
+            updateIdentityVerificationStatus((String) payorResp.getOrDefault(PRIMARY_EMAIL, ""), applicantCode, sponsorCode, identityVerification);
+            return getSuccessResponse(new ParticipantResponse(payorResp));
+        } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }
     }
