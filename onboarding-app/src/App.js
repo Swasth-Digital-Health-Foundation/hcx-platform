@@ -16,9 +16,6 @@ function App() {
     <div className="App">
       <Router>
         <Switch>
-          <Route path="/">
-            <Home />
-          </Route>
           <Route path="/onboarding_poc">
             <OnBoardingPoc />
           </Route>
@@ -42,6 +39,4 @@ function App() {
 
 export default App;
 
-function Home() {
-  return <p>HCX Home Page</p>;
-}
+
