@@ -388,7 +388,7 @@ public class ParticipantController extends BaseController {
 
             if(!payorResp.isEmpty()) identityVerification = ACCEPTED;
             updateIdentityVerificationStatus((String) payorResp.getOrDefault(PRIMARY_EMAIL, ""), applicantCode, sponsorCode, identityVerification);
-            return getSuccessResponse(new ParticipantResponse(payorResp));
+            return new ResponseEntity<>(new ParticipantResponse(payorResp), HttpStatus.OK);
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }
