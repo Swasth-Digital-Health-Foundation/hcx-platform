@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.swasth.common.dto.OnboardRequest;
@@ -388,7 +389,7 @@ public class ParticipantController extends BaseController {
 
             if(!payorResp.isEmpty()) identityVerification = ACCEPTED;
             updateIdentityVerificationStatus((String) payorResp.getOrDefault(PRIMARY_EMAIL, ""), applicantCode, sponsorCode, identityVerification);
-            return getSuccessResponse(new ParticipantResponse(payorResp));
+            return new ResponseEntity<>(new ParticipantResponse(payorResp), HttpStatus.OK);
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }
