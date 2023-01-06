@@ -16,7 +16,7 @@ export const UpdateRegistry = () => {
 
     const onSubmit = (data) => {
         setSending(true)
-        const formData = { "participant_code": query.get("participant_code"), "jwt_token": data.jwt_token, "endpoint_url": data.endpoint_url, "encryption_cert_path": data.encryption_cert_path, "signing_cert_path": data.signing_cert_path };
+        const formData = { "jwt_token": data.jwt_token, participant: { "participant_code": query.get("participant_code"), "endpoint_url": data.endpoint_url, "encryption_cert_path": data.encryption_cert_path, "signing_cert_path": data.signing_cert_path } };
         sendData("/participant/onboard/update", formData).then((data => {
             toast.success("Form is submitted successfully", {
                 position: toast.POSITION.TOP_CENTER
