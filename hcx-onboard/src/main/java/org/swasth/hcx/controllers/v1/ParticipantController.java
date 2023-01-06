@@ -370,8 +370,8 @@ public class ParticipantController extends BaseController {
             if (requestBody.containsKey(JWT_TOKEN)) {
                 String jwtToken = (String) requestBody.get(JWT_TOKEN);
                 Map<String, Object> jwtPayload = JSONUtils.decodeBase64String(jwtToken.split("\\.")[1], Map.class);
-                sponsorCode = (String) jwtPayload.get(ISS);
-                applicantCode = (String) jwtPayload.get(SUB);
+                sponsorCode = (String) jwtPayload.get(SPONSOR_CODE);
+                applicantCode = (String) jwtPayload.get(APPLICANT_CODE);
                 sponsorDetails = getParticipant(PARTICIPANT_CODE, sponsorCode);
                 if (!jwtToken.isEmpty() && !jwtUtils.isValidSignature(jwtToken, (String) sponsorDetails.get(SIGNING_CERT_PATH)))
                     throw new ClientException(ErrorCodes.ERR_INVALID_JWT, "Invalid JWT token signature");
