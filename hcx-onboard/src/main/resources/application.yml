@@ -23,9 +23,9 @@ aws:
   region: ${aws_region:ap-south-1}
 
 form:
-  verifyOTP:  ${verify_otp_form:https://script.google.com/macros/s/AKfycbyh82T-2Jb4UdZmPnA7w7rd9CCEz-Zr0NbV6fVPMkkFQf1FYQU2u1L5rEXaKRAu7azd/exec?primary_email=USER_MAIL&primary_mobile=PHONE}
-  otpRegenerate: ${otp_regenerate_form:https://script.google.com/macros/s/AKfycbxdkdENBMDD74wHvTPpGHoZVqXlsoKr3iy59Hmk7Q1IfbZOlCvnUmsgBvOeVZqYCKaeFw/exec?primary_email=USER_MAIL&primary_mobile=PHONE}
-  updateRegistry: ${update_regenerate_form:https://script.google.com/macros/s/AKfycbwwKSpZ3kqDE0Gg9jSJxBF2UyHeVFcMF7j7n8OqUOgtq4UexmFDp5v9_nl2eZKEkrowDA/exec?participant_code=REGISTRY_CODE}
+  verifyOTP:  ${verify_otp_form:http://localhost:3000/otp_verify?primary_email=USER_MAIL&primary_mobile=PHONE}
+  otpRegenerate: ${otp_regenerate_form:http://localhost:3000/otp_regenerate?primary_email=USER_MAIL&primary_mobile=PHONE&identity_verified=IDENTITY_VERIFIED}
+  updateRegistry: ${update_regenerate_form:http://localhost:3000/update_registry?participant_code=REGISTRY_CODE}
 
 email:
   id: ${email_id:contact@hcxprotocol.io}

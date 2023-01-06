@@ -198,16 +198,27 @@ public class ParticipantController extends BaseController {
         try {
             String phoneOtp = new DecimalFormat("000000").format(new Random().nextInt(999999));
             smsService.sendOTP((String) requestBody.get(PRIMARY_MOBILE), phoneOtp);
+
+            String identityFetchQuery = String.format("SELECT status FROM %S WHERE applicant_email='%s'", onboardingTable, (String) requestBody.get(PRIMARY_EMAIL));
+            ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(identityFetchQuery);
+            String identityVerified = PENDING;
+            while (resultSet.next()) {
+                identityVerified = resultSet.getString("status");
+            }
+
             String emailPrefillUrl = prefillUrl;
             emailPrefillUrl = emailPrefillUrl.replace("USER_MAIL", (String) requestBody.get(PRIMARY_EMAIL))
-                    .replace("PHONE", (String) requestBody.get(PRIMARY_MOBILE));
+                    .replace("PHONE", (String) requestBody.get(PRIMARY_MOBILE))
+                    .replace("IDENTITY_VERIFIED", identityVerified);
             String emailOtp = new DecimalFormat("000000").format(new Random().nextInt(999999));
             String emailMsg = otpMsg;
             emailMsg = emailMsg.replace("RANDOM_CODE", emailOtp).replace("USER_LINK", emailPrefillUrl);
             emailService.sendMail((String) requestBody.get(PRIMARY_EMAIL), otpSub, emailMsg);
+
             String query = String.format("UPDATE %s SET phone_otp='%s',email_otp='%s',updatedOn=%d,expiry=%d WHERE primary_email='%s'",
                     onboardingOtpTable, phoneOtp, emailOtp, System.currentTimeMillis(), System.currentTimeMillis() + otpExpiry, requestBody.get(PRIMARY_EMAIL));
             postgreSQLClient.execute(query);
+
             return getSuccessResponse(new Response());
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
@@ -371,7 +382,6 @@ public class ParticipantController extends BaseController {
             }
 
             String mode = header.get(MODE).get(0);
-            System.out.println(mode);
             Map<String, Object> payorResp = new HashMap<>();
 
             if (mode.equalsIgnoreCase(MOCK_VALID)) {
@@ -390,11 +400,7 @@ public class ParticipantController extends BaseController {
 
             if(!payorResp.isEmpty()) identityVerification = ACCEPTED;
             updateIdentityVerificationStatus((String) payorResp.getOrDefault(PRIMARY_EMAIL, ""), applicantCode, sponsorCode, identityVerification);
-            System.out.println(payorResp);
             ParticipantResponse resp = new ParticipantResponse(payorResp);
-            System.out.println(JSONUtils.serialize(resp));
-            System.out.println(resp.toString());
-            System.out.println(resp.getParticipant());
             return new ResponseEntity<>(resp, HttpStatus.OK);
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
