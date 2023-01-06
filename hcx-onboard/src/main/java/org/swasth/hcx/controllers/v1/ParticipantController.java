@@ -391,8 +391,11 @@ public class ParticipantController extends BaseController {
             if(!payorResp.isEmpty()) identityVerification = ACCEPTED;
             updateIdentityVerificationStatus((String) payorResp.getOrDefault(PRIMARY_EMAIL, ""), applicantCode, sponsorCode, identityVerification);
             System.out.println(payorResp);
-            System.out.println(new ParticipantResponse(payorResp));
-            return new ResponseEntity<>(new ParticipantResponse(payorResp), HttpStatus.OK);
+            ParticipantResponse resp = new ParticipantResponse(payorResp);
+            System.out.println(JSONUtils.serialize(resp));
+            System.out.println(resp.toString());
+            System.out.println(resp.getParticipant());
+            return new ResponseEntity<>(resp, HttpStatus.OK);
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }

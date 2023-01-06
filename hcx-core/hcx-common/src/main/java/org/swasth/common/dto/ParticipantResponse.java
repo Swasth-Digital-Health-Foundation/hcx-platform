@@ -61,4 +61,6 @@ public class ParticipantResponse {
     public ArrayList<Object> getParticipants(){return participants;}
     public void setParticipants(ArrayList<Object> participants){this.participants = participants;}
 
+    public Map<String,Object> getParticipant(){return participant;}
+
 }
