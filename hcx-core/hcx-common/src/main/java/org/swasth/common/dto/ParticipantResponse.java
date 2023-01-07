@@ -13,6 +13,13 @@ public class ParticipantResponse {
     private String participantCode;
     private ArrayList<Object> participants;
 
+    private String applicant_email;
+    private String applicant_code;
+    private String sponsor_code;
+    private String status;
+    private String createdon;
+    private String updatedon;
+
     public ParticipantResponse() {
         this.timestamp = System.currentTimeMillis();
     }
@@ -31,7 +38,17 @@ public class ParticipantResponse {
         this.timestamp = System.currentTimeMillis();
         this.participants = participants;
     }
-
+    public ParticipantResponse(String applicant_email, String applicant_code, String sponsor_code, String status, String createdon, String updatedon) {
+        this.applicant_email = applicant_email;
+        this.applicant_code = applicant_code;
+        this.sponsor_code = sponsor_code;
+        this.status = status;
+        this.createdon = createdon;
+        this.updatedon = updatedon;
+    }
+    public String getApplicantEmail() {
+        return applicant_email;
+    }
     public Long getTimestamp() {
         return timestamp;
     }
