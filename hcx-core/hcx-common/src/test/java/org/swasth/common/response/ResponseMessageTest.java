@@ -124,7 +124,7 @@ public class ResponseMessageTest {
     @Test
     public void testInvalidRolesProperty(){
         String invalidTopicCode = ResponseMessage.INVALID_ROLES_PROPERTY;
-        assertTrue(invalidTopicCode.contains("roles"));
+        assertTrue(invalidTopicCode.contains("Roles"));
     }
 
     @Test
@@ -135,7 +135,7 @@ public class ResponseMessageTest {
     @Test
     public void testUnknownProperty(){
         String invalidTopicCode = ResponseMessage.UNKNOWN_PROPERTY;
-        assertTrue(invalidTopicCode.contains("unknown"));
+        assertTrue(invalidTopicCode.contains("Unknown"));
     }
 
     @Test
@@ -334,7 +334,7 @@ public class ResponseMessageTest {
     @Test
     public void testSenderRecipientSame(){
         String invalidTopicCode = ResponseMessage.SENDER_RECIPIENT_SAME_MSG;
-        assertTrue(invalidTopicCode.contains("sender"));
+        assertTrue(invalidTopicCode.contains("Sender"));
     }
 
     @Test
@@ -412,7 +412,7 @@ public class ResponseMessageTest {
     @Test
     public void testInvalidRegistryStatus(){
         String invalidTopicCode = ResponseMessage.INVALID_REGISTRY_STATUS;
-        assertTrue(invalidTopicCode.contains("registry"));
+        assertTrue(invalidTopicCode.contains("Participant"));
     }
 
     @Test
@@ -493,8 +493,14 @@ public class ResponseMessageTest {
 
     @Test
     public void testInvalidRecipient(){
-        String invalidTopicCode = ResponseMessage.INVALID_RECIPIENT;
-        assertTrue(invalidTopicCode.contains("Invalid"));
+        String invalidTopicCode = ResponseMessage.INVALID_API_CALL;
+        assertTrue(invalidTopicCode.contains("API"));
+    }
+
+    @Test
+    public void testInvalidForwardToProvider(){
+        String invalidTopicCode = ResponseMessage.INVALID_FORWARD_TO_PROVIDER;
+        assertTrue(invalidTopicCode.contains("Request"));
     }
 
     @Test
@@ -535,7 +541,7 @@ public class ResponseMessageTest {
 
     @Test
     public void testInvalidApiCall(){
-        String invalidTopicCode = ResponseMessage.INVALID_API_CALL;
+        String invalidTopicCode = ResponseMessage.INVALID_API_CALL_ID;
         assertTrue(invalidTopicCode.contains("call"));
     }
 

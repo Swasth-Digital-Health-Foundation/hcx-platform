@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.swasth.auditindexer.function.AuditIndexer;
+import org.swasth.common.helpers.EventGenerator;
 import org.swasth.common.utils.JWTUtils;
 import org.swasth.common.utils.NotificationUtils;
 import org.swasth.redis.cache.RedisCache;
@@ -58,6 +59,10 @@ public class GenericConfiguration {
     @Bean
     public JWTUtils jwtUtils() throws IOException {
         return new JWTUtils();
+    }
+    @Bean
+    public EventGenerator eventGenerator(){
+        return new EventGenerator();
     }
 
 }

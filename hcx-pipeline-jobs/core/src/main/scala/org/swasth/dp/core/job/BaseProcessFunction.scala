@@ -72,6 +72,10 @@ abstract class BaseProcessFunction[T, R](config: BaseJobConfig) extends ProcessF
     event.getOrDefault(Constants.CDATA, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]].getOrDefault(participant, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]].get(key).asInstanceOf[util.List[String]]
   }
 
+  def getCDataStringValue(event: util.Map[String, AnyRef], participant: String, key: String): String = {
+    event.getOrDefault(Constants.CDATA, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]].getOrDefault(participant, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]].get(key).asInstanceOf[String]
+  }
+
   def setStatus(event: util.Map[String, AnyRef], status: String): Unit = {
     if(!event.get(Constants.HEADERS).asInstanceOf[util.Map[String, AnyRef]].get(Constants.PROTOCOL).asInstanceOf[util.Map[String, AnyRef]].containsKey(Constants.HCX_STATUS))
       event.get(Constants.HEADERS).asInstanceOf[util.Map[String, AnyRef]].get(Constants.PROTOCOL).asInstanceOf[util.Map[String, AnyRef]].put(Constants.HCX_STATUS, status)

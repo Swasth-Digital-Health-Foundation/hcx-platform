@@ -28,6 +28,8 @@ public class Response {
     @JsonProperty("subscription_status")
     private String subscriptionStatus;
 
+    private String status;
+
     public Response() {}
 
     public Response(String correlationId) {
@@ -51,6 +53,10 @@ public class Response {
     public Response(String key, Object val) {
         this.result = new HashMap<>();
         this.put(key, val);
+    }
+
+    public Response(Map<String,Object> result) {
+        this.result = result;
     }
 
     public List<Map<String,Object>> getNotifications() {
@@ -145,5 +151,11 @@ public class Response {
     }
 
     public String getSubscriptionId() {return  subscriptionId;}
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getStatus() {return  status;}
 }
 

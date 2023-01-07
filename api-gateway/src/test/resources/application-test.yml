@@ -1,8 +1,9 @@
 server:
   port: ${SERVER_PORT:8095}
-  
+
 version:
-  external: ${version_external:v0.7}
+  external07: ${version_external_07:v0.7}
+  external08: ${version_external_08:v0.8}
   internal: ${version_internal:v1}
 
 #hcx headers
@@ -40,10 +41,11 @@ notify:
     allowedCodes: ${notify_network_allowedCodes:${registry.hcxCode}}
 
 timestamp:
-  range: ${timestamp_range:10000}
+  range: ${timestamp_range:100000}
 
 allowedEntitiesForForward: ${allowed_entities_for_forward:coverageeligibility, preauth, claim}
 allowedRolesForForward: ${allowed_roles_for_forward:payor, agency.tpa}
+allowedParticipantStatus: ${allowed_participant_status:Active}
 
 jwt:
   enabled: ${JWT_ENABLED:true}
@@ -89,23 +91,30 @@ spring:
               args:
                 redis-rate-limiter.replenishRate: 10
                 redis-rate-limiter.burstCapacity: 20
-            - RewritePath=/${version.external}/coverageeligibility/(?<segment>/?.*), /${version.internal}/coverageeligibility/$\{segment}
-            - RewritePath=/${version.external}/preauth/(?<segment>/?.*), /${version.internal}/preauth/$\{segment}
-            - RewritePath=/${version.external}/claim/(?<segment>/?.*), /${version.internal}/claim/$\{segment}
-            - RewritePath=/${version.external}/paymentnotice/(?<segment>/?.*), /${version.internal}/paymentnotice/$\{segment}
-            - RewritePath=/${version.external}/hcx/(?<segment>/?.*), /${version.internal}/hcx/$\{segment}
-            - RewritePath=/${version.external}/predetermination/(?<segment>/?.*), /${version.internal}/predetermination/$\{segment}
-            - RewritePath=/${version.external}/communication/(?<segment>/?.*), /${version.internal}/communication/$\{segment}
-            - RewritePath=/${version.external}/notification/subscribe, /${version.internal}/notification/subscribe
-            - RewritePath=/${version.external}/notification/unsubscribe, /${version.internal}/notification/unsubscribe
-            - RewritePath=/${version.external}/notification/notify, /${version.internal}/notification/notify
-            - RewritePath=/${version.external}/notification/subscription/list, /${version.internal}/notification/subscription/list
-            - RewritePath=/${version.external}/notification/subscription/update, /${version.internal}/notification/subscription/update
-            - RewritePath=/${version.external}/notification/on_subscribe, /${version.internal}/notification/on_subscribe
+            - RewritePath=/${version.external07}/coverageeligibility/(?<segment>/?.*), /${version.internal}/coverageeligibility/$\{segment}
+            - RewritePath=/${version.external07}/preauth/(?<segment>/?.*), /${version.internal}/preauth/$\{segment}
+            - RewritePath=/${version.external07}/claim/(?<segment>/?.*), /${version.internal}/claim/$\{segment}
+            - RewritePath=/${version.external07}/paymentnotice/(?<segment>/?.*), /${version.internal}/paymentnotice/$\{segment}
+            - RewritePath=/${version.external07}/hcx/(?<segment>/?.*), /${version.internal}/hcx/$\{segment}
+            - RewritePath=/${version.external07}/predetermination/(?<segment>/?.*), /${version.internal}/predetermination/$\{segment}
+            - RewritePath=/${version.external07}/communication/(?<segment>/?.*), /${version.internal}/communication/$\{segment}
+            - RewritePath=/${version.external08}/coverageeligibility/(?<segment>/?.*), /${version.internal}/coverageeligibility/$\{segment}
+            - RewritePath=/${version.external08}/preauth/(?<segment>/?.*), /${version.internal}/preauth/$\{segment}
+            - RewritePath=/${version.external08}/claim/(?<segment>/?.*), /${version.internal}/claim/$\{segment}
+            - RewritePath=/${version.external08}/paymentnotice/(?<segment>/?.*), /${version.internal}/paymentnotice/$\{segment}
+            - RewritePath=/${version.external08}/hcx/(?<segment>/?.*), /${version.internal}/hcx/$\{segment}
+            - RewritePath=/${version.external08}/predetermination/(?<segment>/?.*), /${version.internal}/predetermination/$\{segment}
+            - RewritePath=/${version.external08}/communication/(?<segment>/?.*), /${version.internal}/communication/$\{segment}
+            - RewritePath=/${version.external08}/notification/subscribe, /${version.internal}/notification/subscribe
+            - RewritePath=/${version.external08}/notification/unsubscribe, /${version.internal}/notification/unsubscribe
+            - RewritePath=/${version.external08}/notification/notify, /${version.internal}/notification/notify
+            - RewritePath=/${version.external08}/notification/subscription/list, /${version.internal}/notification/subscription/list
+            - RewritePath=/${version.external08}/notification/on_subscribe, /${version.internal}/notification/on_subscribe
+            - RewritePath=/${version.external08}/notification/subscription/update, /${version.internal}/notification/subscription/update
             - CachingRequestBodyFilter
             - HCXValidationFilter
           predicates:
-            - Path=/${version.external}/coverageeligibility/**, /${version.external}/preauth/**, /${version.external}/claim/**, /${version.external}/paymentnotice/**, /${version.external}/hcx/**, /${version.external}/predetermination/**, /${version.external}/communication/**, /${version.external}/notification/subscribe, /${version.external}/notification/unsubscribe, /${version.external}/notification/subscription/list, /${version.external}/notification/notify, /${version.external}/notification/subscription/update, /${version.external}/notification/on_subscribe
+            - Path=/${version.external07}/coverageeligibility/**, /${version.external07}/preauth/**, /${version.external07}/claim/**, /${version.external07}/paymentnotice/**, /${version.external07}/hcx/**, /${version.external07}/predetermination/**, /${version.external07}/communication/**, /${version.external08}/coverageeligibility/**, /${version.external08}/preauth/**, /${version.external08}/claim/**, /${version.external08}/paymentnotice/**, /${version.external08}/hcx/**, /${version.external08}/predetermination/**, /${version.external08}/communication/**, /${version.external08}/notification/subscribe, /${version.external08}/notification/unsubscribe, /${version.external08}/notification/subscription/list, /${version.external08}/notification/notify, /${version.external08}/notification/subscription/update, /${version.external08}/notification/on_subscribe
 
         - id: hcx-api-route-audit
           uri: ${HCX_API_BASEPATH:http://localhost:8080}
@@ -114,11 +123,13 @@ spring:
               args:
                 redis-rate-limiter.replenishRate: 10
                 redis-rate-limiter.burstCapacity: 20
-            - RewritePath=/${version.external}/audit/search, /${version.internal}/audit/search
+            - RewritePath=/${version.external07}/audit/search, /${version.internal}/audit/search
+            - RewritePath=/${version.external08}/audit/search, /${version.internal}/audit/search
+            - RewritePath=/${version.external08}/audit/notification/search, /${version.internal}/audit/notification/search
             - CachingRequestBodyFilter
             - AuditValidationFilter
           predicates:
-            - Path=/${version.external}/audit/search
+            - Path=/${version.external07}/audit/search, /${version.external08}/audit/search, /${version.external08}/audit/notification/search
 
         - id: hcx-registry-api-route
           uri: ${HCX_API_BASEPATH:http://localhost:8080}
@@ -127,8 +138,9 @@ spring:
               args:
                 redis-rate-limiter.replenishRate: 10
                 redis-rate-limiter.burstCapacity: 20
-            - RewritePath=/${version.external}/participant/(?<segment>/?.*), /${version.internal}/participant/$\{segment}
-            - RewritePath=/${version.external}/notification/topic/list, /${version.internal}/notification/topic/list
+            - RewritePath=/${version.external07}/participant/(?<segment>/?.*), /${version.internal}/participant/$\{segment}
+            - RewritePath=/${version.external08}/participant/(?<segment>/?.*), /${version.internal}/participant/$\{segment}
+            - RewritePath=/${version.external08}/notification/topic/list, /${version.internal}/notification/topic/list
           predicates:
-            - Path=/${version.external}/participant/**, /health, /service/health, /${version.external}/notification/topic/list
+            - Path=/${version.external07}/participant/**, /${version.external08}/participant/**, /health, /service/health, /${version.external08}/notification/topic/list
 

@@ -1,11 +1,13 @@
 package org.swasth.apigateway.filters;
 
+import okhttp3.Response;
 import okhttp3.mockwebserver.MockResponse;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 import org.swasth.apigateway.BaseSpec;
 import org.swasth.apigateway.exception.ErrorCodes;
+import org.swasth.common.response.ResponseMessage;
 import org.swasth.common.utils.Constants;
 
 import java.util.*;
@@ -646,7 +648,7 @@ class HCXRequestTest extends BaseSpec {
                 .thenReturn(Arrays.asList(getPayorDetails()));
         Mockito.when(jwtUtils.isValidSignature(anyString(), anyString()))
                 .thenReturn(Boolean.TRUE);
-        client.post().uri(versionPrefix + Constants.NOTIFICATION_NOTIFY)
+        client.post().uri(versionPrefix08 + Constants.NOTIFICATION_NOTIFY)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
                 .bodyValue(getNotificationRequest("notif-admission-case", Constants.SUBSCRIPTION, Arrays.asList("subscription-123")))
@@ -667,7 +669,7 @@ class HCXRequestTest extends BaseSpec {
                 .thenReturn(Arrays.asList(getPayorDetails()));
         Mockito.when(jwtUtils.isValidSignature(anyString(), anyString()))
                 .thenReturn(Boolean.TRUE);
-        client.post().uri(versionPrefix + Constants.NOTIFICATION_NOTIFY)
+        client.post().uri(versionPrefix08 + Constants.NOTIFICATION_NOTIFY)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
                 .bodyValue(getNotificationRequest("notif-admission-case", "test", Arrays.asList("subscription-123")))
@@ -690,7 +692,7 @@ class HCXRequestTest extends BaseSpec {
                 .thenReturn(getHCXAdminDetails());
         Mockito.when(jwtUtils.isValidSignature(anyString(), anyString()))
                 .thenReturn(Boolean.TRUE);
-        client.post().uri(versionPrefix + Constants.NOTIFICATION_NOTIFY)
+        client.post().uri(versionPrefix08 + Constants.NOTIFICATION_NOTIFY)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
                 .bodyValue(getNotificationRequest("notif-participant-onboarded", Constants.SUBSCRIPTION, Arrays.asList("subscription-123")))
@@ -709,7 +711,7 @@ class HCXRequestTest extends BaseSpec {
                 .thenReturn(getProviderDetails());
         Mockito.when(jwtUtils.isValidSignature(anyString(), anyString()))
                 .thenReturn(Boolean.TRUE);
-        client.post().uri(versionPrefix + Constants.NOTIFICATION_NOTIFY)
+        client.post().uri(versionPrefix08 + Constants.NOTIFICATION_NOTIFY)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
                 .bodyValue(getNotificationRequest("notif-admission-case", Constants.PARTICIPANT_CODE, Arrays.asList("test@01")))
@@ -731,7 +733,7 @@ class HCXRequestTest extends BaseSpec {
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(new HashMap<>())
                 .thenReturn(getHCXAdminDetails());
-        client.post().uri(versionPrefix + Constants.NOTIFICATION_NOTIFY)
+        client.post().uri(versionPrefix08 + Constants.NOTIFICATION_NOTIFY)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
                 .bodyValue(getNotificationRequest("be0e578d-b391-42f9-96f7-1e6bacd91c20", Constants.SUBSCRIPTION, Arrays.asList("subscription-123")))
@@ -753,7 +755,7 @@ class HCXRequestTest extends BaseSpec {
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getBlockedProviderDetails())
                         .thenReturn(getHCXAdminDetails());
-        client.post().uri(versionPrefix + Constants.NOTIFICATION_NOTIFY)
+        client.post().uri(versionPrefix08 + Constants.NOTIFICATION_NOTIFY)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
                 .bodyValue(getNotificationRequest("be0e578d-b391-42f9-96f7-1e6bacd91c20", Constants.PARTICIPANT_ROLE, Arrays.asList("payor", "agency.tpa")))
@@ -762,7 +764,7 @@ class HCXRequestTest extends BaseSpec {
                 .consumeWith(result -> {
                     assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
                     assertEquals(ErrorCodes.ERR_INVALID_SENDER.name(), getResponseErrorCode(result));
-                    assertTrue(getResponseErrorMessage(result).contains("blocked or inactive as per the registry"));
+                    assertTrue(getResponseErrorMessage(result).contains("Participant with status"));
                 });
     }
 
@@ -776,7 +778,7 @@ class HCXRequestTest extends BaseSpec {
                 .thenReturn(getProviderDetails());
         Mockito.when(jwtUtils.isValidSignature(anyString(), anyString()))
                 .thenReturn(Boolean.TRUE);
-        client.post().uri(versionPrefix + Constants.NOTIFICATION_NOTIFY)
+        client.post().uri(versionPrefix08 + Constants.NOTIFICATION_NOTIFY)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
                 .bodyValue(getNotificationRequest("invalid-notification-123", Constants.SUBSCRIPTION, Arrays.asList("subscription-123")))
@@ -801,7 +803,7 @@ class HCXRequestTest extends BaseSpec {
                 .thenReturn(Arrays.asList(getPayorDetails()));
         Mockito.when(jwtUtils.isValidSignature(anyString(), anyString()))
                 .thenReturn(Boolean.TRUE);
-        client.post().uri(versionPrefix + Constants.NOTIFICATION_NOTIFY)
+        client.post().uri(versionPrefix08 + Constants.NOTIFICATION_NOTIFY)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
                 .bodyValue(getNotificationRequest("notif-claim-reimbursement", Constants.PARTICIPANT_CODE, Arrays.asList("test-participant-2")))
@@ -824,7 +826,7 @@ class HCXRequestTest extends BaseSpec {
                 .thenReturn(getPayorDetails());
         Mockito.when(jwtUtils.isValidSignature(anyString(), anyString()))
                 .thenReturn(Boolean.TRUE);
-        client.post().uri(versionPrefix + Constants.NOTIFICATION_NOTIFY)
+        client.post().uri(versionPrefix08 + Constants.NOTIFICATION_NOTIFY)
                 .header(Constants.AUTHORIZATION, getPayorToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
                 .bodyValue(getNotificationRequest("notif-admission-case", Constants.PARTICIPANT_ROLE, Arrays.asList("invalid_role")))
@@ -849,7 +851,7 @@ class HCXRequestTest extends BaseSpec {
                 .thenReturn(Arrays.asList(getPayorDetails()));
         Mockito.when(jwtUtils.isValidSignature(anyString(), anyString()))
                 .thenReturn(Boolean.TRUE);
-        client.post().uri(versionPrefix + Constants.NOTIFICATION_NOTIFY)
+        client.post().uri(versionPrefix08 + Constants.NOTIFICATION_NOTIFY)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
                 .bodyValue(getNotificationRequestInvalidAlg("notif-admission-case", Constants.SUBSCRIPTION, Arrays.asList("subscription-123")))
@@ -874,7 +876,7 @@ class HCXRequestTest extends BaseSpec {
                 .thenReturn(Arrays.asList(getPayorDetails()));
         Mockito.when(jwtUtils.isValidSignature(anyString(), anyString()))
                 .thenReturn(Boolean.TRUE);
-        client.post().uri(versionPrefix + Constants.NOTIFICATION_NOTIFY)
+        client.post().uri(versionPrefix08 + Constants.NOTIFICATION_NOTIFY)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
                 .bodyValue(getNotificationRequestInvalidTimestamp("notif-admission-case", Constants.SUBSCRIPTION, Arrays.asList("subscription-123")))
@@ -899,7 +901,7 @@ class HCXRequestTest extends BaseSpec {
                 .thenReturn(Arrays.asList(getPayorDetails()));
         Mockito.when(jwtUtils.isValidSignature(anyString(), anyString()))
                 .thenReturn(Boolean.TRUE);
-        client.post().uri(versionPrefix + Constants.NOTIFICATION_NOTIFY)
+        client.post().uri(versionPrefix08 + Constants.NOTIFICATION_NOTIFY)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
                 .bodyValue(getNotificationRequestInvalidExpiry("notif-admission-case", Constants.SUBSCRIPTION, Arrays.asList("subscription-123")))
@@ -921,7 +923,7 @@ class HCXRequestTest extends BaseSpec {
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getProviderDetails());
 
-        client.post().uri(versionPrefix + Constants.NOTIFICATION_SUBSCRIBE)
+        client.post().uri(versionPrefix08 + Constants.NOTIFICATION_SUBSCRIBE)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
                 .bodyValue(getInvalidSubscriptionRequest(true))
@@ -941,7 +943,7 @@ class HCXRequestTest extends BaseSpec {
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getProviderDetails());
 
-        client.post().uri(versionPrefix + Constants.NOTIFICATION_SUBSCRIBE)
+        client.post().uri(versionPrefix08 + Constants.NOTIFICATION_SUBSCRIBE)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
                 .bodyValue(getSubscriptionRequest("notif-claim-particular-disease", new ArrayList<>()))
@@ -963,7 +965,7 @@ class HCXRequestTest extends BaseSpec {
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getProviderDetails());
 
-        client.post().uri(versionPrefix + Constants.NOTIFICATION_SUBSCRIBE)
+        client.post().uri(versionPrefix08 + Constants.NOTIFICATION_SUBSCRIBE)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
                 .bodyValue(getSubscriptionRequest("notif-claim-particular-disease", Arrays.asList("f7c0e759-bec3-431b-8c4f-6b294d103a74")))
@@ -985,7 +987,7 @@ class HCXRequestTest extends BaseSpec {
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getProviderDetails());
 
-        client.post().uri(versionPrefix + Constants.NOTIFICATION_SUBSCRIBE)
+        client.post().uri(versionPrefix08 + Constants.NOTIFICATION_SUBSCRIBE)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
                 .bodyValue(getInvalidSubscriptionRequest(false))
@@ -1007,7 +1009,7 @@ class HCXRequestTest extends BaseSpec {
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getPayorDetails());
 
-        client.post().uri(versionPrefix + Constants.NOTIFICATION_SUBSCRIBE)
+        client.post().uri(versionPrefix08 + Constants.NOTIFICATION_SUBSCRIBE)
                 .header(Constants.AUTHORIZATION, getPayorToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
                 .bodyValue(getSubscriptionRequest("notif-claim-particular-disease", Arrays.asList("new-provider-3")))
@@ -1028,7 +1030,7 @@ class HCXRequestTest extends BaseSpec {
 
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getBlockedProviderDetails());
-        client.post().uri(versionPrefix + Constants.NOTIFICATION_SUBSCRIBE)
+        client.post().uri(versionPrefix08 + Constants.NOTIFICATION_SUBSCRIBE)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
                 .bodyValue(getSubscriptionRequest("notif-admission-case", Arrays.asList("new-payor-3")))
@@ -1037,7 +1039,7 @@ class HCXRequestTest extends BaseSpec {
                 .consumeWith(result -> {
                     assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
                     assertEquals(ErrorCodes.ERR_INVALID_SENDER.name(), getResponseErrorCode(result));
-                    assertTrue(getResponseErrorMessage(result).contains("blocked or inactive as per the registry"));
+                    assertTrue(getResponseErrorMessage(result).contains("Participant with status"));
                 });
     }
 
@@ -1050,7 +1052,7 @@ class HCXRequestTest extends BaseSpec {
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getProviderDetails());
 
-        client.post().uri(versionPrefix + Constants.NOTIFICATION_SUBSCRIBE)
+        client.post().uri(versionPrefix08 + Constants.NOTIFICATION_SUBSCRIBE)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
                 .bodyValue(getSubscriptionRequest("test-topic", Arrays.asList("new-payor-3")))
@@ -1072,7 +1074,7 @@ class HCXRequestTest extends BaseSpec {
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getProviderDetails());
 
-        client.post().uri(versionPrefix + Constants.NOTIFICATION_SUBSCRIBE)
+        client.post().uri(versionPrefix08 + Constants.NOTIFICATION_SUBSCRIBE)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
                 .bodyValue(getSubscriptionRequest("", Arrays.asList("new-payor-3")))
@@ -1097,7 +1099,7 @@ class HCXRequestTest extends BaseSpec {
         Mockito.when(registryService.getDetails(anyString()))
                 .thenReturn(Arrays.asList(getPayorDetails()));
 
-        client.post().uri(versionPrefix + Constants.NOTIFICATION_SUBSCRIBE)
+        client.post().uri(versionPrefix08 + Constants.NOTIFICATION_SUBSCRIBE)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
                 .bodyValue(getSubscriptionRequest("notif-claim-reimbursement-inactive", Arrays.asList("new-payor-3")))
@@ -1122,7 +1124,7 @@ class HCXRequestTest extends BaseSpec {
         Mockito.when(registryService.getDetails(anyString()))
                 .thenReturn(Arrays.asList(getPayorDetails()));
 
-        client.post().uri(versionPrefix + Constants.NOTIFICATION_SUBSCRIBE)
+        client.post().uri(versionPrefix08 + Constants.NOTIFICATION_SUBSCRIBE)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "20bd4228-a87f-4175-a30a-20fb28983afb")
                 .bodyValue(getSubscriptionRequest("notif-admission-case", Arrays.asList("new-payor-3")))
@@ -1147,7 +1149,7 @@ class HCXRequestTest extends BaseSpec {
         Mockito.when(registryService.getDetails(anyString()))
                 .thenReturn(Arrays.asList(getPayorDetails()));
 
-        client.post().uri(versionPrefix + Constants.NOTIFICATION_SUBSCRIBE)
+        client.post().uri(versionPrefix08 + Constants.NOTIFICATION_SUBSCRIBE)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
                 .bodyValue(getSubscriptionRequest("notif-claim-particular-disease", Arrays.asList("new-payor-3","test-payor")))
@@ -1170,7 +1172,7 @@ class HCXRequestTest extends BaseSpec {
                 .thenReturn(getProviderDetails());
         Mockito.when(registryService.getDetails(anyString()))
                 .thenReturn(Arrays.asList(getPayorDetails()));
-        client.post().uri(versionPrefix + Constants.NOTIFICATION_SUBSCRIBE)
+        client.post().uri(versionPrefix08 + Constants.NOTIFICATION_SUBSCRIBE)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
                 .bodyValue(getSubscriptionRequest("notif-claim-particular-disease", Arrays.asList("new-payor-3")))
@@ -1189,7 +1191,7 @@ class HCXRequestTest extends BaseSpec {
                 .thenReturn(getProviderDetails());
         Mockito.when(registryService.getDetails(anyString()))
                 .thenReturn(Arrays.asList(getPayorDetails()));
-        client.post().uri(versionPrefix + Constants.NOTIFICATION_UNSUBSCRIBE)
+        client.post().uri(versionPrefix08 + Constants.NOTIFICATION_UNSUBSCRIBE)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
                 .bodyValue(getSubscriptionRequest("notif-claim-particular-disease", Arrays.asList("new-payor-3")))
@@ -1208,7 +1210,7 @@ class HCXRequestTest extends BaseSpec {
                 .thenReturn(getProviderDetails());
         Mockito.when(registryService.getDetails(anyString()))
                 .thenReturn(Arrays.asList(getPayorDetails()));
-        client.post().uri(versionPrefix + Constants.NOTIFICATION_UNSUBSCRIBE)
+        client.post().uri(versionPrefix08 + Constants.NOTIFICATION_UNSUBSCRIBE)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
                 .bodyValue(getSubscriptionRequest("notif-claim-particular-disease", Arrays.asList("*")))
@@ -1228,7 +1230,7 @@ class HCXRequestTest extends BaseSpec {
 
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getProviderDetails());
-        client.post().uri(versionPrefix + Constants.NOTIFICATION_SUBSCRIPTION_LIST)
+        client.post().uri(versionPrefix08 + Constants.NOTIFICATION_SUBSCRIPTION_LIST)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
                 .bodyValue(getSubscriptionListRequest())
@@ -1245,7 +1247,7 @@ class HCXRequestTest extends BaseSpec {
 
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getProviderDetails());
-        client.post().uri(versionPrefix + Constants.NOTIFICATION_SUBSCRIPTION_UPDATE)
+        client.post().uri(versionPrefix08 + Constants.NOTIFICATION_SUBSCRIPTION_UPDATE)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
                 .bodyValue(getSubscriptionUpdateRequest("notif-claim-reimbursement", 1, true))
@@ -1262,7 +1264,7 @@ class HCXRequestTest extends BaseSpec {
 
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getProviderDetails());
-        client.post().uri(versionPrefix + Constants.NOTIFICATION_ON_SUBSCRIBE)
+        client.post().uri(versionPrefix08 + Constants.NOTIFICATION_ON_SUBSCRIBE)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
                 .bodyValue(getOnSubscriptionRequest())
@@ -1279,7 +1281,7 @@ class HCXRequestTest extends BaseSpec {
 
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getBlockedProviderDetails());
-        client.post().uri(versionPrefix + Constants.NOTIFICATION_ON_SUBSCRIBE)
+        client.post().uri(versionPrefix08 + Constants.NOTIFICATION_ON_SUBSCRIBE)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
                 .bodyValue(getOnSubscriptionRequest())
@@ -1288,7 +1290,7 @@ class HCXRequestTest extends BaseSpec {
                 .consumeWith(result -> {
                     assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
                     assertEquals(ErrorCodes.ERR_INVALID_SENDER.name(), getResponseErrorCode(result));
-                    assertTrue(getResponseErrorMessage(result).contains("Sender  is blocked or inactive as per the registry"));
+                    assertTrue(getResponseErrorMessage(result).contains("Participant with status"));
                 });
     }
 
@@ -1302,7 +1304,7 @@ class HCXRequestTest extends BaseSpec {
                 .thenReturn(getProviderDetails());
         Mockito.when(registryService.getDetails(anyString()))
                 .thenReturn(Arrays.asList(getPayorDetails()));
-        client.post().uri(versionPrefix + Constants.NOTIFICATION_SUBSCRIBE)
+        client.post().uri(versionPrefix08 + Constants.NOTIFICATION_SUBSCRIBE)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
                 .bodyValue(getSubscriptionRequest("notif-participant-system-downtime", Arrays.asList("new-payor-3","*")))
