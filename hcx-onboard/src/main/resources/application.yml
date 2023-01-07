@@ -29,7 +29,7 @@ form:
 
 email:
   id: ${email_id:contact@hcxprotocol.io}
-  pwd: ${email_pwd:swasthdevops}
+  pwd: ${email_pwd:healthclaims2023}
   onboardingFailedSub: ${onboarding_failed_sub:HCX - Onboarding Failed}
   onboardingFailedMsg: ${onboarding_failed_msg:Hi User,<br/>Sorry, we are unable to onboard you on to HCX due to:ERROR_MSG.<br/> Thanks,<br/> HCX Team}
   otpSub: ${otp_sub:HCX - Onboarding Started}
