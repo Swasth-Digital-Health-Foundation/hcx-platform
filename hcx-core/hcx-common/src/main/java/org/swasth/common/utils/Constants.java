@@ -59,6 +59,11 @@ public class Constants {
     public static final String PARTICIPANT_SEARCH = "/participant/search";
     public static final String PARTICIPANT_UPDATE = "/participant/update";
     public static final String PARTICIPANT_DELETE = "/participant/delete";
+    public static final String PARTICIPANT_VERIFY = "/participant/verify";
+    public static final String PARTICIPANT_GET_INFO = "/participant/getInfo";
+    public static final String PARTICIPANT_OTP_SEND = "/participant/otp/send";
+    public static final String PARTICIPANT_ONBOARD_UPDATE = "/participant/onboard/update";
+    public static final String PARTICIPANT_VERIFY_IDENTITY = "/participant/verify/identity";
 
     public static final String SPONSOR = "sponsor";
     // Object Types
@@ -143,6 +148,7 @@ public class Constants {
     public static final String PARTICIPANT_NAME = "participant_name";
     public static final String PARTICIPANT_ROLE = "participant_role";
     public static final String PRIMARY_EMAIL = "primary_email";
+    public static final String PRIMARY_MOBILE = "primary_mobile";
     public static final String SIGNING_CERT_PATH = "signing_cert_path";
     public static final String ENCRYPTION_CERT = "encryption_cert";
     public static final String ENCRYPTION_CERT_EXPIRY = "encryption_cert_expiry";
@@ -242,4 +248,28 @@ public class Constants {
     public static final List<String> EXCLUDE_ENTITIES = Arrays.asList(COMMUNICATION, PAYMENT, NOTIFICATION);
     public static final List<String> RESPONSE_STATUS_VALUES = Arrays.asList(COMPLETE_STATUS, PARTIAL_STATUS, ERROR_RESPONSE, REDIRECT_STATUS);
     public static final List<String> ALLOWED_ENTITIES_ERROR_AUDIT_CREATION = Arrays.asList("coverageeligibility", "preauth", "claim", PAYMENT, COMMUNICATION, "predetermination", REGISTRY_STATUS, "search");
+    public static final String JWT_TOKEN = "jwt_token";
+    public static final String SUB = "sub";
+    public static final String ISS = "iss";
+    public static final String SPONSOR_CODE = "sponsor_code";
+    public static final String APPLICANT_CODE = "applicant_code";
+    public static final String PHONE_OTP = "phone_otp";
+    public static final String EMAIL_OTP = "email_otp";
+    public static final String OTP = "otp";
+    public static final String SUCCESSFUL = "successful";
+    public static final String FAILED = "failed";
+    public static final String PAYOR_CODE = "payor_code";
+    public static final String ATTEMPT_COUNT = "attempt_count";
+    public static final String REJECTED = "rejected";
+    public static final String ACCEPTED = "accepted";
+    public static final String IDENTITY_VERIFIED = "identity_verified";
+    public static final String EMAIL_OTP_VERIFIED = "email_otp_verified";
+    public static final String PHONE_OTP_VERIFIED = "phone_otp_verified";
+    public static final List<String> ALLOWED_ONBOARD_STATUS = Arrays.asList(REJECTED, ACCEPTED);
+    public static final String STAGING = "staging";
+    public static final String MODE = "mode";
+    public static final String MOCK_VALID = "mock-valid";
+    public static final String MOCK_INVALID = "mock-invalid";
+    public static final String ACTUAL = "actual";
+
 }
