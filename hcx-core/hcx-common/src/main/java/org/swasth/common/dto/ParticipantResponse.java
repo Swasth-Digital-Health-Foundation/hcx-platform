@@ -50,11 +50,11 @@ public class ParticipantResponse {
     public String getApplicantEmail() {
         return applicantEmail;
     }
-    public String getSponsor_code() {
+    public String getSponsorCode() {
         return sponsorCode;
     }
 
-    public String getApplicant_code() {
+    public String getApplicantCode() {
         return applicantCode;
     }
 

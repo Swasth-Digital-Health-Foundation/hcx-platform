@@ -238,8 +238,8 @@ public class ParticipantController extends BaseController {
         ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
         List<ParticipantResponse> sponsors1 = new ArrayList<>();
         while (resultSet.next()) {
-            ParticipantResponse ParticipantResponse = new ParticipantResponse(resultSet.getString("applicant_email"), resultSet.getString("applicant_code"), resultSet.getString("sponsor_code"), resultSet.getString("status"), resultSet.getString("createdon"), resultSet.getString("updatedon"));
-            sponsors1.add(ParticipantResponse);
+            ParticipantResponse participantResponse = new ParticipantResponse(resultSet.getString("applicant_email"), resultSet.getString("applicant_code"), resultSet.getString("sponsor_code"), resultSet.getString("status"), resultSet.getString("createdon"), resultSet.getString("updatedon"));
+            sponsors1.add(participantResponse);
         }
         ArrayList<Object> modifiedResponseList = new ArrayList<>();
         for (Map<String, Object> responseList : participantsList) {
