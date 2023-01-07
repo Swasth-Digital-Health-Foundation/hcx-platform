@@ -28,8 +28,8 @@ form:
   updateRegistry: ${update_regenerate_form:http://localhost:3000/update_registry?participant_code=REGISTRY_CODE}
 
 email:
-  id: ${email_id:contact@hcxprotocol.io}
-  pwd: ${email_pwd:healthclaims2023}
+  id: ${email_id:test@gmail.com}
+  pwd: ${email_pwd:test@123}
   onboardingFailedSub: ${onboarding_failed_sub:HCX - Onboarding Failed}
   onboardingFailedMsg: ${onboarding_failed_msg:Hi User,<br/>Sorry, we are unable to onboard you on to HCX due to:ERROR_MSG.<br/> Thanks,<br/> HCX Team}
   otpSub: ${otp_sub:HCX - Onboarding Started}
