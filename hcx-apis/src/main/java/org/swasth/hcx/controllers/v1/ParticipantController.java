@@ -1,6 +1,7 @@
 package org.swasth.hcx.controllers.v1;
 
 import kong.unirest.HttpResponse;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,11 +14,13 @@ import org.swasth.common.dto.Response;
 import org.swasth.common.exception.*;
 import org.swasth.common.utils.*;
 import org.swasth.hcx.controllers.BaseController;
+import org.swasth.postgresql.IDatabaseService;
 import org.swasth.redis.cache.RedisCache;
 
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
+import java.sql.ResultSet;
 import java.text.MessageFormat;
 import java.util.*;
 
@@ -45,14 +48,16 @@ public class ParticipantController extends BaseController {
 
     @Autowired
     private JWTUtils jwtUtils;
-
+    @Autowired
+    protected IDatabaseService postgreSQLClient;
+    String emptyString = null;
     @PostMapping(PARTICIPANT_CREATE)
     public ResponseEntity<Object> participantCreate(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
         try {
             validateParticipant(requestBody);
             String primaryEmail = (String) requestBody.get(PRIMARY_EMAIL);
             String participantCode = SlugUtils.makeSlug(primaryEmail, "", fieldSeparator, hcxInstanceName);
-            while (isParticipantCodeExists(participantCode)) {
+            while (isParticipantCodeExists(participantCode,emptyString)) {
                 participantCode = SlugUtils.makeSlug(primaryEmail, String.valueOf(new SecureRandom().nextInt(1000)), fieldSeparator, hcxInstanceName);
             }
             requestBody.put(PARTICIPANT_CODE, participantCode);
@@ -78,7 +83,7 @@ public class ParticipantController extends BaseController {
         try {
             validateParticipant(requestBody);
             String participantCode = (String) requestBody.get(PARTICIPANT_CODE);
-            Map<String, Object> participant = getParticipant(participantCode);
+            Map<String, Object> participant = getParticipant(participantCode,emptyString);
             String url = registryUrl + "/api/v1/Organisation/" + participant.get(OSID);
             Map<String, String> headersMap = new HashMap<>();
             headersMap.put(AUTHORIZATION, Objects.requireNonNull(header.get(AUTHORIZATION)).get(0));
@@ -97,8 +102,8 @@ public class ParticipantController extends BaseController {
             redisCache.delete(participantCode);
     }
 
-    private Map<String, Object> getParticipant(String participantCode) throws Exception {
-        ResponseEntity<Object> searchResponse = participantSearch(JSONUtils.deserialize("{ \"filters\": { \"participant_code\": { \"eq\": \" " + participantCode + "\" } } }", Map.class));
+    private Map<String, Object> getParticipant(String participantCode,String emptyString) throws Exception {
+        ResponseEntity<Object> searchResponse = participantSearch(emptyString,JSONUtils.deserialize("{ \"filters\": { \"participant_code\": { \"eq\": \" " + participantCode + "\" } } }", Map.class));
         ParticipantResponse participantResponse = (ParticipantResponse) Objects.requireNonNull(searchResponse.getBody());
         if (participantResponse.getParticipants().isEmpty())
             throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_CODE, INVALID_PARTICIPANT_CODE);
@@ -106,8 +111,11 @@ public class ParticipantController extends BaseController {
     }
 
     @PostMapping(PARTICIPANT_SEARCH)
-    public ResponseEntity<Object> participantSearch(@RequestBody Map<String, Object> requestBody) {
+    public ResponseEntity<Object> participantSearch(@RequestParam(required = false) String fields,@RequestBody Map<String, Object> requestBody) {
         try {
+            if (fields != null && fields.toLowerCase().contains(SPONSOR)) {
+                return getSponsors(requestBody);
+            }
             String url = registryUrl + "/api/v1/Organisation/search";
             HttpResponse<String> response = HttpUtils.post(url, JSONUtils.serialize(requestBody), new HashMap<>());
             return responseHandler(response, null);
@@ -123,7 +131,7 @@ public class ParticipantController extends BaseController {
             if (!requestBody.containsKey(PARTICIPANT_CODE))
                 throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_CODE, PARTICIPANT_CODE_MSG);
             String participantCode = (String) requestBody.get(PARTICIPANT_CODE);
-            Map<String, Object> participant = getParticipant(participantCode);
+            Map<String, Object> participant = getParticipant(participantCode,emptyString);
             String url = registryUrl + "/api/v1/Organisation/" + participant.get(OSID);
             Map<String, String> headersMap = new HashMap<>();
             headersMap.put(AUTHORIZATION, Objects.requireNonNull(header.get(AUTHORIZATION)).get(0));
@@ -142,8 +150,8 @@ public class ParticipantController extends BaseController {
         }
     }
 
-    private boolean isParticipantCodeExists(String participantCode) throws Exception {
-        ResponseEntity<Object> searchResponse = participantSearch(JSONUtils.deserialize("{ \"filters\": { \"participant_code\": { \"eq\": \" " + participantCode + "\" } } }", Map.class));
+    private boolean isParticipantCodeExists(String participantCode ,String emptyString) throws Exception {
+        ResponseEntity<Object> searchResponse = participantSearch(emptyString,JSONUtils.deserialize("{ \"filters\": { \"participant_code\": { \"eq\": \" " + participantCode + "\" } } }", Map.class));
         Object responseBody = searchResponse.getBody();
         if (responseBody != null) {
             if (responseBody instanceof Response) {
@@ -216,5 +224,42 @@ public class ParticipantController extends BaseController {
         Map<String, Object> result = JSONUtils.deserialize(response.getBody(), HashMap.class);
         return (String) ((Map<String, Object>) result.get("params")).get("errmsg");
     }
-
+    private ResponseEntity<Object> getSponsors(Map<String, Object> requestBody) throws Exception {
+        String url = registryUrl + "/api/v1/Organisation/search";
+        HttpResponse<String> response = HttpUtils.post(url, JSONUtils.serialize(requestBody), new HashMap<>());
+        List<String> primaryEmailList = new ArrayList<>();
+        List<Map<String, Object>> participantsList = JSONUtils.deserialize(response.getBody(), ArrayList.class);
+        for (Map<String, Object> participants : participantsList) {
+            primaryEmailList.add(participants.get("primary_email").toString());
+        }
+        // adding single quote to the all the 'primary_emails' in the list
+        String primaryEmailWithQuote = "'" + StringUtils.join(primaryEmailList, "','") + "'";
+        String selectQuery = String.format("SELECT * FROM onboarding WHERE applicant_email IN (%s);", String.join(",", primaryEmailWithQuote)); // need to remove '[]' from list
+        ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
+        List<ParticipantResponse> sponsors1 = new ArrayList<>();
+        while (resultSet.next()) {
+            ParticipantResponse ParticipantResponse = new ParticipantResponse(resultSet.getString("applicant_email"), resultSet.getString("applicant_code"), resultSet.getString("sponsor_code"), resultSet.getString("status"), resultSet.getString("createdon"), resultSet.getString("updatedon"));
+            sponsors1.add(ParticipantResponse);
+        }
+        ArrayList<Object> modifiedResponseList = new ArrayList<>();
+        for (Map<String, Object> responseList : participantsList) {
+            boolean matchingPrimaryEmail = false;
+            for (ParticipantResponse sponsorList : sponsors1) {
+                if (responseList.get("primary_email").equals(sponsorList.getApplicantEmail())) {
+                    Object sponsorDetails = JSONUtils.convert(sponsorList, Map.class);
+                    responseList.put("sponsor_details", sponsorDetails);
+                    modifiedResponseList.add(responseList);
+                    matchingPrimaryEmail = true;
+                    break;
+                }
+            }
+            if (!matchingPrimaryEmail) {
+                Map<String, Object> emptySponsorDetails = new HashMap<>();
+                responseList.put("sponsor_details", emptySponsorDetails);
+                modifiedResponseList.add(responseList);
+            }
+        }
+        return getSuccessResponse(new ParticipantResponse(modifiedResponseList));
+    }
 }
+
