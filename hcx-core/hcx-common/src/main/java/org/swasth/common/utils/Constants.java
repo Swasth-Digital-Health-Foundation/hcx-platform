@@ -59,7 +59,7 @@ public class Constants {
     public static final String PARTICIPANT_SEARCH = "/participant/search";
     public static final String PARTICIPANT_UPDATE = "/participant/update";
     public static final String PARTICIPANT_DELETE = "/participant/delete";
-
+    public static final String SPONSOR ="sponsor";
     // Object Types
     public static final String PARTICIPANT = "participant";
 
