@@ -24,6 +24,8 @@ import org.swasth.hcx.services.EmailService;
 import org.swasth.hcx.services.SMSService;
 import org.swasth.postgresql.IDatabaseService;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
@@ -207,9 +209,9 @@ public class ParticipantController extends BaseController {
             }
 
             String emailPrefillUrl = prefillUrl;
-            emailPrefillUrl = emailPrefillUrl.replace("USER_MAIL", (String) requestBody.get(PRIMARY_EMAIL))
-                    .replace("PHONE", (String) requestBody.get(PRIMARY_MOBILE))
-                    .replace("IDENTITY_VERIFIED", identityVerified);
+            emailPrefillUrl = emailPrefillUrl.replace("USER_MAIL",  URLEncoder.encode((String) requestBody.get(PRIMARY_EMAIL), StandardCharsets.UTF_8))
+                    .replace("PHONE", URLEncoder.encode((String) requestBody.get(PRIMARY_MOBILE), StandardCharsets.UTF_8))
+                    .replace("IDENTITY_VERIFIED", URLEncoder.encode(identityVerified, StandardCharsets.UTF_8));
             String emailOtp = new DecimalFormat("000000").format(new Random().nextInt(999999));
             String emailMsg = otpMsg;
             emailMsg = emailMsg.replace("RANDOM_CODE", emailOtp).replace("USER_LINK", emailPrefillUrl);
@@ -260,7 +262,7 @@ public class ParticipantController extends BaseController {
             }
             updateOtpStatus(true, true, attemptCount, SUCCESSFUL, email);
             String otpVerifyMessage = otpVerifyMsg;
-            emailService.sendMail(email, otpVerifySub, otpVerifyMessage.replace("REGISTRY_CODE", participantCode));
+            emailService.sendMail(email, otpVerifySub, otpVerifyMessage.replace("REGISTRY_CODE", URLEncoder.encode(participantCode, StandardCharsets.UTF_8)));
             output.put(EMAIL_OTP_VERIFIED, true);
             output.put(PHONE_OTP_VERIFIED, true);
             logger.info("Communication details verification is successful : " + output + " :: primary email : " + email);
@@ -271,7 +273,8 @@ public class ParticipantController extends BaseController {
                 String otpFailedWithoutLinkMessage = otpFailedWithoutLinkMsg;
                 emailService.sendMail(email, otpFailedSub, otpFailedWithoutLinkMessage.replace("ERROR_MSG", " " + e.getMessage()));
             } else {
-                emailService.sendMail(email, otpFailedSub, otpFailedMessage.replace("ERROR_MSG", " " + e.getMessage()).replace("USER_MAIL", email).replace("PHONE", phoneNumber));
+                emailService.sendMail(email, otpFailedSub, otpFailedMessage.replace("ERROR_MSG", " " + e.getMessage())
+                        .replace("USER_MAIL", URLEncoder.encode(email, StandardCharsets.UTF_8)).replace("PHONE", URLEncoder.encode(phoneNumber, StandardCharsets.UTF_8)));
             }
             throw new OTPVerificationException(e.getErrCode(), e.getMessage());
         } finally {
