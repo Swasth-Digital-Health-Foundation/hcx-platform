@@ -34,7 +34,6 @@ public class ParticipantResponse {
         this.participants = participants;
     }
 
-
     public ParticipantResponse(Map<String,Object> participant) {
         this.timestamp = System.currentTimeMillis();
         this.participant = participant;
