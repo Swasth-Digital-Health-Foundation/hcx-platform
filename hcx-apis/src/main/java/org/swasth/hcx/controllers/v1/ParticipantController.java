@@ -51,14 +51,14 @@ public class ParticipantController extends BaseController {
     private JWTUtils jwtUtils;
     @Autowired
     protected IDatabaseService postgreSQLClient;
-    String emptyString = null;
+
     @PostMapping(PARTICIPANT_CREATE)
     public ResponseEntity<Object> participantCreate(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
         try {
             validateCreateParticipant(requestBody);
             String primaryEmail = (String) requestBody.get(PRIMARY_EMAIL);
             String participantCode = SlugUtils.makeSlug(primaryEmail, "", fieldSeparator, hcxInstanceName);
-            while (isParticipantCodeExists(participantCode,emptyString)) {
+            while (isParticipantCodeExists(participantCode,"")) {
                 participantCode = SlugUtils.makeSlug(primaryEmail, String.valueOf(new SecureRandom().nextInt(1000)), fieldSeparator, hcxInstanceName);
             }
             requestBody.put(PARTICIPANT_CODE, participantCode);
@@ -84,7 +84,7 @@ public class ParticipantController extends BaseController {
         try {
             validateUpdateParticipant(requestBody);
             String participantCode = (String) requestBody.get(PARTICIPANT_CODE);
-            Map<String, Object> participant = getParticipant(participantCode,emptyString);
+            Map<String, Object> participant = getParticipant(participantCode,"");
             String url = registryUrl + "/api/v1/Organisation/" + participant.get(OSID);
             Map<String, String> headersMap = new HashMap<>();
             headersMap.put(AUTHORIZATION, Objects.requireNonNull(header.get(AUTHORIZATION)).get(0));
@@ -104,7 +104,7 @@ public class ParticipantController extends BaseController {
     }
 
     private Map<String, Object> getParticipant(String participantCode,String emptyString) throws Exception {
-        ResponseEntity<Object> searchResponse = participantSearch(emptyString,JSONUtils.deserialize("{ \"filters\": { \"participant_code\": { \"eq\": \" " + participantCode + "\" } } }", Map.class));
+        ResponseEntity<Object> searchResponse = participantSearch("",JSONUtils.deserialize("{ \"filters\": { \"participant_code\": { \"eq\": \" " + participantCode + "\" } } }", Map.class));
         ParticipantResponse participantResponse = (ParticipantResponse) Objects.requireNonNull(searchResponse.getBody());
         if (participantResponse.getParticipants().isEmpty())
             throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_CODE, INVALID_PARTICIPANT_CODE);
@@ -132,7 +132,7 @@ public class ParticipantController extends BaseController {
             if (!requestBody.containsKey(PARTICIPANT_CODE))
                 throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_CODE, PARTICIPANT_CODE_MSG);
             String participantCode = (String) requestBody.get(PARTICIPANT_CODE);
-            Map<String, Object> participant = getParticipant(participantCode,emptyString);
+            Map<String, Object> participant = getParticipant(participantCode,"");
             String url = registryUrl + "/api/v1/Organisation/" + participant.get(OSID);
             Map<String, String> headersMap = new HashMap<>();
             headersMap.put(AUTHORIZATION, Objects.requireNonNull(header.get(AUTHORIZATION)).get(0));
@@ -152,7 +152,7 @@ public class ParticipantController extends BaseController {
     }
 
     private boolean isParticipantCodeExists(String participantCode ,String emptyString) throws Exception {
-        ResponseEntity<Object> searchResponse = participantSearch(emptyString,JSONUtils.deserialize("{ \"filters\": { \"participant_code\": { \"eq\": \" " + participantCode + "\" } } }", Map.class));
+        ResponseEntity<Object> searchResponse = participantSearch("",JSONUtils.deserialize("{ \"filters\": { \"participant_code\": { \"eq\": \" " + participantCode + "\" } } }", Map.class));
         Object responseBody = searchResponse.getBody();
         if (responseBody != null) {
             if (responseBody instanceof Response) {
