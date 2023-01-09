@@ -2,20 +2,20 @@ package org.swasth.common.dto;
 
 public class SponsorResponse {
 
-    private String applicantEmail;
+    private final String applicantEmail;
     private final String applicantCode;
     private final String sponsorCode;
     private final String status;
-    private final String createdon;
-    private final String updatedon;
+    private final Long createdon;
+    private final Long updatedon;
 
-    public SponsorResponse(String applicantEmail, String applicantCode, String sponsorCode, String status, String createdon, String updatedon) {
+    public SponsorResponse(String applicantEmail, String applicantCode, String sponsorCode, String status, Long createdon, Long updatedon) {
         this.applicantEmail = applicantEmail;
         this.applicantCode = applicantCode;
         this.sponsorCode = sponsorCode;
         this.status = status;
-        this.createdon = createdon;
-        this.updatedon = updatedon;
+        this.createdon = Long.valueOf(createdon);
+        this.updatedon = Long.valueOf(updatedon);
     }
     public String getApplicantEmail() {
         return applicantEmail;
@@ -32,11 +32,11 @@ public class SponsorResponse {
         return status;
     }
 
-    public String getCreatedon() {
+    public Long getCreatedon() {
         return createdon;
     }
 
-    public String getUpdatedon() {
+    public Long getUpdatedon() {
         return updatedon;
     }
 }

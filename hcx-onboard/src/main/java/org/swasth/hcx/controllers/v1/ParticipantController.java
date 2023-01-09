@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.swasth.common.dto.OnboardRequest;
@@ -23,6 +24,8 @@ import org.swasth.hcx.services.EmailService;
 import org.swasth.hcx.services.SMSService;
 import org.swasth.postgresql.IDatabaseService;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
@@ -35,11 +38,7 @@ import static org.swasth.common.utils.Constants.*;
 @RequestMapping(Constants.VERSION_PREFIX)
 public class ParticipantController extends BaseController {
 
-
     private static final Logger logger = LoggerFactory.getLogger(BaseController.class);
-
-    @Value("${registry.basePath}")
-    private String registryUrl;
 
     @Value("${email.otpSub}")
     private String otpSub;
@@ -69,6 +68,12 @@ public class ParticipantController extends BaseController {
     @Value("${email.otpFailedWithoutLinkMsg}")
     private String otpFailedWithoutLinkMsg;
 
+    @Value("${email.successIdentitySub}")
+    private String successIdentitySub;
+
+    @Value("${email.successIdentityMsg}")
+    private String successIdentityMsg;
+
     @Value("${email.failedIdentitySub}")
     private String failedIdentitySub;
 
@@ -80,6 +85,12 @@ public class ParticipantController extends BaseController {
 
     @Value("${email.registryUpdateMsg}")
     private String registryUpdateMsg;
+
+    @Value("${email.registryUpdateFailedSub}")
+    private String registryUpdateFailedSub;
+
+    @Value("${email.registryUpdateFailedMsg}")
+    private String registryUpdateFailedMsg;
 
     @Value("${email.prefillUrl}")
     private String prefillUrl;
@@ -98,6 +109,9 @@ public class ParticipantController extends BaseController {
 
     @Value("${otp.maxAttempt}")
     private int otpMaxAttempt;
+
+    @Value("${env}")
+    private String env;
 
     @Autowired
     private SMSService smsService;
@@ -123,10 +137,12 @@ public class ParticipantController extends BaseController {
             Map<String,Object> output = new HashMap<>();
             if (requestBody.containsKey(JWT_TOKEN)) {
                 String jwtToken = (String) requestBody.get(JWT_TOKEN);
-                Map<String, Object> payload = JSONUtils.decodeBase64String(jwtToken.split("\\.")[1], Map.class);
-                onboardParticipant(header, participant, (String) payload.get(SPONSOR_CODE), (String) payload.get(APPLICANT_CODE), (String) requestBody.get(JWT_TOKEN), output);
+                Map<String, Object> jwtPayload = JSONUtils.decodeBase64String(jwtToken.split("\\.")[1], Map.class);
+                updateEmail(email, (String) jwtPayload.get(SUB));
+                createParticipantAndSendOTP(header, participant, "", output);
             } else if (requestBody.containsKey(PAYOR_CODE)) {
-                onboardParticipant(header, participant, (String) requestBody.get(PAYOR_CODE), (String) requestBody.get(APPLICANT_CODE), "", output);
+                updateEmail(email, (String) requestBody.get(APPLICANT_CODE));
+                createParticipantAndSendOTP(header, participant, "", output);
             } else if (requestBody.containsKey(EMAIL_OTP)) {
                 email = (String) requestBody.get(PRIMARY_EMAIL);
                 verifyOTP(requestBody, output);
@@ -136,8 +152,6 @@ public class ParticipantController extends BaseController {
             }
             return getSuccessResponse(new Response(output));
         } catch (Exception e) {
-            // TODO: remove stack trace
-            e.printStackTrace();
             if (!(e instanceof OTPVerificationException)) {
                 String onboardingErrorMsg = onboadingFailedMsg;
                 onboardingErrorMsg = onboardingErrorMsg.replace("ERROR_MSG", " " + e.getMessage());
@@ -147,24 +161,9 @@ public class ParticipantController extends BaseController {
         }
     }
 
-    private void onboardParticipant(HttpHeaders header, Map<String, Object> participant, String sponsorCode, String applicantCode, String jwtToken, Map<String,Object> output) throws Exception {
-        Map<String,Object> sponsorDetails = getParticipant(PARTICIPANT_CODE, sponsorCode);
-        if(!jwtToken.isEmpty() && !jwtUtils.isValidSignature(jwtToken, (String) sponsorDetails.get(SIGNING_CERT_PATH)))
-            throw new ClientException(ErrorCodes.ERR_INVALID_JWT, "Invalid JWT token signature");
-        // TODO: remove dummy getinfo and implement getinfo as post method
-        //HttpResponse<String> response = HttpUtils.get(sponsorDetails.get(ENDPOINT_URL) + PARTICIPANT_GET_INFO + applicantCode);
-        String email = (String) participant.get(PRIMARY_EMAIL);
-        Map<String, Object> resp = participant;
-        if(!StringUtils.equalsIgnoreCase((String) participant.get(PARTICIPANT_NAME), (String) resp.get(PARTICIPANT_NAME)) ||
-                !StringUtils.equalsIgnoreCase(email, (String) resp.get(PRIMARY_EMAIL))){
-            output.put(IDENTITY_VERIFIED, false);
-            updateIdentityVerificationStatus(email, applicantCode, sponsorCode, REJECTED);
-            throw new ClientException(ErrorCodes.ERR_INVALID_IDENTITY, "Identity verification failed, participant name or email is not matched with details in sponsor system");
-        } else {
-            output.put(IDENTITY_VERIFIED, true);
-            updateIdentityVerificationStatus(email, applicantCode, sponsorCode, ACCEPTED);
-            createParticipantAndSendOTP(header, participant, sponsorCode, output);
-        }
+    private void updateEmail(String email, String applicantCode) throws Exception {
+        String query = String.format("INSERT %s SET applicant_email='%s',updatedOn=%d WHERE applicant_code='%s'", onboardingTable, email, System.currentTimeMillis(), applicantCode);
+        postgreSQLClient.execute(query);
     }
 
     private void updateIdentityVerificationStatus(String email, String applicantCode, String sponsorCode, String  status) throws Exception {
@@ -201,16 +200,27 @@ public class ParticipantController extends BaseController {
         try {
             String phoneOtp = new DecimalFormat("000000").format(new Random().nextInt(999999));
             smsService.sendOTP((String) requestBody.get(PRIMARY_MOBILE), phoneOtp);
+
+            String identityFetchQuery = String.format("SELECT status FROM %S WHERE applicant_email='%s'", onboardingTable, (String) requestBody.get(PRIMARY_EMAIL));
+            ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(identityFetchQuery);
+            String identityVerified = PENDING;
+            while (resultSet.next()) {
+                identityVerified = resultSet.getString("status");
+            }
+
             String emailPrefillUrl = prefillUrl;
-            emailPrefillUrl = emailPrefillUrl.replace("USER_MAIL", (String) requestBody.get(PRIMARY_EMAIL))
-                    .replace("PHONE", (String) requestBody.get(PRIMARY_MOBILE));
+            emailPrefillUrl = emailPrefillUrl.replace("USER_MAIL",  URLEncoder.encode((String) requestBody.get(PRIMARY_EMAIL), StandardCharsets.UTF_8))
+                    .replace("PHONE", URLEncoder.encode((String) requestBody.get(PRIMARY_MOBILE), StandardCharsets.UTF_8))
+                    .replace("IDENTITY_VERIFIED", URLEncoder.encode(identityVerified, StandardCharsets.UTF_8));
             String emailOtp = new DecimalFormat("000000").format(new Random().nextInt(999999));
             String emailMsg = otpMsg;
             emailMsg = emailMsg.replace("RANDOM_CODE", emailOtp).replace("USER_LINK", emailPrefillUrl);
             emailService.sendMail((String) requestBody.get(PRIMARY_EMAIL), otpSub, emailMsg);
+
             String query = String.format("UPDATE %s SET phone_otp='%s',email_otp='%s',updatedOn=%d,expiry=%d WHERE primary_email='%s'",
                     onboardingOtpTable, phoneOtp, emailOtp, System.currentTimeMillis(), System.currentTimeMillis() + otpExpiry, requestBody.get(PRIMARY_EMAIL));
             postgreSQLClient.execute(query);
+
             return getSuccessResponse(new Response());
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
@@ -252,20 +262,19 @@ public class ParticipantController extends BaseController {
             }
             updateOtpStatus(true, true, attemptCount, SUCCESSFUL, email);
             String otpVerifyMessage = otpVerifyMsg;
-            emailService.sendMail(email, otpVerifySub, otpVerifyMessage.replace("REGISTRY_CODE", participantCode));
+            emailService.sendMail(email, otpVerifySub, otpVerifyMessage.replace("REGISTRY_CODE", URLEncoder.encode(participantCode, StandardCharsets.UTF_8)));
             output.put(EMAIL_OTP_VERIFIED, true);
             output.put(PHONE_OTP_VERIFIED, true);
             logger.info("Communication details verification is successful : " + output + " :: primary email : " + email);
         } catch (ClientException e) {
-            // TODO: remove stack trace
-            e.printStackTrace();
             updateOtpStatus(emailOtpVerified, phoneOtpVerified, attemptCount, status, email);
             String otpFailedMessage = otpFailedMsg;
             if (e.getMessage().contains(OTP_ALREADY_VERIFIED) || e.getMessage().contains(OTP_RECORD_NOT_EXIST)) {
                 String otpFailedWithoutLinkMessage = otpFailedWithoutLinkMsg;
                 emailService.sendMail(email, otpFailedSub, otpFailedWithoutLinkMessage.replace("ERROR_MSG", " " + e.getMessage()));
             } else {
-                emailService.sendMail(email, otpFailedSub, otpFailedMessage.replace("ERROR_MSG", " " + e.getMessage()).replace("USER_MAIL", email).replace("PHONE", phoneNumber));
+                emailService.sendMail(email, otpFailedSub, otpFailedMessage.replace("ERROR_MSG", " " + e.getMessage())
+                        .replace("USER_MAIL", URLEncoder.encode(email, StandardCharsets.UTF_8)).replace("PHONE", URLEncoder.encode(phoneNumber, StandardCharsets.UTF_8)));
             }
             throw new OTPVerificationException(e.getErrCode(), e.getMessage());
         } finally {
@@ -287,18 +296,18 @@ public class ParticipantController extends BaseController {
         return (Map<String, Object>) participantResponse.getParticipants().get(0);
     }
 
-
     @PostMapping(PARTICIPANT_ONBOARD_UPDATE)
     public ResponseEntity<Object> onboardUpdate(@RequestBody Map<String, Object> requestBody) throws SQLException {
+        String email = "";
         try {
             logger.info("Onboard update: " + requestBody);
             boolean emailOtpVerified = false;
             boolean phoneOtpVerified = false;
-            String identityStatus = "";
+            String identityStatus = REJECTED;
             String jwtToken = (String) requestBody.get("jwt_token");
             Map<String, Object> payload = JSONUtils.decodeBase64String(jwtToken.split("\\.")[1], Map.class);
             Map<String, Object> participant = (Map<String, Object>) requestBody.get(PARTICIPANT);
-            String email = (String) payload.get("email");
+            email = (String) payload.get("email");
             participant.put(REGISTRY_STATUS, ACTIVE);
             Map<String, String> headersMap = new HashMap<>();
             headersMap.put(AUTHORIZATION, "Bearer " + jwtToken);
@@ -316,31 +325,29 @@ public class ParticipantController extends BaseController {
                 identityStatus = resultSet1.getString("status");
             }
 
-            logger.info("Onboard update: " + participant);
+            if(env.equalsIgnoreCase(STAGING)) identityStatus = ACCEPTED;
+
             if (emailOtpVerified && phoneOtpVerified && StringUtils.equalsIgnoreCase(identityStatus, ACCEPTED)) {
                 HttpResponse<String> response = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_UPDATE, JSONUtils.serialize(participant), headersMap);
-                logger.info("Registry response: " + response.getBody());
                 if (response.getStatus() == 200) {
                     logger.info("Participant details are updated successfully :: participant code : " + participant.get(PARTICIPANT_CODE));
-                    emailService.sendMail(email, registryUpdateSub, registryUpdateMsg);
+                    emailService.sendMail(email, registryUpdateSub, registryUpdateMsg.replace("REGISTRY_CODE", (String) participant.get(PARTICIPANT_CODE)));
                     return getSuccessResponse(new Response(PARTICIPANT_CODE, participant.get(PARTICIPANT_CODE)));
                 } else return responseHandler(response, (String) participant.get(PARTICIPANT_CODE));
             } else {
                 logger.info("Participant details are not updated, due to failed identity verification :: participant code : " + participant.get(PARTICIPANT_CODE));
-                emailService.sendMail(email, failedIdentitySub, failedIdentityMsg);
-                throw new ClientException(ErrorCodes.ERR_UPDATE_PARTICIPANT_DETAILS, "Participant details are not updated, due to failed identity verification");
+                throw new ClientException(ErrorCodes.ERR_UPDATE_PARTICIPANT_DETAILS, "Identity verification failed");
             }
         } catch (Exception e) {
-            // TODO: remove stack trace
-            e.printStackTrace();
+            emailService.sendMail(email, registryUpdateFailedSub, registryUpdateFailedMsg.replace("ERROR_MSG", e.getMessage().toLowerCase()));
             return exceptionHandler(new Response(), e);
         }
     }
 
     @PostMapping(PARTICIPANT_VERIFY_IDENTITY)
     public ResponseEntity<Object> participantIdentityVerify(@RequestBody Map<String, Object> requestBody) {
+        String applicantEmail = (String) requestBody.get(PRIMARY_EMAIL);
         try {
-            String applicantEmail = (String) requestBody.get(PRIMARY_EMAIL);
             String status = (String) requestBody.get(REGISTRY_STATUS);
             if(!ALLOWED_ONBOARD_STATUS.contains(status))
                 throw new ClientException(ErrorCodes.ERR_INVALID_ONBOARD_STATUS, "Invalid onboard status, allowed values are: " + ALLOWED_ONBOARD_STATUS);
@@ -348,7 +355,56 @@ public class ParticipantController extends BaseController {
             String query = String.format("UPDATE %s SET status='%s',updatedOn=%d WHERE applicant_email='%s'",
                     onboardingTable, status, System.currentTimeMillis(), applicantEmail);
             postgreSQLClient.execute(query);
+            emailService.sendMail(applicantEmail, successIdentitySub, successIdentityMsg);
             return getSuccessResponse(new Response());
+        } catch (Exception e) {
+            emailService.sendMail(applicantEmail, failedIdentitySub, failedIdentityMsg);
+            return exceptionHandler(new Response(), e);
+        }
+    }
+
+    @PostMapping(PARTICIPANT_GET_INFO)
+    public ResponseEntity<Object> participantGetInfo(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
+        try {
+            String applicantCode;
+            String sponsorCode;
+            Map<String, Object> sponsorDetails;
+            String identityVerification  = REJECTED;
+            if (requestBody.containsKey(JWT_TOKEN)) {
+                String jwtToken = (String) requestBody.get(JWT_TOKEN);
+                Map<String, Object> jwtPayload = JSONUtils.decodeBase64String(jwtToken.split("\\.")[1], Map.class);
+                sponsorCode = (String) jwtPayload.get(ISS);
+                applicantCode = (String) jwtPayload.get(SUB);
+                sponsorDetails = getParticipant(PARTICIPANT_CODE, sponsorCode);
+                if (!jwtToken.isEmpty() && !jwtUtils.isValidSignature(jwtToken, (String) sponsorDetails.get(SIGNING_CERT_PATH)))
+                    throw new ClientException(ErrorCodes.ERR_INVALID_JWT, "Invalid JWT token signature");
+            } else {
+                applicantCode = (String) requestBody.get(APPLICANT_CODE);
+                sponsorCode = (String) requestBody.get(PAYOR_CODE);
+                sponsorDetails = getParticipant(PARTICIPANT_CODE, sponsorCode);
+            }
+
+            String mode = header.get(MODE).get(0);
+            Map<String, Object> payorResp = new HashMap<>();
+
+            if (mode.equalsIgnoreCase(MOCK_VALID)) {
+                payorResp.put(PRIMARY_EMAIL, applicantCode + "@yopmail.com");
+                payorResp.put(PRIMARY_MOBILE, "8522875773");
+                payorResp.put(PARTICIPANT_NAME, applicantCode);
+                payorResp.putAll(payorResp);
+            } else if (mode.equalsIgnoreCase(ACTUAL)) {
+                Map<String, Object> reqBody = new HashMap<>();
+                reqBody.put(APPLICANT_CODE, reqBody.get(APPLICANT_CODE));
+                HttpResponse<String> response = HttpUtils.post(sponsorDetails.get(ENDPOINT_URL) + PARTICIPANT_GET_INFO, JSONUtils.serialize(reqBody));
+                if (response.getStatus() == 200) {
+                    payorResp.putAll(JSONUtils.deserialize(response.getBody(), Map.class));
+                }
+            }
+
+            if(!payorResp.isEmpty()) identityVerification = ACCEPTED;
+            updateIdentityVerificationStatus((String) payorResp.getOrDefault(PRIMARY_EMAIL, ""), applicantCode, sponsorCode, identityVerification);
+            ParticipantResponse resp = new ParticipantResponse(payorResp);
+            return new ResponseEntity<>(resp, HttpStatus.OK);
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }

@@ -13,8 +13,8 @@ public class SponsorResponseTest {
         String applicantCode = "987654";
         String sponsorCode = "123456";
         String status = "active";
-        String createdon = "2022-01-01";
-        String updatedon = "2022-02-01";
+        Long createdon = (long) (2022 - 1 - 1);
+        Long updatedon = (long) (2022 - 2 - 1);
         SponsorResponse response = new SponsorResponse(applicantEmail, applicantCode, sponsorCode, status, createdon, updatedon);
         assertEquals(applicantEmail, response.getApplicantEmail());
         assertEquals(applicantCode, response.getApplicantCode());
