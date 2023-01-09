@@ -22,5 +22,6 @@ public class SponsorResponseTest {
         assertEquals(status, response.getStatus());
         assertEquals(createdon, response.getCreatedon());
         assertEquals(updatedon, response.getUpdatedon());
+        
     }
 }
