@@ -18,9 +18,9 @@ audit:
   alias: ${audit_alias:hcx_audit}
 
 aws:
-  accessKey: ${aws_accessKey:AKIA6I75KJYE2AIRJ24B}
-  accessSecret: ${aws_accessSecret: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}
-  region: ${aws_region:ap-south-1}
+  accessKey: ${aws_accessKey:}
+  accessSecret: ${aws_accessSecret:}
+  region: ${aws_region:}
 
 form:
   verifyOTP:  ${verify_otp_form:http://localhost:3000/otp_verify?primary_email=USER_MAIL&primary_mobile=PHONE}
