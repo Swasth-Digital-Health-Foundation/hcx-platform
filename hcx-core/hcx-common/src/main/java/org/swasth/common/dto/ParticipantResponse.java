@@ -45,7 +45,6 @@ public class ParticipantResponse {
     public String getParticipantCode() {
         return participantCode;
     }
-
     public void setParticipantCode(String correlationId) {
         this.participantCode = participantCode;
     }
@@ -53,7 +52,6 @@ public class ParticipantResponse {
     public ResponseError getError() {
         return error;
     }
-
     public void setError(ResponseError error) {
         this.error = error;
     }
@@ -61,7 +59,6 @@ public class ParticipantResponse {
     public ArrayList<Object> getParticipants() {
         return participants;
     }
-
     public void setParticipants(ArrayList<Object> participants) {
         this.participants = participants;
     }
