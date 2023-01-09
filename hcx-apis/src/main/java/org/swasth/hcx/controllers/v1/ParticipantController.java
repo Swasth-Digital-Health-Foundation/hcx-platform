@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.swasth.common.dto.ParticipantResponse;
 import org.swasth.common.dto.Response;
+import org.swasth.common.dto.SponsorResponse;
 import org.swasth.common.exception.*;
 import org.swasth.common.utils.*;
 import org.swasth.hcx.controllers.BaseController;
@@ -236,15 +237,15 @@ public class ParticipantController extends BaseController {
         String primaryEmailWithQuote = "'" + StringUtils.join(primaryEmailList, "','") + "'";
         String selectQuery = String.format("SELECT * FROM onboarding WHERE applicant_email IN (%s);", String.join(",", primaryEmailWithQuote)); // need to remove '[]' from list
         ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
-        List<ParticipantResponse> sponsors1 = new ArrayList<>();
+        List<SponsorResponse> sponsors = new ArrayList<>();
         while (resultSet.next()) {
-            ParticipantResponse participantResponse = new ParticipantResponse(resultSet.getString("applicant_email"), resultSet.getString("applicant_code"), resultSet.getString("sponsor_code"), resultSet.getString("status"), resultSet.getString("createdon"), resultSet.getString("updatedon"));
-            sponsors1.add(participantResponse);
+            SponsorResponse sponsorResponse = new SponsorResponse(resultSet.getString("applicant_email"), resultSet.getString("applicant_code"), resultSet.getString("sponsor_code"), resultSet.getString("status"), resultSet.getString("createdon"), resultSet.getString("updatedon"));
+            sponsors.add(sponsorResponse);
         }
         ArrayList<Object> modifiedResponseList = new ArrayList<>();
         for (Map<String, Object> responseList : participantsList) {
             boolean matchingPrimaryEmail = false;
-            for (ParticipantResponse sponsorList : sponsors1) {
+            for (SponsorResponse sponsorList : sponsors) {
                 if (responseList.get("primary_email").equals(sponsorList.getApplicantEmail())) {
                     Object sponsorDetails = JSONUtils.convert(sponsorList, Map.class);
                     responseList.put("sponsor_details", sponsorDetails);

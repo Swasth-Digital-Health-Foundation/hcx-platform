@@ -4,8 +4,8 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
+public class SponsorResponseTest {
 
-public class ParticipantResponseTest {
 
     @Test
     public void testParticipantResponseFields() {
@@ -15,7 +15,7 @@ public class ParticipantResponseTest {
         String status = "active";
         String createdon = "2022-01-01";
         String updatedon = "2022-02-01";
-        ParticipantResponse response = new ParticipantResponse(applicantEmail, applicantCode, sponsorCode, status, createdon, updatedon);
+        SponsorResponse response = new SponsorResponse(applicantEmail, applicantCode, sponsorCode, status, createdon, updatedon);
         assertEquals(applicantEmail, response.getApplicantEmail());
         assertEquals(applicantCode, response.getApplicantCode());
         assertEquals(sponsorCode, response.getSponsorCode());
@@ -23,5 +23,4 @@ public class ParticipantResponseTest {
         assertEquals(createdon, response.getCreatedon());
         assertEquals(updatedon, response.getUpdatedon());
     }
-
 }
