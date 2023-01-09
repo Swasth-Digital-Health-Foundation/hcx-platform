@@ -162,7 +162,7 @@ public class ParticipantController extends BaseController {
     }
 
     private void updateEmail(String email, String applicantCode) throws Exception {
-        String query = String.format("INSERT %s SET applicant_email='%s',updatedOn=%d WHERE applicant_code='%s'", onboardingTable, email, System.currentTimeMillis(), applicantCode);
+        String query = String.format("UPDATE %s SET applicant_email='%s',updatedOn=%d WHERE applicant_code='%s'", onboardingTable, email, System.currentTimeMillis(), applicantCode);
         postgreSQLClient.execute(query);
     }
 
