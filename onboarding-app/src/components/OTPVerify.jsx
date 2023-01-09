@@ -16,10 +16,10 @@ export const OTPVerify = () => {
 
     const onSubmit = (data) => {
         setSending(true)
-        const formData = [{ "primary_email": query.get("primary_email"), "otp": data.email_otp }, { "primary_mobile": query.get("primary_email"), "otp": data.phone_otp }];
+        const formData = [{ "primary_email": decodeURIComponent(query.get("primary_email")), "otp": data.email_otp }, { "primary_mobile": decodeURIComponent(query.get("primary_email")), "otp": data.phone_otp }];
         sendData("/participant/verify", formData).then((data => {
             toast.success("Form is submitted successfully", {
-                position: toast.POSITION.TOP_CENTER
+                position: toast.POSITION.TOP_CENTER, autoClose: 2000
             });
             reset()
         })).catch(err => {
@@ -47,8 +47,9 @@ export const OTPVerify = () => {
             <Grid.Row columns="1" >
                 <Segment raised padded textAlign='left' className='form-container'>
                     <Form onSubmit={handleSubmit(onSubmit)} className="container">
-                        <Form.Input fluid label='Email' value={query.get("primary_email")} readOnly />
-                        <Form.Input fluid label='Phone Number' value={query.get("primary_mobile")} readOnly />
+                        <Form.Input fluid label='Email' value={decodeURIComponent(query.get("primary_email"))} readOnly />
+                        <Form.Input fluid label='Phone Number' value={decodeURIComponent(query.get("primary_mobile"))} readOnly />
+                        <Form.Input fluid label='Identity Verification Status' value={decodeURIComponent(query.get("identity_verified"))} readOnly />
                         <Form.Field>
                             <label>Email OTP</label>
                             <input placeholder='Enter Email OTP' {...register("email_otp", { required: true })} />

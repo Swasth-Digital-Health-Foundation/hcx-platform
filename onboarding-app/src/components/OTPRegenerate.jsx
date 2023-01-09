@@ -16,10 +16,10 @@ export const OTPRegenerate = () => {
 
     const onSubmit = (data) => {
         setSending(true)
-        const formData = { "primary_email": query.get("primary_email"), "primary_mobile": query.get("primary_mobile") };
+        const formData = { "primary_email": decodeURIComponent(query.get("primary_email")), "primary_mobile": decodeURIComponent(query.get("primary_mobile")) };
         sendData("/participant/otp/send", formData).then((data => {
             toast.success("Form is submitted successfully", {
-                position: toast.POSITION.TOP_CENTER
+                position: toast.POSITION.TOP_CENTER, autoClose: 2000
             });
             reset()
         })).catch(err => {
@@ -47,8 +47,8 @@ export const OTPRegenerate = () => {
             <Grid.Row columns="1" >
                 <Segment raised padded textAlign='left' className='form-container'>
                     <Form onSubmit={handleSubmit(onSubmit)} className="container">
-                        <Form.Input fluid label='Email' value={query.get("primary_email")} readOnly />
-                        <Form.Input fluid label='Phone Number' value={query.get("primary_mobile")} readOnly />
+                        <Form.Input fluid label='Email' value={decodeURIComponent(query.get("primary_email"))} readOnly />
+                        <Form.Input fluid label='Phone Number' value={decodeURIComponent(query.get("primary_mobile"))} readOnly />
                         <Button disabled={sending} type='submit' className='primary center-element'>
                             {sending ? "Submitting" : "Submit"}
                         </Button>

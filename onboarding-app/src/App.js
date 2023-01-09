@@ -1,7 +1,6 @@
 import './App.css';
-import { OnBoardingStaging } from './components/OnBoardingStaging';
+import { OnBoarding } from './components/OnBoarding';
 import { OTPVerify } from './components/OTPVerify';
-import { OnBoardingPoc } from './components/OnBoardingPoc';
 import {
   BrowserRouter as Router,
   Switch,
@@ -16,11 +15,8 @@ function App() {
     <div className="App">
       <Router>
         <Switch>
-          <Route path="/onboarding_poc">
-            <OnBoardingPoc />
-          </Route>
-          <Route path="/onboarding_staging">
-            <OnBoardingStaging />
+          <Route path="/basic_info">
+            <OnBoarding />
           </Route>
           <Route path="/otp_verify">
             <OTPVerify />

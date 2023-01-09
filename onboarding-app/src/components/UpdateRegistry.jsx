@@ -16,10 +16,10 @@ export const UpdateRegistry = () => {
 
     const onSubmit = (data) => {
         setSending(true)
-        const formData = { "jwt_token": data.jwt_token, participant: { "participant_code": query.get("participant_code"), "endpoint_url": data.endpoint_url, "encryption_cert_path": data.encryption_cert_path, "signing_cert_path": data.signing_cert_path } };
+        const formData = { "jwt_token": data.jwt_token, participant: { "participant_code": decodeURIComponent(query.get("participant_code")), "endpoint_url": data.endpoint_url, "encryption_cert_path": data.encryption_cert_path, "signing_cert_path": data.signing_cert_path } };
         sendData("/participant/onboard/update", formData).then((data => {
             toast.success("Form is submitted successfully", {
-                position: toast.POSITION.TOP_CENTER
+                position: toast.POSITION.TOP_CENTER, autoClose: 2000
             });
             reset()
         })).catch(err => {
@@ -47,7 +47,7 @@ export const UpdateRegistry = () => {
             <Grid.Row columns="1" >
                 <Segment raised padded textAlign='left' className='form-container'>
                     <Form onSubmit={handleSubmit(onSubmit)} className="container">
-                        <Form.Input fluid label='Participant Code' value={query.get("participant_code")} readOnly />
+                        <Form.Input fluid label='Participant Code' value={decodeURIComponent(query.get("participant_code"))} readOnly />
                         <Form.Field>
                             <label>JWT Token</label>
                             <input placeholder='Enter JWT Token' {...register("jwt_token", { required: true })} />
