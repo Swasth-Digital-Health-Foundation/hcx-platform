@@ -84,6 +84,7 @@ class ParticipantControllerTests extends BaseSpec{
         int status = response.getStatus();
         assertEquals(200, status);
     }
+    @Test
     void participant_create_success_scenario() throws Exception {
         registryServer.enqueue(new MockResponse()
                 .setResponseCode(200)
@@ -319,12 +320,11 @@ class ParticipantControllerTests extends BaseSpec{
         assertEquals(ErrorCodes.ERR_INVALID_PARTICIPANT_CODE, resObj.getError().getCode());
         assertEquals("Please provide valid participant code", resObj.getError().getMessage());
     }
-    private ResultSet getMockResultSet() throws  SQLException {
+    private ResultSet getMockResultSet() throws SQLException {
         return MockResultSet.create(
                 new String[]{"applicant_email", "applicant_code", "sponsor_code", "status", "createdon", "updatedon"}, //columns
                 new Object[][]{ // data
                         {"testuser3@gmail.com", "testuser3", "sponsor_code-12345", "active", "12345678", "12345678"}
                 });
     }
-    
 }
