@@ -104,7 +104,7 @@ public class ParticipantController extends BaseController {
     }
 
     private Map<String, Object> getParticipant(String participantCode) throws Exception {
-        ResponseEntity<Object> searchResponse = participantSearch("",JSONUtils.deserialize("{ \"filters\": { \"participant_code\": { \"eq\": \" " + participantCode + "\" } } }", Map.class));
+        ResponseEntity<Object> searchResponse = participantSearch("", JSONUtils.deserialize("{ \"filters\": { \"participant_code\": { \"eq\": \" " + participantCode + "\" } } }", Map.class));
         ParticipantResponse participantResponse = (ParticipantResponse) Objects.requireNonNull(searchResponse.getBody());
         if (participantResponse.getParticipants().isEmpty())
             throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_CODE, INVALID_PARTICIPANT_CODE);
@@ -112,7 +112,7 @@ public class ParticipantController extends BaseController {
     }
 
     @PostMapping(PARTICIPANT_SEARCH)
-    public ResponseEntity<Object> participantSearch(@RequestParam(required = false) String fields,@RequestBody Map<String, Object> requestBody) {
+    public ResponseEntity<Object> participantSearch(@RequestParam(required = false) String fields, @RequestBody Map<String, Object> requestBody) {
         try {
             if (fields != null && fields.toLowerCase().contains(SPONSOR)) {
                 return getSponsors(requestBody);
@@ -152,7 +152,7 @@ public class ParticipantController extends BaseController {
     }
 
     private boolean isParticipantCodeExists(String participantCode) throws Exception {
-        ResponseEntity<Object> searchResponse = participantSearch("",JSONUtils.deserialize("{ \"filters\": { \"participant_code\": { \"eq\": \" " + participantCode + "\" } } }", Map.class));
+        ResponseEntity<Object> searchResponse = participantSearch("", JSONUtils.deserialize("{ \"filters\": { \"participant_code\": { \"eq\": \" " + participantCode + "\" } } }", Map.class));
         Object responseBody = searchResponse.getBody();
         if (responseBody != null) {
             if (responseBody instanceof Response) {
@@ -234,6 +234,7 @@ public class ParticipantController extends BaseController {
         Map<String, Object> result = JSONUtils.deserialize(response.getBody(), HashMap.class);
         return (String) ((Map<String, Object>) result.get("params")).get("errmsg");
     }
+
     private ResponseEntity<Object> getSponsors(Map<String, Object> requestBody) throws Exception {
         String url = registryUrl + "/api/v1/Organisation/search";
         HttpResponse<String> response = HttpUtils.post(url, JSONUtils.serialize(requestBody), new HashMap<>());
@@ -249,18 +250,16 @@ public class ParticipantController extends BaseController {
         Map<String, Object> sponsorMap = new HashMap<>();
         while (resultSet.next()) {
             Sponsor sponsorResponse = new Sponsor(resultSet.getString("applicant_email"), resultSet.getString("applicant_code"), resultSet.getString("sponsor_code"), resultSet.getString("status"), resultSet.getLong("createdon"), resultSet.getLong("updatedon"));
-            sponsorMap.put(resultSet.getString("applicant_email"), JSONUtils.serialize(sponsorResponse));
+            sponsorMap.put(resultSet.getString("applicant_email"), sponsorResponse);
         }
         ArrayList<Object> modifiedResponseList = new ArrayList<>();
         for (Map<String, Object> responseList : participantsList) {
-                String email = (String) responseList.get("primary_email");
-                if (sponsorMap.containsKey(email)) {
-                    responseList.put("sponsor_details",JSONUtils.deserialize((String) sponsorMap.get(email),Map.class));
-                    modifiedResponseList.add(responseList);
-                }
-                else {
-                Map<String, Object> emptySponsorDetails = new HashMap<>();
-                responseList.put("sponsor_details", emptySponsorDetails);
+            String email = (String) responseList.get("primary_email");
+            if (sponsorMap.containsKey(email)) {
+                responseList.put("sponsor_details",  sponsorMap.get(email));
+                modifiedResponseList.add(responseList);
+            } else {
+                responseList.put("sponsor_details", new HashMap<>());
                 modifiedResponseList.add(responseList);
             }
         }
