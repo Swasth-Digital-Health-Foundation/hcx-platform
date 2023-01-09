@@ -1,9 +1,9 @@
 // vim: ft=groovy et ts=2 sw=2:
 
-node('java8') {
+node('java11') {
     ansiColor('xterm') {
       stage("Building app") {
-            container('java8') {
+            container('java11') {
               // Checkout repo
               checkout scm
               // Generating build info

@@ -12,19 +12,6 @@ import org.swasth.hcx.helpers.EventGenerator;
 
 @Configuration
 public class GenericConfiguration {
-
-    @Autowired
-    protected Environment env;
-
-    @Value("${registry.basePath}")
-    private String registryUrl;
-
-    @Bean
-    public RegistryService registryService() {
-        return new RegistryService(registryUrl);
-    }
-
-
     @Bean
     public JWTUtils jwtUtils() {
         return new JWTUtils();
