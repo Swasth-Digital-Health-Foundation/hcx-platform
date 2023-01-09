@@ -14,8 +14,8 @@ public class Sponsor {
         this.applicantCode = applicantCode;
         this.sponsorCode = sponsorCode;
         this.status = status;
-        this.createdon = Long.valueOf(createdon);
-        this.updatedon = Long.valueOf(updatedon);
+        this.createdon = createdon;
+        this.updatedon = updatedon;
     }
 
     public String getApplicantEmail() {
