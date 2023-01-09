@@ -1,6 +1,6 @@
 package org.swasth.common.dto;
 
-public class SponsorResponse {
+public class Sponsor {
 
     private final String applicantEmail;
     private final String applicantCode;
@@ -9,7 +9,7 @@ public class SponsorResponse {
     private final Long createdon;
     private final Long updatedon;
 
-    public SponsorResponse(String applicantEmail, String applicantCode, String sponsorCode, String status, Long createdon, Long updatedon) {
+    public Sponsor(String applicantEmail, String applicantCode, String sponsorCode, String status, Long createdon, Long updatedon) {
         this.applicantEmail = applicantEmail;
         this.applicantCode = applicantCode;
         this.sponsorCode = sponsorCode;
@@ -17,6 +17,7 @@ public class SponsorResponse {
         this.createdon = Long.valueOf(createdon);
         this.updatedon = Long.valueOf(updatedon);
     }
+
     public String getApplicantEmail() {
         return applicantEmail;
     }

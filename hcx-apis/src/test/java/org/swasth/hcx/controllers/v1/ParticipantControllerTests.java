@@ -11,7 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MvcResult;
 import org.swasth.common.dto.Response;
-import org.swasth.common.dto.SponsorResponse;
+import org.swasth.common.dto.Sponsor;
 import org.swasth.common.exception.ErrorCodes;
 import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -75,7 +74,7 @@ class ParticipantControllerTests extends BaseSpec{
     void participant_search_success_scenario_with_parameter() throws Exception {
         registryServer.enqueue(new MockResponse()
                 .setResponseCode(200)
-                .setBody("[{ \"participant_name\": \"HCX Gateway\", \"primary_mobile\": \"\", \"primary_email\": \"hcxgateway@gmail.com\", \"roles\": [ \"HIE/HIO.HCX\" ], \"status\": \"Created\", \"endpoint_url\": \"http://a54c5bc648f1a41b8871b77ac01060ed-1840123973.ap-south-1.elb.amazonaws.com:8080\", \"encryption_cert\": \"urn:isbn:0-4234\", \"osOwner\": [ \"f698b521-7409-432d-a5db-d13e51f029a9\" ], \"participant_code\": \"d2d56996-1b77-4abb-b9e9-0e6e7343c72e\" }]")
+                .setBody("[{ \"participant_name\": \"HCX Gateway\", \"primary_mobile\": \"\", \"primary_email\": \"testuser3@gmail.com\", \"roles\": [ \"HIE/HIO.HCX\" ], \"status\": \"Created\", \"endpoint_url\": \"http://a54c5bc648f1a41b8871b77ac01060ed-1840123973.ap-south-1.elb.amazonaws.com:8080\", \"encryption_cert\": \"urn:isbn:0-4234\", \"osOwner\": [ \"f698b521-7409-432d-a5db-d13e51f029a9\" ], \"participant_code\": \"d2d56996-1b77-4abb-b9e9-0e6e7343c72e\" }]")
                 .addHeader("Content-Type", "application/json"));
         ResultSet mockResultSet = getMockResultSet();
         doReturn(mockResultSet).when(postgreSQLClient).executeQuery(anyString());

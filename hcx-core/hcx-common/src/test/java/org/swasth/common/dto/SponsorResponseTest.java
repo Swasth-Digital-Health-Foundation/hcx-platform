@@ -15,13 +15,13 @@ public class SponsorResponseTest {
         String status = "active";
         Long createdon = (long) (2022 - 1 - 1);
         Long updatedon = (long) (2022 - 2 - 1);
-        SponsorResponse response = new SponsorResponse(applicantEmail, applicantCode, sponsorCode, status, createdon, updatedon);
+        Sponsor response = new Sponsor(applicantEmail, applicantCode, sponsorCode, status, createdon, updatedon);
         assertEquals(applicantEmail, response.getApplicantEmail());
         assertEquals(applicantCode, response.getApplicantCode());
         assertEquals(sponsorCode, response.getSponsorCode());
         assertEquals(status, response.getStatus());
         assertEquals(createdon, response.getCreatedon());
         assertEquals(updatedon, response.getUpdatedon());
-        
+
     }
 }
