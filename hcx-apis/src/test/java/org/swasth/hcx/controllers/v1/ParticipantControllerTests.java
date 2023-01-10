@@ -334,10 +334,10 @@ class ParticipantControllerTests extends BaseSpec{
         assertEquals("Please provide valid participant code", resObj.getError().getMessage());
     }
     private ResultSet getMockResultSet() throws SQLException {
-        return MockResultSet.createStringMock(
+        return MockResultSet.createStringLongMock(
                 new String[]{"applicant_email", "applicant_code", "sponsor_code", "status", "createdon", "updatedon"}, //columns
                 new Object[][]{ // data
-                        {"testuser3@gmail.com", "testuser3", "sponsor_code-12345", "active", "12345678", "12345678"}
+                        {"testuser3@gmail.com", "testuser3", "sponsor_code-12345", "active", 12345678, 12345678}
                 });
     }
 }

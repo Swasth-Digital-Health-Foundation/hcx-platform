@@ -1,5 +1,6 @@
 package org.swasth.hcx.controllers.v1;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import kong.unirest.HttpResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
@@ -112,13 +113,14 @@ public class ParticipantController extends BaseController {
     }
 
     @PostMapping(PARTICIPANT_SEARCH)
-    public ResponseEntity<Object> participantSearch(@RequestParam(required = false) String fields, @RequestBody Map<String, Object> requestBody) {
+    public ResponseEntity<Object> participantSearch(@RequestParam(required = false) String fields, @RequestBody Map<String, Object> requestBody) throws JsonProcessingException {
         try {
-            if (fields != null && fields.toLowerCase().contains(SPONSORS)) {
-                return getSponsors(requestBody);
-            }
             String url = registryUrl + "/api/v1/Organisation/search";
             HttpResponse<String> response = HttpUtils.post(url, JSONUtils.serialize(requestBody), new HashMap<>());
+            if (fields != null && fields.toLowerCase().contains(SPONSORS)) {
+                ArrayList<Map<String, Object>> participantsList = JSONUtils.deserialize(response.getBody(), ArrayList.class);
+                return getSponsors(participantsList);
+            }
             return responseHandler(response, null);
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
@@ -235,11 +237,8 @@ public class ParticipantController extends BaseController {
         return (String) ((Map<String, Object>) result.get("params")).get("errmsg");
     }
 
-    private ResponseEntity<Object> getSponsors(Map<String, Object> requestBody) throws Exception {
-        String url = registryUrl + "/api/v1/Organisation/search";
-        HttpResponse<String> response = HttpUtils.post(url, JSONUtils.serialize(requestBody), new HashMap<>());
+    private ResponseEntity<Object> getSponsors(List<Map<String,Object>> participantsList) throws Exception {
         List<String> primaryEmailList = new ArrayList<>();
-        List<Map<String, Object>> participantsList = JSONUtils.deserialize(response.getBody(), ArrayList.class);
         for (Map<String, Object> participants : participantsList) {
             primaryEmailList.add(participants.get("primary_email").toString());
         }
@@ -249,7 +248,7 @@ public class ParticipantController extends BaseController {
         ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
         Map<String, Object> sponsorMap = new HashMap<>();
         while (resultSet.next()) {
-            Sponsor sponsorResponse = new Sponsor(resultSet.getString("applicant_email"), resultSet.getString("applicant_code"), resultSet.getString("sponsor_code"), resultSet.getString("status"), System.currentTimeMillis(),System.currentTimeMillis());
+            Sponsor sponsorResponse = new Sponsor(resultSet.getString("applicant_email"), resultSet.getString("applicant_code"), resultSet.getString("sponsor_code"), resultSet.getString("status"), resultSet.getLong("createdon"), resultSet.getLong("updatedon"));
             sponsorMap.put(resultSet.getString("applicant_email"), sponsorResponse);
         }
         ArrayList<Object> modifiedResponseList = new ArrayList<>();
