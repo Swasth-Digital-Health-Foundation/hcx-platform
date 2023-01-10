@@ -329,8 +329,6 @@ public class ParticipantController extends BaseController {
                 identityStatus = resultSet1.getString("status");
             }
 
-            if(env.equalsIgnoreCase(STAGING)) identityStatus = ACCEPTED;
-
             if (emailOtpVerified && phoneOtpVerified && StringUtils.equalsIgnoreCase(identityStatus, ACCEPTED)) {
                 HttpResponse<String> response = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_UPDATE, JSONUtils.serialize(participant), headersMap);
                 if (response.getStatus() == 200) {
