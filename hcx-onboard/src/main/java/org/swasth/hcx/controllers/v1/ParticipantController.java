@@ -95,6 +95,9 @@ public class ParticipantController extends BaseController {
     @Value("${email.prefillUrl}")
     private String prefillUrl;
 
+    @Value("${email.updateRegistryUrl}")
+    private String updateRegistryUrl;
+
     @Value("${hcx-api.basePath}")
     private String hcxAPIBasePath;
 
@@ -162,7 +165,7 @@ public class ParticipantController extends BaseController {
     }
 
     private void updateEmail(String email, String applicantCode) throws Exception {
-        String query = String.format("INSERT %s SET applicant_email='%s',updatedOn=%d WHERE applicant_code='%s'", onboardingTable, email, System.currentTimeMillis(), applicantCode);
+        String query = String.format("UPDATE %s SET applicant_email='%s',updatedOn=%d WHERE applicant_code='%s'", onboardingTable, email, System.currentTimeMillis(), applicantCode);
         postgreSQLClient.execute(query);
     }
 
@@ -262,7 +265,8 @@ public class ParticipantController extends BaseController {
             }
             updateOtpStatus(true, true, attemptCount, SUCCESSFUL, email);
             String otpVerifyMessage = otpVerifyMsg;
-            emailService.sendMail(email, otpVerifySub, otpVerifyMessage.replace("REGISTRY_CODE", URLEncoder.encode(participantCode, StandardCharsets.UTF_8)));
+            emailService.sendMail(email, otpVerifySub, otpVerifyMessage.replace("REGISTRY_CODE", participantCode)
+                    .replace("USER_LINK", updateRegistryUrl.replace("REGISTRY_CODE", URLEncoder.encode(participantCode, StandardCharsets.UTF_8))));
             output.put(EMAIL_OTP_VERIFIED, true);
             output.put(PHONE_OTP_VERIFIED, true);
             logger.info("Communication details verification is successful : " + output + " :: primary email : " + email);
@@ -324,8 +328,6 @@ public class ParticipantController extends BaseController {
             if (resultSet1.next()) {
                 identityStatus = resultSet1.getString("status");
             }
-
-            if(env.equalsIgnoreCase(STAGING)) identityStatus = ACCEPTED;
 
             if (emailOtpVerified && phoneOtpVerified && StringUtils.equalsIgnoreCase(identityStatus, ACCEPTED)) {
                 HttpResponse<String> response = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_UPDATE, JSONUtils.serialize(participant), headersMap);
