@@ -125,5 +125,9 @@ public class ResponseMessage {
     public static final String UNSUBSCRIBE_ERR_MSG = "Provide valid participant code(s) as * is not allowed for unsubscribe";
     public static final String EMPTY_SENDER_LIST_ERR_MSG = "Provide valid participant code(s) in the request. sender_list can not be empty";
     public static final String NOTIFICATION_SUBSCRIBE_ERR_MSG = "Requester participant code can not be sent in the sender_list";
+    public static final String OTP_ALREADY_VERIFIED = "Email and phone OTP has already verified.";
+    public static final String OTP_RECORD_NOT_EXIST = "Participant record does not exist, please register.";
+    public static final String OTP_RETRY_LIMIT = "Email and phone OTP retry limit has reached, please re-generate otp and try again!";
+    public static final String OTP_EXPIRED= "Email and phone OTP has expired, please re-generate otp and try again!";
 
 }
