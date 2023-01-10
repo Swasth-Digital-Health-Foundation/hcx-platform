@@ -39,12 +39,6 @@ public class MockResultSet {
         getBooleanMock(rs);
         return rs;
     }
-
-    private  ResultSet buildLongMock() {
-        final  var rs = mock(ResultSet.class);
-        return rs;
-    }
-
     private ResultSet buildStringMock() throws SQLException {
         final var rs = mock(ResultSet.class);
         getNextMock(rs);
@@ -108,13 +102,6 @@ public class MockResultSet {
             final Object[][] data)
             throws SQLException {
         return new MockResultSet(columnNames, data).buildMock();
-    }
-
-    public static ResultSet createStringLongMock(
-            final String[] columnNames,
-            final Object[][] data)
-            throws SQLException {
-        return new MockResultSet(columnNames, data).buildLongMock();
     }
 
     public static ResultSet createStringMock(
