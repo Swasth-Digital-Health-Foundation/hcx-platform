@@ -114,7 +114,7 @@ public class ParticipantController extends BaseController {
     @PostMapping(PARTICIPANT_SEARCH)
     public ResponseEntity<Object> participantSearch(@RequestParam(required = false) String fields, @RequestBody Map<String, Object> requestBody) {
         try {
-            if (fields != null && fields.toLowerCase().contains(SPONSOR)) {
+            if (fields != null && fields.toLowerCase().contains(SPONSORS)) {
                 return getSponsors(requestBody);
             }
             String url = registryUrl + "/api/v1/Organisation/search";
@@ -249,19 +249,19 @@ public class ParticipantController extends BaseController {
         ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
         Map<String, Object> sponsorMap = new HashMap<>();
         while (resultSet.next()) {
-            Sponsor sponsorResponse = new Sponsor(resultSet.getString("applicant_email"), resultSet.getString("applicant_code"), resultSet.getString("sponsor_code"), resultSet.getString("status"), resultSet.getLong("createdon"), resultSet.getLong("updatedon"));
+            Sponsor sponsorResponse = new Sponsor(resultSet.getString("applicant_email"), resultSet.getString("applicant_code"), resultSet.getString("sponsor_code"), resultSet.getString("status"), System.currentTimeMillis(),System.currentTimeMillis());
             sponsorMap.put(resultSet.getString("applicant_email"), sponsorResponse);
         }
         ArrayList<Object> modifiedResponseList = new ArrayList<>();
         for (Map<String, Object> responseList : participantsList) {
             String email = (String) responseList.get("primary_email");
             if (sponsorMap.containsKey(email)) {
-                responseList.put("sponsor_details",  sponsorMap.get(email));
-                modifiedResponseList.add(responseList);
+                responseList.put("sponsors", Collections.singletonList(sponsorMap.get(email)));
             } else {
-                responseList.put("sponsor_details", new HashMap<>());
-                modifiedResponseList.add(responseList);
+                responseList.put("sponsors", new ArrayList<>());
             }
+            modifiedResponseList.add(responseList);
+
         }
         return getSuccessResponse(new ParticipantResponse(modifiedResponseList));
     }
