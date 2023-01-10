@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ParticipantResponse {
@@ -12,6 +13,7 @@ public class ParticipantResponse {
     @JsonProperty("participant_code")
     private String participantCode;
     private ArrayList<Object> participants;
+    private Map<String,Object> participant;
 
     public ParticipantResponse() {
         this.timestamp = System.currentTimeMillis();
@@ -30,6 +32,11 @@ public class ParticipantResponse {
     public ParticipantResponse(ArrayList<Object> participants) {
         this.timestamp = System.currentTimeMillis();
         this.participants = participants;
+    }
+
+    public ParticipantResponse(Map<String,Object> participant) {
+        this.timestamp = System.currentTimeMillis();
+        this.participant = participant;
     }
 
     public Long getTimestamp() {
@@ -53,5 +60,7 @@ public class ParticipantResponse {
 
     public ArrayList<Object> getParticipants(){return participants;}
     public void setParticipants(ArrayList<Object> participants){this.participants = participants;}
+
+    public Map<String,Object> getParticipant(){return participant;}
 
 }
