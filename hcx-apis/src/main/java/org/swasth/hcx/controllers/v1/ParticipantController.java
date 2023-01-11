@@ -2,7 +2,6 @@ package org.swasth.hcx.controllers.v1;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import kong.unirest.HttpResponse;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
