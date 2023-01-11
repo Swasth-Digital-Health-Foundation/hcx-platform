@@ -1,5 +1,6 @@
 package org.swasth.hcx.controllers.v1;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import kong.unirest.HttpResponse;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,16 +11,20 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.swasth.common.dto.ParticipantResponse;
 import org.swasth.common.dto.Response;
+import org.swasth.common.dto.Sponsor;
 import org.swasth.common.exception.*;
 import org.swasth.common.utils.*;
 import org.swasth.hcx.controllers.BaseController;
+import org.swasth.postgresql.IDatabaseService;
 import org.swasth.redis.cache.RedisCache;
 
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
+import java.sql.ResultSet;
 import java.text.MessageFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.swasth.common.response.ResponseMessage.*;
 import static org.swasth.common.utils.Constants.*;
@@ -40,11 +45,17 @@ public class ParticipantController extends BaseController {
     @Value("${hcx.instanceName}")
     private String hcxInstanceName;
 
+    @Value("${postgres.onboardingTable}")
+    private String onboardingTable;
+
     @Autowired
     private RedisCache redisCache;
 
     @Autowired
     private JWTUtils jwtUtils;
+
+    @Autowired
+    protected IDatabaseService postgreSQLClient;
 
     @PostMapping(PARTICIPANT_CREATE)
     public ResponseEntity<Object> participantCreate(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
@@ -98,7 +109,7 @@ public class ParticipantController extends BaseController {
     }
 
     private Map<String, Object> getParticipant(String participantCode) throws Exception {
-        ResponseEntity<Object> searchResponse = participantSearch(JSONUtils.deserialize("{ \"filters\": { \"participant_code\": { \"eq\": \" " + participantCode + "\" } } }", Map.class));
+        ResponseEntity<Object> searchResponse = participantSearch("", JSONUtils.deserialize("{ \"filters\": { \"participant_code\": { \"eq\": \" " + participantCode + "\" } } }", Map.class));
         ParticipantResponse participantResponse = (ParticipantResponse) Objects.requireNonNull(searchResponse.getBody());
         if (participantResponse.getParticipants().isEmpty())
             throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_CODE, INVALID_PARTICIPANT_CODE);
@@ -106,10 +117,14 @@ public class ParticipantController extends BaseController {
     }
 
     @PostMapping(PARTICIPANT_SEARCH)
-    public ResponseEntity<Object> participantSearch(@RequestBody Map<String, Object> requestBody) {
+    public ResponseEntity<Object> participantSearch(@RequestParam(required = false) String fields, @RequestBody Map<String, Object> requestBody) throws JsonProcessingException {
         try {
             String url = registryUrl + "/api/v1/Organisation/search";
             HttpResponse<String> response = HttpUtils.post(url, JSONUtils.serialize(requestBody), new HashMap<>());
+            if (fields != null && fields.toLowerCase().contains(SPONSORS)) {
+                ArrayList<Map<String, Object>> participantsList = JSONUtils.deserialize(response.getBody(), ArrayList.class);
+                return getSponsors(participantsList);
+            }
             return responseHandler(response, null);
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
@@ -143,7 +158,7 @@ public class ParticipantController extends BaseController {
     }
 
     private boolean isParticipantCodeExists(String participantCode) throws Exception {
-        ResponseEntity<Object> searchResponse = participantSearch(JSONUtils.deserialize("{ \"filters\": { \"participant_code\": { \"eq\": \" " + participantCode + "\" } } }", Map.class));
+        ResponseEntity<Object> searchResponse = participantSearch("", JSONUtils.deserialize("{ \"filters\": { \"participant_code\": { \"eq\": \" " + participantCode + "\" } } }", Map.class));
         Object responseBody = searchResponse.getBody();
         if (responseBody != null) {
             if (responseBody instanceof Response) {
@@ -226,4 +241,27 @@ public class ParticipantController extends BaseController {
         return (String) ((Map<String, Object>) result.get("params")).get("errmsg");
     }
 
+    private ResponseEntity<Object> getSponsors(List<Map<String,Object>> participantsList) throws Exception {
+        String primaryEmailList = participantsList.stream().map(participant -> participant.get("primary_email")).collect(Collectors.toList()).toString();
+        String primaryEmailWithQuote = "'" + primaryEmailList.replace("[","").replace("]", "").replace(" ","").replace(",","','") + "'";
+        String selectQuery = String.format("SELECT * FROM %s WHERE applicant_email IN (%s);",onboardingTable, primaryEmailWithQuote);
+        ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
+        Map<String, Object> sponsorMap = new HashMap<>();
+        while (resultSet.next()) {
+            Sponsor sponsorResponse = new Sponsor(resultSet.getString("applicant_email"), resultSet.getString("applicant_code"), resultSet.getString("sponsor_code"), resultSet.getString("status"), resultSet.getLong("createdon"), resultSet.getLong("updatedon"));
+            sponsorMap.put(resultSet.getString("applicant_email"), sponsorResponse);
+        }
+        ArrayList<Object> modifiedResponseList = new ArrayList<>();
+        for (Map<String, Object> responseList : participantsList) {
+            String email = (String) responseList.get("primary_email");
+            if (sponsorMap.containsKey(email)) {
+                responseList.put("sponsors", Collections.singletonList(sponsorMap.get(email)));
+            } else {
+                responseList.put("sponsors", new ArrayList<>());
+            }
+            modifiedResponseList.add(responseList);
+        }
+        return getSuccessResponse(new ParticipantResponse(modifiedResponseList));
+    }
 }
+

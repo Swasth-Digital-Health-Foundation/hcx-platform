@@ -39,7 +39,6 @@ public class MockResultSet {
         getBooleanMock(rs);
         return rs;
     }
-
     private ResultSet buildStringMock() throws SQLException {
         final var rs = mock(ResultSet.class);
         getNextMock(rs);
