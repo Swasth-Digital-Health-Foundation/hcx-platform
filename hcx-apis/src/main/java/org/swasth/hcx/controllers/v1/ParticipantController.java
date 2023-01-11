@@ -25,6 +25,7 @@ import java.security.cert.CertificateException;
 import java.sql.ResultSet;
 import java.text.MessageFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.swasth.common.response.ResponseMessage.*;
 import static org.swasth.common.utils.Constants.*;
@@ -45,11 +46,15 @@ public class ParticipantController extends BaseController {
     @Value("${hcx.instanceName}")
     private String hcxInstanceName;
 
+    @Value("${postgres.onboardingTable}")
+    private String onboardingTable;
+
     @Autowired
     private RedisCache redisCache;
 
     @Autowired
     private JWTUtils jwtUtils;
+
     @Autowired
     protected IDatabaseService postgreSQLClient;
 
@@ -238,13 +243,9 @@ public class ParticipantController extends BaseController {
     }
 
     private ResponseEntity<Object> getSponsors(List<Map<String,Object>> participantsList) throws Exception {
-        List<String> primaryEmailList = new ArrayList<>();
-        for (Map<String, Object> participants : participantsList) {
-            primaryEmailList.add(participants.get("primary_email").toString());
-        }
-        // adding single quote to the all the 'primary_emails' in the list
-        String primaryEmailWithQuote = "'" + StringUtils.join(primaryEmailList, "','") + "'";
-        String selectQuery = String.format("SELECT * FROM onboarding WHERE applicant_email IN (%s);", String.join(",", primaryEmailWithQuote)); // need to remove '[]' from list
+        String primaryEmailList = participantsList.stream().map(participant -> participant.get("primary_email")).collect(Collectors.toList()).toString();
+        String primaryEmailWithQuote = "'" + primaryEmailList.replace("[","").replace("]", "").replace(" ","").replace(",","','") + "'";
+        String selectQuery = String.format("SELECT * FROM %s WHERE applicant_email IN (%s);",onboardingTable, primaryEmailWithQuote);
         ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
         Map<String, Object> sponsorMap = new HashMap<>();
         while (resultSet.next()) {
@@ -260,7 +261,6 @@ public class ParticipantController extends BaseController {
                 responseList.put("sponsors", new ArrayList<>());
             }
             modifiedResponseList.add(responseList);
-
         }
         return getSuccessResponse(new ParticipantResponse(modifiedResponseList));
     }
