@@ -68,7 +68,8 @@ public class Constants {
 
     // Object Types
     public static final String PARTICIPANT = "participant";
-
+    public static final String APPLICANT = "applicant";
+    public static final String VERIFIERCODE = "verifier_code";
     public static final String HEALTHY = "healthy";
     public static final String NAME = "name";
     public static final String KAFKA = "kafka";
@@ -258,7 +259,6 @@ public class Constants {
     public static final String OTP = "otp";
     public static final String SUCCESSFUL = "successful";
     public static final String FAILED = "failed";
-    public static final String PAYOR_CODE = "payor_code";
     public static final String ATTEMPT_COUNT = "attempt_count";
     public static final String REJECTED = "rejected";
     public static final String ACCEPTED = "accepted";

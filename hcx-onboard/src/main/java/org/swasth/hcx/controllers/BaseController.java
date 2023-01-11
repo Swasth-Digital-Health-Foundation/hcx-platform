@@ -19,6 +19,7 @@ import org.swasth.hcx.helpers.EventGenerator;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.swasth.common.utils.Constants.FAILED;
 import static org.swasth.common.utils.Constants.SUCCESSFUL;
@@ -51,6 +52,12 @@ public class BaseController {
         ((Response) response).setStatus(SUCCESSFUL.toUpperCase());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+    protected ResponseEntity<Object> getSuccessResponse(Object response, String onboardingId) {
+        ((Response) response).setStatus(SUCCESSFUL.toUpperCase());
+        ((Response) response).setOnboardingId(String.valueOf(onboardingId));
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
 
     protected ResponseEntity<Object> exceptionHandler(Response response, Exception e){
         logger.error("Exception: {} :: Trace: {}", e.getMessage(), ExceptionUtils.getStackTrace(e));

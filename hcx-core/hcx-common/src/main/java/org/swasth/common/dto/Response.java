@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
@@ -28,6 +29,7 @@ public class Response {
     @JsonProperty("subscription_status")
     private String subscriptionStatus;
 
+    private String onboardingId;
     private String status;
 
     public Response() {}
@@ -157,5 +159,7 @@ public class Response {
     }
 
     public String getStatus() {return  status;}
+    public String getOnboardingId(){return onboardingId;}
+    public void setOnboardingId(String onboardingId){this.onboardingId = onboardingId;}
 }
 

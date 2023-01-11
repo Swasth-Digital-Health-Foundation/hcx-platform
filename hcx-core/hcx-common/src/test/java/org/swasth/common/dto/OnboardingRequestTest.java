@@ -24,10 +24,10 @@ public class OnboardingRequestTest {
 
     @Test
     public void testOnboardRequestWithPayorCodeBody() throws Exception {
-        ArrayList<Map<String,Object>> body = JSONUtils.deserialize("[ { \"payor_code\": \"testprovider1.apollo@swasth-hcx-dev\", \"participant\": { \"primary_email\": \"testhcx15@yopmail.com\", \"primary_mobile\": \"8522875773\", \"roles\": [ \"provider\" ], \"participant_name\": \"onboard test1\" } } ]", ArrayList.class);
+        ArrayList<Map<String,Object>> body = JSONUtils.deserialize("[ { \"verifier_code\": \"testprovider1.apollo@swasth-hcx-dev\", \"applicant\": { \"primary_email\": \"testhcx15@yopmail.com\", \"primary_mobile\": \"8522875773\", \"roles\": [ \"provider\" ], \"participant_name\": \"onboard test1\" } } ]", ArrayList.class);
         OnboardRequest request = new OnboardRequest(body);
         Map<String,Object> participant = (Map<String, Object>) request.getBody().get(PARTICIPANT);
-        assertEquals("testprovider1.apollo@swasth-hcx-dev", request.getBody().get(PAYOR_CODE));
+        assertEquals("testprovider1.apollo@swasth-hcx-dev", request.getBody().get(VERIFIERCODE));
         assertEquals("testhcx15@yopmail.com", participant.get(PRIMARY_EMAIL));
     }
 
