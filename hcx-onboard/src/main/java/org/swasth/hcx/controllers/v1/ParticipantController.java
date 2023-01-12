@@ -1,5 +1,6 @@
 package org.swasth.hcx.controllers.v1;
 
+import com.amazonaws.services.dynamodbv2.xspec.S;
 import kong.unirest.HttpResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -136,18 +137,18 @@ public class ParticipantController extends BaseController {
             OnboardRequest request = new OnboardRequest(body);
             Map<String,Object> requestBody = request.getBody();
             logger.info("Participant verification :: " + requestBody);
-            Map<String, Object> participant = (Map<String, Object>) requestBody.getOrDefault(APPLICANT, new HashMap<>());
+            Map<String, Object> participant = (Map<String, Object>) requestBody.getOrDefault(PARTICIPANT, new HashMap<>());
             email = (String) participant.getOrDefault(PRIMARY_EMAIL, "");
             Map<String,Object> output = new HashMap<>();
-            if (requestBody.containsKey(JWT_TOKEN)) {
+            if (requestBody.get(TYPE).equals(ONBOARD_THROUGH_JWT)) {
                 String jwtToken = (String) requestBody.get(JWT_TOKEN);
                 Map<String, Object> jwtPayload = JSONUtils.decodeBase64String(jwtToken.split("\\.")[1], Map.class);
                 updateEmail(email, (String) jwtPayload.get(SUB));
                 createParticipantAndSendOTP(header, participant, "", output, String.valueOf(onboardingId));
-            } else if (requestBody.containsKey(VERIFIERCODE)) {
+            } else if (requestBody.get(TYPE).equals(ONBOARD_THROUGH_VERIFIER)) {
                 updateEmail(email, (String) requestBody.get(APPLICANT_CODE));
                 createParticipantAndSendOTP(header, participant, "", output,String.valueOf(onboardingId));
-            } else if (requestBody.containsKey(EMAIL_OTP)) {
+            } else if (requestBody.get(TYPE).equals(EMAIL_OTP_VALIDATION)) {
                 email = (String) requestBody.get(PRIMARY_EMAIL);
                 verifyOTP(requestBody, output);
             } else {
@@ -309,7 +310,7 @@ public class ParticipantController extends BaseController {
             boolean emailOtpVerified = false;
             boolean phoneOtpVerified = false;
             String identityStatus = REJECTED;
-            String jwtToken = (String) requestBody.get("jwt_token");
+            String jwtToken = (String) requestBody.get(JWT_TOKEN);
             Map<String, Object> payload = JSONUtils.decodeBase64String(jwtToken.split("\\.")[1], Map.class);
             Map<String, Object> participant = (Map<String, Object>) requestBody.get(PARTICIPANT);
             email = (String) payload.get("email");

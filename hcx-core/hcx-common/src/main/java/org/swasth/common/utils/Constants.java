@@ -68,8 +68,10 @@ public class Constants {
 
     // Object Types
     public static final String PARTICIPANT = "participant";
-    public static final String APPLICANT = "applicant";
     public static final String VERIFIERCODE = "verifier_code";
+    public static final String ONBOARD_THROUGH_JWT = "onboard-through-jwt";
+    public static final String ONBOARD_THROUGH_VERIFIER = "onboard-through-verifier";
+    public static final String EMAIL_OTP_VALIDATION = "email-otp-validation";
     public static final String HEALTHY = "healthy";
     public static final String NAME = "name";
     public static final String KAFKA = "kafka";
