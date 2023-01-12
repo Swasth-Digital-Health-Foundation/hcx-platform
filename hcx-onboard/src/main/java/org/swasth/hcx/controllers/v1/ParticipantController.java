@@ -140,15 +140,15 @@ public class ParticipantController extends BaseController {
             Map<String, Object> participant = (Map<String, Object>) requestBody.getOrDefault(PARTICIPANT, new HashMap<>());
             email = (String) participant.getOrDefault(PRIMARY_EMAIL, "");
             Map<String,Object> output = new HashMap<>();
-            if (requestBody.get(TYPE).equals(ONBOARD_THROUGH_JWT)) {
+            if (requestBody.getOrDefault(TYPE,"").equals(ONBOARD_THROUGH_JWT)) {
                 String jwtToken = (String) requestBody.get(JWT_TOKEN);
                 Map<String, Object> jwtPayload = JSONUtils.decodeBase64String(jwtToken.split("\\.")[1], Map.class);
                 updateEmail(email, (String) jwtPayload.get(SUB));
                 createParticipantAndSendOTP(header, participant, "", output, String.valueOf(onboardingId));
-            } else if (requestBody.get(TYPE).equals(ONBOARD_THROUGH_VERIFIER)) {
+            } else if (requestBody.getOrDefault(TYPE,"").equals(ONBOARD_THROUGH_VERIFIER)) {
                 updateEmail(email, (String) requestBody.get(APPLICANT_CODE));
                 createParticipantAndSendOTP(header, participant, "", output,String.valueOf(onboardingId));
-            } else if (requestBody.get(TYPE).equals(EMAIL_OTP_VALIDATION)) {
+            } else if (requestBody.getOrDefault(TYPE,"").equals(EMAIL_OTP_VALIDATION)) {
                 email = (String) requestBody.get(PRIMARY_EMAIL);
                 verifyOTP(requestBody, output);
             } else {
