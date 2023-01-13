@@ -47,26 +47,56 @@ export const UpdateRegistry = () => {
             <Grid.Row columns="1" >
                 <Segment raised padded textAlign='left' className='form-container'>
                     <Form onSubmit={handleSubmit(onSubmit)} className="container">
-                        <Form.Input fluid label='Participant Code' value={decodeURIComponent(query.get("participant_code"))} readOnly />
-                        <Form.Field>
-                            <label>JWT Token</label>
-                            <input placeholder='Enter JWT Token' {...register("jwt_token", { required: true })} />
-                        </Form.Field>
-                        <Form.Field>
-                            <label>Endpoint URL</label>
-                            <input placeholder='Enter Endpoint URL' {...register("endpoint_url", { required: true })} />
-                        </Form.Field>
-                        <Form.Field>
-                            <label>Encryption Cert Path</label>
-                            <input placeholder='Enter Encryption Cert Path' {...register("encryption_cert_path", { required: true })} />
-                        </Form.Field>
-                        <Form.Field>
-                            <label>Signing Cert Path</label>
-                            <input placeholder='Enter Signing Cert Path' {...register("signing_cert_path", { required: true })} />
-                        </Form.Field>
-                        <Button disabled={sending} type='submit' className='primary center-element'>
-                            {sending ? "Submitting" : "Submit"}
-                        </Button>
+                        <div className='form-main'>
+                            <Grid columns='equal'>
+                                <Grid.Row columns={2}>
+                                    <Grid.Column>
+                                        <div><b>Participant Code</b></div>
+                                        <div>{decodeURIComponent(query.get("participant_code"))}</div>
+                                    </Grid.Column>
+                                </Grid.Row>
+                                <Grid.Row>
+                                    <Grid.Column>
+                                        <Form.Field className={{ 'error': 'jwt_token' in errors }} required>
+                                            <label>JWT Token</label>
+                                            <input placeholder='Enter JWT Token' {...register("jwt_token", { required: true })} />
+                                        </Form.Field>
+                                    </Grid.Column>
+                                </Grid.Row>
+                                <Grid.Row>
+                                    <Grid.Column>
+                                        <Form.Field className={{ 'error': 'endpoint_url' in errors }} required>
+                                            <label>Endpoint URL</label>
+                                            <input placeholder='Enter Endpoint URL' {...register("endpoint_url", { required: true })} />
+                                        </Form.Field>
+                                    </Grid.Column>
+                                </Grid.Row>
+                                <Grid.Row>
+                                    <Grid.Column>
+                                        <Form.Field className={{ 'error': 'encryption_cert_path' in errors }} required>
+                                            <label>Encryption Cert Path</label>
+                                            <input placeholder='Enter Encryption Cert Path' {...register("encryption_cert_path", { required: true })} />
+                                        </Form.Field>
+                                    </Grid.Column>
+                                </Grid.Row>
+                                <Grid.Row>
+                                    <Grid.Column>
+                                        <Form.Field className={{ 'error': 'signing_cert_path' in errors }} required>
+                                            <label>Signing Cert Path</label>
+                                            <input placeholder='Enter Signing Cert Path' {...register("signing_cert_path", { required: true })} />
+                                        </Form.Field>
+                                    </Grid.Column>
+                                </Grid.Row>
+                            </Grid>
+                        </div>
+                        <Grid>
+                            <Grid.Row>
+                                <Grid.Column>
+                                    <Button disabled={sending} type='submit' className="primary center-element">
+                                        {sending ? "Submitting" : "Submit"}</Button>
+                                </Grid.Column>
+                            </Grid.Row>
+                        </Grid>
                     </Form>
                 </Segment>
             </Grid.Row>

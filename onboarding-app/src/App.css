@@ -34,8 +34,37 @@
 }
 
 .form-container {
-  width: 68% !important;
+  width: 50% !important;
   margin-top: 30px;
+}
+
+.primary-color {
+  background: #d4ddea !important;
+}
+
+.banner {
+  background: #546acc !important;
+  height: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.button-color {
+  background: #546acc !important;
+}
+
+.user-details {
+  font-size:16px
+}
+
+/* .input-text {
+  width: 60% !important;
+} */
+
+.form-main {
+  margin-left: 70px;
+  margin-right: 70px;
 }
 
 @keyframes App-logo-spin {
