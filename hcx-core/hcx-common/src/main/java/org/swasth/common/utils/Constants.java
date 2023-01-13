@@ -65,8 +65,10 @@ public class Constants {
     public static final String PARTICIPANT_OTP_SEND = "/participant/otp/send";
     public static final String PARTICIPANT_ONBOARD_UPDATE = "/participant/onboard/update";
     public static final String PARTICIPANT_VERIFY_IDENTITY = "/participant/verify/identity";
+    public static final String PARTICIPANT_GET_STATE = "/participant/getstate/{participantCode}";
+    public static final String OTP_VERIFY = "otp_verify";
+    public static final String UPDATE_PROFILE = "update_verify";
 
-    // Object Types
     public static final String PARTICIPANT = "participant";
     public static final String VERIFIERCODE = "verifier_code";
     public static final String ONBOARD_THROUGH_JWT = "onboard-through-jwt";
