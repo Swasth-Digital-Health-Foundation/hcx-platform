@@ -1,0 +1,38 @@
+// vim: ft=groovy et ts=2 sw=2:
+
+node('java11') {
+    ansiColor('xterm') {
+      stage("Building app") {
+            container('java11') {
+              // Checkout repo
+              checkout scm
+              // Generating build info
+              commit_hash = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+              build_tag = commit_hash + "_" + env.BUILD_NUMBER
+              // Building jar
+              sh """
+                java --version
+                cd hcx-core
+                pwd
+                mvn clean install -DskipTests
+                cd ../hcx-onboard
+                pwd
+                mvn clean install -DskipTests
+              """
+            }
+          }
+      stage("Building container") {
+            container('kaniko') {
+              // Building and pushing the container
+              sh """
+                cd ${env.WORKSPACE}/hcx-onboard
+                pwd
+                /kaniko/executor --dockerfile Dockerfile --context `pwd` --destination ${env.DOCKER_HUB_URL}/hcx-onboard:${build_tag}
+                echo {\\"image_name\\" : \\"hcx-onboard\\", \\"image_tag\\" : \\"${build_tag}\\"} > ${env.WORKSPACE}/metadata.json
+              """
+              archiveArtifacts "metadata.json"
+            }
+          
+        }
+    }
+}
