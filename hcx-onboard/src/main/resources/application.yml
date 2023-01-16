@@ -22,33 +22,16 @@ aws:
   accessSecret: ${aws_accessSecret:}
   region: ${aws_region:}
 
-form:
-  verifyOTP:  ${verify_otp_form:http://localhost:3000/otp_verify?primary_email=USER_MAIL&primary_mobile=PHONE}
-  otpRegenerate: ${otp_regenerate_form:http://localhost:3000/otp_regenerate?primary_email=USER_MAIL&primary_mobile=PHONE&identity_verified=IDENTITY_VERIFIED}
-  updateRegistry: ${update_regenerate_form:http://localhost:3000/update_registry?participant_code=REGISTRY_CODE}
 
 email:
   id: ${email_id:test@gmail.com}
   pwd: ${email_pwd:test@123}
-  onboardingFailedSub: ${onboarding_failed_sub:HCX - Onboarding Failed}
-  onboardingFailedMsg: ${onboarding_failed_msg:Hi User,<br/><br/>Sorry, we are unable to onboard you on to HCX due to:ERROR_MSG.<br/><br/> Thanks,<br/> HCX Team}
   otpSub: ${otp_sub:HCX - Onboarding Started}
-  otpMsg: ${otp_msg:Hi User,<br/><br/>Use the following OTP to verify your email address:RANDOM_CODE <br/>Open the below link to verify the OTPs:<br/><a href="USER_LINK" style="color:blue" target="_blank"><u>Verify OTP</u></a> <br/><br/> Thanks,<br/> HCX Team}
-  prefillUrl: ${form.verifyOTP}
-  updateRegistryUrl: ${form.updateRegistry}
-  otpVerifySub: ${otp_verify_sub:HCX - OTP Verification Successful}
-  otpVerifyMsg: ${otp_verify_msg:Hi User,<br/><br/>Your participant code is REGISTRY_CODE.<br/> Use this below link to update details in registry<br/> <a href="USER_LINK" style="color:blue" target="_blank"><u>Update Registry</u></a> <br/><br/>Note:- You will not be able to make request calls on HCX Gateway without updating the encryption cert path, signing cert path and end point url in the registry.<br/><br/>Thanks,<br/> HCX Team}
+  otpMsg: ${otp_msg:Hi User,<br/><br/>Your participant code is PARTICIPANT_CODE. Use the following OTP to verify your email address:RANDOM_CODE <br/><br/> Thanks,<br/> HCX Team}
   successIdentitySub: ${success_identity_sub:HCX - Identity Verified}
   successIdentityMsg: ${success_identity_msg:Hi User,<br/><br/>Identity verification is successful.<br/><br/>Thanks,<br/> HCX Team}
   failedIdentitySub: ${failed_identity_sub:HCX - Identity Verification Failed}
   failedIdentityMsg: ${failed_identity_msg:Hi User,<br/><br/>Identity verification is failed. Please reach out to HCX Team.<br/><br/>Thanks,<br/> HCX Team}
-  otpFailedSub: ${otp_failed_sub:HCX - OTP Verification Failed}
-  otpFailedMsg: ${otp_failed_msg:Hi User,<br/><br/>OTP verification failed due to error:ERROR_MSG<br/> Use the below link to regenerate the OTPs<br/> <a href="${form.otpRegenerate}"  style="color:blue" target="_blank"><u>Regenerate OTPs</u></a> <br/><br/>Thanks,<br/> HCX Team}
-  otpFailedWithoutLinkMsg: ${otp_failed_msg:Hi User,<br/><br/>OTP verification failed due to error:ERROR_MSG<br/><br/>Thanks,<br/> HCX Team}
-  registryUpdateSub: ${registry_update_sub:HCX - Participant Details Updated}
-  registryUpdateMsg: ${registry_update_msg:Hi User,<br/><br/>Participant details has been successfully updated in the registry for REGISTRY_CODE.<br/><br/> Thanks,<br/> HCX Team}
-  registryUpdateFailedSub: ${registry_update_failed_sub:HCX - Updating Participant Details Failed}
-  registryUpdateFailedMsg: ${registry_update_failed_msg:Hi User,<br/><br/>Updating participant details in the registry is failed for REGISTRY_CODE due to ERROR_MSG.<br/><br/>Thanks,<br/> HCX Team}
 
 hcx-api:
   basePath: ${HCX_API_BASEPATH:http://localhost:8080}
