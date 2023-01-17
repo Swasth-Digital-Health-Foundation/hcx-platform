@@ -131,6 +131,7 @@ public class Constants {
     public static final String TIMESTAMP = "x-hcx-timestamp";
     public static final String DEBUG_FLAG = "x-hcx-debug_flag";
     public static final String STATUS = "x-hcx-status";
+    public static final String FORMSTATUS = "status";
     public static final String ERROR_DETAILS = "x-hcx-error_details";
     public static final String DEBUG_DETAILS = "x-hcx-debug_details";
     public static final String NOTIFICATION_HEADERS = "x-hcx-notification_headers";

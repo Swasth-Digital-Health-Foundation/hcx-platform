@@ -111,7 +111,7 @@ public class ParticipantController extends BaseController {
     }
 
     private Map<String, Object> getParticipant(String participantCode) throws Exception {
-        ResponseEntity<Object> searchResponse = participantSearch(participantCode);
+        ResponseEntity<Object> searchResponse = participantSearchBody(participantCode);
         ParticipantResponse participantResponse = (ParticipantResponse) Objects.requireNonNull(searchResponse.getBody());
         if (participantResponse.getParticipants().isEmpty())
             throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_CODE, INVALID_PARTICIPANT_CODE);
@@ -140,7 +140,7 @@ public class ParticipantController extends BaseController {
             if(fields != null && fields.toLowerCase().contains(SPONSORS)){
                 pathParam = SPONSORS;
             }
-            Map<String,Object> searchReq = (Map<String, Object>) participantSearch(participantCode);
+            Map<String,Object> searchReq = (Map<String, Object>) participantSearchBody(participantCode);
             ResponseEntity<Object> response = participantSearch(pathParam, searchReq);
             ParticipantResponse searchResp = (ParticipantResponse) response.getBody();
             if (fields != null && fields.toLowerCase().contains(VERIFICATIONSTATUS)) {
@@ -188,7 +188,7 @@ public class ParticipantController extends BaseController {
     }
 
     private boolean isParticipantCodeExists(String participantCode) throws Exception {
-        ResponseEntity<Object> searchResponse = participantSearch(participantCode);
+        ResponseEntity<Object> searchResponse = participantSearchBody(participantCode);
         Object responseBody = searchResponse.getBody();
         if (responseBody != null) {
             if (responseBody instanceof Response) {
@@ -293,7 +293,7 @@ public class ParticipantController extends BaseController {
         }
         return getSuccessResponse(new ParticipantResponse(modifiedResponseList));
     }
-    public ResponseEntity participantSearch(String participantCode) throws Exception {
+    public ResponseEntity participantSearchBody(String participantCode) throws Exception {
         return participantSearch("", JSONUtils.deserialize("{ \"filters\": { \"participant_code\": { \"eq\": \" " + participantCode + "\" } } }", Map.class));
     }
 }
