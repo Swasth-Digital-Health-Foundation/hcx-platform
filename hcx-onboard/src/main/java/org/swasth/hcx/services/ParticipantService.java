@@ -134,22 +134,21 @@ public class ParticipantService extends BaseController {
                         "updatedOn,expiry,phone_otp_verified,email_otp_verified,status,attempt_count) VALUES ('%s','%s','%s','%s','%s',%d,%d,%d,%b,%b,'%s',%d)", onboardingOtpTable, participantCode,
                 participant.get(PRIMARY_EMAIL), participant.get(PRIMARY_MOBILE), "", "", System.currentTimeMillis(), System.currentTimeMillis(), System.currentTimeMillis(), false, false, PENDING, 0);
         postgreSQLClient.execute(otpQuery);
-        String statusQuery = String.format("SELECT status FROM %S WHERE applicant_email='%s'",onboardingTable,participant.get(PRIMARY_EMAIL));
+        String identityFetchQuery = String.format("SELECT status FROM %S WHERE applicant_email='%s'", onboardingTable, participant.get(PRIMARY_EMAIL));
+        ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(identityFetchQuery);
+        String identityVerified = PENDING;
+        while (resultSet.next()) {
+            identityVerified = resultSet.getString("status");
+        }
         sendOTP(participant);
         output.put(PARTICIPANT_CODE, participantCode);
-        output.put(IDENTITY_VERIFICATION,statusQuery);
+        output.put(IDENTITY_VERIFICATION,identityVerified);
         logger.info("OTP has been sent successfully :: participant code : " + participantCode + " :: primary email : " + participant.get(PRIMARY_EMAIL));
     }
 
     public ResponseEntity<Object> sendOTP(Map<String, Object> requestBody) throws Exception {
         String phoneOtp = new DecimalFormat("000000").format(new Random().nextInt(999999));
         smsService.sendOTP((String) requestBody.get(PRIMARY_MOBILE), phoneOtp);
-        String identityFetchQuery = String.format("SELECT status FROM %S WHERE applicant_email='%s'", onboardingTable, (String) requestBody.get(PRIMARY_EMAIL));
-        ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(identityFetchQuery);
-        String identityVerified = PENDING;
-        while (resultSet.next()) {
-            identityVerified = resultSet.getString("status");
-        }
         String emailOtp = new DecimalFormat("000000").format(new Random().nextInt(999999));
         String emailMsg = otpMsg;
         emailMsg = emailMsg.replace("PARTICIPANT_CODE", (String) requestBody.get(PARTICIPANT_CODE)).replace("RANDOM_CODE", emailOtp);

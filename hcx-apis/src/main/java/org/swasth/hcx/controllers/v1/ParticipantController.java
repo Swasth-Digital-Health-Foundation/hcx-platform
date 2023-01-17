@@ -140,7 +140,7 @@ public class ParticipantController extends BaseController {
             if(fields != null && fields.toLowerCase().contains(SPONSORS)){
                 pathParam = SPONSORS;
             }
-            Map<String,Object> searchReq = (Map<String, Object>) participantSearchBody(participantCode);
+            Map<String,Object> searchReq = JSONUtils.deserialize("{ \"filters\": { \"participant_code\": { \"eq\": \" " + participantCode + "\" } } }", Map.class);
             ResponseEntity<Object> response = participantSearch(pathParam, searchReq);
             ParticipantResponse searchResp = (ParticipantResponse) response.getBody();
             if (fields != null && fields.toLowerCase().contains(VERIFICATIONSTATUS)) {
@@ -157,7 +157,7 @@ public class ParticipantController extends BaseController {
         ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
         Map<String, Object> responseMap = new HashMap<>();
         while (resultSet.next()) {
-            responseMap.put(FORMSTATUS, resultSet.getString("status"));
+            responseMap.put("status", resultSet.getString("status"));
         }
         return Collections.singletonMap("verificationStatus", responseMap);
     }

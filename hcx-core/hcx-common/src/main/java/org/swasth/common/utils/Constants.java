@@ -60,7 +60,7 @@ public class Constants {
     public static final String PARTICIPANT_READ = "/participant/read/{participantCode}";
     public static final String PARTICIPANT_UPDATE = "/participant/update";
     public static final String SPONSORS = "sponsors";
-    public static final String VERIFICATIONSTATUS = "verificationStatus";
+    public static final String VERIFICATIONSTATUS = "verificationstatus";
     public static final String PARTICIPANT_DELETE = "/participant/delete";
     public static final String PARTICIPANT_VERIFY = "/participant/verify";
     public static final String PARTICIPANT_GET_INFO = "/participant/getInfo";
@@ -131,7 +131,6 @@ public class Constants {
     public static final String TIMESTAMP = "x-hcx-timestamp";
     public static final String DEBUG_FLAG = "x-hcx-debug_flag";
     public static final String STATUS = "x-hcx-status";
-    public static final String FORMSTATUS = "status";
     public static final String ERROR_DETAILS = "x-hcx-error_details";
     public static final String DEBUG_DETAILS = "x-hcx-debug_details";
     public static final String NOTIFICATION_HEADERS = "x-hcx-notification_headers";
