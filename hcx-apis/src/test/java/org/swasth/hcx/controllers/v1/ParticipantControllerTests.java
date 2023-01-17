@@ -376,7 +376,7 @@ class ParticipantControllerTests extends BaseSpec{
                 .setResponseCode(200)
                 .setBody("")
                 .addHeader("Content-Type", "application/json"));
-        ResultSet mockResultSet = getMockstatus();
+        ResultSet mockResultSet = null;
         doReturn(mockResultSet).when(postgreSQLClient).executeQuery(anyString());
         MvcResult mvcResult = mockMvc.perform(get(Constants.VERSION_PREFIX + "/participant/read/d2d56996-1b77-4abb-b9e9-0e6e7343c72e").param("fields", "sponsors").content(getSearchFilter()).header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
