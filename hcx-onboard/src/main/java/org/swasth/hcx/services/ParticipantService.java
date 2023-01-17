@@ -95,7 +95,7 @@ public class ParticipantService extends BaseController {
         } else if (requestBody.getOrDefault(TYPE, "").equals(ONBOARD_THROUGH_VERIFIER)) {
             updateEmail(email, (String) requestBody.get(APPLICANT_CODE));
             createParticipantAndSendOTP(header, participant, "", output);
-        } else if (requestBody.getOrDefault(TYPE, "").equals(EMAIL_OTP_VALIDATION)) {
+        } else if (requestBody.getOrDefault(TYPE, "").equals(EMAIL_OTP_VALIDATION) || requestBody.getOrDefault(TYPE,"").equals(PHONE_OTP_VALIDATION)) {
             verifyOTP(requestBody, output);
         } else {
             updateIdentityVerificationStatus(email, "", "", PENDING);
