@@ -111,7 +111,7 @@ public class ParticipantController extends BaseController {
     }
 
     private Map<String, Object> getParticipant(String participantCode) throws Exception {
-        ResponseEntity<Object> searchResponse = participantSearch("", JSONUtils.deserialize("{ \"filters\": { \"participant_code\": { \"eq\": \" " + participantCode + "\" } } }", Map.class));
+        ResponseEntity<Object> searchResponse = participantSearch(participantCode);
         ParticipantResponse participantResponse = (ParticipantResponse) Objects.requireNonNull(searchResponse.getBody());
         if (participantResponse.getParticipants().isEmpty())
             throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_CODE, INVALID_PARTICIPANT_CODE);
@@ -133,14 +133,14 @@ public class ParticipantController extends BaseController {
         }
     }
 
-    @PostMapping(PARTICIPANT_READ)
+    @GetMapping(PARTICIPANT_READ)
     public ResponseEntity<Object> participantRead(@PathVariable("participantCode") String participantCode,@RequestParam(required = false) String fields) {
         try {
             String pathParam = "";
             if(fields != null && fields.toLowerCase().contains(SPONSORS)){
                 pathParam = SPONSORS;
             }
-            Map<String,Object> searchReq = JSONUtils.deserialize("{ \"filters\": { \"participant_code\": { \"eq\": \" " + participantCode + "\" } } }", Map.class);
+            Map<String,Object> searchReq = (Map<String, Object>) participantSearch(participantCode);
             ResponseEntity<Object> response = participantSearch(pathParam, searchReq);
             ParticipantResponse searchResp = (ParticipantResponse) response.getBody();
             if (fields != null && fields.toLowerCase().contains(VERIFICATIONSTATUS)) {
@@ -148,7 +148,6 @@ public class ParticipantController extends BaseController {
             }
             return getSuccessResponse(searchResp);
         } catch (Exception e) {
-            e.printStackTrace();
             return exceptionHandler(new Response(), e);
         }
     }
@@ -189,7 +188,7 @@ public class ParticipantController extends BaseController {
     }
 
     private boolean isParticipantCodeExists(String participantCode) throws Exception {
-        ResponseEntity<Object> searchResponse = participantSearch("", JSONUtils.deserialize("{ \"filters\": { \"participant_code\": { \"eq\": \" " + participantCode + "\" } } }", Map.class));
+        ResponseEntity<Object> searchResponse = participantSearch(participantCode);
         Object responseBody = searchResponse.getBody();
         if (responseBody != null) {
             if (responseBody instanceof Response) {
@@ -293,6 +292,9 @@ public class ParticipantController extends BaseController {
             modifiedResponseList.add(responseList);
         }
         return getSuccessResponse(new ParticipantResponse(modifiedResponseList));
+    }
+    public ResponseEntity participantSearch(String participantCode) throws Exception {
+        return participantSearch("", JSONUtils.deserialize("{ \"filters\": { \"participant_code\": { \"eq\": \" " + participantCode + "\" } } }", Map.class));
     }
 }
 
