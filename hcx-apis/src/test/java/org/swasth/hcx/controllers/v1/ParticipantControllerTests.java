@@ -370,6 +370,20 @@ class ParticipantControllerTests extends BaseSpec{
         assertEquals(200, status);
     }
 
+    @Test
+    void participant_read_invalid_scenario() throws Exception {
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("")
+                .addHeader("Content-Type", "application/json"));
+        ResultSet mockResultSet = getMockstatus();
+        doReturn(mockResultSet).when(postgreSQLClient).executeQuery(anyString());
+        MvcResult mvcResult = mockMvc.perform(get(Constants.VERSION_PREFIX + "/participant/read/d2d56996-1b77-4abb-b9e9-0e6e7343c72e").param("fields", "sponsors").content(getSearchFilter()).header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        assertEquals(500, status);
+    }
+
 
     private ResultSet getMockstatus() throws SQLException {
         return MockResultSet.createStringMock(

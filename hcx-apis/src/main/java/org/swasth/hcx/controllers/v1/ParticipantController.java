@@ -143,7 +143,7 @@ public class ParticipantController extends BaseController {
             Map<String,Object> searchReq = JSONUtils.deserialize("{ \"filters\": { \"participant_code\": { \"eq\": \" " + participantCode + "\" } } }", Map.class);
             ResponseEntity<Object> response = participantSearch(pathParam, searchReq);
             ParticipantResponse searchResp = (ParticipantResponse) response.getBody();
-            if (fields != null && fields.toLowerCase().contains(VERIFICATIONSTATUS)) {
+            if (fields != null && fields.toLowerCase().contains(VERIFICATIONSTATUS) && searchResp != null) {
                 ((Map<String,Object>) searchResp.getParticipants().get(0)).putAll(getVerificationStatus(participantCode));
             }
             return getSuccessResponse(searchResp);
@@ -157,7 +157,7 @@ public class ParticipantController extends BaseController {
         ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
         Map<String, Object> responseMap = new HashMap<>();
         while (resultSet.next()) {
-            responseMap.put("status", resultSet.getString("status"));
+            responseMap.put(FORMSTATUS, resultSet.getString("status"));
         }
         return Collections.singletonMap("verificationStatus", responseMap);
     }
@@ -293,7 +293,7 @@ public class ParticipantController extends BaseController {
         }
         return getSuccessResponse(new ParticipantResponse(modifiedResponseList));
     }
-    public ResponseEntity participantSearchBody(String participantCode) throws Exception {
+    public ResponseEntity<Object> participantSearchBody(String participantCode) throws Exception {
         return participantSearch("", JSONUtils.deserialize("{ \"filters\": { \"participant_code\": { \"eq\": \" " + participantCode + "\" } } }", Map.class));
     }
 }

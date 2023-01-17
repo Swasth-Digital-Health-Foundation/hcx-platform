@@ -61,6 +61,7 @@ public class Constants {
     public static final String PARTICIPANT_UPDATE = "/participant/update";
     public static final String SPONSORS = "sponsors";
     public static final String VERIFICATIONSTATUS = "verificationstatus";
+    public static final String FORMSTATUS = "status";
     public static final String PARTICIPANT_DELETE = "/participant/delete";
     public static final String PARTICIPANT_VERIFY = "/participant/verify";
     public static final String PARTICIPANT_GET_INFO = "/participant/getInfo";
