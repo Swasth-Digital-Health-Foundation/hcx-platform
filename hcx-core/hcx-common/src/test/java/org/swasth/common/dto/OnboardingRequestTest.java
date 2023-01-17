@@ -15,11 +15,16 @@ import static org.swasth.common.utils.Constants.*;
 public class OnboardingRequestTest {
 
     @Test
-    public void testOnboardRequestWithOTPBody() throws Exception {
+    public void testOnboardRequestWithOTPPhoneBody() throws Exception {
+        ArrayList<Map<String,Object>> body = JSONUtils.deserialize("[ { \"type\":\"phone-otp-validation\" ,\"primary_mobile\":\"8522875123\",\"otp\": \"443535\" } , { \"type\":\"email-otp-validation\" ,\"primary_email\": \"testhcx20@yopmail.com\", \"otp\": \"282515\" }]",ArrayList.class);
+        OnboardRequest request = new OnboardRequest(body);
+        assertEquals("8522875123", request.getBody().get(PRIMARY_MOBILE));
+    }
+    @Test
+    public void testOnboardRequestWithOTPEmailBody() throws Exception {
         ArrayList<Map<String,Object>> body = JSONUtils.deserialize("[ { \"type\":\"email-otp-validation\" ,\"primary_email\": \"testhcx20@yopmail.com\", \"otp\": \"282515\" },{ \"type\":\"phone-otp-validation\" ,\"primary_mobile\":\"8522875123\",\"otp\": \"443535\" }]",ArrayList.class);
         OnboardRequest request = new OnboardRequest(body);
         assertEquals("testhcx20@yopmail.com", request.getBody().get(PRIMARY_EMAIL));
-        assertEquals("8522875123", request.getBody().get(PRIMARY_MOBILE));
     }
 
     @Test
