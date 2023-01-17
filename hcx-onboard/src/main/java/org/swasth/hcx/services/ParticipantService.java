@@ -134,8 +134,10 @@ public class ParticipantService extends BaseController {
                         "updatedOn,expiry,phone_otp_verified,email_otp_verified,status,attempt_count) VALUES ('%s','%s','%s','%s','%s',%d,%d,%d,%b,%b,'%s',%d)", onboardingOtpTable, participantCode,
                 participant.get(PRIMARY_EMAIL), participant.get(PRIMARY_MOBILE), "", "", System.currentTimeMillis(), System.currentTimeMillis(), System.currentTimeMillis(), false, false, PENDING, 0);
         postgreSQLClient.execute(otpQuery);
+        String statusQuery = String.format("SELECT status FROM %S WHERE applicant_email='%s'",onboardingTable,participant.get(PRIMARY_EMAIL));
         sendOTP(participant);
         output.put(PARTICIPANT_CODE, participantCode);
+        output.put(IDENTITY_VERIFICATION,statusQuery);
         logger.info("OTP has been sent successfully :: participant code : " + participantCode + " :: primary email : " + participant.get(PRIMARY_EMAIL));
     }
 

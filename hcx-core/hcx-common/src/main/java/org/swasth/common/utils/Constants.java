@@ -266,7 +266,7 @@ public class Constants {
     public static final String ATTEMPT_COUNT = "attempt_count";
     public static final String REJECTED = "rejected";
     public static final String ACCEPTED = "accepted";
-    public static final String IDENTITY_VERIFIED = "identity_verified";
+    public static final String IDENTITY_VERIFICATION = "identity_verification";
     public static final String EMAIL_OTP_VERIFIED = "email_otp_verified";
     public static final String PHONE_OTP_VERIFIED = "phone_otp_verified";
     public static final List<String> ALLOWED_ONBOARD_STATUS = Arrays.asList(REJECTED, ACCEPTED);
