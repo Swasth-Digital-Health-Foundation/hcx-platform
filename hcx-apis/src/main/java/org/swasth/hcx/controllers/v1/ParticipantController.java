@@ -157,7 +157,7 @@ public class ParticipantController extends BaseController {
         ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
         Map<String, Object> responseMap = new HashMap<>();
         while (resultSet.next()) {
-            responseMap.put("status", resultSet.getString("status"));
+            responseMap.put(FORMSTATUS, resultSet.getString("status"));
         }
         return Collections.singletonMap("verificationStatus", responseMap);
     }
