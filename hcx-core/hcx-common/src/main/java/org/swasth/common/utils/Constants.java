@@ -75,6 +75,7 @@ public class Constants {
     public static final String ONBOARD_THROUGH_JWT = "onboard-through-jwt";
     public static final String ONBOARD_THROUGH_VERIFIER = "onboard-through-verifier";
     public static final String EMAIL_OTP_VALIDATION = "email-otp-validation";
+    public static final String PHONE_OTP_VALIDATION = "phone-otp-validation";
     public static final String HEALTHY = "healthy";
     public static final String NAME = "name";
     public static final String KAFKA = "kafka";

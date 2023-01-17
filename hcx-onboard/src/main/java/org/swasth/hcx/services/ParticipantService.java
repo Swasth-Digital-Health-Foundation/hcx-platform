@@ -96,7 +96,6 @@ public class ParticipantService extends BaseController {
             updateEmail(email, (String) requestBody.get(APPLICANT_CODE));
             createParticipantAndSendOTP(header, participant, "", output);
         } else if (requestBody.getOrDefault(TYPE, "").equals(EMAIL_OTP_VALIDATION)) {
-            email = (String) requestBody.get(PRIMARY_EMAIL);
             verifyOTP(requestBody, output);
         } else {
             updateIdentityVerificationStatus(email, "", "", PENDING);
