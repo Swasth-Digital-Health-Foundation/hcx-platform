@@ -11,7 +11,7 @@ public class OnboardRequest {
     private Map<String,Object> requestBody = new HashMap<>();
 
     public OnboardRequest(ArrayList<Map<String,Object>> body) {
-        if (!body.isEmpty() && (body.get(0).get(TYPE).equals(EMAIL_OTP_VALIDATION) || body.get(0).get(TYPE).equals((PHONE_OTP_VALIDATION)))) {
+        if (!body.isEmpty() && (body.get(0).getOrDefault(TYPE, "").equals(EMAIL_OTP_VALIDATION) || body.get(0).getOrDefault(TYPE, "").equals((PHONE_OTP_VALIDATION)))) {
             for(Map<String,Object> map: body) {
                 if(map.containsKey(PRIMARY_EMAIL)) {
                     requestBody.put(PRIMARY_EMAIL, map.get(PRIMARY_EMAIL));
