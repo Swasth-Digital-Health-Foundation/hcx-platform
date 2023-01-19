@@ -1,106 +1,123 @@
-import { useState } from 'react'
-import { Button, Form, Segment, Grid, Image, Radio } from 'semantic-ui-react'
-import { sendData } from './../service/APIService';
-import { useForm } from "react-hook-form";
+import { useCallback, useEffect, useState } from 'react'
+import { Button, Form, Segment, Grid, Image, Radio, Loader } from 'semantic-ui-react'
+import { getToken, post } from './../service/APIService';
+import { set, useForm } from "react-hook-form";
 import { ToastContainer, toast } from 'react-toastify';
 import { useQuery } from './../service/QueryService';
 import * as _ from 'lodash';
+import { replaceString } from '../utils/StringUtil';
+import { useHistory } from 'react-router-dom/cjs/react-router-dom.min';
+import { useSelector } from 'react-redux';
 
-export const UpdateRegistry = () => {
+export const UpdateRegistry = ({ changeTab, formState, setState }) => {
 
     const { register, handleSubmit, watch, formState: { errors }, reset } = useForm();
-
     const [sending, setSending] = useState(false)
+    const [loader, setLoader] = useState(false)
+    const [token, setToken] = useState("")
+    const [passwordVerified, setPasswordVerified] = useState(false)
+    const [password, setPassword] = useState("")
+    let history = useHistory();
+    
+    const formStore = useSelector((state) => state)
 
-    let query = useQuery();
+    useEffect(() => {
+        if(_.get(formState, 'participant') == null) {
+            setState({ ...formState, ...formStore.formState})
+        }
+    }, []);
+   
 
     const onSubmit = (data) => {
+        setLoader(true)
         setSending(true)
-        const formData = { "jwt_token": data.jwt_token, participant: { "participant_code": decodeURIComponent(query.get("participant_code")), "endpoint_url": data.endpoint_url, "encryption_cert_path": data.encryption_cert_path, "signing_cert_path": data.signing_cert_path } };
-        sendData("/participant/onboard/update", formData).then((data => {
+        const formData = { "jwt_token": token, participant: { "participant_code": _.get(formState, 'participant_code'), "endpoint_url": data.endpoint_url, "encryption_cert_path": data.encryption_cert_path, "signing_cert_path": data.signing_cert_path } };
+        post("/participant/onboard/update", formData).then((data => {
             toast.success("Form is submitted successfully", {
                 position: toast.POSITION.TOP_CENTER, autoClose: 2000
             });
             reset()
+            setTimeout(function() {
+                history.push("/onboarding/end");
+             }, 2000);
+            
         })).catch(err => {
             toast.error(_.get(err, 'response.data.error.message') || "Internal Server Error", {
                 position: toast.POSITION.TOP_CENTER
             });
         }).finally(() => {
             setSending(false)
+            setLoader(false)
         })
+    }
+
+    const getAccessToken = () => {
+        setSending(true)
+        setLoader(true)
+        let body = { "client_id": "registry-frontend", "username": _.get(formState, 'participant.primary_email'), "password": password, "grant_type": "password" }
+        getToken("/auth/realms/swasth-health-claim-exchange/protocol/openid-connect/token", body)
+            .then((data => {
+                setToken(_.get(data, 'data.access_token'))
+                toast.success("Password is verifed", {
+                    position: toast.POSITION.TOP_CENTER, autoClose: 2000
+                });
+                setPasswordVerified(true);
+            })).catch((err => {
+                let errMsg = _.get(err, 'response.data.error_description')
+                toast.error(errMsg || "Internal Server Error", {
+                    position: toast.POSITION.TOP_CENTER
+                });
+            }))
+            .finally(() => {
+                setLoader(false)
+                setSending(false)
+            })
     }
 
     return <>
         <ToastContainer autoClose={false} />
-        <Grid centered container>
-            <Grid.Row columns="1">
-                <div className='form-container' style={{ background: '#63ac84', height: '100px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <Form onSubmit={handleSubmit(onSubmit)} className="container">
+            {loader && <Loader active />}
+            <div className='form-main' style={{ marginTop: '20px' }}>
+                    <Form.Field>
+                        <b>Participant Code:</b>&ensp;{replaceString(_.get(formState, 'participant_code') || "", 5, "X")}
+                    </Form.Field>
+                    <Form.Field>
+                        <b>Username:</b>&ensp;{replaceString(_.get(formState, 'participant.primary_email') || "", 5, "X")}
+                    </Form.Field>
+                    <Form.Field disabled={passwordVerified} className={{ 'error': 'password' in errors }} required>
+                        <label>Password</label>
+                        <input className='input-text' onInput={e => setPassword(e.target.value)} type='password' placeholder='Enter Password' {...register("password", { required: true })} />
+                    </Form.Field>
+                    { passwordVerified ? null : 
+                    <Button disabled={sending} onClick={getAccessToken} className="primary center-element button-color">
+                                {sending ? "Verfiying" : "Verify"}</Button> }
+                    {passwordVerified ?
+                        <Form.Field disabled={sending} className={{ 'error': 'endpoint_url' in errors }} required>
+                            <label>Endpoint URL</label>
+                            <input className='input-text' placeholder='Enter Endpoint URL' {...register("endpoint_url", { required: true })} />
+                        </Form.Field> : null}
+                    {passwordVerified ?
+                        <Form.Field disabled={sending} className={{ 'error': 'encryption_cert_path' in errors }} required>
+                            <label>Encryption Cert Path</label>
+                            <input placeholder='Enter Encryption Cert Path' {...register("encryption_cert_path", { required: true })} />
+                        </Form.Field> : null}
+                    {passwordVerified ?
+                        <Form.Field disabled={sending} className={{ 'error': 'signing_cert_path' in errors }} required>
+                            <label>Signing Cert Path</label>
+                            <input placeholder='Enter Signing Cert Path' {...register("signing_cert_path", { required: true })} />
+                        </Form.Field> : null}
+            </div><br/><br/>
+            <Grid>
+                <Grid.Row>
                     <Grid.Column>
-                        <Image src='favicon.ico' style={{ width: '50px', marginRight: '20px' }} />
+                    {passwordVerified ?
+                        <Button disabled={sending} type='submit' className="primary center-element button-color">
+                            {sending ? "Submitting" : "Submit"}</Button> : null}
                     </Grid.Column>
-                    <Grid.Column>
-                        <p style={{ color: 'white', fontSize: '30px' }}><b>HCX Update Registry</b></p>
-                    </Grid.Column>
-                </div>
-            </Grid.Row>
-            <Grid.Row columns="1" >
-                <Segment raised padded textAlign='left' className='form-container'>
-                    <Form onSubmit={handleSubmit(onSubmit)} className="container">
-                        <div className='form-main'>
-                            <Grid columns='equal'>
-                                <Grid.Row columns={2}>
-                                    <Grid.Column>
-                                        <div><b>Participant Code</b></div>
-                                        <div>{decodeURIComponent(query.get("participant_code"))}</div>
-                                    </Grid.Column>
-                                </Grid.Row>
-                                <Grid.Row>
-                                    <Grid.Column>
-                                        <Form.Field className={{ 'error': 'jwt_token' in errors }} required>
-                                            <label>JWT Token</label>
-                                            <input placeholder='Enter JWT Token' {...register("jwt_token", { required: true })} />
-                                        </Form.Field>
-                                    </Grid.Column>
-                                </Grid.Row>
-                                <Grid.Row>
-                                    <Grid.Column>
-                                        <Form.Field className={{ 'error': 'endpoint_url' in errors }} required>
-                                            <label>Endpoint URL</label>
-                                            <input placeholder='Enter Endpoint URL' {...register("endpoint_url", { required: true })} />
-                                        </Form.Field>
-                                    </Grid.Column>
-                                </Grid.Row>
-                                <Grid.Row>
-                                    <Grid.Column>
-                                        <Form.Field className={{ 'error': 'encryption_cert_path' in errors }} required>
-                                            <label>Encryption Cert Path</label>
-                                            <input placeholder='Enter Encryption Cert Path' {...register("encryption_cert_path", { required: true })} />
-                                        </Form.Field>
-                                    </Grid.Column>
-                                </Grid.Row>
-                                <Grid.Row>
-                                    <Grid.Column>
-                                        <Form.Field className={{ 'error': 'signing_cert_path' in errors }} required>
-                                            <label>Signing Cert Path</label>
-                                            <input placeholder='Enter Signing Cert Path' {...register("signing_cert_path", { required: true })} />
-                                        </Form.Field>
-                                    </Grid.Column>
-                                </Grid.Row>
-                            </Grid>
-                        </div>
-                        <Grid>
-                            <Grid.Row>
-                                <Grid.Column>
-                                    <Button disabled={sending} type='submit' className="primary center-element">
-                                        {sending ? "Submitting" : "Submit"}</Button>
-                                </Grid.Column>
-                            </Grid.Row>
-                        </Grid>
-                    </Form>
-                </Segment>
-            </Grid.Row>
-        </Grid>
+                </Grid.Row>
+            </Grid>
+        </Form>
     </>
 
 }
