@@ -279,7 +279,7 @@ public class ParticipantService extends BaseController {
         String applicantCode;
         String sponsorCode;
         Map<String, Object> sponsorDetails;
-        String identityVerification = REJECTED;
+        String identityVerification = PENDING;
         if (requestBody.containsKey(JWT_TOKEN)) {
             String jwtToken = (String) requestBody.get(JWT_TOKEN);
             Map<String, Object> jwtPayload = JSONUtils.decodeBase64String(jwtToken.split("\\.")[1], Map.class);
@@ -308,6 +308,8 @@ public class ParticipantService extends BaseController {
             HttpResponse<String> response = HttpUtils.post(sponsorDetails.get(ENDPOINT_URL) + PARTICIPANT_GET_INFO, JSONUtils.serialize(reqBody));
             if (response.getStatus() == 200) {
                 payorResp.putAll(JSONUtils.deserialize(response.getBody(), Map.class));
+            } else {
+                identityVerification = REJECTED;
             }
         }
 
