@@ -35,7 +35,6 @@ public class ParticipantService extends BaseController {
 
     private static final Logger logger = LoggerFactory.getLogger(BaseController.class);
 
-
     @Value("${email.otpSub}")
     private String otpSub;
 
@@ -151,7 +150,9 @@ public class ParticipantService extends BaseController {
         smsService.sendOTP((String) requestBody.get(PRIMARY_MOBILE), phoneOtp);
         String emailOtp = new DecimalFormat("000000").format(new Random().nextInt(999999));
         String emailMsg = otpMsg;
-        emailMsg = emailMsg.replace("PARTICIPANT_CODE", (String) requestBody.get(PARTICIPANT_CODE)).replace("RANDOM_CODE", emailOtp);
+        emailMsg = emailMsg.replace("USER_NAME", (String) requestBody.get(PARTICIPANT_NAME))
+                .replace("PARTICIPANT_CODE", (String) requestBody.get(PARTICIPANT_CODE))
+                .replace("RANDOM_CODE", " " +emailOtp);
         emailService.sendMail((String) requestBody.get(PRIMARY_EMAIL), otpSub, emailMsg);
         String query = String.format("UPDATE %s SET phone_otp='%s',email_otp='%s',updatedOn=%d,expiry=%d WHERE primary_email='%s'",
                 onboardingOtpTable, phoneOtp, emailOtp, System.currentTimeMillis(), System.currentTimeMillis() + otpExpiry, requestBody.get(PRIMARY_EMAIL));
@@ -166,15 +167,11 @@ public class ParticipantService extends BaseController {
         int attemptCount = 0;
         String status = FAILED;
         String email = (String) requestBody.get(PRIMARY_EMAIL);
-        String participantCode = "";
-        String phoneNumber = "";
         try {
             String selectQuery = String.format("SELECT * FROM %s WHERE primary_email='%s'", onboardingOtpTable, requestBody.get(PRIMARY_EMAIL));
             resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
             if (resultSet.next()) {
                 attemptCount = resultSet.getInt(ATTEMPT_COUNT);
-                participantCode = resultSet.getString(PARTICIPANT_CODE);
-                phoneNumber = resultSet.getString(PRIMARY_MOBILE);
                 if (resultSet.getString("status").equals(SUCCESSFUL)) {
                     status = SUCCESSFUL;
                     throw new ClientException(ErrorCodes.ERR_INVALID_OTP, OTP_ALREADY_VERIFIED);

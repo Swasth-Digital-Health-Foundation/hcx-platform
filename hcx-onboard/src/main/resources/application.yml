@@ -27,7 +27,7 @@ email:
   id: ${email_id:test@gmail.com}
   pwd: ${email_pwd:test@123}
   otpSub: ${otp_sub:HCX - Onboarding Started}
-  otpMsg: ${otp_msg:Hi User,<br/><br/>Your participant code is PARTICIPANT_CODE. Use the following OTP to verify your email address:RANDOM_CODE <br/><br/> Thanks,<br/> HCX Team}
+  otpMsg: ${otp_msg:Hi USER_NAME,<br/><br/>Your participant code is PARTICIPANT_CODE.<br/>Use the following OTP to verify your email address:RANDOM_CODE <br/><br/> Thanks,<br/> HCX Team}
   successIdentitySub: ${success_identity_sub:HCX - Identity Verified}
   successIdentityMsg: ${success_identity_msg:Hi User,<br/><br/>Identity verification is successful.<br/><br/>Thanks,<br/> HCX Team}
   failedIdentitySub: ${failed_identity_sub:HCX - Identity Verification Failed}
