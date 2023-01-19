@@ -1,0 +1,333 @@
+openapi: 3.0.1
+info:
+  title: HCX Onboarding APIs
+  version: 1.0.0
+  description: >-
+    The Health Claims Exchange (HCX) is a digital infrastructure designed to
+    enable automated, data-driven management of health insurance claims in an
+    open ecosystem. These API specifications enable the participant onboarding and verification.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+
+servers:
+  - url: https://dev-hcx.swasth.app/0.7
+tags:
+  - name: Participant Onboarding APIs
+    description: >-
+      APIs for fetching the participant details and verifying from the authorized participant system.
+      
+paths:
+  /participant/getinfo:
+    post:
+      tags:
+        - Participant Onboarding APIs
+      description: >-
+        This API implemented by the authorized participants of the HCX Switch who are eligible for verifying the new participants.
+        
+        This API takes the `applicant_code` in the request and fetch the available basic information. It also respond with the additional verification properties required to complete make the verify API request.
+        
+        
+        This API is implemented by HCX Switch and the authorized participants. The implementation of HCX switch acts like a proxy to call the verifier. So, `verifier_code` is an optional field for for authorized participant system. 
+        
+        
+        The additional verification properties in the response need to be captured the complete the verification process.
+        
+        The API accepts the valid `Authorization` token generated and signed using HCX Switch private key. The verification of the token will happen using the public key of HCX Switch.
+        
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/GetInfoRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetInfoResponse'
+        '400':
+          description: Request Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Requested resource was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Downstream systems down/unhandled exceptions.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearer_auth: []
+  /participant/verify:
+    post:
+      tags:
+        - Participant Onboarding APIs
+      description: >-
+      
+        The API accepts below defined set of request and to verify the new participant and onboard with the basic information.
+        
+          1. Onboarding through a verifier.
+          2. Onboarding through a JWT provided by the verifier.
+          3. Email verification through OTP - Optional
+          4. Mobile verification through OTP - Optional 
+        
+        The requests related to communication details (email, mobile) verification is implemented by HCX Switch and optional for the authorized participant system.
+        
+        
+        The API accepts the valid `Authorization` token generated and signed using HCX Switch private key. The verification of the token will happen using the public key of HCX Switch.
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                anyOf:
+                - $ref: '#/components/schemas/OnboardUsingVerifier'
+                - $ref: '#/components/schemas/OnboardUsingJWT'
+                - $ref: '#/components/schemas/EmailVerification'
+                - $ref: '#/components/schemas/MobileVerification'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerifyResponse'
+        '400':
+          description: Request Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Requested resource was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Downstream systems down/unhandled exceptions.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearer_auth: []
+components:
+  schemas:
+    Participant:
+      required:
+        - primary_email
+        - primary_mobile
+        - participant_name
+      type: object
+      description: >-
+        The participant with the basic information to onboard.
+      properties:
+        primary_email:
+          format: email
+          description: Primary email id for claims related communication.
+          example: contact@xyzhospital.com
+        primary_mobile:
+          type: string
+          example: "9899912323"
+          description: Primary mobile number for claims related communication.
+        participant_name:
+          type: string
+          description: Human readable name for the participant.
+        roles:
+          type: array
+          items:
+            type: string
+            enum: ["provider", "payer", "agency.tpa", "agency.regulator", "research", "member.isnp", "agency.sponsor", "HIE/HIO.HCX"]
+          example: payer
+          description: Roles assigned to the participant as per the definition in the HCX domain specifications. This will be used for access control.
+    OnboardUsingVerifier:
+      required:
+        - verifier_code
+        - participant
+      type: object
+      description: >-
+        The verifier 
+      allOf:
+        - properties:
+            type: 
+              type: string
+              description: The type of verification request.
+              example: 'onboard-throgh-verifier'
+            verifier_code:
+              type: string
+              description: >-
+                The identifier or code of the existing authorized participant of the HCX switch to confirm the identity and share more details of the onboarding participant.
+            participant:
+              allOf:
+                - $ref: '#/components/schemas/Participant'
+    OnboardUsingJWT:
+      required:
+        - jwt
+        - participant
+      type: object
+      description: >-
+        The verifier provides a JWT for the new participant to onboard and confirm the validation.
+      allOf:
+        - properties:
+            type: 
+              type: string
+              description: The type of verification request.
+              example: 'onboard-throgh-jwt'
+            jwt:
+              type: string
+              description: >-
+                The JWT signed and issued by the authorized participant of the HCX switch to confirm the identity and fetch more details of the onboarding participant.
+            participant:
+              allOf:
+                - $ref: '#/components/schemas/Participant'
+    EmailVerification:
+      required:
+        - primary_email
+        - otp
+      description: >-
+        The request to verify the email using OTP.
+      properties:
+        type: 
+          type: string
+          description: The type of verification request.
+          example: 'email-otp-validation'
+        primary_email:
+          format: email
+          description: Primary email id for claims related communication.
+          example: contact@xyzhospital.com
+        otp:
+          type: string
+          example: "123123"
+          description: OTP of which is sent to the primary email for the verification.
+    MobileVerification:
+      required:
+        - primary_mobile
+        - otp
+      description: >-
+        The request to verify the mobile using OTP.
+      properties:
+        type: 
+          type: string
+          description: The type of verification request.
+          example: 'mobile-otp-validation'
+        primary_mobile:
+          type: string
+          example: "9899912323"
+          description: Primary mobile number for claims related communication.
+        otp:
+          type: string
+          example: "789789"
+          description: OTP of which is sent to the primary email for the verification.
+    GetInfoRequest:
+      type: object
+      description: >-
+        The request to get the details about the new participant who is going to onboard.
+      properties:
+        applicant_code:
+          type: string
+          description: The identifier of the applicant in the authorized participant system.
+        verifier_code:
+          type: string
+          description: >-
+            The identifier or code of the existing authorized participant of the HCX switch to confirm the identity and share more details of the onboarding participant.
+    AdditionalVerificationProps:
+      type: object
+      description: >-
+        The additional verification details required by the authorized participant system to confirm the onboarding participant identity and validate the details.
+      properties:
+        additionalVerificationProps:
+          type: array
+          items:
+            properties:
+              name: 
+                type: string
+                description: Name of the property to capture the additional verification 
+              label: 
+                type: string
+                description: of the property to capture the additional verification.
+              dataType:
+                type: string
+                description: Data Type of the property to capture the additional verification.
+    GetInfoResponse:
+      type: object
+      description: >-
+        The response of the new participant with basic information and additional verification properties required to confirm the identity.
+      allOf:
+        - properties:
+            timestamp:
+              type: number
+              description: >-
+                Unix timestamp when the response is sent.
+              example: '1629057611000'
+            participant:
+              allOf:
+                - $ref: '#/components/schemas/Participant'
+                - $ref: '#/components/schemas/AdditionalVerificationProps'
+    ErrorResponse:
+      required:
+        - error
+        - timestamp
+      type: object
+      properties:
+        timestamp:
+          type: string
+          description: Unix timestamp when the response is sent.
+          example: '1629057611000'
+        error:
+          $ref: '#/components/schemas/Error'
+      description: This is a response to the ClaimForm API call
+    VerifyResponse:
+      required:
+        - timestamp
+      type: object
+      properties:
+        timestamp:
+          type: string
+          description: Unix timestamp when the response is sent.
+          example: '1629057611000'
+        result:
+          type: object
+          description: >-
+            dsfadsfs
+          allOf:
+            - properties:
+                participant_code:
+                  type: string
+                  description: Unique identifier of the participant on the HCX instance
+                  example: "pcpt01@HCX01"
+                status:
+                  type: string
+                  description: The verification status. It will be either "accepted" or "rejected".
+                  example: "accepted"
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+          description: >-
+            error code from the system - expected to be namespaced for better
+            readability
+        message:
+          type: string
+          description: Short description of the error
+        trace:
+          type: string
+          description: Long description supporting the Code
+  securitySchemes:
+    bearer_auth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
