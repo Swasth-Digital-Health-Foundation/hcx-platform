@@ -8,13 +8,14 @@ on:
       - sprint-*
       - onboarding-app*
 
-defaults:
-  run:
-    working-directory: ./onboarding-app
+
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./onboarding-app
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
