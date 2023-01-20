@@ -13,16 +13,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
+        working-directory: ./app
         uses: actions/checkout@v2
 
       - name: Use Node.js 19.x
+        working-directory: ./app
         uses: actions/setup-node@v3
         with:
           node-version: 19.x
           cache: 'npm'
-      - run: cd onboarding-app && npm ci
+        run: cd onboarding-app && npm ci
 
       - name: Build the app
+        working-directory: ./app
         run: |
           cd onboarding-app
           npm run build
