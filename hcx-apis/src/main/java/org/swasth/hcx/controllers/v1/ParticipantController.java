@@ -1,5 +1,14 @@
 package org.swasth.hcx.controllers.v1;
 
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import kong.unirest.HttpResponse;
 import org.apache.commons.validator.routines.EmailValidator;
@@ -18,9 +27,13 @@ import org.swasth.hcx.controllers.BaseController;
 import org.swasth.postgresql.IDatabaseService;
 import org.swasth.redis.cache.RedisCache;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.sql.ResultSet;
 import java.text.MessageFormat;
 import java.util.*;
@@ -48,6 +61,15 @@ public class ParticipantController extends BaseController {
     @Value("${postgres.onboardingTable}")
     private String onboardingTable;
 
+    @Value("${certificates.aws_accesskey}")
+    private String awsAccesskey;
+
+    @Value("${certificates.aws_secretKey}")
+    private String awsSecretKey;
+
+    @Value("${certificates.bucket_name}")
+    private String bucketName;
+
     @Autowired
     private RedisCache redisCache;
 
@@ -67,6 +89,7 @@ public class ParticipantController extends BaseController {
                 participantCode = SlugUtils.makeSlug(primaryEmail, String.valueOf(new SecureRandom().nextInt(1000)), fieldSeparator, hcxInstanceName);
             }
             requestBody.put(PARTICIPANT_CODE, participantCode);
+            pushCertificates(requestBody);
             String url = registryUrl + "/api/v1/Organisation/invite";
             Map<String, String> headersMap = new HashMap<>();
             headersMap.put(AUTHORIZATION, Objects.requireNonNull(header.get(AUTHORIZATION)).get(0));
@@ -87,6 +110,7 @@ public class ParticipantController extends BaseController {
     @PostMapping(PARTICIPANT_UPDATE)
     public ResponseEntity<Object> participantUpdate(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
         try {
+            pushCertificates(requestBody);
             validateUpdateParticipant(requestBody);
             String participantCode = (String) requestBody.get(PARTICIPANT_CODE);
             Map<String, Object> participant = getParticipant(participantCode);
@@ -173,7 +197,7 @@ public class ParticipantController extends BaseController {
         }
     }
 
-    private void validateCreateParticipant(Map<String, Object> requestBody) throws ClientException, CertificateException, IOException {
+    private void validateCreateParticipant(Map<String, Object> requestBody) throws Exception {
         List<String> notAllowedUrls = env.getProperty(HCX_NOT_ALLOWED_URLS, List.class, new ArrayList<String>());
         if (!requestBody.containsKey(ROLES) || !(requestBody.get(ROLES) instanceof ArrayList) || ((ArrayList<String>) requestBody.get(ROLES)).isEmpty())
             throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, INVALID_ROLES_PROPERTY);
@@ -186,18 +210,22 @@ public class ParticipantController extends BaseController {
         else if (!requestBody.containsKey(PRIMARY_EMAIL) || !(requestBody.get(PRIMARY_EMAIL) instanceof String)
                 || !EmailValidator.getInstance().isValid((String) requestBody.get(PRIMARY_EMAIL)))
             throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, INVALID_EMAIL);
-        else if (!requestBody.containsKey(ENCRYPTION_CERT) || !(requestBody.get(ENCRYPTION_CERT) instanceof String))
-            throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, INVALID_ENCRYPTION_CERT);
-        // add encryption certificate expiry
-        requestBody.put(ENCRYPTION_CERT_EXPIRY, jwtUtils.getCertificateExpiry((String) requestBody.get(ENCRYPTION_CERT)));
     }
 
-    private void validateUpdateParticipant(Map<String, Object> requestBody) throws ClientException, CertificateException, IOException {
+    public void validateCertificates(Map<String, Object> requestBody) throws ClientException, CertificateException, IOException {
+        if (!requestBody.containsKey(ENCRYPTION_CERT) || !(requestBody.get(ENCRYPTION_CERT) instanceof String))
+            throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, INVALID_ENCRYPTION_CERT);
+        else if (!requestBody.containsKey(SIGNING_CERT_PATH) || !(requestBody.get(SIGNING_CERT_PATH) instanceof String))
+            // add encryption certificate expiry
+            requestBody.put(ENCRYPTION_CERT_EXPIRY, jwtUtils.getCertificateExpiry((String) requestBody.get(ENCRYPTION_CERT)));
+    }
+
+    private void validateUpdateParticipant(Map<String, Object> requestBody) throws Exception {
         List<String> notAllowedUrls = env.getProperty(HCX_NOT_ALLOWED_URLS, List.class, new ArrayList<String>());
         if (notAllowedUrls.contains(requestBody.getOrDefault(ENDPOINT_URL, "")))
             throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, INVALID_END_POINT);
-        else if (requestBody.containsKey(ENCRYPTION_CERT))
-            requestBody.put(ENCRYPTION_CERT_EXPIRY, jwtUtils.getCertificateExpiry((String) requestBody.get(ENCRYPTION_CERT)));
+//        else if (requestBody.containsKey(ENCRYPTION_CERT))
+//            requestBody.put(ENCRYPTION_CERT_EXPIRY, jwtUtils.getCertificateExpiry((String) requestBody.get(ENCRYPTION_CERT)));
     }
 
 
@@ -241,10 +269,10 @@ public class ParticipantController extends BaseController {
         return (String) ((Map<String, Object>) result.get("params")).get("errmsg");
     }
 
-    private ResponseEntity<Object> getSponsors(List<Map<String,Object>> participantsList) throws Exception {
+    private ResponseEntity<Object> getSponsors(List<Map<String, Object>> participantsList) throws Exception {
         String primaryEmailList = participantsList.stream().map(participant -> participant.get("primary_email")).collect(Collectors.toList()).toString();
-        String primaryEmailWithQuote = "'" + primaryEmailList.replace("[","").replace("]", "").replace(" ","").replace(",","','") + "'";
-        String selectQuery = String.format("SELECT * FROM %s WHERE applicant_email IN (%s);",onboardingTable, primaryEmailWithQuote);
+        String primaryEmailWithQuote = "'" + primaryEmailList.replace("[", "").replace("]", "").replace(" ", "").replace(",", "','") + "'";
+        String selectQuery = String.format("SELECT * FROM %s WHERE applicant_email IN (%s);", onboardingTable, primaryEmailWithQuote);
         ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
         Map<String, Object> sponsorMap = new HashMap<>();
         while (resultSet.next()) {
@@ -262,6 +290,29 @@ public class ParticipantController extends BaseController {
             modifiedResponseList.add(responseList);
         }
         return getSuccessResponse(new ParticipantResponse(modifiedResponseList));
+    }
+
+    public void pushCertificates(Map<String, Object> requestBody) throws Exception {
+        if (requestBody.get(CERTIFICATE_TYPE).equals(STRING)) {
+            validateCertificates(requestBody);
+            String participantCode = requestBody.get("participant_code").toString();
+            String signingCertUrl = participantCode + "/signing_cert_path.pem";
+            String encryptionCertUrl = participantCode + "/encryption_cert_path.pem";
+            AWSCredentials credentials = new BasicAWSCredentials(awsAccesskey, awsSecretKey);
+            AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
+                    .withCredentials(new AWSStaticCredentialsProvider(credentials))
+                    .withRegion(Regions.AP_SOUTH_1)
+                    .build();
+            PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, participantCode + "/", new ByteArrayInputStream(new byte[0]), new ObjectMetadata());
+            putObjectRequest.setCannedAcl(CannedAccessControlList.PublicRead);
+            String signingCert = requestBody.get("signing_cert_path").toString().replace(" ", "\n").replaceAll("-----BEGIN\nCERTIFICATE-----", "-----BEGIN CERTIFICATE-----").replaceAll("-----END\nCERTIFICATE-----", "-----END CERTIFICATE-----");
+            String encryptionCert = requestBody.get("encryption_cert").toString().replace(" ", "\n").replaceAll("-----BEGIN\nCERTIFICATE-----", "-----BEGIN CERTIFICATE-----").replaceAll("-----END\nCERTIFICATE-----", "-----END CERTIFICATE-----");
+            s3Client.putObject(bucketName, signingCertUrl, signingCert);
+            s3Client.putObject(bucketName, encryptionCertUrl, encryptionCert);
+            requestBody.remove(CERTIFICATE_TYPE);
+            requestBody.put(SIGNING_CERT_PATH, s3Client.getUrl(bucketName, signingCertUrl).toString());
+            requestBody.put(ENCRYPTION_CERT, s3Client.getUrl(bucketName, encryptionCertUrl).toString());
+        }
     }
 }
 

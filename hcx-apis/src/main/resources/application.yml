@@ -97,3 +97,9 @@ notification:
   networkPath: ${notification_networkPath:networkNotifications.yaml}
   participantPath: ${notification_participantPath:participantNotifications.yaml}
   workflowPath: ${notification_workflowPath:workflowNotifications.yaml}
+
+#AWS S3 bucket
+certificates:
+  aws_accesskey : ${accesskey:xxxxxxxxxxxxxxxxxxx}
+  aws_secretKey : ${secretKey:xxxxxxxxxxxxxxxxxxx}
+  bucket_name : ${bucket_name:dev-hcx-certificates}
