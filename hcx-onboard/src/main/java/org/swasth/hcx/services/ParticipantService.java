@@ -47,11 +47,11 @@ public class ParticipantService extends BaseController {
     @Value("${email.successIdentityMsg}")
     private String successIdentityMsg;
 
-    @Value("${email.successOnboardingSub}")
-    private String successOnboardingSub;
+    @Value("${email.onboardingSuccessSub}")
+    private String onboardingSuccessSub;
 
-    @Value("${email.successOnboardingMsg}")
-    private String successOnboardingMsg;
+    @Value("${email.onboardingSuccessMsg}")
+    private String onboardingSuccessMsg;
 
     @Value("${hcx-api.basePath}")
     private String hcxAPIBasePath;
@@ -250,7 +250,7 @@ public class ParticipantService extends BaseController {
             HttpResponse<String> response = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_UPDATE, JSONUtils.serialize(participant), headersMap);
             if (response.getStatus() == 200) {
                 logger.info("Participant details are updated successfully :: participant code : " + participant.get(PARTICIPANT_CODE));
-                emailService.sendMail(email, successOnboardingSub, successOnboardingMsg.replace("USER_NAME", StringUtils.capitalize((String) participant.get(PARTICIPANT_NAME))));
+                emailService.sendMail(email, onboardingSuccessSub, onboardingSuccessMsg.replace("USER_NAME", StringUtils.capitalize((String) participant.get(PARTICIPANT_NAME))));
                 return getSuccessResponse(new Response(PARTICIPANT_CODE, participant.get(PARTICIPANT_CODE)));
             } else return responseHandler(response, (String) participant.get(PARTICIPANT_CODE));
         } else {
