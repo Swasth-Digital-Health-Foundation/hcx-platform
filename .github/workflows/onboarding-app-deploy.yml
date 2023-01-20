@@ -16,12 +16,12 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          cd onboarding-app
+          npm ci
 
       - name: Build the app
-        run: | 
-          cd onboarding-app
-          npm run build
+        run: npm run build
 
       - name: Configure AWS credentials
         run: |
