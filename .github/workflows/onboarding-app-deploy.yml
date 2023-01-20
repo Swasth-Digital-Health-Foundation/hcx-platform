@@ -6,6 +6,7 @@ on:
     branches:
       - main
       - sprint-*
+      - onboarding-app*
 
 jobs:
   deploy:
