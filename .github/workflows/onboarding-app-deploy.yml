@@ -1,12 +1,12 @@
 name: Onboarding App Deploy to S3
 
 on:
-  push:
-    workflow_dispatch:
-    branches:
-      - main
-      - sprint-*
-      - onboarding-app*
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Environment
+        default: dev
+        required: true
 
 jobs:
   deploy:
@@ -15,23 +15,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-#      - name: Use Node.js 19.x
-#        uses: actions/setup-node@v3
-#        with:
-#          node-version: 19.x
-#          cache: 'npm'
-#          cache-dependency-path: onboarding-app/package-lock.json
-
-      - name: Install dependencies
+      - name: Install dependencies and build the app
         run: |
           cd onboarding-app
           npm ci
-
-      - name: Build the app
-        env:
-          CI: false
-        run: |
-          cd onboarding-app
           npm run build
 
       - name: Configure AWS credentials
@@ -43,4 +30,4 @@ jobs:
       - name: Deploy to S3
         run: |
           cd onboarding-app
-          aws s3 sync build/ s3://dev-hcx-certificates --acl public-read --region ap-south-1
+          aws s3 sync build/ s3://${{ github.event.inputs.environment }}-hcx-onboarding --acl public-read --region ${{ secrets.AWS_REGION }}
