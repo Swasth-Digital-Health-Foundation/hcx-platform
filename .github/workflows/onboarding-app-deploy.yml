@@ -8,27 +8,27 @@ on:
       - sprint-*
       - onboarding-app*
 
+defaults:
+  run:
+    working-directory: ./onboarding
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        working-directory: ./onboarding-app
         uses: actions/checkout@v2
 
       - name: Use Node.js 19.x
-        working-directory: ./onboarding-app
         uses: actions/setup-node@v3
         with:
           node-version: 19.x
           cache: 'npm'
 
       - name: Install dependencies
-        working-directory: ./onboarding-app
         run: npm ci
 
       - name: Build the app
-        working-directory: ./onboarding-app
         run: npm run build
 
       - name: Configure AWS credentials
