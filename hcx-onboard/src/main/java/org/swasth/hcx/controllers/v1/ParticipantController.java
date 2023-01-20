@@ -55,7 +55,7 @@ public class ParticipantController extends BaseController {
     @PostMapping(PARTICIPANT_ONBOARD_UPDATE)
     public ResponseEntity<Object> onboardUpdate(@RequestBody Map<String, Object> requestBody) throws SQLException {
         try {
-            return participantService.onboardUpdate(requestBody );
+            return participantService.onboardUpdate(requestBody);
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }
