@@ -28,6 +28,8 @@ jobs:
           npm ci
 
       - name: Build the app
+        env:
+          CI: false
         run: |
           cd onboarding-app
           npm run build
