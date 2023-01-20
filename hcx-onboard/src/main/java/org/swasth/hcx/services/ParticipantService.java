@@ -47,8 +47,11 @@ public class ParticipantService extends BaseController {
     @Value("${email.successIdentityMsg}")
     private String successIdentityMsg;
 
-    @Value("${email.failedIdentitySub}")
-    private String failedIdentitySub;
+    @Value("${email.successOnboardingSub}")
+    private String successOnboardingSub;
+
+    @Value("${email.successOnboardingMsg}")
+    private String successOnboardingMsg;
 
     @Value("${hcx-api.basePath}")
     private String hcxAPIBasePath;
@@ -150,9 +153,9 @@ public class ParticipantService extends BaseController {
         smsService.sendOTP((String) requestBody.get(PRIMARY_MOBILE), phoneOtp);
         String emailOtp = new DecimalFormat("000000").format(new Random().nextInt(999999));
         String emailMsg = otpMsg;
-        emailMsg = emailMsg.replace("USER_NAME", (String) requestBody.get(PARTICIPANT_NAME))
+        emailMsg = emailMsg.replace("USER_NAME", StringUtils.capitalize((String) requestBody.get(PARTICIPANT_NAME)))
                 .replace("PARTICIPANT_CODE", (String) requestBody.get(PARTICIPANT_CODE))
-                .replace("RANDOM_CODE", " " +emailOtp);
+                .replace("RANDOM_CODE", " " + emailOtp);
         emailService.sendMail((String) requestBody.get(PRIMARY_EMAIL), otpSub, emailMsg);
         String query = String.format("UPDATE %s SET phone_otp='%s',email_otp='%s',updatedOn=%d,expiry=%d WHERE primary_email='%s'",
                 onboardingOtpTable, phoneOtp, emailOtp, System.currentTimeMillis(), System.currentTimeMillis() + otpExpiry, requestBody.get(PRIMARY_EMAIL));
@@ -217,7 +220,7 @@ public class ParticipantService extends BaseController {
         return (Map<String, Object>) participantResponse.getParticipants().get(0);
     }
 
-    public ResponseEntity<Object> onboardUpdate(Map<String, Object> requestBody,String email) throws Exception {
+    public ResponseEntity<Object> onboardUpdate(Map<String, Object> requestBody) throws Exception {
         logger.info("Onboard update: " + requestBody);
         boolean emailOtpVerified = false;
         boolean phoneOtpVerified = false;
@@ -225,7 +228,7 @@ public class ParticipantService extends BaseController {
         String jwtToken = (String) requestBody.get(JWT_TOKEN);
         Map<String, Object> payload = JSONUtils.decodeBase64String(jwtToken.split("\\.")[1], Map.class);
         Map<String, Object> participant = (Map<String, Object>) requestBody.get(PARTICIPANT);
-        email = (String) payload.get("email");
+        String email = (String) payload.get("email");
         participant.put(REGISTRY_STATUS, ACTIVE);
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put(AUTHORIZATION, "Bearer " + jwtToken);
@@ -247,6 +250,7 @@ public class ParticipantService extends BaseController {
             HttpResponse<String> response = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_UPDATE, JSONUtils.serialize(participant), headersMap);
             if (response.getStatus() == 200) {
                 logger.info("Participant details are updated successfully :: participant code : " + participant.get(PARTICIPANT_CODE));
+                emailService.sendMail(email, successOnboardingSub, successOnboardingMsg.replace("USER_NAME", StringUtils.capitalize((String) participant.get(PARTICIPANT_NAME))));
                 return getSuccessResponse(new Response(PARTICIPANT_CODE, participant.get(PARTICIPANT_CODE)));
             } else return responseHandler(response, (String) participant.get(PARTICIPANT_CODE));
         } else {
@@ -268,7 +272,7 @@ public class ParticipantService extends BaseController {
             emailService.sendMail(applicantEmail, successIdentitySub, successIdentityMsg);
             return getSuccessResponse(new Response());
         } else {
-            throw new ClientException(ErrorCodes.ERR_INVALID_IDENTITY, "Invalid status , REJECTED");
+            throw new ClientException(ErrorCodes.ERR_INVALID_IDENTITY, "Identity verification has failed");
         }
     }
 

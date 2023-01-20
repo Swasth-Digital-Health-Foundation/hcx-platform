@@ -32,6 +32,8 @@ email:
   successIdentityMsg: ${success_identity_msg:Hi User,<br/><br/>Identity verification is successful.<br/><br/>Thanks,<br/> HCX Team}
   failedIdentitySub: ${failed_identity_sub:HCX - Identity Verification Failed}
   failedIdentityMsg: ${failed_identity_msg:Hi User,<br/><br/>Identity verification is failed. Please reach out to HCX Team.<br/><br/>Thanks,<br/> HCX Team}
+  onboardingSuccessSub: ${failed_identity_sub:HCX - Onboarding Successful}
+  onboardingSuccessMsg: ${failed_identity_msg:Hi USER_NAME,<br/><br/>Your onboarding is successful, Welcome to HCX.<br/><br/>Thanks,<br/> HCX Team}
 
 hcx-api:
   basePath: ${HCX_API_BASEPATH:http://localhost:8080}
