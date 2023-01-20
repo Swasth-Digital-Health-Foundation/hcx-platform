@@ -45,16 +45,6 @@ export const Onboarding = () => {
             </Grid.Row>
             <Segment style={{ width: '50%' }} textAlign='left'>
             <Tab panes={panes} activeIndex={activeIndex}/>
-                {/* <Tab
-                    menu={{ textAlign: 'center', borderless: true, pointing: true, attached: false, tabular: false }}
-                    panes={panes}
-                /> */}
-                {/* <Tab
-                        menu={{ fluid: true, vertical: true }}
-                        menuPosition='left'
-                        panes={panes}
-                        activeIndex={activeIndex}
-                    /> */}
             </Segment>
         </Grid>
     </>
