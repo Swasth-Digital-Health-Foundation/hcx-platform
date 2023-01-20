@@ -10,8 +10,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.swasth.common.dto.ParticipantResponse;
 import org.swasth.common.dto.Response;
 import org.swasth.common.dto.Sponsor;
+import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
 import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
@@ -28,8 +31,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.ArgumentMatchers.anyMap;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 class ParticipantControllerTests extends BaseSpec{
@@ -338,6 +341,55 @@ class ParticipantControllerTests extends BaseSpec{
                 new String[]{"applicant_email", "applicant_code", "sponsor_code", "status", "createdon", "updatedon"}, //columns
                 new Object[][]{ // data
                         {"testuser3@gmail.com", "testuser3", "sponsor_code-12345", "active", 12345678, 12345678}
+                });
+    }
+    @Test
+    void participant_read_success_scenario_with_parameter_verificationstatus() throws Exception {
+            registryServer.enqueue(new MockResponse()
+                    .setResponseCode(200)
+                    .setBody("[{ \"participant_name\": \"HCX Gateway\", \"primary_mobile\": \"\", \"primary_email\": \"testuser3@gmail.com\", \"roles\": [ \"HIE/HIO.HCX\" ], \"status\": \"Created\", \"endpoint_url\": \"http://a54c5bc648f1a41b8871b77ac01060ed-1840123973.ap-south-1.elb.amazonaws.com:8080\", \"encryption_cert\": \"urn:isbn:0-4234\", \"osOwner\": [ \"f698b521-7409-432d-a5db-d13e51f029a9\" ], \"participant_code\": \"d2d56996-1b77-4abb-b9e9-0e6e7343c72e\" }]")
+                    .addHeader("Content-Type", "application/json"));
+            ResultSet mockResultSet = getMockstatus();
+            doReturn(mockResultSet).when(postgreSQLClient).executeQuery(anyString());
+            MvcResult mvcResult = mockMvc.perform(get(Constants.VERSION_PREFIX + "/participant/read/d2d56996-1b77-4abb-b9e9-0e6e7343c72e").param("fields", "verificationstatus").content(getSearchFilter()).header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+            MockHttpServletResponse response = mvcResult.getResponse();
+            int status = response.getStatus();
+            assertEquals(200, status);
+    }
+    @Test
+    void participant_read_success_scenario_with_parameter_sponsors() throws Exception {
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("[{ \"participant_name\": \"HCX Gateway\", \"primary_mobile\": \"\", \"primary_email\": \"testuser3@gmail.com\", \"roles\": [ \"HIE/HIO.HCX\" ], \"status\": \"Created\", \"endpoint_url\": \"http://a54c5bc648f1a41b8871b77ac01060ed-1840123973.ap-south-1.elb.amazonaws.com:8080\", \"encryption_cert\": \"urn:isbn:0-4234\", \"osOwner\": [ \"f698b521-7409-432d-a5db-d13e51f029a9\" ], \"participant_code\": \"d2d56996-1b77-4abb-b9e9-0e6e7343c72e\" }]")
+                .addHeader("Content-Type", "application/json"));
+        ResultSet mockResultSet = getMockResultSet();
+        doReturn(mockResultSet).when(postgreSQLClient).executeQuery(anyString());
+        MvcResult mvcResult = mockMvc.perform(get(Constants.VERSION_PREFIX + "/participant/read/d2d56996-1b77-4abb-b9e9-0e6e7343c72e").param("fields", "sponsors").content(getSearchFilter()).header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        assertEquals(200, status);
+    }
+
+    @Test
+    void participant_read_invalid_scenario() throws Exception {
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("")
+                .addHeader("Content-Type", "application/json"));
+        ResultSet mockResultSet = null;
+        doReturn(mockResultSet).when(postgreSQLClient).executeQuery(anyString());
+        MvcResult mvcResult = mockMvc.perform(get(Constants.VERSION_PREFIX + "/participant/read/d2d56996-1b77-4abb-b9e9-0e6e7343c72e").param("fields", "sponsors").content(getSearchFilter()).header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        assertEquals(500, status);
+    }
+
+
+    private ResultSet getMockstatus() throws SQLException {
+        return MockResultSet.createStringMock(
+                new String[]{"status"}, //columns
+                new Object[][]{ // data
+                        {"accepted"}
                 });
     }
 }
