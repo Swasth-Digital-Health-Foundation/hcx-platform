@@ -13,22 +13,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        working-directory: ./app
+        working-directory: ./onboarding-app
         uses: actions/checkout@v2
 
       - name: Use Node.js 19.x
-        working-directory: ./app
+        working-directory: ./onboarding-app
         uses: actions/setup-node@v3
         with:
           node-version: 19.x
           cache: 'npm'
-        run: cd onboarding-app && npm ci
+
+      - name: Install dependencies
+        working-directory: ./onboarding-app
+        run: npm ci
 
       - name: Build the app
-        working-directory: ./app
-        run: |
-          cd onboarding-app
-          npm run build
+        working-directory: ./onboarding-app
+        run: npm run build
 
       - name: Configure AWS credentials
         run: |
@@ -36,4 +37,4 @@ jobs:
          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
       - name: Deploy to S3
-        run: aws s3 sync build/ s3://staging-hcx-onboarding --delete
+        run: aws s3 sync build/ s3://dev-hcx-certificates --delete
