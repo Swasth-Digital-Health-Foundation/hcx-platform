@@ -21,7 +21,9 @@ jobs:
           npm ci
 
       - name: Build the app
-        run: npm run build
+        run: |
+          cd onboarding-app
+          npm run build
 
       - name: Configure AWS credentials
         run: |
