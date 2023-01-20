@@ -105,9 +105,9 @@ export const BasicDetails = ({ changeTab, formState, setState }) => {
         var mode;
 
         if (_.get(payor, "participant_code") === "1-29482df3-e875-45ef-a4e9-592b6f565782") {
-            mode = "mock-invalid";
-        } else if (process.env.REACT_APP_ENV === "Staging") {
             mode = "mock-valid";
+        } else if (process.env.REACT_APP_ENV === "Staging") {
+            mode = "mock-invalid";
         } else {
             mode = "actual";
         }
