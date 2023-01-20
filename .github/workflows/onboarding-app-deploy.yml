@@ -1,0 +1,31 @@
+name: Onboarding App Deploy to S3
+
+on:
+  push:
+    workflow_dispatch:
+    branches:
+      - main
+      - sprint-*
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build the app
+        run: | 
+          cd onboarding-app
+          npm run build
+
+      - name: Configure AWS credentials
+        run: |
+         aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+         aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Deploy to S3
+        run: aws s3 sync build/ s3://staging-hcx-onboarding --delete
