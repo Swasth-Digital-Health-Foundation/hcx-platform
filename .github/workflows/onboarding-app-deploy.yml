@@ -12,6 +12,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
+      - run: cd onboarding-app
       - name: Checkout code
         uses: actions/checkout@v2
 
@@ -20,11 +21,7 @@ jobs:
         with:
           node-version: 19.x
           cache: 'npm'
-
-      - name: Install dependencies
-        run: |
-          cd onboarding-app
-          npm ci
+      - run: npm ci
 
       - name: Build the app
         run: |
