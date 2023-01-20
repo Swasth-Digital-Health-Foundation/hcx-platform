@@ -15,11 +15,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Checkout submodules
-        uses: onboarding-app/git-checkout-submodule-action@master
-        with:
-          remote: true
-
       - name: Use Node.js 19.x
         uses: actions/setup-node@v3
         with:
