@@ -10,7 +10,7 @@ on:
 
 defaults:
   run:
-    working-directory: ./onboarding
+    working-directory: ./onboarding-app
 
 jobs:
   deploy:
