@@ -74,7 +74,6 @@ export const BasicDetails = ({ changeTab, formState, setState }) => {
 
         post("/participant/verify", JSON.stringify(formData))
             .then((data => {
-                console.log(data);
                 toast.success("Form is submitted successfully", {
                     position: toast.POSITION.TOP_CENTER, autoClose: 2000
                 });
@@ -93,7 +92,6 @@ export const BasicDetails = ({ changeTab, formState, setState }) => {
 
 
     const getParticipantDetails = () => {
-        console.log(applicantCode, payor)
         setLoader(true)
         let payload;
         if (applicantCode && payor) {
@@ -104,7 +102,7 @@ export const BasicDetails = ({ changeTab, formState, setState }) => {
 
         var mode;
 
-        if (_.get(payor, "participant_code") === "1-29482df3-e875-45ef-a4e9-592b6f565782") {
+        if ((_.get(payor, "participant_code") === "1-29482df3-e875-45ef-a4e9-592b6f565782") || isJWTPresent) {
             mode = "mock-valid";
         } else if (process.env.REACT_APP_ENV === "Staging") {
             mode = "mock-invalid";
