@@ -120,6 +120,7 @@ public class ParticipantService extends BaseController {
     private void createParticipantAndSendOTP(HttpHeaders header, Map<String, Object> participant, String sponsorCode, Map<String, Object> output) throws Exception {
         participant.put(ENDPOINT_URL, "http://testurl/v0.7");
         participant.put(ENCRYPTION_CERT, "https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/hcx-platform/sprint-27/hcx-apis/src/test/resources/examples/x509-self-signed-certificate.pem");
+        participant.put(SIGNING_CERT_PATH, "https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/hcx-platform/sprint-27/hcx-apis/src/test/resources/examples/x509-self-signed-certificate.pem");
         participant.put(REGISTRY_STATUS, CREATED);
         if (((ArrayList<String>) participant.get(ROLES)).contains(PAYOR))
             participant.put(SCHEME_CODE, "default");
