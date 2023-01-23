@@ -21,7 +21,7 @@ public class Response {
     private List<Subscription> subscriptions;
     @JsonProperty("count")
     private Integer count;
-    private List<Map<String,Object>> notifications;
+    private List<Map<String, Object>> notifications;
     private List<String> subscription_list;
     @JsonProperty("subscription_id")
     private String subscriptionId;
@@ -30,7 +30,8 @@ public class Response {
 
     private String status;
 
-    public Response() {}
+    public Response() {
+    }
 
     public Response(String correlationId) {
         this.correlationId = correlationId;
@@ -41,12 +42,12 @@ public class Response {
         this.apiCallId = apiCallId;
     }
 
-    public Response(Request request){
+    public Response(Request request) {
         this.setCorrelationId(request.getCorrelationId());
         this.setApiCallId(request.getApiCallId());
     }
 
-    public Response(ResponseError error){
+    public Response(ResponseError error) {
         this.error = error;
     }
 
@@ -55,15 +56,15 @@ public class Response {
         this.put(key, val);
     }
 
-    public Response(Map<String,Object> result) {
+    public Response(Map<String, Object> result) {
         this.result = result;
     }
 
-    public List<Map<String,Object>> getNotifications() {
+    public List<Map<String, Object>> getNotifications() {
         return notifications;
     }
 
-    public void setNotifications(List<Map<String,Object>> notifications) {
+    public void setNotifications(List<Map<String, Object>> notifications) {
         this.notifications = notifications;
     }
 
@@ -144,18 +145,24 @@ public class Response {
         this.subscriptionStatus = subscriptionStatus;
     }
 
-    public String getSubscriptionStatus() { return subscriptionStatus;}
+    public String getSubscriptionStatus() {
+        return subscriptionStatus;
+    }
 
     public void setSubscriptionId(String subscriptionId) {
         this.subscriptionId = subscriptionId;
     }
 
-    public String getSubscriptionId() {return  subscriptionId;}
+    public String getSubscriptionId() {
+        return subscriptionId;
+    }
 
     public void setStatus(String status) {
         this.status = status;
     }
 
-    public String getStatus() {return  status;}
+    public String getStatus() {
+        return status;
+    }
 }
 

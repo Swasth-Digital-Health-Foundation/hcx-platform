@@ -58,6 +58,8 @@ public class ParticipantController extends BaseController {
     @Value("${certificates.bucket_name}")
     private String bucketName;
 
+    @Value("${postgres.onboardingOtpTable}")
+    private String onboardOtpTable;
     @Autowired
     private RedisCache redisCache;
 
@@ -125,7 +127,7 @@ public class ParticipantController extends BaseController {
     }
 
     private Map<String, Object> getParticipant(String participantCode) throws Exception {
-        ResponseEntity<Object> searchResponse = participantSearch("", JSONUtils.deserialize("{ \"filters\": { \"participant_code\": { \"eq\": \" " + participantCode + "\" } } }", Map.class));
+        ResponseEntity<Object> searchResponse = participantSearchBody(participantCode);
         ParticipantResponse participantResponse = (ParticipantResponse) Objects.requireNonNull(searchResponse.getBody());
         if (participantResponse.getParticipants().isEmpty())
             throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_CODE, INVALID_PARTICIPANT_CODE);
@@ -147,6 +149,34 @@ public class ParticipantController extends BaseController {
         }
     }
 
+    @GetMapping(PARTICIPANT_READ)
+    public ResponseEntity<Object> participantRead(@PathVariable("participantCode") String participantCode,@RequestParam(required = false) String fields) {
+        try {
+            String pathParam = "";
+            if(fields != null && fields.toLowerCase().contains(SPONSORS)){
+                pathParam = SPONSORS;
+            }
+            Map<String,Object> searchReq = JSONUtils.deserialize("{ \"filters\": { \"participant_code\": { \"eq\": \" " + participantCode + "\" } } }", Map.class);
+            ResponseEntity<Object> response = participantSearch(pathParam, searchReq);
+            ParticipantResponse searchResp = (ParticipantResponse) response.getBody();
+            if (fields != null && fields.toLowerCase().contains(VERIFICATIONSTATUS) && searchResp != null) {
+                ((Map<String,Object>) searchResp.getParticipants().get(0)).putAll(getVerificationStatus(participantCode));
+            }
+            return getSuccessResponse(searchResp);
+        } catch (Exception e) {
+            return exceptionHandler(new Response(), e);
+        }
+    }
+
+    private Map<String,Object> getVerificationStatus(String participantCode) throws Exception {
+        String selectQuery = String.format("SELECT status FROM %s WHERE participant_code ='%s'", onboardOtpTable, participantCode);
+        ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
+        Map<String, Object> responseMap = new HashMap<>();
+        while (resultSet.next()) {
+            responseMap.put(FORMSTATUS, resultSet.getString("status"));
+        }
+        return Collections.singletonMap("verificationStatus", responseMap);
+    }
 
     @PostMapping(PARTICIPANT_DELETE)
     public ResponseEntity<Object> participantDelete(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
@@ -175,7 +205,7 @@ public class ParticipantController extends BaseController {
     }
 
     private boolean isParticipantCodeExists(String participantCode) throws Exception {
-        ResponseEntity<Object> searchResponse = participantSearch("", JSONUtils.deserialize("{ \"filters\": { \"participant_code\": { \"eq\": \" " + participantCode + "\" } } }", Map.class));
+        ResponseEntity<Object> searchResponse = participantSearchBody(participantCode);
         Object responseBody = searchResponse.getBody();
         if (responseBody != null) {
             if (responseBody instanceof Response) {
@@ -299,6 +329,8 @@ public class ParticipantController extends BaseController {
     }
     public void deleteCertificatesUrl(String participantCode){
           awsClient.deleteMultipleObject(participantCode);
+    public ResponseEntity<Object> participantSearchBody(String participantCode) throws Exception {
+        return participantSearch("", JSONUtils.deserialize("{ \"filters\": { \"participant_code\": { \"eq\": \" " + participantCode + "\" } } }", Map.class));
     }
 }
 

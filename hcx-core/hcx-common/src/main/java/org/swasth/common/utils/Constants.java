@@ -57,8 +57,11 @@ public class Constants {
     // Registry Participant APIs
     public static final String PARTICIPANT_CREATE = "/participant/create";
     public static final String PARTICIPANT_SEARCH = "/participant/search";
+    public static final String PARTICIPANT_READ = "/participant/read/{participantCode}";
     public static final String PARTICIPANT_UPDATE = "/participant/update";
     public static final String SPONSORS = "sponsors";
+    public static final String VERIFICATIONSTATUS = "verificationstatus";
+    public static final String FORMSTATUS = "status";
     public static final String PARTICIPANT_DELETE = "/participant/delete";
     public static final String PARTICIPANT_VERIFY = "/participant/verify";
     public static final String PARTICIPANT_GET_INFO = "/participant/getInfo";
@@ -69,7 +72,11 @@ public class Constants {
 
     // Object Types
     public static final String PARTICIPANT = "participant";
-
+    public static final String VERIFIERCODE = "verifier_code";
+    public static final String ONBOARD_THROUGH_JWT = "onboard-through-jwt";
+    public static final String ONBOARD_THROUGH_VERIFIER = "onboard-through-verifier";
+    public static final String EMAIL_OTP_VALIDATION = "email-otp-validation";
+    public static final String PHONE_OTP_VALIDATION = "phone-otp-validation";
     public static final String HEALTHY = "healthy";
     public static final String NAME = "name";
     public static final String KAFKA = "kafka";
@@ -260,11 +267,10 @@ public class Constants {
     public static final String OTP = "otp";
     public static final String SUCCESSFUL = "successful";
     public static final String FAILED = "failed";
-    public static final String PAYOR_CODE = "payor_code";
     public static final String ATTEMPT_COUNT = "attempt_count";
     public static final String REJECTED = "rejected";
     public static final String ACCEPTED = "accepted";
-    public static final String IDENTITY_VERIFIED = "identity_verified";
+    public static final String IDENTITY_VERIFICATION = "identity_verification";
     public static final String EMAIL_OTP_VERIFIED = "email_otp_verified";
     public static final String PHONE_OTP_VERIFIED = "phone_otp_verified";
     public static final List<String> ALLOWED_ONBOARD_STATUS = Arrays.asList(REJECTED, ACCEPTED);

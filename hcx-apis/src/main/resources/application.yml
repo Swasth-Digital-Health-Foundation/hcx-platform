@@ -34,6 +34,7 @@ postgres:
   password: ${postgres_password:postgres}
   tablename: ${postgres_tablename:payload}
   onboardingTable: ${onboarding_table:onboarding}
+  onboardingOtpTable : ${onboarding_otp:onboarding_otp}
   subscription:
     tablename: ${postgres_subscription_tablename:subscription}
     insertQuery: ${postgres_subscription_insertQuery:INSERT INTO %s as sub(subscription_id,subscription_request_id,topic_code,sender_code,recipient_code,subscription_status,lastUpdatedOn,createdOn,expiry,is_delegated) VALUES ('%s','%s','%s','%s','%s','%s',%d,%d,%d,%s) ON CONFLICT ON CONSTRAINT subscription_pkey DO UPDATE SET subscription_status='%s',lastUpdatedOn=%d,expiry=%d,is_delegated=%s WHERE sub.sender_code=EXCLUDED.sender_code AND sub.topic_code=EXCLUDED.topic_code AND sub.recipient_code=EXCLUDED.recipient_code RETURNING sub.subscription_id}
