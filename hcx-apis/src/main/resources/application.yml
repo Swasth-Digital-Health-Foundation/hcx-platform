@@ -100,6 +100,6 @@ notification:
 
 #AWS S3 bucket
 certificates:
-  aws_accesskey : ${accesskey:xxxxxxxxxxxxxxxxxxx}
-  aws_secretKey : ${secretKey:xxxxxxxxxxxxxxxxxxx}
-  bucket_name : ${bucket_name:dev-hcx-certificates}
+  aws_accesskey : ${accesskey:}
+  aws_secretKey : ${secretKey:}
+  bucket_name : ${bucket_name:}

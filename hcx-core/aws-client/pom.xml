@@ -2,28 +2,26 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
-    <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>hcx-platform</artifactId>
+        <artifactId>hcx-core</artifactId>
         <groupId>org.swasth</groupId>
         <version>1.0-SNAPSHOT</version>
     </parent>
-    <groupId>org.swasth</groupId>
-    <artifactId>hcx-core</artifactId>
-    <version>1.0-SNAPSHOT</version>
-    <packaging>pom</packaging>
-    <modules>
-        <module>hcx-common</module>
-        <module>kafka-client</module>
-        <module>postgresql-client</module>
-        <module>audit-indexer</module>
-        <module>redis-cache</module>
-        <module>aws-client</module>
-    </modules>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>aws-client</artifactId>
+
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+    <dependencies>
+        <dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk-s3</artifactId>
+            <version>1.12.376</version>
+        </dependency>
+    </dependencies>
 
 </project>

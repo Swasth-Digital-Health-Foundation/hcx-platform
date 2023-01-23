@@ -65,7 +65,7 @@ public class Constants {
     public static final String PARTICIPANT_OTP_SEND = "/participant/otp/send";
     public static final String PARTICIPANT_ONBOARD_UPDATE = "/participant/onboard/update";
     public static final String PARTICIPANT_VERIFY_IDENTITY = "/participant/verify/identity";
-    public static final String STRING = "string";
+    public static final String TEXT = "text";
 
     // Object Types
     public static final String PARTICIPANT = "participant";
@@ -153,7 +153,7 @@ public class Constants {
     public static final String SIGNING_CERT_PATH = "signing_cert_path";
     public static final String ENCRYPTION_CERT = "encryption_cert";
     public static final String ENCRYPTION_CERT_EXPIRY = "encryption_cert_expiry";
-    public static final String CERTIFICATE_TYPE = "certificate_type";
+    public static final String CERTIFICATES_TYPE = "certificates_type";
     public static final String EQUAL_OPERATION = "eq";
     public static final String OSID = "osid";
     public static final String AUTHORIZATION = "Authorization";
