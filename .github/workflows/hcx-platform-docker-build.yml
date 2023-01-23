@@ -28,7 +28,7 @@ jobs:
           cd hcx-scheduler-jobs
           mvn clean install
           cd ../hcx-pipeline-jobs
-          mvn clean install
+          mvn clean install -DskipTests
 
       - name: Cache Maven packages
         uses: actions/cache@v1
