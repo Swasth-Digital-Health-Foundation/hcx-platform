@@ -1,4 +1,4 @@
-name: HCX Platform - Build
+name: HCX Platform - Commit Build
 
 on:
   push:
