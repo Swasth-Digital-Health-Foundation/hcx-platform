@@ -49,13 +49,7 @@ public class ParticipantController extends BaseController {
     @Value("${postgres.onboardingTable}")
     private String onboardingTable;
 
-    @Value("${certificates.aws_accesskey}")
-    private String awsAccesskey;
-
-    @Value("${certificates.aws_secretKey}")
-    private String awsSecretKey;
-
-    @Value("${certificates.bucket_name}")
+    @Value("${certificates.bucketName}")
     private String bucketName;
 
     @Value("${postgres.onboardingOtpTable}")
@@ -70,6 +64,7 @@ public class ParticipantController extends BaseController {
     protected IDatabaseService postgreSQLClient;
     @Autowired
     private ICloudService awsClient;
+
     @PostMapping(PARTICIPANT_CREATE)
     public ResponseEntity<Object> participantCreate(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
         try {
@@ -150,17 +145,17 @@ public class ParticipantController extends BaseController {
     }
 
     @GetMapping(PARTICIPANT_READ)
-    public ResponseEntity<Object> participantRead(@PathVariable("participantCode") String participantCode,@RequestParam(required = false) String fields) {
+    public ResponseEntity<Object> participantRead(@PathVariable("participantCode") String participantCode, @RequestParam(required = false) String fields) {
         try {
             String pathParam = "";
-            if(fields != null && fields.toLowerCase().contains(SPONSORS)){
+            if (fields != null && fields.toLowerCase().contains(SPONSORS)) {
                 pathParam = SPONSORS;
             }
-            Map<String,Object> searchReq = JSONUtils.deserialize("{ \"filters\": { \"participant_code\": { \"eq\": \" " + participantCode + "\" } } }", Map.class);
+            Map<String, Object> searchReq = JSONUtils.deserialize("{ \"filters\": { \"participant_code\": { \"eq\": \" " + participantCode + "\" } } }", Map.class);
             ResponseEntity<Object> response = participantSearch(pathParam, searchReq);
             ParticipantResponse searchResp = (ParticipantResponse) response.getBody();
             if (fields != null && fields.toLowerCase().contains(VERIFICATIONSTATUS) && searchResp != null) {
-                ((Map<String,Object>) searchResp.getParticipants().get(0)).putAll(getVerificationStatus(participantCode));
+                ((Map<String, Object>) searchResp.getParticipants().get(0)).putAll(getVerificationStatus(participantCode));
             }
             return getSuccessResponse(searchResp);
         } catch (Exception e) {
@@ -168,7 +163,7 @@ public class ParticipantController extends BaseController {
         }
     }
 
-    private Map<String,Object> getVerificationStatus(String participantCode) throws Exception {
+    private Map<String, Object> getVerificationStatus(String participantCode) throws Exception {
         String selectQuery = String.format("SELECT status FROM %s WHERE participant_code ='%s'", onboardOtpTable, participantCode);
         ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
         Map<String, Object> responseMap = new HashMap<>();
@@ -184,7 +179,7 @@ public class ParticipantController extends BaseController {
             if (!requestBody.containsKey(PARTICIPANT_CODE))
                 throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_CODE, PARTICIPANT_CODE_MSG);
             String participantCode = (String) requestBody.get(PARTICIPANT_CODE);
-            deleteCertificatesUrl(participantCode);
+            awsClient.deleteMultipleObject(participantCode, bucketName);
             Map<String, Object> participant = getParticipant(participantCode);
             String url = registryUrl + "/api/v1/Organisation/" + participant.get(OSID);
             Map<String, String> headersMap = new HashMap<>();
@@ -241,6 +236,7 @@ public class ParticipantController extends BaseController {
         else if (!requestBody.containsKey(SIGNING_CERT_PATH) || !(requestBody.get(SIGNING_CERT_PATH) instanceof String))
             throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, INVALID_SIGNING_CERT_PATH);
         requestBody.put(ENCRYPTION_CERT_EXPIRY, jwtUtils.getCertificateExpiry((String) requestBody.get(ENCRYPTION_CERT)));
+        requestBody.put(SIGNING_CERT_PATH, jwtUtils.getCertificateExpiry((String) requestBody.get(SIGNING_CERT_PATH)));
 
     }
 
@@ -248,6 +244,12 @@ public class ParticipantController extends BaseController {
         List<String> notAllowedUrls = env.getProperty(HCX_NOT_ALLOWED_URLS, List.class, new ArrayList<String>());
         if (notAllowedUrls.contains(requestBody.getOrDefault(ENDPOINT_URL, "")))
             throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, INVALID_END_POINT);
+        else if (!requestBody.containsKey(ENCRYPTION_CERT) || !(requestBody.get(ENCRYPTION_CERT) instanceof String))
+            throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, INVALID_ENCRYPTION_CERT);
+        else if (!requestBody.containsKey(SIGNING_CERT_PATH) || !(requestBody.get(SIGNING_CERT_PATH) instanceof String))
+            throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, INVALID_SIGNING_CERT_PATH);
+        requestBody.put(ENCRYPTION_CERT_EXPIRY, jwtUtils.getCertificateExpiry((String) requestBody.get(ENCRYPTION_CERT)));
+        requestBody.put(SIGNING_CERT_PATH, jwtUtils.getCertificateExpiry((String) requestBody.get(SIGNING_CERT_PATH)));
     }
 
 
@@ -320,16 +322,14 @@ public class ParticipantController extends BaseController {
         String encryptionCertUrl = participantCode + "/encryption_cert_path.pem";
         String signingCert = requestBody.get("signing_cert_path").toString().replace(" ", "\n").replaceAll("-----BEGIN\nCERTIFICATE-----", "-----BEGIN CERTIFICATE-----").replaceAll("-----END\nCERTIFICATE-----", "-----END CERTIFICATE-----");
         String encryptionCert = requestBody.get("encryption_cert").toString().replace(" ", "\n").replaceAll("-----BEGIN\nCERTIFICATE-----", "-----BEGIN CERTIFICATE-----").replaceAll("-----END\nCERTIFICATE-----", "-----END CERTIFICATE-----");
-        awsClient.putObject(participantCode);
-        awsClient.putObject(bucketName,signingCertUrl,signingCert);
-        awsClient.putObject(bucketName,encryptionCertUrl,encryptionCert);
+        awsClient.putObject(participantCode, bucketName);
+        awsClient.putObject(bucketName, signingCertUrl, signingCert);
+        awsClient.putObject(bucketName, encryptionCertUrl, encryptionCert);
         requestBody.remove(CERTIFICATES_TYPE);
         requestBody.put(SIGNING_CERT_PATH, awsClient.getUrl(bucketName, signingCertUrl).toString());
         requestBody.put(ENCRYPTION_CERT, awsClient.getUrl(bucketName, encryptionCertUrl).toString());
     }
-    public void deleteCertificatesUrl(String participantCode) {
-        awsClient.deleteMultipleObject(participantCode);
-    }
+
     public ResponseEntity<Object> participantSearchBody(String participantCode) throws Exception {
         return participantSearch("", JSONUtils.deserialize("{ \"filters\": { \"participant_code\": { \"eq\": \" " + participantCode + "\" } } }", Map.class));
     }

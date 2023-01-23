@@ -17,12 +17,10 @@ public class AWSClient implements ICloudService {
 
     private final String awsAccesskey;
     private final String awsSecretKey;
-    private final String bucketName;
 
-    public AWSClient(String awsAccesskey, String awsSecretKey, String bucketName){
+    public AWSClient(String awsAccesskey, String awsSecretKey) {
         this.awsAccesskey = awsAccesskey;
         this.awsSecretKey = awsSecretKey;
-        this.bucketName = bucketName;
         AmazonS3 s3Client = getClient();
     }
 
@@ -32,16 +30,18 @@ public class AWSClient implements ICloudService {
                 .withRegion(Regions.AP_SOUTH_1)
                 .build();
     }
-    public void putObject(String folderName){
+
+    public void putObject(String folderName, String bucketName) {
         PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, folderName + "/", new ByteArrayInputStream(new byte[0]), new ObjectMetadata());
         putObjectRequest.setCannedAcl(CannedAccessControlList.PublicRead);
 
     }
-    public void putObject(String bucketName,String folderName,String content){
-        getClient().putObject(bucketName,folderName,content);
+
+    public void putObject(String bucketName, String folderName, String content) {
+        getClient().putObject(bucketName, folderName, content);
     }
 
-    public void deleteMultipleObject(String folderName){
+    public void deleteMultipleObject(String folderName, String bucketName) {
         String[] objkeyArr = {
                 folderName + "/signing_cert_path.pem",
                 folderName + "/encryption_cert_path.pem"
@@ -50,7 +50,8 @@ public class AWSClient implements ICloudService {
                 .withKeys(objkeyArr);
         getClient().deleteObjects(delObjReq);
     }
-    public URL getUrl(String bucketName, String path){
-       return getClient().getUrl(bucketName,path);
+
+    public URL getUrl(String bucketName, String path) {
+        return getClient().getUrl(bucketName, path);
     }
 }

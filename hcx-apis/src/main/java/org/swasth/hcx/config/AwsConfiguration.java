@@ -9,18 +9,15 @@ import org.swasth.ICloudService;
 @Configuration
 public class AwsConfiguration {
 
-    @Value("${certificates.aws_accesskey}")
+    @Value("${certificates.awsAccesskey}")
     private String awsAccesskey;
 
-    @Value("${certificates.aws_secretKey}")
+    @Value("${certificates.awsSecretKey}")
     private String awsSecretKey;
-
-    @Value("${certificates.bucket_name}")
-    private String bucketName;
 
     @Bean
     public ICloudService AwsClient(){
-        return new AWSClient(awsAccesskey,awsSecretKey,bucketName);
+        return new AWSClient(awsAccesskey,awsSecretKey);
     }
 
 }
