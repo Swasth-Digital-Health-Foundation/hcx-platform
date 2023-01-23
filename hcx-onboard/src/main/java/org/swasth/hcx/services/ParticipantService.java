@@ -82,7 +82,7 @@ public class ParticipantService extends BaseController {
 
     @Autowired
     private JWTUtils jwtUtils;
-    public ResponseEntity<Object> participantVerify(HttpHeaders header, ArrayList<Map<String, Object>> body , String email) throws Exception {
+    public ResponseEntity<Object> verify(HttpHeaders header, ArrayList<Map<String, Object>> body, String email) throws Exception {
         OnboardRequest request = new OnboardRequest(body);
         Map<String, Object> requestBody = request.getBody();
         logger.info("Participant verification :: " + requestBody);
@@ -259,7 +259,7 @@ public class ParticipantService extends BaseController {
         }
     }
 
-    public ResponseEntity<Object> participantIdentityVerify(Map<String, Object> requestBody) throws Exception {
+    public ResponseEntity<Object> identityVerify(Map<String, Object> requestBody) throws Exception {
         String applicantEmail = (String) requestBody.get(PRIMARY_EMAIL);
         String status = (String) requestBody.get(REGISTRY_STATUS);
         if (!ALLOWED_ONBOARD_STATUS.contains(status))
@@ -276,7 +276,7 @@ public class ParticipantService extends BaseController {
         }
     }
 
-    public ResponseEntity<Object> participantGetInfo(HttpHeaders header, Map<String, Object> requestBody) throws Exception {
+    public ResponseEntity<Object> getInfo(HttpHeaders header, Map<String, Object> requestBody) throws Exception {
         String applicantCode;
         String sponsorCode;
         Map<String, Object> sponsorDetails;
