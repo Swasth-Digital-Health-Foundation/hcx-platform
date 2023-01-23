@@ -3,7 +3,7 @@ package org.swasth.hcx.config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.swasth.AwsClient;
+import org.swasth.AWSClient;
 import org.swasth.ICloudService;
 
 @Configuration
@@ -20,7 +20,7 @@ public class AwsConfiguration {
 
     @Bean
     public ICloudService AwsClient(){
-        return new AwsClient(awsAccesskey,awsSecretKey,bucketName);
+        return new AWSClient(awsAccesskey,awsSecretKey,bucketName);
     }
 
 }
