@@ -1,4 +1,4 @@
-name: HCX APIs - Build
+name: HCX Platform - Build
 
 on:
   push:
@@ -24,6 +24,8 @@ jobs:
         run: |
           mvn clean install
           cd hcx-scheduler-jobs
+          mvn clean install
+          cd ../hcx-pipeline-jobs
           mvn clean install
 
       - name: Cache Maven packages
@@ -61,10 +63,18 @@ jobs:
           tags: swasth2021/hcx-api:${{ env.IMAGE_TAG }}_${{ github.run_number }}
           labels: hcx-api image
 
-      - name: Build and push Docker image for HCX Scheduler Job
+      - name: Build and push Docker image for HCX Scheduler Jobs
         uses: docker/build-push-action@v3
         with:
           context: ./hcx-scheduler-jobs
           push: true
           tags: swasth2021/hcx-scheduler-jobs:${{ env.IMAGE_TAG }}_${{ github.run_number }}
           labels: hcx-scheduler-jobs image
+
+      - name: Build and push Docker image for HCX Pipeline Jobs
+        uses: docker/build-push-action@v3
+        with:
+          context: ./hcx-pipeline-jobs/jobs-distribution
+          push: true
+          tags: swasth2021/hcx-pipeline-jobs:${{ env.IMAGE_TAG }}_${{ github.run_number }}
+          labels: hcx-pipeline-jobs image
