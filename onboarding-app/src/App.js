@@ -12,6 +12,7 @@ import { Onboarded } from './components/Onboarded';
 
 
 function App() {
+
   return (
     <div className="App">
       <Router>

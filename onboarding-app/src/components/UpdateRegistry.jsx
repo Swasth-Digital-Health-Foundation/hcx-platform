@@ -89,7 +89,7 @@ export const UpdateRegistry = ({ changeTab, formState, setState }) => {
                 </Form.Field>
                 {passwordVerified ? null :
                     <Button disabled={sending} onClick={getAccessToken} className="primary center-element button-color">
-                        {sending ? "Verfiying" : "Verify"}</Button>}
+                        {sending ? "Verifying" : "Verify"}</Button>}
                 {passwordVerified ?
                     <Form.Field disabled={sending} className={{ 'error': 'endpoint_url' in errors }} required>
                         <label>Endpoint URL</label>
