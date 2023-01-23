@@ -80,3 +80,15 @@ jobs:
           push: true
           tags: swasth2021/hcx-pipeline-jobs:${{ env.IMAGE_TAG }}_${{ github.run_number }}
           labels: hcx-pipeline-jobs image
+
+      - name: Configure AWS CLI
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-south-1
+
+      - name: Build and push Docker image for HCX Scheduler Job to S3 bucket
+        run: |
+          echo ${{ env.IMAGETAG }}${{ github.run_number }} >> /tmp/tag.txt
+          aws s3 cp /tmp/tag.txt s3://build-tags/tag.txt
