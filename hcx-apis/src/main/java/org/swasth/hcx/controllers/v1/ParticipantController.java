@@ -75,8 +75,8 @@ public class ParticipantController extends BaseController {
                 participantCode = SlugUtils.makeSlug(primaryEmail, String.valueOf(new SecureRandom().nextInt(1000)), fieldSeparator, hcxInstanceName);
             }
             requestBody.put(PARTICIPANT_CODE, participantCode);
-            if (requestBody.get(CERTIFICATES_TYPE).toString().equalsIgnoreCase(TEXT)) {
-                getCertificatesUrl(requestBody);
+            if (requestBody.getOrDefault(CERTIFICATES_TYPE,"").toString().equalsIgnoreCase(TEXT)) {
+                getCertificatesUrl(requestBody,participantCode);
             }
             validateCertificates(requestBody);
             String url = registryUrl + "/api/v1/Organisation/invite";
@@ -99,9 +99,9 @@ public class ParticipantController extends BaseController {
     @PostMapping(PARTICIPANT_UPDATE)
     public ResponseEntity<Object> participantUpdate(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
         try {
-            getCertificatesUrl(requestBody);
-            validateUpdateParticipant(requestBody);
             String participantCode = (String) requestBody.get(PARTICIPANT_CODE);
+            getCertificatesUrl(requestBody,participantCode);
+            validateUpdateParticipant(requestBody);
             Map<String, Object> participant = getParticipant(participantCode);
             String url = registryUrl + "/api/v1/Organisation/" + participant.get(OSID);
             Map<String, String> headersMap = new HashMap<>();
@@ -316,12 +316,11 @@ public class ParticipantController extends BaseController {
         return getSuccessResponse(new ParticipantResponse(modifiedResponseList));
     }
 
-    public void getCertificatesUrl(Map<String, Object> requestBody) {
-        String participantCode = requestBody.get("participant_code").toString();
+    public void getCertificatesUrl(Map<String, Object> requestBody ,String participantCode) {
         String signingCertUrl = participantCode + "/signing_cert_path.pem";
         String encryptionCertUrl = participantCode + "/encryption_cert_path.pem";
-        String signingCert = requestBody.get("signing_cert_path").toString().replace(" ", "\n").replaceAll("-----BEGIN\nCERTIFICATE-----", "-----BEGIN CERTIFICATE-----").replaceAll("-----END\nCERTIFICATE-----", "-----END CERTIFICATE-----");
-        String encryptionCert = requestBody.get("encryption_cert").toString().replace(" ", "\n").replaceAll("-----BEGIN\nCERTIFICATE-----", "-----BEGIN CERTIFICATE-----").replaceAll("-----END\nCERTIFICATE-----", "-----END CERTIFICATE-----");
+        String signingCert = requestBody.getOrDefault("signing_cert_path","").toString().replace(" ", "\n").replaceAll("-----BEGIN\nCERTIFICATE-----", "-----BEGIN CERTIFICATE-----").replaceAll("-----END\nCERTIFICATE-----", "-----END CERTIFICATE-----");
+        String encryptionCert = requestBody.getOrDefault("encryption_cert","").toString().replace(" ", "\n").replaceAll("-----BEGIN\nCERTIFICATE-----", "-----BEGIN CERTIFICATE-----").replaceAll("-----END\nCERTIFICATE-----", "-----END CERTIFICATE-----");
         awsClient.putObject(participantCode, bucketName);
         awsClient.putObject(bucketName, signingCertUrl, signingCert);
         awsClient.putObject(bucketName, encryptionCertUrl, encryptionCert);
