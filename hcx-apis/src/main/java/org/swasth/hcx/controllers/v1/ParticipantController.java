@@ -327,8 +327,9 @@ public class ParticipantController extends BaseController {
         requestBody.put(SIGNING_CERT_PATH, awsClient.getUrl(bucketName, signingCertUrl).toString());
         requestBody.put(ENCRYPTION_CERT, awsClient.getUrl(bucketName, encryptionCertUrl).toString());
     }
-    public void deleteCertificatesUrl(String participantCode){
-          awsClient.deleteMultipleObject(participantCode);
+    public void deleteCertificatesUrl(String participantCode) {
+        awsClient.deleteMultipleObject(participantCode);
+    }
     public ResponseEntity<Object> participantSearchBody(String participantCode) throws Exception {
         return participantSearch("", JSONUtils.deserialize("{ \"filters\": { \"participant_code\": { \"eq\": \" " + participantCode + "\" } } }", Map.class));
     }
