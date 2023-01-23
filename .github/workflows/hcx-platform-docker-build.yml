@@ -1,10 +1,12 @@
-name: HCX Platform - Commit Build
+name: HCX Platform - Build
 
 on:
   push:
     branches:
       - main
       - sprint-*
+    tags:
+      - *
 
 jobs:
   build:
