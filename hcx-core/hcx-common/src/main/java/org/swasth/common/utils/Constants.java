@@ -160,6 +160,7 @@ public class Constants {
     public static final String SIGNING_CERT_PATH = "signing_cert_path";
     public static final String ENCRYPTION_CERT = "encryption_cert";
     public static final String ENCRYPTION_CERT_EXPIRY = "encryption_cert_expiry";
+    public static final String SIGNING_CERT_EXPIRY = "sigining_cert_expiry";
     public static final String CERTIFICATES_TYPE = "certificates_type";
     public static final String EQUAL_OPERATION = "eq";
     public static final String OSID = "osid";

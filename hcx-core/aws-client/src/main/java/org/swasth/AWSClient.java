@@ -21,7 +21,6 @@ public class AWSClient implements ICloudService {
     public AWSClient(String awsAccesskey, String awsSecretKey) {
         this.awsAccesskey = awsAccesskey;
         this.awsSecretKey = awsSecretKey;
-        AmazonS3 s3Client = getClient();
     }
 
     public AmazonS3 getClient() {
