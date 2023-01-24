@@ -108,7 +108,7 @@ public class ParticipantController extends BaseController {
             if (requestBody.getOrDefault(CERTIFICATES_TYPE, "").toString().equalsIgnoreCase(TEXT)) {
                 getCertificatesUrl(requestBody, participantCode);
             }
-            logger.debug("response" + requestBody);
+            System.out.println("response" + requestBody);
             validateUpdateParticipant(requestBody);
             Map<String, Object> participant = getParticipant(participantCode);
             String url = registryUrl + "/api/v1/Organisation/" + participant.get(OSID);
