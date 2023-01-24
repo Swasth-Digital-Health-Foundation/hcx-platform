@@ -47,11 +47,11 @@ public class ParticipantService extends BaseController {
     @Value("${email.successIdentityMsg}")
     private String successIdentityMsg;
 
-    @Value("${email.successOnboardingSub}")
-    private String successOnboardingSub;
+    @Value("${email.onboardingSuccessSub}")
+    private String onboardingSuccessSub;
 
-    @Value("${email.successOnboardingMsg}")
-    private String successOnboardingMsg;
+    @Value("${email.onboardingSuccessMsg}")
+    private String onboardingSuccessMsg;
 
     @Value("${hcx-api.basePath}")
     private String hcxAPIBasePath;
@@ -82,7 +82,7 @@ public class ParticipantService extends BaseController {
 
     @Autowired
     private JWTUtils jwtUtils;
-    public ResponseEntity<Object> participantVerify(HttpHeaders header, ArrayList<Map<String, Object>> body , String email) throws Exception {
+    public ResponseEntity<Object> verify(HttpHeaders header, ArrayList<Map<String, Object>> body, String email) throws Exception {
         OnboardRequest request = new OnboardRequest(body);
         Map<String, Object> requestBody = request.getBody();
         logger.info("Participant verification :: " + requestBody);
@@ -120,6 +120,7 @@ public class ParticipantService extends BaseController {
     private void createParticipantAndSendOTP(HttpHeaders header, Map<String, Object> participant, String sponsorCode, Map<String, Object> output) throws Exception {
         participant.put(ENDPOINT_URL, "http://testurl/v0.7");
         participant.put(ENCRYPTION_CERT, "https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/hcx-platform/sprint-27/hcx-apis/src/test/resources/examples/x509-self-signed-certificate.pem");
+        participant.put(SIGNING_CERT_PATH, "https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/hcx-platform/sprint-27/hcx-apis/src/test/resources/examples/x509-self-signed-certificate.pem");
         participant.put(REGISTRY_STATUS, CREATED);
         if (((ArrayList<String>) participant.get(ROLES)).contains(PAYOR))
             participant.put(SCHEME_CODE, "default");
@@ -250,7 +251,7 @@ public class ParticipantService extends BaseController {
             HttpResponse<String> response = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_UPDATE, JSONUtils.serialize(participant), headersMap);
             if (response.getStatus() == 200) {
                 logger.info("Participant details are updated successfully :: participant code : " + participant.get(PARTICIPANT_CODE));
-                emailService.sendMail(email, successOnboardingSub, successOnboardingMsg.replace("USER_NAME", StringUtils.capitalize((String) participant.get(PARTICIPANT_NAME))));
+                emailService.sendMail(email, onboardingSuccessSub, onboardingSuccessMsg.replace("USER_NAME", StringUtils.capitalize((String) participant.get(PARTICIPANT_NAME))));
                 return getSuccessResponse(new Response(PARTICIPANT_CODE, participant.get(PARTICIPANT_CODE)));
             } else return responseHandler(response, (String) participant.get(PARTICIPANT_CODE));
         } else {
@@ -259,7 +260,7 @@ public class ParticipantService extends BaseController {
         }
     }
 
-    public ResponseEntity<Object> participantIdentityVerify(Map<String, Object> requestBody) throws Exception {
+    public ResponseEntity<Object> identityVerify(Map<String, Object> requestBody) throws Exception {
         String applicantEmail = (String) requestBody.get(PRIMARY_EMAIL);
         String status = (String) requestBody.get(REGISTRY_STATUS);
         if (!ALLOWED_ONBOARD_STATUS.contains(status))
@@ -276,7 +277,7 @@ public class ParticipantService extends BaseController {
         }
     }
 
-    public ResponseEntity<Object> participantGetInfo(HttpHeaders header, Map<String, Object> requestBody) throws Exception {
+    public ResponseEntity<Object> getInfo(HttpHeaders header, Map<String, Object> requestBody) throws Exception {
         String applicantCode;
         String sponsorCode;
         Map<String, Object> sponsorDetails;
@@ -315,7 +316,8 @@ public class ParticipantService extends BaseController {
         }
 
         if (!payorResp.isEmpty()) identityVerification = ACCEPTED;
-        updateIdentityVerificationStatus((String) payorResp.getOrDefault(PRIMARY_EMAIL, ""), applicantCode, sponsorCode, identityVerification);
+        if (!mode.equalsIgnoreCase(MOCK_INVALID))
+            updateIdentityVerificationStatus((String) payorResp.getOrDefault(PRIMARY_EMAIL, ""), applicantCode, sponsorCode, identityVerification);
         ParticipantResponse resp = new ParticipantResponse(payorResp);
         return new ResponseEntity<>(resp, HttpStatus.OK);
     }
