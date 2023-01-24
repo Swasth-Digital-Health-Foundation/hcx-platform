@@ -122,7 +122,7 @@ class ParticipantControllerTests extends BaseSpec{
     void participant_create_get_certificates_success_scenario() throws Exception {
         registryServer.enqueue(new MockResponse()
                 .setResponseCode(200)
-                .setBody("[{\"paticipant_name\":\"test user\",\"certificiates_type\":\"text\"}]")
+                .setBody("[{\"paticipant_name\":\"test user\"}]")
                 .addHeader("Content-Type", "application/json"));
         registryServer.enqueue(new MockResponse()
                 .setResponseCode(200)
@@ -133,9 +133,10 @@ class ParticipantControllerTests extends BaseSpec{
                 .setBody("{ \"id\": \"open-saber.registry.invite\", \"ver\": \"1.0\", \"ets\": 1637227738534, \"params\": { \"resmsgid\": \"\", \"msgid\": \"bb355e26-cc12-4aeb-8295-03347c428c62\", \"err\": \"\", \"status\": \"SUCCESSFUL\", \"errmsg\": \"\" }, \"responseCode\": \"OK\", \"result\": { \"Organisation\": { \"osid\": \"1-17f02101-b560-4bc1-b3ab-2dac04668fd2\" } } }")
                 .addHeader("Content-Type", "application/json"));
         doReturn(getParticipantCreateAuditLog()).when(mockEventGenerator).createAuditLog(anyString(), anyString(), anyMap(), anyMap());
+        doReturn(getUrl()).when(awsClient).getUrl(anyString(),anyString());
         doNothing().when(awsClient).putObject(anyString(),anyString());
         doNothing().when(awsClient).putObject(anyString(),anyString(),anyString());
-        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_CREATE).content(getParticipantCreateBody()).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_CREATE).content(getCertificateUrlCreateBody()).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         assertEquals(200, status);
@@ -281,6 +282,25 @@ class ParticipantControllerTests extends BaseSpec{
         doNothing().when(awsClient).putObject(anyString(), anyString());
         doReturn(getUrl()).when(awsClient).getUrl(anyString(),anyString());
         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_UPDATE).content(getParticipantUpdateBody()).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        assertEquals(200, status);
+    }
+    @Test
+    void participant_update_get_url_success_scenario() throws Exception {
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("[{\"osid\":\"1-68c5deca-8299-4feb-b441-923bb649a9a3\"}]")
+                .addHeader("Content-Type", "application/json"));
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{ \"message\": \"success\" }")
+                .addHeader("Content-Type", "application/json"));
+        Mockito.when(redisCache.isExists(any())).thenReturn(true);
+        doNothing().when(awsClient).putObject(anyString(), anyString(), anyString());
+        doNothing().when(awsClient).putObject(anyString(), anyString());
+        doReturn(getUrl()).when(awsClient).getUrl(anyString(),anyString());
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_UPDATE).content(getParticipantUrlUpdateBody()).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         assertEquals(200, status);
