@@ -16,7 +16,7 @@ public class AwsConfiguration {
     private String awsSecretKey;
 
     @Bean
-    public ICloudService AwsClient(){
+    public ICloudService AWSClient(){
         return new AWSClient(awsAccesskey,awsSecretKey);
     }
 
