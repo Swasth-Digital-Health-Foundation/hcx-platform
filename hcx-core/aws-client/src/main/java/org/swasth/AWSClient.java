@@ -41,15 +41,17 @@ public class AWSClient implements ICloudService {
     }
 
     public void deleteMultipleObject(String folderName, String bucketName) {
-        String[] objkeyArr = {
-                folderName + "/signing_cert_path.pem",
-                folderName + "/encryption_cert_path.pem"
-        };
-        DeleteObjectsRequest delObjReq = new DeleteObjectsRequest(bucketName)
-                .withKeys(objkeyArr);
-        getClient().deleteObjects(delObjReq);
+        boolean folderExists = getClient().doesObjectExist(bucketName, folderName);
+        if (folderExists) {
+            String[] objkeyArr = {
+                    folderName + "/signing_cert_path.pem",
+                    folderName + "/encryption_cert_path.pem"
+            };
+            getClient().deleteObjects(new DeleteObjectsRequest(bucketName).withKeys(objkeyArr));
+        } else {
+            throw new IllegalArgumentException("Folder " + folderName + " does not exist in the S3 bucket " + bucketName);
+        }
     }
-
     public URL getUrl(String bucketName, String path) {
         return getClient().getUrl(bucketName, path);
     }

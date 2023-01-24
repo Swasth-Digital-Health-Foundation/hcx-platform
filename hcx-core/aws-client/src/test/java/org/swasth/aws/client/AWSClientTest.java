@@ -3,6 +3,7 @@
 //import org.junit.Test;
 //import org.swasth.AWSClient;
 //
+//import static org.junit.Assert.assertFalse;
 //import static org.junit.Assert.assertTrue;
 //
 //
@@ -34,11 +35,15 @@
 //      assertTrue(awsClient.getUrl(BUCKETNAME,PATH).toString().contains(PATH));
 //
 //   }
-//   @Test
-//   public void  deleteMultipleObject(){
-//      awsClient.putObject(BUCKETNAME,FOLDERNAME,CONTENT);
-//      awsClient.deleteMultipleObject(FOLDERNAME,BUCKETNAME);
-//      assertTrue(awsClient.getClient().doesObjectExist(BUCKETNAME,FOLDERNAME));
-//   }
+//    @Test
+//    public void deleteMultipleObject() {
+//        awsClient.putObject(BUCKETNAME,FOLDERNAME,CONTENT);
+//        if(awsClient.getClient().doesObjectExist(BUCKETNAME,FOLDERNAME)) {
+//            awsClient.deleteMultipleObject(FOLDERNAME,BUCKETNAME);
+//        }
+//        assertFalse(awsClient.getClient().doesObjectExist(BUCKETNAME,FOLDERNAME+"/encryption_cert_path.pem"));
+//        assertFalse(awsClient.getClient().doesObjectExist(BUCKETNAME,FOLDERNAME+"/encryption_cert_path.pem"));
+//
+//    }
 //
 //}
