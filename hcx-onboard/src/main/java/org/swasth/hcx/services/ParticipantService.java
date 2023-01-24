@@ -124,7 +124,6 @@ public class ParticipantService extends BaseController {
         participant.put(REGISTRY_STATUS, CREATED);
         if (((ArrayList<String>) participant.get(ROLES)).contains(PAYOR))
             participant.put(SCHEME_CODE, "default");
-        System.out.println("test " + participant);
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put(AUTHORIZATION, Objects.requireNonNull(header.get(AUTHORIZATION)).get(0));
         HttpResponse<String> createResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_CREATE, JSONUtils.serialize(participant), headersMap);
@@ -248,11 +247,8 @@ public class ParticipantService extends BaseController {
             identityStatus = resultSet1.getString("status");
         }
 
-        logger.info(requestBody.toString());
-
         if (emailOtpVerified && phoneOtpVerified && StringUtils.equalsIgnoreCase(identityStatus, ACCEPTED)) {
             HttpResponse<String> response = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_UPDATE, JSONUtils.serialize(participant), headersMap);
-            logger.info("response" + response.getBody() + response.getStatus());
             if (response.getStatus() == 200) {
                 logger.info("Participant details are updated successfully :: participant code : " + participant.get(PARTICIPANT_CODE));
                 emailService.sendMail(email, onboardingSuccessSub, onboardingSuccessMsg.replace("USER_NAME", StringUtils.capitalize((String) participant.get(PARTICIPANT_NAME))));
