@@ -238,8 +238,7 @@ public class ParticipantController extends BaseController {
         else if (!requestBody.containsKey(SIGNING_CERT_PATH) || !(requestBody.get(SIGNING_CERT_PATH) instanceof String))
             throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, INVALID_SIGNING_CERT_PATH);
         requestBody.put(ENCRYPTION_CERT_EXPIRY, jwtUtils.getCertificateExpiry((String) requestBody.get(ENCRYPTION_CERT)));
-        requestBody.put(SIGNING_CERT_EXPIRY, jwtUtils.getCertificateExpiry((String) requestBody.get(SIGNING_CERT_PATH)));
-
+        requestBody.put(SIGNING_CERT_PATH_EXPIRY, jwtUtils.getCertificateExpiry((String) requestBody.get(SIGNING_CERT_PATH)));
     }
 
     private void validateUpdateParticipant(Map<String, Object> requestBody) throws ClientException, CertificateException, IOException {
@@ -249,7 +248,7 @@ public class ParticipantController extends BaseController {
         if (requestBody.containsKey(ENCRYPTION_CERT))
             requestBody.put(ENCRYPTION_CERT_EXPIRY, jwtUtils.getCertificateExpiry((String) requestBody.get(ENCRYPTION_CERT)));
         if (requestBody.containsKey(SIGNING_CERT_PATH))
-            requestBody.put(SIGNING_CERT_PATH, jwtUtils.getCertificateExpiry((String) requestBody.get(SIGNING_CERT_PATH)));
+            requestBody.put(SIGNING_CERT_PATH_EXPIRY, jwtUtils.getCertificateExpiry((String) requestBody.get(SIGNING_CERT_PATH)));
     }
 
 
