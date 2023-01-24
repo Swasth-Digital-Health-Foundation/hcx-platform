@@ -3,8 +3,6 @@ package org.swasth.hcx.controllers.v1;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import kong.unirest.HttpResponse;
 import org.apache.commons.validator.routines.EmailValidator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -35,8 +33,6 @@ import static org.swasth.common.utils.Constants.*;
 @RestController()
 @RequestMapping(Constants.VERSION_PREFIX)
 public class ParticipantController extends BaseController {
-
-    private static final Logger logger = LoggerFactory.getLogger(ParticipantController.class);
 
     @Value("${registry.basePath}")
     private String registryUrl;
@@ -94,7 +90,6 @@ public class ParticipantController extends BaseController {
                 eventHandler.createAudit(eventGenerator.createAuditLog(participantCode, PARTICIPANT, cdata,
                         getEData(CREATED, "", Collections.emptyList())));
             }
-            System.out.println("response: " + response.getBody());
             return responseHandler(response, participantCode);
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
@@ -108,7 +103,6 @@ public class ParticipantController extends BaseController {
             if (requestBody.getOrDefault(CERTIFICATES_TYPE, "").toString().equalsIgnoreCase(TEXT)) {
                 getCertificatesUrl(requestBody, participantCode);
             }
-            logger.debug("response" + requestBody);
             validateUpdateParticipant(requestBody);
             Map<String, Object> participant = getParticipant(participantCode);
             String url = registryUrl + "/api/v1/Organisation/" + participant.get(OSID);
