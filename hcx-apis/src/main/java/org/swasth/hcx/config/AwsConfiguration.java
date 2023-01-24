@@ -7,7 +7,7 @@ import org.swasth.AWSClient;
 import org.swasth.ICloudService;
 
 @Configuration
-public class AwsConfiguration {
+ class AwsConfiguration {
 
     @Value("${certificates.awsAccesskey}")
     private String awsAccesskey;

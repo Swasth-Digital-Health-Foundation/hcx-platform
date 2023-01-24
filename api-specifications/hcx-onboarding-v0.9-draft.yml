@@ -1,0 +1,382 @@
+openapi: 3.0.1
+info:
+  title: HCX Onboarding APIs
+  version: 1.0.0
+  description: >-
+    The Health Claims Exchange (HCX) is a digital infrastructure designed to
+    enable automated, data-driven management of health insurance claims in an
+    open ecosystem. These API specifications enable the applicant onboarding and verification.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+
+servers:
+  - url: https://dev-hcx.swasth.app/0.9
+tags:
+  - name: Applicant Onboarding APIs
+    description: >-
+      APIs for fetching the applicant details and verifying from the authorized applicant system.
+      
+paths:
+  /applicant/getinfo:
+    post:
+      tags:
+        - Applicant Onboarding APIs
+      description: >-
+        This API implemented by the authorized applicants of the HCX Switch who are eligible for verifying the new applicants.
+        
+        This API takes the `applicant_code` in the request and fetch the available basic information. It also respond with the additional verification properties required to complete make the verify API request.
+        
+        
+        This API is implemented by HCX Switch and the authorized applicants. The implementation of HCX switch acts like a proxy to call the verifier. So, `verifier_code` is an optional field for for authorized applicant system. 
+        
+        
+        The additional verification properties in the response need to be captured the complete the verification process.
+        
+        The API supports 3 formats of the requests.
+          1. Request with applicant_code - Implemented by HCX Switch & Authorized applicant system.
+          2. Request with email & mobile - Implemented by HCX Switch & Authorized applicant system.
+          3. Request with JWT - Implemented only by HCX Switch to validate the token and extract the applicant_code to make the proxy call with Option 1.
+        
+        The API accepts the valid `Authorization` token generated and signed using HCX Switch private key. The verification of the token will happen using the public key of HCX Switch.
+        
+        
+        The response will contain details of the applicant (name, email, mobile etc,.) and additional verification properties required to complete the verification process.
+        
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - type: object
+                  required:
+                    - applicant_code
+                    - verifier_code
+                  description: Find through applicant_code and verifier code
+                  properties:
+                    applicant_code:
+                      description: The unique identifier in authorized applicant system.
+                      type: string
+                    verifier_code:
+                      description: The unique identifier of the verifier in HCX instance.
+                      type: string
+                - type: object
+                  required:
+                    - verifier_code
+                    - mobile
+                    - email
+                  description: Facility to find by mobile number and email
+                  properties:
+                    mobile:
+                      description: The mobile number of the applicant.
+                      type: string
+                    email:
+                      description: The email of the applicant.
+                      type: string
+                      format: email
+                    verifier_code:
+                      description: The unique identifier of the verifier in HCX instance.
+                      type: string
+                - type: object
+                  required:
+                    - verification_token
+                  description: Facility to find using JWT
+                  properties:
+                    verification_token:
+                      $ref: '#/components/schemas/json_web_token'
+                      
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Applicant'
+                  - properties:
+                      jwt:
+                        description: JWT to be used for the following requests for Authorization. This is required only for HCX instance implementation.
+                        allOf:
+                          - $ref: '#/components/schemas/json_web_token'
+                          
+                          
+        '400':
+          description: Request Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Requested resource was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Downstream systems down/unhandled exceptions.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearer_auth: []
+
+  /applicant/verify:
+    post:
+      tags:
+        - Applicant Onboarding APIs
+      description: >-
+        The API accepts below defined set of request to verify the new applicant and onboard with the basic information.
+        
+          1. Onboarding through a verifier.
+          2. Email & Mobile verification through OTP - Optional for Applicant system.
+        
+        The requests related to communication details (email, mobile) verification is implemented by only HCX Switch and optional for the authorized applicant system.
+        
+        
+        The `verifier_code` is required only for the HCX switch to identify the authorized applicant system to make the verification request.
+        
+        
+        The `applicant_code`, `email`, `mobile` and `addionalVerification` details will be sent as part of the request to verify the identity of the applicant and respond to onboard.
+        
+        
+        The **communciation details (email & mobile)** will be verified by HCX instance through OTP to ensure that they are valid.
+        
+        
+        The API accepts the valid `Authorization` token generated and signed using HCX Switch private key. The verification of the token will happen using the public key of HCX Switch.
+        
+
+        The response will contain the status of the verification to accept or reject the applicant.
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+                - verifier_code
+                - applicant_code
+              oneOf:
+                - allOf:
+                  - required:
+                    - applicant_code
+                    - verifier_code
+                  - $ref: '#/components/schemas/Applicant'
+                  - properties:
+                      role:
+                        type: string
+                        enum: ["provider", "payer", "agency.tpa", "agency.regulator", "research", "member.isnp", "agency.sponsor", "HIE/HIO.HCX"]
+                        example: payer
+                        description: Roles assigned to the applicant as per the definition in the HCX domain specifications. This will be used for access control.
+                - allOf:
+                  - required:
+                    - participant_code
+                    - verifier_code
+                  - properties:
+                      participant_code:
+                        type: string
+                        description: Unique identifier of the applicant on the HCX instance
+                        example: "pcpt01@HCX01"
+                      verifier_code:
+                        type: string
+                        description: >- 
+                          Verifier code of the system against which applicant wishes to get verified. This would usually be a value selected out of
+                          verifiers configured at the HCX systems. System will throw an erro if this is not found on HCX. 
+                        example: payer1  
+                      otpVerification:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/otp_token'
+                
+                
+                
+
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerifyResponse'
+        '400':
+          description: Request Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Requested resource was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Downstream systems down/unhandled exceptions.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearer_auth: []
+components:
+  schemas:
+
+    Applicant:
+      required:
+        - applicant_code
+        - verifier_code
+      type: object
+      description: >-
+        The applicant with the basic information to onboard. Applicant_code and verifier_code are mandatory for the applicant to submit the information.
+        Hint: For mock system - use some combom of email/phone and implement the mock server accordingly (verifier_code would be the code for the 
+        mock system). Errors that need to be handled are: 1. Applicant not found on verifier, 2. Invalid verfier, 3. duplicate applicant/application 
+        (based on other detils provided)
+      properties:
+        applicant_code:
+          type: string
+          description: >-
+            Applicant code to identify the applicant. This can be found in the JWT token subject (if the applicant comes through redirection from a known verifier) or shall be entered by the applicant when manually choosing a verifier in the onbaording app 
+          example: provider1@payer1
+        verifier_code:
+          type: string
+          description: >- 
+            Verifier code of the system against which applicant wishes to get verified. This would usually be a value selected out of
+            verifiers configured at the HCX systems. System will throw an erro if this is not found on HCX. 
+          example: payer1        
+        email:
+          type: string
+          format: email
+          description: Primary email id for claims related communication.
+          example: contact@xyzhospital.com
+        mobile:
+          type: string
+          example: "9899912323"
+          description: Primary mobile number for claims related communication.
+        applicant_name:
+          type: string
+          description: Human readable name for the applicant.
+        additionalVerification:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdditionalVerificationProps'
+    
+    json_web_token:
+      description: |
+        JWT is built in the following format:
+          f"base64urlEncoding(header) + '.' + base64urlEncoding(payload) + '.' + base64urlEncoding(signature)"
+        header is an object containing -> {"alg": {CHOSEN_ALG}, "typ": "JWT"}
+        payload is an object containing the claims (data of jwt)
+        signature is an encoded with a PRIVATE_KEY object by our CHOSEN_ALG from the following format: 
+          CHOSEN_ALG( PRIVATE_KEY, base64urlEncoding(header) + '.' + base64urlEncoding(payload))
+      type: string
+      format: application/jwt
+      pattern: ^([a-zA-Z0-9_=]+)\.([a-zA-Z0-9_=]+)\.([a-zA-Z0-9_\-\+\/=]+)$
+      example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+
+    otp_token:
+      description: >- 
+        Token that carries one time password.
+      properties:
+        channel:
+          type: string
+          description: channel through which OTP was delivered
+          enum:
+            - email
+            - phone
+            - ivr
+        otp:
+          type: string
+          format: password 
+          example: "789789"
+
+    AdditionalVerificationProps:
+      type: object
+      required:
+        - name
+        - label
+      description: >-
+        The additional verification details required by the authorized participant system to confirm the onboarding participant identity and 
+        validate the details. All the collected values will be passed as encoded string back to the verifier. Pattern indicated any regex that 
+        needs to be performed on the input before submission. 
+      properties:
+        name: 
+          type: string
+          description: Name of the property to capture the additional verification 
+        label: 
+          type: string
+          description: of the property to capture the additional verification.
+        pattern:
+          type: string
+          description: Regex pattern for input validation 
+        value:
+          type: string
+          description: input value submitted by the user 
+    
+    VerificationTokens:
+      type: array
+      items:
+        anyOf:
+        - $ref: '#/components/schemas/json_web_token'
+        - $ref: '#/components/schemas/otp_token'
+        - $ref: '#/components/schemas/AdditionalVerificationProps'
+    
+    ErrorResponse:
+      required:
+        - error
+        - timestamp
+      type: object
+      properties:
+        timestamp:
+          type: string
+          description: Unix timestamp when the response is sent.
+          example: '1629057611000'
+        error:
+          $ref: '#/components/schemas/Error'
+      description: This is a response to the ClaimForm API call
+   
+    VerifyResponse:
+      required:
+        - applicant_code
+        - result
+        - timestamp
+      type: object
+      properties:
+        timestamp:
+          type: string
+          description: Unix timestamp when the response is sent.
+          example: '1629057611000'
+        applicant_code:
+          type: string
+          description: The unique identifier in authorized applicant system.
+          example: "pcpt01@HCX01"
+        verifier_code:
+          type: string
+          description: Unique identifier of the verifier on the HCX instance.
+          example: "pcpt00@HCX01"
+        result:
+          type: string
+          description: The verification status. It will be either "accepted" or "rejected".
+          enum:
+            - VERIFICATION_SUCCESS
+            - VERIFICATION_FAILED
+          example: "accepted"
+
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+          description: >-
+            error code from the system - expected to be namespaced for better
+            readability
+        message:
+          type: string
+          description: Short description of the error
+        trace:
+          type: string
+          description: Long description supporting the Code
+
+  securitySchemes:
+    bearer_auth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

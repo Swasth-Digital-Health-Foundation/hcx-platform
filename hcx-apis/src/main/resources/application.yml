@@ -101,6 +101,6 @@ notification:
 
 #AWS S3 bucket
 certificates:
-  awsAccesskey : ${certificates_accesskey:}
-  awsSecretKey : ${certificates_secretKey:}
+  awsAccesskey : ${aws_accessKey:}
+  awsSecretKey : ${aws_accessSecret:}
   bucketName : ${certificates_bucketName:}
