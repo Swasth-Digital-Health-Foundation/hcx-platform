@@ -220,7 +220,7 @@ public class BaseSpec {
         obj.put("participant_name","test user");
         obj.put("primary_mobile","9493347239");
         obj.put("primary_email","testuser@gmail.com");
-        obj.put("certificates_type","Text");
+        obj.put("certificates_type","cert_data");
         obj.put("roles",new ArrayList<>(Collections.singleton("provider")));
         obj.put("address", new HashMap<>() {{
             put("plot","5-4-199");
@@ -384,7 +384,7 @@ public class BaseSpec {
         obj.put("participant_name","New Teja Hospital888");
         obj.put("primary_mobile","9493347232");
         obj.put("primary_email","dharmateja888@gmail.com");
-        obj.put("certificates_type","Text");
+        obj.put("certificates_type","cert_data");
         obj.put("roles", new ArrayList<>(Collections.singleton("provider")));
         obj.put("participant_code","1-68c5deca-8299-4feb-b441-923bb649a9a3");
         obj.put("address", new HashMap<>() {{
