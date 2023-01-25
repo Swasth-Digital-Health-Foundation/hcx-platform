@@ -75,7 +75,7 @@ public class ParticipantController extends BaseController {
                 participantCode = SlugUtils.makeSlug(primaryEmail, String.valueOf(new SecureRandom().nextInt(1000)), fieldSeparator, hcxInstanceName);
             }
             requestBody.put(PARTICIPANT_CODE, participantCode);
-            if (requestBody.getOrDefault(CERTIFICATES_TYPE, "").toString().equalsIgnoreCase(TEXT)) {
+            if (requestBody.getOrDefault(CERTIFICATES_TYPE, "").toString().equalsIgnoreCase(CERT_DATA)) {
                 getCertificatesUrl(requestBody, participantCode);
             }
             validateCertificates(requestBody);
@@ -100,7 +100,7 @@ public class ParticipantController extends BaseController {
     public ResponseEntity<Object> participantUpdate(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
         try {
             String participantCode = (String) requestBody.get(PARTICIPANT_CODE);
-            if (requestBody.getOrDefault(CERTIFICATES_TYPE, "").toString().equalsIgnoreCase(TEXT)) {
+            if (requestBody.getOrDefault(CERTIFICATES_TYPE, "").toString().equalsIgnoreCase(CERT_DATA)) {
                 getCertificatesUrl(requestBody, participantCode);
             }
             validateUpdateParticipant(requestBody);
