@@ -30,7 +30,7 @@ export const UpdateRegistry = ({ changeTab, formState, setState }) => {
     const onSubmit = (data) => {
         setLoader(true)
         setSending(true)
-        const formData = { "jwt_token": token, participant: { "participant_code": _.get(formState, 'participant_code'), "participant_name": _.get(formState, 'participant.participant_name'), "endpoint_url": data.endpoint_url, "certificates_type": data.certificates_type, "encryption_cert_path": data.encryption_cert_path, "signing_cert_path": data.signing_cert_path } };
+        const formData = { "jwt_token": token, participant: { "participant_code": _.get(formState, 'participant_code'), "participant_name": _.get(formState, 'participant.participant_name'), "endpoint_url": data.endpoint_url, "certificates_type": data.certificates_type, "encryption_cert": data.encryption_cert, "signing_cert_path": data.signing_cert_path } };
         post("/participant/onboard/update", formData).then((data => {
             toast.success("Form is submitted successfully", {
                 position: toast.POSITION.TOP_CENTER, autoClose: 2000
@@ -122,9 +122,9 @@ export const UpdateRegistry = ({ changeTab, formState, setState }) => {
                         /> Text
                     </Form.Field> : null}
                 {passwordVerified ?
-                    <Form.Field disabled={sending} className={{ 'error': 'encryption_cert_path' in errors }} required>
+                    <Form.Field disabled={sending} className={{ 'error': 'encryption_cert' in errors }} required>
                         <label>Encryption Cert Path</label>
-                        <input placeholder='Enter Encryption Cert Path' {...register("encryption_cert_path", { required: true })} />
+                        <input placeholder='Enter Encryption Cert Path' {...register("encryption_cert", { required: true })} />
                     </Form.Field> : null}
                 {passwordVerified ?
                     <Form.Field disabled={sending} className={{ 'error': 'signing_cert_path' in errors }} required>

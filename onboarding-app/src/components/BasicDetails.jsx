@@ -67,7 +67,7 @@ export const BasicDetails = ({ changeTab, formState, setState }) => {
         if (isJWTPresent) {
             formData = [{ "type": "onboard-through-jwt", "jwt": jwtToken, "participant": { "participant_name": data.participant_name, "primary_email": data.primary_email, "primary_mobile": data.primary_mobile, "roles": ["provider"] } }];
         } else if (payor != null && !invalidApplicantCode) {
-            formData = [{ "type": "onboard-through-verifier", "verifier_code": payor.participant_code, "applicant_code": data.applicant_code, "participant": { "participant_name": data.participant_name, "primary_email": data.primary_email, "primary_mobile": data.primary_mobile, "roles": [data.roles] } }];
+            formData = [{ "type": "onboard-through-verifier", "verifier_code": payor.participant_code, "applicant_code": data.applicant_code, "participant": { "participant_name": data.participant_name, "primary_email": data.primary_email, "primary_mobile": data.primary_mobile, "roles": ["provider"] } }];
         } else {
             formData = [{ "participant": { "participant_name": data.participant_name, "primary_email": data.primary_email, "primary_mobile": data.primary_mobile, "roles": [data.roles] } }];
         }
@@ -102,7 +102,7 @@ export const BasicDetails = ({ changeTab, formState, setState }) => {
 
         var mode;
 
-        if ((_.get(payor, "participant_code") === "1-29482df3-e875-45ef-a4e9-592b6f565782") || isJWTPresent) {
+        if (_.get(payor, "participant_code") === "1-29482df3-e875-45ef-a4e9-592b6f565782") {
             mode = "mock-valid";
         } else if (process.env.REACT_APP_ENV === "Staging") {
             mode = "mock-invalid";
