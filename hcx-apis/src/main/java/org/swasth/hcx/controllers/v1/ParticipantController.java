@@ -318,8 +318,8 @@ public class ParticipantController extends BaseController {
     public void getCertificatesUrl(Map<String, Object> requestBody, String participantCode) {
         String signingCertUrl = participantCode + "/signing_cert_path.pem";
         String encryptionCertUrl = participantCode + "/encryption_cert_path.pem";
-        String signingCert = requestBody.getOrDefault("signing_cert_path", "").toString().replace(" ", "\n").replace("-----BEGIN\nCERTIFICATE-----", "-----BEGIN CERTIFICATE-----").replace("-----END\nCERTIFICATE-----", "-----END CERTIFICATE-----");
-        String encryptionCert = requestBody.getOrDefault("encryption_cert", "").toString().replace(" ", "\n").replace("-----BEGIN\nCERTIFICATE-----", "-----BEGIN CERTIFICATE-----").replace("-----END\nCERTIFICATE-----", "-----END CERTIFICATE-----");
+        String signingCert = getCertificateData(requestBody,SIGNING_CERT_PATH);
+        String encryptionCert = getCertificateData(requestBody,ENCRYPTION_CERT);
         awsClient.putObject(participantCode, bucketName);
         awsClient.putObject(bucketName, signingCertUrl, signingCert);
         awsClient.putObject(bucketName, encryptionCertUrl, encryptionCert);
@@ -330,6 +330,9 @@ public class ParticipantController extends BaseController {
 
     public ResponseEntity<Object> participantSearchBody(String participantCode) throws Exception {
         return participantSearch("", JSONUtils.deserialize("{ \"filters\": { \"participant_code\": { \"eq\": \" " + participantCode + "\" } } }", Map.class));
+    }
+    public String getCertificateData(Map<String,Object> requestBody, String key){
+        return requestBody.getOrDefault(key, "").toString().replace(" ", "\n").replace("-----BEGIN\nCERTIFICATE-----", "-----BEGIN CERTIFICATE-----").replace("-----END\nCERTIFICATE-----", "-----END CERTIFICATE-----");
     }
 }
 

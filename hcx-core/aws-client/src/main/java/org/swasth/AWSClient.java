@@ -48,8 +48,6 @@ public class AWSClient implements ICloudService {
                     folderName + "/encryption_cert_path.pem"
             };
             getClient().deleteObjects(new DeleteObjectsRequest(bucketName).withKeys(objkeyArr));
-        } else {
-            throw new IllegalArgumentException("Folder " + folderName + " does not exist in the S3 bucket " + bucketName);
         }
     }
     public URL getUrl(String bucketName, String path) {
