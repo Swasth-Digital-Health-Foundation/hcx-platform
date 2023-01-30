@@ -337,7 +337,9 @@ public class ParticipantService extends BaseController {
     }
 
     public ResponseEntity<Object> applicantVerify(HttpHeaders header, Map<String, Object> requestBody) throws Exception {
-        verifyOTP(requestBody, new HashMap<>());
+        if(requestBody.containsKey(OTPVERIFCATION)) {
+            verifyOTP(requestBody, new HashMap<>());
+        }
         String applicantCode = (String) requestBody.get(APPLICANT_CODE);
         String sponsorCode = (String) requestBody.get(VERIFIERCODE);
         Map<String, Object> sponsorDetails = getParticipant(PARTICIPANT_CODE, sponsorCode);
