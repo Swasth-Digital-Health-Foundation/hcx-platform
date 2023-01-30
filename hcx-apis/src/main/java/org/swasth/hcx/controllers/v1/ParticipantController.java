@@ -3,6 +3,7 @@ package org.swasth.hcx.controllers.v1;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import kong.unirest.HttpResponse;
 import org.apache.commons.validator.routines.EmailValidator;
+import org.apache.commons.validator.routines.UrlValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -16,6 +17,7 @@ import org.swasth.common.dto.Sponsor;
 import org.swasth.common.exception.*;
 import org.swasth.common.utils.*;
 import org.swasth.hcx.controllers.BaseController;
+import org.swasth.hcx.service.ParticipantService;
 import org.swasth.postgresql.IDatabaseService;
 import org.swasth.redis.cache.RedisCache;
 
@@ -63,7 +65,7 @@ public class ParticipantController extends BaseController {
     @Autowired
     protected IDatabaseService postgreSQLClient;
     @Autowired
-    private ICloudService awsClient;
+    private ICloudService cloudClient;
 
     @PostMapping(PARTICIPANT_CREATE)
     public ResponseEntity<Object> participantCreate(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
@@ -181,7 +183,7 @@ public class ParticipantController extends BaseController {
             if (!requestBody.containsKey(PARTICIPANT_CODE))
                 throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_CODE, PARTICIPANT_CODE_MSG);
             String participantCode = (String) requestBody.get(PARTICIPANT_CODE);
-            awsClient.deleteMultipleObject(participantCode, bucketName);
+            cloudClient.deleteMultipleObject(participantCode, bucketName);
             Map<String, Object> participant = getParticipant(participantCode);
             String url = registryUrl + "/api/v1/Organisation/" + participant.get(OSID);
             Map<String, String> headersMap = new HashMap<>();
@@ -320,12 +322,12 @@ public class ParticipantController extends BaseController {
         String encryptionCertUrl = participantCode + "/encryption_cert_path.pem";
         String signingCert = getCertificateData(requestBody,SIGNING_CERT_PATH);
         String encryptionCert = getCertificateData(requestBody,ENCRYPTION_CERT);
-        awsClient.putObject(participantCode, bucketName);
-        awsClient.putObject(bucketName, signingCertUrl, signingCert);
-        awsClient.putObject(bucketName, encryptionCertUrl, encryptionCert);
+        cloudClient.putObject(participantCode, bucketName);
+        cloudClient.putObject(bucketName, signingCertUrl, signingCert);
+        cloudClient.putObject(bucketName, encryptionCertUrl, encryptionCert);
         requestBody.remove(CERTIFICATES_TYPE);
-        requestBody.put(SIGNING_CERT_PATH, awsClient.getUrl(bucketName, signingCertUrl).toString());
-        requestBody.put(ENCRYPTION_CERT, awsClient.getUrl(bucketName, encryptionCertUrl).toString());
+        requestBody.put(SIGNING_CERT_PATH, cloudClient.getUrl(bucketName, signingCertUrl).toString());
+        requestBody.put(ENCRYPTION_CERT, cloudClient.getUrl(bucketName, encryptionCertUrl).toString());
     }
 
     public ResponseEntity<Object> participantSearchBody(String participantCode) throws Exception {

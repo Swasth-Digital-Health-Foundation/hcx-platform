@@ -89,7 +89,7 @@ public class BaseSpec {
     protected JWTUtils jwtUtils;
 
     @MockBean
-    protected ICloudService awsClient;
+    protected ICloudService cloudStorageClient;
 
     @BeforeEach
     public void setup() {

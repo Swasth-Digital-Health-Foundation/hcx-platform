@@ -9,15 +9,15 @@ import org.swasth.ICloudService;
 @Configuration
 class CloudStorageConfiguration {
 
-    @Value("${certificates.awsAccesskey}")
-    private String awsAccesskey;
+    @Value("${certificates.accesskey}")
+    private String accesskey;
 
-    @Value("${certificates.awsSecretKey}")
-    private String awsSecretKey;
+    @Value("${certificates.secretKey}")
+    private String secretkey;
 
     @Bean
-    public ICloudService awsClient() {
-        return new CloudStorageClient(awsAccesskey, awsSecretKey);
+    public ICloudService cloudStorageClient() {
+        return new CloudStorageClient(accesskey, secretkey);
     }
 
 }
