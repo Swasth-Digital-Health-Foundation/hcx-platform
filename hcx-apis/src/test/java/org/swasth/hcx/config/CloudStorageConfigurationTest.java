@@ -5,13 +5,13 @@ import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
- class AwsConfigurationTest {
+ class CloudStorageConfigurationTest {
 
     ApplicationContextRunner context = new ApplicationContextRunner()
-            .withUserConfiguration(AwsConfiguration.class);
+            .withUserConfiguration(CloudStorageConfiguration.class);
 
     @Test
-    void should_check_presence_of_Aws_configuration_bean() {
-        context.run(it -> assertThat(it).hasSingleBean(AwsConfiguration.class));
+    void should_check_presence_of_cloud_storage_configuration_bean() {
+        context.run(it -> assertThat(it).hasSingleBean(CloudStorageConfiguration.class));
     }
 }

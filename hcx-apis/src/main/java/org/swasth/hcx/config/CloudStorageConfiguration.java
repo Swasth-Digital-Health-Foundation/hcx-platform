@@ -3,11 +3,11 @@ package org.swasth.hcx.config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.swasth.AWSClient;
+import org.swasth.CloudStorageClient;
 import org.swasth.ICloudService;
 
 @Configuration
- class AwsConfiguration {
+class CloudStorageConfiguration {
 
     @Value("${certificates.awsAccesskey}")
     private String awsAccesskey;
@@ -16,8 +16,8 @@ import org.swasth.ICloudService;
     private String awsSecretKey;
 
     @Bean
-    public ICloudService awsClient(){
-        return new AWSClient(awsAccesskey,awsSecretKey);
+    public ICloudService awsClient() {
+        return new CloudStorageClient(awsAccesskey, awsSecretKey);
     }
 
 }

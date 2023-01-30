@@ -13,12 +13,12 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import java.io.ByteArrayInputStream;
 import java.net.URL;
 
-public class AWSClient implements ICloudService {
+public class CloudStorageClient implements ICloudService {
 
     private final String awsAccesskey;
     private final String awsSecretKey;
 
-    public AWSClient(String awsAccesskey, String awsSecretKey) {
+    public CloudStorageClient(String awsAccesskey, String awsSecretKey) {
         this.awsAccesskey = awsAccesskey;
         this.awsSecretKey = awsSecretKey;
     }

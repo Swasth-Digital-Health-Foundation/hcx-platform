@@ -19,7 +19,7 @@
         <module>postgresql-client</module>
         <module>audit-indexer</module>
         <module>redis-cache</module>
-        <module>aws-client</module>
+        <module>cloud-storage-client</module>
     </modules>
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
