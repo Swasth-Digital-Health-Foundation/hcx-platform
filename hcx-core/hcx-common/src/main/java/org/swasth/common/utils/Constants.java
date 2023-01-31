@@ -260,6 +260,7 @@ public class Constants {
     public static final List<String> RESPONSE_STATUS_VALUES = Arrays.asList(COMPLETE_STATUS, PARTIAL_STATUS, ERROR_RESPONSE, REDIRECT_STATUS);
     public static final List<String> ALLOWED_ENTITIES_ERROR_AUDIT_CREATION = Arrays.asList("coverageeligibility", "preauth", "claim", PAYMENT, COMMUNICATION, "predetermination", REGISTRY_STATUS, "search");
     public static final String JWT_TOKEN = "jwt_token";
+    public static final String VERIFICATION_TOKEN = "verification_token";
     public static final String JWT = "jwt";
     public static final String MOBILE = "mobile";
     public static final String SUB = "sub";

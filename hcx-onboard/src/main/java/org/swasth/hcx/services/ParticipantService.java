@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.swasth.common.dto.OnboardRequest;
@@ -174,7 +173,7 @@ public class ParticipantService extends BaseController {
         String status = FAILED;
         List<Map<String, Object>> otpVerificationList = (List<Map<String, Object>>) requestBody.get("otpVerification");
         try {
-            String selectQuery = String.format("SELECT * FROM %s WHERE partcipant_code='%s'", onboardingOtpTable, participantCode);
+            String selectQuery = String.format("SELECT * FROM %s WHERE participant_code='%s'", onboardingOtpTable, participantCode);
             resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
             if (resultSet.next()) {
                 attemptCount = resultSet.getInt(ATTEMPT_COUNT);
@@ -186,10 +185,10 @@ public class ParticipantService extends BaseController {
                     if (attemptCount < otpMaxAttempt) {
                         for (Map<String, Object> otpVerification : otpVerificationList) {
                             if (otpVerification.get(CHANNEL).equals(EMAIL)) {
-                                emailOtpVerified = verifyOTP(resultSet, otpVerification, EMAIL);
+                                emailOtpVerified = verifyOTP(resultSet, otpVerification, EMAIL_OTP);
                             }
                             if (otpVerification.get(CHANNEL).equals(PHONE)) {
-                                phoneOtpVerified = verifyOTP(resultSet, otpVerification, PHONE);
+                                phoneOtpVerified = verifyOTP(resultSet, otpVerification, PHONE_OTP);
                             }
                         }
                     } else {
@@ -287,20 +286,20 @@ public class ParticipantService extends BaseController {
     public ResponseEntity<Object> getInfo(HttpHeaders header, Map<String, Object> requestBody) throws Exception {
         String applicantCode = "";
         String sponsorCode;
-        String jwtToken = "";
+        String verificationToken = "";
         Map<String, Object> sponsorDetails;
         String identityVerification = PENDING;
-        if (requestBody.containsKey(JWT_TOKEN)) {
-            jwtToken = (String) requestBody.get(JWT_TOKEN);
-            Map<String, Object> jwtPayload = JSONUtils.decodeBase64String(jwtToken.split("\\.")[1], Map.class);
+        if (requestBody.containsKey(VERIFICATION_TOKEN)) {
+            verificationToken = (String) requestBody.get(VERIFICATION_TOKEN);
+            Map<String, Object> jwtPayload = JSONUtils.decodeBase64String(verificationToken.split("\\.")[1], Map.class);
             sponsorCode = (String) jwtPayload.get(ISS);
             applicantCode = (String) jwtPayload.get(SUB);
             sponsorDetails = getParticipant(PARTICIPANT_CODE, sponsorCode);
-            if (!jwtToken.isEmpty() && !jwtUtils.isValidSignature(jwtToken, (String) sponsorDetails.get(SIGNING_CERT_PATH)))
+            if (!verificationToken.isEmpty() && !jwtUtils.isValidSignature(verificationToken, (String) sponsorDetails.get(SIGNING_CERT_PATH)))
                 throw new ClientException(ErrorCodes.ERR_INVALID_JWT, "Invalid JWT token signature");
         } else if (requestBody.containsKey(MOBILE)) {
-                  sponsorCode = (String) requestBody.get(VERIFIERCODE);
-                  sponsorDetails = getParticipant(PARTICIPANT_CODE,sponsorCode);
+            sponsorCode = (String) requestBody.get(VERIFIERCODE);
+            sponsorDetails = getParticipant(PARTICIPANT_CODE, sponsorCode);
         } else {
             applicantCode = (String) requestBody.get(APPLICANT_CODE);
             sponsorCode = (String) requestBody.get(VERIFIERCODE);
@@ -312,11 +311,11 @@ public class ParticipantService extends BaseController {
         if (mode.equalsIgnoreCase(MOCK_VALID)) {
             payorResp.put(APPLICANT_CODE, applicantCode);
             payorResp.put(VERIFIERCODE, sponsorCode);
-            payorResp.put(PRIMARY_EMAIL, sponsorDetails.get(PRIMARY_EMAIL));
-            payorResp.put(PRIMARY_MOBILE, "8522875773");
+            payorResp.put("email", sponsorDetails.get(PRIMARY_EMAIL));
+            payorResp.put("mobile", "8522875773");
             payorResp.put(APPLICANT_NAME, sponsorDetails.get(PARTICIPANT_NAME));
             payorResp.put(ADDITIONALVERIFICATION, new ArrayList<>());
-            payorResp.put(JWT, jwtToken);
+            payorResp.put(JWT, verificationToken);
             payorResp.putAll(payorResp);
         } else if (mode.equalsIgnoreCase(ACTUAL)) {
             Map<String, Object> reqBody = new HashMap<>();
@@ -332,24 +331,24 @@ public class ParticipantService extends BaseController {
         if (!payorResp.isEmpty()) identityVerification = ACCEPTED;
         if (!mode.equalsIgnoreCase(MOCK_INVALID))
             updateIdentityVerificationStatus((String) payorResp.getOrDefault(PRIMARY_EMAIL, ""), applicantCode, sponsorCode, identityVerification);
-        ParticipantResponse resp = new ParticipantResponse(payorResp);
-        return new ResponseEntity<>(resp, HttpStatus.OK);
+        return getSuccessResponse(payorResp);
     }
 
     public ResponseEntity<Object> applicantVerify(HttpHeaders header, Map<String, Object> requestBody) throws Exception {
-        if(requestBody.containsKey(OTPVERIFCATION)) {
+        if (requestBody.containsKey(OTPVERIFCATION)) {
             verifyOTP(requestBody, new HashMap<>());
         }
         String applicantCode = (String) requestBody.get(APPLICANT_CODE);
         String sponsorCode = (String) requestBody.get(VERIFIERCODE);
         Map<String, Object> sponsorDetails = getParticipant(PARTICIPANT_CODE, sponsorCode);
+
         String mode = header.get(MODE).get(0);
         Map<String, Object> payorResp = new HashMap<>();
         if (mode.equalsIgnoreCase(MOCK_VALID)) {
-            payorResp.put(TIME_STAMP, System.currentTimeMillis());
             payorResp.put(APPLICANT_CODE, applicantCode);
+            payorResp.put(TIME_STAMP, System.currentTimeMillis());
             payorResp.put(VERIFIERCODE, sponsorCode);
-            payorResp.put(RESULT, "accepted");
+            payorResp.put(RESULT, ACCEPTED);
             payorResp.putAll(payorResp);
         } else if (mode.equalsIgnoreCase(ACTUAL)) {
             Map<String, Object> reqBody = new HashMap<>();
@@ -366,7 +365,7 @@ public class ParticipantService extends BaseController {
         if (resultSet.getString(key).equals(otpVerification.get(OTP))) {
             return true;
         } else {
-            throw new ClientException(key + "OTP is invalid, please try again!");
+            throw new ClientException(key + ":" + "OTP is invalid, please try again!");
         }
     }
 }
