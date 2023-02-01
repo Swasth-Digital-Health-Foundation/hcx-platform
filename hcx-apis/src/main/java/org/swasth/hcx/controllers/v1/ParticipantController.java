@@ -182,7 +182,6 @@ public class ParticipantController extends BaseController {
             if (!requestBody.containsKey(PARTICIPANT_CODE))
                 throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_CODE, PARTICIPANT_CODE_MSG);
             String participantCode = (String) requestBody.get(PARTICIPANT_CODE);
-            cloudClient.deleteMultipleObject(participantCode, bucketName);
             Map<String, Object> participant = getParticipant(participantCode);
             String url = registryUrl + "/api/v1/Organisation/" + participant.get(OSID);
             Map<String, String> headersMap = new HashMap<>();

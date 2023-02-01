@@ -15,17 +15,17 @@ import java.net.URL;
 
 public class CloudStorageClient implements ICloudService {
 
-    private final String awsAccesskey;
-    private final String awsSecretKey;
+    private final String accessKey;
+    private final String secretKey;
 
-    public CloudStorageClient(String awsAccesskey, String awsSecretKey) {
-        this.awsAccesskey = awsAccesskey;
-        this.awsSecretKey = awsSecretKey;
+    public CloudStorageClient(String accesskey, String secretKey) {
+        this.accessKey = accesskey;
+        this.secretKey = secretKey;
     }
 
     public AmazonS3 getClient() {
         return AmazonS3ClientBuilder.standard()
-                .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(awsAccesskey, awsSecretKey)))
+                .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey)))
                 .withRegion(Regions.AP_SOUTH_1)
                 .build();
     }
@@ -40,16 +40,6 @@ public class CloudStorageClient implements ICloudService {
         getClient().putObject(bucketName, folderName, content);
     }
 
-    public void deleteMultipleObject(String folderName, String bucketName) {
-        boolean folderExists = getClient().doesObjectExist(bucketName, folderName);
-        if (folderExists) {
-            String[] objkeyArr = {
-                    folderName + "/signing_cert_path.pem",
-                    folderName + "/encryption_cert_path.pem"
-            };
-            getClient().deleteObjects(new DeleteObjectsRequest(bucketName).withKeys(objkeyArr));
-        }
-    }
     public URL getUrl(String bucketName, String path) {
         return getClient().getUrl(bucketName, path);
     }

@@ -10,5 +10,4 @@ public interface ICloudService {
 
     URL getUrl(String bucketName, String path);
 
-    void deleteMultipleObject(String folderName, String bucketName);
 }
