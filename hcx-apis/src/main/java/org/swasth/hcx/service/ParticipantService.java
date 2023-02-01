@@ -20,11 +20,9 @@ public class ParticipantService {
 
     public void getCertificatesUrl(Map<String, Object> requestBody, String participantCode, String key) {
         if (requestBody.getOrDefault(key, "").toString().startsWith("-----BEGIN CERTIFICATE-----") && requestBody.getOrDefault(key, "").toString().endsWith("-----END CERTIFICATE-----")) {
-            String signingCert = getCertificateData(requestBody, SIGNING_CERT_PATH);
-            String encryptionCert = getCertificateData(requestBody, ENCRYPTION_CERT);
             cloudClient.putObject(participantCode, bucketName);
-            cloudClient.putObject(bucketName, participantCode + "/signing_cert_path.pem", signingCert);
-            cloudClient.putObject(bucketName, participantCode + "/encryption_cert_path.pem", encryptionCert);
+            cloudClient.putObject(bucketName, participantCode + "/signing_cert_path.pem", getCertificateData(requestBody, SIGNING_CERT_PATH));
+            cloudClient.putObject(bucketName, participantCode + "/encryption_cert_path.pem", getCertificateData(requestBody, ENCRYPTION_CERT));
             requestBody.put(SIGNING_CERT_PATH, cloudClient.getUrl(bucketName, participantCode + "/signing_cert_path.pem").toString());
             requestBody.put(ENCRYPTION_CERT, cloudClient.getUrl(bucketName, participantCode + "/encryption_cert_path.pem").toString());
         }
