@@ -16,6 +16,7 @@ import org.swasth.common.dto.Sponsor;
 import org.swasth.common.exception.*;
 import org.swasth.common.utils.*;
 import org.swasth.hcx.controllers.BaseController;
+import org.swasth.hcx.service.ParticipantService;
 import org.swasth.postgresql.IDatabaseService;
 import org.swasth.redis.cache.RedisCache;
 
@@ -64,6 +65,8 @@ public class ParticipantController extends BaseController {
     protected IDatabaseService postgreSQLClient;
     @Autowired
     private ICloudService cloudClient;
+    @Autowired
+    private ParticipantService participantService;
 
     @PostMapping(PARTICIPANT_CREATE)
     public ResponseEntity<Object> participantCreate(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
@@ -75,9 +78,8 @@ public class ParticipantController extends BaseController {
                 participantCode = SlugUtils.makeSlug(primaryEmail, String.valueOf(new SecureRandom().nextInt(1000)), fieldSeparator, hcxInstanceName);
             }
             requestBody.put(PARTICIPANT_CODE, participantCode);
-            if (requestBody.getOrDefault(CERTIFICATES_TYPE, "").toString().equalsIgnoreCase(CERT_DATA)) {
-                getCertificatesUrl(requestBody, participantCode);
-            }
+            participantService.getUrl(requestBody,participantCode,SIGNING_CERT_PATH);
+            participantService.getUrl(requestBody,participantCode,ENCRYPTION_CERT);
             validateCertificates(requestBody);
             String url = registryUrl + "/api/v1/Organisation/invite";
             Map<String, String> headersMap = new HashMap<>();
@@ -100,9 +102,8 @@ public class ParticipantController extends BaseController {
     public ResponseEntity<Object> participantUpdate(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
         try {
             String participantCode = (String) requestBody.get(PARTICIPANT_CODE);
-            if (requestBody.getOrDefault(CERTIFICATES_TYPE, "").toString().equalsIgnoreCase(CERT_DATA)) {
-                getCertificatesUrl(requestBody, participantCode);
-            }
+            participantService.getUrl(requestBody,participantCode,SIGNING_CERT_PATH);
+            participantService.getUrl(requestBody,participantCode,ENCRYPTION_CERT);
             validateUpdateParticipant(requestBody);
             Map<String, Object> participant = getParticipant(participantCode);
             String url = registryUrl + "/api/v1/Organisation/" + participant.get(OSID);
@@ -315,24 +316,8 @@ public class ParticipantController extends BaseController {
         return getSuccessResponse(new ParticipantResponse(modifiedResponseList));
     }
 
-    public void getCertificatesUrl(Map<String, Object> requestBody, String participantCode) {
-        String signingCertUrl = participantCode + "/signing_cert_path.pem";
-        String encryptionCertUrl = participantCode + "/encryption_cert_path.pem";
-        String signingCert = getCertificateData(requestBody,SIGNING_CERT_PATH);
-        String encryptionCert = getCertificateData(requestBody,ENCRYPTION_CERT);
-        cloudClient.putObject(participantCode, bucketName);
-        cloudClient.putObject(bucketName, signingCertUrl, signingCert);
-        cloudClient.putObject(bucketName, encryptionCertUrl, encryptionCert);
-        requestBody.remove(CERTIFICATES_TYPE);
-        requestBody.put(SIGNING_CERT_PATH, cloudClient.getUrl(bucketName, signingCertUrl).toString());
-        requestBody.put(ENCRYPTION_CERT, cloudClient.getUrl(bucketName, encryptionCertUrl).toString());
-    }
-
     public ResponseEntity<Object> participantSearchBody(String participantCode) throws Exception {
         return participantSearch("", JSONUtils.deserialize("{ \"filters\": { \"participant_code\": { \"eq\": \" " + participantCode + "\" } } }", Map.class));
-    }
-    public String getCertificateData(Map<String,Object> requestBody, String key){
-        return requestBody.getOrDefault(key, "").toString().replace(" ", "\n").replace("-----BEGIN\nCERTIFICATE-----", "-----BEGIN CERTIFICATE-----").replace("-----END\nCERTIFICATE-----", "-----END CERTIFICATE-----");
     }
 }
 
