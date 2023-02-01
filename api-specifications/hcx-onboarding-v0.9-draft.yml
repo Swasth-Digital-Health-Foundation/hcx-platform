@@ -311,14 +311,6 @@ components:
           type: string
           description: input value submitted by the user 
     
-    VerificationTokens:
-      type: array
-      items:
-        anyOf:
-        - $ref: '#/components/schemas/json_web_token'
-        - $ref: '#/components/schemas/otp_token'
-        - $ref: '#/components/schemas/AdditionalVerificationProps'
-    
     ErrorResponse:
       required:
         - error
