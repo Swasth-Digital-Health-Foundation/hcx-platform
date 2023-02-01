@@ -78,8 +78,8 @@ public class ParticipantController extends BaseController {
                 participantCode = SlugUtils.makeSlug(primaryEmail, String.valueOf(new SecureRandom().nextInt(1000)), fieldSeparator, hcxInstanceName);
             }
             requestBody.put(PARTICIPANT_CODE, participantCode);
-            participantService.getUrl(requestBody,participantCode,SIGNING_CERT_PATH);
-            participantService.getUrl(requestBody,participantCode,ENCRYPTION_CERT);
+            participantService.getCertificatesUrl(requestBody,participantCode,SIGNING_CERT_PATH);
+            participantService.getCertificatesUrl(requestBody,participantCode,ENCRYPTION_CERT);
             validateCertificates(requestBody);
             String url = registryUrl + "/api/v1/Organisation/invite";
             Map<String, String> headersMap = new HashMap<>();
@@ -102,8 +102,8 @@ public class ParticipantController extends BaseController {
     public ResponseEntity<Object> participantUpdate(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
         try {
             String participantCode = (String) requestBody.get(PARTICIPANT_CODE);
-            participantService.getUrl(requestBody,participantCode,SIGNING_CERT_PATH);
-            participantService.getUrl(requestBody,participantCode,ENCRYPTION_CERT);
+            participantService.getCertificatesUrl(requestBody,participantCode,SIGNING_CERT_PATH);
+            participantService.getCertificatesUrl(requestBody,participantCode,ENCRYPTION_CERT);
             validateUpdateParticipant(requestBody);
             Map<String, Object> participant = getParticipant(participantCode);
             String url = registryUrl + "/api/v1/Organisation/" + participant.get(OSID);
