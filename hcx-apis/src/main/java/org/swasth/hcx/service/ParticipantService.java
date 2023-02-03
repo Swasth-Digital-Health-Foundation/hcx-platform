@@ -228,7 +228,7 @@ public class ParticipantService extends BaseController {
         return data;
     }
 
-    public void validateCreateParticipant(Map<String, Object> requestBody) throws ClientException, CertificateException, IOException {
+    public void validateCreateParticipant(Map<String, Object> requestBody) throws ClientException {
         List<String> notAllowedUrls = env.getProperty(HCX_NOT_ALLOWED_URLS, List.class, new ArrayList<String>());
         if (!requestBody.containsKey(ROLES) || !(requestBody.get(ROLES) instanceof ArrayList) || ((ArrayList<String>) requestBody.get(ROLES)).isEmpty())
             throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, INVALID_ROLES_PROPERTY);

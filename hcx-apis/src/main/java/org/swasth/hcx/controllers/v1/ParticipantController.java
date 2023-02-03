@@ -5,23 +5,19 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.swasth.common.dto.ParticipantResponse;
 import org.swasth.common.dto.Response;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
-import org.swasth.common.exception.ServerException;
 import org.swasth.common.utils.Constants;
-import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.utils.SlugUtils;
 import org.swasth.hcx.controllers.BaseController;
 import org.swasth.hcx.models.Participant;
 import org.swasth.hcx.service.ParticipantService;
 
 import java.security.SecureRandom;
-import java.text.MessageFormat;
 import java.util.Map;
 
-import static org.swasth.common.response.ResponseMessage.*;
+import static org.swasth.common.response.ResponseMessage.PARTICIPANT_CODE_MSG;
 import static org.swasth.common.utils.Constants.*;
 
 @RestController()
@@ -75,7 +71,7 @@ public class ParticipantController extends BaseController {
             String participantCode = participant.getParticipantCode();
             participantService.getCertificatesUrl(requestBody, participantCode);
             participantService.validateUpdateParticipant(requestBody);
-            Map<String, Object> participantDetails = participantService.getParticipant(participantCode,registryUrl);;
+            Map<String, Object> participantDetails = participantService.getParticipant(participantCode,registryUrl);
             return participantService.update(requestBody, participantDetails, registryUrl, header, participantCode);
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);

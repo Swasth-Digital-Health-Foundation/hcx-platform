@@ -3,7 +3,6 @@ package org.swasth.hcx.models;
 import org.swasth.common.utils.SlugUtils;
 import org.swasth.hcx.controllers.BaseController;
 
-import java.util.List;
 import java.util.Map;
 
 import static org.swasth.common.utils.Constants.*;
