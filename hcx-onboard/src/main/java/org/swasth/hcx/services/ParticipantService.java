@@ -23,16 +23,11 @@ import org.swasth.hcx.controllers.BaseController;
 import org.swasth.postgresql.IDatabaseService;
 
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.text.DecimalFormat;
-import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.*;
 
 import static org.swasth.common.response.ResponseMessage.*;
-import static org.swasth.common.response.ResponseMessage.OTP_RECORD_NOT_EXIST;
 import static org.swasth.common.utils.Constants.*;
 
 @Service
