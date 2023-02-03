@@ -73,11 +73,8 @@ public class ParticipantService extends BaseController {
     @Value("${otp.maxAttempt}")
     private int otpMaxAttempt;
 
-    @Value("${regenerateOtp.maxAttempt}")
-    private int regenerateMaxAttempt;
-
-    @Value("${regenerateOtp.regenerateTime}")
-    private long maxRegenerateTime;
+    @Value("${regenerateOtp.maxRegenerate}")
+    private int maxRegenerate;
 
     @Value("${env}")
     private String env;
@@ -93,6 +90,7 @@ public class ParticipantService extends BaseController {
 
     @Autowired
     private JWTUtils jwtUtils;
+
     public ResponseEntity<Object> verify(HttpHeaders header, ArrayList<Map<String, Object>> body, String email) throws Exception {
         OnboardRequest request = new OnboardRequest(body);
         Map<String, Object> requestBody = request.getBody();
@@ -156,29 +154,17 @@ public class ParticipantService extends BaseController {
         }
         sendOTP(participant);
         output.put(PARTICIPANT_CODE, participantCode);
-        output.put(IDENTITY_VERIFICATION,identityVerified);
+        output.put(IDENTITY_VERIFICATION, identityVerified);
         logger.info("OTP has been sent successfully :: participant code : " + participantCode + " :: primary email : " + participant.get(PRIMARY_EMAIL));
     }
 
     public ResponseEntity<Object> sendOTP(Map<String, Object> requestBody) throws Exception {
         String primaryEmail = (String) requestBody.get(PRIMARY_EMAIL);
-        LocalDate lastRegenerateDate = null;
-        int regenerateCount = 0 ;
-        LocalDate currentDate = LocalDate.now();
-        checkRegenerateCount(primaryEmail,lastRegenerateDate,regenerateCount,currentDate);
-        String phoneOtp = new DecimalFormat("000000").format(new Random().nextInt(999999));
-        smsService.sendOTP((String) requestBody.get(PRIMARY_MOBILE), phoneOtp);
-        String emailOtp = new DecimalFormat("000000").format(new Random().nextInt(999999));
-        sendEmailOTP(primaryEmail,(String) requestBody.get(PARTICIPANT_NAME),(String) requestBody.get(PARTICIPANT_CODE),emailOtp);
-        String query = String.format("UPDATE %s SET phone_otp='%s',email_otp='%s',updatedOn=%d,expiry=%d ,regenerate_count=%d, last_regenerate_date='%s' WHERE primary_email='%s'",
-                onboardingOtpTable, phoneOtp, emailOtp, System.currentTimeMillis(), System.currentTimeMillis() + otpExpiry, regenerateCount + 1, currentDate, requestBody.get(PRIMARY_EMAIL));
-        postgreSQLClient.execute(query);
-        return getSuccessResponse(new Response());
-    }
-
-    private void checkRegenerateCount(String primaryEmail , LocalDate lastRegenerateDate, int regenerateCount ,LocalDate currentDate) throws Exception {
         String query = String.format("SELECT regenerate_count, last_regenerate_date FROM %s WHERE primary_email='%s'", onboardingOtpTable, primaryEmail);
         ResultSet result = (ResultSet) postgreSQLClient.executeQuery(query);
+        LocalDate lastRegenerateDate = null;
+        int regenerateCount = 0;
+        LocalDate currentDate = LocalDate.now();
         if (result.next()) {
             regenerateCount = result.getInt("regenerate_count");
             lastRegenerateDate = result.getObject("last_regenerate_date", LocalDate.class);
@@ -186,10 +172,19 @@ public class ParticipantService extends BaseController {
         if (!currentDate.equals(lastRegenerateDate)) {
             regenerateCount = 0;
         }
-        if (regenerateCount >= regenerateMaxAttempt) {
+        if (regenerateCount >= maxRegenerate) {
             throw new ClientException(ErrorCodes.ERR_MAXIMUM_OTP_REGENERATE, MAXIMUM_OTP_REGENERATE);
         }
+        String phoneOtp = new DecimalFormat("000000").format(new Random().nextInt(999999));
+        smsService.sendOTP((String) requestBody.get(PRIMARY_MOBILE), phoneOtp);
+        String emailOtp = new DecimalFormat("000000").format(new Random().nextInt(999999));
+        sendEmailOTP(primaryEmail, (String) requestBody.get(PARTICIPANT_NAME), (String) requestBody.get(PARTICIPANT_CODE), emailOtp);
+        String query1 = String.format("UPDATE %s SET phone_otp='%s',email_otp='%s',updatedOn=%d,expiry=%d ,regenerate_count=%d, last_regenerate_date='%s' WHERE primary_email='%s'",
+                onboardingOtpTable, phoneOtp, emailOtp, System.currentTimeMillis(), System.currentTimeMillis() + otpExpiry, regenerateCount + 1, currentDate, requestBody.get(PRIMARY_EMAIL));
+        postgreSQLClient.execute(query1);
+        return getSuccessResponse(new Response());
     }
+
     private void sendEmailOTP(String email, String participantName, String participantCode, String emailOtp) {
         String emailMsg = otpMsg;
         emailMsg = emailMsg.replace("USER_NAME", StringUtils.capitalize(participantName))
@@ -197,6 +192,7 @@ public class ParticipantService extends BaseController {
                 .replace("RANDOM_CODE", " " + emailOtp);
         emailService.sendMail(email, otpSub, emailMsg);
     }
+
     public void verifyOTP(Map<String, Object> requestBody, Map<String, Object> output) throws Exception {
         ResultSet resultSet = null;
         boolean emailOtpVerified = false;
