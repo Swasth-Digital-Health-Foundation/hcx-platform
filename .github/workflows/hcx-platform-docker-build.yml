@@ -90,5 +90,5 @@ jobs:
 
       - name: Build and push Docker image for HCX Scheduler Job to S3 bucket
         run: |
-          echo ${{ env.IMAGETAG }}${{ github.run_number }} >> /tmp/tag.txt
+          echo ${{ env.IMAGE_TAG }}_${{ github.run_number }} >> /tmp/tag.txt
           aws s3 cp /tmp/tag.txt s3://build-tags/tag.txt
