@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.swasth.common.dto.OnboardRequest;
@@ -366,7 +367,7 @@ public class ParticipantService extends BaseController {
             result = identityVerify(header, requestBody);
         }
         response.setResult(result);
-        return getSuccessResponse(response);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     private String identityVerify(HttpHeaders header, Map<String, Object> requestBody) throws Exception {
