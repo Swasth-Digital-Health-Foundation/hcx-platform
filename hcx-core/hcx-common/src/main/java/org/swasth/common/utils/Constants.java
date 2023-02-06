@@ -68,13 +68,19 @@ public class Constants {
     public static final String PARTICIPANT_OTP_SEND = "/participant/otp/send";
     public static final String PARTICIPANT_ONBOARD_UPDATE = "/participant/onboard/update";
     public static final String PARTICIPANT_VERIFY_IDENTITY = "/participant/verify/identity";
+    public static final String APPLICANT_VERIFY = "/applicant/verify";
     // Object Types
     public static final String PARTICIPANT = "participant";
     public static final String VERIFIERCODE = "verifier_code";
+    public static final String RESULT = "result";
     public static final String ONBOARD_THROUGH_JWT = "onboard-through-jwt";
     public static final String ONBOARD_THROUGH_VERIFIER = "onboard-through-verifier";
     public static final String EMAIL_OTP_VALIDATION = "email-otp-validation";
     public static final String PHONE_OTP_VALIDATION = "phone-otp-validation";
+    public static final String OTPVERIFCATION = "otpVerification";
+    public static final String CHANNEL = "channel";
+    public static final String EMAIL = "email";
+    public static final String PHONE = "phone";
     public static final String HEALTHY = "healthy";
     public static final String NAME = "name";
     public static final String KAFKA = "kafka";
@@ -256,10 +262,16 @@ public class Constants {
     public static final List<String> RESPONSE_STATUS_VALUES = Arrays.asList(COMPLETE_STATUS, PARTIAL_STATUS, ERROR_RESPONSE, REDIRECT_STATUS);
     public static final List<String> ALLOWED_ENTITIES_ERROR_AUDIT_CREATION = Arrays.asList("coverageeligibility", "preauth", "claim", PAYMENT, COMMUNICATION, "predetermination", REGISTRY_STATUS, "search");
     public static final String JWT_TOKEN = "jwt_token";
+    public static final String VERIFICATION_TOKEN = "verification_token";
+    public static final String JWT = "jwt";
+    public static final String MOBILE = "mobile";
     public static final String SUB = "sub";
     public static final String ISS = "iss";
     public static final String SPONSOR_CODE = "sponsor_code";
     public static final String APPLICANT_CODE = "applicant_code";
+    public static final String APPLICANT_NAME = "applicant_name";
+    public static final String ADDITIONALVERIFICATION = "additionalVerification";
+    public static final String TIME_STAMP = "timestamp";
     public static final String PHONE_OTP = "phone_otp";
     public static final String EMAIL_OTP = "email_otp";
     public static final String OTP = "otp";

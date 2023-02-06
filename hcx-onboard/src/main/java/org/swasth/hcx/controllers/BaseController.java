@@ -51,6 +51,9 @@ public class BaseController {
         ((Response) response).setStatus(SUCCESSFUL.toUpperCase());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+    protected ResponseEntity<Object> getSuccessResponse(Map<String,Object> response){
+        return new ResponseEntity<>(response,HttpStatus.OK);
+    }
 
     protected ResponseEntity<Object> exceptionHandler(Response response, Exception e){
         logger.error("Exception: {} :: Trace: {}", e.getMessage(), ExceptionUtils.getStackTrace(e));

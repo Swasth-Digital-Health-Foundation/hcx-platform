@@ -13,6 +13,7 @@ import org.swasth.hcx.services.ParticipantService;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.swasth.common.utils.Constants.*;
@@ -72,6 +73,14 @@ public class ParticipantController extends BaseController {
         }
     }
 
+    @PostMapping(APPLICANT_VERIFY)
+    public ResponseEntity<Object> applicantVerify(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
+        try {
+            return participantService.applicantVerify(header,requestBody);
+        } catch (Exception e) {
+            return exceptionHandler(new Response(), e);
+        }
+    }
     @PostMapping(PARTICIPANT_GET_INFO)
     public ResponseEntity<Object> participantGetInfo(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
         try {
