@@ -59,7 +59,6 @@ public class Response {
     public Response(Map<String, Object> result) {
         this.result = result;
     }
-
     public List<Map<String, Object>> getNotifications() {
         return notifications;
     }
