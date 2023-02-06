@@ -50,6 +50,18 @@
   align-items: center;
 }
 
+.payor-system-banner {
+  background: #2e96c7 !important;
+  height: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.payor-system-button {
+  background: #2e96c7 !important;
+}
+
 .button-color {
   background: #546acc !important;
 }
@@ -65,6 +77,11 @@
 .form-main {
   margin-left: 70px;
   margin-right: 70px;
+}
+
+.form-input-field{
+  width: 50%;
+  text-align: left;
 }
 
 @keyframes App-logo-spin {

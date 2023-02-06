@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react'
-import { Button, Form, Grid, Loader } from 'semantic-ui-react'
+import { Button, Form, Grid, Loader, Segment, TextArea } from 'semantic-ui-react'
 import { getToken, post } from './../service/APIService';
 import { useForm } from "react-hook-form";
 import { ToastContainer, toast } from 'react-toastify';
 import * as _ from 'lodash';
-import { replaceString } from '../utils/StringUtil';
+import { maskEmailAddress, replaceString } from '../utils/StringUtil';
 import { useHistory } from 'react-router-dom/cjs/react-router-dom.min';
 import { useSelector } from 'react-redux';
 
-export const UpdateRegistry = ({ changeTab, formState, setState }) => {
+export const UpdateRegistry = ({ tab, changeTab, formState, setState }) => {
 
     const { register, handleSubmit, watch, formState: { errors }, reset } = useForm();
     const [sending, setSending] = useState(false)
@@ -16,6 +16,7 @@ export const UpdateRegistry = ({ changeTab, formState, setState }) => {
     const [token, setToken] = useState("")
     const [passwordVerified, setPasswordVerified] = useState(false)
     const [password, setPassword] = useState("")
+    const [certType, setCertType] = useState("")
     let history = useHistory();
 
     const formStore = useSelector((state) => state)
@@ -78,10 +79,10 @@ export const UpdateRegistry = ({ changeTab, formState, setState }) => {
             {loader && <Loader active />}
             <div className='form-main' style={{ marginTop: '20px' }}>
                 <Form.Field>
-                    <b>Participant Code:</b>&ensp;{replaceString(_.get(formState, 'participant_code') || "", 5, "X")}
+                    <b>Participant Code:</b>&ensp;{maskEmailAddress(_.get(formState, 'participant_code'))}
                 </Form.Field>
                 <Form.Field>
-                    <b>Username:</b>&ensp;{replaceString(_.get(formState, 'participant.primary_email') || "", 5, "X")}
+                    <b>Username:</b>&ensp;{maskEmailAddress(_.get(formState, 'participant.primary_email'))}
                 </Form.Field>
                 <Form.Field disabled={passwordVerified} className={{ 'error': 'password' in errors }} required>
                     <label>Password</label>
@@ -95,9 +96,10 @@ export const UpdateRegistry = ({ changeTab, formState, setState }) => {
                         <label>Endpoint URL</label>
                         <input className='input-text' placeholder='Enter Endpoint URL' {...register("endpoint_url", { required: true })} />
                     </Form.Field> : null}
+                <Grid columns='equal' style={{ marginTop: '10px'}}>
                 {passwordVerified ?
                     <Form.Field disabled={sending} className={{ 'error': 'certificates_type' in errors }} required>
-                        <label>Certificates Type:</label>
+                        <label>Certificates Type</label>
                     </Form.Field> : null}
                 {passwordVerified ?
                     <Form.Field disabled={sending}>
@@ -107,29 +109,42 @@ export const UpdateRegistry = ({ changeTab, formState, setState }) => {
                             label='URL'
                             name='certificates_type'
                             value='URL'
+                            onClick={e => setCertType('URL')}
                             {...register("certificates_type", { required: true })}
                         /> URL
                     </Form.Field> : null}
                 {passwordVerified ?
                     <Form.Field disabled={sending}>
                         <input
-                            id="Text"
+                            id="certificate_data"
                             type="radio"
-                            label='Text'
+                            label='Certificate Data'
                             name='certificates_type'
-                            value='Text'
+                            value='certificate_data'
+                            onClick={e => setCertType('certificate_data')}
                             {...register("certificates_type", { required: true })}
-                        /> Text
+                        /> Certificate Data
                     </Form.Field> : null}
-                {passwordVerified ?
+                </Grid>
+                {passwordVerified && certType ?
                     <Form.Field disabled={sending} className={{ 'error': 'encryption_cert' in errors }} required>
-                        <label>Encryption Cert Path</label>
+                        <label>Encryption Cert</label>
+                        { certType === 'URL' ?
                         <input placeholder='Enter Encryption Cert Path' {...register("encryption_cert", { required: true })} />
+                        : null }
+                        { certType === 'certificate_data' ?
+                        <TextArea placeholder='Enter Encryption Cert Data' {...register("encryption_cert", { required: true })} />
+                        : null }
                     </Form.Field> : null}
-                {passwordVerified ?
+                {passwordVerified && certType ?
                     <Form.Field disabled={sending} className={{ 'error': 'signing_cert_path' in errors }} required>
-                        <label>Signing Cert Path</label>
+                        <label>Signing Cert</label>
+                        { certType === 'URL' ?
                         <input placeholder='Enter Signing Cert Path' {...register("signing_cert_path", { required: true })} />
+                        : null }
+                        { certType === 'certificate_data' ?
+                        <TextArea placeholder='Enter Signing Cert Data' {...register("signing_cert_path", { required: true })} />
+                        : null }
                     </Form.Field> : null}
             </div><br /><br />
             <Grid>

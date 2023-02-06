@@ -9,7 +9,8 @@ import { Onboarding } from './components/Onboarding';
 import {Home}  from './components/HomePage';
 import { End } from './components/EndPage';
 import { Onboarded } from './components/Onboarded';
-
+import { PayorSystem } from './components/PayorSystem'; 
+import { SetPassword } from './components/SetPassword';
 
 function App() {
 
@@ -28,6 +29,12 @@ function App() {
           </Route>
           <Route path="/onboarding">
             <Home />
+          </Route>
+          <Route path="/payorsystem">
+            <PayorSystem />
+          </Route>
+          <Route path="/password">
+            <SetPassword />
           </Route>
         </Switch>
       </Router>
