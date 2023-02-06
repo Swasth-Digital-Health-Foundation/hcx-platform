@@ -162,5 +162,6 @@ spring:
                 redis-rate-limiter.replenishRate: 10
                 redis-rate-limiter.burstCapacity: 20
             - RewritePath=/${version.external07}/participant/(?<segment>/?.*), /${version.internal}/participant/$\{segment}
+            - RewritePath=/${version.external07}/applicant/(?<segment>/?.*), /${version.internal}/applicant/$\{segment}
           predicates:
-            - Path=/${version.external07}/participant/verify, /${version.external07}/participant/verify/identity, /${version.external07}/participant/otp/send, /${version.external07}/participant/onboard/update, /${version.external07}/participant/getInfo
+            - Path=/${version.external07}/participant/verify, /${version.external07}/participant/verify/identity, /${version.external07}/participant/otp/send, /${version.external07}/participant/onboard/update, /${version.external07}/participant/getInfo, /${version.external07}/applicant/verify
