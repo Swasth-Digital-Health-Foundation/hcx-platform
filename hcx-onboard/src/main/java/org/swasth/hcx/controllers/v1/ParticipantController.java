@@ -34,7 +34,7 @@ public class ParticipantController extends BaseController {
     private ParticipantService participantService;
 
     @PostMapping(PARTICIPANT_VERIFY)
-    public ResponseEntity<Object> participantVerify(@RequestHeader HttpHeaders header, @RequestBody ArrayList<Map<String, Object>> body) {
+    public ResponseEntity<Object> verify(@RequestHeader HttpHeaders header, @RequestBody ArrayList<Map<String, Object>> body) {
         String email = "";
         try {
             return participantService.verify(header, body,email);
