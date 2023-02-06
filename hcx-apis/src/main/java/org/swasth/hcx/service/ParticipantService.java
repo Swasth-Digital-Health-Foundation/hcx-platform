@@ -248,22 +248,6 @@ public class ParticipantService extends BaseController {
         getCertificates(requestBody, participantCode, ENCRYPTION_CERT);
     }
 
-    public boolean isParticipantCodeExists(String participantCode, String registryUrl) throws Exception {
-        ResponseEntity<Object> searchResponse = participantSearchBody(participantCode,registryUrl);
-        Object responseBody = searchResponse.getBody();
-        if (responseBody != null) {
-            if (responseBody instanceof Response) {
-                Response response = (Response) responseBody;
-                throw new ServerException(MessageFormat.format(PARTICIPANT_ERROR_MSG, response.getError().getMessage()));
-            } else {
-                ParticipantResponse participantResponse = (ParticipantResponse) responseBody;
-                return !participantResponse.getParticipants().isEmpty();
-            }
-        } else {
-            throw new ServerException(INVALID_REGISTRY_RESPONSE);
-        }
-    }
-
     public Map<String, Object> getParticipant(String participantCode, String registryUrl) throws Exception {
         ResponseEntity<Object> searchResponse = participantSearchBody(participantCode,registryUrl);
         ParticipantResponse participantResponse = (ParticipantResponse) Objects.requireNonNull(searchResponse.getBody());
