@@ -1,10 +1,9 @@
-
-
 import axios from 'axios';
 
 const baseUrl = process.env.REACT_APP_HCX_PATH;
 const apiVersion = process.env.REACT_APP_HCX_API_VERSION;
 const adminToken = process.env.REACT_APP_HCX_ADMIN_TOKEN;
+
 
 export const post = async (path, body, headers = {}) => {
   return axios({
