@@ -8,14 +8,14 @@ import org.swasth.common.utils.Constants;
 import org.swasth.hcx.controllers.BaseSpec;
 import org.swasth.hcx.handlers.EventHandler;
 import org.swasth.hcx.service.NotificationService;
-import org.swasth.hcx.service.ParticipantService;
+import org.swasth.hcx.service.Service;
 
 import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 
-@ContextConfiguration(classes={SearchUtil.class,NotificationService.class, EventHandler.class, ParticipantService.class})
+@ContextConfiguration(classes={SearchUtil.class,NotificationService.class, EventHandler.class, Service.class})
 class SearchUtilsTests extends BaseSpec {
 
     @Test

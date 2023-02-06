@@ -165,6 +165,9 @@ public class Constants {
     public static final String FILTERS = "filters";
     public static final String LIMIT = "limit";
     public static final String OFFSET = "offset";
+    public static final String INVITE = "/api/v1/Organisation/invite";
+    public static final String ORGANIZATION = "/api/v1/Organisation/";
+    public static final String SEARCH = "/api/v1/Organisation/search";
     public static final String START_DATETIME = "start_datetime";
     public static final String STOP_DATETIME = "stop_datetime";
     public static final String SEARCH_REQ ="x-hcx-search";

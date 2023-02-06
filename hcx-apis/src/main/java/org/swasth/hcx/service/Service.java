@@ -7,10 +7,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
 import org.swasth.ICloudService;
 import org.swasth.common.dto.ParticipantResponse;
-import org.swasth.common.dto.Response;
 import org.swasth.common.dto.Sponsor;
 import org.swasth.common.exception.*;
 import org.swasth.common.utils.HttpUtils;
@@ -23,15 +21,14 @@ import org.swasth.redis.cache.RedisCache;
 import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.sql.ResultSet;
-import java.text.MessageFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.swasth.common.response.ResponseMessage.*;
 import static org.swasth.common.utils.Constants.*;
 
-@Service
-public class ParticipantService extends BaseController {
+@org.springframework.stereotype.Service
+public class Service extends BaseController {
     @Value("${certificates.bucketName}")
     private String bucketName;
 
@@ -50,8 +47,8 @@ public class ParticipantService extends BaseController {
     @Autowired
     private RedisCache redisCache;
 
-    public ResponseEntity<Object> invite(Map<String, Object> requestBody, String registryUrl, HttpHeaders header, String participantCode) throws Exception {
-        String url = registryUrl + "/api/v1/Organisation/invite";
+    public ResponseEntity<Object> invite(Map<String, Object> requestBody, String registryUrl, HttpHeaders header, String code) throws Exception {
+        String url = registryUrl + INVITE;
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put(AUTHORIZATION, Objects.requireNonNull(header.get(AUTHORIZATION)).get(0));
         HttpResponse<String> response = HttpUtils.post(url, JSONUtils.serialize(requestBody), headersMap);
@@ -59,74 +56,74 @@ public class ParticipantService extends BaseController {
             Map<String, Object> cdata = new HashMap<>();
             cdata.put(ACTION, PARTICIPANT_CREATE);
             cdata.putAll(requestBody);
-            eventHandler.createAudit(eventGenerator.createAuditLog(participantCode, PARTICIPANT, cdata,
+            eventHandler.createAudit(eventGenerator.createAuditLog(code, PARTICIPANT, cdata,
                     getEData(CREATED, "", Collections.emptyList())));
         }
-        return responseHandler(response, participantCode);
+        return responseHandler(response, code);
     }
 
-    public ResponseEntity<Object> update(Map<String, Object> requestBody, Map<String, Object> participant, String registryUrl, HttpHeaders header, String participantCode) throws Exception {
-        String url = registryUrl + "/api/v1/Organisation/" + participant.get(OSID);
+    public ResponseEntity<Object> update(Map<String, Object> requestBody, Map<String, Object> participant, String registryUrl, HttpHeaders header, String code) throws Exception {
+        String url = registryUrl + ORGANIZATION + participant.get(OSID);
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put(AUTHORIZATION, Objects.requireNonNull(header.get(AUTHORIZATION)).get(0));
         HttpResponse<String> response = HttpUtils.put(url, JSONUtils.serialize(requestBody), headersMap);
         if (response.getStatus() == 200) {
-            deleteCache(participantCode);
+            deleteCache(code);
         }
-        return responseHandler(response, participantCode);
+        return responseHandler(response, code);
     }
 
     public ResponseEntity<Object> search(Map<String, Object> requestBody, String registryUrl, String fields) throws Exception {
-        String url = registryUrl + "/api/v1/Organisation/search";
+        String url = registryUrl + SEARCH;
         HttpResponse<String> response = HttpUtils.post(url, JSONUtils.serialize(requestBody), new HashMap<>());
         if (fields != null && fields.toLowerCase().contains(SPONSORS)) {
-            ArrayList<Map<String, Object>> participantsList = JSONUtils.deserialize(response.getBody(), ArrayList.class);
-            return getSponsors(participantsList);
+            ArrayList<Map<String, Object>> List = JSONUtils.deserialize(response.getBody(), ArrayList.class);
+            return getSponsors(List);
         }
         return responseHandler(response, null);
     }
-    public  ResponseEntity<Object> participantSearchBody(String participantCode, String registryUrl) throws Exception {
-        return search(JSONUtils.deserialize("{ \"filters\": { \"participant_code\": { \"eq\": \" " + participantCode + "\" } } }", Map.class),registryUrl,"");
+    public  ResponseEntity<Object> searchBody(String code, String registryUrl) throws Exception {
+        return search(JSONUtils.deserialize("{ \"filters\": { \"participant_code\": { \"eq\": \" " + code + "\" } } }", Map.class),registryUrl,"");
     }
-    public ResponseEntity<Object> read(String fields, String participantCode, String registryUrl, String pathParam) throws Exception {
-        Map<String, Object> searchReq = JSONUtils.deserialize("{ \"filters\": { \"participant_code\": { \"eq\": \" " + participantCode + "\" } } }", Map.class);
+    public ResponseEntity<Object> read(String fields, String code, String registryUrl, String pathParam) throws Exception {
+        Map<String, Object> searchReq = JSONUtils.deserialize("{ \"filters\": { \"participant_code\": { \"eq\": \" " + code + "\" } } }", Map.class);
         ResponseEntity<Object> response = search(searchReq, registryUrl, pathParam);
         ParticipantResponse searchResp = (ParticipantResponse) response.getBody();
         if (fields != null && fields.toLowerCase().contains(VERIFICATIONSTATUS) && searchResp != null) {
-            ((Map<String, Object>) searchResp.getParticipants().get(0)).putAll(getVerificationStatus(participantCode));
+            ((Map<String, Object>) searchResp.getParticipants().get(0)).putAll(getVerificationStatus(code));
         }
         return getSuccessResponse(searchResp);
     }
 
-    public ResponseEntity<Object> delete(Map<String, Object> participant, String registryUrl, HttpHeaders header, String participantCode) throws Exception {
-        String url = registryUrl + "/api/v1/Organisation/" + participant.get(OSID);
+    public ResponseEntity<Object> delete(Map<String, Object> participant, String registryUrl, HttpHeaders header, String code) throws Exception {
+        String url = registryUrl + ORGANIZATION + participant.get(OSID);
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put(AUTHORIZATION, Objects.requireNonNull(header.get(AUTHORIZATION)).get(0));
         HttpResponse<String> response = HttpUtils.delete(url, headersMap);
         if (response.getStatus() == 200) {
-            deleteCache(participantCode);
+            deleteCache(code);
             Map<String, Object> cdata = new HashMap<>();
             cdata.put(ACTION, PARTICIPANT_DELETE);
             cdata.putAll(participant);
-            eventHandler.createAudit(eventGenerator.createAuditLog(participantCode, PARTICIPANT, cdata,
+            eventHandler.createAudit(eventGenerator.createAuditLog(code, PARTICIPANT, cdata,
                     getEData(INACTIVE, (String) participant.get(AUDIT_STATUS), Collections.emptyList())));
         }
-        return responseHandler(response, participantCode);
+        return responseHandler(response, code);
     }
 
-    public void getCertificates(Map<String, Object> requestBody, String participantCode, String key) {
+    public void getCertificates(Map<String, Object> requestBody, String code, String key) {
         if (requestBody.getOrDefault(key, "").toString().startsWith("-----BEGIN CERTIFICATE-----") && requestBody.getOrDefault(key, "").toString().endsWith("-----END CERTIFICATE-----")) {
             String certificateData = requestBody.getOrDefault(key, "").toString().replace(" ", "\n").replace("-----BEGIN\nCERTIFICATE-----", "-----BEGIN CERTIFICATE-----").replace("-----END\nCERTIFICATE-----", "-----END CERTIFICATE-----");
-            cloudClient.putObject(participantCode, bucketName);
-            cloudClient.putObject(bucketName, participantCode + "/signing_cert_path.pem", certificateData);
-            cloudClient.putObject(bucketName, participantCode + "/encryption_cert_path.pem", certificateData);
-            requestBody.put(SIGNING_CERT_PATH, cloudClient.getUrl(bucketName, participantCode + "/signing_cert_path.pem").toString());
-            requestBody.put(ENCRYPTION_CERT, cloudClient.getUrl(bucketName, participantCode + "/encryption_cert_path.pem").toString());
+            cloudClient.putObject(code, bucketName);
+            cloudClient.putObject(bucketName, code + "/signing_cert_path.pem", certificateData);
+            cloudClient.putObject(bucketName, code + "/encryption_cert_path.pem", certificateData);
+            requestBody.put(SIGNING_CERT_PATH, cloudClient.getUrl(bucketName, code + "/signing_cert_path.pem").toString());
+            requestBody.put(ENCRYPTION_CERT, cloudClient.getUrl(bucketName, code + "/encryption_cert_path.pem").toString());
         }
     }
 
-    public Map<String, Object> getVerificationStatus(String participantCode) throws Exception {
-        String selectQuery = String.format("SELECT status FROM %s WHERE participant_code ='%s'", onboardOtpTable, participantCode);
+    public Map<String, Object> getVerificationStatus(String code) throws Exception {
+        String selectQuery = String.format("SELECT status FROM %s WHERE participant_code ='%s'", onboardOtpTable, code);
         ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
         Map<String, Object> responseMap = new HashMap<>();
         while (resultSet.next()) {
@@ -136,7 +133,7 @@ public class ParticipantService extends BaseController {
     }
 
     public ResponseEntity<Object> getSponsors(List<Map<String, Object>> participantsList) throws Exception {
-        String primaryEmailList = participantsList.stream().map(participant -> participant.get(PRIMARY_EMAIL)).collect(Collectors.toList()).toString();
+        String primaryEmailList = participantsList.stream().map(participant -> participant.get(PRIMARY_EMAIL)).collect(Collectors.toList()).toString();;
         String primaryEmailWithQuote = getPrimaryEmailWithQuote(primaryEmailList);
         String selectQuery = String.format("SELECT * FROM %S WHERE applicant_email IN (%s)",onboardingTable,primaryEmailWithQuote);
         ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
@@ -150,11 +147,11 @@ public class ParticipantService extends BaseController {
         return getSuccessResponse(new ParticipantResponse(modifiedResponseList));
     }
 
-    private static String getPrimaryEmailWithQuote(String primaryEmailList) {
+    private String getPrimaryEmailWithQuote(String primaryEmailList) {
         return "'" + primaryEmailList.replace("[", "").replace("]", "").replace(" ", "").replace(",", "','") + "'";
     }
 
-    private static void filterSponsors(Map<String, Object> sponsorMap, List<Map<String, Object>> participantsList, ArrayList<Object> modifiedResponseList) {
+    private void filterSponsors(Map<String, Object> sponsorMap, List<Map<String, Object>> participantsList, ArrayList<Object> modifiedResponseList) {
         for (Map<String, Object> responseList : participantsList) {
             String email = (String) responseList.get(PRIMARY_EMAIL);
             if (sponsorMap.containsKey(email)) {
@@ -165,11 +162,11 @@ public class ParticipantService extends BaseController {
             modifiedResponseList.add(responseList);
         }
     }
-    public static ResponseEntity<Object> getSuccessResponse(Object response) {
+    public ResponseEntity<Object> getSuccessResponse(Object response) {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    private static String getErrorMessage(HttpResponse<String> response) throws Exception {
+    private String getErrorMessage(HttpResponse<String> response) throws Exception {
         Map<String, Object> result = JSONUtils.deserialize(response.getBody(), HashMap.class);
         return (String) ((Map<String, Object>) result.get("params")).get("errmsg");
     }
@@ -193,7 +190,7 @@ public class ParticipantService extends BaseController {
         requestBody.put(SIGNING_CERT_PATH_EXPIRY, jwtUtils.getCertificateExpiry((String) requestBody.get(SIGNING_CERT_PATH)));
     }
 
-    public ResponseEntity<Object> responseHandler(HttpResponse<String> response, String participantCode) throws Exception {
+    public ResponseEntity<Object> responseHandler(HttpResponse<String> response, String code) throws Exception {
         if (response.getStatus() == HttpStatus.OK.value()) {
             if (response.getBody().isEmpty()) {
                 return getSuccessResponse("");
@@ -201,7 +198,7 @@ public class ParticipantService extends BaseController {
                 if (response.getBody().startsWith("["))
                     return getSuccessResponse(new ParticipantResponse(JSONUtils.deserialize(response.getBody(), ArrayList.class)));
                 else
-                    return getSuccessResponse(new ParticipantResponse(participantCode));
+                    return getSuccessResponse(new ParticipantResponse(code));
             }
         } else if (response.getStatus() == HttpStatus.BAD_REQUEST.value()) {
             throw new ClientException(getErrorMessage(response));
@@ -214,9 +211,9 @@ public class ParticipantService extends BaseController {
         }
     }
 
-    public void deleteCache(String participantCode) throws Exception {
-        if (redisCache.isExists(participantCode))
-            redisCache.delete(participantCode);
+    public void deleteCache(String code) throws Exception {
+        if (redisCache.isExists(code))
+            redisCache.delete(code);
     }
 
     public Map<String, Object> getEData(String status, String prevStatus, List<String> props) {
@@ -243,13 +240,13 @@ public class ParticipantService extends BaseController {
             throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, INVALID_EMAIL);
     }
 
-    public void getCertificatesUrl(Map<String, Object> requestBody, String participantCode) {
-        getCertificates(requestBody, participantCode, SIGNING_CERT_PATH);
-        getCertificates(requestBody, participantCode, ENCRYPTION_CERT);
+    public void getCertificatesUrl(Map<String, Object> requestBody, String code) {
+        getCertificates(requestBody, code, SIGNING_CERT_PATH);
+        getCertificates(requestBody, code, ENCRYPTION_CERT);
     }
 
-    public Map<String, Object> getParticipant(String participantCode, String registryUrl) throws Exception {
-        ResponseEntity<Object> searchResponse = participantSearchBody(participantCode,registryUrl);
+    public Map<String, Object> getParticipant(String code, String registryUrl) throws Exception {
+        ResponseEntity<Object> searchResponse = searchBody(code,registryUrl);
         ParticipantResponse participantResponse = (ParticipantResponse) Objects.requireNonNull(searchResponse.getBody());
         if (participantResponse.getParticipants().isEmpty())
             throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_CODE, INVALID_PARTICIPANT_CODE);
