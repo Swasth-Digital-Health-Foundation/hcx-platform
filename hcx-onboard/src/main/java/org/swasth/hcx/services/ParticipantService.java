@@ -10,6 +10,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.swasth.common.dto.OnboardRequest;
+import org.swasth.common.dto.OnboardResponse;
 import org.swasth.common.dto.ParticipantResponse;
 import org.swasth.common.dto.Response;
 import org.swasth.common.exception.ClientException;
@@ -357,14 +358,14 @@ public class ParticipantService extends BaseController {
     }
 
     public ResponseEntity<Object> applicantVerify(HttpHeaders header, Map<String, Object> requestBody) throws Exception {
-        Response response = new Response((String) requestBody.get(PARTICIPANT_CODE), (String) requestBody.get(VERIFIERCODE), REJECTED);
-        String result = REJECTED;
+        OnboardResponse response = new OnboardResponse((String) requestBody.get(PARTICIPANT_CODE), (String) requestBody.get(VERIFIERCODE));
+        String result;
         if (requestBody.containsKey(OTPVERIFCATION)) {
             result = verifyOTP(requestBody);
         } else {
             result = identityVerify(header, requestBody);
         }
-        response.setResultStr(result);
+        response.setResult(result);
         return getSuccessResponse(response);
     }
 
@@ -379,8 +380,8 @@ public class ParticipantService extends BaseController {
             reqBody.put(APPLICANT_CODE, reqBody.get(APPLICANT_CODE));
             HttpResponse<String> httpResp = HttpUtils.post(sponsorDetails.get(ENDPOINT_URL) + APPLICANT_VERIFY, JSONUtils.serialize(reqBody));
             if (httpResp.getStatus() == 200) {
-                Response payorResp = JSONUtils.deserialize(httpResp.getBody(), Response.class);
-                result = payorResp.getResultStr();
+                OnboardResponse payorResp = JSONUtils.deserialize(httpResp.getBody(), OnboardResponse.class);
+                result = payorResp.getResult();
             }
         }
 

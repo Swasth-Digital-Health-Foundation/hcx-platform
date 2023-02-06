@@ -28,15 +28,6 @@ public class Response {
     @JsonProperty("subscription_status")
     private String subscriptionStatus;
 
-    @JsonProperty("applicant_code")
-    private String applicantCode;
-
-    @JsonProperty("verifier_code")
-    private String verifierCode;
-
-    @JsonProperty("result")
-    private String resultStr;
-
     private String status;
 
     public Response() {
@@ -69,19 +60,6 @@ public class Response {
         this.result = result;
     }
 
-    public Response(String applicantCode, String verifierCode, String result) {
-        this.applicantCode = applicantCode;
-        this.verifierCode = verifierCode;
-        this.resultStr = result;
-    }
-
-    public void setResultStr(String resultStr){
-        this.resultStr = resultStr;
-    }
-
-    public String getResultStr(){
-        return this.resultStr;
-    }
 
     public List<Map<String, Object>> getNotifications() {
         return notifications;
