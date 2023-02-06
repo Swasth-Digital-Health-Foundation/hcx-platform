@@ -68,7 +68,7 @@ public class ParticipantService extends BaseController {
     @Value("${otp.maxAttempt}")
     private int otpMaxAttempt;
 
-    @Value("${regenerateOtp.maxRegenerate}")
+    @Value("${otp.maxRegenerate}")
     private int maxRegenerate;
 
     @Value("${env}")
