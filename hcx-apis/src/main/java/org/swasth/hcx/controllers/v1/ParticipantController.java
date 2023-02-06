@@ -53,9 +53,6 @@ public class ParticipantController extends BaseController {
             Participant participant = new Participant(requestBody);
             participantService.validateCreateParticipant(requestBody);
             String participantCode = participant.generateCode(participant.getprimaryEmail(), fieldSeparator, hcxInstanceName);
-            while (participantService.isParticipantCodeExists(participantCode,registryUrl)) {
-                participantCode = SlugUtils.makeSlug(participant.getprimaryEmail(), String.valueOf(new SecureRandom().nextInt(1000)), fieldSeparator, hcxInstanceName);
-            }
             participantService.getCertificatesUrl(requestBody, participantCode);
             participantService.validateCertificates(requestBody);
             return participantService.invite(requestBody, registryUrl, header, participantCode);
