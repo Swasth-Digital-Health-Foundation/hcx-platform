@@ -36,9 +36,8 @@ public class ParticipantController extends BaseController {
 
     @PostMapping(PARTICIPANT_VERIFY)
     public ResponseEntity<Object> participantVerify(@RequestHeader HttpHeaders header, @RequestBody ArrayList<Map<String, Object>> body) {
-        String email = "";
         try {
-            return participantService.verify(header, body,email);
+            return participantService.verify(header, body);
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }

@@ -52,7 +52,7 @@ public class BaseController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
     protected ResponseEntity<Object> getSuccessResponse(Map<String,Object> response){
-        return new ResponseEntity<>(response,HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     protected ResponseEntity<Object> exceptionHandler(Response response, Exception e){

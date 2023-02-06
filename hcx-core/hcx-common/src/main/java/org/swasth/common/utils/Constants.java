@@ -75,6 +75,8 @@ public class Constants {
     public static final String RESULT = "result";
     public static final String ONBOARD_THROUGH_JWT = "onboard-through-jwt";
     public static final String ONBOARD_THROUGH_VERIFIER = "onboard-through-verifier";
+    public static final List<String> ONBOARD_FOR_PROVIDER = Arrays.asList(ONBOARD_THROUGH_JWT, ONBOARD_THROUGH_VERIFIER);
+
     public static final String EMAIL_OTP_VALIDATION = "email-otp-validation";
     public static final String PHONE_OTP_VALIDATION = "phone-otp-validation";
     public static final String OTPVERIFCATION = "otpVerification";
@@ -271,6 +273,7 @@ public class Constants {
     public static final String APPLICANT_CODE = "applicant_code";
     public static final String APPLICANT_NAME = "applicant_name";
     public static final String ADDITIONALVERIFICATION = "additionalVerification";
+    public static final String ROLE = "role";
     public static final String TIME_STAMP = "timestamp";
     public static final String PHONE_OTP = "phone_otp";
     public static final String EMAIL_OTP = "email_otp";
