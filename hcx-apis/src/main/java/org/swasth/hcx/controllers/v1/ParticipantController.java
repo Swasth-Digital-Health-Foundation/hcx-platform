@@ -3,6 +3,7 @@ package org.swasth.hcx.controllers.v1;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.swasth.common.dto.Response;
@@ -49,11 +50,11 @@ public class ParticipantController extends BaseController {
     public ResponseEntity<Object> create(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
         try {
             Participant participant = new Participant(requestBody);
-            service.validateCreateParticipant(requestBody);
+            service.validate(requestBody,true);
             String code = participant.generateCode(participant.getprimaryEmail(), fieldSeparator, hcxInstanceName);
             service.getCertificatesUrl(requestBody, code);
             service.validateCertificates(requestBody);
-            return service.invite(requestBody, registryUrl, header, code);
+            return getSuccessResponse(service.invite(requestBody, registryUrl, header, code));
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }
@@ -65,9 +66,9 @@ public class ParticipantController extends BaseController {
             Participant participant = new Participant(requestBody);
             String code = participant.getParticipantCode();
             service.getCertificatesUrl(requestBody, code);
-            service.validateUpdateParticipant(requestBody);
+            service.validate(requestBody,false);
             Map<String, Object> details = service.getParticipant(code,registryUrl);
-            return service.update(requestBody, details, registryUrl, header, code);
+            return getSuccessResponse(service.update(requestBody, details, registryUrl, header, code));
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }
@@ -76,20 +77,20 @@ public class ParticipantController extends BaseController {
     @PostMapping(PARTICIPANT_SEARCH)
     public ResponseEntity<Object> search(@RequestParam(required = false) String fields, @RequestBody Map<String, Object> requestBody) {
         try {
-            return service.search(requestBody, registryUrl, fields);
+            return getSuccessResponse(service.search(requestBody, registryUrl, fields));
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }
     }
 
     @GetMapping(PARTICIPANT_READ)
-    public ResponseEntity<Object> read(@PathVariable("participantCode") String participantCode, @RequestParam(required = false) String fields) {
+    public ResponseEntity<Object> read(@PathVariable("participantCode") String code, @RequestParam(required = false) String fields) {
         try {
             String pathParam = "";
             if (fields != null && fields.toLowerCase().contains(SPONSORS)) {
                 pathParam = SPONSORS;
             }
-            return service.read(fields,participantCode,registryUrl,pathParam);
+            return service.read(fields,code,registryUrl,pathParam);
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }
@@ -103,10 +104,13 @@ public class ParticipantController extends BaseController {
             Participant participant = new Participant(requestBody);
             String code = participant.getParticipantCode();
             Map<String, Object> details = service.getParticipant(code,registryUrl);
-            return service.delete(details, registryUrl, header, code);
+            return getSuccessResponse(service.delete(details, registryUrl, header, code));
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }
+    }
+    public ResponseEntity<Object> getSuccessResponse(Object response) {
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
 

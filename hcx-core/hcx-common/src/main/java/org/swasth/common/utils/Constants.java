@@ -263,6 +263,7 @@ public class Constants {
     public static final String ISS = "iss";
     public static final String SPONSOR_CODE = "sponsor_code";
     public static final String APPLICANT_CODE = "applicant_code";
+    public static final String APPLICANT_EMAIL = "applicant_email";
     public static final String PHONE_OTP = "phone_otp";
     public static final String EMAIL_OTP = "email_otp";
     public static final String OTP = "otp";
