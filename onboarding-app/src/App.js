@@ -18,6 +18,9 @@ function App() {
     <div className="App">
       <Router>
         <Switch>
+        <Route path="/onboarding/payorsystem">
+            <PayorSystem />
+          </Route>
           <Route path="/onboarding/process">
             <Onboarding />
           </Route>
@@ -29,12 +32,6 @@ function App() {
           </Route>
           <Route path="/onboarding">
             <Home />
-          </Route>
-          <Route path="/payorsystem">
-            <PayorSystem />
-          </Route>
-          <Route path="/password">
-            <SetPassword />
           </Route>
         </Switch>
       </Router>

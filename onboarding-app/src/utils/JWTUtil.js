@@ -1,4 +1,5 @@
 import * as jose from 'jose'
+import { v4 as uuidv4 } from 'uuid'
 
 export async function generateJWS(issuer, subject) {
 
@@ -37,8 +38,8 @@ export async function generateJWS(issuer, subject) {
 
     const jwt = new jose.SignJWT({})
         .setProtectedHeader({ alg: 'RS256' })
+        .setJti(uuidv4())
         .setIssuedAt()
-        .setJti()
         .setIssuer(issuer)
         .setSubject(subject)
         .setExpirationTime('2h')

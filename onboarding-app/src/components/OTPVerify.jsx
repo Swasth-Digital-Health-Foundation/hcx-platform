@@ -7,14 +7,12 @@ import { maskEmailAddress, replaceString } from '../utils/StringUtil';
 import * as _ from 'lodash';
 import { useSelector } from 'react-redux';
 
-export const OTPVerify = ({ tab, changeTab, formState, setState }) => {
+export const OTPVerify = ({ changeTab, formState, setState }) => {
 
     const { register, handleSubmit, watch, formState: { errors }, reset } = useForm();
-
     const [sending, setSending] = useState(false)
-    const [loader, setLoader] = useState(false)
-
     const formStore = useSelector((state) => state)
+    const [formErrors , setFormErrors] = useState({});
 
     useEffect(() => {
         if (_.get(formState, 'participant') == null) {
@@ -23,27 +21,30 @@ export const OTPVerify = ({ tab, changeTab, formState, setState }) => {
     }, []);
 
     const onSubmit = (data) => {
-        setLoader(true)
         setSending(true)
-        const formData = [{ "type": "email-otp-validation", "primary_email": _.get(formState, 'participant.primary_email'), "otp": data.email_otp }, { "type": "mobile-otp-validation", "primary_mobile": _.get(formState, 'participant.primary_mobile'), "otp": data.phone_otp }];
-        post("/participant/verify", formData).then((data => {
+        setFormErrors({})
+        const formData = { 'participant_code' : _.get(formState, 'participant_code'), 'verifier_code' : _.get(formState, 'verifier_code') || "", 'otpVerification' : [ { 'channel': 'email', 'otp': data.email_otp }, { 'channel' : 'phone', "otp": data.phone_otp }]};
+        post("/applicant/verify", formData).then((data => {
             toast.success("Form is submitted successfully", {
                 position: toast.POSITION.TOP_CENTER, autoClose: 2000
             });
             reset()
+            console.log(formState)
             changeTab(2)
         })).catch(err => {
-            toast.error(_.get(err, 'response.data.error.message') || "Internal Server Error", {
-                position: toast.POSITION.TOP_CENTER
-            });
+            if(_.get(err, 'response.data.error.message')){
+                setFormErrors({error:_.get(err, 'response.data.error.message')});
+            }else{
+                toast.error(_.get(err, 'response.data.error.message') || "Internal Server Error", {
+                    position: toast.POSITION.TOP_CENTER
+               });  
+            }
         }).finally(() => {
             setSending(false)
-            setLoader(false)
         })
     }
 
     const regenerateOTP = () => {
-        setLoader(true)
         setSending(true)
         const formData = { "participant_code": _.get(formState, 'participant_code'), "participant_name": _.get(formState, 'participant.participant_name'), "primary_email": _.get(formState, 'participant.primary_email'), "primary_mobile": _.get(formState, 'participant.primary_mobile') };
         post("/participant/otp/send", formData).then((data => {
@@ -57,21 +58,18 @@ export const OTPVerify = ({ tab, changeTab, formState, setState }) => {
             });
         }).finally(() => {
             setSending(false)
-            setLoader(false)
         })
     }
 
     return <>
         <ToastContainer autoClose={false} />
             <Form onSubmit={handleSubmit(onSubmit)} className="container">
-                {loader && <Loader active />}
+                {sending && <Loader active />}
                 <Grid columns='equal'>
                     <Grid.Row>
                         <Grid.Column>
                             <b>Email:</b>&ensp;{maskEmailAddress(_.get(formState, 'participant.primary_email'))}
                         </Grid.Column>
-                    </Grid.Row>
-                    <Grid.Row>
                         <Grid.Column>
                             <b>Phone Number:</b>&ensp;{replaceString(_.get(formState, 'participant.primary_mobile') || "", 7, "*")}
                         </Grid.Column>
@@ -95,6 +93,7 @@ export const OTPVerify = ({ tab, changeTab, formState, setState }) => {
                             </Form.Field>
                         </Grid.Column>
                     </Grid.Row>
+                    {formErrors.error && (<Grid.Row centered><div style={{"color":"red"}}>{formErrors.error}</div></Grid.Row>)}
                     <Grid.Row>
                         <Grid.Column>
                             <Button disabled={sending} type="submit" className="primary center-element button-color">

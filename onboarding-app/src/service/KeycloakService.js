@@ -2,7 +2,6 @@ import { get, post, put } from '../utils/HttpUtil';
 
 const hcxUrl = process.env.REACT_APP_HCX_PATH;
 const realmName = process.env.REACT_APP_KEYCLOAK_REALM_NAME;
-const keycloakAdminToken = process.env.REACT_APP_KEYCLOAK_ADMIN_TOKEN;
 
 export async function isPasswordSet(userId) {
     const accessToken = await generateToken();

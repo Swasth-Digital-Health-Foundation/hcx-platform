@@ -13,7 +13,6 @@ export const Onboarding = () => {
     const [activeIndex, setActiveIndex] = useState(0)
     const [state, setState] = useState({})
     const props = {
-        tab : activeIndex,
         changeTab: setActiveIndex,
         formState: state,
         setState

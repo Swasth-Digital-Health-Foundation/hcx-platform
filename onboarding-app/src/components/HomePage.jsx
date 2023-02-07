@@ -34,7 +34,8 @@ export const Home = () => {
                 //         state = 2
                 //     }
                 // } else 
-                if (participant.verificationStatus.status === 'successful') {
+                console.log(participant)
+                if (participant.verificationstatus.status === 'successful') {
                     state = 2;
                 } else {
                     state = 1;
@@ -82,12 +83,12 @@ export const Home = () => {
                         <Message.Content style={{ textAlign:'left' }}>Following is the onboarding process for new and existing users:</Message.Content>
                         <Message.Content style={{ textAlign:'left' }}><b>New User:</b> There are 4 steps in onboarding process:</Message.Content>
                         <Message.List>
-                            <Message.Item><b>Basic Details:</b></Message.Item>
-                            <Message.Item><b>OTP Verification:</b></Message.Item>
-                            <Message.Item><b>Set Password:</b></Message.Item>
-                            <Message.Item><b>Update Complete Details:</b></Message.Item>
+                            <Message.Item><b>Basic Details</b></Message.Item>
+                            <Message.Item><b>OTP Verification</b></Message.Item>
+                            <Message.Item><b>Set Password</b></Message.Item>
+                            <Message.Item><b>Update Complete Details</b></Message.Item>
                         </Message.List><br/>
-                        <Message.Content style={{ textAlign:'left' }}><b>Existing User:</b> If you have started onboarding process and exited the form before completion. Then, please select 'existing user' and enter your participant code. Form will take you to the stage from where you have exited.</Message.Content>
+                        <Message.Content style={{ textAlign:'left' }}><b>Existing User:</b> If you have started onboarding process and exited the form before completion. Please select <b>existing user</b> and enter your <b>participant code</b>. Form will take you to the stage from where you have exited.</Message.Content>
                     </Message>
                     <Form>
                         <Grid centered>

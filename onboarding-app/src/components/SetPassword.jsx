@@ -1,15 +1,13 @@
 import { isPasswordSet, setPassword } from "../service/KeycloakService";
 import { useEffect, useState } from 'react'
-import { Button, Form, Grid, Loader, Segment, TextArea, Visibility } from 'semantic-ui-react'
+import { Button, Form, Grid, Loader} from 'semantic-ui-react'
 import { useForm } from "react-hook-form";
 import { ToastContainer, toast } from 'react-toastify';
 import * as _ from 'lodash';
 import { useSelector } from 'react-redux';
 import { get } from "../service/APIService";
-import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 
-
-export const SetPassword = ({ tab, changeTab, formState, setState }) => {
+export const SetPassword = ({ changeTab, formState, setState }) => {
 
     const apiVersion = process.env.REACT_APP_PARTICIPANT_API_VERSION;
 
@@ -18,6 +16,15 @@ export const SetPassword = ({ tab, changeTab, formState, setState }) => {
     const [osOwner, setOsOwner] = useState("")
     const [isPasswordUpdated, setIsPasswordUpdated] = useState(false)
     const formStore = useSelector((state) => state)
+    const [passwordType, setPasswordType] = useState("password")
+
+    const togglePasswordView = () => {
+        if (passwordType == 'password') {
+            setPasswordType('text');
+        } else {
+            setPasswordType('password');
+        }
+    }
 
     useEffect(() => {
         if (_.get(formState, 'participant') == null) {
@@ -25,9 +32,11 @@ export const SetPassword = ({ tab, changeTab, formState, setState }) => {
         }
 
         (async () => {
-            await get(apiVersion + "/participant/read/" + formStore.formState.participant_code)
+            let participantCode = _.get(formState, 'participant_code') || formStore.formState.participant_code
+            await get(apiVersion + "/participant/read/" + participantCode)
                 .then((async function (data) {
                     let participant = _.get(data, 'data.participants')[0] || {}
+                    console.log('setpassword',participant)
                     if (participant) {
                         if (await isPasswordSet(participant.osOwner[0])) {
                             setIsPasswordUpdated(true);
@@ -41,7 +50,8 @@ export const SetPassword = ({ tab, changeTab, formState, setState }) => {
                     });
                 }))
         })()
-    }, [tab]);
+
+    }, []);
 
     const onSubmit = (data) => {
         setSending(true)
@@ -91,10 +101,10 @@ export const SetPassword = ({ tab, changeTab, formState, setState }) => {
                 {sending && <Loader active />}
                 <div className='form-main' style={{ marginTop: '15px' }}>
                     <Form.Field disabled={sending} className={{ 'error': 'password' in errors }} required>
-                        <input className='input-text' type='password' placeholder='Enter Password' {...register("password", { required: true })} />
+                        <div class="ui icon input"><input type={passwordType} placeholder="Enter Password" {...register("password", { required: true })} /><i aria-hidden="true" class="eye link icon" onClick={() => togglePasswordView()}></i></div>
                     </Form.Field>
                     <Form.Field disabled={sending} className={{ 'error': 'password' in errors }} required>
-                        <input className='input-text' type='password' placeholder='Re Enter Password' {...register("re_password", { required: true })} />
+                        <div class="ui icon input"><input type={passwordType} placeholder="Re Enter Password" {...register("re_password", { required: true })} /><i aria-hidden="true" class="eye link icon" onClick={() => togglePasswordView()}></i></div>
                     </Form.Field>
                 </div><br />
                 <Button disabled={sending} type="submit" className="primary center-element button-color">
