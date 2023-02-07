@@ -32,7 +32,7 @@ public class OnboardingRequestTest {
         ArrayList<Map<String,Object>> body = JSONUtils.deserialize("[ { \"verifier_code\": \"testprovider1.apollo@swasth-hcx-dev\", \"participant\": { \"primary_email\": \"testhcx15@yopmail.com\", \"primary_mobile\": \"8522875773\", \"roles\": [ \"provider\" ], \"participant_name\": \"onboard test1\" } } ]", ArrayList.class);
         OnboardRequest request = new OnboardRequest(body);
         Map<String,Object> participantMap = (Map<String, Object>) request.getBody().get("participant");
-        assertEquals("testprovider1.apollo@swasth-hcx-dev", request.getBody().get(VERIFIERCODE));
+        assertEquals("testprovider1.apollo@swasth-hcx-dev", request.getBody().get(VERIFIER_CODE));
         assertEquals("testhcx15@yopmail.com", participantMap.get(PRIMARY_EMAIL));
     }
 

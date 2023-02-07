@@ -28,7 +28,7 @@ public class OnboardRequest {
             verifierCode = (String) jwtPayload.get(ISS);
         }  else if (getType().equals(ONBOARD_THROUGH_VERIFIER)) {
             applicantCode = (String) requestBody.get(APPLICANT_CODE);
-            verifierCode = (String) requestBody.get(VERIFIERCODE);
+            verifierCode = (String) requestBody.get(VERIFIER_CODE);
         }
     }
 
