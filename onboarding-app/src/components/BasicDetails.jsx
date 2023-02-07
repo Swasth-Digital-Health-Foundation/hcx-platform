@@ -45,11 +45,6 @@ export const BasicDetails = ({ changeTab, formState, setState }) => {
         setFormErrors({});
     }
 
-    const setPrimaryMobileState = phone => {
-        setPrimaryMobile(phone);
-        setFormErrors({});
-    }
-
     useEffect(() => {
         const jwtToken = query.get("jwt_token");
         setIsJWTPresent(jwtToken ? true : false);
