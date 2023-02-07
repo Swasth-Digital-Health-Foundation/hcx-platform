@@ -83,10 +83,8 @@ export const BasicDetails = ({ changeTab, formState, setState }) => {
             formData = [{ "participant": { "participant_name": data.participant_name, "primary_email": data.primary_email, "primary_mobile": data.primary_mobile, "roles": [data.roles] } }];
         }
 
-        console.log("i came in verify");
         post("/participant/verify", JSON.stringify(formData))
             .then((data => {
-                console.log("result of verify", data);
                 toast.success("Form is submitted successfully", {
                     position: toast.POSITION.TOP_CENTER, autoClose: 2000
                 });
@@ -94,13 +92,10 @@ export const BasicDetails = ({ changeTab, formState, setState }) => {
                 changeTab(1)
                 setState({ ...formState, ...(formData[0]), ...{ "participant_code": _.get(data, 'data.result.participant_code'), "identity_verification": _.get(data, 'data.result.identity_verification') } })
             })).catch(err => {
-                // toast.error(_.get(err, 'response.data.error.message') || "Internal Server Error", {
-                //     position: toast.POSITION.TOP_CENTER
-                // });
                 console.log(_.get(err, 'response.data.error.message') );
                 if(_.get(err, 'response.data.error.message') && _.get(err, 'response.data.error.message') == "Username already invited / registered for Organisation"){
-                    setFormErrors({email:_.get(err, 'response.data.error.message'), phone:_.get(err, 'response.data.error.message')});
-                }else{
+                    setFormErrors({email:_.get(err, 'response.data.error.message')});
+                } else {
                 toast.error(_.get(err, 'response.data.error.message') || "Internal Server Error", {
                      position: toast.POSITION.TOP_CENTER
                 });     
@@ -229,7 +224,6 @@ export const BasicDetails = ({ changeTab, formState, setState }) => {
                     <Form.Field disabled={sending} className={{ 'error': primaryMobile === '' && 'primary_mobile' in errors }} required>
                         <label>Phone Number</label>
                         <input className='input-text' placeholder='Enter Phone Number' value={primaryMobile} disabled={primaryMobile != '' && ((watchApplicantCode != '' && invalidApplicantCode) || isJWTPresent)} onInput={e => setPrimaryMobileState(e.target.value)} {...register("primary_mobile", { required: true, pattern: /^[0-9]{10}/i })} />
-                        {formErrors.phone && (<div style={{"color":"red"}}>This phone number already exists</div>)}
                     </Form.Field> : null}
                 {watchRoles === "payor" || fetchResponse === true ?
                     <Form.Field disabled={sending} className={{ 'error': participantName === '' && 'participant_name' in errors }} required>
