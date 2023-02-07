@@ -118,10 +118,8 @@ public class ParticipantService extends BaseController {
         if (requestBody.getOrDefault(key, "").toString().startsWith("-----BEGIN CERTIFICATE-----") && requestBody.getOrDefault(key, "").toString().endsWith("-----END CERTIFICATE-----")) {
             String certificateData = requestBody.getOrDefault(key, "").toString().replace(" ", "\n").replace("-----BEGIN\nCERTIFICATE-----", "-----BEGIN CERTIFICATE-----").replace("-----END\nCERTIFICATE-----", "-----END CERTIFICATE-----");
             cloudClient.putObject(participantCode, bucketName);
-            cloudClient.putObject(bucketName, participantCode + "/signing_cert_path.pem", certificateData);
-            cloudClient.putObject(bucketName, participantCode + "/encryption_cert_path.pem", certificateData);
-            requestBody.put(SIGNING_CERT_PATH, cloudClient.getUrl(bucketName, participantCode + "/signing_cert_path.pem").toString());
-            requestBody.put(ENCRYPTION_CERT, cloudClient.getUrl(bucketName, participantCode + "/encryption_cert_path.pem").toString());
+            cloudClient.putObject(bucketName, participantCode + "/" + key + ".pem", certificateData);
+            requestBody.put(key, cloudClient.getUrl(bucketName, participantCode + "/" + key + ".pem").toString());
         }
     }
 
