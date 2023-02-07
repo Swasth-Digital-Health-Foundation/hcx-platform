@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { Button, Form, Segment, Grid, Image, Radio, Dimmer, Loader } from 'semantic-ui-react'
+import { Button, Form, Segment, Grid, Image, Radio, Dimmer, Loader, Icon } from 'semantic-ui-react'
 import { post, sendData } from '../service/APIService';
 import { useForm } from "react-hook-form";
 import { ToastContainer, toast, autoClose } from 'react-toastify';
@@ -27,16 +27,22 @@ export const BasicDetails = ({ changeTab, formState, setState }) => {
     const watchPrimaryEmail = watch("primary_email", "")
     const [applicantCode, setApplicantCode] = useState("")
     const [fetchResponse, setFetchResponse] = useState(false)
+    const [formErrors , setFormErrors] = useState({});
 
 
     let query = useQuery();
-
+    
     const getPayor = participantName => {
         const participant = payorList.find(participant => participant.participant_name === participantName);
         if (participant) {
             setPayor(participant)
         }
 
+    }
+
+    const setPrimaryEmailState = email => {
+        setPrimaryEmail(email);
+        setFormErrors({});
     }
 
     useEffect(() => {
@@ -81,9 +87,15 @@ export const BasicDetails = ({ changeTab, formState, setState }) => {
                 changeTab(1)
                 setState({ ...formState, ...(formData[0]), ...{ "participant_code": _.get(data, 'data.result.participant_code'), "identity_verification": _.get(data, 'data.result.identity_verification') } })
             })).catch(err => {
+                console.log(_.get(err, 'response.data.error.message') );
+                if(_.get(err, 'response.data.error.message') && _.get(err, 'response.data.error.message') == "Username already invited / registered for Organisation"){
+                    setFormErrors({email:_.get(err, 'response.data.error.message')});
+                } else {
                 toast.error(_.get(err, 'response.data.error.message') || "Internal Server Error", {
-                    position: toast.POSITION.TOP_CENTER
-                });
+                     position: toast.POSITION.TOP_CENTER
+                });     
+                }
+                
             }).finally(() => {
                 setSending(false)
                 setLoader(false)
@@ -200,7 +212,8 @@ export const BasicDetails = ({ changeTab, formState, setState }) => {
                 {watchRoles === "payor" || fetchResponse === true ? 
                     <Form.Field disabled={sending} className={{ 'error': primaryEmail === '' && 'primary_email' in errors }} required>
                         <label>Email</label>
-                        <input className='input-text' type='email' placeholder='Enter Email' value={primaryEmail} disabled={primaryEmail != '' && ((watchApplicantCode != '' && invalidApplicantCode) || isJWTPresent)} onInput={e => setPrimaryEmail(e.target.value)} {...register("primary_email", { required: true, pattern: /^\S+@\S+$/i, message: "Email required" })} />
+                        <input className='input-text' type='email' placeholder='Enter Email' value={primaryEmail} disabled={primaryEmail != '' && ((watchApplicantCode != '' && invalidApplicantCode) || isJWTPresent)} onInput={e => setPrimaryEmailState(e.target.value)} {...register("primary_email", { required: true, pattern: /^\S+@\S+$/i, message: "Email required" })} />
+                        {formErrors.email && (<div style={{"color":"red"}}>This email address already exists</div>)}
                     </Form.Field> : null}
                 {watchRoles === "payor" || fetchResponse === true ?
                     <Form.Field disabled={sending} className={{ 'error': primaryMobile === '' && 'primary_mobile' in errors }} required>
