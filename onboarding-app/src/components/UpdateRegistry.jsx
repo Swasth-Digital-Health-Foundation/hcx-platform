@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Button, Form, Grid, Loader, Icon } from 'semantic-ui-react'
+import { Button, Form, Grid, Loader } from 'semantic-ui-react'
 import { getToken, post } from './../service/APIService';
 import { useForm } from "react-hook-form";
 import { ToastContainer, toast } from 'react-toastify';
@@ -16,19 +16,6 @@ export const UpdateRegistry = ({ changeTab, formState, setState }) => {
     const [token, setToken] = useState("")
     const [passwordVerified, setPasswordVerified] = useState(false)
     const [password, setPassword] = useState("")
-    const [formErrors, setFormErrors] = useState({})
-    const [passwordType,setPasswordType] = useState("password")
-
-
-    const togglePasswordView = () => {
-        if(passwordType == 'password'){
-            setPasswordType('text');    
-        }else{
-            setPasswordType('password');
-        }
-        
-
-    }
     let history = useHistory();
 
     const formStore = useSelector((state) => state)
@@ -65,7 +52,6 @@ export const UpdateRegistry = ({ changeTab, formState, setState }) => {
     const getAccessToken = () => {
         setSending(true)
         setLoader(true)
-        setFormErrors({});
         let body = { "client_id": "registry-frontend", "username": _.get(formState, 'participant.primary_email'), "password": password, "grant_type": "password" }
         getToken("/auth/realms/swasth-health-claim-exchange/protocol/openid-connect/token", body)
             .then((data => {
@@ -76,13 +62,9 @@ export const UpdateRegistry = ({ changeTab, formState, setState }) => {
                 setPasswordVerified(true);
             })).catch((err => {
                 let errMsg = _.get(err, 'response.data.error_description')
-                if(errMsg){
-                    setFormErrors({error:errMsg});
-                }else{
-                    toast.error(errMsg || "Internal Server Error", {
-                        position: toast.POSITION.TOP_CENTER
-                   });  
-                }
+                toast.error(errMsg || "Internal Server Error", {
+                    position: toast.POSITION.TOP_CENTER
+                });
             }))
             .finally(() => {
                 setLoader(false)
@@ -103,8 +85,7 @@ export const UpdateRegistry = ({ changeTab, formState, setState }) => {
                 </Form.Field>
                 <Form.Field disabled={passwordVerified} className={{ 'error': 'password' in errors }} required>
                     <label>Password</label>
-                    <div class="ui icon input"><input type={passwordType} placeholder="Enter Password" onInput={e => setPassword(e.target.value)} {...register("password", { required: true })}/><i aria-hidden="true" class="eye link icon" onClick={() => togglePasswordView()}></i></div>
-                    {formErrors.error && (<div style={{"color":"red"}}>{formErrors.error}</div>)}
+                    <input className='input-text' onInput={e => setPassword(e.target.value)} type='password' placeholder='Enter Password' {...register("password", { required: true })} />
                 </Form.Field>
                 {passwordVerified ? null :
                     <Button disabled={sending} onClick={getAccessToken} className="primary center-element button-color">
