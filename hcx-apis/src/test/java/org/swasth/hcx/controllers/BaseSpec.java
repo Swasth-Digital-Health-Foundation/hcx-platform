@@ -29,7 +29,7 @@ import org.swasth.hcx.handlers.EventHandler;
 import org.swasth.hcx.managers.HealthCheckManager;
 import org.swasth.hcx.service.AuditService;
 import org.swasth.hcx.service.NotificationService;
-import org.swasth.hcx.service.Service;
+import org.swasth.hcx.service.ParticipantService;
 import org.swasth.kafka.client.IEventService;
 import org.swasth.postgresql.IDatabaseService;
 import org.swasth.redis.cache.RedisCache;
@@ -39,7 +39,7 @@ import java.net.URL;
 import java.util.*;
 
 
-@WebMvcTest({CoverageEligibilityController.class, PreAuthController.class, ClaimsController.class, PaymentsController.class, StatusController.class, SearchController.class, CommunicationController.class, PredeterminationController.class, ParticipantController.class, NotificationController.class, AuditService.class, NotificationService.class, EventHandler.class, EventGenerator.class, Service.class})
+@WebMvcTest({CoverageEligibilityController.class, PreAuthController.class, ClaimsController.class, PaymentsController.class, StatusController.class, SearchController.class, CommunicationController.class, PredeterminationController.class, ParticipantController.class, NotificationController.class, AuditService.class, NotificationService.class, EventHandler.class, EventGenerator.class, ParticipantService.class})
 @ExtendWith(MockitoExtension.class)
 @ActiveProfiles("test")
 @Import(GenericConfiguration.class)
@@ -93,7 +93,7 @@ public class BaseSpec {
     protected ICloudService cloudStorageClient;
 
     @Autowired
-    protected Service participantService;
+    protected ParticipantService participantService;
 
     @BeforeEach
     public void setup() {

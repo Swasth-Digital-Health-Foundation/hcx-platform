@@ -12,7 +12,7 @@ import org.swasth.common.exception.ErrorCodes;
 import org.swasth.common.utils.Constants;
 import org.swasth.hcx.controllers.BaseController;
 import org.swasth.hcx.models.Participant;
-import org.swasth.hcx.service.Service;
+import org.swasth.hcx.service.ParticipantService;
 
 import java.util.Map;
 
@@ -44,7 +44,7 @@ public class ParticipantController extends BaseController {
     @Value("${postgres.onboardingOtpTable}")
     private String onboardOtpTable;
     @Autowired
-    private Service service;
+    private ParticipantService service;
 
     @PostMapping(PARTICIPANT_CREATE)
     public ResponseEntity<Object> create(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {

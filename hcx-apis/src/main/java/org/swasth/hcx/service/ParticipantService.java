@@ -4,17 +4,20 @@ import kong.unirest.HttpResponse;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 import org.swasth.ICloudService;
 import org.swasth.common.dto.ParticipantResponse;
 import org.swasth.common.dto.Sponsor;
 import org.swasth.common.exception.*;
+import org.swasth.common.helpers.EventGenerator;
 import org.swasth.common.utils.HttpUtils;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.utils.JWTUtils;
-import org.swasth.hcx.controllers.BaseController;
+import org.swasth.hcx.handlers.EventHandler;
 import org.swasth.postgresql.IDatabaseService;
 import org.swasth.redis.cache.RedisCache;
 
@@ -27,8 +30,8 @@ import java.util.stream.Collectors;
 import static org.swasth.common.response.ResponseMessage.*;
 import static org.swasth.common.utils.Constants.*;
 
-@org.springframework.stereotype.Service
-public class Service extends BaseController {
+@Service
+public class ParticipantService  {
     @Value("${certificates.bucketName}")
     private String bucketName;
 
@@ -46,9 +49,15 @@ public class Service extends BaseController {
     private ICloudService cloudClient;
     @Autowired
     private RedisCache redisCache;
+    @Autowired
+    private Environment env;
+    @Autowired
+    private EventGenerator eventGenerator;
+    @Autowired
+    private EventHandler eventHandler;
 
     public ParticipantResponse invite(Map<String, Object> requestBody, String registryUrl, HttpHeaders header, String code) throws Exception {
-        String url = registryUrl + INVITE;
+        String url = registryUrl + REGISTRY_API_PATH + INVITE ;
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put(AUTHORIZATION, Objects.requireNonNull(header.get(AUTHORIZATION)).get(0));
         HttpResponse<String> response = HttpUtils.post(url, JSONUtils.serialize(requestBody), headersMap);
@@ -63,7 +72,7 @@ public class Service extends BaseController {
     }
 
     public ParticipantResponse update(Map<String, Object> requestBody, Map<String, Object> participant, String registryUrl, HttpHeaders header, String code) throws Exception {
-        String url = registryUrl + ORGANIZATION + participant.get(OSID);
+        String url = registryUrl + REGISTRY_API_PATH + participant.get(OSID);
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put(AUTHORIZATION, Objects.requireNonNull(header.get(AUTHORIZATION)).get(0));
         HttpResponse<String> response = HttpUtils.put(url, JSONUtils.serialize(requestBody), headersMap);
@@ -74,7 +83,7 @@ public class Service extends BaseController {
     }
 
     public ParticipantResponse search(Map<String, Object> requestBody, String registryUrl, String fields) throws Exception {
-        String url = registryUrl + SEARCH;
+        String url = registryUrl + REGISTRY_API_PATH + SEARCH;
         HttpResponse<String> response = HttpUtils.post(url, JSONUtils.serialize(requestBody), new HashMap<>());
         if (fields != null && fields.toLowerCase().contains(SPONSORS)) {
             ArrayList<Map<String, Object>> List = JSONUtils.deserialize(response.getBody(), ArrayList.class);
@@ -82,13 +91,10 @@ public class Service extends BaseController {
         }
         return responseHandler(response, null);
     }
-    public  ParticipantResponse searchBody(String code, String registryUrl) throws Exception {
-        return search(JSONUtils.deserialize(getRequestBody(code), Map.class),registryUrl,"");
-    }
+
     public ResponseEntity<Object> read(String fields, String code, String registryUrl, String pathParam) throws Exception {
-        Map<String, Object> searchReq = JSONUtils.deserialize(getRequestBody(code), Map.class);
-        ParticipantResponse response = search(searchReq, registryUrl, pathParam);
-        ParticipantResponse searchResp = (ParticipantResponse) response.getParticipant();
+        ResponseEntity<Object> searchResponse = getSuccessResponse(search(JSONUtils.deserialize(getRequestBody(code), Map.class),registryUrl,pathParam));;
+        ParticipantResponse searchResp = (ParticipantResponse) searchResponse.getBody();
         if (fields != null && fields.toLowerCase().contains(VERIFICATIONSTATUS) && searchResp != null) {
             ((Map<String, Object>) searchResp.getParticipants().get(0)).putAll(getVerificationStatus(code));
         }
@@ -96,7 +102,7 @@ public class Service extends BaseController {
     }
 
     public ParticipantResponse delete(Map<String, Object> participant, String registryUrl, HttpHeaders header, String code) throws Exception {
-        String url = registryUrl + ORGANIZATION + participant.get(OSID);
+        String url = registryUrl + REGISTRY_API_PATH + participant.get(OSID);
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put(AUTHORIZATION, Objects.requireNonNull(header.get(AUTHORIZATION)).get(0));
         HttpResponse<String> response = HttpUtils.delete(url, headersMap);

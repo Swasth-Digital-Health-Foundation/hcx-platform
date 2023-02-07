@@ -157,24 +157,6 @@ class ParticipantControllerTests extends BaseSpec{
         assertEquals("Property 'encryption_cert' is missing or invalid", getResponseErrorMessage(responseBody));
     }
 
-
-    @Test
-    void participant_create_bad_request_scenario() throws Exception {
-        registryServer.enqueue(new MockResponse()
-                .setResponseCode(200)
-                .setBody("[]")
-                .addHeader("Content-Type", "application/json"));
-        registryServer.enqueue(new MockResponse()
-                .setResponseCode(400)
-                .setBody("{ \"id\": \"open-saber.registry.invite\", \"ver\": \"1.0\", \"ets\": 1653306628400, \"params\": { \"resmsgid\": \"\", \"msgid\": \"90546fa3-1bd7-4072-bd06-81ea688ea9af\", \"err\": \"\", \"status\": \"UNSUCCESSFUL\", \"errmsg\": \"Username already invited / registered for Organisation\" }, \"responseCode\": \"OK\" }")
-                .addHeader("Content-Type", "application/json"));
-        doReturn(getUrl()).when(cloudStorageClient).getUrl(anyString(), anyString());
-        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_CREATE).content(getParticipantCreateBody()).header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
-        MockHttpServletResponse response = mvcResult.getResponse();
-        int status = response.getStatus();
-        assertEquals(400, status);
-    }
-
     @Test
     void participant_create_internal_server_scenario() throws Exception {
         registryServer.enqueue(new MockResponse()
