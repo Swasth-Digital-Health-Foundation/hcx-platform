@@ -48,6 +48,11 @@ export const BasicDetails = ({ changeTab, formState, setState }) => {
 
     }
 
+    const setPrimaryEmailState = email => {
+        setPrimaryEmail(email);
+        setFormErrors({});
+    }
+
     useEffect(() => {
         const jwtToken = query.get("jwt_token");
         setIsJWTPresent(jwtToken ? true : false);
@@ -66,11 +71,6 @@ export const BasicDetails = ({ changeTab, formState, setState }) => {
             }
         })()
     }, []);
-
-    const setPrimaryEmailState = email => {
-        setPrimaryEmail(email);
-        setFormErrors({});
-    }
 
     const onSubmit = (data) => {
         setSending(true)

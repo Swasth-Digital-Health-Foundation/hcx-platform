@@ -65,6 +65,7 @@ export const UpdateRegistry = ({ changeTab, formState, setState }) => {
     const getAccessToken = () => {
         setSending(true)
         setLoader(true)
+        setFormErrors({});
         let body = { "client_id": "registry-frontend", "username": _.get(formState, 'participant.primary_email'), "password": password, "grant_type": "password" }
         getToken("/auth/realms/swasth-health-claim-exchange/protocol/openid-connect/token", body)
             .then((data => {
