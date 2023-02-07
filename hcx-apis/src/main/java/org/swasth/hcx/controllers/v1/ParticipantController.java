@@ -57,7 +57,7 @@ public class ParticipantController extends BaseController {
             participantService.validateCertificates(requestBody);
             return participantService.invite(requestBody, registryUrl, header, participantCode);
         } catch (Exception e) {
-            e.printStackTrace();
+             e.printStackTrace();
             return exceptionHandler(new Response(), e);
         }
     }
