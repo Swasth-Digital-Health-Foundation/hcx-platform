@@ -218,7 +218,7 @@ export const BasicDetails = ({ changeTab, formState, setState }) => {
                 {watchRoles === "payor" || fetchResponse === true ?
                     <Form.Field disabled={sending} className={{ 'error': primaryMobile === '' && 'primary_mobile' in errors }} required>
                         <label>Phone Number</label>
-                        <input className='input-text' placeholder='Enter Phone Number' value={primaryMobile} disabled={primaryMobile != '' && ((watchApplicantCode != '' && invalidApplicantCode) || isJWTPresent)} onInput={e => setPrimaryMobileState(e.target.value)} {...register("primary_mobile", { required: true, pattern: /^[0-9]{10}/i })} />
+                        <input className='input-text' placeholder='Enter Phone Number' value={primaryMobile} disabled={primaryMobile != '' && ((watchApplicantCode != '' && invalidApplicantCode) || isJWTPresent)} onInput={e => setPrimaryMobile(e.target.value)} {...register("primary_mobile", { required: true, pattern: /^[0-9]{10}/i })} />
                     </Form.Field> : null}
                 {watchRoles === "payor" || fetchResponse === true ?
                     <Form.Field disabled={sending} className={{ 'error': participantName === '' && 'participant_name' in errors }} required>
