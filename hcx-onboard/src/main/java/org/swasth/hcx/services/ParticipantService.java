@@ -244,10 +244,9 @@ public class ParticipantService extends BaseController {
     }
 
     private void updateOtpStatus(boolean emailOtpVerified, boolean phoneOtpVerified, int attemptCount, String status, String email) throws Exception {
-        String updateOtpQuery = String.format("UPDATE %s SET email_otp_verified=%b,phone_otp_verified=%b,status='%s',updatedOn=%d,attempt_count=%d WHERE primary_email='%s'",
+        String updateOtpQuery = String.format("UPDATE %s SET email_otp_verified=%b,phone_otp_verified=%b,status='%s',updatedOn=%d,attempt_count=%d WHERE participant_code='%s'",
                 onboardingOtpTable, emailOtpVerified, phoneOtpVerified, status, System.currentTimeMillis(), attemptCount + 1, email);
-        logger.info("otp query " + updateOtpQuery);
-        logger.info("query" + postgreSQLClient.execute(updateOtpQuery));
+        postgreSQLClient.execute(updateOtpQuery);
     }
 
     private Map<String, Object> getParticipant(String key, String value) throws Exception {
@@ -395,7 +394,7 @@ public class ParticipantService extends BaseController {
         if (resultSet.getString(key).equals(otpVerification.get(OTP))) {
             return true;
         } else {
-            throw new ClientException(key + ":" + "OTP is invalid, please try again!");
+            throw new ClientException(StringUtils.capitalize(key.replace("_", " "))  +  " is invalid, please try again!");
         }
     }
 }
