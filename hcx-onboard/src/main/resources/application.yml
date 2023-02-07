@@ -50,3 +50,8 @@ postgres:
 otp:
   expiry: ${otp_expiry:600000}
   maxAttempt: ${otp_max_attempt:3}
+
+getInfo:
+  mockValid:
+    emailDomain: ${email_domain:@yopmail.com}
+    phoneNumber: ${phone_number:8522875773}

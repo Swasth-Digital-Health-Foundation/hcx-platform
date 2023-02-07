@@ -4,6 +4,7 @@ import org.swasth.common.utils.JSONUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.swasth.common.utils.Constants.*;
@@ -19,7 +20,7 @@ public class OnboardRequest {
     private String verifierCode = "";
 
 
-    public OnboardRequest(ArrayList<Map<String,Object>> body) throws Exception {
+    public OnboardRequest(List<Map<String,Object>> body) throws Exception {
         requestBody.putAll(body.get(0));
         if (getType().equals(ONBOARD_THROUGH_JWT)) {
             jwtPayload.putAll(JSONUtils.decodeBase64String(getJWT().split("\\.")[1], Map.class));
@@ -51,6 +52,6 @@ public class OnboardRequest {
 
     public String getVerifierCode() { return this.verifierCode; }
 
-    public ArrayList<Object> getAdditionalVerification() { return (ArrayList<Object>) requestBody.get(ADDITIONALVERIFICATION); }
+    public List<Object> getAdditionalVerification() { return (List<Object>) requestBody.get(ADDITIONALVERIFICATION); }
 
 }

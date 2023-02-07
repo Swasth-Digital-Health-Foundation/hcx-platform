@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class OnboardResponse {
-    private long timestamp = System.currentTimeMillis();
 
     @JsonProperty("applicant_code")
     private String applicantCode;
