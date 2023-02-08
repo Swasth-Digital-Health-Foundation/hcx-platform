@@ -5,6 +5,7 @@ import { UpdateRegistry } from './UpdateRegistry'
 import { Grid, Image } from 'semantic-ui-react'
 import { BasicDetails } from './BasicDetails'
 import { useQuery } from '../service/QueryService'
+import { SetPassword } from './SetPassword'
 
 export const Onboarding = () => {
 
@@ -19,6 +20,7 @@ export const Onboarding = () => {
     const panes = [
         { menuItem: 'Basic Details', render: () => <Tab.Pane><BasicDetails {...props} /></Tab.Pane> },
         { menuItem: 'OTP Verification', render: () => <Tab.Pane><OTPVerify {...props} /></Tab.Pane> },
+        { menuItem: 'Set Password', render: () => <Tab.Pane><SetPassword {...props} /></Tab.Pane> },
         { menuItem: 'Update Complete Details', render: () => <Tab.Pane><UpdateRegistry {...props} /></Tab.Pane> },
     ]
 
@@ -34,7 +36,7 @@ export const Onboarding = () => {
     return <>
         <Grid centered container>
             <Grid.Row columns="1">
-                <div className='banner' style={{ width: '50%', marginTop: '30px' }}>
+                <div className='banner' style={{ width: '65%', marginTop: '30px' }}>
                     <Grid.Column>
                         <Image src='/images/logo.png' style={{ width: '50px', marginRight: '20px' }} />
                     </Grid.Column>
@@ -43,8 +45,14 @@ export const Onboarding = () => {
                     </Grid.Column>
                 </div>
             </Grid.Row>
-            <Segment style={{ width: '50%' }} textAlign='left'>
-            <Tab panes={panes} activeIndex={activeIndex}/>
+            <Segment style={{ width: '65%' }} textAlign='left'>
+                {/* <Tab panes={panes} activeIndex={activeIndex}/> */}
+                <Tab
+                    menu={{ fluid: true, vertical: true }}
+                    menuPosition='left'
+                    panes={panes}
+                    activeIndex={activeIndex}
+                />
             </Segment>
         </Grid>
     </>
