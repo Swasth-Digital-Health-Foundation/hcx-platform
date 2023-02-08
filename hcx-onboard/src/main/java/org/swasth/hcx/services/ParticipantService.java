@@ -74,9 +74,10 @@ public class ParticipantService extends BaseController {
 
     @Value("${getInfo.mockValid.phoneNumber}")
     private String phoneNumber;
-
+  
     @Value("${otp.maxRegenerate}")
     private int maxRegenerate;
+
 
     @Value("${env}")
     private String env;
@@ -190,6 +191,9 @@ public class ParticipantService extends BaseController {
         postgreSQLClient.execute(updateQuery);
         return getSuccessResponse(new Response());
     }
+
+
+
     private void sendEmailOTP(String email, String participantName, String participantCode, String emailOtp) {
         String emailMsg = otpMsg;
         emailMsg = emailMsg.replace("USER_NAME", StringUtils.capitalize(participantName))
@@ -197,6 +201,7 @@ public class ParticipantService extends BaseController {
                 .replace("RANDOM_CODE", " " + emailOtp);
         emailService.sendMail(email, otpSub, emailMsg);
     }
+
     public String verifyOTP(Map<String, Object> requestBody) throws Exception {
         String participantCode = (String) requestBody.get(PARTICIPANT_CODE);
         ResultSet resultSet = null;
@@ -244,9 +249,11 @@ public class ParticipantService extends BaseController {
         }
     }
 
-    private void updateOtpStatus(boolean emailOtpVerified, boolean phoneOtpVerified, int attemptCount, String status, String email) throws Exception {
+
+
+    private void updateOtpStatus(boolean emailOtpVerified, boolean phoneOtpVerified, int attemptCount, String status, String participantCode) throws Exception {
         String updateOtpQuery = String.format("UPDATE %s SET email_otp_verified=%b,phone_otp_verified=%b,status='%s',updatedOn=%d,attempt_count=%d WHERE participant_code='%s'",
-                onboardingOtpTable, emailOtpVerified, phoneOtpVerified, status, System.currentTimeMillis(), attemptCount + 1, email);
+                onboardingOtpTable, emailOtpVerified, phoneOtpVerified, status, System.currentTimeMillis(), attemptCount + 1, participantCode);
         postgreSQLClient.execute(updateOtpQuery);
     }
 

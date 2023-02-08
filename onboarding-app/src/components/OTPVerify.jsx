@@ -13,6 +13,7 @@ export const OTPVerify = ({ changeTab, formState, setState }) => {
 
     const [sending, setSending] = useState(false)
     const [loader, setLoader] = useState(false)
+    const [formErrors , setFormErrors] = useState({});
 
     const formStore = useSelector((state) => state)
 
@@ -25,6 +26,7 @@ export const OTPVerify = ({ changeTab, formState, setState }) => {
     const onSubmit = (data) => {
         setLoader(true)
         setSending(true)
+        setFormErrors({})
         const formData = [{ "type": "email-otp-validation", "primary_email": _.get(formState, 'participant.primary_email'), "otp": data.email_otp }, { "type": "mobile-otp-validation", "primary_mobile": _.get(formState, 'participant.primary_mobile'), "otp": data.phone_otp }];
         post("/participant/verify", formData).then((data => {
             toast.success("Form is submitted successfully", {
@@ -33,9 +35,13 @@ export const OTPVerify = ({ changeTab, formState, setState }) => {
             reset()
             changeTab(2)
         })).catch(err => {
-            toast.error(_.get(err, 'response.data.error.message') || "Internal Server Error", {
-                position: toast.POSITION.TOP_CENTER
-            });
+            if(_.get(err, 'response.data.error.message')){
+                setFormErrors({error:_.get(err, 'response.data.error.message')});
+            }else{
+                toast.error(_.get(err, 'response.data.error.message') || "Internal Server Error", {
+                    position: toast.POSITION.TOP_CENTER
+               });  
+            }
         }).finally(() => {
             setSending(false)
             setLoader(false)
@@ -95,6 +101,7 @@ export const OTPVerify = ({ changeTab, formState, setState }) => {
                         </Form.Field>
                     </Grid.Column>
                 </Grid.Row>
+                {formErrors.error && (<Grid.Row centered><div style={{"color":"red"}}>{formErrors.error}</div></Grid.Row>)}
                 <Grid.Row>
                     <Grid.Column>
                         <Button disabled={sending} type='submit' className="primary center-element button-color">
