@@ -1,12 +1,14 @@
 package org.swasth.hcx.services;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.util.Properties;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class EmailService {
@@ -17,7 +19,8 @@ public class EmailService {
     @Value("${email.pwd}")
     private String adminPwd;
 
-    public void sendMail(String to,String subject,String message){
+    @Async
+    public CompletableFuture<Boolean> sendMail(String to, String subject, String message){
         //Get properties object
         Properties properties = new Properties();
         properties.put("mail.smtp.host", "smtp.gmail.com");
@@ -42,6 +45,7 @@ public class EmailService {
             mimeMessage.setContent(message, "text/html");
             //send message
             Transport.send(mimeMessage);
+            return CompletableFuture.completedFuture(true);
         } catch (MessagingException e) {throw new RuntimeException(e);}
     }
 }
