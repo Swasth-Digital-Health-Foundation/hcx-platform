@@ -165,7 +165,6 @@ public class Constants {
     public static final String FILTERS = "filters";
     public static final String LIMIT = "limit";
     public static final String OFFSET = "offset";
-    public static final String REGISTRY_API_PATH = "/api/v1/Organisation/";
     public static final String SEARCH = "search";
     public static final String INVITE = "invite";
     public static final String START_DATETIME = "start_datetime";

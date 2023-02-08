@@ -41,6 +41,9 @@ public class ParticipantService {
     @Value("${postgres.onboardingTable}")
     private String onboardingTable;
 
+    @Value("${registry.apiPath}")
+    private String registryApiPath;
+
     @Autowired
     protected IDatabaseService postgreSQLClient;
     @Autowired
@@ -57,7 +60,7 @@ public class ParticipantService {
     private EventHandler eventHandler;
 
     public ParticipantResponse invite(Map<String, Object> requestBody, String registryUrl, HttpHeaders header, String code) throws Exception {
-        String url = registryUrl + REGISTRY_API_PATH + INVITE;
+        String url = registryUrl + registryApiPath + INVITE;
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put(AUTHORIZATION, Objects.requireNonNull(header.get(AUTHORIZATION)).get(0));
         HttpResponse<String> response = HttpUtils.post(url, JSONUtils.serialize(requestBody), headersMap);
@@ -72,7 +75,7 @@ public class ParticipantService {
     }
 
     public ParticipantResponse update(Map<String, Object> requestBody, Map<String, Object> participant, String registryUrl, HttpHeaders header, String code) throws Exception {
-        String url = registryUrl + REGISTRY_API_PATH + participant.get(OSID);
+        String url = registryUrl + registryApiPath + participant.get(OSID);
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put(AUTHORIZATION, Objects.requireNonNull(header.get(AUTHORIZATION)).get(0));
         HttpResponse<String> response = HttpUtils.put(url, JSONUtils.serialize(requestBody), headersMap);
@@ -83,7 +86,7 @@ public class ParticipantService {
     }
 
     public ParticipantResponse search(Map<String, Object> requestBody, String registryUrl, String fields) throws Exception {
-        String url = registryUrl + REGISTRY_API_PATH + SEARCH;
+        String url = registryUrl + registryApiPath + SEARCH;
         HttpResponse<String> response = HttpUtils.post(url, JSONUtils.serialize(requestBody), new HashMap<>());
         if (fields != null && fields.toLowerCase().contains(SPONSORS)) {
             ArrayList<Map<String, Object>> participantList = JSONUtils.deserialize(response.getBody(), ArrayList.class);
@@ -102,7 +105,7 @@ public class ParticipantService {
     }
 
     public ParticipantResponse delete(Map<String, Object> participant, String registryUrl, HttpHeaders header, String code) throws Exception {
-        String url = registryUrl + REGISTRY_API_PATH + participant.get(OSID);
+        String url = registryUrl + registryApiPath + participant.get(OSID);
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put(AUTHORIZATION, Objects.requireNonNull(header.get(AUTHORIZATION)).get(0));
         HttpResponse<String> response = HttpUtils.delete(url, headersMap);
