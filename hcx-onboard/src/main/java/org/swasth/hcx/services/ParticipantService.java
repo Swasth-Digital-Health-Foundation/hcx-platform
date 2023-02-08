@@ -67,8 +67,6 @@ public class ParticipantService extends BaseController {
     @Value("${otp.maxAttempt}")
     private int otpMaxAttempt;
 
-    @Value("${regenerateOtp.maxRegenerate}")
-    private int maxRegenerate;
     @Value("${getInfo.mockValid.emailDomain}")
     private String emailDomain;
 
@@ -96,14 +94,12 @@ public class ParticipantService extends BaseController {
         Map<String, Object> output = new HashMap<>();
         if (request.getType().equals(ONBOARD_THROUGH_JWT)) {
             updateEmail(request.getPrimaryEmail(), request.getApplicantCode());
-            createParticipantAndSendOTP(header, request, output);
         } else if (request.getType().equals(ONBOARD_THROUGH_VERIFIER)) {
             updateEmail(request.getPrimaryEmail(), request.getApplicantCode());
-            createParticipantAndSendOTP(header, request, output);
         } else {
             updateIdentityVerificationStatus(request.getPrimaryEmail(), "", "", PENDING);
-            createParticipantAndSendOTP(header, request, output);
         }
+        createParticipantAndSendOTP(header, request, output);
         return getSuccessResponse(new Response(output));
     }
 
