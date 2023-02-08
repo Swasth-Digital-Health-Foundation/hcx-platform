@@ -24,6 +24,7 @@ import org.swasth.postgresql.IDatabaseService;
 
 import java.sql.ResultSet;
 import java.text.DecimalFormat;
+import java.time.LocalDate;
 import java.util.*;
 
 import static org.swasth.common.response.ResponseMessage.*;
@@ -72,6 +73,9 @@ public class ParticipantService extends BaseController {
 
     @Value("${getInfo.mockValid.phoneNumber}")
     private String phoneNumber;
+  
+    @Value("${otp.maxRegenerate}")
+    private int maxRegenerate;
 
     @Value("${env}")
     private String env;
@@ -161,18 +165,38 @@ public class ParticipantService extends BaseController {
     }
 
     public ResponseEntity<Object> sendOTP(Map<String, Object> requestBody) throws Exception {
+        String primaryEmail = (String) requestBody.get(PRIMARY_EMAIL);
+        String query = String.format("SELECT regenerate_count, last_regenerate_date FROM %s WHERE primary_email='%s'", onboardingOtpTable, primaryEmail);
+        ResultSet result = (ResultSet) postgreSQLClient.executeQuery(query);
+        LocalDate lastRegenerateDate = null;
+        int regenerateCount = 0;
+        LocalDate currentDate = LocalDate.now();
+        if (result.next()) {
+            regenerateCount = result.getInt("regenerate_count");
+            lastRegenerateDate = result.getObject("last_regenerate_date", LocalDate.class);
+        }
+        if (!currentDate.equals(lastRegenerateDate)) {
+            regenerateCount = 0;
+        }
+        if (regenerateCount >= maxRegenerate) {
+            throw new ClientException(ErrorCodes.ERR_MAXIMUM_OTP_REGENERATE, MAXIMUM_OTP_REGENERATE);
+        }
         String phoneOtp = new DecimalFormat("000000").format(new Random().nextInt(999999));
         smsService.sendOTP((String) requestBody.get(PRIMARY_MOBILE), phoneOtp);
         String emailOtp = new DecimalFormat("000000").format(new Random().nextInt(999999));
-        String emailMsg = otpMsg;
-        emailMsg = emailMsg.replace("USER_NAME", StringUtils.capitalize((String) requestBody.get(PARTICIPANT_NAME)))
-                .replace("PARTICIPANT_CODE", (String) requestBody.get(PARTICIPANT_CODE))
-                .replace("RANDOM_CODE", " " + emailOtp);
-        emailService.sendMail((String) requestBody.get(PRIMARY_EMAIL), otpSub, emailMsg);
-        String query = String.format("UPDATE %s SET phone_otp='%s',email_otp='%s',updatedOn=%d,expiry=%d WHERE primary_email='%s'",
-                onboardingOtpTable, phoneOtp, emailOtp, System.currentTimeMillis(), System.currentTimeMillis() + otpExpiry, requestBody.get(PRIMARY_EMAIL));
-        postgreSQLClient.execute(query);
+        sendEmailOTP(primaryEmail, (String) requestBody.get(PARTICIPANT_NAME), (String) requestBody.get(PARTICIPANT_CODE), emailOtp);
+        String query1 = String.format("UPDATE %s SET phone_otp='%s',email_otp='%s',updatedOn=%d,expiry=%d ,regenerate_count=%d, last_regenerate_date='%s' WHERE primary_email='%s'",
+                onboardingOtpTable, phoneOtp, emailOtp, System.currentTimeMillis(), System.currentTimeMillis() + otpExpiry, regenerateCount + 1, currentDate, requestBody.get(PRIMARY_EMAIL));
+        postgreSQLClient.execute(query1);
         return getSuccessResponse(new Response());
+    }
+
+    private void sendEmailOTP(String email, String participantName, String participantCode, String emailOtp) {
+        String emailMsg = otpMsg;
+        emailMsg = emailMsg.replace("USER_NAME", StringUtils.capitalize(participantName))
+                .replace("PARTICIPANT_CODE", participantCode)
+                .replace("RANDOM_CODE", " " + emailOtp);
+        emailService.sendMail(email, otpSub, emailMsg);
     }
 
     public String verifyOTP(Map<String, Object> requestBody) throws Exception {
@@ -222,10 +246,10 @@ public class ParticipantService extends BaseController {
         }
     }
 
-    private void updateOtpStatus(boolean emailOtpVerified, boolean phoneOtpVerified, int attemptCount, String
-            status, String email) throws Exception {
-        String updateOtpQuery = String.format("UPDATE %s SET email_otp_verified=%b,phone_otp_verified=%b,status='%s',updatedOn=%d,attempt_count=%d WHERE primary_email='%s'",
-                onboardingOtpTable, emailOtpVerified, phoneOtpVerified, status, System.currentTimeMillis(), attemptCount + 1, email);
+
+    private void updateOtpStatus(boolean emailOtpVerified, boolean phoneOtpVerified, int attemptCount, String status, String participantCode) throws Exception {
+        String updateOtpQuery = String.format("UPDATE %s SET email_otp_verified=%b,phone_otp_verified=%b,status='%s',updatedOn=%d,attempt_count=%d WHERE participant_code='%s'",
+                onboardingOtpTable, emailOtpVerified, phoneOtpVerified, status, System.currentTimeMillis(), attemptCount + 1, participantCode);
         postgreSQLClient.execute(updateOtpQuery);
     }
 

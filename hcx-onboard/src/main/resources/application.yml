@@ -33,8 +33,7 @@ email:
   failedIdentitySub: ${failed_identity_sub:HCX - Identity Verification Failed}
   failedIdentityMsg: ${failed_identity_msg:Hi User,<br/><br/>Identity verification is failed. Please reach out to HCX Team.<br/><br/>Thanks,<br/> HCX Team}
   onboardingSuccessSub: ${onboarding_success_sub:HCX - Onboarding Successful}
-  onboardingSuccessMsg: ${onboarding_success_msg:Hi USER_NAME,<br/><br/>Your onboarding is successful, Welcome to HCX.<br/><br/>Thanks,<br/> HCX Team}
-
+  onboardingSuccessMsg: ${onboarding_success_msg:Hi USER_NAME,<br/><br/>Your onboarding is successful, Welcome to HCX.</br></br>Please refer the below links for protocol details and integration specifications:<br/></br><b> Protocol details:</b><br/><ul><li> Website - <a href='http://hcxprotocol.io'>http://hcxprotocol.io</a>.</li></br> <li>Documentation link to the <a href='https://docs.swasth.app/hcx-specifications/'>latest (v0.7-draft) version of the specifications.</a></li></br><li> API definitions are available at <a href='https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/hcx-specs/v0.7/API%20Definitions/openapi_hcx.yaml'>OpenAPI 3.0 definition.</a></li></br><li> Data models and suggested terminologies are available in <a href='https://swasth-digital-health-foundation.github.io/standards/v0.7/index.html'>FHIR Implementation Guide.</a></li></br><li> The GitHub source for the latest version (v0.7-draft) of the open protocol is <a href='https://github.com/hcx-project/hcx-specs/tree/v0.7'>here.</a></li></ul><b>Community details:</b></br><ul><li>GitHub community discussions on the current open protocol work and new proposals can be accessed <a href='https://github.com/hcx-project/hcx-specs/discussions'>here</a></li></br><li> Please join the following Discord channels where we have a robust community presence ().</br></br><ul><li><a href='https://discord.gg/YuzBdU9chu'>Link to join the Tech & Domain Channel</a></li> </br><li><a href='https://discord.gg/ZDcThMf4QU'>Link to join the Policy Working Channel</a> </li></ul></ul><b>Sandbox details:</b></br><ul><li> The integration document with links to the environment details is <a href='https://github.com/Swasth-Digital-Health-Foundation/hcx-platform/wiki/Integration-details-for-HCX-Sandbox'>here.</li></a></br><li> HCX Integrator SDK <a href='https://github.com/Swasth-Digital-Health-Foundation/hcx-platform/wiki/HCX-Integration-SDK-User-Manual'>details.</a></li></br><li> FHIR <a href='https://github.com/Swasth-Digital-Health-Foundation/hcx-platform/wiki/HCX-Integration-SDK-User-Manual'>examples.</li></a></br><li> FHIR examples using HAPI Fhir. Example codes are available in this <a href='https://github.com/saurabh-singh-17/hcx_sdk/tree/v0.7.1'>repo.</a></br></li></ul> Thanks,<br/> HCX Team <br/>}
 hcx-api:
   basePath: ${HCX_API_BASEPATH:http://localhost:8080}
 
@@ -50,6 +49,8 @@ postgres:
 otp:
   expiry: ${otp_expiry:600000}
   maxAttempt: ${otp_max_attempt:3}
+  maxRegenerate: ${otp_max_regenerate:5}
+
 
 getInfo:
   mockValid:
