@@ -1,6 +1,7 @@
 package org.swasth.hcx.services;
 
 import kong.unirest.HttpResponse;
+import org.springframework.http.HttpStatus;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +25,7 @@ import org.swasth.postgresql.IDatabaseService;
 
 import java.sql.ResultSet;
 import java.text.DecimalFormat;
+import java.time.LocalDate;
 import java.util.*;
 
 import static org.swasth.common.response.ResponseMessage.*;
@@ -72,6 +74,9 @@ public class ParticipantService extends BaseController {
 
     @Value("${getInfo.mockValid.phoneNumber}")
     private String phoneNumber;
+
+    @Value("${otp.maxRegenerate}")
+    private int maxRegenerate;
 
     @Value("${env}")
     private String env;
@@ -140,7 +145,6 @@ public class ParticipantService extends BaseController {
         if (ONBOARD_FOR_PROVIDER.contains(request.getType())) {
             identityVerified = identityVerify(headers, getApplicantBody(request));
         }
-
         sendOTP(participant);
         output.put(PARTICIPANT_CODE, participantCode);
         output.put(IDENTITY_VERIFICATION, identityVerified);
@@ -161,20 +165,38 @@ public class ParticipantService extends BaseController {
     }
 
     public ResponseEntity<Object> sendOTP(Map<String, Object> requestBody) throws Exception {
+        String primaryEmail = (String) requestBody.get(PRIMARY_EMAIL);
+        String query = String.format("SELECT regenerate_count, last_regenerate_date FROM %s WHERE primary_email='%s'", onboardingOtpTable, primaryEmail);
+        ResultSet result = (ResultSet) postgreSQLClient.executeQuery(query);
+        LocalDate lastRegenerateDate = null;
+        int regenerateCount = 0;
+        LocalDate currentDate = LocalDate.now();
+        if (result.next()) {
+            regenerateCount = result.getInt("regenerate_count");
+            lastRegenerateDate = result.getObject("last_regenerate_date", LocalDate.class);
+        }
+        if (!currentDate.equals(lastRegenerateDate)) {
+            regenerateCount = 0;
+        }
+        if (regenerateCount >= maxRegenerate) {
+            throw new ClientException(ErrorCodes.ERR_MAXIMUM_OTP_REGENERATE, MAXIMUM_OTP_REGENERATE);
+        }
         String phoneOtp = new DecimalFormat("000000").format(new Random().nextInt(999999));
         smsService.sendOTP((String) requestBody.get(PRIMARY_MOBILE), phoneOtp);
         String emailOtp = new DecimalFormat("000000").format(new Random().nextInt(999999));
-        String emailMsg = otpMsg;
-        emailMsg = emailMsg.replace("USER_NAME", StringUtils.capitalize((String) requestBody.get(PARTICIPANT_NAME)))
-                .replace("PARTICIPANT_CODE", (String) requestBody.get(PARTICIPANT_CODE))
-                .replace("RANDOM_CODE", " " + emailOtp);
-        emailService.sendMail((String) requestBody.get(PRIMARY_EMAIL), otpSub, emailMsg);
-        String query = String.format("UPDATE %s SET phone_otp='%s',email_otp='%s',updatedOn=%d,expiry=%d WHERE primary_email='%s'",
-                onboardingOtpTable, phoneOtp, emailOtp, System.currentTimeMillis(), System.currentTimeMillis() + otpExpiry, requestBody.get(PRIMARY_EMAIL));
-        postgreSQLClient.execute(query);
+        sendEmailOTP(primaryEmail, (String) requestBody.get(PARTICIPANT_NAME), (String) requestBody.get(PARTICIPANT_CODE), emailOtp);
+        String updateQuery = String.format("UPDATE %s SET phone_otp='%s',email_otp='%s',updatedOn=%d,expiry=%d ,regenerate_count=%d, last_regenerate_date='%s' WHERE primary_email='%s'",
+                onboardingOtpTable, phoneOtp, emailOtp, System.currentTimeMillis(), System.currentTimeMillis() + otpExpiry, regenerateCount + 1, currentDate, requestBody.get(PRIMARY_EMAIL));
+        postgreSQLClient.execute(updateQuery);
         return getSuccessResponse(new Response());
     }
-
+    private void sendEmailOTP(String email, String participantName, String participantCode, String emailOtp) {
+        String emailMsg = otpMsg;
+        emailMsg = emailMsg.replace("USER_NAME", StringUtils.capitalize(participantName))
+                .replace("PARTICIPANT_CODE", participantCode)
+                .replace("RANDOM_CODE", " " + emailOtp);
+        emailService.sendMail(email, otpSub, emailMsg);
+    }
     public String verifyOTP(Map<String, Object> requestBody) throws Exception {
         String participantCode = (String) requestBody.get(PARTICIPANT_CODE);
         ResultSet resultSet = null;
@@ -222,9 +244,8 @@ public class ParticipantService extends BaseController {
         }
     }
 
-    private void updateOtpStatus(boolean emailOtpVerified, boolean phoneOtpVerified, int attemptCount, String
-            status, String email) throws Exception {
-        String updateOtpQuery = String.format("UPDATE %s SET email_otp_verified=%b,phone_otp_verified=%b,status='%s',updatedOn=%d,attempt_count=%d WHERE primary_email='%s'",
+    private void updateOtpStatus(boolean emailOtpVerified, boolean phoneOtpVerified, int attemptCount, String status, String email) throws Exception {
+        String updateOtpQuery = String.format("UPDATE %s SET email_otp_verified=%b,phone_otp_verified=%b,status='%s',updatedOn=%d,attempt_count=%d WHERE participant_code='%s'",
                 onboardingOtpTable, emailOtpVerified, phoneOtpVerified, status, System.currentTimeMillis(), attemptCount + 1, email);
         postgreSQLClient.execute(updateOtpQuery);
     }
@@ -296,14 +317,15 @@ public class ParticipantService extends BaseController {
     public ResponseEntity<Object> getInfo(HttpHeaders header, Map<String, Object> requestBody) throws Exception {
         String applicantCode = "";
         String verifierCode ;
-        String verificationToken = "";
-        Map<String, Object> verifierDetails = null;
+        String verificationToken;
+        Map<String, Object> verifierDetails;
         if (requestBody.containsKey(VERIFICATION_TOKEN)) {
             verificationToken = (String) requestBody.get(VERIFICATION_TOKEN);
             Map<String, Object> jwtPayload = JSONUtils.decodeBase64String(verificationToken.split("\\.")[1], Map.class);
             verifierCode = (String) jwtPayload.get(ISS);
             applicantCode = (String) jwtPayload.get(SUB);
-            if (!verificationToken.isEmpty() && !jwtUtils.isValidSignature(verificationToken, (String) verifierDetails.get(SIGNING_CERT_PATH)))
+            verifierDetails = getParticipant(PARTICIPANT_CODE, verifierCode);
+            if (!verificationToken.isEmpty() && !jwtUtils.isValidSignature(verificationToken, (String) verifierDetails.getOrDefault(SIGNING_CERT_PATH,"")))
                 throw new ClientException(ErrorCodes.ERR_INVALID_JWT, "Invalid JWT token signature");
         } else if (requestBody.containsKey(MOBILE)) {
             verifierCode = (String) requestBody.get(VERIFIER_CODE);
@@ -330,7 +352,6 @@ public class ParticipantService extends BaseController {
                 payorResp.putAll(JSONUtils.deserialize(response.getBody(), Map.class));
             }
         }
-
         return getSuccessResponse(payorResp);
     }
 
@@ -343,11 +364,11 @@ public class ParticipantService extends BaseController {
             result = identityVerify(header, requestBody);
         }
         response.setResult(result);
-        return getSuccessResponse(response);
+         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     private String identityVerify(HttpHeaders header, Map<String, Object> requestBody) throws Exception {
-        Map<String, Object> verifierDetails = getParticipant(PARTICIPANT_CODE, (String) requestBody.get(VERIFIER_CODE));
+        Map<String, Object> verifierDetails = getParticipant(PARTICIPANT_CODE,(String) requestBody.get(VERIFIER_CODE));
         String result = REJECTED;
         String mode = header.get(MODE).get(0);
         if (mode.equalsIgnoreCase(MOCK_VALID)) {

@@ -13,7 +13,6 @@ import org.swasth.hcx.services.ParticipantService;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 
 import static org.swasth.common.utils.Constants.*;
