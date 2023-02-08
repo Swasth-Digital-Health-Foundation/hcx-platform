@@ -2,7 +2,6 @@ package org.swasth.common.dto;
 
 import org.swasth.common.utils.JSONUtils;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
