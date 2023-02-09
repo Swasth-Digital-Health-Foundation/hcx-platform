@@ -216,8 +216,9 @@ public class ParticipantService {
     }
 
     public void getCertificatesUrl(Map<String, Object> requestBody, String code) {
-        getCertificates(requestBody, code, SIGNING_CERT_PATH);
         getCertificates(requestBody, code, ENCRYPTION_CERT);
+        if(requestBody.containsKey(SIGNING_CERT_PATH))
+          getCertificates(requestBody, code, SIGNING_CERT_PATH);
     }
 
     public Map<String, Object> getParticipant(String code, String registryUrl) throws Exception {
@@ -255,10 +256,9 @@ public class ParticipantService {
     public void validateCertificates(Map<String, Object> requestBody) throws ClientException, CertificateException, IOException {
         if (!requestBody.containsKey(ENCRYPTION_CERT) || !(requestBody.get(ENCRYPTION_CERT) instanceof String))
             throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, INVALID_ENCRYPTION_CERT);
-        else if (!requestBody.containsKey(SIGNING_CERT_PATH) || !(requestBody.get(SIGNING_CERT_PATH) instanceof String))
-            throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, INVALID_SIGNING_CERT_PATH);
+        if (requestBody.containsKey(SIGNING_CERT_PATH))
+            requestBody.put(SIGNING_CERT_PATH_EXPIRY, jwtUtils.getCertificateExpiry((String) requestBody.get(SIGNING_CERT_PATH)));
         requestBody.put(ENCRYPTION_CERT_EXPIRY, jwtUtils.getCertificateExpiry((String) requestBody.get(ENCRYPTION_CERT)));
-        requestBody.put(SIGNING_CERT_PATH_EXPIRY, jwtUtils.getCertificateExpiry((String) requestBody.get(SIGNING_CERT_PATH)));
     }
 
     public String getRequestBody(String code) {
