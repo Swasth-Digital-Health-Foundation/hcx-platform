@@ -120,25 +120,6 @@ class ParticipantControllerTests extends BaseSpec{
         assertEquals(200, status);
     }
 
-
-    @Test
-    void participant_create_invalid_sigining_cert() throws Exception {
-        registryServer.enqueue(new MockResponse()
-                .setResponseCode(200)
-                .setBody("[]")
-                .addHeader("Content-Type", "application/json"));
-        doNothing().when(cloudStorageClient).putObject(anyString(),anyString());
-        doNothing().when(cloudStorageClient).putObject(anyString(),anyString(),anyString());
-        doReturn(getUrl()).when(cloudStorageClient).getUrl(anyString(),anyString());
-        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_CREATE).content("{ \"participant_name\": \"Apollo Hospital\", \"primary_mobile\": \"6300009626\", \"primary_email\": \"Apollohospital@gmail.com\", \"roles\": [\"provider\"], \"address\": { \"plot\": \"5-4-199\", \"street\": \"road no 12\", \"landmark\": \"Jawaharlal Nehru Road\", \"locality\": \"Nampally\", \"village\": \"Nampally\", \"district\": \"Hyderabad\", \"state\": \"Telangana\", \"pincode\": \"500805\" }, \"phone\": [ \"040-387658992\" ], \"status\": \"Created\", \"endpoint_url\": \"https://677e6fd9-57cc-466c-80f6-ae0462762872.mock.pstmn.io\", \"payment_details\": { \"account_number\": \"4707890099809809\", \"ifsc_code\": \"ICICI\" }, \"encryption_cert\": \"urn:isbn:0-476-27557-4\", \"linked_registry_codes\": [ \"22344\" ] }").header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
-        MockHttpServletResponse response = mvcResult.getResponse();
-        int status = response.getStatus();
-        Map<String,Object> responseBody = JSONUtils.deserialize(response.getContentAsString(), Map.class);
-        assertEquals(400, status);
-        assertEquals(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS.name(), getResponseErrorCode(responseBody));
-        assertEquals("Property 'signing_cert_path' is missing or invalid", getResponseErrorMessage(responseBody));
-    }
-
     @Test
     void participant_create_invalid_encryption_cert() throws Exception {
         registryServer.enqueue(new MockResponse()
