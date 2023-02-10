@@ -98,7 +98,7 @@ public class ParticipantService {
     public ResponseEntity<Object> read(String fields, String code, String registryUrl, String pathParam) throws Exception {
         ResponseEntity<Object> searchResponse = getSuccessResponse(search(JSONUtils.deserialize(getRequestBody(code), Map.class), registryUrl, pathParam));
         ParticipantResponse searchResp = (ParticipantResponse) searchResponse.getBody();
-        if (fields != null && fields.toLowerCase().contains(VERIFICATIONSTATUS) && searchResp != null) {
+        if (fields != null && fields.toLowerCase().contains(VERIFICATION_STATUS) && searchResp != null) {
             ((Map<String, Object>) searchResp.getParticipants().get(0)).putAll(getVerificationStatus(code));
         }
         return getSuccessResponse(searchResp);
@@ -136,7 +136,7 @@ public class ParticipantService {
         while (resultSet.next()) {
             responseMap.put(FORMSTATUS, resultSet.getString("status"));
         }
-        return Collections.singletonMap(VERIFICATIONSTATUS, responseMap);
+        return Collections.singletonMap(VERIFICATION_STATUS, responseMap);
     }
 
     public ParticipantResponse getSponsors(List<Map<String, Object>> participantsList) throws Exception {
@@ -146,7 +146,7 @@ public class ParticipantService {
         ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
         Map<String, Object> sponsorMap = new HashMap<>();
         while (resultSet.next()) {
-            Sponsor sponsorResponse = new Sponsor(resultSet.getString(APPLICANT_EMAIL), resultSet.getString(APPLICANT_CODE), resultSet.getString(SPONSOR_CODE), resultSet.getString(FORMSTATUS), resultSet.getLong("createdon"), resultSet.getLong("updatedon"));
+            Sponsor sponsorResponse = new Sponsor(resultSet.getString(APPLICANT_EMAIL), resultSet.getString(APPLICANT_CODE), resultSet.getString(VERIFIERCODE), resultSet.getString(FORMSTATUS), resultSet.getLong("createdon"), resultSet.getLong("updatedon"));
             sponsorMap.put(resultSet.getString(APPLICANT_EMAIL), sponsorResponse);
         }
         ArrayList<Object> modifiedResponseList = new ArrayList<>();
