@@ -185,10 +185,10 @@ public class ParticipantService extends BaseController {
     public void validateCertificates(Map<String, Object> requestBody) throws ClientException, CertificateException, IOException {
         if (!requestBody.containsKey(ENCRYPTION_CERT) || !(requestBody.get(ENCRYPTION_CERT) instanceof String))
             throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, INVALID_ENCRYPTION_CERT);
-        else if (!requestBody.containsKey(SIGNING_CERT_PATH) || !(requestBody.get(SIGNING_CERT_PATH) instanceof String))
-            throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, INVALID_SIGNING_CERT_PATH);
+
         requestBody.put(ENCRYPTION_CERT_EXPIRY, jwtUtils.getCertificateExpiry((String) requestBody.get(ENCRYPTION_CERT)));
-        requestBody.put(SIGNING_CERT_PATH_EXPIRY, jwtUtils.getCertificateExpiry((String) requestBody.get(SIGNING_CERT_PATH)));
+        if (requestBody.containsKey(SIGNING_CERT_PATH))
+            requestBody.put(SIGNING_CERT_PATH_EXPIRY, jwtUtils.getCertificateExpiry((String) requestBody.get(SIGNING_CERT_PATH)));
     }
 
     public ResponseEntity<Object> responseHandler(HttpResponse<String> response, String participantCode) throws Exception {
@@ -242,8 +242,9 @@ public class ParticipantService extends BaseController {
     }
 
     public void getCertificatesUrl(Map<String, Object> requestBody, String participantCode) {
-        getCertificates(requestBody, participantCode, SIGNING_CERT_PATH);
         getCertificates(requestBody, participantCode, ENCRYPTION_CERT);
+        if (requestBody.containsKey(SIGNING_CERT_PATH))
+            getCertificates(requestBody, participantCode, SIGNING_CERT_PATH);
     }
 
     public boolean isParticipantCodeExists(String participantCode, String registryUrl) throws Exception {
