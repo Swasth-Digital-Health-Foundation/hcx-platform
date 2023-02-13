@@ -362,13 +362,13 @@ public class ParticipantService extends BaseController {
 
     private String identityVerify(HttpHeaders header, Map<String, Object> requestBody) throws Exception {
         Map<String, Object> sponsorDetails = getParticipant(PARTICIPANT_CODE, (String) requestBody.get(VERIFIERCODE));
-        String result = REJECTED;
+        String result;
         Map<String, Object> reqBody = new HashMap<>();
         reqBody.put(APPLICANT_CODE, reqBody.get(APPLICANT_CODE));
         HttpResponse<String> httpResp = HttpUtils.post(sponsorDetails.get(ENDPOINT_URL) + APPLICANT_VERIFY, JSONUtils.serialize(reqBody));
         if (httpResp.getStatus() == 200) {
-            OnboardResponse payorResp = JSONUtils.deserialize(httpResp.getBody(), OnboardResponse.class);
-            result = payorResp.getResult();
+            Map<String,Object> payorResp = JSONUtils.deserialize(httpResp.getBody(), Map.class);
+            result = (String) payorResp.get(RESULT);
             updateIdentityVerificationStatus((String) requestBody.get(EMAIL), (String) requestBody.get(APPLICANT_CODE), (String) requestBody.get(VERIFIERCODE), result);
         } else {
             Response errResp = JSONUtils.deserialize(httpResp.getBody(), Response.class);
