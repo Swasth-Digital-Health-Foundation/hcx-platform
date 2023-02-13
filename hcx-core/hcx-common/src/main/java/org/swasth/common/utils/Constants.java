@@ -60,7 +60,7 @@ public class Constants {
     public static final String PARTICIPANT_READ = "/participant/read/{participantCode}";
     public static final String PARTICIPANT_UPDATE = "/participant/update";
     public static final String SPONSORS = "sponsors";
-    public static final String VERIFICATIONSTATUS = "verificationstatus";
+    public static final String VERIFICATION_STATUS = "verificationstatus";
     public static final String FORMSTATUS = "status";
     public static final String PARTICIPANT_DELETE = "/participant/delete";
     public static final String PARTICIPANT_VERIFY = "/participant/verify";
@@ -171,6 +171,8 @@ public class Constants {
     public static final String FILTERS = "filters";
     public static final String LIMIT = "limit";
     public static final String OFFSET = "offset";
+    public static final String SEARCH = "search";
+    public static final String INVITE = "invite";
     public static final String START_DATETIME = "start_datetime";
     public static final String STOP_DATETIME = "stop_datetime";
     public static final String SEARCH_REQ ="x-hcx-search";
@@ -260,7 +262,7 @@ public class Constants {
     public static final List<String> OPERATIONAL_ENTITIES = Arrays.asList(NOTIFICATION, COMMUNICATION, REGISTRY_STATUS);
     public static final List<String> EXCLUDE_ENTITIES = Arrays.asList(COMMUNICATION, PAYMENT, NOTIFICATION);
     public static final List<String> RESPONSE_STATUS_VALUES = Arrays.asList(COMPLETE_STATUS, PARTIAL_STATUS, ERROR_RESPONSE, REDIRECT_STATUS);
-    public static final List<String> ALLOWED_ENTITIES_ERROR_AUDIT_CREATION = Arrays.asList("coverageeligibility", "preauth", "claim", PAYMENT, COMMUNICATION, "predetermination", REGISTRY_STATUS, "search");
+    public static final List<String> ALLOWED_ENTITIES_ERROR_AUDIT_CREATION = Arrays.asList("coverageeligibility", "preauth", "claim", PAYMENT, COMMUNICATION, "predetermination", REGISTRY_STATUS, SEARCH);
     public static final String JWT_TOKEN = "jwt_token";
     public static final String VERIFICATION_TOKEN = "verification_token";
     public static final String JWT = "jwt";
@@ -272,6 +274,7 @@ public class Constants {
     public static final String APPLICANT_NAME = "applicant_name";
     public static final String ADDITIONALVERIFICATION = "additionalVerification";
     public static final String TIME_STAMP = "timestamp";
+    public static final String APPLICANT_EMAIL = "applicant_email";
     public static final String PHONE_OTP = "phone_otp";
     public static final String EMAIL_OTP = "email_otp";
     public static final String OTP = "otp";
@@ -285,9 +288,7 @@ public class Constants {
     public static final String PHONE_OTP_VERIFIED = "phone_otp_verified";
     public static final List<String> ALLOWED_ONBOARD_STATUS = Arrays.asList(REJECTED, ACCEPTED);
     public static final String STAGING = "staging";
-    public static final String MODE = "mode";
-    public static final String MOCK_VALID = "mock-valid";
-    public static final String MOCK_INVALID = "mock-invalid";
+
     public static final String ACTUAL = "actual";
 
 }
