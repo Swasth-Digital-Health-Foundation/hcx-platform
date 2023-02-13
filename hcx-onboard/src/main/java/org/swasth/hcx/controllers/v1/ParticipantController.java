@@ -72,17 +72,17 @@ public class ParticipantController extends BaseController {
     }
 
     @PostMapping(APPLICANT_VERIFY)
-    public ResponseEntity<Object> applicantVerify(@RequestBody Map<String, Object> requestBody) {
+    public ResponseEntity<Object> applicantVerify(@RequestHeader HttpHeaders headers,@RequestBody Map<String, Object> requestBody) {
         try {
-            return participantService.applicantVerify(requestBody);
+            return participantService.applicantVerify(headers,requestBody);
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }
     }
     @PostMapping(PARTICIPANT_GET_INFO)
-    public ResponseEntity<Object> participantGetInfo(@RequestBody Map<String, Object> requestBody) {
+    public ResponseEntity<Object> participantGetInfo(@RequestHeader HttpHeaders headers, @RequestBody Map<String, Object> requestBody) {
         try {
-            return participantService.getInfo(requestBody);
+            return participantService.getInfo(headers,requestBody);
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }
