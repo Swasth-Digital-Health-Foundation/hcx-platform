@@ -337,7 +337,7 @@ public class ParticipantService extends BaseController {
                 sponsorDetails = getParticipant(PARTICIPANT_CODE, sponsorCode);
             }
 
-            HttpResponse<String> response = HttpUtils.post(sponsorDetails.get(ENDPOINT_URL) + PARTICIPANT_GET_INFO, JSONUtils.serialize(requestBody));
+            HttpResponse<String> response = HttpUtils.post(sponsorDetails.get(ENDPOINT_URL) + APPLICANT_GET_INFO, JSONUtils.serialize(requestBody));
             return new ResponseEntity<>(response.getBody(), HttpStatus.valueOf(response.getStatus()));
         } catch (Exception e){
             return exceptionHandler(new Response(), e);
