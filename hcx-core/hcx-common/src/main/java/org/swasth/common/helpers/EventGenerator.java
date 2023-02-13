@@ -21,14 +21,16 @@ public class EventGenerator {
     private List<String> redirectHeaders;
     private List<String> errorHeaders;
     private List<String> notificationHeaders;
+    private String tag;
     public EventGenerator(){
     }
-    public EventGenerator(List<String> protocolHeaders, List<String> joseHeaders, List<String> redirectHeaders, List<String> errorHeaders,List<String> notificationHeaders) {
+    public EventGenerator(List<String> protocolHeaders, List<String> joseHeaders, List<String> redirectHeaders, List<String> errorHeaders,List<String> notificationHeaders,String tag) {
         this.protocolHeaders = protocolHeaders;
         this.joseHeaders = joseHeaders;
         this.redirectHeaders = redirectHeaders;
         this.errorHeaders = errorHeaders;
         this.notificationHeaders = notificationHeaders;
+        this.tag = tag;
     }
 
     public String generatePayloadEvent(Request request) throws JsonProcessingException {
@@ -125,6 +127,7 @@ public class EventGenerator {
         event.put(RECIPIENT_NAME, request.getRecipientName());
         event.put(SENDER_PRIMARY_EMAIL, request.getSenderPrimaryEmail());
         event.put(RECIPIENT_PRIMARY_EMAIL, request.getRecipientPrimaryEmail());
+        event.put(TAG,tag);
         return  event;
     }
 

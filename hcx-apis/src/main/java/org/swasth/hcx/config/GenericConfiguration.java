@@ -34,6 +34,8 @@ public class GenericConfiguration {
     @Value("${notification.workflowPath:workflowNotifications.yaml}")
     private String workflowPath;
 
+    @Value("${tag}")
+    private String tag;
     @Bean
     public RegistryService registryService() {
         return new RegistryService(registryUrl);
@@ -51,7 +53,7 @@ public class GenericConfiguration {
 
     @Bean
     public EventGenerator eventGenerator() {
-        return new EventGenerator(getProtocolHeaders(), getJoseHeaders(), getRedirectHeaders(), getErrorHeaders(), getNotificationHeaders());
+        return new EventGenerator(getProtocolHeaders(), getJoseHeaders(), getRedirectHeaders(), getErrorHeaders(), getNotificationHeaders() ,getTag());
     }
 
     private List<String> getProtocolHeaders() {
@@ -81,5 +83,7 @@ public class GenericConfiguration {
         notificationHeaders.addAll(env.getProperty(NOTIFICATION_HEADERS_OPTIONAL, List.class, new ArrayList<String>()));
         return notificationHeaders;
     }
-
+    private String getTag(){
+        return tag;
+    }
 }

@@ -98,3 +98,5 @@ notification:
   networkPath: ${notification_networkPath:networkNotifications.yaml}
   participantPath: ${notification_participantPath:participantNotifications.yaml}
   workflowPath: ${notification_workflowPath:workflowNotifications.yaml}
+
+tag: ${tag_name:test-tag}
