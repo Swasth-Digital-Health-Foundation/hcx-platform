@@ -4,15 +4,15 @@ public class Sponsor {
 
     private final String applicantEmail;
     private final String applicantCode;
-    private final String sponsorCode;
+    private final String verifierCode;
     private final String status;
     private final Long createdon;
     private final Long updatedon;
 
-    public Sponsor(String applicantEmail, String applicantCode, String sponsorCode, String status, Long createdon, Long updatedon) {
+    public Sponsor(String applicantEmail, String applicantCode, String verifierCode, String status, Long createdon, Long updatedon) {
         this.applicantEmail = applicantEmail;
         this.applicantCode = applicantCode;
-        this.sponsorCode = sponsorCode;
+        this.verifierCode = verifierCode;
         this.status = status;
         this.createdon = createdon;
         this.updatedon = updatedon;
@@ -21,8 +21,8 @@ public class Sponsor {
     public String getApplicantEmail() {
         return applicantEmail;
     }
-    public String getSponsorCode() {
-        return sponsorCode;
+    public String getVerifierCode() {
+        return verifierCode;
     }
 
     public String getApplicantCode() {
