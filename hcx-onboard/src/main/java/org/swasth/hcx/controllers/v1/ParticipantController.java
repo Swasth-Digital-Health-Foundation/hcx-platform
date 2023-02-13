@@ -80,7 +80,7 @@ public class ParticipantController extends BaseController {
             return exceptionHandler(new Response(), e);
         }
     }
-    @PostMapping(PARTICIPANT_GET_INFO)
+    @PostMapping(APPLICANT_GET_INFO)
     public ResponseEntity<Object> participantGetInfo(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
         try {
             return participantService.getInfo(header, requestBody);
