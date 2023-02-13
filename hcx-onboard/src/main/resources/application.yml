@@ -53,6 +53,5 @@ otp:
   maxRegenerate: ${otp_max_regenerate:5}
 
 getInfo:
-  mockValid:
     emailDomain: ${email_domain:@yopmail.com}
     phoneNumber: ${phone_number:8522875773}
