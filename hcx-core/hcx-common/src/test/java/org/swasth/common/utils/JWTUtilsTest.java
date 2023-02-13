@@ -13,7 +13,7 @@ public class JWTUtilsTest {
     private final JWTUtils jwtUtils = new JWTUtils();
 
     @Test
-    public void testGetCertificateExpiry() throws CertificateException, IOException {
+    public void testGetCertificateExpiry() throws Exception {
         assertNotNull(jwtUtils.getCertificateExpiry("https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/jwe-helper/main/src/test/resources/x509-self-signed-certificate.pem"));
     }
 

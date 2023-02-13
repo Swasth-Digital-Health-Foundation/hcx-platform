@@ -60,7 +60,7 @@ public class Constants {
     public static final String PARTICIPANT_READ = "/participant/read/{participantCode}";
     public static final String PARTICIPANT_UPDATE = "/participant/update";
     public static final String SPONSORS = "sponsors";
-    public static final String VERIFICATIONSTATUS = "verificationstatus";
+    public static final String VERIFICATION_STATUS = "verificationstatus";
     public static final String FORMSTATUS = "status";
     public static final String PARTICIPANT_DELETE = "/participant/delete";
     public static final String PARTICIPANT_VERIFY = "/participant/verify";
@@ -68,6 +68,7 @@ public class Constants {
     public static final String PARTICIPANT_OTP_SEND = "/participant/otp/send";
     public static final String PARTICIPANT_ONBOARD_UPDATE = "/participant/onboard/update";
     public static final String PARTICIPANT_VERIFY_IDENTITY = "/participant/verify/identity";
+    // Object Types
     public static final String PARTICIPANT = "participant";
     public static final String VERIFIERCODE = "verifier_code";
     public static final String ONBOARD_THROUGH_JWT = "onboard-through-jwt";
@@ -157,12 +158,15 @@ public class Constants {
     public static final String SIGNING_CERT_PATH = "signing_cert_path";
     public static final String ENCRYPTION_CERT = "encryption_cert";
     public static final String ENCRYPTION_CERT_EXPIRY = "encryption_cert_expiry";
+    public static final String SIGNING_CERT_PATH_EXPIRY = "signing_cert_path_expiry";
     public static final String EQUAL_OPERATION = "eq";
     public static final String OSID = "osid";
     public static final String AUTHORIZATION = "Authorization";
     public static final String FILTERS = "filters";
     public static final String LIMIT = "limit";
     public static final String OFFSET = "offset";
+    public static final String SEARCH = "search";
+    public static final String INVITE = "invite";
     public static final String START_DATETIME = "start_datetime";
     public static final String STOP_DATETIME = "stop_datetime";
     public static final String SEARCH_REQ ="x-hcx-search";
@@ -252,12 +256,13 @@ public class Constants {
     public static final List<String> OPERATIONAL_ENTITIES = Arrays.asList(NOTIFICATION, COMMUNICATION, REGISTRY_STATUS);
     public static final List<String> EXCLUDE_ENTITIES = Arrays.asList(COMMUNICATION, PAYMENT, NOTIFICATION);
     public static final List<String> RESPONSE_STATUS_VALUES = Arrays.asList(COMPLETE_STATUS, PARTIAL_STATUS, ERROR_RESPONSE, REDIRECT_STATUS);
-    public static final List<String> ALLOWED_ENTITIES_ERROR_AUDIT_CREATION = Arrays.asList("coverageeligibility", "preauth", "claim", PAYMENT, COMMUNICATION, "predetermination", REGISTRY_STATUS, "search");
+    public static final List<String> ALLOWED_ENTITIES_ERROR_AUDIT_CREATION = Arrays.asList("coverageeligibility", "preauth", "claim", PAYMENT, COMMUNICATION, "predetermination", REGISTRY_STATUS, SEARCH);
     public static final String JWT_TOKEN = "jwt_token";
     public static final String SUB = "sub";
     public static final String ISS = "iss";
     public static final String SPONSOR_CODE = "sponsor_code";
     public static final String APPLICANT_CODE = "applicant_code";
+    public static final String APPLICANT_EMAIL = "applicant_email";
     public static final String PHONE_OTP = "phone_otp";
     public static final String EMAIL_OTP = "email_otp";
     public static final String OTP = "otp";
