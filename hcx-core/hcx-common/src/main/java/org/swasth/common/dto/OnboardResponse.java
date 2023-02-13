@@ -13,7 +13,7 @@ public class OnboardResponse {
     @JsonProperty("verifier_code")
     private String verifierCode;
 
-    private String result;
+    private String result = "";
 
     public OnboardResponse(String applicantCode, String verifierCode) {
         this.applicantCode = applicantCode;
