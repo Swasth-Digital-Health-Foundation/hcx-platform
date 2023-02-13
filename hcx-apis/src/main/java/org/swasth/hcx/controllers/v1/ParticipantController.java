@@ -71,6 +71,7 @@ public class ParticipantController extends BaseController {
             Map<String, Object> participantDetails = participantService.getParticipant(participantCode,registryUrl);
             return participantService.update(requestBody, participantDetails, registryUrl, header, participantCode);
         } catch (Exception e) {
+            e.printStackTrace();
             return exceptionHandler(new Response(), e);
         }
     }
