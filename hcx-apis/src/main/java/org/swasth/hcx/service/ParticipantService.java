@@ -146,7 +146,7 @@ public class ParticipantService {
         ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
         Map<String, Object> sponsorMap = new HashMap<>();
         while (resultSet.next()) {
-            Sponsor sponsorResponse = new Sponsor(resultSet.getString(APPLICANT_EMAIL), resultSet.getString(APPLICANT_CODE), resultSet.getString(VERIFIERCODE), resultSet.getString(FORMSTATUS), resultSet.getLong("createdon"), resultSet.getLong("updatedon"));
+            Sponsor sponsorResponse = new Sponsor(resultSet.getString(APPLICANT_EMAIL), resultSet.getString(APPLICANT_CODE), resultSet.getString(VERIFIER_CODE), resultSet.getString(FORMSTATUS), resultSet.getLong("createdon"), resultSet.getLong("updatedon"));
             sponsorMap.put(resultSet.getString(APPLICANT_EMAIL), sponsorResponse);
         }
         ArrayList<Object> modifiedResponseList = new ArrayList<>();
