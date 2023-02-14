@@ -108,7 +108,7 @@ public class ParticipantService extends BaseController {
     }
 
     private void updateIdentityVerificationStatus(String email, String applicantCode, String verifierCode, String status) throws Exception {
-        String query = String.format("INSERT INTO %s (applicant_email,applicant_code,verifier_code,status,createdOn,updatedOn) VALUES ('%s','%s','%s','%s',%d,%d) ON CONFLICT (applicant_name) DO NOTHING;",
+        String query = String.format("INSERT INTO %s (applicant_email,applicant_code,verifier_code,status,createdOn,updatedOn) VALUES ('%s','%s','%s','%s',%d,%d) ON CONFLICT (applicant_email) DO NOTHING;",
                 onboardingTable, email, applicantCode, verifierCode, status, System.currentTimeMillis(), System.currentTimeMillis());
         postgreSQLClient.execute(query);
     }
