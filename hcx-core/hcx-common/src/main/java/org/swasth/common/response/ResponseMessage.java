@@ -30,7 +30,6 @@ public class ResponseMessage {
     public static final String INVALID_END_POINT = "Endpoint url should not be the HCX Gateway/APIs URL";
     public static final String INVALID_EMAIL = "Property 'primary_email' is missing or invalid";
     public static final String INVALID_ENCRYPTION_CERT = "Property 'encryption_cert' is missing or invalid";
-    public static final String INVALID_SIGNING_CERT_PATH = "Property 'signing_cert_path' is missing or invalid";
     public static final String VALID_SEARCH_OBJ_MSG = "Search details cannot be null, empty and should be 'JSON Object'";
     public static final String VALID_SEARCH_MSG = "Search details should contain only: ";
     public static final String VALID_SEARCH_RESP_OBJ_MSG = "Search response details cannot be null, empty and should be 'JSON Object'";
@@ -130,5 +129,6 @@ public class ResponseMessage {
     public static final String OTP_RECORD_NOT_EXIST = "Participant record does not exist, please register.";
     public static final String OTP_RETRY_LIMIT = "Email and phone OTP retry limit has reached, please re-generate otp and try again!";
     public static final String OTP_EXPIRED= "Email and phone OTP has expired, please re-generate otp and try again!";
+    public static final String MAXIMUM_OTP_REGENERATE = "Maximum limit for OTP regeneration has been reached. Please try again tomorrow!";
 
 }

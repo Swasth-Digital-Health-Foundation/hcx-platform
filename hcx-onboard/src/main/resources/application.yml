@@ -50,3 +50,4 @@ postgres:
 otp:
   expiry: ${otp_expiry:600000}
   maxAttempt: ${otp_max_attempt:3}
+  maxRegenerate: ${otp_max_regenerate:5}
