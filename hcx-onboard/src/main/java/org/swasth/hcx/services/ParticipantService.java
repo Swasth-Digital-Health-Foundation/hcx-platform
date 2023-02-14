@@ -309,29 +309,18 @@ public class ParticipantService extends BaseController {
         }
     }
 
-    public ResponseEntity<Object> getInfo(HttpHeaders header, Map<String, Object> requestBody) throws Exception {
+    public ResponseEntity<Object> getInfo(HttpHeaders header, Map<String, Object> requestBody) {
         try {
-            String applicantCode;
-            String verifierCode;
-            String verificationToken = "";
-            Map<String, Object> verifierDetails;
+            String verifierCode = (String) requestBody.getOrDefault(VERIFIER_CODE, "");
+            Map<String, Object> verifierDetails = getParticipant(PARTICIPANT_CODE, verifierCode);
             if (requestBody.containsKey(VERIFICATION_TOKEN)) {
-                verificationToken = (String) requestBody.get(VERIFICATION_TOKEN);
-                Map<String, Object> jwtPayload = JSONUtils.decodeBase64String(verificationToken.split("\\.")[1], Map.class);
+                String token = (String) requestBody.get(VERIFICATION_TOKEN);
+                Map<String, Object> jwtPayload = JSONUtils.decodeBase64String(token.split("\\.")[1], Map.class);
                 verifierCode = (String) jwtPayload.get(ISS);
-                applicantCode = (String) jwtPayload.get(SUB);
                 verifierDetails = getParticipant(PARTICIPANT_CODE, verifierCode);
-                if (!verificationToken.isEmpty() && !jwtUtils.isValidSignature(verificationToken, (String) verifierDetails.get(SIGNING_CERT_PATH)))
+                if (!token.isEmpty() && !jwtUtils.isValidSignature(token, (String) verifierDetails.get(SIGNING_CERT_PATH)))
                     throw new ClientException(ErrorCodes.ERR_INVALID_JWT, "Invalid JWT token signature");
-            } else if (requestBody.containsKey(MOBILE)) {
-                verifierCode = (String) requestBody.get(VERIFIER_CODE);
-                verifierDetails = getParticipant(PARTICIPANT_CODE, verifierCode);
-            } else {
-                applicantCode = (String) requestBody.get(APPLICANT_CODE);
-                verifierCode = (String) requestBody.get(VERIFIER_CODE);
-                verifierDetails = getParticipant(PARTICIPANT_CODE, verifierCode);
             }
-
             HttpResponse<String> response = HttpUtils.post(verifierDetails.get(ENDPOINT_URL) + APPLICANT_GET_INFO, JSONUtils.serialize(requestBody));
             return new ResponseEntity<>(response.getBody(), HttpStatus.valueOf(response.getStatus()));
         } catch (Exception e){
