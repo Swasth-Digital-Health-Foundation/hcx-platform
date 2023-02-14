@@ -64,7 +64,7 @@ public class Constants {
     public static final String FORMSTATUS = "status";
     public static final String PARTICIPANT_DELETE = "/participant/delete";
     public static final String PARTICIPANT_VERIFY = "/participant/verify";
-    public static final String PARTICIPANT_GET_INFO = "/participant/getInfo";
+    public static final String APPLICANT_GET_INFO = "/applicant/getinfo";
     public static final String PARTICIPANT_OTP_SEND = "/participant/otp/send";
     public static final String PARTICIPANT_ONBOARD_UPDATE = "/participant/onboard/update";
     public static final String PARTICIPANT_VERIFY_IDENTITY = "/participant/verify/identity";
