@@ -70,6 +70,7 @@ public class ParticipantController extends BaseController {
             Map<String, Object> details = service.getParticipant(code,registryUrl);
             return getSuccessResponse(service.update(requestBody, details, registryUrl, header, code));
         } catch (Exception e) {
+            e.printStackTrace();
             return exceptionHandler(new Response(), e);
         }
     }
