@@ -15,6 +15,7 @@ import static org.swasth.common.utils.Constants.*;
 public class EventGeneratorTest {
 
     private final EventGenerator eventGenerator = new EventGenerator(Arrays.asList("x-hcx-sender_code", "x-hcx-recipient_code", "x-hcx-api_call_id", "x-hcx-timestamp", "x-hcx-status", "x-hcx-correlation_id"), Arrays.asList("alg", "enc"), Arrays.asList("x-hcx-sender_code", "x-hcx-recipient_code", "x-hcx-api_call_id", "x-hcx-timestamp", "x-hcx-status", "x-hcx-correlation_id"), Arrays.asList("x-hcx-sender_code", "x-hcx-recipient_code", "x-hcx-api_call_id", "x-hcx-timestamp", "x-hcx-status", "x-hcx-correlation_id"),Arrays.asList("x-hcx-notification_id","x-hcx-notification_data","x-hcx-sender_code", "x-hcx-recipient_code", "x-hcx-api_call_id", "x-hcx-timestamp", "x-hcx-correlation_id"),"test-tag");
+    private final EventGenerator eventGeneratorTag  = new EventGenerator(Arrays.asList("x-hcx-sender_code", "x-hcx-recipient_code", "x-hcx-api_call_id", "x-hcx-timestamp", "x-hcx-status", "x-hcx-correlation_id"), Arrays.asList("alg", "enc"), Arrays.asList("x-hcx-sender_code", "x-hcx-recipient_code", "x-hcx-api_call_id", "x-hcx-timestamp", "x-hcx-status", "x-hcx-correlation_id"), Arrays.asList("x-hcx-sender_code", "x-hcx-recipient_code", "x-hcx-api_call_id", "x-hcx-timestamp", "x-hcx-status", "x-hcx-correlation_id"),Arrays.asList("x-hcx-notification_id","x-hcx-notification_data","x-hcx-sender_code", "x-hcx-recipient_code", "x-hcx-api_call_id", "x-hcx-timestamp", "x-hcx-correlation_id"),"");
     @Test
     public void check_generatePayloadEvent() throws Exception {
         String result = eventGenerator.generatePayloadEvent(getRequest());
@@ -56,6 +57,11 @@ public class EventGeneratorTest {
     @Test
     public void check_generateAuditEvent() throws Exception {
         Map<String,Object> result = eventGenerator.generateAuditEvent(getRequest());
+        assertEquals("/test", result.get(Constants.ACTION));
+    }
+    @Test
+    public void check_generateAuditEventTagEmpty() throws Exception {
+        Map<String,Object> result = eventGeneratorTag.generateAuditEvent(getRequest());
         assertEquals("/test", result.get(Constants.ACTION));
     }
 
