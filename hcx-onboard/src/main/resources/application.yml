@@ -53,7 +53,7 @@ otp:
   maxRegenerate: ${otp_max_regenerate:5}
 
 registry:
-  hcxCode: ${REGISTRY_HCX_CODE:1-d2d56996-1b77-4abb-b9e9-0e6e7343c72e}
+  hcxCode: ${registry_hcx_code:1-d2d56996-1b77-4abb-b9e9-0e6e7343c72e}
 
 jwt-token:
   privateKey : ${private_key:test-private-key}
