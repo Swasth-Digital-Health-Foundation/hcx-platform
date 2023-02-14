@@ -30,6 +30,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.swasth.common.utils.Constants.VERIFICATION_STATUS;
 
 class ParticipantControllerTests extends BaseSpec{
 
@@ -350,7 +351,7 @@ class ParticipantControllerTests extends BaseSpec{
                 .addHeader("Content-Type", "application/json"));
         ResultSet mockResultSet = getMockstatus();
         doReturn(mockResultSet).when(postgreSQLClient).executeQuery(anyString());
-        MvcResult mvcResult = mockMvc.perform(get(Constants.VERSION_PREFIX + "/participant/read/d2d56996-1b77-4abb-b9e9-0e6e7343c72e").param("fields", "verificationstatus").content(getSearchFilter()).header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MvcResult mvcResult = mockMvc.perform(get(Constants.VERSION_PREFIX + "/participant/read/d2d56996-1b77-4abb-b9e9-0e6e7343c72e").param("fields", VERIFICATION_STATUS).content(getSearchFilter()).header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         assertEquals(200, status);

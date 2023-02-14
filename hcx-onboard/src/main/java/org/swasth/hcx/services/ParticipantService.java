@@ -96,27 +96,21 @@ public class ParticipantService extends BaseController {
     private JWTUtils jwtUtils;
 
     public ResponseEntity<Object> verify(HttpHeaders header, ArrayList<Map<String, Object>> body) throws Exception {
-        OnboardRequest request = new OnboardRequest(body);
         logger.info("Participant verification :: " + body);
+        OnboardRequest request = new OnboardRequest(body);
         Map<String, Object> output = new HashMap<>();
-        if (request.getType().equals(ONBOARD_THROUGH_JWT)) {
-            updateEmail(request.getPrimaryEmail(), request.getApplicantCode());
-        } else if (request.getType().equals(ONBOARD_THROUGH_VERIFIER)) {
-            updateEmail(request.getPrimaryEmail(), request.getApplicantCode());
-        } else {
-            updateIdentityVerificationStatus(request.getPrimaryEmail(), "", "", PENDING);
-        }
+        updateIdentityVerificationStatus(request.getPrimaryEmail(), request.getApplicantCode(), request.getVerifierCode(), PENDING);
         createParticipantAndSendOTP(header, request, output);
         return getSuccessResponse(new Response(output));
     }
 
-    private void updateEmail(String email, String applicantCode) throws Exception {
-        String query = String.format("UPDATE %s SET applicant_email='%s',updatedOn=%d WHERE applicant_code='%s'", onboardingTable, email, System.currentTimeMillis(), applicantCode);
+    private void updateStatus(String email, String status) throws Exception {
+        String query = String.format("UPDATE %s SET status='%s',updatedOn=%d WHERE applicant_email='%s'", onboardingTable, status, System.currentTimeMillis(), email);
         postgreSQLClient.execute(query);
     }
 
     private void updateIdentityVerificationStatus(String email, String applicantCode, String verifierCode, String status) throws Exception {
-        String query = String.format("INSERT INTO %s (applicant_email,applicant_code,verifier_code,status,createdOn,updatedOn) VALUES ('%s','%s','%s','%s',%d,%d)",
+        String query = String.format("INSERT INTO %s (applicant_email,applicant_code,verifier_code,status,createdOn,updatedOn) VALUES ('%s','%s','%s','%s',%d,%d) ON CONFLICT (applicant_email) DO NOTHING;",
                 onboardingTable, email, applicantCode, verifierCode, status, System.currentTimeMillis(), System.currentTimeMillis());
         postgreSQLClient.execute(query);
     }
@@ -125,7 +119,6 @@ public class ParticipantService extends BaseController {
         Map<String, Object> participant = request.getParticipant();
         participant.put(ENDPOINT_URL, "http://testurl/v0.7");
         participant.put(ENCRYPTION_CERT, "https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/hcx-platform/sprint-27/hcx-apis/src/test/resources/examples/x509-self-signed-certificate.pem");
-        participant.put(SIGNING_CERT_PATH, "https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/hcx-platform/sprint-27/hcx-apis/src/test/resources/examples/x509-self-signed-certificate.pem");
         participant.put(REGISTRY_STATUS, CREATED);
         if (((ArrayList<String>) participant.get(ROLES)).contains(PAYOR))
             participant.put(SCHEME_CODE, "default");
@@ -293,7 +286,7 @@ public class ParticipantService extends BaseController {
                 logger.info("Participant details are updated successfully :: participant code : " + participant.get(PARTICIPANT_CODE));
                 emailService.sendMail(email, onboardingSuccessSub, onboardingSuccessMsg.replace("USER_NAME", StringUtils.capitalize((String) participant.get(PARTICIPANT_NAME))));
                 return getSuccessResponse(new Response(PARTICIPANT_CODE, participant.get(PARTICIPANT_CODE)));
-            } else return responseHandler(response, (String) participant.get(PARTICIPANT_CODE));
+            } else return new ResponseEntity<>(response.getBody(), HttpStatus.valueOf(response.getStatus()));
         } else {
             logger.info("Participant details are not updated, due to failed identity verification :: participant code : " + participant.get(PARTICIPANT_CODE));
             throw new ClientException(ErrorCodes.ERR_UPDATE_PARTICIPANT_DETAILS, "Identity verification failed");
@@ -317,26 +310,19 @@ public class ParticipantService extends BaseController {
         }
     }
 
-    public ResponseEntity<Object> getInfo(HttpHeaders header, Map<String, Object> requestBody) throws Exception {
+    public ResponseEntity<Object> getInfo(HttpHeaders header, Map<String, Object> requestBody) {
         try {
-            String applicantCode;
             String verifierCode;
-            String verificationToken = "";
             Map<String, Object> verifierDetails;
             if (requestBody.containsKey(VERIFICATION_TOKEN)) {
-                verificationToken = (String) requestBody.get(VERIFICATION_TOKEN);
-                Map<String, Object> jwtPayload = JSONUtils.decodeBase64String(verificationToken.split("\\.")[1], Map.class);
+                String token = (String) requestBody.get(VERIFICATION_TOKEN);
+                Map<String, Object> jwtPayload = JSONUtils.decodeBase64String(token.split("\\.")[1], Map.class);
                 verifierCode = (String) jwtPayload.get(ISS);
-                applicantCode = (String) jwtPayload.get(SUB);
                 verifierDetails = getParticipant(PARTICIPANT_CODE, verifierCode);
-                if (!verificationToken.isEmpty() && !jwtUtils.isValidSignature(verificationToken, (String) verifierDetails.get(SIGNING_CERT_PATH)))
+                if (!token.isEmpty() && !jwtUtils.isValidSignature(token, (String) verifierDetails.get(SIGNING_CERT_PATH)))
                     throw new ClientException(ErrorCodes.ERR_INVALID_JWT, "Invalid JWT token signature");
-            } else if (requestBody.containsKey(MOBILE)) {
-                verifierCode = (String) requestBody.get(VERIFIER_CODE);
-                verifierDetails = getParticipant(PARTICIPANT_CODE, verifierCode);
             } else {
-                applicantCode = (String) requestBody.get(APPLICANT_CODE);
-                verifierCode = (String) requestBody.get(VERIFIER_CODE);
+                verifierCode = (String) requestBody.getOrDefault(VERIFIER_CODE, "");
                 verifierDetails = getParticipant(PARTICIPANT_CODE, verifierCode);
             }
             HttpResponse<String> response = HttpUtils.post(verifierDetails.get(ENDPOINT_URL) + APPLICANT_GET_INFO, JSONUtils.serialize(requestBody),headers(verifierCode));
@@ -366,13 +352,11 @@ public class ParticipantService extends BaseController {
         String verifierCode = (String) requestBody.get(VERIFIER_CODE);
         Map<String, Object> verifierDetails = getParticipant(PARTICIPANT_CODE, verifierCode);
         String result;
-        Map<String, Object> reqBody = new HashMap<>();
-        reqBody.put(APPLICANT_CODE, reqBody.get(APPLICANT_CODE));
-        HttpResponse<String> httpResp = HttpUtils.post(verifierDetails.get(ENDPOINT_URL) + APPLICANT_VERIFY, JSONUtils.serialize(reqBody),headers(verifierCode));
+        HttpResponse<String> httpResp = HttpUtils.post(verifierDetails.get(ENDPOINT_URL) + APPLICANT_VERIFY, JSONUtils.serialize(requestBody),headers(verifierCode));
         if (httpResp.getStatus() == 200) {
             Map<String,Object> payorResp = JSONUtils.deserialize(httpResp.getBody(), Map.class);
             result = (String) payorResp.get(RESULT);
-            updateIdentityVerificationStatus((String) requestBody.get(EMAIL), (String) requestBody.get(APPLICANT_CODE), (String) requestBody.get(VERIFIER_CODE), result);
+            updateStatus((String) requestBody.get(EMAIL), result);
         } else {
             Response errResp = JSONUtils.deserialize(httpResp.getBody(), Response.class);
             throw new ClientException(errResp.getError().getCode(), errResp.getError().getMessage());

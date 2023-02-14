@@ -3,6 +3,8 @@ package org.swasth.common.utils;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.apache.commons.io.IOUtils;
+import org.swasth.common.exception.ClientException;
+import org.swasth.common.exception.ErrorCodes;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -36,11 +38,15 @@ public class JWTUtils {
         return sig.verify(decodedSignature);
     }
 
-    public Long getCertificateExpiry(String publicKeyUrl) throws CertificateException, IOException {
-        X509Certificate certificate = (X509Certificate) CertificateFactory
-                .getInstance("X509")
-                .generateCertificate(new ByteArrayInputStream(IOUtils.toString(new URL(publicKeyUrl), StandardCharsets.UTF_8.toString()).getBytes()));
-        return certificate.getNotAfter().toInstant().toEpochMilli();
+    public Long getCertificateExpiry(String publicKeyUrl) throws ClientException {
+        try {
+            X509Certificate certificate = (X509Certificate) CertificateFactory
+                    .getInstance("X509")
+                    .generateCertificate(new ByteArrayInputStream(IOUtils.toString(new URL(publicKeyUrl), StandardCharsets.UTF_8.toString()).getBytes()));
+            return certificate.getNotAfter().toInstant().toEpochMilli();
+        } catch (CertificateException | IOException e) {
+            throw new ClientException(ErrorCodes.ERR_INVALID_CERTIFICATE, "Exception while parsing the certificate : " + e.getMessage());
+        }
     }
 
     public String generateJWS(Map<String, Object> headers, Map<String, Object> payload, String privateKey) throws NoSuchAlgorithmException, InvalidKeySpecException {
