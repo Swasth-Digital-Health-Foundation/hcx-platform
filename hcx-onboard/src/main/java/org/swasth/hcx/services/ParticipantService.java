@@ -284,7 +284,7 @@ public class ParticipantService extends BaseController {
                 logger.info("Participant details are updated successfully :: participant code : " + participant.get(PARTICIPANT_CODE));
                 emailService.sendMail(email, onboardingSuccessSub, onboardingSuccessMsg.replace("USER_NAME", StringUtils.capitalize((String) participant.get(PARTICIPANT_NAME))));
                 return getSuccessResponse(new Response(PARTICIPANT_CODE, participant.get(PARTICIPANT_CODE)));
-            } else return responseHandler(response, (String) participant.get(PARTICIPANT_CODE));
+            } else return new ResponseEntity<>(response.getBody(), HttpStatus.valueOf(response.getStatus()));
         } else {
             logger.info("Participant details are not updated, due to failed identity verification :: participant code : " + participant.get(PARTICIPANT_CODE));
             throw new ClientException(ErrorCodes.ERR_UPDATE_PARTICIPANT_DETAILS, "Identity verification failed");
