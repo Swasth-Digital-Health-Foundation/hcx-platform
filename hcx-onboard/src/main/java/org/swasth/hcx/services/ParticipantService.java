@@ -121,6 +121,10 @@ public class ParticipantService extends BaseController {
         participant.put(REGISTRY_STATUS, CREATED);
         if (((ArrayList<String>) participant.get(ROLES)).contains(PAYOR))
             participant.put(SCHEME_CODE, "default");
+        String identityVerified = PENDING;
+        if (ONBOARD_FOR_PROVIDER.contains(request.getType())) {
+            identityVerified = identityVerify(headers, getApplicantBody(request));
+        }
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put(AUTHORIZATION, Objects.requireNonNull(headers.get(AUTHORIZATION)).get(0));
         HttpResponse<String> createResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_CREATE, JSONUtils.serialize(participant), headersMap);
@@ -134,12 +138,6 @@ public class ParticipantService extends BaseController {
                         "updatedOn,expiry,phone_otp_verified,email_otp_verified,status,attempt_count) VALUES ('%s','%s','%s','%s','%s',%d,%d,%d,%b,%b,'%s',%d)", onboardingOtpTable, participantCode,
                 participant.get(PRIMARY_EMAIL), participant.get(PRIMARY_MOBILE), "", "", System.currentTimeMillis(), System.currentTimeMillis(), System.currentTimeMillis(), false, false, PENDING, 0);
         postgreSQLClient.execute(query);
-
-        String identityVerified = PENDING;
-        if (ONBOARD_FOR_PROVIDER.contains(request.getType())) {
-            identityVerified = identityVerify(headers, getApplicantBody(request));
-        }
-
         sendOTP(participant);
         output.put(PARTICIPANT_CODE, participantCode);
         output.put(IDENTITY_VERIFICATION, identityVerified);
@@ -334,7 +332,7 @@ public class ParticipantService extends BaseController {
                 verifierDetails = getParticipant(PARTICIPANT_CODE, verifierCode);
             }
 
-            HttpResponse<String> response = HttpUtils.post(verifierDetails.get(ENDPOINT_URL) + PARTICIPANT_GET_INFO, JSONUtils.serialize(requestBody));
+            HttpResponse<String> response = HttpUtils.post(verifierDetails.get(ENDPOINT_URL) + APPLICANT_GET_INFO, JSONUtils.serialize(requestBody));
             return new ResponseEntity<>(response.getBody(), HttpStatus.valueOf(response.getStatus()));
         } catch (Exception e){
             return exceptionHandler(new Response(), e);
