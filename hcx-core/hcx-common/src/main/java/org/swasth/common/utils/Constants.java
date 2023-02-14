@@ -292,4 +292,8 @@ public class Constants {
 
     public static final String ACTUAL = "actual";
 
+    // JWT token properties
+   public static final String JTI = "jti";
+   public static final String IAT = "iat";
+
 }

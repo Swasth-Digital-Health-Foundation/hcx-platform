@@ -23,6 +23,8 @@ import org.swasth.common.utils.JWTUtils;
 import org.swasth.hcx.controllers.BaseController;
 import org.swasth.postgresql.IDatabaseService;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.sql.ResultSet;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
@@ -75,6 +77,12 @@ public class ParticipantService extends BaseController {
     @Value("${env}")
     private String env;
 
+    @Value("${registry.hcxCode}")
+    private String hcxCode;
+    @Value("${jwt-token.privateKey}")
+    private String privatekey;
+    @Value("${jwt-token.expiryTime}")
+    private Long expiryTime;
     @Autowired
     private SMSService smsService;
 
@@ -317,7 +325,7 @@ public class ParticipantService extends BaseController {
                 verifierCode = (String) requestBody.getOrDefault(VERIFIER_CODE, "");
                 verifierDetails = getParticipant(PARTICIPANT_CODE, verifierCode);
             }
-            HttpResponse<String> response = HttpUtils.post(verifierDetails.get(ENDPOINT_URL) + APPLICANT_GET_INFO, JSONUtils.serialize(requestBody));
+            HttpResponse<String> response = HttpUtils.post(verifierDetails.get(ENDPOINT_URL) + APPLICANT_GET_INFO, JSONUtils.serialize(requestBody),headers(verifierCode));
             return new ResponseEntity<>(response.getBody(), HttpStatus.valueOf(response.getStatus()));
         } catch (Exception e){
             return exceptionHandler(new Response(), e);
@@ -341,9 +349,10 @@ public class ParticipantService extends BaseController {
     }
 
     private String identityVerify(HttpHeaders header, Map<String, Object> requestBody) throws Exception {
-        Map<String, Object> verifierDetails = getParticipant(PARTICIPANT_CODE, (String) requestBody.get(VERIFIER_CODE));
+        String verifierCode = (String) requestBody.get(VERIFIER_CODE);
+        Map<String, Object> verifierDetails = getParticipant(PARTICIPANT_CODE, verifierCode);
         String result;
-        HttpResponse<String> httpResp = HttpUtils.post(verifierDetails.get(ENDPOINT_URL) + APPLICANT_VERIFY, JSONUtils.serialize(requestBody));
+        HttpResponse<String> httpResp = HttpUtils.post(verifierDetails.get(ENDPOINT_URL) + APPLICANT_VERIFY, JSONUtils.serialize(requestBody),headers(verifierCode));
         if (httpResp.getStatus() == 200) {
             Map<String,Object> payorResp = JSONUtils.deserialize(httpResp.getBody(), Map.class);
             result = (String) payorResp.get(RESULT);
@@ -362,5 +371,11 @@ public class ParticipantService extends BaseController {
         } else {
             throw new ClientException(StringUtils.capitalize(key.replace("_", " "))  +  " is invalid, please try again!");
         }
+    }
+
+    private Map<String,String> headers(String verifierCode) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        Map<String,String> headers = new HashMap<>();
+        headers.put(AUTHORIZATION,"Bearer "+ jwtUtils.generateAuthToken(privatekey,verifierCode,hcxCode,expiryTime));
+        return headers;
     }
 }
