@@ -1,7 +1,9 @@
 package org.swasth.common.dto;
 
-import java.util.ArrayList;
+import org.swasth.common.utils.JSONUtils;
+
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.swasth.common.utils.Constants.*;
@@ -10,23 +12,45 @@ public class OnboardRequest {
 
     private Map<String,Object> requestBody = new HashMap<>();
 
-    public OnboardRequest(ArrayList<Map<String,Object>> body) {
-        if (!body.isEmpty() && (body.get(0).getOrDefault(TYPE, "").equals(EMAIL_OTP_VALIDATION) || body.get(0).getOrDefault(TYPE, "").equals((PHONE_OTP_VALIDATION)))) {
-            for(Map<String,Object> map: body) {
-                if(map.containsKey(PRIMARY_EMAIL)) {
-                    requestBody.put(PRIMARY_EMAIL, map.get(PRIMARY_EMAIL));
-                    requestBody.put(EMAIL_OTP, map.get(OTP));
-                } else if (map.containsKey(PRIMARY_MOBILE)) {
-                    requestBody.put(PRIMARY_MOBILE, map.get(PRIMARY_MOBILE));
-                    requestBody.put(PHONE_OTP, map.get(OTP));
-                }
-            }
-        } else {
-            requestBody.putAll(body.get(0));
+    private Map<String,Object> jwtPayload = new HashMap<>();
+
+    private String applicantCode = "";
+
+    private String verifierCode = "";
+
+
+    public OnboardRequest(List<Map<String,Object>> body) throws Exception {
+        requestBody.putAll(body.get(0));
+        if (getType().equals(ONBOARD_THROUGH_JWT)) {
+            jwtPayload.putAll(JSONUtils.decodeBase64String(getJWT().split("\\.")[1], Map.class));
+            applicantCode = (String) jwtPayload.get(SUB);
+            verifierCode = (String) jwtPayload.get(ISS);
+        }  else if (getType().equals(ONBOARD_THROUGH_VERIFIER)) {
+            applicantCode = (String) requestBody.get(APPLICANT_CODE);
+            verifierCode = (String) requestBody.get(VERIFIER_CODE);
         }
     }
 
     public Map<String,Object> getBody() {
         return this.requestBody;
     }
+
+    public Map<String,Object> getParticipant() { return (Map<String, Object>) this.requestBody.getOrDefault(PARTICIPANT, new HashMap<>()); }
+
+    public String getPrimaryEmail() { return (String) getParticipant().getOrDefault(PRIMARY_EMAIL, ""); }
+
+    public String getPrimaryMobile() { return (String) getParticipant().getOrDefault(PRIMARY_MOBILE, ""); }
+
+    public String getParticipantName() { return (String) getParticipant().getOrDefault(PARTICIPANT_NAME, ""); }
+
+    public String getType() { return (String) requestBody.getOrDefault(TYPE, ""); }
+
+    public String getJWT() { return (String) requestBody.getOrDefault(JWT, ""); }
+
+    public String getApplicantCode() { return this.applicantCode; }
+
+    public String getVerifierCode() { return this.verifierCode; }
+
+    public List<Object> getAdditionalVerification() { return (List<Object>) requestBody.get(ADDITIONALVERIFICATION); }
+
 }

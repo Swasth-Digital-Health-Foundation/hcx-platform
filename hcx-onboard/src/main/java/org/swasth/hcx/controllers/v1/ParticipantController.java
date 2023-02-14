@@ -35,9 +35,8 @@ public class ParticipantController extends BaseController {
 
     @PostMapping(PARTICIPANT_VERIFY)
     public ResponseEntity<Object> participantVerify(@RequestHeader HttpHeaders header, @RequestBody ArrayList<Map<String, Object>> body) {
-        String email = "";
         try {
-            return participantService.verify(header, body,email);
+            return participantService.verify(header, body);
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }
@@ -72,10 +71,18 @@ public class ParticipantController extends BaseController {
         }
     }
 
-    @PostMapping(PARTICIPANT_GET_INFO)
-    public ResponseEntity<Object> participantGetInfo(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
+    @PostMapping(APPLICANT_VERIFY)
+    public ResponseEntity<Object> applicantVerify(@RequestHeader HttpHeaders headers,@RequestBody Map<String, Object> requestBody) {
         try {
-            return participantService.getInfo(header, requestBody);
+            return participantService.applicantVerify(headers,requestBody);
+        } catch (Exception e) {
+            return exceptionHandler(new Response(), e);
+        }
+    }
+    @PostMapping(PARTICIPANT_GET_INFO)
+    public ResponseEntity<Object> participantGetInfo(@RequestHeader HttpHeaders headers, @RequestBody Map<String, Object> requestBody) {
+        try {
+            return participantService.getInfo(headers,requestBody);
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }
