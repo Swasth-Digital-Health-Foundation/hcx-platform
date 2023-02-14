@@ -310,8 +310,8 @@ public class ParticipantService extends BaseController {
 
     public ResponseEntity<Object> getInfo(HttpHeaders header, Map<String, Object> requestBody) {
         try {
-            String verifierCode = (String) requestBody.getOrDefault(VERIFIER_CODE, "");
-            Map<String, Object> verifierDetails = getParticipant(PARTICIPANT_CODE, verifierCode);
+            String verifierCode;
+            Map<String, Object> verifierDetails;
             if (requestBody.containsKey(VERIFICATION_TOKEN)) {
                 String token = (String) requestBody.get(VERIFICATION_TOKEN);
                 Map<String, Object> jwtPayload = JSONUtils.decodeBase64String(token.split("\\.")[1], Map.class);
@@ -319,6 +319,9 @@ public class ParticipantService extends BaseController {
                 verifierDetails = getParticipant(PARTICIPANT_CODE, verifierCode);
                 if (!token.isEmpty() && !jwtUtils.isValidSignature(token, (String) verifierDetails.get(SIGNING_CERT_PATH)))
                     throw new ClientException(ErrorCodes.ERR_INVALID_JWT, "Invalid JWT token signature");
+            } else {
+                verifierCode = (String) requestBody.getOrDefault(VERIFIER_CODE, "");
+                verifierDetails = getParticipant(PARTICIPANT_CODE, verifierCode);
             }
             HttpResponse<String> response = HttpUtils.post(verifierDetails.get(ENDPOINT_URL) + APPLICANT_GET_INFO, JSONUtils.serialize(requestBody));
             return new ResponseEntity<>(response.getBody(), HttpStatus.valueOf(response.getStatus()));
