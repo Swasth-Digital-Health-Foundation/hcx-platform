@@ -88,22 +88,16 @@ public class ParticipantService extends BaseController {
     private JWTUtils jwtUtils;
 
     public ResponseEntity<Object> verify(HttpHeaders header, ArrayList<Map<String, Object>> body) throws Exception {
-        OnboardRequest request = new OnboardRequest(body);
         logger.info("Participant verification :: " + body);
+        OnboardRequest request = new OnboardRequest(body);
         Map<String, Object> output = new HashMap<>();
-        if (request.getType().equals(ONBOARD_THROUGH_JWT)) {
-            updateEmail(request.getPrimaryEmail(), request.getApplicantCode());
-        } else if (request.getType().equals(ONBOARD_THROUGH_VERIFIER)) {
-            updateEmail(request.getPrimaryEmail(), request.getApplicantCode());
-        } else {
-            updateIdentityVerificationStatus(request.getPrimaryEmail(), "", "", PENDING);
-        }
+        updateIdentityVerificationStatus(request.getPrimaryEmail(), request.getApplicantCode(), request.getVerifierCode(), PENDING);
         createParticipantAndSendOTP(header, request, output);
         return getSuccessResponse(new Response(output));
     }
 
-    private void updateEmail(String email, String applicantCode) throws Exception {
-        String query = String.format("UPDATE %s SET applicant_email='%s',updatedOn=%d WHERE applicant_code='%s'", onboardingTable, email, System.currentTimeMillis(), applicantCode);
+    private void updateStatus(String email, String status) throws Exception {
+        String query = String.format("UPDATE %s SET status='%s',updatedOn=%d WHERE applicant_email='%s'", onboardingTable, status, System.currentTimeMillis(), email);
         postgreSQLClient.execute(query);
     }
 
@@ -353,7 +347,7 @@ public class ParticipantService extends BaseController {
         if (httpResp.getStatus() == 200) {
             Map<String,Object> payorResp = JSONUtils.deserialize(httpResp.getBody(), Map.class);
             result = (String) payorResp.get(RESULT);
-            updateIdentityVerificationStatus((String) requestBody.get(EMAIL), (String) requestBody.get(APPLICANT_CODE), (String) requestBody.get(VERIFIER_CODE), result);
+            updateStatus((String) requestBody.get(EMAIL), result);
         } else {
             Response errResp = JSONUtils.deserialize(httpResp.getBody(), Response.class);
             throw new ClientException(errResp.getError().getCode(), errResp.getError().getMessage());
