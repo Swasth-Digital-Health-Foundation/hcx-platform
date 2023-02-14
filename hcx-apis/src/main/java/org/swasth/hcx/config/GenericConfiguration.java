@@ -53,7 +53,7 @@ public class GenericConfiguration {
 
     @Bean
     public EventGenerator eventGenerator() {
-        return new EventGenerator(getProtocolHeaders(), getJoseHeaders(), getRedirectHeaders(), getErrorHeaders(), getNotificationHeaders() ,getTag());
+        return new EventGenerator(getProtocolHeaders(), getJoseHeaders(), getRedirectHeaders(), getErrorHeaders(), getNotificationHeaders() ,tag);
     }
 
     private List<String> getProtocolHeaders() {
@@ -82,8 +82,5 @@ public class GenericConfiguration {
         List<String> notificationHeaders = env.getProperty(NOTIFICATION_HEADERS_MANDATORY, List.class, new ArrayList<String>());
         notificationHeaders.addAll(env.getProperty(NOTIFICATION_HEADERS_OPTIONAL, List.class, new ArrayList<String>()));
         return notificationHeaders;
-    }
-    private String getTag(){
-        return tag;
     }
 }
