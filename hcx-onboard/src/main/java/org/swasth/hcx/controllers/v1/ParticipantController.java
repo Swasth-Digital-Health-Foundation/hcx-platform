@@ -31,13 +31,12 @@ public class ParticipantController extends BaseController {
     private EmailService emailService;
 
     @Autowired
-    private ParticipantService participantService;
+    private ParticipantService service;
 
     @PostMapping(PARTICIPANT_VERIFY)
-    public ResponseEntity<Object> participantVerify(@RequestHeader HttpHeaders header, @RequestBody ArrayList<Map<String, Object>> body) {
-        String email = "";
+    public ResponseEntity<Object> verify(@RequestHeader HttpHeaders header, @RequestBody ArrayList<Map<String, Object>> body) {
         try {
-            return participantService.verify(header, body,email);
+            return service.verify(header, body);
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }
@@ -46,7 +45,7 @@ public class ParticipantController extends BaseController {
     @PostMapping(PARTICIPANT_OTP_SEND)
     public ResponseEntity<Object> sendOTP(@RequestBody Map<String, Object> requestBody) {
         try {
-            return participantService.sendOTP(requestBody);
+            return service.sendOTP(requestBody);
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }
@@ -55,27 +54,35 @@ public class ParticipantController extends BaseController {
     @PostMapping(PARTICIPANT_ONBOARD_UPDATE)
     public ResponseEntity<Object> onboardUpdate(@RequestBody Map<String, Object> requestBody) throws SQLException {
         try {
-            return participantService.onboardUpdate(requestBody);
+            return service.onboardUpdate(requestBody);
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }
     }
 
     @PostMapping(PARTICIPANT_VERIFY_IDENTITY)
-    public ResponseEntity<Object> participantIdentityVerify(@RequestBody Map<String, Object> requestBody) {
+    public ResponseEntity<Object> identityVerify(@RequestBody Map<String, Object> requestBody) {
         String applicantEmail = (String) requestBody.get(PRIMARY_EMAIL);
         try {
-            return participantService.identityVerify(requestBody);
+            return service.identityVerify(requestBody);
         } catch (Exception e) {
             emailService.sendMail(applicantEmail, failedIdentitySub, failedIdentityMsg);
             return exceptionHandler(new Response(), e);
         }
     }
 
-    @PostMapping(PARTICIPANT_GET_INFO)
-    public ResponseEntity<Object> participantGetInfo(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
+    @PostMapping(APPLICANT_VERIFY)
+    public ResponseEntity<Object> applicantVerify(@RequestHeader HttpHeaders headers,@RequestBody Map<String, Object> requestBody) {
         try {
-            return participantService.getInfo(header, requestBody);
+            return service.applicantVerify(headers,requestBody);
+        } catch (Exception e) {
+            return exceptionHandler(new Response(), e);
+        }
+    }
+    @PostMapping(APPLICANT_GET_INFO)
+    public ResponseEntity<Object> getinfo(@RequestHeader HttpHeaders headers, @RequestBody Map<String, Object> requestBody) {
+        try {
+            return service.getInfo(headers,requestBody);
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }

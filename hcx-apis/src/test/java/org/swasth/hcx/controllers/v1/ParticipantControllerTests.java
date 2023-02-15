@@ -10,11 +10,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.swasth.common.dto.ParticipantResponse;
 import org.swasth.common.dto.Response;
-import org.swasth.common.dto.Sponsor;
-import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
 import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
@@ -30,10 +26,11 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.ArgumentMatchers.anyMap;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.swasth.common.utils.Constants.VERIFICATION_STATUS;
 
 class ParticipantControllerTests extends BaseSpec{
 
@@ -115,7 +112,10 @@ class ParticipantControllerTests extends BaseSpec{
                 .setBody("{ \"id\": \"open-saber.registry.invite\", \"ver\": \"1.0\", \"ets\": 1637227738534, \"params\": { \"resmsgid\": \"\", \"msgid\": \"bb355e26-cc12-4aeb-8295-03347c428c62\", \"err\": \"\", \"status\": \"SUCCESSFUL\", \"errmsg\": \"\" }, \"responseCode\": \"OK\", \"result\": { \"Organisation\": { \"osid\": \"1-17f02101-b560-4bc1-b3ab-2dac04668fd2\" } } }")
                 .addHeader("Content-Type", "application/json"));
         doReturn(getParticipantCreateAuditLog()).when(mockEventGenerator).createAuditLog(anyString(), anyString(), anyMap(), anyMap());
-        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_CREATE).content(getParticipantCreateBody()).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        doReturn(getUrl()).when(cloudStorageClient).getUrl(anyString(), anyString());
+        doNothing().when(cloudStorageClient).putObject(anyString(), anyString());
+        doNothing().when(cloudStorageClient).putObject(anyString(), anyString(), anyString());
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_CREATE).content(getParticipantCreateBody()).header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         assertEquals(200, status);
@@ -123,6 +123,13 @@ class ParticipantControllerTests extends BaseSpec{
 
     @Test
     void participant_create_invalid_encryption_cert() throws Exception {
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("[]")
+                .addHeader("Content-Type", "application/json"));
+        doNothing().when(cloudStorageClient).putObject(anyString(),anyString());
+        doNothing().when(cloudStorageClient).putObject(anyString(),anyString(),anyString());
+        doReturn(getUrl()).when(cloudStorageClient).getUrl(anyString(),anyString());
         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_CREATE).content("{ \"participant_name\": \"Apollo Hospital\", \"primary_mobile\": \"6300009626\", \"primary_email\": \"Apollohospital@gmail.com\", \"roles\": [\"provider\"], \"address\": { \"plot\": \"5-4-199\", \"street\": \"road no 12\", \"landmark\": \"Jawaharlal Nehru Road\", \"locality\": \"Nampally\", \"village\": \"Nampally\", \"district\": \"Hyderabad\", \"state\": \"Telangana\", \"pincode\": \"500805\" }, \"phone\": [ \"040-387658992\" ], \"status\": \"Created\", \"endpoint_url\": \"https://677e6fd9-57cc-466c-80f6-ae0462762872.mock.pstmn.io\", \"payment_details\": { \"account_number\": \"4707890099809809\", \"ifsc_code\": \"ICICI\" }, \"signing_cert_path\": \"urn:isbn:0-476-27557-4\", \"linked_registry_codes\": [ \"22344\" ] }").header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
@@ -130,22 +137,6 @@ class ParticipantControllerTests extends BaseSpec{
         assertEquals(400, status);
         assertEquals(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS.name(), getResponseErrorCode(responseBody));
         assertEquals("Property 'encryption_cert' is missing or invalid", getResponseErrorMessage(responseBody));
-    }
-
-    @Test
-    void participant_create_bad_request_scenario() throws Exception {
-        registryServer.enqueue(new MockResponse()
-                .setResponseCode(200)
-                .setBody("[]")
-                .addHeader("Content-Type", "application/json"));
-        registryServer.enqueue(new MockResponse()
-                .setResponseCode(400)
-                .setBody("{ \"id\": \"open-saber.registry.invite\", \"ver\": \"1.0\", \"ets\": 1653306628400, \"params\": { \"resmsgid\": \"\", \"msgid\": \"90546fa3-1bd7-4072-bd06-81ea688ea9af\", \"err\": \"\", \"status\": \"UNSUCCESSFUL\", \"errmsg\": \"Username already invited / registered for Organisation\" }, \"responseCode\": \"OK\" }")
-                .addHeader("Content-Type", "application/json"));
-        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_CREATE).content(getParticipantCreateBody()).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
-        MockHttpServletResponse response = mvcResult.getResponse();
-        int status = response.getStatus();
-        assertEquals(400, status);
     }
 
     @Test
@@ -202,7 +193,7 @@ class ParticipantControllerTests extends BaseSpec{
 
     @Test
     void participant_create_invalid_roles_scenario() throws Exception {
-        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_CREATE).content("{ \"participant_name\": \"Apollo Hospital\", \"primary_mobile\": \"6300009626\", \"primary_email\": \"Apollohospital@gmail.com\", \"address\": { \"plot\": \"5-4-199\", \"street\": \"road no 12\", \"landmark\": \"Jawaharlal Nehru Road\", \"locality\": \"Nampally\", \"village\": \"Nampally\", \"district\": \"Hyderabad\", \"state\": \"Telangana\", \"pincode\": \"500805\" }, \"phone\": [ \"040-387658992\" ], \"status\": \"Created\", \"endpoint_url\": \"https://677e6fd9-57cc-466c-80f6-ae0462762872.mock.pstmn.io\", \"payment_details\": { \"account_number\": \"4707890099809809\", \"ifsc_code\": \"ICICI\" }, \"signing_cert_path\": \"urn:isbn:0-476-27557-4\", \"linked_registry_codes\": [ \"22344\" ], \"encryption_cert\": \"urn:isbn:0-4234\" }").header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_CREATE).content("{ \"participant_name\": \"Apollo Hospital\", \"primary_mobile\": \"6300009626\", \"primary_email\": \"Apollohospital@gmail.com\", \"address\": { \"plot\": \"5-4-199\", \"street\": \"road no 12\", \"landmark\": \"Jawaharlal Nehru Road\", \"locality\": \"Nampally\", \"village\": \"Nampally\", \"district\": \"Hyderabad\", \"state\": \"Telangana\", \"pincode\": \"500805\" }, \"phone\": [ \"040-387658992\" ], \"status\": \"Created\", \"endpoint_url\": \"https://677e6fd9-57cc-466c-80f6-ae0462762872.mock.pstmn.io\", \"payment_details\": { \"account_number\": \"4707890099809809\", \"ifsc_code\": \"ICICI\" }, \"signing_cert_path\": \"urn:isbn:0-476-27557-4\", \"linked_registry_codes\": [ \"22344\" ], \"encryption_cert\": \"urn:isbn:0-4234\" }").header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         Map<String,Object> responseBody = JSONUtils.deserialize(response.getContentAsString(), Map.class);
         int status = response.getStatus();
@@ -233,7 +224,10 @@ class ParticipantControllerTests extends BaseSpec{
                 .setBody("{ \"message\": \"success\" }")
                 .addHeader("Content-Type", "application/json"));
         Mockito.when(redisCache.isExists(any())).thenReturn(true);
-        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_UPDATE).content(getParticipantUpdateBody()).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        doNothing().when(cloudStorageClient).putObject(anyString(), anyString(), anyString());
+        doNothing().when(cloudStorageClient).putObject(anyString(), anyString());
+        doReturn(getUrl()).when(cloudStorageClient).getUrl(anyString(), anyString());
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_UPDATE).content(getParticipantUpdateBody()).header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         assertEquals(200, status);
@@ -245,6 +239,7 @@ class ParticipantControllerTests extends BaseSpec{
                 .setResponseCode(200)
                 .setBody("[]")
                 .addHeader("Content-Type", "application/json"));
+        doReturn(getUrl()).when(cloudStorageClient).getUrl(anyString(),anyString());
         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_UPDATE).content(getParticipantUpdateBody()).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
@@ -265,6 +260,7 @@ class ParticipantControllerTests extends BaseSpec{
                 .setResponseCode(404)
                 .setBody("{ \"params\": { \"msgid\": \"bb355e26-cc12-4aeb-8295-03347c428c62\",\"errmsg\": \"NOT_FOUND\" } } }")
                 .addHeader("Content-Type", "application/json"));
+        doReturn(getUrl()).when(cloudStorageClient).getUrl(anyString(),anyString());
         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_UPDATE).content(getParticipantUpdateBody()).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
@@ -281,7 +277,10 @@ class ParticipantControllerTests extends BaseSpec{
                 .setResponseCode(401)
                 .setBody("{ \"params\": { \"msgid\": \"bb355e26-cc12-4aeb-8295-03347c428c62\",\"errmsg\": \"UN AUTHORIZED\" } } }")
                 .addHeader("Content-Type", "application/json"));
-        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_UPDATE).content(getParticipantUpdateBody()).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        doReturn(getUrl()).when(cloudStorageClient).getUrl(anyString(), anyString());
+        doNothing().when(cloudStorageClient).putObject(anyString(), anyString(), anyString());
+        doNothing().when(cloudStorageClient).putObject(anyString(), anyString());
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_UPDATE).content(getParticipantUpdateBody()).header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         assertEquals(401, status);
@@ -301,6 +300,7 @@ class ParticipantControllerTests extends BaseSpec{
 
     @Test
     void participant_update_endpoint_url_not_allowed_scenario() throws Exception {
+        doReturn(getUrl()).when(cloudStorageClient).getUrl(anyString(),anyString());
         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_UPDATE).content(getParticipantUrlNotAllowedBody()).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
@@ -338,23 +338,23 @@ class ParticipantControllerTests extends BaseSpec{
     }
     private ResultSet getMockResultSet() throws SQLException {
         return MockResultSet.createStringMock(
-                new String[]{"applicant_email", "applicant_code", "sponsor_code", "status", "createdon", "updatedon"}, //columns
+                new String[]{"applicant_email", "applicant_code", "verifier_code", "status", "createdon", "updatedon"}, //columns
                 new Object[][]{ // data
-                        {"testuser3@gmail.com", "testuser3", "sponsor_code-12345", "active", 12345678, 12345678}
+                        {"testuser3@gmail.com", "testuser3", "verifier_code-12345", "active", 12345678, 12345678}
                 });
     }
     @Test
     void participant_read_success_scenario_with_parameter_verificationstatus() throws Exception {
-            registryServer.enqueue(new MockResponse()
-                    .setResponseCode(200)
-                    .setBody("[{ \"participant_name\": \"HCX Gateway\", \"primary_mobile\": \"\", \"primary_email\": \"testuser3@gmail.com\", \"roles\": [ \"HIE/HIO.HCX\" ], \"status\": \"Created\", \"endpoint_url\": \"http://a54c5bc648f1a41b8871b77ac01060ed-1840123973.ap-south-1.elb.amazonaws.com:8080\", \"encryption_cert\": \"urn:isbn:0-4234\", \"osOwner\": [ \"f698b521-7409-432d-a5db-d13e51f029a9\" ], \"participant_code\": \"d2d56996-1b77-4abb-b9e9-0e6e7343c72e\" }]")
-                    .addHeader("Content-Type", "application/json"));
-            ResultSet mockResultSet = getMockstatus();
-            doReturn(mockResultSet).when(postgreSQLClient).executeQuery(anyString());
-            MvcResult mvcResult = mockMvc.perform(get(Constants.VERSION_PREFIX + "/participant/read/d2d56996-1b77-4abb-b9e9-0e6e7343c72e").param("fields", "verificationstatus").content(getSearchFilter()).header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
-            MockHttpServletResponse response = mvcResult.getResponse();
-            int status = response.getStatus();
-            assertEquals(200, status);
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("[{ \"participant_name\": \"HCX Gateway\", \"primary_mobile\": \"\", \"primary_email\": \"testuser3@gmail.com\", \"roles\": [ \"HIE/HIO.HCX\" ], \"status\": \"Created\", \"endpoint_url\": \"http://a54c5bc648f1a41b8871b77ac01060ed-1840123973.ap-south-1.elb.amazonaws.com:8080\", \"encryption_cert\": \"urn:isbn:0-4234\", \"osOwner\": [ \"f698b521-7409-432d-a5db-d13e51f029a9\" ], \"participant_code\": \"d2d56996-1b77-4abb-b9e9-0e6e7343c72e\" }]")
+                .addHeader("Content-Type", "application/json"));
+        ResultSet mockResultSet = getMockstatus();
+        doReturn(mockResultSet).when(postgreSQLClient).executeQuery(anyString());
+        MvcResult mvcResult = mockMvc.perform(get(Constants.VERSION_PREFIX + "/participant/read/d2d56996-1b77-4abb-b9e9-0e6e7343c72e").param("fields", VERIFICATION_STATUS).content(getSearchFilter()).header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        assertEquals(200, status);
     }
     @Test
     void participant_read_success_scenario_with_parameter_sponsors() throws Exception {

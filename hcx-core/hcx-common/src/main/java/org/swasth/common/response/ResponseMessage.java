@@ -129,5 +129,6 @@ public class ResponseMessage {
     public static final String OTP_RECORD_NOT_EXIST = "Participant record does not exist, please register.";
     public static final String OTP_RETRY_LIMIT = "Email and phone OTP retry limit has reached, please re-generate otp and try again!";
     public static final String OTP_EXPIRED= "Email and phone OTP has expired, please re-generate otp and try again!";
+    public static final String MAXIMUM_OTP_REGENERATE = "Maximum limit for OTP regeneration has been reached. Please try again tomorrow!";
 
 }
