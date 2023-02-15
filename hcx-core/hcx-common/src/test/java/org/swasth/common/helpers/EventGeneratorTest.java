@@ -319,7 +319,8 @@ public class EventGeneratorTest {
 
     @Test
     public void emptyEventgeneartorConstructor(){
-        EventGenerator eventGenerator1 = new EventGenerator();
+        String tag = "test-tag";
+        EventGenerator eventGenerator1 = new EventGenerator(tag);
         assertNotNull(eventGenerator1);
     }
 }

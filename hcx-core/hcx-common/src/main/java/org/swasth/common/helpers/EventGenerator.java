@@ -21,9 +21,10 @@ public class EventGenerator {
     private List<String> redirectHeaders;
     private List<String> errorHeaders;
     private List<String> notificationHeaders;
-    private String tag;
+    private final String tag;
 
-    public EventGenerator() {
+    public EventGenerator(String tag) {
+        this.tag = tag;
     }
 
     public EventGenerator(List<String> protocolHeaders, List<String> joseHeaders, List<String> redirectHeaders, List<String> errorHeaders, List<String> notificationHeaders, String tag) {

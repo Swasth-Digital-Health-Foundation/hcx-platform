@@ -82,6 +82,9 @@ es:
   host: ${es_host:localhost}
   port: ${es_port:9200}
 
+tag:
+   name : ${tag_name:test-tag}
+
 #audit config
 audit:
   index: ${audit_index:hcx_audit}
