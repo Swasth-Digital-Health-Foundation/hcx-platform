@@ -20,7 +20,7 @@ export const Onboarding = () => {
     const panes = [
         { menuItem: 'Basic Details', render: () => <Tab.Pane><BasicDetails {...props} /></Tab.Pane> },
         { menuItem: 'OTP Verification', render: () => <Tab.Pane><OTPVerify {...props} /></Tab.Pane> },
-        { menuItem: 'Set Password', render: () => <Tab.Pane><SetPassword {...props} /></Tab.Pane> },
+        { menuItem: 'Set or Verify Password', render: () => <Tab.Pane><SetPassword {...props} /></Tab.Pane> },
         { menuItem: 'Update Complete Details', render: () => <Tab.Pane><UpdateRegistry {...props} /></Tab.Pane> },
     ]
 
