@@ -1,7 +1,7 @@
 import { Grid, Segment, Image, Message } from "semantic-ui-react"
 
 
-export const End = () => {
+export const Success = () => {
 
     return <>
         <Grid centered>

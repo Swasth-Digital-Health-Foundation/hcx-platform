@@ -34,9 +34,6 @@ export const PayorSystem = () => {
                 <Grid.Row columns="1">
                     <div className='payor-system-banner' style={{ width: '35%', marginTop: '30px' }}>
                         <Grid.Column>
-                            <Image src='/images/payorsystem_logo.png' style={{ height: '100px', width: '60px', marginRight: '20px' }} />
-                        </Grid.Column>
-                        <Grid.Column>
                             <p style={{ color: 'white', fontSize: '30px' }}><b>Mock Payor System </b><br /><div style={{ fontSize: '25px' }}>Onboarding to HCX</div></p>
                         </Grid.Column>
                     </div>
