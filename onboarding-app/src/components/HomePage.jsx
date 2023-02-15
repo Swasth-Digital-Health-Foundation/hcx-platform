@@ -7,7 +7,6 @@ import * as _ from 'lodash'
 import { useHistory } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
 import { updateForm } from '../store/store';
-import { generateToken, isPasswordSet } from '../service/KeycloakService';
 
 export const Home = () => {
 
@@ -27,14 +26,6 @@ export const Home = () => {
         get(apiVersion + "/participant/read/" + participantCode + "?fields=verificationStatus,sponsors")
             .then(( function (data) {
                 let participant = _.get(data, 'data.participants')[0] || {}
-                // if (await isPasswordSet(participant.osOwner[0])) {
-                //     if (participant.verificationStatus.status === 'successful') {
-                //         state = 3
-                //     } else {
-                //         state = 2
-                //     }
-                // } else 
-                console.log(participant)
                 if (participant.verificationstatus.status === 'successful') {
                     state = 2;
                 } else {
@@ -42,7 +33,7 @@ export const Home = () => {
                 }
                 dispatch(updateForm({ participant: participant, participant_code: participantCode, identity_verification: participant.sponsors[0] ? participant.sponsors[0].status : 'pending' }))
                 if (participant.status === 'Active') {
-                    history.push("/onboarded");
+                    history.push("/onboarding/success");
                 } else {
                     history.push("/onboarding/process" + "?state=" + state);
                 }
@@ -88,7 +79,7 @@ export const Home = () => {
                             <Message.Item><b>Set Password</b></Message.Item>
                             <Message.Item><b>Update Complete Details</b></Message.Item>
                         </Message.List><br/>
-                        <Message.Content style={{ textAlign:'left' }}><b>Existing User:</b> If you have started onboarding process and exited the form before completion. Please select <b>existing user</b> and enter your <b>participant code</b>. Form will take you to the stage from where you have exited.</Message.Content>
+                        <Message.Content style={{ textAlign:'left' }}><b>Existing User:</b> If the onboarding process has started and exited the form before completion. Please select <b>existing user</b> and enter your <b>participant code</b>. Form will take you to the stage from where you have exited.</Message.Content>
                     </Message>
                     <Form>
                         <Grid centered>
