@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Button, Form, Grid, Loader } from 'semantic-ui-react'
 import { post } from '../service/APIService';
 import { useForm } from "react-hook-form";
@@ -29,7 +29,6 @@ export const OTPVerify = ({ changeTab, formState, setState }) => {
                 position: toast.POSITION.TOP_CENTER, autoClose: 2000
             });
             reset()
-            console.log(formState)
             changeTab(2)
         })).catch(err => {
             if(_.get(err, 'response.data.error.message')){

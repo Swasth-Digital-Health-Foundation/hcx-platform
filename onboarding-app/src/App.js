@@ -6,26 +6,28 @@ import {
 } from "react-router-dom";
 import 'react-toastify/dist/ReactToastify.css';
 import { Onboarding } from './components/Onboarding';
-import {Home}  from './components/HomePage';
-import { End } from './components/EndPage';
+import { Home } from './components/HomePage';
+import { Success } from './components/Success';
 import { Onboarded } from './components/Onboarded';
-import { PayorSystem } from './components/PayorSystem'; 
-import { SetPassword } from './components/SetPassword';
+import { PayorSystem } from './components/PayorSystem';
 
 function App() {
+
+  const env = process.env.REACT_APP_ENV;
 
   return (
     <div className="App">
       <Router>
         <Switch>
-        <Route path="/onboarding/payorsystem">
-            <PayorSystem />
-          </Route>
+          {env === 'staging' ?
+            <Route path="/onboarding/payorsystem">
+              <PayorSystem />
+            </Route> : null}
           <Route path="/onboarding/process">
             <Onboarding />
           </Route>
-          <Route path="/onboarding/end">
-            <End />
+          <Route path="/onboarding/success">
+            <Success />
           </Route>
           <Route path="/onboarded">
             <Onboarded />
