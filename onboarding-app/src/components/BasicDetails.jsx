@@ -14,6 +14,8 @@ import { useSelector } from 'react-redux';
 export const BasicDetails = ({ changeTab, formState, setState }) => {
 
     const mockPayorCode = process.env.REACT_APP_MOCK_PAYOR_CODE;
+    const tag = process.env.REACT_APP_PARTICIPANT_TAG;
+    const env = process.env.REACT_APP_ENV;
 
     const { register, handleSubmit, watch, formState: { errors }, reset, setValue, getValues } = useForm();
     const [sending, setSending] = useState(false)
@@ -24,33 +26,22 @@ export const BasicDetails = ({ changeTab, formState, setState }) => {
     const [primaryMobile, setPrimaryMobile] = useState("")
     const [participantName, setParticipantName] = useState("")
     const [invalidApplicantCode, setInvalidApplicantCode] = useState(false)
-    const [mockPayorApplicantCode, setMockPayorApplicantCode] = useState(false)
     const watchRoles = watch("roles", "payor")
+    const watchOnboardThrough = watch("onboard_through", "")
     const watchApplicantCode = watch("applicant_code", "")
     const [applicantCode, setApplicantCode] = useState("")
     const [fetchResponse, setFetchResponse] = useState(false)
     const formStore = useSelector((state) => state)
     const query = useQuery();
     const [fields, setFields] = useState([]);
-    const [formErrors , setFormErrors] = useState({});
-    
+    const [formErrors, setFormErrors] = useState({});
+
 
     const getPayor = participantName => {
         const participant = payorList.find(participant => participant.participant_name === participantName);
         if (participant) {
             setPayor(participant)
         }
-
-        if (participant.participant_code === mockPayorCode) {
-            setValue('applicant_code', Math.floor(10000000 + Math.random() * 90000000).toString().substr(0, 8))
-            setMockPayorApplicantCode(true)
-        }
-
-    }
-
-    const setPrimaryEmailState = email => {
-        setPrimaryEmail(email);
-        setFormErrors({});
     }
 
     useEffect(() => {
@@ -70,7 +61,16 @@ export const BasicDetails = ({ changeTab, formState, setState }) => {
                 setPayorList([])
             }
         })()
+
+        if(env === 'poc'){
+            setValue("onboard_through", 'actual_payor');
+        }
     }, []);
+
+    const setPrimaryEmailState = email => {
+        setPrimaryEmail(email);
+        setFormErrors({});
+    }
 
     const onSubmit = (data) => {
         setSending(true)
@@ -89,38 +89,30 @@ export const BasicDetails = ({ changeTab, formState, setState }) => {
         } else if (data.roles === 'payor') {
             formData = [{ "participant": { "participant_name": data.participant_name, "primary_email": data.primary_email, "primary_mobile": data.primary_mobile, "roles": [data.roles] } }];
         } else if (payor != null && !invalidApplicantCode) {
-            formData = [{ "type": "onboard-through-verifier", "verifier_code": payor.participant_code, "applicant_code": data.applicant_code, additionalVerification: fields, "participant": { "participant_name": data.participant_name, "primary_email": data.primary_email, "primary_mobile": data.primary_mobile, "roles": ["provider"] } }];
-        } 
-
-
-        // TODO: make mode valid if payor is swasth mock payor
-        var mode;
-
-        if (process.env.REACT_APP_ENV === "Staging") {
-            mode = "mock-valid";
-        } else {
-            mode = 'actual'
+            formData = [{ "type": "onboard-through-verifier", "verifier_code": payor.participant_code, "applicant_code": applicantCode, additionalVerification: fields, "participant": { "participant_name": data.participant_name, "primary_email": data.primary_email, "primary_mobile": data.primary_mobile, "roles": ["provider"] } }];
         }
 
-        const headers = { "mode": mode }
+        if (data.onboard_through === 'mock_payor') {
+            formData[0]['verifier_code'] = mockPayorCode;
+        }
 
-        post("/participant/verify", JSON.stringify(formData), headers)
+        if (tag) {
+            formData[0].participant['tag'] = [tag]
+        }
+
+        post("/participant/verify", JSON.stringify(formData))
             .then((data => {
-                toast.success("Form is submitted successfully", {
-                    position: toast.POSITION.TOP_CENTER, autoClose: 2000
-                });
                 reset();
                 setState({ ...formState, ...(formData[0]), ...{ "participant_code": _.get(data, 'data.result.participant_code'), "verifier_code": payor.participant_code, "identity_verification": _.get(data, 'data.result.identity_verification') } })
-                console.log(formState)
                 changeTab(1)
             })).catch(err => {
-                if(_.get(err, 'response.data.error.message') && _.get(err, 'response.data.error.message') == "Username already invited / registered for Organisation"){
-                    setFormErrors({email:'This email address already exists'});
+                if (_.get(err, 'response.data.error.message') && _.get(err, 'response.data.error.message') == "Username already invited / registered for Organisation") {
+                    setFormErrors({ primary_email: 'This email address already exists' });
                 } else {
-                toast.error(_.get(err, 'response.data.error.message') || "Internal Server Error", {
-                    position: toast.POSITION.TOP_CENTER
-                });
-            }
+                    toast.error(_.get(err, 'response.data.error.message') || "Internal Server Error", {
+                        position: toast.POSITION.TOP_CENTER
+                    });
+                }
             }).finally(() => {
                 setSending(false)
             })
@@ -129,8 +121,6 @@ export const BasicDetails = ({ changeTab, formState, setState }) => {
     const getParticipantDetails = () => {
         setSending(true)
         let payload;
-        var mode;
-        let token = query.get("jwt_token");
 
         if (watchApplicantCode && payor) {
             payload = { "applicant_code": applicantCode, "verifier_code": payor.participant_code }
@@ -138,17 +128,6 @@ export const BasicDetails = ({ changeTab, formState, setState }) => {
             payload = { "verification_token": query.get("jwt_token") }
         }
 
-        //_.get(payor, "participant_code") === "1-29482df3-e875-45ef-a4e9-592b6f565782"
-
-        if (token) {
-            mode = "mock-valid";
-        } else if (process.env.REACT_APP_ENV === "Staging") {
-            mode = "mock-invalid";
-        } else {
-            mode = "actual";
-        }
-
-        const headers = { "mode": mode }
         const payorSystem = _.get(formStore.formState, 'payor_system');
 
         if (payorSystem) {
@@ -156,12 +135,8 @@ export const BasicDetails = ({ changeTab, formState, setState }) => {
             setSending(false)
             setFetchResponse(true);
         } else {
-            post("/participant/getInfo", JSON.stringify(payload), headers).then((data => {
+            post("/applicant/getinfo", JSON.stringify(payload)).then((data => {
                 let respBody = data.data;
-
-                if (_.size(respBody) == 0) {
-                    setFormErrors({applicant_code:'Details does not exist in payor system, Please enter.'});
-                }
 
                 const additionalFields = respBody.additionalVerification || [];
                 if (additionalFields.length != 0) {
@@ -170,18 +145,18 @@ export const BasicDetails = ({ changeTab, formState, setState }) => {
                     }
                 }
 
-                setDetails(respBody.applicant_name, respBody.email, respBody.mobile)
+                setDetails(_.get(respBody, 'applicant_name') || "", _.get(respBody, 'email') || "", _.get(respBody, 'mobile') || "")
                 setFetchResponse(true);
             })).catch((err => {
                 console.error(err)
                 let errMsg = _.get(err, 'response.data.error.message')
                 if (typeof errMsg === 'string' && errMsg.includes('UnknownHostException')) {
-                    setFormErrors({applicant_code:'Payor system in unavailable, Please try later!'});
+                    setFormErrors({ applicant_code: 'Payor system in unavailable, Please try later!' });
                 } else {
-                toast.error(errMsg || "Internal Server Error", {
-                    position: toast.POSITION.TOP_CENTER
-                });
-            }
+                    toast.error(errMsg || "Internal Server Error", {
+                        position: toast.POSITION.TOP_CENTER
+                    });
+                }
                 setInvalidApplicantCode(true);
                 setFetchResponse(true);
             })).finally(() => {
@@ -199,17 +174,24 @@ export const BasicDetails = ({ changeTab, formState, setState }) => {
         setValue("participant_name", participantName);
     }
 
+    function setMockDetails() {
+        payor['participant_code'] = mockPayorCode;
+        setApplicantCode(Math.floor(10000000 + Math.random() * 90000000).toString().substr(0, 8))
+        setFetchResponse(true)
+    }
+
+    function resetMockDetails() {
+        if (payor) {
+            delete payor['participant_code']
+        }
+        setApplicantCode('')
+        setFetchResponse(false)
+    }
+
     return <>
         <ToastContainer autoClose={false} />
         <Form disabled={sending} onSubmit={handleSubmit(onSubmit)} className="container">
             {sending && <Loader active />}
-            {!isJWTPresent && watchRoles === "provider" && payorList.length == 1 && payorList[0].participant_code === mockPayorCode ?
-                <Message>
-                    <Message.Content style={{ textAlign: 'left' }}><b>Onboard through Mock Payor:</b> Select <b>Swasth Mock Payer</b> from payors dropdown. Applicant code will be auto populated and you have to enter the basic details.</Message.Content><br />
-                    <Message.Content style={{ textAlign: 'left' }}><b>Onboard through Actual Payor:</b> Select the payor from payors dropdown and enter the <b>applicant code</b> and click on <b>fetch details</b>. Using the applicant code, details will fetched from the selected payor system and populated in the form.</Message.Content>
-                </Message>
-                : null
-            }
             <div className='form-main' style={{ marginTop: '25px' }}>
                 <Grid columns='equal'>
                     {!isJWTPresent ?
@@ -240,19 +222,55 @@ export const BasicDetails = ({ changeTab, formState, setState }) => {
                             /> Provider
                         </Form.Field> : null}
                 </Grid>
-                {!isJWTPresent && watchRoles === "provider" ?
-                    <Form.Field disabled={sending} className={{ 'error': _.size(_.keys(errors)) > 0 && _.size(_.keys(payor)) == 0 }} required>
+                { env === 'staging' ?
+                <Grid columns='equal'>
+                    {!isJWTPresent && watchRoles === "provider" ?
+                        <Form.Field disabled={sending} className={{ 'error': 'onboard_through' in errors }} required>
+                            <label>Onboard Through:</label>
+                        </Form.Field> : null}
+                    {!isJWTPresent && watchRoles === "provider" ?
+                        <Form.Field disabled={sending}>
+                            <input
+                                id="mock_payor"
+                                type="radio"
+                                label='Mock Payor'
+                                name='onboard_through'
+                                value='mock_payor'
+                                onClick={e => { setMockDetails() }}
+                                {...register("onboard_through", { required: true })}
+                            /> Mock Payor
+                        </Form.Field> : null}
+                    {!isJWTPresent && watchRoles === "provider" ?
+                        <Form.Field disabled={sending}>
+                            <input
+                                id="actual_payor"
+                                type="radio"
+                                label='actual_payor'
+                                name='onboard_through'
+                                value='actual_payor'
+                                onClick={e => { resetMockDetails() }}
+                                {...register("onboard_through", { required: true })}
+                            /> Actual Payor
+                        </Form.Field> : null}
+                </Grid> : null }
+                {watchOnboardThrough === 'mock_payor' ?
+                    <Message disabled={sending} style={{ textAlign: 'left' }} visible>Please enter the below details</Message>
+                    : null}
+                {watchRoles === "provider" && watchOnboardThrough === 'actual_payor' ?
+                    <Message disabled={sending} style={{ textAlign: 'left' }} visible>Select the payor and enter the <b>applicant code</b> and click on <b>fetch details</b>. Using the applicant code, details will fetched from the selected payor system and populated in the form.</Message>
+                    : null}
+                {!isJWTPresent && watchRoles === "provider" && watchOnboardThrough === 'actual_payor' ?
+                    <Form.Field disabled={sending} style={{ marginTop: '12px' }} className={{ 'error': _.size(_.keys(errors)) > 0 && _.size(_.keys(payor)) == 0 }} required>
                         <label>Payors</label>
                         <Dropdown className='input-text' placeholder='Select Payor' fluid selection options={payorList} onChange={e => getPayor(e?.value)} required />
                     </Form.Field>
                     : null
                 }
-                {!isJWTPresent && watchRoles === "provider" ?
+                {!isJWTPresent && watchRoles === "provider" && watchOnboardThrough === 'actual_payor' ?
                     <Grid.Row>
-                        <Form.Field  style={{ marginBottom: '15px' }} className={{ 'error': 'applicant_code' in errors }} required>
+                        <Form.Field disabled={sending} style={{ marginBottom: '15px' }} className={{ 'error': 'applicant_code' in errors }} required>
                             <label>Applicant Code</label>
-                            <input className='input-text' placeholder='Enter Applicant Code' disabled={mockPayorApplicantCode || fetchResponse} onChange={e => setApplicantCode(e.target.value)} {...register("applicant_code", { required: true })} />
-                            {formErrors.applicant_code && (<Grid.Row centered><div style={{"color":"red"}}>{formErrors.applicant_code}</div></Grid.Row>)}
+                            <input className='input-text' placeholder='Enter Applicant Code' onInput={e => setApplicantCode(e.target.value)} {...register("applicant_code", { required: true })} />
                         </Form.Field>
                         {fetchResponse ? null :
                             <Button disabled={sending} onClick={e => {
@@ -265,20 +283,20 @@ export const BasicDetails = ({ changeTab, formState, setState }) => {
                     : null
                 }
                 {watchRoles === "payor" || fetchResponse === true ?
-                    <Form.Field disabled={sending} className={{ 'error': primaryEmail === '' && 'primary_email' in errors }} required>
+                    <Form.Field disabled={sending} className={{ 'error': (primaryEmail === '' && 'primary_email' in errors) || formErrors.primary_email }} required>
                         <label>Email</label>
-                        <input className='input-text' type='email' placeholder='Enter Email' value={primaryEmail} disabled={primaryEmail != '' && ((watchApplicantCode != '' && invalidApplicantCode) || isJWTPresent)} onInput={e => setPrimaryEmailState(e.target.value)} {...register("primary_email", { required: true, pattern: /^\S+@\S+$/i, message: "Email required" })} />
-                        {formErrors.email && (<div style={{"color":"red"}}>{formErrors.email}</div>)}
+                        <input className='input-text' type='email' placeholder='Enter Email' value={primaryEmail} onInput={e => setPrimaryEmailState(e.target.value)} {...register("primary_email", { required: true, pattern: /^\S+@\S+$/i, message: "Email required" })} />
+                        {formErrors.primary_email && (<Grid.Row centered><div style={{ color: 'red', marginTop: '5px' }}>{formErrors.primary_email}</div></Grid.Row>)}
                     </Form.Field> : null}
                 {watchRoles === "payor" || fetchResponse === true ?
                     <Form.Field disabled={sending} className={{ 'error': primaryMobile === '' && 'primary_mobile' in errors }} required>
                         <label>Phone Number</label>
-                        <input className='input-text' placeholder='Enter Phone Number' value={primaryMobile} disabled={primaryMobile != '' && ((watchApplicantCode != '' && invalidApplicantCode) || isJWTPresent)} onInput={e => setPrimaryMobile(e.target.value)} {...register("primary_mobile", { required: true, pattern: /^[0-9]{10}/i })} />
+                        <input className='input-text' placeholder='Enter Phone Number' value={primaryMobile} onInput={e => setPrimaryMobile(e.target.value)} {...register("primary_mobile", { required: true, pattern: /^[0-9]{10}/i })} />
                     </Form.Field> : null}
                 {watchRoles === "payor" || fetchResponse === true ?
                     <Form.Field disabled={sending} className={{ 'error': participantName === '' && 'participant_name' in errors }} required>
                         <label>Organisation Name</label>
-                        <input className='input-text' placeholder='Enter Organisation Name' value={participantName} disabled={participantName != '' && ((watchApplicantCode != '' && invalidApplicantCode) || isJWTPresent)} onInput={e => setParticipantName(e.target.value)}  {...register("participant_name", { required: true })} />
+                        <input className='input-text' placeholder='Enter Organisation Name' value={participantName} onInput={e => setParticipantName(e.target.value)}  {...register("participant_name", { required: true })} />
                     </Form.Field> : null}
                 {fields.length !== 0 ?
                     <b>Additional Fields(Requested by payor):</b>
