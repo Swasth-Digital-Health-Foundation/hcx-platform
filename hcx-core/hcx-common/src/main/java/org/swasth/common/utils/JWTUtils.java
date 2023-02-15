@@ -65,7 +65,7 @@ public class JWTUtils {
         payload.put(SUB, sub);
         payload.put(ISS, iss);
         payload.put(IAT, date);
-        payload.put(EXPIRY, new Date(date + expiryTime).getTime());
+        payload.put(EXP, new Date(date + expiryTime).getTime());
         return generateJWS(headers, payload, privateKey);
     }
 }
