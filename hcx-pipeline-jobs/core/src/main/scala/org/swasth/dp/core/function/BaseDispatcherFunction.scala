@@ -234,10 +234,8 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
     audit.put(Constants.RECIPIENT_NAME, getCDataStringValue(event, Constants.RECIPIENT, Constants.PARTICIPANT_NAME))
     audit.put(Constants.SENDER_PRIMARY_EMAIL, getCDataStringValue(event, Constants.SENDER, Constants.PRIMARY_EMAIL))
     audit.put(Constants.RECIPIENT_PRIMARY_EMAIL, getCDataStringValue(event, Constants.RECIPIENT, Constants.PRIMARY_EMAIL))
+    getTag(audit)
     audit.put(Constants.PAYLOAD, removeSensitiveData(payload))
-    if (!StringUtils.isEmpty(config.tag)) {
-      audit.put(Constants.TAG, config.tag);
-    }
     audit
   }
 
@@ -299,4 +297,16 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
     emptyCiphertext
   }
 
+
+  def getTag(audit:util.HashMap[String,AnyRef]): Unit ={
+    var setTag = Set(String)
+    setTag += getCDataListValue(audit,Constants.SENDER,Constants.TAG)
+    setTag += getCDataListValue(audit,Constants.RECIPIENT,Constants.TAG)
+    if (!StringUtils.isEmpty(config.tag)) {
+      audit.put(Constants.TAG, config.tag);
+      setTag += config.tag
+    }
+    val tag = setTag.toString.replace("[", "").replace("]", "").replace(" ", "")
+    audit.put(Constants.TAGS, tag)
+  }
 }

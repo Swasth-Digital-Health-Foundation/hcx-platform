@@ -4,11 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.StringUtils;
 import org.swasth.common.dto.Request;
 import org.swasth.common.dto.Response;
-import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.utils.JWTUtils;
 
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static org.swasth.common.utils.Constants.*;
@@ -130,9 +128,7 @@ public class EventGenerator {
         event.put(RECIPIENT_NAME, request.getRecipientName());
         event.put(SENDER_PRIMARY_EMAIL, request.getSenderPrimaryEmail());
         event.put(RECIPIENT_PRIMARY_EMAIL, request.getRecipientPrimaryEmail());
-        if (!StringUtils.isEmpty(tag)) {
-            event.put(TAG, tag);
-        }
+        getTag(request,event);
         return event;
     }
 
@@ -263,4 +259,15 @@ public class EventGenerator {
         return event;
     }
 
+    public void getTag(Request request, Map<String,Object> event){
+        Set<String> setTag = new HashSet<>();
+        setTag.add(request.getSenderTag().toString());
+        setTag.add(request.getRecipientTag().toString());
+        if (!StringUtils.isEmpty(tag)) {
+            event.put(TAG, tag);
+            setTag.add(tag);
+        }
+        String tag = setTag.toString().replace("[","").replace("]","").replace(" ","");
+        event.put(TAGS, tag);
+    }
 }
