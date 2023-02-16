@@ -1,0 +1,16 @@
+name: Onboarding App Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Environment
+        default: dev
+        required: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
