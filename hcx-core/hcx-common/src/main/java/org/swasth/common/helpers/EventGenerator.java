@@ -267,7 +267,7 @@ public class EventGenerator {
             event.put(TAG, tag);
             setTag.add(tag);
         }
-        String tag = setTag.toString().replace("[","").replace("]","").replace(" ","");
-        event.put(TAGS, tag);
+        String tags = setTag.toString().replace("[","").replace("]","").replace(" ","");
+        event.put(TAGS, tags);
     }
 }
