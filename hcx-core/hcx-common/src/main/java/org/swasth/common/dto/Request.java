@@ -188,11 +188,9 @@ public class Request {
     public Map<String, Object> recipientDetails() {
         return (Map<String, Object>) payload.getOrDefault(RECIPIENTDETAILS,new HashMap<>());
     }
-    public List<String> getSenderTag(){
-        return (List<String>) senderDetails().getOrDefault(TAG,"");
-    }
-    public List<String> getRecipientTag(){
-        return (List<String>) recipientDetails().getOrDefault(TAG,"");
-    }
+    public List<String> getSenderTag() { return (List<String>) senderDetails().getOrDefault(TAG,new ArrayList<>());}
+
+    public List<String> getRecipientTag() { return (List<String>) recipientDetails().getOrDefault(TAG,new ArrayList<>());}
+
 }
 
