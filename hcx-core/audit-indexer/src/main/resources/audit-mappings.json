@@ -89,6 +89,9 @@
     },
     "tag": {
       "type": "keyword"
+    },
+    "tags":{
+      "type":"keyword"
     }
   }
 }
