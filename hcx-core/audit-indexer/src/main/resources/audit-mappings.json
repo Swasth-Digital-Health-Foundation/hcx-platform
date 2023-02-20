@@ -87,9 +87,6 @@
     "recipientPrimaryEmail":{
       "type":"keyword"
     },
-    "tag": {
-      "type": "keyword"
-    },
     "tags":{
       "type":"keyword"
     }

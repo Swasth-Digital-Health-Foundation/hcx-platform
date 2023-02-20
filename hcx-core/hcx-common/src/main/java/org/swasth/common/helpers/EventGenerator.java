@@ -260,14 +260,13 @@ public class EventGenerator {
     }
 
     public void getTag(Request request, Map<String,Object> event){
-        Set<String> setTag = new HashSet<>();
-        setTag.add(request.getSenderTag().toString());
-        setTag.add(request.getRecipientTag().toString());
+        Set<String> tagSet = new HashSet<>();
+        tagSet.add(request.getSenderTag().toString());
+        tagSet.add(request.getRecipientTag().toString());
         if (!StringUtils.isEmpty(tag)) {
-            event.put(TAG, tag);
-            setTag.add(tag);
+            tagSet.add(tag);
         }
-        String tags = setTag.toString().replace("[","").replace("]","").replace(" ","");
+        String tags = tagSet.toString().replace("[","").replace("]","").replace(" ","");
         event.put(TAGS, tags);
     }
 }

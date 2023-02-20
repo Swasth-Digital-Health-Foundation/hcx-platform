@@ -299,14 +299,13 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
 
 
   def getTag(audit:util.HashMap[String,AnyRef]): Unit ={
-    var setTag : Set[String] = Set()
-    setTag += getCDataListValue(audit,Constants.SENDER,Constants.TAGS).toString
-    setTag += getCDataListValue(audit,Constants.RECIPIENT,Constants.TAGS).toString
+    var tagSet : Set[String] = Set()
+    tagSet += getCDataListValue(audit,Constants.SENDER,Constants.TAGS).toString
+    tagSet += getCDataListValue(audit,Constants.RECIPIENT,Constants.TAGS).toString
     if (!StringUtils.isEmpty(config.tag)) {
-      audit.put(Constants.TAG, config.tag);
-      setTag += config.tag
+      tagSet += config.tag
     }
-    val tag = setTag.toString.replace("[", "").replace("]", "").replace(" ", "")
+    val tag = tagSet.toString.replace("[", "").replace("]", "").replace(" ", "")
     audit.put(Constants.TAGS, tag)
   }
 }
