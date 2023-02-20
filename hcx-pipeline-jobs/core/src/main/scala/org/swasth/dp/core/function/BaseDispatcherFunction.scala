@@ -299,9 +299,9 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
 
 
   def getTag(audit:util.HashMap[String,AnyRef]): Unit ={
-    var setTag = Set(String)
-    setTag += getCDataListValue(audit,Constants.SENDER,Constants.TAG)
-    setTag += getCDataListValue(audit,Constants.RECIPIENT,Constants.TAG)
+    var setTag : Set[String] = Set()
+    setTag += getCDataListValue(audit,Constants.SENDER,Constants.TAGS).toString
+    setTag += getCDataListValue(audit,Constants.RECIPIENT,Constants.TAGS).toString
     if (!StringUtils.isEmpty(config.tag)) {
       audit.put(Constants.TAG, config.tag);
       setTag += config.tag
