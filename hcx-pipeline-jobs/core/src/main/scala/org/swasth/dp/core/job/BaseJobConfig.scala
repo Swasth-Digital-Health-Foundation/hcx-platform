@@ -123,4 +123,6 @@ class BaseJobConfig(val config: Config, val jobName: String) extends Serializabl
 
   val hcxInstanceName: String = config.getString("hcx.instanceName")
 
+  //tag configuration
+  val tag: String = config.getString("tag")
 }
