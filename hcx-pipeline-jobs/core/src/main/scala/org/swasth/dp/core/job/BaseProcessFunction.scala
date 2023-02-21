@@ -143,6 +143,7 @@ abstract class BaseProcessFunction[T, R](config: BaseJobConfig) extends ProcessF
   def getDetails(code: String): util.Map[String, AnyRef] = {
     val key = Constants.PARTICIPANT_CODE
     val responseBody = registryService.getParticipantDetails(s"""{"$key":{"eq":"$code"}}""")
+    println(responseBody.get(0))
     if (!responseBody.isEmpty) {
       val collectionMap = responseBody.get(0)
       collectionMap

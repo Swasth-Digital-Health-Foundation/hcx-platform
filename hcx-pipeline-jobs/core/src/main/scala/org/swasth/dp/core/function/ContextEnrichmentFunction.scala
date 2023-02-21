@@ -29,6 +29,7 @@ class ContextEnrichmentFunction(config: BaseJobConfig) (implicit val stringTypeI
 
     // Fetch the sender and receiver details from registry or cache
     val sender = fetchDetails(senderCode)
+    println(sender)
     if (!sender.isEmpty) {
       val enrichedSender = createSenderContext(sender, action)
       if (MapUtils.isNotEmpty(enrichedSender))
@@ -36,6 +37,8 @@ class ContextEnrichmentFunction(config: BaseJobConfig) (implicit val stringTypeI
     }
 
     val recipient = fetchDetails(recipientCode)
+    println(recipient)
+    println(recipient.get(Constants.TAGS))
     if (!recipient.isEmpty) {
       val enrichedRecipient = createRecipientContext(recipient, action)
       if (MapUtils.isNotEmpty(enrichedRecipient))
