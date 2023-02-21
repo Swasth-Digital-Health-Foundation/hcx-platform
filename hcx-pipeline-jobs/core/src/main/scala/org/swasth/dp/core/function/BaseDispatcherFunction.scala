@@ -299,11 +299,11 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
 
 
   def getTag(event : util.Map[String, AnyRef],audit: util.HashMap[String, AnyRef]): Unit = {
-    var tagSet: Set[String] = Set()
-    tagSet += getCDataListValue(event, Constants.SENDER, Constants.TAGS).toString
-    tagSet += getCDataListValue(event, Constants.RECIPIENT, Constants.TAGS).toString
+    val tagSet = new java.util.HashSet[String]()
+    tagSet.add(getCDataListValue(event, Constants.SENDER, Constants.TAGS).toString)
+    tagSet.add(getCDataListValue(event, Constants.RECIPIENT, Constants.TAGS).toString)
     if (!StringUtils.isEmpty(config.tag)) {
-      tagSet += config.tag
+      tagSet.add(config.tag)
     }
     val tag = tagSet.toString.replace("[", "").replace("]", "").replace(" ", "")
     if (tag.nonEmpty) {
