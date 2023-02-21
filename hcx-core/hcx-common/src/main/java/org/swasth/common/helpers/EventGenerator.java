@@ -129,6 +129,7 @@ public class EventGenerator {
         event.put(SENDER_PRIMARY_EMAIL, request.getSenderPrimaryEmail());
         event.put(RECIPIENT_PRIMARY_EMAIL, request.getRecipientPrimaryEmail());
         getTag(request,event);
+        System.out.println(event);
         return event;
     }
 
