@@ -69,7 +69,7 @@ abstract class BaseProcessFunction[T, R](config: BaseJobConfig) extends ProcessF
   }
 
   def getCDataListValue(event: util.Map[String, AnyRef], participant: String, key: String): util.List[String] = {
-    event.getOrDefault(Constants.CDATA, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]].getOrDefault(participant, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]].getOrDefault(key, new util.ArrayList[String]).asInstanceOf[util.List[String]]  }
+    event.getOrDefault(Constants.CDATA, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]].getOrDefault(participant, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]].getOrDefault(key, new util.ArrayList[String]()).asInstanceOf[util.List[String]]  }
 
   def getCDataStringValue(event: util.Map[String, AnyRef], participant: String, key: String): String = {
     event.getOrDefault(Constants.CDATA, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]].getOrDefault(participant, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]].get(key).asInstanceOf[String]
@@ -143,7 +143,6 @@ abstract class BaseProcessFunction[T, R](config: BaseJobConfig) extends ProcessF
   def getDetails(code: String): util.Map[String, AnyRef] = {
     val key = Constants.PARTICIPANT_CODE
     val responseBody = registryService.getParticipantDetails(s"""{"$key":{"eq":"$code"}}""")
-    println(responseBody.get(0))
     if (!responseBody.isEmpty) {
       val collectionMap = responseBody.get(0)
       collectionMap
