@@ -234,8 +234,8 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
     audit.put(Constants.RECIPIENT_NAME, getCDataStringValue(event, Constants.RECIPIENT, Constants.PARTICIPANT_NAME))
     audit.put(Constants.SENDER_PRIMARY_EMAIL, getCDataStringValue(event, Constants.SENDER, Constants.PRIMARY_EMAIL))
     audit.put(Constants.RECIPIENT_PRIMARY_EMAIL, getCDataStringValue(event, Constants.RECIPIENT, Constants.PRIMARY_EMAIL))
-    audit.put(Constants.PAYLOAD, removeSensitiveData(payload))
     getTag(audit)
+    audit.put(Constants.PAYLOAD, removeSensitiveData(payload))
     println(audit)
     audit
   }
@@ -301,6 +301,8 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
 
   def getTag(audit: util.HashMap[String, AnyRef]): Unit = {
     var tagSet: Set[String] = Set()
+    print(getCDataListValue(audit,Constants.SENDER,Constants.TAGS))
+    print(getCDataListValue(audit,Constants.RECIPIENT,Constants.TAGS))
     tagSet += getCDataListValue(audit, Constants.SENDER, Constants.TAGS).toString
     tagSet += getCDataListValue(audit, Constants.RECIPIENT, Constants.TAGS).toString
     println(tagSet)

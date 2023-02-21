@@ -69,8 +69,7 @@ abstract class BaseProcessFunction[T, R](config: BaseJobConfig) extends ProcessF
   }
 
   def getCDataListValue(event: util.Map[String, AnyRef], participant: String, key: String): util.List[String] = {
-    event.getOrDefault(Constants.CDATA, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]].getOrDefault(participant, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]].getOrDefault(key, new util.ArrayList[String]()).asInstanceOf[util.List[String]]
-  }
+    event.getOrDefault(Constants.CDATA, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]].getOrDefault(participant, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]].getOrDefault(key, new util.ArrayList[String]).asInstanceOf[util.List[String]]  }
 
   def getCDataStringValue(event: util.Map[String, AnyRef], participant: String, key: String): String = {
     event.getOrDefault(Constants.CDATA, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]].getOrDefault(participant, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]].get(key).asInstanceOf[String]
