@@ -270,6 +270,7 @@ public class EventGenerator {
         }
         String tags = tagSet.toString().replace("[","").replace("]","").replace(" ","");
         System.out.println(tags);
+        
         if(!tag.isEmpty()) {
             event.put(TAGS, tags);
         }
