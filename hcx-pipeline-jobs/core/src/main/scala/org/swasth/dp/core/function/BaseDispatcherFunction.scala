@@ -234,8 +234,8 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
     audit.put(Constants.RECIPIENT_NAME, getCDataStringValue(event, Constants.RECIPIENT, Constants.PARTICIPANT_NAME))
     audit.put(Constants.SENDER_PRIMARY_EMAIL, getCDataStringValue(event, Constants.SENDER, Constants.PRIMARY_EMAIL))
     audit.put(Constants.RECIPIENT_PRIMARY_EMAIL, getCDataStringValue(event, Constants.RECIPIENT, Constants.PRIMARY_EMAIL))
-    getTag(audit)
     audit.put(Constants.PAYLOAD, removeSensitiveData(payload))
+    getTag(audit)
     audit
   }
 
