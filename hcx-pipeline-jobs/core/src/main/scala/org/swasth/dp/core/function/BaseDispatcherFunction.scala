@@ -234,8 +234,8 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
     audit.put(Constants.RECIPIENT_NAME, getCDataStringValue(event, Constants.RECIPIENT, Constants.PARTICIPANT_NAME))
     audit.put(Constants.SENDER_PRIMARY_EMAIL, getCDataStringValue(event, Constants.SENDER, Constants.PRIMARY_EMAIL))
     audit.put(Constants.RECIPIENT_PRIMARY_EMAIL, getCDataStringValue(event, Constants.RECIPIENT, Constants.PRIMARY_EMAIL))
-    getTag(audit)
     audit.put(Constants.PAYLOAD, removeSensitiveData(payload))
+    getTag(event,audit)
     audit
   }
 
@@ -298,14 +298,16 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
   }
 
 
-  def getTag(audit:util.HashMap[String,AnyRef]): Unit ={
-    var tagSet : Set[String] = Set()
-    tagSet += getCDataListValue(audit,Constants.SENDER,Constants.TAGS).toString
-    tagSet += getCDataListValue(audit,Constants.RECIPIENT,Constants.TAGS).toString
+  def getTag(event : util.Map[String, AnyRef],audit: util.HashMap[String, AnyRef]): Unit = {
+    val tagSet = new java.util.HashSet[String]()
+    tagSet.add(getCDataListValue(event, Constants.SENDER, Constants.TAGS).toString)
+    tagSet.add(getCDataListValue(event, Constants.RECIPIENT, Constants.TAGS).toString)
     if (!StringUtils.isEmpty(config.tag)) {
-      tagSet += config.tag
+      tagSet.add(config.tag)
     }
     val tag = tagSet.toString.replace("[", "").replace("]", "").replace(" ", "")
-    audit.put(Constants.TAGS, tag)
+    if (tag.nonEmpty) {
+      audit.put(Constants.TAGS, tag)
+    }
   }
 }
