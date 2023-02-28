@@ -1,5 +1,6 @@
 package org.swasth.hcx.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.swasth.common.dto.AuditSearchRequest;
 import org.swasth.common.utils.Constants;
+import org.swasth.common.utils.JSONUtils;
 import org.swasth.hcx.utils.SearchUtil;
 
 import java.util.ArrayList;
@@ -32,7 +34,8 @@ public class AuditService {
      * @param request DTO containing info about what to search for.
      * @return Returns a list of found audit events.
      */
-    public List<Map<String, Object>> search(final AuditSearchRequest request, String action) {
+    public List<Map<String, Object>> search(final AuditSearchRequest request, String action){
+        logger.info("Audit search started: {}", request.toString());
         request.setAction(action);
         final SearchRequest searchRequest = SearchUtil.buildSearchRequest(
         		Constants.HEADER_AUDIT,
@@ -50,6 +53,7 @@ public class AuditService {
             for (SearchHit hit : searchHits) {
                 audit.add(hit.getSourceAsMap());
             }
+            logger.info("Audit search completed :: count: {}", audit.size());
             return audit;
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
