@@ -17,6 +17,7 @@ import org.swasth.common.exception.ErrorCodes;
 import org.swasth.common.helpers.EventGenerator;
 import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.NotificationUtils;
+import org.swasth.hcx.controllers.v1.NotificationController;
 import org.swasth.hcx.handlers.EventHandler;
 import org.swasth.kafka.client.IEventService;
 import org.swasth.postgresql.IDatabaseService;
@@ -32,7 +33,7 @@ import static org.swasth.common.utils.Constants.*;
 @Service
 public class NotificationService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(NotificationService.class);
+    private static final Logger logger = LoggerFactory.getLogger(NotificationService.class);
 
     @Value("${postgres.subscription.tablename}")
     private String postgresSubscription;
@@ -94,6 +95,7 @@ public class NotificationService {
         list.removeAll(removeNotificationList);
         response.setNotifications(list);
         response.setCount(list.size());
+        logger.info("Notification list is fetched successfully :: count: {}", list.size());
     }
 
     /**
@@ -140,9 +142,9 @@ public class NotificationService {
         //Update the Database
         String subscriptionFromDB = updateSubscriptionById(subscriptionId, statusCode);
         if (subscriptionFromDB.equals(subscriptionId)) {
-            LOG.info("Subscription record updated for subscriptionId:" + subscriptionId.replaceAll("[\n\r\t]", "_"));
+            logger.info("Subscription record updated for subscriptionId:" + subscriptionId.replaceAll("[\n\r\t]", "_"));
         } else {
-            LOG.info("Subscription record is not updated for subscriptionId:" + subscriptionId.replaceAll("[\n\r\t]", "_"));
+            logger.info("Subscription record is not updated for subscriptionId:" + subscriptionId.replaceAll("[\n\r\t]", "_"));
             throw new ClientException(ErrorCodes.ERR_INVALID_SUBSCRIPTION_ID, MessageFormat.format(
                     UPDATE_MESSAGE_SUBSCRIPTION_ID, subscriptionId));
         }
@@ -154,6 +156,7 @@ public class NotificationService {
         auditIndexer.createDocument(eventGenerator.generateOnSubscriptionAuditEvent(request, subscription.getRecipient_code(), subscriptionId, QUEUED_STATUS, statusCode));
         //Set the response data
         response.setSubscriptionId(subscriptionId);
+        logger.info("Onsubscription request is processed successfully :: subscription id: {}", subscriptionId);
     }
 
     public void processSubscription(Request request, String statusCode, Response response) throws Exception {
@@ -167,6 +170,7 @@ public class NotificationService {
         //Set the response data
         List<String> subscriptionList = new ArrayList<>(subscriptionMap.values());
         response.setSubscription_list(subscriptionList);
+        logger.info(statusCode.equals(ACTIVE) ? "Subscription" : "Unsubscription" + " request is processed successfully");
     }
 
     private Map<String, String> insertRecords(String topicCode, String statusCode, List<String> senderList, String notificationRecipientCode) throws Exception {
@@ -187,7 +191,7 @@ public class NotificationService {
                     subscriptionMap.put(senderCode, updateResult.getString(SUBSCRIPTION_ID));
                 }
         }
-        LOG.info("Records inserted/Updated into DB");
+        logger.info("Records inserted/Updated into DB");
         return subscriptionMap;
     }
 
@@ -229,6 +233,7 @@ public class NotificationService {
             eventHandler.createAudit(eventGenerator.createAuditLog(response.getSubscriptionId(), NOTIFICATION, getCData(request),
                     getEData(response.getSubscriptionStatus(), prevStatus, updatedProps)));
             auditIndexer.createDocument(eventGenerator.generateSubscriptionUpdateAuditEvent(request, response));
+            logger.info("Subscription is updated successfully :: subscription id: {}", response.getSubscriptionId());
         } else {
             throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, SUBSCRIPTION_DOES_NOT_EXIST);
         }
@@ -293,6 +298,7 @@ public class NotificationService {
                         resultSet.getString(Constants.SENDER_CODE), resultSet.getString(RECIPIENT_CODE), resultSet.getLong(EXPIRY), resultSet.getBoolean(IS_DELEGATED));
                 subscriptionList.add(subscription);
             }
+            logger.info("Subscription list is fetched successfully");
             return subscriptionList;
         } finally {
             if (resultSet != null) resultSet.close();

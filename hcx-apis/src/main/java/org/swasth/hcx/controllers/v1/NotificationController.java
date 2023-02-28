@@ -1,5 +1,7 @@
 package org.swasth.hcx.controllers.v1;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -23,6 +25,8 @@ import static org.swasth.common.utils.Constants.*;
 @RequestMapping(Constants.VERSION_PREFIX)
 public class NotificationController extends BaseController {
 
+    private static final Logger logger = LoggerFactory.getLogger(NotificationController.class);
+
     @Value("${kafka.topic.notification}")
     private String kafkaTopic;
 
@@ -34,6 +38,7 @@ public class NotificationController extends BaseController {
         NotificationListRequest request = new NotificationListRequest(requestBody);
         Response response = new Response();
         try {
+            logger.info("Processing request :: action: {} :: request: {}", NOTIFICATION_LIST, request);
             notificationService.getNotifications(request, response);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
@@ -46,6 +51,7 @@ public class NotificationController extends BaseController {
         Request request = new Request(requestBody, NOTIFICATION_SUBSCRIBE);
         Response response = new Response();
         try {
+            logger.info("Processing request :: action: {} :: request: {}", NOTIFICATION_SUBSCRIBE, requestBody);
             notificationService.processSubscription(request, ACTIVE, response);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
@@ -58,6 +64,7 @@ public class NotificationController extends BaseController {
         Request request = new Request(requestBody, NOTIFICATION_UNSUBSCRIBE);
         Response response = new Response();
         try {
+            logger.info("Processing request :: action: {} :: request: {}", NOTIFICATION_UNSUBSCRIBE, requestBody);
             notificationService.processSubscription(request, INACTIVE, response);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
@@ -70,6 +77,7 @@ public class NotificationController extends BaseController {
         Request request = new Request(requestBody, NOTIFICATION_ON_SUBSCRIBE);
         Response response = new Response();
         try {
+            logger.info("Processing request :: action: {} :: request: {}", NOTIFICATION_ON_SUBSCRIBE, requestBody);
             notificationService.processOnSubscription(request, response);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
@@ -82,6 +90,7 @@ public class NotificationController extends BaseController {
         NotificationListRequest request = new NotificationListRequest(requestBody);
         Response response = new Response();
         try {
+            logger.info("Processing request :: action: {} :: request: {}", NOTIFICATION_SUBSCRIPTION_LIST, requestBody);
             notificationService.getSubscriptions(request, response);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
@@ -94,6 +103,7 @@ public class NotificationController extends BaseController {
         Request request = new Request(requestBody, NOTIFICATION_NOTIFY);
         Response response = new Response(request.getCorrelationId());
         try {
+            logger.info("Processing request :: action: {} :: request: {}", NOTIFICATION_NOTIFY, requestBody);
             notificationService.notify(request, kafkaTopic);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
@@ -106,6 +116,7 @@ public class NotificationController extends BaseController {
         Request request = new Request(requestBody, NOTIFICATION_SUBSCRIPTION_UPDATE);
         Response response = new Response();
         try {
+            logger.info("Processing request :: action: {} :: request: {}", NOTIFICATION_SUBSCRIPTION_UPDATE, requestBody);
             notificationService.subscriptionUpdate(request, response);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {

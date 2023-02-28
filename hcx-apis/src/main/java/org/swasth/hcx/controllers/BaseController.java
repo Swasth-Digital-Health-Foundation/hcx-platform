@@ -1,5 +1,7 @@
 package org.swasth.hcx.controllers;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
@@ -10,6 +12,7 @@ import org.swasth.common.dto.Response;
 import org.swasth.common.dto.ResponseError;
 import org.swasth.common.exception.*;
 import org.swasth.common.helpers.EventGenerator;
+import org.swasth.hcx.controllers.v1.ParticipantController;
 import org.swasth.hcx.handlers.EventHandler;
 import org.swasth.hcx.service.AuditService;
 
@@ -18,6 +21,8 @@ import java.util.Map;
 import static org.swasth.common.utils.Constants.ERROR_STATUS;
 
 public class BaseController {
+
+    private static final Logger logger = LoggerFactory.getLogger(BaseController.class);
 
     @Autowired
     protected Environment env;
@@ -53,6 +58,7 @@ public class BaseController {
         Request request = new Request(requestBody, apiAction);
         Response response = new Response(request);
         try {
+            logger.info("Processing request :: action: {} :: api call id: {}", apiAction, request.getApiCallId());
             eventHandler.processAndSendEvent(kafkaTopic, request);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
@@ -67,6 +73,8 @@ public class BaseController {
     }
 
     protected ResponseEntity<Object> exceptionHandler(Response response, Exception e){
+        logger.error("Exception occurred :: message: {}", e.getMessage());
+        e.printStackTrace();
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         ErrorCodes errorCode = ErrorCodes.INTERNAL_SERVER_ERROR;
         if (e instanceof ClientException) {

@@ -55,11 +55,12 @@ public class EventHandler {
         String query = String.format("INSERT INTO %s (mid,data,action,status,retrycount,lastupdatedon) VALUES ('%s','%s','%s','%s',%d,%d)",
                 postgresTableName, request.getMid(), JSONUtils.serialize(PayloadUtils.removeParticipantDetails(request.getPayload())),
                 request.getApiAction(), QUEUED_STATUS, 0, System.currentTimeMillis());
-        logger.debug("Mid: " + request.getMid() + " :: Event: " + metadataEvent);
+        logger.info("Mid: " + request.getMid() + " :: Event: " + metadataEvent);
         postgreSQLClient.execute(query);
         kafkaClient.send(payloadTopic, key, payloadEvent);
         kafkaClient.send(metadataTopic, key, metadataEvent);
         auditIndexer.createDocument(eventGenerator.generateAuditEvent(request));
+        logger.info("Request processed and event is pushed to kafka");
     }
 
     public void createAudit(Map<String,Object> event) throws Exception {
