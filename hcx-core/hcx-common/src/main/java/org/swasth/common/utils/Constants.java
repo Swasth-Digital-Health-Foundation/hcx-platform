@@ -298,4 +298,6 @@ public class Constants {
    public static final String IAT = "iat";
    public static final String EXP = "exp";
 
+    public static final String PARTICIPANTS = "participants";
+
 }

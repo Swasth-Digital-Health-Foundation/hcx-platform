@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.swasth.apigateway.exception.ErrorCodes;
 import org.swasth.apigateway.exception.ServerException;
+import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.HttpUtils;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.redis.cache.RedisCache;
@@ -36,6 +37,12 @@ public class RegistryService {
     @Value("${redis.expires}")
     private int redisExpires;
 
+    @Value("${hcx-api.basePath}")
+    private String hcxApiUrl;
+
+    @Value("${version.internal}")
+    private String internalVersion;
+
     public Map<String, Object> fetchDetails(String filterKey, String filterValue) throws Exception {
         String requestBody = "{\"filters\":{\"" + filterKey + "\":{\"eq\":\"" + filterValue + "\"}}}";
         try {
@@ -58,18 +65,15 @@ public class RegistryService {
     }
 
     public List<Map<String, Object>> getDetails(String requestBody) throws Exception {
-        String url = registryUrl + "/api/v1/Organisation/search";
-        HttpResponse response = null;
-        try {
-            response = HttpUtils.post(url, requestBody);
-        } catch (UnirestException e) {
-            throw new ServerException(ErrorCodes.SERVICE_UNAVAILABLE, MessageFormat.format(REGISTRY_SERVICE_ERROR, e.getMessage()));
-        }
-        List<Map<String, Object>> details;
+        HttpResponse<String> response = HttpUtils.post( hcxApiUrl+ "/" + internalVersion + "/participant/search", requestBody);
+        Map<String,Object> respMap = (Map<String, Object>) JSONUtils.deserialize(response.getBody(), Map.class);
+        List<Map<String,Object>> details;
         if (response.getStatus() == 200) {
-            details = JSONUtils.deserialize((String) response.getBody(), ArrayList.class);
+            details = (List<Map<String, Object>>) respMap.get(Constants.PARTICIPANTS);
         } else {
-            throw new Exception(MessageFormat.format(REGISTRY_SERVICE_FETCH_MSG, response.getStatus()));
+            String errMsg = ((Map<String,Object>) respMap.getOrDefault("error",  new HashMap<>())).getOrDefault("message", respMap).toString();
+            logger.error("Error while fetching the participant details from the registry :: status: {} :: message: {}", response.getStatus(), errMsg);
+            throw new ServerException(ErrorCodes.INTERNAL_SERVER_ERROR, MessageFormat.format("Error while fetching the participant details from the registry :: status: {0} :: message: {1}", response.getStatus(),  errMsg));
         }
         return details;
     }

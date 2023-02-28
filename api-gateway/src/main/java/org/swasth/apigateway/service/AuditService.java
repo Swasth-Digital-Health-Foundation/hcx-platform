@@ -19,6 +19,7 @@ import org.swasth.common.utils.HttpUtils;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.utils.UUIDUtils;
 
+import java.text.MessageFormat;
 import java.util.*;
 import static org.swasth.common.utils.Constants.*;
 
@@ -50,9 +51,10 @@ public class AuditService {
         List<Map<String,Object>> details;
         if (response != null && response.getStatus() == 200) {
             details = JSONUtils.deserialize((String) response.getBody(), ArrayList.class);
-            System.out.println("Audit filters: " + filters + " Audit data count: " + details.size() + " Audit data: " + details);
+            logger.info("Audit filters: " + filters + " Audit data count: " + details.size() + " Audit data: " + details);
         } else {
-            throw new Exception("Error in fetching the audit logs" + response.getStatus());
+            logger.error("Error while fetching the audit data :: status: {} :: message: {}", response.getStatus(), response.getBody());
+            throw new ServerException(ErrorCodes.INTERNAL_SERVER_ERROR, MessageFormat.format("Error while fetching the audit data :: status: {0} :: message: {1}", response.getStatus(), response.getBody()));
         }
         return details;
     }
