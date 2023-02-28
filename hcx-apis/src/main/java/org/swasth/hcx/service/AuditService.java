@@ -1,6 +1,5 @@
 package org.swasth.hcx.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;

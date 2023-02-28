@@ -12,7 +12,6 @@ import org.swasth.common.dto.Response;
 import org.swasth.common.dto.ResponseError;
 import org.swasth.common.exception.*;
 import org.swasth.common.helpers.EventGenerator;
-import org.swasth.hcx.controllers.v1.ParticipantController;
 import org.swasth.hcx.handlers.EventHandler;
 import org.swasth.hcx.service.AuditService;
 

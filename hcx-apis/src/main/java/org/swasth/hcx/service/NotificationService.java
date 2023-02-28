@@ -17,7 +17,6 @@ import org.swasth.common.exception.ErrorCodes;
 import org.swasth.common.helpers.EventGenerator;
 import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.NotificationUtils;
-import org.swasth.hcx.controllers.v1.NotificationController;
 import org.swasth.hcx.handlers.EventHandler;
 import org.swasth.kafka.client.IEventService;
 import org.swasth.postgresql.IDatabaseService;
@@ -142,9 +141,9 @@ public class NotificationService {
         //Update the Database
         String subscriptionFromDB = updateSubscriptionById(subscriptionId, statusCode);
         if (subscriptionFromDB.equals(subscriptionId)) {
-            logger.info("Subscription record updated for subscriptionId:" + subscriptionId.replaceAll("[\n\r\t]", "_"));
+            logger.info("Subscription record updated for subscriptionId: {}", subscriptionId.replaceAll("[\n\r\t]", "_"));
         } else {
-            logger.info("Subscription record is not updated for subscriptionId:" + subscriptionId.replaceAll("[\n\r\t]", "_"));
+            logger.info("Subscription record is not updated for subscriptionId: {}", subscriptionId.replaceAll("[\n\r\t]", "_"));
             throw new ClientException(ErrorCodes.ERR_INVALID_SUBSCRIPTION_ID, MessageFormat.format(
                     UPDATE_MESSAGE_SUBSCRIPTION_ID, subscriptionId));
         }
