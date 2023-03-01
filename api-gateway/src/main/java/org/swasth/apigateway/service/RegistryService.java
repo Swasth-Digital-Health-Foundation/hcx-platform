@@ -65,15 +65,15 @@ public class RegistryService {
     }
 
     public List<Map<String, Object>> getDetails(String requestBody) throws Exception {
-        HttpResponse<String> response = HttpUtils.post( hcxApiUrl+ "/" + internalVersion + "/participant/search", requestBody);
-        Map<String,Object> respMap = (Map<String, Object>) JSONUtils.deserialize(response.getBody(), Map.class);
-        List<Map<String,Object>> details;
+        HttpResponse<String> response = HttpUtils.post(hcxApiUrl + "/" + internalVersion + "/participant/search", requestBody);
+        Map<String, Object> respMap = (Map<String, Object>) JSONUtils.deserialize(response.getBody(), Map.class);
+        List<Map<String, Object>> details;
         if (response.getStatus() == 200) {
             details = (List<Map<String, Object>>) respMap.get(Constants.PARTICIPANTS);
         } else {
-            String errMsg = ((Map<String,Object>) respMap.getOrDefault("error",  new HashMap<>())).getOrDefault("message", respMap).toString();
+            String errMsg = ((Map<String, Object>) respMap.getOrDefault("error", new HashMap<>())).getOrDefault("message", JSONUtils.serialize(respMap)).toString();
             logger.error("Error while fetching the participant details from the registry :: status: {} :: message: {}", response.getStatus(), errMsg);
-            throw new ServerException(ErrorCodes.INTERNAL_SERVER_ERROR, MessageFormat.format("Error while fetching the participant details from the registry :: status: {0} :: message: {1}", response.getStatus(),  errMsg));
+            throw new ServerException(ErrorCodes.INTERNAL_SERVER_ERROR, MessageFormat.format("Error while fetching the participant details from the registry :: status: {0} :: message: {1}", response.getStatus(), errMsg));
         }
         return details;
     }
