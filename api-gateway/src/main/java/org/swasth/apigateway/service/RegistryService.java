@@ -1,7 +1,6 @@
 package org.swasth.apigateway.service;
 
 import kong.unirest.HttpResponse;
-import kong.unirest.UnirestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,13 +14,9 @@ import org.swasth.common.utils.JSONUtils;
 import org.swasth.redis.cache.RedisCache;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static org.swasth.common.response.ResponseMessage.REGISTRY_SERVICE_ERROR;
-import static org.swasth.common.response.ResponseMessage.REGISTRY_SERVICE_FETCH_MSG;
 
 @Service
 public class RegistryService {
@@ -66,16 +61,16 @@ public class RegistryService {
 
     public List<Map<String, Object>> getDetails(String requestBody) throws Exception {
         HttpResponse<String> response = HttpUtils.post(hcxApiUrl + "/" + internalVersion + "/participant/search", requestBody);
-        Map<String, Object> respMap = (Map<String, Object>) JSONUtils.deserialize(response.getBody(), Map.class);
+        Map<String, Object> respMap = JSONUtils.deserialize(response.getBody(), Map.class);
         List<Map<String, Object>> details;
         if (response.getStatus() == 200) {
             details = (List<Map<String, Object>>) respMap.get(Constants.PARTICIPANTS);
         } else {
             String errMsg;
-            if(respMap.get("error") instanceof String) {
-                errMsg = respMap.get("error").toString();
+            if(respMap.get(Constants.ERROR) instanceof String) {
+                errMsg = respMap.get(Constants.ERROR).toString();
             } else {
-                errMsg = ((Map<String,Object>) respMap.getOrDefault("error",  new HashMap<>())).getOrDefault("message", respMap).toString();
+                errMsg = ((Map<String,Object>) respMap.getOrDefault(Constants.ERROR,  new HashMap<>())).getOrDefault("message", respMap).toString();
             }
             logger.error("Error while fetching the participant details from the registry :: status: {} :: message: {}", response.getStatus(), errMsg);
             throw new ServerException(ErrorCodes.INTERNAL_SERVER_ERROR, MessageFormat.format("Error while fetching the participant details from the registry :: status: {0} :: message: {1}", response.getStatus(), errMsg));
