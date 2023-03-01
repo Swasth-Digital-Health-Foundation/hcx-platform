@@ -48,6 +48,17 @@ class RegistryServiceTest {
     }
 
     @Test
+    void check_registry_service_internal_server_exception_scenario() {
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(500)
+                .setBody("{ \"timestamp\": \"2023-02-28T10:45:22.744+00:00\", \"error\": { \"code\": \"null\", \"message\": \"Invalid search filters\", \"trace\": null } }")
+                .addHeader("Content-Type", "application/json"));
+
+        Exception exception = assertThrows(Exception.class, () -> registryService.fetchDetails("osid", "test_123"));
+        assertTrue(exception.getMessage().contains("Error while fetching the participant details from the registry"));
+    }
+
+    @Test
     void check_registry_service_success_scenario() throws Exception {
         registryServer.enqueue(new MockResponse()
                 .setResponseCode(200)
@@ -67,17 +78,6 @@ class RegistryServiceTest {
 
         Map<String,Object> result = registryService.fetchDetails("osid", "test_123");
         assertTrue(result.isEmpty());
-    }
-
-    @Test
-    void check_registry_service_internal_server_exception_scenario() {
-        registryServer.enqueue(new MockResponse()
-                .setResponseCode(500)
-                .setBody("{ \"timestamp\": \"2023-02-28T10:45:22.744+00:00\", \"error\": { \"code\": \"null\", \"message\": \"Invalid search filters\", \"trace\": null } }")
-                .addHeader("Content-Type", "application/json"));
-
-        Exception exception = assertThrows(Exception.class, () -> registryService.fetchDetails("osid", "test_123"));
-        assertTrue(exception.getMessage().contains("Error while fetching the participant details from the registry"));
     }
 
 }
