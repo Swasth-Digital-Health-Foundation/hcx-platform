@@ -19,19 +19,23 @@ public class EventGenerator {
     private List<String> redirectHeaders;
     private List<String> errorHeaders;
     private List<String> notificationHeaders;
-    private final String tag;
+    private String tag;
 
     public EventGenerator(String tag) {
         this.tag = tag;
     }
 
     public EventGenerator(List<String> protocolHeaders, List<String> joseHeaders, List<String> redirectHeaders, List<String> errorHeaders, List<String> notificationHeaders, String tag) {
+        this(protocolHeaders, joseHeaders, redirectHeaders, errorHeaders, notificationHeaders);
+        this.tag = tag;
+    }
+
+    public EventGenerator(List<String> protocolHeaders, List<String> joseHeaders, List<String> redirectHeaders, List<String> errorHeaders, List<String> notificationHeaders) {
         this.protocolHeaders = protocolHeaders;
         this.joseHeaders = joseHeaders;
         this.redirectHeaders = redirectHeaders;
         this.errorHeaders = errorHeaders;
         this.notificationHeaders = notificationHeaders;
-        this.tag = tag;
     }
 
     public String generatePayloadEvent(Request request) throws JsonProcessingException {
