@@ -1,12 +1,7 @@
 name: HCX Platform - Build
 
 on:
-  workflow_dispatch:
-    inputs:
-      branch:
-        description: Build branch
-        default: sprint-32
-        required: true
+  workflow_dispatch
 
 #    tags:
 #      - *
