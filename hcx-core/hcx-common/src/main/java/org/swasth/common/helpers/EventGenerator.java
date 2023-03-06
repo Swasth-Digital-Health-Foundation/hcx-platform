@@ -45,6 +45,20 @@ public class EventGenerator {
         return JSONUtils.serialize(event);
     }
 
+    public Map<String, Object> createAuditLog(String id, String objectType, Map<String, Object> cdata, Map<String, Object> edata) {
+        Map<String, Object> event = new HashMap<>();
+        event.put(EID, AUDIT);
+        event.put(ETS, System.currentTimeMillis());
+        event.put(MID, UUID.randomUUID().toString());
+        Map<String, Object> objectMap = new HashMap<>();
+        objectMap.put(ID, id);
+        objectMap.put(TYPE, objectType);
+        event.put(OBJECT, objectMap);
+        event.put(CDATA, cdata);
+        event.put(EDATA, edata);
+        return event;
+    }
+
     public String generateMetadataEvent(Request request) throws Exception {
         Map<String, Object> event = new HashMap<>();
         if (request.getPayload().containsKey(PAYLOAD) && !request.getApiAction().equals(NOTIFICATION_NOTIFY)) {
@@ -103,20 +117,6 @@ public class EventGenerator {
             event.put(ACTION, request.getApiAction());
         }
         return JSONUtils.serialize(event);
-    }
-
-    public Map<String, Object> createAuditLog(String id, String objectType, Map<String, Object> cdata, Map<String, Object> edata) {
-        Map<String, Object> event = new HashMap<>();
-        event.put(EID, AUDIT);
-        event.put(ETS, System.currentTimeMillis());
-        event.put(MID, UUID.randomUUID().toString());
-        Map<String, Object> objectMap = new HashMap<>();
-        objectMap.put(ID, id);
-        objectMap.put(TYPE, objectType);
-        event.put(OBJECT, objectMap);
-        event.put(CDATA, cdata);
-        event.put(EDATA, edata);
-        return event;
     }
 
     public String generateOnSubscriptionEvent(String apiAction, String recipientCode, String senderCode, String subscriptionId, String status) throws JsonProcessingException {
