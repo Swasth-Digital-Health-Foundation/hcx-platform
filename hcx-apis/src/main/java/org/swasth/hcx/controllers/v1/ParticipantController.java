@@ -1,5 +1,7 @@
 package org.swasth.hcx.controllers.v1;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -22,6 +24,8 @@ import static org.swasth.common.utils.Constants.*;
 @RestController()
 @RequestMapping(Constants.VERSION_PREFIX)
 public class ParticipantController extends BaseController {
+
+    private static final Logger logger = LoggerFactory.getLogger(ParticipantController.class);
 
     @Value("${registry.basePath}")
     private String registryUrl;
@@ -49,12 +53,14 @@ public class ParticipantController extends BaseController {
     @PostMapping(PARTICIPANT_CREATE)
     public ResponseEntity<Object> create(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
         try {
+            logger.info("Creating participant: {}", requestBody);
             Participant participant = new Participant(requestBody);
             service.validate(requestBody,true);
             String code = participant.generateCode(participant.getprimaryEmail(), fieldSeparator, hcxInstanceName);
             service.getCertificatesUrl(requestBody, code);
             service.validateCertificates(requestBody);
             return getSuccessResponse(service.invite(requestBody, registryUrl, header, code));
+
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }
@@ -63,6 +69,7 @@ public class ParticipantController extends BaseController {
     @PostMapping(PARTICIPANT_UPDATE)
     public ResponseEntity<Object> update(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
         try {
+            logger.info("Updating participant: {}", requestBody);
             Participant participant = new Participant(requestBody);
             String code = participant.getParticipantCode();
             service.getCertificatesUrl(requestBody, code);
@@ -77,6 +84,7 @@ public class ParticipantController extends BaseController {
     @PostMapping(PARTICIPANT_SEARCH)
     public ResponseEntity<Object> search(@RequestParam(required = false) String fields, @RequestBody Map<String, Object> requestBody) {
         try {
+            logger.info("Searching participant: {}", requestBody);
             return getSuccessResponse(service.search(requestBody, registryUrl, fields));
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
@@ -86,6 +94,7 @@ public class ParticipantController extends BaseController {
     @GetMapping(PARTICIPANT_READ)
     public ResponseEntity<Object> read(@PathVariable("participantCode") String code, @RequestParam(required = false) String fields) {
         try {
+            logger.info("Reading participant :: participant code: {}", code);
             String pathParam = "";
             if (fields != null && fields.toLowerCase().contains(SPONSORS)) {
                 pathParam = SPONSORS;
@@ -99,12 +108,12 @@ public class ParticipantController extends BaseController {
     @PostMapping(PARTICIPANT_DELETE)
     public ResponseEntity<Object> delete(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
         try {
+            logger.info("Deleting participant: {}", requestBody);
             if (!requestBody.containsKey(PARTICIPANT_CODE))
                 throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_CODE, PARTICIPANT_CODE_MSG);
             Participant participant = new Participant(requestBody);
-            String code = participant.getParticipantCode();
-            Map<String, Object> details = service.getParticipant(code,registryUrl);
-            return getSuccessResponse(service.delete(details, registryUrl, header, code));
+            Map<String, Object> details = service.getParticipant(participant.getParticipantCode(),registryUrl);
+            return getSuccessResponse(service.delete(details, registryUrl, header, participant.getParticipantCode()));
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }
