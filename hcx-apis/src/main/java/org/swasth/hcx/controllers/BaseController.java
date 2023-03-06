@@ -72,8 +72,7 @@ public class BaseController {
     }
 
     protected ResponseEntity<Object> exceptionHandler(Response response, Exception e){
-        logger.error("Exception occurred :: message: {}", e.getMessage());
-        e.printStackTrace();
+        logger.error("Exception occurred :: message: {} :: trace: {}", e.getMessage(), e.getStackTrace());
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         ErrorCodes errorCode = ErrorCodes.INTERNAL_SERVER_ERROR;
         if (e instanceof ClientException) {

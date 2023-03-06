@@ -45,8 +45,7 @@ public class AuditService {
 
             return searchInternal(searchRequest);
         } catch (Exception e) {
-            logger.error("Error while processing audit search :: {}", e.getMessage());
-            e.printStackTrace();
+            logger.error("Error while processing audit search :: message: {} :: trace: {}", e.getMessage(), e.getStackTrace());
             return Collections.emptyList();
         }
     }
