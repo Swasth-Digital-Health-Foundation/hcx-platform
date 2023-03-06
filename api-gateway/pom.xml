@@ -16,12 +16,14 @@
     <properties>
         <java.version>1.8</java.version>
         <spring-cloud.version>2020.0.4</spring-cloud.version>
+        <argLine>-XX:+StartAttachListener<!-- required to attach test reports --> </argLine>
+        <repository.owner>saurabh-singh-17</repository.owner>
     </properties>
     <repositories>
     <repository>
         <id>github</id>
         <name>GitHub Apache Maven Packages</name>
-        <url>https://maven.pkg.github.com/saurabh-singh-17/*</url>
+        <url>https://maven.pkg.github.com/${repository.owner}/*</url>
     </repository>
     </repositories>
     <dependencies>
