@@ -182,6 +182,8 @@ public class Constants {
     public static final List<String> SEARCH_REQ_KEYS = Arrays.asList("filters","time_period");
     public static final String SEARCH_FILTERS = "filters";
     public static final List<String>  SEARCH_FILTER_KEYS = Arrays.asList("senders","receivers","entity_types","workflow_ids","case_ids","entity_status");
+    // allowed fields for update
+    public static final List<String> ALLOWED_FIELDS_UPDATE = Arrays.asList(PARTICIPANT_CODE, ENDPOINT_URL, SIGNING_CERT_PATH, ENCRYPTION_CERT, "status", "address", "payment_details", PHONE);
     public static final String SEARCH_FILTERS_RECEIVER = "receivers";
     public static final List<String> SEARCH_RES_KEYS = Arrays.asList("count","entity_counts");
     public static final String HCX_REGISTRY_CODE = "hcx-registry-code";

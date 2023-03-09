@@ -6,7 +6,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.swasth.common.helpers.EventGenerator;
+import org.swasth.common.service.EmailService;
 import org.swasth.common.service.RegistryService;
+import org.swasth.common.service.SMSService;
 import org.swasth.common.utils.JWTUtils;
 import org.swasth.common.utils.NotificationUtils;
 
@@ -51,6 +53,14 @@ public class GenericConfiguration {
         return new JWTUtils();
     }
 
+    @Bean
+    public SMSService smsService(){
+        return new SMSService();
+    }
+    @Bean
+    public EmailService emailService(){
+        return new EmailService();
+    }
     @Bean
     public EventGenerator eventGenerator() {
         return new EventGenerator(getProtocolHeaders(), getJoseHeaders(), getRedirectHeaders(), getErrorHeaders(), getNotificationHeaders() ,tag);

@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 import org.swasth.common.dto.Response;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
+import org.swasth.common.service.EmailService;
+import org.swasth.common.service.SMSService;
 import org.swasth.common.utils.Constants;
 import org.swasth.hcx.controllers.BaseController;
 import org.swasth.hcx.models.Participant;
@@ -32,10 +34,8 @@ public class ParticipantController extends BaseController {
 
     @Value("${redis.expires}")
     private int redisExpires;
-
     @Value("${participantCode.fieldSeparator}")
     private String fieldSeparator;
-
     @Value("${hcx.instanceName}")
     private String hcxInstanceName;
 
@@ -49,6 +49,12 @@ public class ParticipantController extends BaseController {
     private String onboardOtpTable;
     @Autowired
     private ParticipantService service;
+
+    @Autowired
+    private SMSService smsService;
+
+    @Autowired
+    private EmailService emailService;
 
     @PostMapping(PARTICIPANT_CREATE)
     public ResponseEntity<Object> create(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
@@ -70,12 +76,12 @@ public class ParticipantController extends BaseController {
     public ResponseEntity<Object> update(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
         try {
             logger.info("Updating participant: {}", requestBody);
+            service.updateAllowedFields(requestBody);
             Participant participant = new Participant(requestBody);
             String code = participant.getParticipantCode();
             service.getCertificatesUrl(requestBody, code);
             service.validate(requestBody,false);
-            Map<String, Object> details = service.getParticipant(code,registryUrl);
-            return getSuccessResponse(service.update(requestBody, details, registryUrl, header, code));
+            return getSuccessResponse(service.update(requestBody,registryUrl, header, code));
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }

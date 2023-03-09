@@ -1,6 +1,8 @@
 package org.swasth.hcx.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import kong.unirest.HttpResponse;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +18,8 @@ import org.swasth.common.dto.ParticipantResponse;
 import org.swasth.common.dto.Sponsor;
 import org.swasth.common.exception.*;
 import org.swasth.common.helpers.EventGenerator;
+import org.swasth.common.service.EmailService;
+import org.swasth.common.service.SMSService;
 import org.swasth.common.utils.HttpUtils;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.utils.JWTUtils;
@@ -48,6 +52,27 @@ public class ParticipantService {
     @Value("${registry.apiPath}")
     private String registryApiPath;
 
+    @Value("${aws.accessKey}")
+    private String accessKey;
+
+    @Value("${aws.accessSecret}")
+    private String accessSecret;
+
+    @Value("${aws.region}")
+    private String awsRegion;
+
+    @Value("${email.id}")
+    private String adminMail;
+
+    @Value("${email.pwd}")
+    private String adminPwd;
+
+    @Value("${aws.updateMessage}")
+    private String updatePhoneMessage;
+
+    @Value("${email.updateMessage}")
+    private String updateEmailMessage;
+
     @Autowired
     protected IDatabaseService postgreSQLClient;
     @Autowired
@@ -62,6 +87,10 @@ public class ParticipantService {
     private EventGenerator eventGenerator;
     @Autowired
     private EventHandler eventHandler;
+    @Autowired
+    private SMSService smsService;
+    @Autowired
+    private EmailService emailService;
 
     public ParticipantResponse invite(Map<String, Object> requestBody, String registryUrl, HttpHeaders header, String code) throws Exception {
         String url = registryUrl + registryApiPath + INVITE;
@@ -79,16 +108,30 @@ public class ParticipantService {
         return responseHandler(response, code);
     }
 
-    public ParticipantResponse update(Map<String, Object> requestBody, Map<String, Object> participant, String registryUrl, HttpHeaders header, String code) throws Exception {
-        String url = registryUrl + registryApiPath + participant.get(OSID);
+    public ParticipantResponse update(Map<String, Object> requestBody, String registryUrl, HttpHeaders header, String code) throws Exception {
+        Map<String, Object> details = getParticipant(code,registryUrl);
+        String url = registryUrl + registryApiPath + details.get(OSID);
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put(AUTHORIZATION, Objects.requireNonNull(header.get(AUTHORIZATION)).get(0));
         HttpResponse<String> response = HttpUtils.put(url, JSONUtils.serialize(requestBody), headersMap);
         if (response.getStatus() == 200) {
+            smsService.sendSMS((String) details.get(PRIMARY_MOBILE),JSONUtils.serialize(requestBody),accessKey,accessSecret,awsRegion);
+            sendEmail(details,requestBody,code);
             deleteCache(code);
-            logger.info("Updated participant :: participant code: {}", requestBody.get(PARTICIPANT_CODE));
+            logger.info("Updated participant :: participant code: {}", code);
         }
         return responseHandler(response, code);
+    }
+
+    public void sendEmail(Map<String,Object> details,Map<String,Object> requestBody,String code) {
+        String emailMsg = updateEmailMessage;
+        String content = requestBody.keySet().stream()
+                .filter(key -> !"participant_code".equals(key))
+                .collect(Collectors.joining("</li><li>", "<ol><li>", "</li></ol>"));
+        emailMsg = emailMsg.replace("PARTICIPANT_NAME", StringUtils.capitalize((String) details.get(PARTICIPANT_NAME)))
+                .replace("PARTICIPANT_CODE", code)
+                .replace("UPDATED_FIELDS", content);
+        emailService.sendMail((String) details.get(PRIMARY_EMAIL),"Participant Update Details",emailMsg,adminMail,adminPwd);
     }
 
     public ParticipantResponse search(Map<String, Object> requestBody, String registryUrl, String fields) throws Exception {
@@ -272,5 +315,16 @@ public class ParticipantService {
 
     public String getRequestBody(String code) {
         return "{ \"filters\": { \"participant_code\": { \"eq\": \" " + code + "\" } } }";
+    }
+
+    public void updateAllowedFields(Map<String,Object> requestBody) throws ClientException {
+        List<String> requestFields = new ArrayList<>(requestBody.keySet());
+        if (!ALLOWED_FIELDS_UPDATE.containsAll(requestFields)) {
+            ALLOWED_FIELDS_UPDATE.forEach(requestFields::remove);
+            throw new ClientException(ErrorCodes.ERR_UPDATE_PARTICIPANT_DETAILS,"Fields not allowed for update: " + requestFields);
+        }
+        if (requestBody.containsKey("status") && !requestBody.get("status").equals(INACTIVE) && !requestBody.get("status").equals(BLOCKED)) {
+            throw new ClientException(ErrorCodes.ERR_UPDATE_PARTICIPANT_DETAILS,STATUS_UPDATE_INACTIVE);
+        }
     }
 }
