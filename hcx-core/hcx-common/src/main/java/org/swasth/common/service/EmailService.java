@@ -10,7 +10,9 @@ import java.util.concurrent.CompletableFuture;
 public class EmailService {
 
       public CompletableFuture<Boolean> sendMail(String to, String subject, String message,String adminMail,String adminPwd){
-            //Get properties object
+          System.out.println("message" + message);
+
+          //Get properties object
             Properties properties = new Properties();
             properties.put("mail.smtp.host", "smtp.gmail.com");
             properties.put("mail.smtp.port", "465");

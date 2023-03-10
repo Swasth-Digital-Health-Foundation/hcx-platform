@@ -8,13 +8,14 @@ import com.amazonaws.services.sns.AmazonSNSClient;
 import com.amazonaws.services.sns.model.PublishRequest;
 import com.amazonaws.services.sns.model.PublishResult;
 
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 public class SMSService {
 
     public CompletableFuture<String> sendSMS(String phone, String message,String accessKey,String accessSecret,String awsRegion) {
 
+        System.out.println("SMS is " + message);
+        System.out.println("phone number " + phone);
         String phoneNumber = "+91"+ phone;  // Ex: +91XXX4374XX
         AmazonSNS snsClient = AmazonSNSClient.builder().withCredentials(new AWSCredentialsProvider() {
             @Override

@@ -1,6 +1,5 @@
 package org.swasth.hcx.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import kong.unirest.HttpResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
@@ -115,23 +114,12 @@ public class ParticipantService {
         headersMap.put(AUTHORIZATION, Objects.requireNonNull(header.get(AUTHORIZATION)).get(0));
         HttpResponse<String> response = HttpUtils.put(url, JSONUtils.serialize(requestBody), headersMap);
         if (response.getStatus() == 200) {
-            smsService.sendSMS((String) details.get(PRIMARY_MOBILE),JSONUtils.serialize(requestBody),accessKey,accessSecret,awsRegion);
-            sendEmail(details,requestBody,code);
+            sendEmail(details,requestBody,code,updateEmailMessage);
+            sendPhone(details,requestBody,code,updatePhoneMessage);
             deleteCache(code);
             logger.info("Updated participant :: participant code: {}", code);
         }
         return responseHandler(response, code);
-    }
-
-    public void sendEmail(Map<String,Object> details,Map<String,Object> requestBody,String code) {
-        String emailMsg = updateEmailMessage;
-        String content = requestBody.keySet().stream()
-                .filter(key -> !"participant_code".equals(key))
-                .collect(Collectors.joining("</li><li>", "<ol><li>", "</li></ol>"));
-        emailMsg = emailMsg.replace("PARTICIPANT_NAME", StringUtils.capitalize((String) details.get(PARTICIPANT_NAME)))
-                .replace("PARTICIPANT_CODE", code)
-                .replace("UPDATED_FIELDS", content);
-        emailService.sendMail((String) details.get(PRIMARY_EMAIL),"Participant Update Details",emailMsg,adminMail,adminPwd);
     }
 
     public ParticipantResponse search(Map<String, Object> requestBody, String registryUrl, String fields) throws Exception {
@@ -326,5 +314,26 @@ public class ParticipantService {
         if (requestBody.containsKey("status") && !requestBody.get("status").equals(INACTIVE) && !requestBody.get("status").equals(BLOCKED)) {
             throw new ClientException(ErrorCodes.ERR_UPDATE_PARTICIPANT_DETAILS,STATUS_UPDATE_INACTIVE);
         }
+    }
+    public void sendEmail(Map<String,Object> details,Map<String,Object> requestBody,String code,String message ) {
+        String content = requestBody.keySet().stream()
+                    .filter(key -> !PARTICIPANT_CODE.equals(key))
+                    .map(key -> Character.toUpperCase(key.charAt(0)) + key.substring(1))
+                    .collect(Collectors.joining("</li><li>", "<ul><li>", "</li></ul>")).replace("_"," ").replace("cert","certificate");
+        emailService.sendMail((String) details.get(PRIMARY_EMAIL), "Participant Update Details",  getMessage(details,content,code,message), adminMail, adminPwd);
+    }
+    public void sendPhone(Map<String,Object> details,Map<String,Object> requestBody,String code,String message){
+        String content = requestBody.keySet().stream()
+                   .filter(key -> !PARTICIPANT_CODE.equals(key))
+                   .map(key -> Character.toUpperCase(key.charAt(0)) + key.substring(1))
+                   .collect(Collectors.toList()).toString().replace("[","").replace("]","").replace("_"," ").replace("cert","certificate");
+        smsService.sendSMS((String) details.get(PRIMARY_MOBILE),getMessage(details,content,code,message),accessKey,accessSecret,awsRegion);
+    }
+    public String getMessage(Map<String,Object> details, String content, String code, String message){
+        String msg = message;
+        msg = msg.replace("PARTICIPANT_NAME", StringUtils.capitalize((String) details.get(PARTICIPANT_NAME)))
+                .replace("PARTICIPANT_CODE", code)
+                .replace("UPDATED_FIELDS", content);
+        return msg;
     }
 }
