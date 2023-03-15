@@ -125,6 +125,8 @@ public class ParticipantService extends BaseController {
         String identityVerified = PENDING;
         if (ONBOARD_FOR_PROVIDER.contains(request.getType())) {
             identityVerified = identityVerify(headers, getApplicantBody(request));
+            if (StringUtils.equalsIgnoreCase(identityVerified, REJECTED))
+                throw new ClientException("Identity verification is rejected by the payer, Please reach out to them.");
         }
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put(AUTHORIZATION, Objects.requireNonNull(headers.get(AUTHORIZATION)).get(0));
@@ -278,8 +280,10 @@ public class ParticipantService extends BaseController {
         ResultSet resultSet1 = (ResultSet) postgreSQLClient.executeQuery(onboardingQuery);
         if (resultSet1.next()) {
             identityStatus = resultSet1.getString("status");
+            logger.info("Identity verification status from DB: {}", identityStatus);
         }
 
+        logger.info("Email verification: {} :: Phone verification: {} :: Identity verification: {}", emailOtpVerified, phoneOtpVerified, identityStatus);
         if (emailOtpVerified && phoneOtpVerified && StringUtils.equalsIgnoreCase(identityStatus, ACCEPTED)) {
             HttpResponse<String> response = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_UPDATE, JSONUtils.serialize(participant), headersMap);
             if (response.getStatus() == 200) {
@@ -349,6 +353,7 @@ public class ParticipantService extends BaseController {
     }
 
     private String identityVerify(HttpHeaders header, Map<String, Object> requestBody) throws Exception {
+        logger.info("Identity verification :: request: {}", requestBody);
         String verifierCode = (String) requestBody.get(VERIFIER_CODE);
         Map<String, Object> verifierDetails = getParticipant(PARTICIPANT_CODE, verifierCode);
         String result;
@@ -361,7 +366,7 @@ public class ParticipantService extends BaseController {
             Response errResp = JSONUtils.deserialize(httpResp.getBody(), Response.class);
             throw new ClientException(errResp.getError().getCode(), errResp.getError().getMessage());
         }
-
+        logger.info("Identity verification response from payer system :: status: {} :: response: {}", httpResp.getStatus(), httpResp.getBody());
         return result;
     }
 
