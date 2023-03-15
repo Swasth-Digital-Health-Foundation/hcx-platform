@@ -269,18 +269,17 @@ public class ParticipantService extends BaseController {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put(AUTHORIZATION, "Bearer " + jwtToken);
 
-        String otpQuery = String.format("SELECT * FROM %s WHERE primary_email='%s'", onboardingOtpTable, email);
+        String otpQuery = String.format("SELECT * FROM %s WHERE primary_email ILIKE '%s'", onboardingOtpTable, email);
         ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(otpQuery);
         if (resultSet.next()) {
             emailOtpVerified = resultSet.getBoolean(EMAIL_OTP_VERIFIED);
             phoneOtpVerified = resultSet.getBoolean(PHONE_OTP_VERIFIED);
         }
 
-        String onboardingQuery = String.format("SELECT * FROM %s WHERE applicant_email='%s'", onboardingTable, email);
+        String onboardingQuery = String.format("SELECT * FROM %s WHERE applicant_email ILIKE '%s'", onboardingTable, email);
         ResultSet resultSet1 = (ResultSet) postgreSQLClient.executeQuery(onboardingQuery);
         if (resultSet1.next()) {
             identityStatus = resultSet1.getString("status");
-            logger.info("Identity verification status from DB: {}", identityStatus);
         }
 
         logger.info("Email verification: {} :: Phone verification: {} :: Identity verification: {}", emailOtpVerified, phoneOtpVerified, identityStatus);
