@@ -298,6 +298,9 @@ public class Constants {
    public static final String IAT = "iat";
    public static final String EXP = "exp";
 
-    public static final String REQUEST_LOG = "Processing request :: action: {} :: request: {}";
+
+   public static final String PARTICIPANTS = "participants";
+   public static final String ERROR = "error";
+   public static final String REQUEST_LOG = "Processing request :: action: {} :: request: {}";
 
 }
