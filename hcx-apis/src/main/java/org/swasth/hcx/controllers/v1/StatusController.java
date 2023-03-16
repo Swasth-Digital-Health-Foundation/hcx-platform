@@ -1,5 +1,7 @@
 package org.swasth.hcx.controllers.v1;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +31,8 @@ import static org.swasth.common.utils.Constants.*;
 @RequestMapping(Constants.VERSION_PREFIX)
 public class StatusController extends BaseController {
 
+    private static final Logger logger = LoggerFactory.getLogger(StatusController.class);
+
     @Value("${kafka.topic.status}")
     private String topic;
 
@@ -40,6 +44,7 @@ public class StatusController extends BaseController {
         Request request = new Request(requestBody, HCX_STATUS);
         Response response = new Response(request);
         try {
+            logger.info("Processing request :: action: {} :: api call id: {}", HCX_STATUS, request.getApiCallId());
             Map<String, String> auditFilters = new HashMap<>();
             auditFilters.put(HCX_SENDER_CODE, request.getHcxSenderCode());
             auditFilters.put(CORRELATION_ID, request.getCorrelationId());
@@ -71,6 +76,7 @@ public class StatusController extends BaseController {
         Request request = new Request(requestBody, HCX_ONSTATUS);
         Response response = new Response(request);
         try {
+            logger.info("Processing request :: action: {} :: api call id: {}", HCX_ONSTATUS, request.getApiCallId());
             eventHandler.processAndSendEvent(topic, request);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } catch (Exception e) {
