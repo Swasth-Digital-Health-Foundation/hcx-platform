@@ -5,7 +5,7 @@ logging:
   level:
     root: ${LOGGING_LEVEL_ROOT:INFO}
 
-env: ${ENV:local}
+env: ${ENV:${env}}
 
 #elasticsearch config
 es:
@@ -36,6 +36,8 @@ email:
   failedIdentityMsg: ${failed_identity_msg:Hi User,<br/><br/>Identity verification is failed. Please reach out to HCX Team.<br/><br/>Thanks,<br/> HCX Team}
   onboardingSuccessSub: ${onboarding_success_sub:HCX - Onboarding Successful}
   onboardingSuccessMsg: ${onboarding_success_msg:Hi USER_NAME,<br/><br/>Your onboarding is successful, Welcome to HCX.<br/>Please refer to the <a href="${onboarding.successURL}">link</a> for protocol details and integration specifications.<br/>Thanks,<br/> HCX Team}
+  updateEmailSub: ${update_sub:Update Details}
+  updateEmailMessage: ${update_message:Please Update below details:<ol><li> Endpoint URL </li> <li> Encryption certificate </li></ol></br> Best regards,<br> HCX Team}
 
 hcx-api:
   basePath: ${HCX_API_BASEPATH:http://localhost:8080}

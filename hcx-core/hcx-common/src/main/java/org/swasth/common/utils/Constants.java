@@ -290,6 +290,7 @@ public class Constants {
     public static final String PHONE_OTP_VERIFIED = "phone_otp_verified";
     public static final List<String> ALLOWED_ONBOARD_STATUS = Arrays.asList(REJECTED, ACCEPTED);
     public static final String STAGING = "staging";
+    public static final List<String> ENV_LIST = Arrays.asList(STAGING,"local","poc");
 
     public static final String ACTUAL = "actual";
 

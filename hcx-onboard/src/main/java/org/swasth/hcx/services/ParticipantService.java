@@ -77,6 +77,11 @@ public class ParticipantService extends BaseController {
     @Value("${env}")
     private String env;
 
+    @Value("${email.updateEmailSub}")
+    private String updateSubject;
+
+    @Value("${email.updateEmailMessage}")
+    private String updateMessage;
     @Value("${registry.hcxCode}")
     private String hcxCode;
     @Value("${jwt-token.privateKey}")
@@ -199,12 +204,14 @@ public class ParticipantService extends BaseController {
         boolean emailOtpVerified = false;
         boolean phoneOtpVerified = false;
         int attemptCount = 0;
+        String primaryEmail;
         String status = FAILED;
         List<Map<String, Object>> otpVerificationList = (List<Map<String, Object>>) requestBody.get(OTPVERIFICATION);
         try {
             String selectQuery = String.format("SELECT * FROM %s WHERE participant_code='%s'", onboardingOtpTable, participantCode);
             resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
             if (resultSet.next()) {
+                primaryEmail = resultSet.getString("primary_email");
                 attemptCount = resultSet.getInt(ATTEMPT_COUNT);
                 if (resultSet.getString("status").equals(SUCCESSFUL)) {
                     status = SUCCESSFUL;
@@ -230,6 +237,9 @@ public class ParticipantService extends BaseController {
                 throw new ClientException(ErrorCodes.ERR_INVALID_OTP, OTP_RECORD_NOT_EXIST);
             }
             updateOtpStatus(true, true, attemptCount, SUCCESSFUL, participantCode);
+            if(ENV_LIST.contains(env)) {
+                emailService.sendMail(primaryEmail, updateSubject, updateMessage);
+            }
             logger.info("Communication details verification is successful :: participant_code  : " + participantCode);
             return ACCEPTED;
         } catch (Exception e) {
