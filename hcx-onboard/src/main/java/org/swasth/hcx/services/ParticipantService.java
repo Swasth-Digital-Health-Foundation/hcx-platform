@@ -131,9 +131,6 @@ public class ParticipantService extends BaseController {
                 if (StringUtils.equalsIgnoreCase(identityVerified, REJECTED))
                     throw new ClientException("Identity verification is rejected by the payer, Please reach out to them.");
             }
-            else{
-                throw new ClientException("identity of the user already verified");
-            }
         }
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put(AUTHORIZATION, Objects.requireNonNull(headers.get(AUTHORIZATION)).get(0));
