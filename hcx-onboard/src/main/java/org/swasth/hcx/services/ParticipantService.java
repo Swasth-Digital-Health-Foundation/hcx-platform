@@ -124,7 +124,7 @@ public class ParticipantService extends BaseController {
             participant.put(SCHEME_CODE, "default");
         String identityVerified = PENDING;
         if (ONBOARD_FOR_PROVIDER.contains(request.getType())) {
-            String query = String.format("SELECT * FROM %s WHERE applicant_email ILIKE '%s' AND status = 'accepted'", onboardingTable, request.getPrimaryEmail());
+            String query = String.format("SELECT * FROM %s WHERE applicant_email ILIKE '%s'", onboardingTable, request.getPrimaryEmail());
             ResultSet result = (ResultSet) postgreSQLClient.executeQuery(query);
             if (!result.next()) {
                 identityVerified = identityVerify(headers, getApplicantBody(request));
