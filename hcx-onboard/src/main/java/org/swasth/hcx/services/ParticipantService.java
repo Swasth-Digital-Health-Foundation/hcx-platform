@@ -124,9 +124,9 @@ public class ParticipantService extends BaseController {
             participant.put(SCHEME_CODE, "default");
         String identityVerified = PENDING;
         if (ONBOARD_FOR_PROVIDER.contains(request.getType())) {
-            String query = String.format("SELECT * FROM %s WHERE applicant_email ILIKE '%s'", onboardingTable, request.getPrimaryEmail());
+            String query = String.format("SELECT * FROM %s WHERE applicant_email ILIKE '%s' AND status IN ('Pending', 'rejected')", onboardingTable, request.getPrimaryEmail());
             ResultSet result = (ResultSet) postgreSQLClient.executeQuery(query);
-            if (!result.next()) {
+            if (result.next()) {
                 identityVerified = identityVerify(headers, getApplicantBody(request));
                 if (StringUtils.equalsIgnoreCase(identityVerified, REJECTED))
                     throw new ClientException("Identity verification is rejected by the payer, Please reach out to them.");
