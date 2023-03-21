@@ -11,8 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import org.swasth.common.dto.Response;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
-import org.swasth.common.service.EmailService;
-import org.swasth.common.service.SMSService;
 import org.swasth.common.utils.Constants;
 import org.swasth.hcx.controllers.BaseController;
 import org.swasth.hcx.models.Participant;
@@ -49,12 +47,6 @@ public class ParticipantController extends BaseController {
     private String onboardOtpTable;
     @Autowired
     private ParticipantService service;
-
-    @Autowired
-    private SMSService smsService;
-
-    @Autowired
-    private EmailService emailService;
 
     @PostMapping(PARTICIPANT_CREATE)
     public ResponseEntity<Object> create(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {

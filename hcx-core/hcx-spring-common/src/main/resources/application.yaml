@@ -1,0 +1,9 @@
+
+email:
+  id: ${email_id:test@hcx}
+  pwd: ${email_pwd:password}
+
+aws:
+  accessKey: ${aws_accessKey:}
+  accessSecret: ${aws_accessSecret:}
+  region: ${aws_region:}

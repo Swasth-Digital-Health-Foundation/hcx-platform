@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.*;
 import org.swasth.common.dto.Response;
 import org.swasth.common.utils.Constants;
 import org.swasth.hcx.controllers.BaseController;
-import org.swasth.hcx.services.EmailService;
 import org.swasth.hcx.services.ParticipantService;
+import org.swasth.springcommon.service.EmailService;
 
 import java.sql.SQLException;
 import java.util.ArrayList;

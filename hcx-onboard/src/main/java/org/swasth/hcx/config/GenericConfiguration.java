@@ -8,6 +8,8 @@ import org.springframework.core.env.Environment;
 import org.swasth.common.service.RegistryService;
 import org.swasth.common.utils.JWTUtils;
 import org.swasth.hcx.helpers.EventGenerator;
+import org.swasth.springcommon.service.EmailService;
+import org.swasth.springcommon.service.SMSService;
 
 
 @Configuration
@@ -20,6 +22,15 @@ public class GenericConfiguration {
     @Bean
     public EventGenerator eventGenerator() {
         return new EventGenerator();
+    }
+
+    @Bean
+    public EmailService emailService(){
+        return new EmailService();
+    }
+    @Bean
+    public SMSService smsService(){
+        return  new SMSService();
     }
 
 }

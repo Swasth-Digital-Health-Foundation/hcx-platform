@@ -22,6 +22,8 @@ import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.utils.JWTUtils;
 import org.swasth.hcx.controllers.BaseController;
 import org.swasth.postgresql.IDatabaseService;
+import org.swasth.springcommon.service.EmailService;
+import org.swasth.springcommon.service.SMSService;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
@@ -77,6 +79,8 @@ public class ParticipantService extends BaseController {
     @Value("${env}")
     private String env;
 
+    @Value("${phone.message}")
+    private String phoneMessage;
     @Value("${registry.hcxCode}")
     private String hcxCode;
     @Value("${jwt-token.privateKey}")
@@ -176,7 +180,7 @@ public class ParticipantService extends BaseController {
             throw new ClientException(ErrorCodes.ERR_MAXIMUM_OTP_REGENERATE, MAXIMUM_OTP_REGENERATE);
         }
         String phoneOtp = new DecimalFormat("000000").format(new Random().nextInt(999999));
-        smsService.sendOTP((String) requestBody.get(PRIMARY_MOBILE), phoneOtp);
+        smsService.sendSMS((String) requestBody.get(PRIMARY_MOBILE), phoneMessage + phoneOtp);
         String emailOtp = new DecimalFormat("000000").format(new Random().nextInt(999999));
         sendEmailOTP(primaryEmail, (String) requestBody.get(PARTICIPANT_NAME), (String) requestBody.get(PARTICIPANT_CODE), emailOtp);
         String query1 = String.format("UPDATE %s SET phone_otp='%s',email_otp='%s',updatedOn=%d,expiry=%d ,regenerate_count=%d, last_regenerate_date='%s' WHERE primary_email='%s'",

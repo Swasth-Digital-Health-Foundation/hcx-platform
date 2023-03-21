@@ -17,14 +17,14 @@ import org.swasth.common.dto.ParticipantResponse;
 import org.swasth.common.dto.Sponsor;
 import org.swasth.common.exception.*;
 import org.swasth.common.helpers.EventGenerator;
-import org.swasth.common.service.EmailService;
-import org.swasth.common.service.SMSService;
 import org.swasth.common.utils.HttpUtils;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.utils.JWTUtils;
 import org.swasth.hcx.handlers.EventHandler;
 import org.swasth.postgresql.IDatabaseService;
 import org.swasth.redis.cache.RedisCache;
+import org.swasth.springcommon.service.EmailService;
+import org.swasth.springcommon.service.SMSService;
 
 import java.io.IOException;
 import java.security.cert.CertificateException;
@@ -50,27 +50,12 @@ public class ParticipantService {
 
     @Value("${registry.apiPath}")
     private String registryApiPath;
-
-    @Value("${aws.accessKey}")
-    private String accessKey;
-
-    @Value("${aws.accessSecret}")
-    private String accessSecret;
-
-    @Value("${aws.region}")
-    private String awsRegion;
-
-    @Value("${email.id}")
-    private String adminMail;
-
-    @Value("${email.pwd}")
-    private String adminPwd;
-
-    @Value("${aws.updateMessage}")
+    @Value("${phone.updateMessage}")
     private String updatePhoneMessage;
-
     @Value("${email.updateMessage}")
     private String updateEmailMessage;
+    @Value("${email.subject}")
+    private String emailSubject;
 
     @Autowired
     protected IDatabaseService postgreSQLClient;
@@ -87,9 +72,9 @@ public class ParticipantService {
     @Autowired
     private EventHandler eventHandler;
     @Autowired
-    private SMSService smsService;
-    @Autowired
     private EmailService emailService;
+    @Autowired
+    private SMSService smsService;
 
     public ParticipantResponse invite(Map<String, Object> requestBody, String registryUrl, HttpHeaders header, String code) throws Exception {
         String url = registryUrl + registryApiPath + INVITE;
@@ -108,14 +93,14 @@ public class ParticipantService {
     }
 
     public ParticipantResponse update(Map<String, Object> requestBody, String registryUrl, HttpHeaders header, String code) throws Exception {
-        Map<String, Object> details = getParticipant(code,registryUrl);
+        Map<String, Object> details = getParticipant(code, registryUrl);
         String url = registryUrl + registryApiPath + details.get(OSID);
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put(AUTHORIZATION, Objects.requireNonNull(header.get(AUTHORIZATION)).get(0));
         HttpResponse<String> response = HttpUtils.put(url, JSONUtils.serialize(requestBody), headersMap);
         if (response.getStatus() == 200) {
-            sendEmail(details,requestBody,code,updateEmailMessage);
-            sendPhone(details,requestBody,code,updatePhoneMessage);
+            sendEmail(details, requestBody, code, updateEmailMessage);
+            sendPhone(details, requestBody, code, updatePhoneMessage);
             deleteCache(code);
             logger.info("Updated participant :: participant code: {}", code);
         }
@@ -257,8 +242,8 @@ public class ParticipantService {
 
     public void getCertificatesUrl(Map<String, Object> requestBody, String code) {
         getCertificates(requestBody, code, ENCRYPTION_CERT);
-        if(requestBody.containsKey(SIGNING_CERT_PATH))
-          getCertificates(requestBody, code, SIGNING_CERT_PATH);
+        if (requestBody.containsKey(SIGNING_CERT_PATH))
+            getCertificates(requestBody, code, SIGNING_CERT_PATH);
     }
 
     public Map<String, Object> getParticipant(String code, String registryUrl) throws Exception {
@@ -305,35 +290,47 @@ public class ParticipantService {
         return "{ \"filters\": { \"participant_code\": { \"eq\": \" " + code + "\" } } }";
     }
 
-    public void updateAllowedFields(Map<String,Object> requestBody) throws ClientException {
+    public void updateAllowedFields(Map<String, Object> requestBody) throws ClientException {
         List<String> requestFields = new ArrayList<>(requestBody.keySet());
         if (!ALLOWED_FIELDS_UPDATE.containsAll(requestFields)) {
             ALLOWED_FIELDS_UPDATE.forEach(requestFields::remove);
-            throw new ClientException(ErrorCodes.ERR_UPDATE_PARTICIPANT_DETAILS,"Fields not allowed for update: " + requestFields);
+            throw new ClientException(ErrorCodes.ERR_UPDATE_PARTICIPANT_DETAILS, "Fields not allowed for update: " + requestFields);
         }
         if (requestBody.containsKey("status") && !requestBody.get("status").equals(INACTIVE) && !requestBody.get("status").equals(BLOCKED)) {
-            throw new ClientException(ErrorCodes.ERR_UPDATE_PARTICIPANT_DETAILS,STATUS_UPDATE_INACTIVE);
+            throw new ClientException(ErrorCodes.ERR_UPDATE_PARTICIPANT_DETAILS, STATUS_UPDATE_INACTIVE);
         }
     }
-    public void sendEmail(Map<String,Object> details,Map<String,Object> requestBody,String code,String message ) {
-        String content = requestBody.keySet().stream()
-                    .filter(key -> !PARTICIPANT_CODE.equals(key))
-                    .map(key -> Character.toUpperCase(key.charAt(0)) + key.substring(1))
-                    .collect(Collectors.joining("</li><li>", "<ul><li>", "</li></ul>")).replace("_"," ").replace("cert","certificate");
-        emailService.sendMail((String) details.get(PRIMARY_EMAIL), "Participant Update Details",  getMessage(details,content,code,message), adminMail, adminPwd);
+
+    public void sendEmail(Map<String, Object> details, Map<String, Object> requestBody, String code, String message) {
+        String content = generateContent(requestBody, true);
+        emailService.sendMail((String) details.get(PRIMARY_EMAIL), emailSubject, getMessage(details, content, code, message));
     }
-    public void sendPhone(Map<String,Object> details,Map<String,Object> requestBody,String code,String message){
-        String content = requestBody.keySet().stream()
-                   .filter(key -> !PARTICIPANT_CODE.equals(key))
-                   .map(key -> Character.toUpperCase(key.charAt(0)) + key.substring(1))
-                   .collect(Collectors.toList()).toString().replace("[","").replace("]","").replace("_"," ").replace("cert","certificate");
-        smsService.sendSMS((String) details.get(PRIMARY_MOBILE),getMessage(details,content,code,message),accessKey,accessSecret,awsRegion);
+
+    public void sendPhone(Map<String, Object> details, Map<String, Object> requestBody, String code, String message) {
+        String content = generateContent(requestBody, false);
+        smsService.sendSMS((String) details.get(PRIMARY_MOBILE), getMessage(details, content, code, message));
     }
-    public String getMessage(Map<String,Object> details, String content, String code, String message){
+
+    public String getMessage(Map<String, Object> details, String content, String code, String message) {
         String msg = message;
         msg = msg.replace("PARTICIPANT_NAME", StringUtils.capitalize((String) details.get(PARTICIPANT_NAME)))
                 .replace("PARTICIPANT_CODE", code)
                 .replace("UPDATED_FIELDS", content);
         return msg;
+    }
+    private String generateContent(Map<String, Object> requestBody, boolean email) {
+        if (email) {
+            return "<ul><li>" + requestBody.keySet().stream()
+                    .filter(key -> !PARTICIPANT_CODE.equals(key))
+                    .map(key -> Character.toUpperCase(key.charAt(0)) + key.substring(1))
+                    .map(key -> key.replace("_", " ").replace("cert", "certificate"))
+                    .collect(Collectors.joining("</li><li>")) + "</li></ul>";
+        } else {
+            return requestBody.keySet().stream()
+                    .filter(key -> !PARTICIPANT_CODE.equals(key))
+                    .map(key -> Character.toUpperCase(key.charAt(0)) + key.substring(1))
+                    .map(key -> key.replace("_", " ").replace("cert", "certificate"))
+                    .collect(Collectors.joining(", "));
+        }
     }
 }

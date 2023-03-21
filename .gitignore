@@ -11,3 +11,6 @@
 # gitignore for Gradle project(s).
 **/.gradle/**
 **/lib/build/**
+spring-commons/mvnw
+hcx-core/hcx-spring-common/.mvn/wrapper/maven-wrapper.properties
+hcx-core/hcx-spring-common/.mvn/wrapper/maven-wrapper.jar

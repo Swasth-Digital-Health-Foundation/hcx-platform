@@ -107,3 +107,10 @@ certificates:
   accesskey : ${certificates_accessKey:}
   secretKey : ${certificates_accessSecret:}
   bucketName : ${certificates_bucketName:}
+
+phone:
+  updateMessage : ${update_phone_message:Hi PARTICIPANT_NAME, your participant details has been updated successfully . updated fields are UPDATED_FIELDS}
+
+email:
+  updateMessage: ${update_email_message:Hi <b>PARTICIPANT_NAME</b>,<br/><br/> This email is to inform you that the following fields have been updated for your account <b>PARTICIPANT_CODE</b>:<br/> UPDATED_FIELDS <br/>If you have any questions or concerns, please reach out to HCX team.<br/><br/> Best regards,<br/>HCX Team}
+  subject: ${email_subject:Participant Update Details}

@@ -20,6 +20,7 @@
         <module>audit-indexer</module>
         <module>redis-cache</module>
         <module>cloud-storage-client</module>
+        <module>hcx-spring-common</module>
     </modules>
     <properties>
         <maven.compiler.source>11</maven.compiler.source>

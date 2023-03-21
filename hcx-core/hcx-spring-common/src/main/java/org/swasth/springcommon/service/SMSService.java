@@ -1,4 +1,4 @@
-package org.swasth.common.service;
+package org.swasth.springcommon.service;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
@@ -7,15 +7,24 @@ import com.amazonaws.services.sns.AmazonSNS;
 import com.amazonaws.services.sns.AmazonSNSClient;
 import com.amazonaws.services.sns.model.PublishRequest;
 import com.amazonaws.services.sns.model.PublishResult;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
 
 import java.util.concurrent.CompletableFuture;
 
+@Service
 public class SMSService {
 
-    public CompletableFuture<String> sendSMS(String phone, String message,String accessKey,String accessSecret,String awsRegion) {
+    @Value("${aws.accessKey}")
+    private String accessKey;
+    @Value("${aws.accessSecret}")
+    private String accessSecret;
+    @Value("${aws.region}")
+    private String awsRegion;
+    @Async
+    public CompletableFuture<String> sendSMS(String phone, String content) {
 
-        System.out.println("SMS is " + message);
-        System.out.println("phone number " + phone);
         String phoneNumber = "+91"+ phone;  // Ex: +91XXX4374XX
         AmazonSNS snsClient = AmazonSNSClient.builder().withCredentials(new AWSCredentialsProvider() {
             @Override
@@ -30,7 +39,7 @@ public class SMSService {
         }).withRegion(awsRegion).build();
 
         PublishResult result = snsClient.publish(new PublishRequest()
-                .withMessage(message)
+                .withMessage(content)
                 .withPhoneNumber(phoneNumber));
         return CompletableFuture.completedFuture(result.getMessageId());
     }
