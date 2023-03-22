@@ -19,6 +19,8 @@ kafka:
     subscription: ${kafka_subscription_topic:${env}.hcx.request.subscription}
     audit: ${kafka_audit_topic:${env}.hcx.audit}
     onsubscription: ${kafka_onsubscription_topic:${env}.hcx.request.onsubscription}
+    retry: ${kafka_retry_topic:${env}.hcx.request.retry}
+
 
 registry:
   basePath: ${registry_basePath:http://a0b2bab079318431d8ca99f1efb1c25c-874274596.ap-south-1.elb.amazonaws.com:8081}
