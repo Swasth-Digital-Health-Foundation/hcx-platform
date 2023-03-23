@@ -81,7 +81,7 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
     errorMap
   }
 
-  def dispatchErrorResponse(event: util.Map[String, AnyRef], error: Option[ErrorResponse], correlationId: String, payloadRefId: String, senderCtx: util.Map[String, AnyRef], context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
+  def   dispatchErrorResponse(event: util.Map[String, AnyRef], error: Option[ErrorResponse], correlationId: String, payloadRefId: String, senderCtx: util.Map[String, AnyRef], context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
     val protectedMap = new util.HashMap[String, AnyRef]
     //Update sender code
     protectedMap.put(Constants.HCX_SENDER_CODE, config.hcxRegistryCode)
@@ -143,11 +143,9 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
           logger.info("result::" + result)
           //Adding updatedTimestamp for auditing
           event.put(Constants.UPDATED_TIME, Calendar.getInstance().getTime())
-          Console.println("result " + JSONUtil.serialize(result))
           if (result.success) {
             updateDBStatus(payloadRefId, Constants.DISPATCH_STATUS)
             setStatus(event, Constants.DISPATCH_STATUS)
-            Console.println("Event after updating dispatched stats " + event)
             metrics.incCounter(metric = config.dispatcherSuccessCount)
           }
           if (result.retry) {
@@ -189,6 +187,7 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
   private def dispatchError(payloadRefId: String, event: util.Map[String, AnyRef], result: DispatcherResult, correlationId: String, senderCtx: util.Map[String, AnyRef], context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
     updateDBStatus(payloadRefId, Constants.ERROR_STATUS)
     setStatus(event, Constants.ERROR_STATUS)
+    setErrorDetails(event, createErrorMap(result.error))
     metrics.incCounter(metric = config.dispatcherFailedCount)
     dispatchErrorResponse(event, result.error, correlationId, payloadRefId, senderCtx, context, metrics)
   }
@@ -238,6 +237,7 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
     audit.put(Constants.RECIPIENT_PRIMARY_EMAIL, getCDataStringValue(event, Constants.RECIPIENT, Constants.PRIMARY_EMAIL))
     audit.put(Constants.PAYLOAD, removeSensitiveData(payload))
     getTag(event,audit)
+    Console.println("Audit event: " + audit)
     audit
   }
 

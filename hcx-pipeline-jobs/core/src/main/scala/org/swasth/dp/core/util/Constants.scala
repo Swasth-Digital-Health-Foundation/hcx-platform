@@ -66,6 +66,7 @@ object Constants {
   val VALID_STATUS = List("Created", "Active")
   val ACTIVE = "Active"
   val ENTITY_TYPE = "entity_type"
+  val ERROR = "error"
 
   //Event Fields
   val HCX_SENDER_CODE = "x-hcx-sender_code"
@@ -95,7 +96,7 @@ object Constants {
   val ALLOWED_RECIPIENTS = "allowed_recipients"
   val CATEGORY = "category"
   val NETWORK = "Network"
-  val ERROR_DETAILS = "error_details"
+  val ERROR_DETAILS = "x-hcx_error_details"
   val ERROR_STATUS = "response.error"
   val DISPATCH_STATUS = "request.dispatched"
   val QUEUED_STATUS = "request.queued"
