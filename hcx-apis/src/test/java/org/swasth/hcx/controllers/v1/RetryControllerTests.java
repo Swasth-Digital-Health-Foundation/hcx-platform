@@ -20,11 +20,11 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
-public class RetryControllerTests extends BaseSpec {
+ class RetryControllerTests extends BaseSpec {
 
 
     @Test
-    public void retry_success_scenario() throws Exception {
+     void retry_success_scenario() throws Exception {
         doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
         ResultSet mockResultSet = getMockResultSet();
         doReturn(mockResultSet).when(postgreSQLClient).executeQuery(anyString());
@@ -35,7 +35,7 @@ public class RetryControllerTests extends BaseSpec {
     }
 
     @Test
-    public void retry_failure_scenario() throws Exception {
+     void retry_failure_scenario() throws Exception {
         doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
         ResultSet mockResultSet = getEmptyResultSet();
         doReturn(mockResultSet).when(postgreSQLClient).executeQuery(anyString());
