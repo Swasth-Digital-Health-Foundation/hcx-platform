@@ -71,9 +71,9 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
 
   def createErrorMap(error: Option[ErrorResponse]):util.Map[String, AnyRef] = {
     val errorMap:util.Map[String, AnyRef] = new util.HashMap[String, AnyRef]
-    errorMap.put("code",error.get.code.get)
-    errorMap.put("message",error.get.message.get)
-    errorMap.put("trace",error.get.trace.get)
+    errorMap.put("code", error.flatMap(_.code).getOrElse(""))
+    errorMap.put("message", error.flatMap(_.message).getOrElse(""))
+    errorMap.put("trace", error.flatMap(_.trace).getOrElse(""))
     errorMap
   }
 
