@@ -19,6 +19,7 @@ object Constants {
   val IV = "iv"
   val CIPHERTEXT = "ciphertext"
   val TAG = "tag"
+  val TAGS = "tags"
   val PAYLOAD_LENGTH = 5
   val MID = "mid"
   val PAYLOAD = "payload"
@@ -65,6 +66,7 @@ object Constants {
   val VALID_STATUS = List("Created", "Active")
   val ACTIVE = "Active"
   val ENTITY_TYPE = "entity_type"
+  val ERROR = "error"
 
   //Event Fields
   val HCX_SENDER_CODE = "x-hcx-sender_code"
@@ -94,7 +96,7 @@ object Constants {
   val ALLOWED_RECIPIENTS = "allowed_recipients"
   val CATEGORY = "category"
   val NETWORK = "Network"
-  val ERROR_DETAILS = "error_details"
+  val ERROR_DETAILS = "x-hcx_error_details"
   val ERROR_STATUS = "response.error"
   val DISPATCH_STATUS = "request.dispatched"
   val QUEUED_STATUS = "request.queued"
@@ -117,6 +119,7 @@ object Constants {
   val PARTICIPANT_ROLE = "participant_role"
   val RECIPIENTS = "recipients"
   val CORRELATIONID = "correlation_id"
+  val ALLOWED_STATUS_UPDATE = List(QUEUED_STATUS, DISPATCH_STATUS, ERROR_STATUS)
 
   // Notification topic codes
   val PARTICIPANT_ONBOARD = "notif-participant-onboarded"

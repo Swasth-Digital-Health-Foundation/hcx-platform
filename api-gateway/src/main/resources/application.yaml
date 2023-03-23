@@ -77,10 +77,16 @@ hcx-api:
 hcx-onboard:
   basePath: ${HCX_ONBOARD_BASEPATH:http://localhost:8082}
 
+hcx-mock-service:
+  basePath: ${HCX_MOCK_SERVICE_BASEPATH:http://localhost:8083}
+
 #elasticsearch config
 es:
   host: ${es_host:localhost}
   port: ${es_port:9200}
+
+tag:
+   name : ${tag_name:}
 
 #audit config
 audit:
@@ -151,8 +157,9 @@ spring:
             - RewritePath=/${version.external07}/participant/(?<segment>/?.*), /${version.internal}/participant/$\{segment}
             - RewritePath=/${version.external08}/participant/(?<segment>/?.*), /${version.internal}/participant/$\{segment}
             - RewritePath=/${version.external08}/notification/topic/list, /${version.internal}/notification/topic/list
+            - RewritePath=/${version.external08}/request/retry/(?<segment>/?.*), /${version.internal}/request/retry/$\{segment}
           predicates:
-            - Path=/${version.external07}/participant/create, /${version.external07}/participant/update, /${version.external07}/participant/search*, /${version.external07}/participant/read/*, /${version.external07}/participant/delete, /${version.external08}/participant/create, /${version.external08}/participant/update, /${version.external08}/participant/search* , /${version.external08}/participant/read/*, /${version.external08}/participant/delete, /health, /service/health, /${version.external08}/notification/topic/list
+            - Path=/${version.external07}/participant/create, /${version.external07}/participant/update, /${version.external07}/participant/search*, /${version.external07}/participant/read/*, /${version.external07}/participant/delete, /${version.external08}/participant/create, /${version.external08}/participant/update, /${version.external08}/participant/search* , /${version.external08}/participant/read/*, /${version.external08}/participant/delete, /health, /service/health, /${version.external08}/notification/topic/list,  /${version.external08}/request/retry/**
 
         - id: hcx-onboard-api-route
           uri: ${hcx-onboard.basePath}
@@ -165,3 +172,13 @@ spring:
             - RewritePath=/${version.external07}/applicant/(?<segment>/?.*), /${version.internal}/applicant/$\{segment}
           predicates:
             - Path=/${version.external07}/participant/verify, /${version.external07}/participant/verify/identity, /${version.external07}/participant/otp/send, /${version.external07}/participant/onboard/update, /${version.external07}/applicant/getinfo, /${version.external07}/applicant/verify
+
+        - id: hcx-mock-service-route
+          uri: ${hcx-mock-service.basePath}
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
+          predicates:
+            - Path=/payer/request/**

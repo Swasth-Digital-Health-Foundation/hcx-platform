@@ -10,8 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.swasth.common.dto.AuditSearchRequest;
 import org.swasth.common.utils.Constants;
+import org.swasth.common.utils.JSONUtils;
 import org.swasth.hcx.utils.SearchUtil;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -33,27 +35,29 @@ public class AuditService {
      * @return Returns a list of found audit events.
      */
     public List<Map<String, Object>> search(final AuditSearchRequest request, String action) {
-        request.setAction(action);
-        final SearchRequest searchRequest = SearchUtil.buildSearchRequest(
-        		Constants.HEADER_AUDIT,
-                request
-        );
+        try {
+            logger.info("Audit search started: {}", JSONUtils.serialize(request));
+            request.setAction(action);
+            final SearchRequest searchRequest = SearchUtil.buildSearchRequest(
+                    Constants.HEADER_AUDIT,
+                    request
+            );
 
-        return searchInternal(searchRequest);
+            return searchInternal(searchRequest);
+        } catch (Exception e) {
+            logger.error("Error while processing audit search :: message: {} :: trace: {}", e.getMessage(), e.getStackTrace());
+            return Collections.emptyList();
+        }
     }
 
 
-    private List<Map<String,Object>> searchInternal(final SearchRequest request) {
-        try {
-            final SearchHit[] searchHits = client.search(request, RequestOptions.DEFAULT).getHits().getHits();
-            final List<Map<String,Object>> audit = new ArrayList<>(searchHits.length);
-            for (SearchHit hit : searchHits) {
-                audit.add(hit.getSourceAsMap());
-            }
-            return audit;
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-            return Collections.emptyList();
+    private List<Map<String,Object>> searchInternal(final SearchRequest request) throws IOException {
+        final SearchHit[] searchHits = client.search(request, RequestOptions.DEFAULT).getHits().getHits();
+        final List<Map<String, Object>> audit = new ArrayList<>(searchHits.length);
+        for (SearchHit hit : searchHits) {
+            audit.add(hit.getSourceAsMap());
         }
+        logger.info("Audit search completed :: count: {}", audit.size());
+        return audit;
     }
 }
