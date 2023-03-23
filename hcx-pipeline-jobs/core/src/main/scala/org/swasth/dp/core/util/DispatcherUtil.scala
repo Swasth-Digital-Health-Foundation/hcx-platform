@@ -30,17 +30,17 @@ class DispatcherUtil(config: BaseJobConfig) extends Serializable {
         httpPost.setHeader("Accept", "application/json")
         httpPost.setHeader("Content-type", "application/json")
         httpPost.setHeader("Authorization", "Bearer "+ jwtUtil.generateHCXGatewayToken(ctx.getOrDefault(Constants.PARTICIPANT_CODE, "").asInstanceOf[String]))
-        Console.println("HCX Token: " + jwtUtil.generateHCXGatewayToken(ctx.getOrDefault(Constants.PARTICIPANT_CODE, "").asInstanceOf[String]))
         response = httpClient.execute(httpPost);
         val statusCode = response.getStatusLine().getStatusCode();
-        Console.println("Status code: " + statusCode + " :: Response body: " + EntityUtils.toString(response.getEntity, StandardCharsets.UTF_8));
+        val responseBody = EntityUtils.toString(response.getEntity, StandardCharsets.UTF_8)
+        Console.println("Status code: " + statusCode + " :: Response body: " + responseBody);
         if (config.successCodes.contains(statusCode)) {
           DispatcherResult(true, statusCode, null, false)
         } else if (config.errorCodes.contains(statusCode)) {
-          val errorResponse: ErrorResponse = errorMessageProcess(response)
+          val errorResponse: ErrorResponse = errorMessageProcess(responseBody)
           DispatcherResult(false, statusCode, Option(errorResponse), false)
         } else {
-          val errorResponse: ErrorResponse = errorMessageProcess(response)
+          val errorResponse: ErrorResponse = errorMessageProcess(responseBody)
           DispatcherResult(false, statusCode, Option(errorResponse), true)
         }
       } else  //As url is null, no need to retry
@@ -56,8 +56,7 @@ class DispatcherUtil(config: BaseJobConfig) extends Serializable {
     }
   }
 
-  private def errorMessageProcess(response: CloseableHttpResponse) = {
-    val responseBody = EntityUtils.toString(response.getEntity, StandardCharsets.UTF_8)
+  private def errorMessageProcess(responseBody: String) = {
     val responseMap = JSONUtil.deserialize[util.Map[String, AnyRef]](responseBody)
     val error = responseMap.getOrDefault(Constants.ERROR, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]]
     val errorResponse = ErrorResponse(Option(error.getOrDefault(Constants.CODE, "").asInstanceOf[String]), Option(error.getOrDefault(Constants.MESSAGE, responseBody).asInstanceOf[String]), Option(error.getOrDefault(Constants.TRACE, "").asInstanceOf[String]))
