@@ -1,6 +1,8 @@
 package org.swasth.hcx.controllers.v1;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +30,8 @@ import static org.swasth.common.utils.Constants.*;
 @RequestMapping(Constants.VERSION_PREFIX)
 public class CommunicationController extends BaseController {
 
+    private static final Logger logger = LoggerFactory.getLogger(CommunicationController.class);
+
     @Value("${kafka.topic.communication}")
     private String kafkaTopic;
 
@@ -36,6 +40,7 @@ public class CommunicationController extends BaseController {
         Request request = new Request(requestBody, COMMUNICATION_REQUEST);
         Response response = new Response(request);
         try {
+            logger.info("Processing request :: action: {} :: api call id: {}", COMMUNICATION_REQUEST, request.getApiCallId());
             Map<String, Object> hcxHeaders = request.getHcxHeaders();
             Map<String, String> filters = new HashMap<>();
             filters.put(CORRELATION_ID,request.getCorrelationId());

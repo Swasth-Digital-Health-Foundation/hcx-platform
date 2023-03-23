@@ -19,6 +19,7 @@ object Constants {
   val IV = "iv"
   val CIPHERTEXT = "ciphertext"
   val TAG = "tag"
+  val TAGS = "tags"
   val PAYLOAD_LENGTH = 5
   val MID = "mid"
   val PAYLOAD = "payload"
