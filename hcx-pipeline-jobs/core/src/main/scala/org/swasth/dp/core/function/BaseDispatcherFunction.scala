@@ -139,9 +139,11 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
           logger.info("result::" + result)
           //Adding updatedTimestamp for auditing
           event.put(Constants.UPDATED_TIME, Calendar.getInstance().getTime())
+          Console.println("result " + JSONUtil.serialize(result))
           if (result.success) {
             updateDBStatus(payloadRefId, Constants.DISPATCH_STATUS)
             setStatus(event, Constants.DISPATCH_STATUS)
+            Console.println("Event after updating dispatched stats " + event)
             metrics.incCounter(metric = config.dispatcherSuccessCount)
           }
           if (result.retry) {
@@ -221,6 +223,7 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
     audit.put(Constants.MID,event.get(Constants.MID).asInstanceOf[String])
     audit.put(Constants.ACTION,event.get(Constants.ACTION).asInstanceOf[String])
     audit.put(Constants.HCX_STATUS,getProtocolStringValue(event,Constants.HCX_STATUS))
+    Console.println("hcx status " + getProtocolStringValue(event,Constants.HCX_STATUS))
     audit.put(Constants.REQUESTED_TIME,event.get(Constants.ETS))
     audit.put(Constants.UPDATED_TIME,event.getOrDefault(Constants.UPDATED_TIME, Calendar.getInstance().getTime()))
     audit.put(Constants.ETS, Calendar.getInstance().getTime())
