@@ -74,6 +74,9 @@ rbac:
       - /v0.8/notification/notify
       - /v0.8/notification/subscription/update
       - /v0.8/notification/on_subscribe
+      - /payer/request/approve
+      - /payer/request/reject
+      - /payer/request/list
   - role: agency.tpa
     paths:
       - /v0.7/coverageeligibility/check

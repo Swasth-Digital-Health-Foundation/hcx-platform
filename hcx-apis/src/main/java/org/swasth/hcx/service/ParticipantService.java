@@ -2,6 +2,8 @@ package org.swasth.hcx.service;
 
 import kong.unirest.HttpResponse;
 import org.apache.commons.validator.routines.EmailValidator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
@@ -32,6 +34,8 @@ import static org.swasth.common.utils.Constants.*;
 
 @Service
 public class ParticipantService {
+
+    private static final Logger logger = LoggerFactory.getLogger(ParticipantService.class);
     @Value("${certificates.bucketName}")
     private String bucketName;
 
@@ -70,6 +74,7 @@ public class ParticipantService {
             cdata.putAll(requestBody);
             eventHandler.createAudit(eventGenerator.createAuditLog(code, PARTICIPANT, cdata,
                     getEData(CREATED, "", Collections.emptyList())));
+            logger.info("Created participant :: participant code: {}", requestBody.get(PARTICIPANT_CODE));
         }
         return responseHandler(response, code);
     }
@@ -81,6 +86,7 @@ public class ParticipantService {
         HttpResponse<String> response = HttpUtils.put(url, JSONUtils.serialize(requestBody), headersMap);
         if (response.getStatus() == 200) {
             deleteCache(code);
+            logger.info("Updated participant :: participant code: {}", requestBody.get(PARTICIPANT_CODE));
         }
         return responseHandler(response, code);
     }
@@ -92,6 +98,7 @@ public class ParticipantService {
             ArrayList<Map<String, Object>> participantList = JSONUtils.deserialize(response.getBody(), ArrayList.class);
             return getSponsors(participantList);
         }
+        logger.info("Search is completed :: status code: {}", response.getStatus());
         return responseHandler(response, null);
     }
 
@@ -101,6 +108,7 @@ public class ParticipantService {
         if (fields != null && fields.toLowerCase().contains(VERIFICATION_STATUS) && searchResp != null) {
             ((Map<String, Object>) searchResp.getParticipants().get(0)).putAll(getVerificationStatus(code));
         }
+        logger.info("Read participant is completed");
         return getSuccessResponse(searchResp);
     }
 
@@ -116,6 +124,7 @@ public class ParticipantService {
             cdata.putAll(participant);
             eventHandler.createAudit(eventGenerator.createAuditLog(code, PARTICIPANT, cdata,
                     getEData(INACTIVE, (String) participant.get(AUDIT_STATUS), Collections.emptyList())));
+            logger.info("Participant deleted :: participant code: {}", code);
         }
         return responseHandler(response, code);
     }
