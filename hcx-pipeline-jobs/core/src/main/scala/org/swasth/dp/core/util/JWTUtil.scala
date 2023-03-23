@@ -10,14 +10,14 @@ import java.{lang, util}
 
 class JWTUtil(config: BaseJobConfig) extends Serializable {
 
-  def generateHCXGatewayToken(): String = {
+  def generateHCXGatewayToken(recipientCode: String): String = {
     val date = new Date().getTime.asInstanceOf[lang.Long]
     val headers = new util.HashMap[String, AnyRef]()
     headers.put(Constants.TYP, Constants.JWT)
     val payload = new util.HashMap[String, AnyRef]()
     payload.put(Constants.JTI, UUID.randomUUID())
     payload.put(Constants.ISS, config.hcxRegistryCode)
-    payload.put(Constants.SUB, config.hcxRegistryCode)
+    payload.put(Constants.SUB, recipientCode)
     payload.put(Constants.IAT, date)
     payload.put(Constants.EXP, new Date(date + config.expiryTime).getTime.asInstanceOf[lang.Long])
     generateJWS(headers, payload)
