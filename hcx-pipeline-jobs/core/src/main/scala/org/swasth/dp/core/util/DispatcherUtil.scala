@@ -29,8 +29,8 @@ class DispatcherUtil(config: BaseJobConfig) extends Serializable {
         httpPost.setEntity(new StringEntity(payload))
         httpPost.setHeader("Accept", "application/json")
         httpPost.setHeader("Content-type", "application/json")
-        httpPost.setHeader("Authorization", "Bearer "+ jwtUtil.generateHCXGatewayToken())
-        Console.println("token " + jwtUtil.generateHCXGatewayToken())
+        httpPost.setHeader("Authorization", "Bearer "+ jwtUtil.generateHCXGatewayToken(ctx.getOrDefault(Constants.PARTICIPANT_CODE, "").asInstanceOf[String]))
+        Console.println("HCX Token: " + jwtUtil.generateHCXGatewayToken(ctx.getOrDefault(Constants.PARTICIPANT_CODE, "").asInstanceOf[String]))
         response = httpClient.execute(httpPost);
         val statusCode = response.getStatusLine().getStatusCode();
         Console.println("statusCode", statusCode);

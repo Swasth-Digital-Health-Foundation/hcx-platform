@@ -94,7 +94,7 @@ object Constants {
   val ALLOWED_RECIPIENTS = "allowed_recipients"
   val CATEGORY = "category"
   val NETWORK = "Network"
-  val ERROR_DETAILS = "error_details"
+  val ERROR_DETAILS = "x-hcx_error_details"
   val ERROR_STATUS = "response.error"
   val DISPATCH_STATUS = "request.dispatched"
   val QUEUED_STATUS = "request.queued"

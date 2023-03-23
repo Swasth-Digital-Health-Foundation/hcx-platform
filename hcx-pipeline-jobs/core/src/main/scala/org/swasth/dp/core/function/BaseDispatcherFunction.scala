@@ -77,7 +77,7 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
     errorMap
   }
 
-  def dispatchErrorResponse(event: util.Map[String, AnyRef], error: Option[ErrorResponse], correlationId: String, payloadRefId: String, senderCtx: util.Map[String, AnyRef], context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
+  def   dispatchErrorResponse(event: util.Map[String, AnyRef], error: Option[ErrorResponse], correlationId: String, payloadRefId: String, senderCtx: util.Map[String, AnyRef], context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
     val protectedMap = new util.HashMap[String, AnyRef]
     //Update sender code
     protectedMap.put(Constants.HCX_SENDER_CODE, config.hcxRegistryCode)
@@ -91,7 +91,7 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
     if(!getProtocolStringValue(event,Constants.WORKFLOW_ID).isEmpty)
       protectedMap.put(Constants.WORKFLOW_ID, getProtocolStringValue(event,Constants.WORKFLOW_ID))
     //Update error details
-    protectedMap.put(Constants.ERROR_DETAILS,createErrorMap(error))
+    protectedMap.put(Constants.ERROR_DETAILS, createErrorMap(error))
     //Update status
     protectedMap.put(Constants.HCX_STATUS,Constants.ERROR_STATUS)
     Console.println("Payload: " + protectedMap)
@@ -139,11 +139,9 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
           logger.info("result::" + result)
           //Adding updatedTimestamp for auditing
           event.put(Constants.UPDATED_TIME, Calendar.getInstance().getTime())
-          Console.println("result " + JSONUtil.serialize(result))
           if (result.success) {
             updateDBStatus(payloadRefId, Constants.DISPATCH_STATUS)
             setStatus(event, Constants.DISPATCH_STATUS)
-            Console.println("Event after updating dispatched stats " + event)
             metrics.incCounter(metric = config.dispatcherSuccessCount)
           }
           if (result.retry) {
@@ -185,8 +183,9 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
   private def dispatchError(payloadRefId: String, event: util.Map[String,AnyRef], result: DispatcherResult, correlationId: String, senderCtx: util.Map[String,AnyRef], context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
     updateDBStatus(payloadRefId, Constants.ERROR_STATUS)
     setStatus(event, Constants.ERROR_STATUS)
+    setErrorDetails(event, createErrorMap(result.error))
     metrics.incCounter(metric = config.dispatcherFailedCount)
-    dispatchErrorResponse(event,result.error, correlationId, payloadRefId, senderCtx, context, metrics)
+    dispatchErrorResponse(event, result.error, correlationId, payloadRefId, senderCtx, context, metrics)
   }
 
   private def executeDBQuery(query: String): Boolean = {
@@ -223,7 +222,6 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
     audit.put(Constants.MID,event.get(Constants.MID).asInstanceOf[String])
     audit.put(Constants.ACTION,event.get(Constants.ACTION).asInstanceOf[String])
     audit.put(Constants.HCX_STATUS,getProtocolStringValue(event,Constants.HCX_STATUS))
-    Console.println("hcx status " + getProtocolStringValue(event,Constants.HCX_STATUS))
     audit.put(Constants.REQUESTED_TIME,event.get(Constants.ETS))
     audit.put(Constants.UPDATED_TIME,event.getOrDefault(Constants.UPDATED_TIME, Calendar.getInstance().getTime()))
     audit.put(Constants.ETS, Calendar.getInstance().getTime())
@@ -234,6 +232,7 @@ abstract class BaseDispatcherFunction (config: BaseJobConfig)
     audit.put(Constants.SENDER_PRIMARY_EMAIL, getCDataStringValue(event, Constants.SENDER, Constants.PRIMARY_EMAIL))
     audit.put(Constants.RECIPIENT_PRIMARY_EMAIL, getCDataStringValue(event, Constants.RECIPIENT, Constants.PRIMARY_EMAIL))
     audit.put(Constants.PAYLOAD, removeSensitiveData(payload))
+    Console.log("Audit event: " + audit)
     audit
   }
 
