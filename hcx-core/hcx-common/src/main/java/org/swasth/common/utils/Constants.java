@@ -134,6 +134,7 @@ public class Constants {
     public static final String RECIPIENTDETAILS = "recipientDetails";
     public static final String SENDER_PRIMARY_EMAIL = "senderPrimaryEmail";
     public static final String RECIPIENT_PRIMARY_EMAIL = "recipientPrimaryEmail";
+    public static final String TAGS = "tags";
     public static final String API_CALL_ID = "x-hcx-api_call_id";
     public static final String CORRELATION_ID = "x-hcx-correlation_id";
     public static final String WORKFLOW_ID = "x-hcx-workflow_id";
@@ -296,5 +297,10 @@ public class Constants {
    public static final String JTI = "jti";
    public static final String IAT = "iat";
    public static final String EXP = "exp";
+
+
+   public static final String PARTICIPANTS = "participants";
+   public static final String ERROR = "error";
+   public static final String REQUEST_LOG = "Processing request :: action: {} :: request: {}";
 
 }

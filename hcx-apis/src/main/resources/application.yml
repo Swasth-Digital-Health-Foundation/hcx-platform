@@ -100,6 +100,8 @@ notification:
   participantPath: ${notification_participantPath:participantNotifications.yaml}
   workflowPath: ${notification_workflowPath:workflowNotifications.yaml}
 
+tag: ${tag_name:}
+
 #AWS S3 bucket
 certificates:
   accesskey : ${certificates_accessKey:}

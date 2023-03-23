@@ -77,10 +77,16 @@ hcx-api:
 hcx-onboard:
   basePath: ${HCX_ONBOARD_BASEPATH:http://localhost:8082}
 
+hcx-mock-service:
+  basePath: ${HCX_MOCK_SERVICE_BASEPATH:http://localhost:8083}
+
 #elasticsearch config
 es:
   host: ${es_host:localhost}
   port: ${es_port:9200}
+
+tag:
+   name : ${tag_name:}
 
 #audit config
 audit:
@@ -165,3 +171,13 @@ spring:
             - RewritePath=/${version.external07}/applicant/(?<segment>/?.*), /${version.internal}/applicant/$\{segment}
           predicates:
             - Path=/${version.external07}/participant/verify, /${version.external07}/participant/verify/identity, /${version.external07}/participant/otp/send, /${version.external07}/participant/onboard/update, /${version.external07}/applicant/getinfo, /${version.external07}/applicant/verify
+
+        - id: hcx-mock-service-route
+          uri: ${hcx-mock-service.basePath}
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
+          predicates:
+            - Path=/payer/request/**
