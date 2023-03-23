@@ -47,7 +47,8 @@ class DispatcherUtil(config: BaseJobConfig) extends Serializable {
         DispatcherResult(false, 0, null, false)
     } catch {
       case ex: Exception =>
-        val errorResponse: ErrorResponse = ErrorResponse(Option(Constants.RECIPIENT_ERROR_CODE), Option(Constants.RECIPIENT_ERROR_MESSAGE), Option(""))
+        ex.printStackTrace()
+        val errorResponse: ErrorResponse = ErrorResponse(Option(""), Option(ex.getMessage), Option(""))
         DispatcherResult(false, 0, Option(errorResponse), true)
     } finally {
       if (response != null)
@@ -57,7 +58,9 @@ class DispatcherUtil(config: BaseJobConfig) extends Serializable {
 
   private def errorMessageProcess(response: CloseableHttpResponse) = {
     val responseBody = EntityUtils.toString(response.getEntity, StandardCharsets.UTF_8)
-    val errorResponse = ErrorResponse(Option(Constants.RECIPIENT_ERROR_CODE), Option(Constants.RECIPIENT_ERROR_MESSAGE), Option(responseBody))
+    val responseMap = JSONUtil.deserialize[util.Map[String, AnyRef]](responseBody)
+    val error = responseMap.getOrDefault(Constants.ERROR, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]]
+    val errorResponse = ErrorResponse(Option(error.getOrDefault(Constants.CODE, "").asInstanceOf[String]), Option(error.getOrDefault(Constants.MESSAGE, responseBody).asInstanceOf[String]), Option(error.getOrDefault(Constants.TRACE, "").asInstanceOf[String]))
     errorResponse
   }
 

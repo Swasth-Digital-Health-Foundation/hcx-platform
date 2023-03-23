@@ -65,6 +65,7 @@ object Constants {
   val VALID_STATUS = List("Created", "Active")
   val ACTIVE = "Active"
   val ENTITY_TYPE = "entity_type"
+  val ERROR = "error"
 
   //Event Fields
   val HCX_SENDER_CODE = "x-hcx-sender_code"
