@@ -73,15 +73,16 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
     metrics.incCounter(config.auditEventsCount)
   }
 
-  def createErrorMap(error: Option[ErrorResponse]): util.Map[String, AnyRef] = {
-    val errorMap: util.Map[String, AnyRef] = new util.HashMap[String, AnyRef]
-    errorMap.put("code", error.get.code.get)
-    errorMap.put("message", error.get.message.get)
-    errorMap.put("trace", error.get.trace.get)
+
+  def createErrorMap(error: Option[ErrorResponse]):util.Map[String, AnyRef] = {
+    val errorMap:util.Map[String, AnyRef] = new util.HashMap[String, AnyRef]
+    errorMap.put("code", error.flatMap(_.code).getOrElse(""))
+    errorMap.put("message", error.flatMap(_.message).getOrElse(""))
+    errorMap.put("trace", error.flatMap(_.trace).getOrElse(""))
     errorMap
   }
 
-  def dispatchErrorResponse(event: util.Map[String, AnyRef], error: Option[ErrorResponse], correlationId: String, payloadRefId: String, senderCtx: util.Map[String, AnyRef], context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
+  def   dispatchErrorResponse(event: util.Map[String, AnyRef], error: Option[ErrorResponse], correlationId: String, payloadRefId: String, senderCtx: util.Map[String, AnyRef], context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
     val protectedMap = new util.HashMap[String, AnyRef]
     //Update sender code
     protectedMap.put(Constants.HCX_SENDER_CODE, config.hcxRegistryCode)
@@ -98,7 +99,7 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
     protectedMap.put(Constants.ERROR_DETAILS, createErrorMap(error))
     //Update status
     protectedMap.put(Constants.HCX_STATUS, Constants.ERROR_STATUS)
-    Console.println("Payload: " + protectedMap)
+    Console.println("Sending error response: " + protectedMap)
     val result = dispatcherUtil.dispatch(senderCtx, JSONUtil.serialize(protectedMap))
     if (result.retry) {
       logger.info("Error while dispatching error response: " + result.error.get.message.get)
@@ -187,6 +188,7 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
   private def dispatchError(payloadRefId: String, event: util.Map[String, AnyRef], result: DispatcherResult, correlationId: String, senderCtx: util.Map[String, AnyRef], context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
     updateDBStatus(payloadRefId, Constants.ERROR_STATUS)
     setStatus(event, Constants.ERROR_STATUS)
+    setErrorDetails(event, createErrorMap(result.error))
     metrics.incCounter(metric = config.dispatcherFailedCount)
     dispatchErrorResponse(event, result.error, correlationId, payloadRefId, senderCtx, context, metrics)
   }
@@ -214,19 +216,19 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
   def createAuditRecord(event: util.Map[String, AnyRef]): util.Map[String, AnyRef] = {
     val audit = new util.HashMap[String, AnyRef]();
     audit.put(Constants.EID, Constants.AUDIT)
-    audit.put(Constants.HCX_RECIPIENT_CODE, getProtocolStringValue(event, Constants.HCX_RECIPIENT_CODE))
-    audit.put(Constants.HCX_SENDER_CODE, getProtocolStringValue(event, Constants.HCX_SENDER_CODE))
-    audit.put(Constants.API_CALL_ID, getProtocolStringValue(event, Constants.API_CALL_ID))
-    audit.put(Constants.HCX_CORRELATION_ID, getProtocolStringValue(event, Constants.HCX_CORRELATION_ID))
-    audit.put(Constants.WORKFLOW_ID, getProtocolStringValue(event, Constants.WORKFLOW_ID))
-    audit.put(Constants.HCX_TIMESTAMP, getProtocolStringValue(event, Constants.HCX_TIMESTAMP))
-    audit.put(Constants.ERROR_DETAILS, getProtocolMapValue(event, Constants.ERROR_DETAILS))
-    audit.put(Constants.DEBUG_DETAILS, getProtocolMapValue(event, Constants.DEBUG_DETAILS))
-    audit.put(Constants.MID, event.get(Constants.MID).asInstanceOf[String])
-    audit.put(Constants.ACTION, event.get(Constants.ACTION).asInstanceOf[String])
-    audit.put(Constants.HCX_STATUS, getProtocolStringValue(event, Constants.HCX_STATUS))
-    audit.put(Constants.REQUESTED_TIME, event.get(Constants.ETS))
-    audit.put(Constants.UPDATED_TIME, event.getOrDefault(Constants.UPDATED_TIME, Calendar.getInstance().getTime()))
+    audit.put(Constants.HCX_RECIPIENT_CODE,getProtocolStringValue(event,Constants.HCX_RECIPIENT_CODE))
+    audit.put(Constants.HCX_SENDER_CODE,getProtocolStringValue(event,Constants.HCX_SENDER_CODE))
+    audit.put(Constants.API_CALL_ID,getProtocolStringValue(event,Constants.API_CALL_ID))
+    audit.put(Constants.HCX_CORRELATION_ID,getProtocolStringValue(event,Constants.HCX_CORRELATION_ID))
+    audit.put(Constants.WORKFLOW_ID,getProtocolStringValue(event,Constants.WORKFLOW_ID))
+    audit.put(Constants.HCX_TIMESTAMP,getProtocolStringValue(event,Constants.HCX_TIMESTAMP))
+    audit.put(Constants.ERROR_DETAILS,getProtocolMapValue(event,Constants.ERROR_DETAILS))
+    audit.put(Constants.DEBUG_DETAILS,getProtocolMapValue(event,Constants.DEBUG_DETAILS))
+    audit.put(Constants.MID,event.get(Constants.MID).asInstanceOf[String])
+    audit.put(Constants.ACTION,event.get(Constants.ACTION).asInstanceOf[String])
+    audit.put(Constants.HCX_STATUS,getProtocolStringValue(event,Constants.HCX_STATUS))
+    audit.put(Constants.REQUESTED_TIME,event.get(Constants.ETS))
+    audit.put(Constants.UPDATED_TIME,event.getOrDefault(Constants.UPDATED_TIME, Calendar.getInstance().getTime()))
     audit.put(Constants.ETS, Calendar.getInstance().getTime())
     audit.put(Constants.SENDER_ROLE, getCDataListValue(event, Constants.SENDER, Constants.ROLES))
     audit.put(Constants.RECIPIENT_ROLE, getCDataListValue(event, Constants.RECIPIENT, Constants.ROLES))
@@ -236,6 +238,7 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
     audit.put(Constants.RECIPIENT_PRIMARY_EMAIL, getCDataStringValue(event, Constants.RECIPIENT, Constants.PRIMARY_EMAIL))
     audit.put(Constants.PAYLOAD, removeSensitiveData(payload))
     getTag(event,audit)
+    Console.println("Audit event: " + audit)
     audit
   }
 
