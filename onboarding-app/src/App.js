@@ -10,6 +10,7 @@ import { Home } from './components/HomePage';
 import { Success } from './components/Success';
 import { Onboarded } from './components/Onboarded';
 import { PayorSystem } from './components/PayorSystem';
+import { UpdateDetails } from './components/UpdateDetails';
 
 function App() {
 
@@ -19,6 +20,9 @@ function App() {
     <div className="App">
       <Router>
         <Switch>
+          <Route path="/participant/update/endpointurl">
+            <UpdateDetails />
+          </Route>
           {env === 'staging' ?
             <Route path="/onboarding/payorsystem">
               <PayorSystem />
