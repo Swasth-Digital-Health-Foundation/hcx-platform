@@ -33,7 +33,7 @@ class DispatcherUtil(config: BaseJobConfig) extends Serializable {
         Console.println("HCX Token: " + jwtUtil.generateHCXGatewayToken(ctx.getOrDefault(Constants.PARTICIPANT_CODE, "").asInstanceOf[String]))
         response = httpClient.execute(httpPost);
         val statusCode = response.getStatusLine().getStatusCode();
-        Console.println("statusCode", statusCode);
+        Console.println("Status code: " + statusCode + " :: Response body: " + EntityUtils.toString(response.getEntity, StandardCharsets.UTF_8));
         if (config.successCodes.contains(statusCode)) {
           DispatcherResult(true, statusCode, null, false)
         } else if (config.errorCodes.contains(statusCode)) {
