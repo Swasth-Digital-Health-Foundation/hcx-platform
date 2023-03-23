@@ -77,7 +77,7 @@ abstract class BaseProcessFunction[T, R](config: BaseJobConfig) extends ProcessF
   }
 
   def setStatus(event: util.Map[String, AnyRef], status: String): Unit = {
-    if(!event.get(Constants.HEADERS).asInstanceOf[util.Map[String, AnyRef]].get(Constants.PROTOCOL).asInstanceOf[util.Map[String, AnyRef]].containsKey(Constants.HCX_STATUS))
+    if(Constants.ALLOWED_STATUS_UPDATE.contains(event.get(Constants.HEADERS).asInstanceOf[util.Map[String, AnyRef]].get(Constants.PROTOCOL).asInstanceOf[util.Map[String, AnyRef]].getOrDefault(Constants.HCX_STATUS, "")))
       event.get(Constants.HEADERS).asInstanceOf[util.Map[String, AnyRef]].get(Constants.PROTOCOL).asInstanceOf[util.Map[String, AnyRef]].put(Constants.HCX_STATUS, status)
   }
 

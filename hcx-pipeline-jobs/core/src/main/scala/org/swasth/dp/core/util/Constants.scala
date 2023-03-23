@@ -117,6 +117,7 @@ object Constants {
   val PARTICIPANT_ROLE = "participant_role"
   val RECIPIENTS = "recipients"
   val CORRELATIONID = "correlation_id"
+  val ALLOWED_STATUS_UPDATE = List(QUEUED_STATUS, DISPATCH_STATUS, ERROR_STATUS)
 
   // Notification topic codes
   val PARTICIPANT_ONBOARD = "notif-participant-onboarded"
