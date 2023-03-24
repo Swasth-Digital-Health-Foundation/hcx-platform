@@ -1,12 +1,7 @@
 name: HCX Platform - Build
 
 on:
-  push:
-    branches:
-      - main
-      - sprint-*
-#    tags:
-#      - *
+  workflow_dispatch
 
 jobs:
   build:
