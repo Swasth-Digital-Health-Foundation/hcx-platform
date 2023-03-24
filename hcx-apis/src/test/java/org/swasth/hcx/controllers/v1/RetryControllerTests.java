@@ -37,7 +37,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
         int status = response.getStatus();
         assertEquals(202, status);
         assertEquals(Constants.SUCCESSFUL,output.get("status"));
-
     }
 
     @Test
