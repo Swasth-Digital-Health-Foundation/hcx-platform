@@ -73,11 +73,12 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
     metrics.incCounter(config.auditEventsCount)
   }
 
-  def createErrorMap(error: Option[ErrorResponse]): util.Map[String, AnyRef] = {
-    val errorMap: util.Map[String, AnyRef] = new util.HashMap[String, AnyRef]
-    errorMap.put("code", error.get.code.get)
-    errorMap.put("message", error.get.message.get)
-    errorMap.put("trace", error.get.trace.get)
+
+  def createErrorMap(error: Option[ErrorResponse]):util.Map[String, AnyRef] = {
+    val errorMap:util.Map[String, AnyRef] = new util.HashMap[String, AnyRef]
+    errorMap.put("code", error.flatMap(_.code).getOrElse(""))
+    errorMap.put("message", error.flatMap(_.message).getOrElse(""))
+    errorMap.put("trace", error.flatMap(_.trace).getOrElse(""))
     errorMap
   }
 
@@ -98,7 +99,7 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
     protectedMap.put(Constants.ERROR_DETAILS, createErrorMap(error))
     //Update status
     protectedMap.put(Constants.HCX_STATUS, Constants.ERROR_STATUS)
-    Console.println("Payload: " + protectedMap)
+    Console.println("Sending error response: " + protectedMap)
     val result = dispatcherUtil.dispatch(senderCtx, JSONUtil.serialize(protectedMap))
     if (result.retry) {
       logger.info("Error while dispatching error response: " + result.error.get.message.get)
