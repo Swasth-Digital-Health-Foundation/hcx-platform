@@ -238,6 +238,8 @@ public class ParticipantService extends BaseController {
             }
             updateOtpStatus(true, true, attemptCount, SUCCESSFUL, participantCode);
             if(ENV_LIST.contains(env)) {
+                String message = updateMessage;
+                message.replace("PARTICIPANT_NAME",(String)requestBody.get(PARTICIPANT_NAME)).replace("ENV",env);
                 emailService.sendMail(primaryEmail, updateSubject, updateMessage);
             }
             logger.info("Communication details verification is successful :: participant_code  : " + participantCode);

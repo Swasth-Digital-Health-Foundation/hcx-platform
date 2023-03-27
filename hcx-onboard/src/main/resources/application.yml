@@ -5,7 +5,8 @@ logging:
   level:
     root: ${LOGGING_LEVEL_ROOT:INFO}
 
-env: ${ENV:${env}}
+environment: local
+env: ${ENV:${environment}}
 
 #elasticsearch config
 es:
@@ -36,8 +37,8 @@ email:
   failedIdentityMsg: ${failed_identity_msg:Hi User,<br/><br/>Identity verification is failed. Please reach out to HCX Team.<br/><br/>Thanks,<br/> HCX Team}
   onboardingSuccessSub: ${onboarding_success_sub:HCX - Onboarding Successful}
   onboardingSuccessMsg: ${onboarding_success_msg:Hi USER_NAME,<br/><br/>Your onboarding is successful, Welcome to HCX.<br/>Please refer to the <a href="${onboarding.successURL}">link</a> for protocol details and integration specifications.<br/>Thanks,<br/> HCX Team}
-  updateEmailSub: ${update_sub:Update Details}
-  updateEmailMessage: ${update_message:Please Update below details:<ol><li> Endpoint URL </li> <li> Encryption certificate </li></ol></br> Best regards,<br> HCX Team}
+  updateEmailSub: ${update_sub:Participant Update API Details}
+  updateEmailMessage: ${update_message:Hi <b>PARTICIPANT_NAME</b>,<br/> You can update your endpoint URL and encryption certificate using the below update API. First, you have to generate the access token using the below API and use it as authorization token in update API <br> After updating the details in registry, HCX will validate the details and make participant status to ‘Active’. <br> Keycloak Access Token API:<br> curl --location --request POST 'http://ENV-hcx.swasth.app/auth/realms/swasth-health-claim-exchange/protocol/openid-connect/token'\<br> --header  'content-type:application/x-www-form-urlencoded' \ <br> --data-urlencode 'client_id=registry-frontend' \ <br> --data-urlencode 'username=provider@01' \ <br> --data-urlencode 'password=Test@123' \ <br> --data-urlencode 'grant_type=password' <br> Update API <br> curl --location --request POST <br> 'http://{env}-hcx.swasth.app/api/v0.7/participant/onboard/update' \ <br> --header 'Authorization:Bearer eyJhbGdUIiwia2lkIiA6ITc0bG83WHNNZXFtNmx3QlNEVEs2dkh4WmloMXBZIn0.eyJl' \ <br> --header 'Content-Type:application/json' \ <br>--data-raw '{ <br>"participant":{ "participant_code":"provider@01@swasth-hcx", "endpoint_url":"https://services.url/api/v0.7", "encryption_cert":"https://provider.public-cert.pem" }<br>}'<br> If you have any questions or concerns, please reach out to us.<br> Best regards,<br> HCX Team}
 
 hcx-api:
   basePath: ${HCX_API_BASEPATH:http://localhost:8080}
