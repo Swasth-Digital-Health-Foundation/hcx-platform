@@ -9,7 +9,6 @@ import org.swasth.apigateway.exception.ErrorCodes;
 import org.swasth.apigateway.utils.DateTimeUtils;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.utils.PayloadUtils;
-import org.swasth.common.utils.UUIDUtils;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
