@@ -67,8 +67,6 @@ public class BaseRequest {
         for (Map.Entry<String, ClientException> entry : getResponseParamErrors().entrySet()) {
             validateHeader(protocolHeaders, entry.getKey(), entry.getValue());
         }
-        validateCondition(!UUIDUtils.isUUID(getApiCallId()), ErrorCodes.ERR_INVALID_API_CALL_ID, INVALID_API_CALL_UUID);
-        validateCondition(!UUIDUtils.isUUID(getCorrelationId()), ErrorCodes.ERR_INVALID_CORRELATION_ID, INVALID_CORRELATION_UUID);
 
         List<String> missingHeaders = mandatoryHeaders.stream().filter(key -> !protocolHeaders.containsKey(key)).collect(Collectors.toList());
         if (!missingHeaders.isEmpty()) {
@@ -79,7 +77,6 @@ public class BaseRequest {
         }
 
         validateCondition(!DateTimeUtils.validTimestamp(timestampRange, getTimestamp()), ErrorCodes.ERR_INVALID_TIMESTAMP, MessageFormat.format(TIMESTAMP_FUTURE_MSG, timestampRange));
-        validateCondition(protocolHeaders.containsKey(WORKFLOW_ID) && !UUIDUtils.isUUID(getWorkflowId()), ErrorCodes.ERR_INVALID_WORKFLOW_ID, INVALID_WORKFLOW_UUID);
         validateCondition(StringUtils.equals(getHcxSenderCode(), getHcxRecipientCode()), ErrorCodes.ERR_INVALID_SENDER_AND_RECIPIENT, SENDER_RECIPIENT_SAME_MSG);
         validateParticipant(recipientDetails, ErrorCodes.ERR_INVALID_RECIPIENT, "Recipient", getHcxRecipientCode(), allowedParticipantStatus);
         validateParticipant(senderDetails, ErrorCodes.ERR_INVALID_SENDER, "Sender", getHcxSenderCode(), allowedParticipantStatus);
