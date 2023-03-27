@@ -54,6 +54,9 @@ public class Constants {
     public static final String AUDIT_SEARCH = "/audit/search";
     public static final String AUDIT_NOTIFICATION_SEARCH = "/audit/notification/search";
 
+    // Supportability APIs
+    public static final String REQUEST_RETRY = "/request/retry/{mid}";
+
     // Registry Participant APIs
     public static final String PARTICIPANT_CREATE = "/participant/create";
     public static final String PARTICIPANT_SEARCH = "/participant/search";
@@ -91,6 +94,7 @@ public class Constants {
 
     //event generator props
     public static final String MID = "mid";
+    public static final String DATA = "data";
     public static final String PAYLOAD = "payload";
     public static final String ETS = "ets";
     public static final String ACTION = "action";
@@ -299,6 +303,9 @@ public class Constants {
    public static final String IAT = "iat";
    public static final String EXP = "exp";
 
-    public static final String REQUEST_LOG = "Processing request :: action: {} :: request: {}";
+
+   public static final String PARTICIPANTS = "participants";
+   public static final String ERROR = "error";
+   public static final String REQUEST_LOG = "Processing request :: action: {} :: request: {}";
 
 }

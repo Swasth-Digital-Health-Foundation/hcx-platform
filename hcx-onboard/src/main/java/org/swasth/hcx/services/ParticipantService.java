@@ -129,7 +129,13 @@ public class ParticipantService extends BaseController {
             participant.put(SCHEME_CODE, "default");
         String identityVerified = PENDING;
         if (ONBOARD_FOR_PROVIDER.contains(request.getType())) {
-            identityVerified = identityVerify(headers, getApplicantBody(request));
+            String query = String.format("SELECT * FROM %s WHERE applicant_email ILIKE '%s' AND status IN ('%s', '%s')", onboardingTable, request.getPrimaryEmail(),PENDING,REJECTED);
+            ResultSet result = (ResultSet) postgreSQLClient.executeQuery(query);
+            if (result.next()) {
+                identityVerified = identityVerify(headers, getApplicantBody(request));
+                if (StringUtils.equalsIgnoreCase(identityVerified, REJECTED))
+                    throw new ClientException("Identity verification is rejected by the payer, Please reach out to them.");
+            }
         }
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put(AUTHORIZATION, Objects.requireNonNull(headers.get(AUTHORIZATION)).get(0));
@@ -279,19 +285,20 @@ public class ParticipantService extends BaseController {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put(AUTHORIZATION, "Bearer " + jwtToken);
 
-        String otpQuery = String.format("SELECT * FROM %s WHERE primary_email='%s'", onboardingOtpTable, email);
+        String otpQuery = String.format("SELECT * FROM %s WHERE primary_email ILIKE '%s'", onboardingOtpTable, email);
         ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(otpQuery);
         if (resultSet.next()) {
             emailOtpVerified = resultSet.getBoolean(EMAIL_OTP_VERIFIED);
             phoneOtpVerified = resultSet.getBoolean(PHONE_OTP_VERIFIED);
         }
 
-        String onboardingQuery = String.format("SELECT * FROM %s WHERE applicant_email='%s'", onboardingTable, email);
+        String onboardingQuery = String.format("SELECT * FROM %s WHERE applicant_email ILIKE '%s'", onboardingTable, email);
         ResultSet resultSet1 = (ResultSet) postgreSQLClient.executeQuery(onboardingQuery);
         if (resultSet1.next()) {
             identityStatus = resultSet1.getString("status");
         }
 
+        logger.info("Email verification: {} :: Phone verification: {} :: Identity verification: {}", emailOtpVerified, phoneOtpVerified, identityStatus);
         if (emailOtpVerified && phoneOtpVerified && StringUtils.equalsIgnoreCase(identityStatus, ACCEPTED)) {
             HttpResponse<String> response = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_UPDATE, JSONUtils.serialize(participant), headersMap);
             if (response.getStatus() == 200) {
@@ -361,6 +368,7 @@ public class ParticipantService extends BaseController {
     }
 
     private String identityVerify(HttpHeaders header, Map<String, Object> requestBody) throws Exception {
+        logger.info("Identity verification :: request: {}", requestBody);
         String verifierCode = (String) requestBody.get(VERIFIER_CODE);
         Map<String, Object> verifierDetails = getParticipant(PARTICIPANT_CODE, verifierCode);
         String result;
@@ -373,7 +381,7 @@ public class ParticipantService extends BaseController {
             Response errResp = JSONUtils.deserialize(httpResp.getBody(), Response.class);
             throw new ClientException(errResp.getError().getCode(), errResp.getError().getMessage());
         }
-
+        logger.info("Identity verification response from payer system :: status: {} :: response: {}", httpResp.getStatus(), httpResp.getBody());
         return result;
     }
 

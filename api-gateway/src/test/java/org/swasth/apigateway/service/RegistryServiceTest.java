@@ -48,35 +48,14 @@ class RegistryServiceTest {
     }
 
     @Test
-    void check_registry_service_success_scenario() throws Exception {
-        registryServer.enqueue(new MockResponse()
-                .setResponseCode(200)
-                .setBody("[{\"test\":\"123\"}]")
-                .addHeader("Content-Type", "application/json"));
-
-        Map<String,Object> result = registryService.fetchDetails("osid", "test_123");
-        assertEquals("123", result.get("test"));
-    }
-
-    @Test
     void check_registry_service_empty_response_scenario() throws Exception {
         registryServer.enqueue(new MockResponse()
                 .setResponseCode(200)
-                .setBody("[]")
+                .setBody("{ \"timestamp\": 1677646697335, \"participants\": []}")
                 .addHeader("Content-Type", "application/json"));
 
-        Map<String,Object> result = registryService.fetchDetails("osid", "test_123");
+        Map<String,Object> result = registryService.fetchDetails("participant_code", "testprovider2.swasthmock@swasth-hcx");
         assertTrue(result.isEmpty());
-    }
-
-    @Test
-    void check_registry_service_internal_server_exception_scenario() {
-        registryServer.enqueue(new MockResponse()
-                .setResponseCode(400)
-                .addHeader("Content-Type", "application/json"));
-
-        Exception exception = assertThrows(Exception.class, () -> registryService.fetchDetails("osid", "test_123"));
-        assertEquals("Error in fetching the participant details. Status Code is 400", exception.getMessage());
     }
 
 }

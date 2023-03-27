@@ -32,7 +32,7 @@ public class RegistryService {
         if (response.getStatus() == 200) {
             details = JSONUtils.deserialize(response.getBody(), List.class);
         } else {
-            throw new Exception("Error in fetching the participant details" + response.getStatus());
+            throw new Exception("Error in fetching the participant details" + response.getBody());
         }
         return details;
     }
