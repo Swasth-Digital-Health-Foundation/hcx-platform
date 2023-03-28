@@ -144,3 +144,15 @@ spring:
           predicates:
             - Path=/${version.external07}/participant/**, /${version.external08}/participant/**, /health, /service/health, /${version.external08}/notification/topic/list
 
+        - id: hcx-onboard-update-api-route
+          uri: ${hcx-onboard.basePath}
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
+            - RewritePath=/${version.external07}/participant/(?<segment>/?.*), /${version.internal}/participant/$\{segment}
+            - CachingRequestBodyFilter
+            - OnboardFilter
+          predicates:
+            - Path=/${version.external07}/participant/onboard/update
