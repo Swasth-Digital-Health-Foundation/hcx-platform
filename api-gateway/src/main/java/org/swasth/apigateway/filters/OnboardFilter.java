@@ -35,9 +35,12 @@ public class OnboardFilter extends AbstractGatewayFilterFactory<OnboardFilter.Co
         Map<String, Object> requestBody = new HashMap<>();
         return ((exchange, chain) -> {
             try {
-                String token = Objects.requireNonNull(exchange.getRequest().getHeaders().get("Authorization").toString().substring(7));
-                requestBody.putAll(JSONUtils.deserialize(String.valueOf(StandardCharsets.UTF_8.decode(((DataBuffer) exchange.getAttribute(CACHED_REQUEST_BODY_ATTR)).asByteBuffer())), HashMap.class));
-                requestBody.put(JWT_TOKEN, token);
+                StringBuilder cachedBody = new StringBuilder(StandardCharsets.UTF_8.decode(((DataBuffer) exchange.getAttribute(CACHED_REQUEST_BODY_ATTR)).asByteBuffer()));
+                requestBody.putAll(JSONUtils.deserialize(cachedBody.toString(), HashMap.class));
+                if (!requestBody.containsKey(JWT_TOKEN)) {
+                    String token = Objects.requireNonNull(exchange.getRequest().getHeaders().get("Authorization").toString().substring(7));
+                    requestBody.put(JWT_TOKEN, token);
+                }
             } catch (Exception e) {
                 return exceptionHandler.errorResponse(e, exchange, null, null, new BaseRequest());
             }
