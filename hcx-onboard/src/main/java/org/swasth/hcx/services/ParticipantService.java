@@ -77,10 +77,10 @@ public class ParticipantService extends BaseController {
     @Value("${env}")
     private String env;
 
-    @Value("${email.updateEmailSub}")
+    @Value("${email.updateDetailsSub}")
     private String updateSubject;
 
-    @Value("${email.updateEmailMessage}")
+    @Value("${email.updateDetailsMessage}")
     private String updateMessage;
     @Value("${registry.hcxCode}")
     private String hcxCode;
@@ -211,6 +211,7 @@ public class ParticipantService extends BaseController {
         boolean phoneOtpVerified = false;
         int attemptCount = 0;
         String primaryEmail;
+        Map<String, Object> verifierDetails = getParticipant(PARTICIPANT_CODE, (String) requestBody.get(PARTICIPANT_CODE));
         String status = FAILED;
         List<Map<String, Object>> otpVerificationList = (List<Map<String, Object>>) requestBody.get(OTPVERIFICATION);
         try {
@@ -244,9 +245,10 @@ public class ParticipantService extends BaseController {
             }
             updateOtpStatus(true, true, attemptCount, SUCCESSFUL, participantCode);
             if(ENV_LIST.contains(env)) {
-                String message = updateMessage;
-                message.replace("PARTICIPANT_NAME",(String)requestBody.get(PARTICIPANT_NAME)).replace("ENV",env);
-                emailService.sendMail(primaryEmail, updateSubject, updateMessage);
+                String emailMsg = updateMessage;
+                emailMsg = emailMsg.replace("PARTICIPANT_NAME",(String) verifierDetails.get(PARTICIPANT_NAME))
+                        .replace("ENV", env);
+                emailService.sendMail(primaryEmail, updateSubject, emailMsg);
             }
             logger.info("Communication details verification is successful :: participant_code  : " + participantCode);
             return ACCEPTED;
@@ -272,14 +274,16 @@ public class ParticipantService extends BaseController {
         return (Map<String, Object>) participantResponse.getParticipants().get(0);
     }
 
-    public ResponseEntity<Object> onboardUpdate(Map<String, Object> requestBody) throws Exception {
+    public ResponseEntity<Object> onboardUpdate(Map<String,Object> requestBody) throws Exception {
         logger.info("Onboard update: " + requestBody);
+        validateRequest(requestBody);
         boolean emailOtpVerified = false;
         boolean phoneOtpVerified = false;
         String identityStatus = REJECTED;
         String jwtToken = (String) requestBody.get(JWT_TOKEN);
         Map<String, Object> payload = JSONUtils.decodeBase64String(jwtToken.split("\\.")[1], Map.class);
         Map<String, Object> participant = (Map<String, Object>) requestBody.get(PARTICIPANT);
+        Map<String,Object> participantDetails = getParticipant(PARTICIPANT_CODE, (String) participant.get(PARTICIPANT_CODE));
         String email = (String) payload.get("email");
         participant.put(REGISTRY_STATUS, ACTIVE);
         Map<String, String> headersMap = new HashMap<>();
@@ -303,7 +307,7 @@ public class ParticipantService extends BaseController {
             HttpResponse<String> response = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_UPDATE, JSONUtils.serialize(participant), headersMap);
             if (response.getStatus() == 200) {
                 logger.info("Participant details are updated successfully :: participant code : " + participant.get(PARTICIPANT_CODE));
-                emailService.sendMail(email, onboardingSuccessSub, onboardingSuccessMsg.replace("USER_NAME", StringUtils.capitalize((String) participant.get(PARTICIPANT_NAME))));
+                emailService.sendMail(email, onboardingSuccessSub, onboardingSuccessMsg.replace("USER_NAME", StringUtils.capitalize((String) participantDetails.getOrDefault(PARTICIPANT_NAME,""))));
                 return getSuccessResponse(new Response(PARTICIPANT_CODE, participant.get(PARTICIPANT_CODE)));
             } else return new ResponseEntity<>(response.getBody(), HttpStatus.valueOf(response.getStatus()));
         } else {
@@ -397,5 +401,11 @@ public class ParticipantService extends BaseController {
         Map<String,String> headers = new HashMap<>();
         headers.put(AUTHORIZATION,"Bearer "+ jwtUtils.generateAuthToken(privatekey,verifierCode,hcxCode,expiryTime));
         return headers;
+    }
+    private void validateRequest(Map<String,Object> requestBody) throws Exception {
+        if(!requestBody.containsKey(JWT_TOKEN) || !(requestBody.get(JWT_TOKEN) instanceof String))
+            throw new ClientException(ErrorCodes.ERR_INVALID_REQUEST, "jwt_token field is missing or empty");
+        if(!requestBody.containsKey(PARTICIPANT) || !(requestBody.get(PARTICIPANT) instanceof Map))
+            throw new ClientException(ErrorCodes.ERR_INVALID_REQUEST,"participant field is missing or empty");
     }
 }

@@ -5,7 +5,9 @@ import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.stereotype.Component;
+import org.swasth.apigateway.handlers.ExceptionHandler;
 import org.swasth.apigateway.handlers.RequestHandler;
+import org.swasth.apigateway.models.BaseRequest;
 import org.swasth.common.utils.JSONUtils;
 
 import java.nio.charset.StandardCharsets;
@@ -21,6 +23,9 @@ public class OnboardFilter extends AbstractGatewayFilterFactory<OnboardFilter.Co
     @Autowired
     RequestHandler requestHandler;
 
+    @Autowired
+    ExceptionHandler exceptionHandler;
+
     public OnboardFilter() {
         super(OnboardFilter.Config.class);
     }
@@ -34,7 +39,7 @@ public class OnboardFilter extends AbstractGatewayFilterFactory<OnboardFilter.Co
                 requestBody.putAll(JSONUtils.deserialize(String.valueOf(StandardCharsets.UTF_8.decode(((DataBuffer) exchange.getAttribute(CACHED_REQUEST_BODY_ATTR)).asByteBuffer())), HashMap.class));
                 requestBody.put(JWT_TOKEN, token);
             } catch (Exception e) {
-                throw new RuntimeException();
+                return exceptionHandler.errorResponse(e, exchange, null, null, new BaseRequest());
             }
             return requestHandler.getUpdatedBody(exchange, chain, requestBody);
         });
