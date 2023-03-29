@@ -94,9 +94,14 @@ public class ParticipantService {
     public ParticipantResponse search(Map<String, Object> requestBody, String registryUrl, String fields) throws Exception {
         String url = registryUrl + registryApiPath + SEARCH;
         HttpResponse<String> response = HttpUtils.post(url, JSONUtils.serialize(requestBody), new HashMap<>());
-        if (fields != null && fields.toLowerCase().contains(SPONSORS)) {
-            ArrayList<Map<String, Object>> participantList = JSONUtils.deserialize(response.getBody(), ArrayList.class);
-            return getSponsors(participantList);
+        ArrayList<Map<String, Object>> participantList = JSONUtils.deserialize(response.getBody(), ArrayList.class);
+        if (fields != null && fields.toLowerCase().contains(VERIFICATION_STATUS) && fields.toLowerCase().contains(SPONSORS)) {
+            ArrayList<Map<String,Object>> responseList = getVerificationStatus(participantList);
+            return new ParticipantResponse(getSponsors(responseList));
+        } else if (fields != null && fields.toLowerCase().contains(SPONSORS)) {
+            return new ParticipantResponse(getSponsors(participantList));
+        } else if(fields != null && fields.toLowerCase().contains(VERIFICATION_STATUS)) {
+            return new ParticipantResponse(getVerificationStatus(participantList));
         }
         logger.info("Search is completed :: status code: {}", response.getStatus());
         return responseHandler(response, null);
@@ -148,9 +153,9 @@ public class ParticipantService {
         return Collections.singletonMap(VERIFICATION_STATUS, responseMap);
     }
 
-    public ParticipantResponse getSponsors(List<Map<String, Object>> participantsList) throws Exception {
+    public ArrayList<Object> getSponsors(List<Map<String, Object>> participantsList) throws Exception {
         String primaryEmailList = participantsList.stream().map(participant -> participant.get(PRIMARY_EMAIL)).collect(Collectors.toList()).toString();
-        String primaryEmailWithQuote = getPrimaryEmailWithQuote(primaryEmailList);
+        String primaryEmailWithQuote = getParticipantWithQuote(primaryEmailList);
         String selectQuery = String.format("SELECT * FROM %S WHERE applicant_email IN (%s)", onboardingTable, primaryEmailWithQuote);
         ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
         Map<String, Object> sponsorMap = new HashMap<>();
@@ -160,11 +165,24 @@ public class ParticipantService {
         }
         ArrayList<Object> modifiedResponseList = new ArrayList<>();
         filterSponsors(sponsorMap, participantsList, modifiedResponseList);
-        return new ParticipantResponse(modifiedResponseList);
+        return modifiedResponseList;
     }
 
-    private String getPrimaryEmailWithQuote(String primaryEmailList) {
-        return "'" + primaryEmailList.replace("[", "").replace("]", "").replace(" ", "").replace(",", "','") + "'";
+    public ArrayList<Map<String,Object>> getVerificationStatus(List<Map<String, Object>> participantsList) throws Exception {
+        String participantCodeList = participantsList.stream().map(participant -> participant.get(PARTICIPANT_CODE)).collect(Collectors.toList()).toString();
+        String participantCodeQuote = getParticipantWithQuote(participantCodeList);
+        String selectQuery = String.format("SELECT * FROM %s WHERE participant_code IN (%s)", onboardOtpTable, participantCodeQuote);
+        ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
+        Map<String,Object> verificationMap = new HashMap<>();
+        while (resultSet.next()) {
+            verificationMap.put(resultSet.getString(PARTICIPANT_CODE),resultSet.getString("status"));
+        }
+        ArrayList<Map<String,Object>> modifiedResponseList = new ArrayList<>();
+        filterVerification(verificationMap,participantsList,modifiedResponseList);
+        return modifiedResponseList;
+    }
+    private String getParticipantWithQuote(String participantList) {
+        return "'" + participantList.replace("[", "").replace("]", "").replace(" ", "").replace(",", "','") + "'";
     }
 
     private void filterSponsors(Map<String, Object> sponsorMap, List<Map<String, Object>> participantsList, ArrayList<Object> modifiedResponseList) {
@@ -179,6 +197,13 @@ public class ParticipantService {
         }
     }
 
+    private void filterVerification(Map<String, Object> verificationMap, List<Map<String, Object>> participantsList,ArrayList<Map<String,Object>> modifiedResponseList) {
+        for (Map<String, Object> responseList : participantsList) {
+            String code = (String) responseList.get(PARTICIPANT_CODE);
+            responseList.put(VERIFICATION_STATUS, verificationMap.getOrDefault(code, ""));
+            modifiedResponseList.add(responseList);
+        }
+    }
     public ResponseEntity<Object> getSuccessResponse(Object response) {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -227,7 +252,7 @@ public class ParticipantService {
     public void getCertificatesUrl(Map<String, Object> requestBody, String code) {
         getCertificates(requestBody, code, ENCRYPTION_CERT);
         if(requestBody.containsKey(SIGNING_CERT_PATH))
-          getCertificates(requestBody, code, SIGNING_CERT_PATH);
+            getCertificates(requestBody, code, SIGNING_CERT_PATH);
     }
 
     public Map<String, Object> getParticipant(String code, String registryUrl) throws Exception {
