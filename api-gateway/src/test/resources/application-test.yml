@@ -67,6 +67,8 @@ registry:
 hcx-api:
   basePath: ${HCX_API_BASEPATH:http://localhost:8080}
 
+hcx-onboard:
+  basePath: ${HCX_ONBOARD_BASEPATH:http://localhost:8082}
 #elasticsearch config
 es:
   host: ${es_host:localhost}
@@ -145,7 +147,7 @@ spring:
             - Path=/${version.external07}/participant/**, /${version.external08}/participant/**, /health, /service/health, /${version.external08}/notification/topic/list
 
         - id: hcx-onboard-update-api-route
-          uri: ${hcx-onboard.basePath}
+          uri: ${HCX_ONBOARD_BASEPATH:http://localhost:8082}
           filters:
             - name: RequestRateLimiter
               args:

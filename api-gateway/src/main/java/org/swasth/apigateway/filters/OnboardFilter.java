@@ -27,7 +27,7 @@ public class OnboardFilter extends AbstractGatewayFilterFactory<OnboardFilter.Co
     ExceptionHandler exceptionHandler;
 
     public OnboardFilter() {
-        super(OnboardFilter.Config.class);
+        super(Config.class);
     }
 
     @Override
@@ -38,7 +38,7 @@ public class OnboardFilter extends AbstractGatewayFilterFactory<OnboardFilter.Co
                 StringBuilder cachedBody = new StringBuilder(StandardCharsets.UTF_8.decode(((DataBuffer) exchange.getAttribute(CACHED_REQUEST_BODY_ATTR)).asByteBuffer()));
                 requestBody.putAll(JSONUtils.deserialize(cachedBody.toString(), HashMap.class));
                 if (!requestBody.containsKey(JWT_TOKEN)) {
-                    String token = Objects.requireNonNull(exchange.getRequest().getHeaders().get("Authorization").toString().substring(7));
+                    String token = Objects.requireNonNull(exchange.getRequest().getHeaders().get("Authorization").toString().substring(7).replace("]",""));
                     requestBody.put(JWT_TOKEN, token);
                 }
             } catch (Exception e) {

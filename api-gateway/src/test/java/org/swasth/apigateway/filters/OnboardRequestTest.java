@@ -8,11 +8,11 @@ import org.swasth.common.utils.Constants;
 import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class OnboardRequestTest extends BaseSpec {
+ class OnboardRequestTest extends BaseSpec {
 
 
     @Test
-    public void onboard_request_success_scenario() throws Exception {
+     void onboard_request_success_scenario() throws Exception {
         server.enqueue(new MockResponse()
                 .setResponseCode(202)
                 .addHeader("Content-Type", "application/json"));
