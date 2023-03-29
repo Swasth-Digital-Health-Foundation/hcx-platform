@@ -190,8 +190,6 @@ public class ParticipantService {
             String email = (String) responseList.get(PRIMARY_EMAIL);
             if (sponsorMap.containsKey(email)) {
                 responseList.put(SPONSORS, Collections.singletonList(sponsorMap.get(email)));
-            } else {
-                responseList.put(SPONSORS, new ArrayList<>());
             }
             modifiedResponseList.add(responseList);
         }
@@ -200,7 +198,7 @@ public class ParticipantService {
     private void filterVerification(Map<String, Object> verificationMap, List<Map<String, Object>> participantsList,ArrayList<Map<String,Object>> modifiedResponseList) {
         for (Map<String, Object> responseList : participantsList) {
             String code = (String) responseList.get(PARTICIPANT_CODE);
-            responseList.put(VERIFICATION_STATUS, verificationMap.getOrDefault(code, ""));
+            responseList.put(VERIFICATION_STATUS, verificationMap.get(code));
             modifiedResponseList.add(responseList);
         }
     }
