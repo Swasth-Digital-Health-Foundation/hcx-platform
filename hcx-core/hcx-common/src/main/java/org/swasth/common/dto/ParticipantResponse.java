@@ -29,9 +29,9 @@ public class ParticipantResponse {
     }
 
 
-    public ParticipantResponse(ArrayList<Object> participants) {
+    public <T> ParticipantResponse(ArrayList<T> participants) {
         this.timestamp = System.currentTimeMillis();
-        this.participants = participants;
+        this.participants = (ArrayList<Object>) participants;
     }
 
     public ParticipantResponse(Map<String,Object> participant) {
