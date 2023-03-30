@@ -87,7 +87,6 @@ public class ParticipantController extends BaseController {
             logger.info("Searching participant: {}", requestBody);
             return getSuccessResponse(service.search(requestBody, registryUrl, fields));
         } catch (Exception e) {
-            e.printStackTrace();
             return exceptionHandler(new Response(), e);
         }
     }
