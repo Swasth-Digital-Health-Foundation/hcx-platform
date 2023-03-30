@@ -106,16 +106,12 @@ public class ParticipantService {
         return responseHandler(response, null);
     }
 
-    public ResponseEntity<Object> read(String fields, String code, String registryUrl, String pathParam) throws Exception {
+    public ParticipantResponse read(String code, String registryUrl, String pathParam) throws Exception {
         ResponseEntity<Object> searchResponse = getSuccessResponse(search(JSONUtils.deserialize(getRequestBody(code), Map.class), registryUrl, pathParam));
         ParticipantResponse searchResp = (ParticipantResponse) searchResponse.getBody();
-        if (fields != null && fields.toLowerCase().contains(VERIFICATION_STATUS) && searchResp != null) {
-            ((Map<String, Object>) searchResp.getParticipants().get(0)).putAll(getVerificationStatus(code));
-        }
         logger.info("Read participant is completed");
-        return getSuccessResponse(searchResp);
+        return searchResp;
     }
-
     public ParticipantResponse delete(Map<String, Object> participant, String registryUrl, HttpHeaders header, String code) throws Exception {
         String url = registryUrl + registryApiPath + participant.get(OSID);
         Map<String, String> headersMap = new HashMap<>();
@@ -140,16 +136,6 @@ public class ParticipantService {
             cloudClient.putObject(bucketName, participantCode + "/" + key + ".pem", certificateData);
             requestBody.put(key, cloudClient.getUrl(bucketName, participantCode + "/" + key + ".pem").toString());
         }
-    }
-
-    public Map<String, Object> getVerificationStatus(String code) throws Exception {
-        String selectQuery = String.format("SELECT status FROM %s WHERE participant_code ='%s'", onboardOtpTable, code);
-        ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
-        Map<String, Object> responseMap = new HashMap<>();
-        while (resultSet.next()) {
-            responseMap.put(FORMSTATUS, resultSet.getString("status"));
-        }
-        return Collections.singletonMap(VERIFICATION_STATUS, responseMap);
     }
 
     public void addSponsors(List<Map<String, Object>> participantsList) throws Exception {
