@@ -99,7 +99,10 @@ public class ParticipantService {
             addSponsors(participantList);
         if(fields != null && fields.toLowerCase().contains(VERIFICATION_STATUS))
             addVerificationStatus(participantList);
-        logger.info("Search is completed :: status code: {}", response.getStatus());
+        if(response.getStatus() == 200){
+            logger.info("Search is completed :: status code: {}", response.getStatus());
+            return new ParticipantResponse(participantList);
+        }
         return responseHandler(response, null);
     }
 
