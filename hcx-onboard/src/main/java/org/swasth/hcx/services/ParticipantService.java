@@ -1,5 +1,6 @@
 package org.swasth.hcx.services;
 
+import freemarker.template.TemplateException;
 import kong.unirest.HttpResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -23,6 +24,7 @@ import org.swasth.common.utils.JWTUtils;
 import org.swasth.hcx.controllers.BaseController;
 import org.swasth.postgresql.IDatabaseService;
 
+import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.sql.ResultSet;
@@ -41,20 +43,14 @@ public class ParticipantService extends BaseController {
     @Value("${email.otpSub}")
     private String otpSub;
 
-    @Value("${email.otpMsg}")
-    private String otpMsg;
-
     @Value("${email.successIdentitySub}")
     private String successIdentitySub;
-
-    @Value("${email.successIdentityMsg}")
-    private String successIdentityMsg;
 
     @Value("${email.onboardingSuccessSub}")
     private String onboardingSuccessSub;
 
-    @Value("${email.onboardingSuccessMsg}")
-    private String onboardingSuccessMsg;
+    @Value("${onboarding.successURL}")
+    private String onboardingsuccessURL;
 
     @Value("${hcx-api.basePath}")
     private String hcxAPIBasePath;
@@ -76,7 +72,6 @@ public class ParticipantService extends BaseController {
 
     @Value("${env}")
     private String env;
-
     @Value("${registry.hcxCode}")
     private String hcxCode;
     @Value("${jwt-token.privateKey}")
@@ -94,6 +89,9 @@ public class ParticipantService extends BaseController {
 
     @Autowired
     private JWTUtils jwtUtils;
+
+    @Autowired
+    private FreemarkerService freemarkerService;
 
     public ResponseEntity<Object> verify(HttpHeaders header, ArrayList<Map<String, Object>> body) throws Exception {
         logger.info("Participant verification :: " + body);
@@ -184,20 +182,14 @@ public class ParticipantService extends BaseController {
         String phoneOtp = new DecimalFormat("000000").format(new Random().nextInt(999999));
         smsService.sendOTP((String) requestBody.get(PRIMARY_MOBILE), phoneOtp);
         String emailOtp = new DecimalFormat("000000").format(new Random().nextInt(999999));
-        sendEmailOTP(primaryEmail, (String) requestBody.get(PARTICIPANT_NAME), (String) requestBody.get(PARTICIPANT_CODE), emailOtp);
+        emailService.sendMail(primaryEmail,otpSub,otpTemplate((String) requestBody.get(PARTICIPANT_NAME),(String) requestBody.get(PARTICIPANT_CODE),emailOtp));
         String query1 = String.format("UPDATE %s SET phone_otp='%s',email_otp='%s',updatedOn=%d,expiry=%d ,regenerate_count=%d, last_regenerate_date='%s' WHERE primary_email='%s'",
                 onboardingOtpTable, phoneOtp, emailOtp, System.currentTimeMillis(), System.currentTimeMillis() + otpExpiry, regenerateCount + 1, currentDate, requestBody.get(PRIMARY_EMAIL));
         postgreSQLClient.execute(query1);
         return getSuccessResponse(new Response());
     }
 
-    private void sendEmailOTP(String email, String participantName, String participantCode, String emailOtp) {
-        String emailMsg = otpMsg;
-        emailMsg = emailMsg.replace("USER_NAME", StringUtils.capitalize(participantName))
-                .replace("PARTICIPANT_CODE", participantCode)
-                .replace("RANDOM_CODE", " " + emailOtp);
-        emailService.sendMail(email, otpSub, emailMsg);
-    }
+
 
     public String verifyOTP(Map<String, Object> requestBody) throws Exception {
         String participantCode = (String) requestBody.get(PARTICIPANT_CODE);
@@ -291,7 +283,7 @@ public class ParticipantService extends BaseController {
             HttpResponse<String> response = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_UPDATE, JSONUtils.serialize(participant), headersMap);
             if (response.getStatus() == 200) {
                 logger.info("Participant details are updated successfully :: participant code : " + participant.get(PARTICIPANT_CODE));
-                emailService.sendMail(email, onboardingSuccessSub, onboardingSuccessMsg.replace("USER_NAME", StringUtils.capitalize((String) participant.get(PARTICIPANT_NAME))));
+                emailService.sendMail(email,onboardingSuccessSub,successTemplate((String) requestBody.get(PARTICIPANT_NAME)));
                 return getSuccessResponse(new Response(PARTICIPANT_CODE, participant.get(PARTICIPANT_CODE)));
             } else return new ResponseEntity<>(response.getBody(), HttpStatus.valueOf(response.getStatus()));
         } else {
@@ -310,7 +302,7 @@ public class ParticipantService extends BaseController {
                 onboardingTable, status, System.currentTimeMillis(), applicantEmail);
         postgreSQLClient.execute(query);
         if (status.equals(ACCEPTED)) {
-            emailService.sendMail(applicantEmail, successIdentitySub, successIdentityMsg);
+            emailService.sendMail(applicantEmail,successIdentitySub,commonTemplate("identitysuccess.ftl"));
             return getSuccessResponse(new Response());
         } else {
             throw new ClientException(ErrorCodes.ERR_INVALID_IDENTITY, "Identity verification has failed");
@@ -385,5 +377,24 @@ public class ParticipantService extends BaseController {
         Map<String,String> headers = new HashMap<>();
         headers.put(AUTHORIZATION,"Bearer "+ jwtUtils.generateAuthToken(privatekey,verifierCode,hcxCode,expiryTime));
         return headers;
+    }
+
+    public String otpTemplate(String name ,String code,String otp) throws TemplateException, IOException {
+        Map<String, Object> model = new HashMap<>();
+        model.put("USER_NAME", name);
+        model.put("PARTICIPANT_CODE", code);
+        model.put("RANDOM_CODE",otp);
+        return freemarkerService.renderTemplate("sendotp.ftl",model);
+    }
+
+    public String successTemplate(String name) throws TemplateException, IOException {
+        Map<String,Object> model = new HashMap<>();
+        model.put("USER_NAME",name);
+        model.put("ONBOARDING_SUCCESS_URL",onboardingsuccessURL);
+        return freemarkerService.renderTemplate("onboardsuccess.ftl",model);
+
+    }
+    public String commonTemplate(String templateName) throws TemplateException, IOException {
+        return freemarkerService.renderTemplate(templateName,new HashMap<>());
     }
 }
