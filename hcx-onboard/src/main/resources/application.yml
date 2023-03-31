@@ -14,8 +14,8 @@ es:
 
 #Audit config
 audit:
-  index: ${audit_index:hcx_audit}
-  alias: ${audit_alias:hcx_audit}
+  index: ${audit_index:onboard_audit}
+  alias: ${audit_alias:onboard_audit}
 
 aws:
   accessKey: ${aws_accessKey:}

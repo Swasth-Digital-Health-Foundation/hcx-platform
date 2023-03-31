@@ -2,6 +2,7 @@ package org.swasth.common.dto;
 
 import org.swasth.common.utils.JSONUtils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +43,8 @@ public class OnboardRequest {
     public String getPrimaryMobile() { return (String) getParticipant().getOrDefault(PRIMARY_MOBILE, ""); }
 
     public String getParticipantName() { return (String) getParticipant().getOrDefault(PARTICIPANT_NAME, ""); }
+
+    public List<String> getRoles() { return (List<String>) getParticipant().getOrDefault(ROLES, new ArrayList<>()); }
 
     public String getType() { return (String) requestBody.getOrDefault(TYPE, ""); }
 

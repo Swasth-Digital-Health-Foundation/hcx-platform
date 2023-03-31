@@ -64,7 +64,7 @@ public class ParticipantController extends BaseController {
     public ResponseEntity<Object> identityVerify(@RequestBody Map<String, Object> requestBody) {
         String applicantEmail = (String) requestBody.get(PRIMARY_EMAIL);
         try {
-            return service.identityVerify(requestBody);
+            return service.manualIdentityVerify(requestBody);
         } catch (Exception e) {
             emailService.sendMail(applicantEmail, failedIdentitySub, failedIdentityMsg);
             return exceptionHandler(new Response(), e);
@@ -72,17 +72,17 @@ public class ParticipantController extends BaseController {
     }
 
     @PostMapping(APPLICANT_VERIFY)
-    public ResponseEntity<Object> applicantVerify(@RequestHeader HttpHeaders headers,@RequestBody Map<String, Object> requestBody) {
+    public ResponseEntity<Object> applicantVerify(@RequestBody Map<String, Object> requestBody) {
         try {
-            return service.applicantVerify(headers,requestBody);
+            return service.applicantVerify(requestBody);
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }
     }
     @PostMapping(APPLICANT_GET_INFO)
-    public ResponseEntity<Object> getinfo(@RequestHeader HttpHeaders headers, @RequestBody Map<String, Object> requestBody) {
+    public ResponseEntity<Object> getinfo(@RequestBody Map<String, Object> requestBody) {
         try {
-            return service.getInfo(headers,requestBody);
+            return service.getInfo(requestBody);
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }
