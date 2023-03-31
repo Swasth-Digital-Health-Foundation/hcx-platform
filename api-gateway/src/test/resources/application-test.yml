@@ -67,8 +67,6 @@ registry:
 hcx-api:
   basePath: ${HCX_API_BASEPATH:http://localhost:8080}
 
-hcx-onboard:
-  basePath: ${HCX_ONBOARD_BASEPATH:http://localhost:8082}
 #elasticsearch config
 es:
   host: ${es_host:localhost}
@@ -118,6 +116,33 @@ spring:
           predicates:
             - Path=/${version.external07}/coverageeligibility/**, /${version.external07}/preauth/**, /${version.external07}/claim/**, /${version.external07}/paymentnotice/**, /${version.external07}/hcx/**, /${version.external07}/predetermination/**, /${version.external07}/communication/**, /${version.external08}/coverageeligibility/**, /${version.external08}/preauth/**, /${version.external08}/claim/**, /${version.external08}/paymentnotice/**, /${version.external08}/hcx/**, /${version.external08}/predetermination/**, /${version.external08}/communication/**, /${version.external08}/notification/subscribe, /${version.external08}/notification/unsubscribe, /${version.external08}/notification/subscription/list, /${version.external08}/notification/notify, /${version.external08}/notification/subscription/update, /${version.external08}/notification/on_subscribe
 
+        - id: hcx-onboard-update-api-route
+          uri: ${HCX_API_BASEPATH:http://localhost:8080}
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
+            - RewritePath=/${version.external07}/participant/(?<segment>/?.*), /${version.internal}/participant/$\{segment}
+            - CachingRequestBodyFilter
+            - OnboardFilter
+          predicates:
+              - Path=/${version.external07}/participant/onboard/update
+
+        - id: hcx-registry-api-route
+          uri: ${HCX_API_BASEPATH:http://localhost:8080}
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
+            - RewritePath=/${version.external07}/participant/(?<segment>/?.*), /${version.internal}/participant/$\{segment}
+            - RewritePath=/${version.external08}/participant/(?<segment>/?.*), /${version.internal}/participant/$\{segment}
+            - RewritePath=/${version.external08}/notification/topic/list, /${version.internal}/notification/topic/list
+          predicates:
+            - Path=/${version.external07}/participant/**, /${version.external08}/participant/**, /health, /service/health, /${version.external08}/notification/topic/list
+
+
         - id: hcx-api-route-audit
           uri: ${HCX_API_BASEPATH:http://localhost:8080}
           filters:
@@ -133,28 +158,3 @@ spring:
           predicates:
             - Path=/${version.external07}/audit/search, /${version.external08}/audit/search, /${version.external08}/audit/notification/search
 
-        - id: hcx-registry-api-route
-          uri: ${HCX_API_BASEPATH:http://localhost:8080}
-          filters:
-            - name: RequestRateLimiter
-              args:
-                redis-rate-limiter.replenishRate: 10
-                redis-rate-limiter.burstCapacity: 20
-            - RewritePath=/${version.external07}/participant/(?<segment>/?.*), /${version.internal}/participant/$\{segment}
-            - RewritePath=/${version.external08}/participant/(?<segment>/?.*), /${version.internal}/participant/$\{segment}
-            - RewritePath=/${version.external08}/notification/topic/list, /${version.internal}/notification/topic/list
-          predicates:
-            - Path=/${version.external07}/participant/**, /${version.external08}/participant/**, /health, /service/health, /${version.external08}/notification/topic/list
-
-        - id: hcx-onboard-update-api-route
-          uri: ${HCX_ONBOARD_BASEPATH:http://localhost:8082}
-          filters:
-            - name: RequestRateLimiter
-              args:
-                redis-rate-limiter.replenishRate: 10
-                redis-rate-limiter.burstCapacity: 20
-            - RewritePath=/${version.external07}/participant/(?<segment>/?.*), /${version.internal}/participant/$\{segment}
-            - CachingRequestBodyFilter
-            - OnboardFilter
-          predicates:
-            - Path=/${version.external07}/participant/onboard/update
