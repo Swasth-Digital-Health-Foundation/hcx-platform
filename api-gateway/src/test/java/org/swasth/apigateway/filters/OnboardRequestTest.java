@@ -25,5 +25,17 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
                 .expectBody(Map.class)
                 .consumeWith(result -> assertEquals(HttpStatus.ACCEPTED, result.getStatus()));
     }
+
+     @Test
+     void onboard_request_failure_scenario() throws Exception {
+
+        client.post().uri(versionPrefix + Constants.PARTICIPANT_ONBOARD_UPDATE)
+                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
+                 .header(Constants.AUTHORIZATION, "Bearer " )
+                 .bodyValue(getRequestBody())
+                 .exchange()
+                 .expectBody(Map.class)
+                 .consumeWith(result -> assertEquals(HttpStatus.UNAUTHORIZED, result.getStatus()));
+     }
 }
 
