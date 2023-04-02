@@ -79,7 +79,7 @@ public class EventGenerator {
         event.put(ADDITIONALVERIFICATION, request.getOrDefault(ADDITIONALVERIFICATION, new ArrayList<>()));
         event.put(AUDIT_STATUS, result);
         if(error != null){
-            event.put(ERROR, error);
+            event.put("error_details", error);
         }
         return event;
     }
@@ -92,7 +92,7 @@ public class EventGenerator {
         event.put(ACTION, APPLICANT_GET_INFO);
         event.put(APPLICANT_CODE, applicantCode);
         event.put(VERIFIER_CODE, verifiercode);
-        event.put(AUDIT, response.getStatus() == 200 ? SUCCESSFUL : FAILED);
+        event.put(AUDIT_STATUS, response.getStatus() == 200 ? SUCCESSFUL : FAILED);
         event.put(RESPONSE_OBJ, response.getBody());
         if (request.containsKey(EMAIL))
             event.put(EMAIL, request.get(EMAIL));
