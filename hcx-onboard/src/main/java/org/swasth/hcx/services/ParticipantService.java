@@ -278,8 +278,8 @@ public class ParticipantService extends BaseController {
         String identityStatus = REJECTED;
         String jwtToken = (String) requestBody.get(JWT_TOKEN);
         Map<String, Object> payload = JSONUtils.decodeBase64String(jwtToken.split("\\.")[1], Map.class);
-        Map<String, Object> participant = (Map<String, Object>) requestBody.get(PARTICIPANT);
         String email = (String) payload.get("email");
+        Map<String, Object> participant = (Map<String, Object>) requestBody.get(PARTICIPANT);
         participant.put(REGISTRY_STATUS, ACTIVE);
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put(AUTHORIZATION, "Bearer " + jwtToken);
@@ -329,46 +329,38 @@ public class ParticipantService extends BaseController {
         }
     }
 
-    public ResponseEntity<Object> getInfo(Map<String, Object> requestBody) {
-        try {
-            String verifierCode;
-            String applicantCode;
-            Map<String, Object> verifierDetails;
-            if (requestBody.containsKey(VERIFICATION_TOKEN)) {
-                String token = (String) requestBody.get(VERIFICATION_TOKEN);
-                Map<String, Object> jwtPayload = JSONUtils.decodeBase64String(token.split("\\.")[1], Map.class);
-                verifierCode = (String) jwtPayload.get(ISS);
-                applicantCode = (String) jwtPayload.get(SUB);
-                verifierDetails = getParticipant(PARTICIPANT_CODE, verifierCode);
-                if (!token.isEmpty() && !jwtUtils.isValidSignature(token, (String) verifierDetails.get(SIGNING_CERT_PATH)))
-                    throw new ClientException(ErrorCodes.ERR_INVALID_JWT, "Invalid JWT token signature");
-            } else {
-                verifierCode = (String) requestBody.getOrDefault(VERIFIER_CODE, "");
-                applicantCode = (String) requestBody.getOrDefault(APPLICANT_CODE, "");
-                verifierDetails = getParticipant(PARTICIPANT_CODE, verifierCode);
-            }
-            HttpResponse<String> response = HttpUtils.post(verifierDetails.get(ENDPOINT_URL) + APPLICANT_GET_INFO, JSONUtils.serialize(requestBody),headers(verifierCode));
-            auditIndexer.createDocument(eventGenerator.getApplicantGetInfoEvent(requestBody, applicantCode, verifierCode, response));
-            return new ResponseEntity<>(response.getBody(), HttpStatus.valueOf(response.getStatus()));
-        } catch (Exception e){
-            return exceptionHandler(new Response(), e);
+    public ResponseEntity<Object> getInfo(Map<String, Object> requestBody) throws Exception {
+        String verifierCode;
+        String applicantCode;
+        Map<String, Object> verifierDetails;
+        if (requestBody.containsKey(VERIFICATION_TOKEN)) {
+            String token = (String) requestBody.get(VERIFICATION_TOKEN);
+            Map<String, Object> jwtPayload = JSONUtils.decodeBase64String(token.split("\\.")[1], Map.class);
+            verifierCode = (String) jwtPayload.get(ISS);
+            applicantCode = (String) jwtPayload.get(SUB);
+            verifierDetails = getParticipant(PARTICIPANT_CODE, verifierCode);
+            if (!token.isEmpty() && !jwtUtils.isValidSignature(token, (String) verifierDetails.get(SIGNING_CERT_PATH)))
+                throw new ClientException(ErrorCodes.ERR_INVALID_JWT, "Invalid JWT token signature");
+        } else {
+            verifierCode = (String) requestBody.getOrDefault(VERIFIER_CODE, "");
+            applicantCode = (String) requestBody.getOrDefault(APPLICANT_CODE, "");
+            verifierDetails = getParticipant(PARTICIPANT_CODE, verifierCode);
         }
+        HttpResponse<String> response = HttpUtils.post(verifierDetails.get(ENDPOINT_URL) + APPLICANT_GET_INFO, JSONUtils.serialize(requestBody), headers(verifierCode));
+        auditIndexer.createDocument(eventGenerator.getApplicantGetInfoEvent(requestBody, applicantCode, verifierCode, response));
+        return new ResponseEntity<>(response.getBody(), HttpStatus.valueOf(response.getStatus()));
     }
 
     public ResponseEntity<Object> applicantVerify(Map<String, Object> requestBody) throws Exception {
-        try {
-            OnboardResponse response = new OnboardResponse((String) requestBody.get(PARTICIPANT_CODE), (String) requestBody.get(VERIFIER_CODE));
-            String result;
-            if (requestBody.containsKey(OTPVERIFICATION)) {
-                result = verifyOTP(requestBody);
-            } else {
-                result = identityVerify(requestBody);
-            }
-            response.setResult(result);
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        } catch(Exception e) {
-            return exceptionHandler(new Response(), e);
+        OnboardResponse response = new OnboardResponse((String) requestBody.get(PARTICIPANT_CODE), (String) requestBody.get(VERIFIER_CODE));
+        String result;
+        if (requestBody.containsKey(OTPVERIFICATION)) {
+            result = verifyOTP(requestBody);
+        } else {
+            result = identityVerify(requestBody);
         }
+        response.setResult(result);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     private String identityVerify(Map<String, Object> requestBody) throws Exception {
@@ -403,5 +395,15 @@ public class ParticipantService extends BaseController {
         Map<String,String> headers = new HashMap<>();
         headers.put(AUTHORIZATION,"Bearer "+ jwtUtils.generateAuthToken(privatekey,verifierCode,hcxCode,expiryTime));
         return headers;
+    }
+
+    public String getEmail(String jwtToken) {
+        try {
+            Map<String, Object> payload = JSONUtils.decodeBase64String(jwtToken.split("\\.")[1], Map.class);
+            return (String) payload.getOrDefault("email", "");
+        } catch (Exception e) {
+            logger.error("Error while parsing JWT token");
+            return "";
+        }
     }
 }

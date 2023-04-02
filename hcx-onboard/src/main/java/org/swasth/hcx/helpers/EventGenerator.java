@@ -125,4 +125,15 @@ public class EventGenerator {
         return event;
     }
 
+    public Map<String, Object> getOnboardErrorEvent(String email, String action, ResponseError error) {
+        Map<String,Object> event = new HashMap<>();
+        event.put(EID, ONBOARD);
+        event.put(MID, UUIDUtils.getUUID());
+        event.put(ETS, System.currentTimeMillis());
+        event.put(ACTION, action);
+        event.put(PRIMARY_EMAIL, email);
+        event.put("error_details", error);
+        return event;
+    }
+
 }
