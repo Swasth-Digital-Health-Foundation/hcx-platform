@@ -89,6 +89,66 @@
     },
     "tags":{
       "type":"keyword"
+    },
+    "applicant_code": {
+      "type": "keyword"
+    },
+    "verifier_code": {
+      "type": "keyword"
+    },
+    "type": {
+      "type": "keyword"
+    },
+    "participant_name": {
+      "type": "keyword"
+    },
+    "participant_code": {
+      "type": "keyword"
+    },
+    "primary_email": {
+      "type": "keyword"
+    },
+    "primary_mobile": {
+      "type": "keyword"
+    },
+    "roles": {
+      "type": "keyword"
+    },
+    "otp_regenerate_count": {
+      "type": "integer"
+    },
+    "last_regenerate_date": {
+      "type": "date"
+    },
+    "attempt_count": {
+      "type": "integer"
+    },
+    "email_otp_verified": {
+      "type": "boolean"
+    },
+    "phone_otp_verified": {
+      "type": "boolean"
+    },
+    "email": {
+      "type": "keyword"
+    },
+    "mobile": {
+      "type": "keyword"
+    },
+    "applicant_name": {
+      "type": "keyword"
+    },
+    "additionalVerification": {
+      "type": "keyword"
+    },
+    "error_details": {
+      "type": "object"
+    },
+    "response_obj": {
+      "type": "object"
+    },
+    "identity_verification": {
+      "type": "keyword"
     }
   }
 }
