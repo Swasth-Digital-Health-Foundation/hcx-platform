@@ -75,8 +75,8 @@ redis:
 
 #Audit config
 audit:
-  hcxIndex: ${audit_index:hcx_audit}
-  hcxAlias: ${audit_alias:hcx_audit}
+  hcxIndex: ${hcx_index:hcx_audit}
+  hcxAlias: ${hcx_alias:hcx_audit}
   onboardIndex: ${onboard_index:onboard_audit}
   onboardAlias: ${onboard_alias:onboard_audit}
 
