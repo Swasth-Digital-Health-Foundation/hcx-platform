@@ -95,11 +95,7 @@ public class ParticipantController extends BaseController {
     public ResponseEntity<Object> read(@PathVariable("participantCode") String code, @RequestParam(required = false) String fields) {
         try {
             logger.info("Reading participant :: participant code: {}", code);
-            String pathParam = "";
-            if (fields != null && fields.toLowerCase().contains(SPONSORS)) {
-                pathParam = SPONSORS;
-            }
-            return service.read(fields,code,registryUrl,pathParam);
+            return getSuccessResponse(service.read(code,registryUrl,fields));
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }

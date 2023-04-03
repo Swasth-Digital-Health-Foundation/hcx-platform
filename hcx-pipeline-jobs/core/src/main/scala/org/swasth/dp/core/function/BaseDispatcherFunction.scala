@@ -102,7 +102,7 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
     Console.println("Sending error response: " + protectedMap)
     val result = dispatcherUtil.dispatch(senderCtx, JSONUtil.serialize(protectedMap))
     if (result.retry) {
-      logger.info("Error while dispatching error response: " + result.error.get.message.get)
+      logger.info("Error while dispatching error response: " + error.flatMap(_.message).getOrElse(""))
       metrics.incCounter(metric = config.dispatcherRetryCount)
     }
   }
