@@ -14,14 +14,14 @@ public class AuditIndexerConfiguration {
     @Value("${es.port}")
     public int esPort;
 
-    @Value("${audit.index}")
-    public String auditIndex;
+    @Value("${audit.hcxIndex}")
+    public String hcxIndex;
 
-    @Value("${audit.alias}")
-    public String auditAlias;
+    @Value("${audit.hcxAlias}")
+    public String hcxAlias;
 
     @Bean
     public AuditIndexer auditIndexer() throws Exception {
-        return new AuditIndexer(esHost, esPort, auditIndex, auditAlias);
+        return new AuditIndexer(esHost, esPort, hcxIndex, hcxAlias);
     }
 }

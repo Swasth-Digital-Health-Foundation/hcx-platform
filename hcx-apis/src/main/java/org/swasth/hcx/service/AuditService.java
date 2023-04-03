@@ -34,12 +34,12 @@ public class AuditService {
      * @param request DTO containing info about what to search for.
      * @return Returns a list of found audit events.
      */
-    public List<Map<String, Object>> search(final AuditSearchRequest request, String action) {
+    public List<Map<String, Object>> search(final AuditSearchRequest request, String action, String index) {
         try {
             logger.info("Audit search started: {}", JSONUtils.serialize(request));
             request.setAction(action);
             final SearchRequest searchRequest = SearchUtil.buildSearchRequest(
-                    Constants.HEADER_AUDIT,
+                    index,
                     request
             );
 
