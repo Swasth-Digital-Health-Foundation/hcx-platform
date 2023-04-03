@@ -26,8 +26,9 @@ rbac:
       - /v0.8/hcx/status
       - /v0.8/audit/search
       - /v0.8/audit/notification/search
-      - /v0.8/participant/search
+      - /v0.8/participant/search**
       - /v0.8/participant/update
+      - /v0.8/participant/read/**
       - /v0.8/notification/subscribe
       - /v0.8/notification/unsubscribe
       - /v0.8/notification/subscription/list
@@ -67,6 +68,7 @@ rbac:
       - /v0.8/audit/notification/search
       - /v0.8/participant/search**
       - /v0.8/participant/update
+      - /v0.8/participant/read/**
       - /v0.8/notification/subscribe
       - /v0.8/notification/unsubscribe
       - /v0.8/notification/subscription/list
@@ -109,6 +111,7 @@ rbac:
       - /v0.8/audit/notification/search
       - /v0.8/participant/search/**
       - /v0.8/participant/update
+      - /v0.8/participant/read/**
   - role: agency.regulator
     pahts:
       - /v0.7/hcx/status
@@ -121,6 +124,7 @@ rbac:
       - /v0.8/audit/notification/search
       - /v0.8/participant/search/**
       - /v0.8/participant/update
+      - /v0.8/participant/read/**
   - role: research
     paths:
       - /v0.7/coverageeligibility/on_check
@@ -137,6 +141,7 @@ rbac:
       - /v0.8/audit/notification/search
       - /v0.8/participant/search/**
       - /v0.8/participant/update
+      - /v0.8/participant/read/**
   - role: member.isnp
     paths:
       - /v0.7/coverageeligibility/on_check
@@ -155,6 +160,7 @@ rbac:
       - /v0.8/audit/notification/search
       - /v0.8/participant/search/**
       - /v0.8/participant/update
+      - /v0.8/participant/read/**
   - role: agency.sponsor
     paths:
       - /v0.7/coverageeligibility/on_check
@@ -179,6 +185,7 @@ rbac:
       - /v0.8/audit/notification/search
       - /v0.8/participant/search/**
       - /v0.8/participant/update
+      - /v0.8/participant/read/**
   - role: HIE/HIO.HCX
     paths:
     regexPaths:
