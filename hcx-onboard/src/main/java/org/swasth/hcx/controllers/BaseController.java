@@ -42,11 +42,6 @@ public class BaseController {
         return response;
     }
 
-    protected String getErrorMessage(HttpResponse<String> response) throws Exception {
-        Map<String, Object> result = JSONUtils.deserialize(response.getBody(), HashMap.class);
-        return (String) ((Map<String, Object>) result.get("params")).get("errmsg");
-    }
-
     protected ResponseEntity<Object> getSuccessResponse(Object response) {
         ((Response) response).setStatus(SUCCESSFUL.toUpperCase());
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -75,28 +70,6 @@ public class BaseController {
         }
         return new ResponseEntity<>(errorResponse(response, errorCode, e), status);
     }
-
-    public ResponseEntity<Object> responseHandler(HttpResponse<String> response, String participantCode) throws Exception {
-        if (response.getStatus() == HttpStatus.OK.value()) {
-            if (response.getBody().isEmpty()) {
-                return getSuccessResponse("");
-            } else {
-                if (response.getBody().startsWith("["))
-                    return getSuccessResponse(new ParticipantResponse(JSONUtils.deserialize(response.getBody(), ArrayList.class)));
-                else
-                    return getSuccessResponse(new ParticipantResponse(participantCode));
-            }
-        } else if (response.getStatus() == HttpStatus.BAD_REQUEST.value()) {
-            throw new ClientException(getErrorMessage(response));
-        } else if (response.getStatus() == HttpStatus.UNAUTHORIZED.value()) {
-            throw new AuthorizationException(getErrorMessage(response));
-        } else if (response.getStatus() == HttpStatus.NOT_FOUND.value()) {
-            throw new ResourceNotFoundException(getErrorMessage(response));
-        } else {
-            throw new ServerException(getErrorMessage(response));
-        }
-    }
-
 
 
 }

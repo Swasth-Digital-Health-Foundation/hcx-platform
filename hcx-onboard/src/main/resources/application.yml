@@ -23,19 +23,15 @@ aws:
   region: ${aws_region:}
 
 onboarding:
-  successURL: ${onboarding_success_url:}
+  successURL: ${onboarding_success_url:http://localhost:3000/onboardingsuccess}
 
 email:
   id: ${email_id:test@gmail.com}
   pwd: ${email_pwd:test@123}
   otpSub: ${otp_sub:HCX - Onboarding Started}
-  otpMsg: ${otp_msg:Hi USER_NAME,<br/><br/>Your participant code is PARTICIPANT_CODE.<br/>Use the following OTP to verify your email address:RANDOM_CODE <br/><br/> Thanks,<br/> HCX Team}
   successIdentitySub: ${success_identity_sub:HCX - Identity Verified}
-  successIdentityMsg: ${success_identity_msg:Hi User,<br/><br/>Identity verification is successful.<br/><br/>Thanks,<br/> HCX Team}
   failedIdentitySub: ${failed_identity_sub:HCX - Identity Verification Failed}
-  failedIdentityMsg: ${failed_identity_msg:Hi User,<br/><br/>Identity verification is failed. Please reach out to HCX Team.<br/><br/>Thanks,<br/> HCX Team}
   onboardingSuccessSub: ${onboarding_success_sub:HCX - Onboarding Successful}
-  onboardingSuccessMsg: ${onboarding_success_msg:Hi USER_NAME,<br/><br/>Your onboarding is successful, Welcome to HCX.<br/>Please refer to the <a href="${onboarding.successURL}">link</a> for protocol details and integration specifications.<br/>Thanks,<br/> HCX Team}
 
 hcx-api:
   basePath: ${HCX_API_BASEPATH:http://localhost:8080}

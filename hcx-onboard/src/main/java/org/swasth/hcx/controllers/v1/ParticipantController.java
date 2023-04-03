@@ -1,5 +1,6 @@
 package org.swasth.hcx.controllers.v1;
 
+import freemarker.template.TemplateException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -11,6 +12,7 @@ import org.swasth.hcx.controllers.BaseController;
 import org.swasth.hcx.services.EmailService;
 import org.swasth.hcx.services.ParticipantService;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Map;
@@ -23,10 +25,6 @@ public class ParticipantController extends BaseController {
 
     @Value("${email.failedIdentitySub}")
     private String failedIdentitySub;
-
-    @Value("${email.failedIdentityMsg}")
-    private String failedIdentityMsg;
-
     @Autowired
     private EmailService emailService;
 
@@ -61,12 +59,12 @@ public class ParticipantController extends BaseController {
     }
 
     @PostMapping(PARTICIPANT_VERIFY_IDENTITY)
-    public ResponseEntity<Object> identityVerify(@RequestBody Map<String, Object> requestBody) {
+    public ResponseEntity<Object> identityVerify(@RequestBody Map<String, Object> requestBody) throws TemplateException, IOException {
         String applicantEmail = (String) requestBody.get(PRIMARY_EMAIL);
         try {
             return service.identityVerify(requestBody);
         } catch (Exception e) {
-            emailService.sendMail(applicantEmail, failedIdentitySub, failedIdentityMsg);
+            emailService.sendMail(applicantEmail,failedIdentitySub,service.commonTemplate("identity-fail.ftl"));
             return exceptionHandler(new Response(), e);
         }
     }
