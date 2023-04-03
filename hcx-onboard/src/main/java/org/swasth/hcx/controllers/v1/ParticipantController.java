@@ -64,7 +64,7 @@ public class ParticipantController extends BaseController {
         try {
             return service.identityVerify(requestBody);
         } catch (Exception e) {
-            emailService.sendMail(applicantEmail,failedIdentitySub,service.commonTemplate("identityfail.ftl"));
+            emailService.sendMail(applicantEmail,failedIdentitySub,service.commonTemplate("identity-fail.ftl"));
             return exceptionHandler(new Response(), e);
         }
     }

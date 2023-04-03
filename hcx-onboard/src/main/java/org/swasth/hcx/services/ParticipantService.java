@@ -50,7 +50,7 @@ public class ParticipantService extends BaseController {
     private String onboardingSuccessSub;
 
     @Value("${onboarding.successURL}")
-    private String onboardingsuccessURL;
+    private String onboardingSuccessURL;
 
     @Value("${hcx-api.basePath}")
     private String hcxAPIBasePath;
@@ -302,7 +302,7 @@ public class ParticipantService extends BaseController {
                 onboardingTable, status, System.currentTimeMillis(), applicantEmail);
         postgreSQLClient.execute(query);
         if (status.equals(ACCEPTED)) {
-            emailService.sendMail(applicantEmail,successIdentitySub,commonTemplate("identitysuccess.ftl"));
+            emailService.sendMail(applicantEmail,successIdentitySub,commonTemplate("identity-success.ftl"));
             return getSuccessResponse(new Response());
         } else {
             throw new ClientException(ErrorCodes.ERR_INVALID_IDENTITY, "Identity verification has failed");
@@ -384,14 +384,14 @@ public class ParticipantService extends BaseController {
         model.put("USER_NAME", name);
         model.put("PARTICIPANT_CODE", code);
         model.put("RANDOM_CODE",otp);
-        return freemarkerService.renderTemplate("sendotp.ftl",model);
+        return freemarkerService.renderTemplate("send-otp.ftl",model);
     }
 
     public String successTemplate(String name) throws TemplateException, IOException {
         Map<String,Object> model = new HashMap<>();
         model.put("USER_NAME",name);
-        model.put("ONBOARDING_SUCCESS_URL",onboardingsuccessURL);
-        return freemarkerService.renderTemplate("onboardsuccess.ftl",model);
+        model.put("ONBOARDING_SUCCESS_URL",onboardingSuccessURL);
+        return freemarkerService.renderTemplate("onboard-success.ftl",model);
 
     }
     public String commonTemplate(String templateName) throws TemplateException, IOException {
