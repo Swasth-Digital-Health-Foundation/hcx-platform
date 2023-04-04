@@ -1,6 +1,7 @@
 package org.swasth.hcx.controllers;
 
 import kong.unirest.HttpResponse;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +48,7 @@ public class BaseController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    protected ResponseEntity<Object> exceptionHandler(Response response, Exception e){
+    protected ResponseEntity<Object> exceptionHandler(String email, String action, Response response, Exception e) throws Exception {
         logger.error("Exception: {} :: Trace: {}", e.getMessage(), ExceptionUtils.getStackTrace(e));
         response.setStatus(FAILED.toUpperCase());
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
@@ -68,8 +69,8 @@ public class BaseController {
         } else if (e instanceof ResourceNotFoundException) {
             status = HttpStatus.NOT_FOUND;
         }
+        if(StringUtils.isEmpty(email))
+            auditIndexer.createDocument(eventGenerator.getOnboardErrorEvent(email, action, new ResponseError(errorCode, e.getMessage(), e.getCause())));
         return new ResponseEntity<>(errorResponse(response, errorCode, e), status);
     }
-
-
 }

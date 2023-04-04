@@ -307,5 +307,9 @@ public class Constants {
    public static final String PARTICIPANTS = "participants";
    public static final String ERROR = "error";
    public static final String REQUEST_LOG = "Processing request :: action: {} :: request: {}";
+   public static final String ONBOARD = "ONBOARD";
 
+   public static final String OTP_REGENERATE_COUNT = "otp_regenerate_count";
+   public static final String LAST_REGENERATE_DATE = "last_regenerate_date";
+   public static final String RESPONSE_OBJ = "response_obj";
 }
