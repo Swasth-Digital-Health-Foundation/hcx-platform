@@ -79,4 +79,12 @@ public class ElasticSearchUtil {
              }
      }
 
+     public boolean isHealthy(){
+        try {
+            esClient.indices().exists(new GetIndexRequest("test"), RequestOptions.DEFAULT);
+            return true;
+        } catch (Exception e){
+            return false;
+        }
+    }
 }

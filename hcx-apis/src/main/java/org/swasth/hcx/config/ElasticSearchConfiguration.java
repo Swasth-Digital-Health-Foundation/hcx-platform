@@ -11,6 +11,7 @@ import org.springframework.data.elasticsearch.client.ClientConfiguration;
 import org.springframework.data.elasticsearch.client.RestClients;
 import org.springframework.data.elasticsearch.config.AbstractElasticsearchConfiguration;
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
+import org.swasth.auditindexer.utils.ElasticSearchUtil;
 
 @Configuration
 @EnableElasticsearchRepositories(basePackages = "org.swasth.hcx.repository")
@@ -21,7 +22,7 @@ public class ElasticSearchConfiguration extends AbstractElasticsearchConfigurati
     public String esHost;
 
     @Value("${es.port}")
-    public String esPort;
+    public int esPort;
 
     @Bean
     @Override
@@ -31,5 +32,9 @@ public class ElasticSearchConfiguration extends AbstractElasticsearchConfigurati
                 .build();
 
         return RestClients.create(config).rest();
+    }
+    @Bean
+    public ElasticSearchUtil elasticSearchUtil() throws Exception {
+        return new ElasticSearchUtil(esHost,esPort);
     }
 }
