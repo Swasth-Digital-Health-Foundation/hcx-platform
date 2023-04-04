@@ -62,7 +62,7 @@ public class ParticipantController extends BaseController {
     }
 
     @PostMapping(PARTICIPANT_VERIFY_IDENTITY)
-public ResponseEntity<Object> identityVerify(@RequestBody Map<String, Object> requestBody) throws TemplateException, IOException {
+public ResponseEntity<Object> identityVerify(@RequestBody Map<String, Object> requestBody) throws Exception {
         String applicantEmail = requestBody.getOrDefault(PRIMARY_EMAIL, "").toString();
         try {
             return service.manualIdentityVerify(requestBody);
