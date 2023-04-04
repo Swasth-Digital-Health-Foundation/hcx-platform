@@ -75,8 +75,11 @@ redis:
 
 #Audit config
 audit:
-  index: ${audit_index:hcx_audit}
-  alias: ${audit_alias:hcx_audit}
+  hcxIndex: ${hcx_index:hcx_audit}
+  hcxAlias: ${hcx_alias:hcx_audit}
+  onboardIndex: ${onboard_index:onboard_audit}
+  onboardAlias: ${onboard_alias:onboard_audit}
+
 
 #hcx redirect headers
 redirect:

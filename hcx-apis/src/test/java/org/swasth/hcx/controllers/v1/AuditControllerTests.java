@@ -1,5 +1,6 @@
 package org.swasth.hcx.controllers.v1;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -68,6 +69,15 @@ class AuditControllerTests {
         filters.put(Constants.STOP_DATETIME, "2022-09-15T16:21:20.249+0530");
         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.AUDIT_NOTIFICATION_SEARCH)
                 .content(JSONUtils.serialize(getRequest(filters))).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        assertEquals(200, status);
+    }
+
+    @Test
+    void audit_onboard_search_success_scenario() throws Exception {
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.AUDIT_ONBOARD_SEARCH)
+                .content(JSONUtils.serialize(getRequest(new HashMap<>()))).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         assertEquals(200, status);

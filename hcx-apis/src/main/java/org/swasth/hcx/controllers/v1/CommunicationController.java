@@ -44,7 +44,7 @@ public class CommunicationController extends BaseController {
             Map<String, Object> hcxHeaders = request.getHcxHeaders();
             Map<String, String> filters = new HashMap<>();
             filters.put(CORRELATION_ID,request.getCorrelationId());
-            List<Map<String,Object>> auditResponse = auditService.search(new AuditSearchRequest(filters), COMMUNICATION_REQUEST);
+            List<Map<String,Object>> auditResponse = auditService.search(new AuditSearchRequest(filters), COMMUNICATION_REQUEST,hcxIndex);
             if(auditResponse.isEmpty()){
                 throw new ClientException(ErrorCodes.ERR_INVALID_CORRELATION_ID,INVALID_CORRELATION_ID);
             }
