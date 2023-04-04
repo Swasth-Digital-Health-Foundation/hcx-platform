@@ -46,7 +46,7 @@ public class EventGenerator {
         event.put(PRIMARY_MOBILE, request.getOrDefault(PRIMARY_MOBILE, ""));
         event.put(PARTICIPANT_CODE, request.getOrDefault(PARTICIPANT_CODE, ""));
         event.put(OTP_REGENERATE_COUNT, regenCount);
-        event.put(LAST_REGENERATE_DATE, regenDate);
+        event.put(LAST_REGENERATE_DATE, regenDate.toString());
         return event;
     }
 

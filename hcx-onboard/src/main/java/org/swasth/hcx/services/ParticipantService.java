@@ -177,7 +177,7 @@ public class ParticipantService extends BaseController {
         String primaryEmail = (String) requestBody.get(PRIMARY_EMAIL);
         String query = String.format("SELECT regenerate_count, last_regenerate_date FROM %s WHERE primary_email='%s'", onboardingOtpTable, primaryEmail);
         ResultSet result = (ResultSet) postgreSQLClient.executeQuery(query);
-        LocalDate lastRegenerateDate = LocalDate.now();
+        LocalDate lastRegenerateDate = null;
         int regenerateCount = 0;
         LocalDate currentDate = LocalDate.now();
         if (result.next()) {
@@ -194,10 +194,11 @@ public class ParticipantService extends BaseController {
         smsService.sendOTP((String) requestBody.get(PRIMARY_MOBILE), phoneOtp);
         String emailOtp = new DecimalFormat("000000").format(new Random().nextInt(999999));
         sendEmailOTP(primaryEmail, (String) requestBody.get(PARTICIPANT_NAME), (String) requestBody.get(PARTICIPANT_CODE), emailOtp);
+        regenerateCount++;
         String query1 = String.format("UPDATE %s SET phone_otp='%s',email_otp='%s',updatedOn=%d,expiry=%d ,regenerate_count=%d, last_regenerate_date='%s' WHERE primary_email='%s'",
-                onboardingOtpTable, phoneOtp, emailOtp, System.currentTimeMillis(), System.currentTimeMillis() + otpExpiry, regenerateCount + 1, lastRegenerateDate, requestBody.get(PRIMARY_EMAIL));
+                onboardingOtpTable, phoneOtp, emailOtp, System.currentTimeMillis(), System.currentTimeMillis() + otpExpiry, regenerateCount + 1, currentDate, requestBody.get(PRIMARY_EMAIL));
         postgreSQLClient.execute(query1);
-        auditIndexer.createDocument(eventGenerator.getSendOTPEvent(requestBody, regenerateCount, lastRegenerateDate));
+        auditIndexer.createDocument(eventGenerator.getSendOTPEvent(requestBody, regenerateCount, currentDate));
         return getSuccessResponse(new Response());
     }
 
