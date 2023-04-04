@@ -3,6 +3,7 @@ package org.swasth.hcx.controllers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +23,9 @@ import static org.swasth.common.utils.Constants.ERROR_STATUS;
 public class BaseController {
 
     private static final Logger logger = LoggerFactory.getLogger(BaseController.class);
+
+    @Value("${audit.hcxIndex}")
+    protected String hcxIndex;
 
     @Autowired
     protected Environment env;

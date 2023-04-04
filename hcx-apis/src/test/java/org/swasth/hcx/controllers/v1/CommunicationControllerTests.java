@@ -20,7 +20,7 @@ class CommunicationControllerTests extends BaseSpec {
 
     @Test
     void check_communication_request_success_scenario() throws Exception {
-        when(auditService.search(any(), any())).thenReturn(List.of(getAuditData(Constants.COVERAGE_ELIGIBILITY_CHECK, Constants.QUEUED_STATUS)));
+        when(auditService.search(any(), any(),any())).thenReturn(List.of(getAuditData(Constants.COVERAGE_ELIGIBILITY_CHECK, Constants.QUEUED_STATUS)));
         doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
         String requestBody = getRequestBody();
         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.COMMUNICATION_REQUEST).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
@@ -31,7 +31,7 @@ class CommunicationControllerTests extends BaseSpec {
 
     @Test
     void check_communication_request_success_headerAuditService_error_scenario() throws Exception {
-        when(auditService.search(any(), any())).thenReturn(List.of(getAuditData(Constants.COVERAGE_ELIGIBILITY_CHECK, Constants.QUEUED_STATUS)));
+        when(auditService.search(any(), any(),any())).thenReturn(List.of(getAuditData(Constants.COVERAGE_ELIGIBILITY_CHECK, Constants.QUEUED_STATUS)));
         doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.COMMUNICATION_REQUEST).content(getCommunicationRequestBody()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -41,7 +41,7 @@ class CommunicationControllerTests extends BaseSpec {
 
     @Test
     void check_communication_request_success_headerAuditService_scenario() throws Exception {
-        when(auditService.search(any(), any())).thenReturn(new ArrayList<>());
+        when(auditService.search(any(), any(),any())).thenReturn(new ArrayList<>());
         doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
         String requestBody = getRequestBody();
         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.COMMUNICATION_REQUEST).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
