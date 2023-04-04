@@ -8,10 +8,10 @@ import org.swasth.auditindexer.function.AuditIndexer;
 @Configuration
 public class AuditIndexerConfiguration {
 
-    @Value("${es.host}")
+    @Value("${es.host:localhost}")
     public String esHost;
 
-    @Value("${es.port}")
+    @Value("${es.port:9200}")
     public int esPort;
 
     @Value("${audit.hcxIndex}")
