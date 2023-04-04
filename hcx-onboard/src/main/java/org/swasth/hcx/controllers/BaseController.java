@@ -43,11 +43,6 @@ public class BaseController {
         return response;
     }
 
-    protected String getErrorMessage(HttpResponse<String> response) throws Exception {
-        Map<String, Object> result = JSONUtils.deserialize(response.getBody(), HashMap.class);
-        return (String) ((Map<String, Object>) result.get("params")).get("errmsg");
-    }
-
     protected ResponseEntity<Object> getSuccessResponse(Object response) {
         ((Response) response).setStatus(SUCCESSFUL.toUpperCase());
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -78,5 +73,4 @@ public class BaseController {
             auditIndexer.createDocument(eventGenerator.getOnboardErrorEvent(email, action, new ResponseError(errorCode, e.getMessage(), e.getCause())));
         return new ResponseEntity<>(errorResponse(response, errorCode, e), status);
     }
-
 }

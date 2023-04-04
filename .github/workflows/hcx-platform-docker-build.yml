@@ -63,6 +63,14 @@ jobs:
           tags: swasth2021/hcx-api:${{ env.IMAGE_TAG }}_${{ github.run_number }}
           labels: hcx-api image
 
+      - name: Build and push Docker image for HCX-Onboard
+        uses: docker/build-push-action@v3
+        with:
+          context: ./hcx-onboard
+          push: true
+          tags: swasth2021/hcx-onboard:${{ env.IMAGE_TAG }}_${{ github.run_number }}
+          labels: hcx-onboard image
+
       - name: Build and push Docker image for HCX Scheduler Jobs
         uses: docker/build-push-action@v3
         with:
