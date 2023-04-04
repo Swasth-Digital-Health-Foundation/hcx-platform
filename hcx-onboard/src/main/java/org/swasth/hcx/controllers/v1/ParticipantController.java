@@ -1,6 +1,5 @@
 package org.swasth.hcx.controllers.v1;
 
-import freemarker.template.TemplateException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -12,8 +11,6 @@ import org.swasth.hcx.controllers.BaseController;
 import org.swasth.hcx.services.EmailService;
 import org.swasth.hcx.services.ParticipantService;
 
-import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -62,7 +59,7 @@ public class ParticipantController extends BaseController {
     }
 
     @PostMapping(PARTICIPANT_VERIFY_IDENTITY)
-public ResponseEntity<Object> identityVerify(@RequestBody Map<String, Object> requestBody) throws Exception {
+    public ResponseEntity<Object> identityVerify(@RequestBody Map<String, Object> requestBody) throws Exception {
         String applicantEmail = requestBody.getOrDefault(PRIMARY_EMAIL, "").toString();
         try {
             return service.manualIdentityVerify(requestBody);

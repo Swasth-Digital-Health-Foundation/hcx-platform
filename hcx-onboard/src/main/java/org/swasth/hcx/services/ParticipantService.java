@@ -1,6 +1,5 @@
 package org.swasth.hcx.services;
 
-import freemarker.template.TemplateException;
 import kong.unirest.HttpResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -402,7 +401,7 @@ public class ParticipantService extends BaseController {
         }
     }    
 
-    public String otpTemplate(String name ,String code,String otp) throws TemplateException, IOException {
+    public String otpTemplate(String name ,String code,String otp) throws Exception {
         Map<String, Object> model = new HashMap<>();
         model.put("USER_NAME", name);
         model.put("PARTICIPANT_CODE", code);
@@ -410,7 +409,7 @@ public class ParticipantService extends BaseController {
         return freemarkerService.renderTemplate("send-otp.ftl",model);
     }
 
-    public String successTemplate(String name) throws TemplateException, IOException {
+    public String successTemplate(String name) throws Exception {
         Map<String,Object> model = new HashMap<>();
         model.put("USER_NAME",name);
         model.put("ONBOARDING_SUCCESS_URL",onboardingSuccessURL);
@@ -418,7 +417,7 @@ public class ParticipantService extends BaseController {
 
     }
     
-    public String commonTemplate(String templateName) throws TemplateException, IOException {
+    public String commonTemplate(String templateName) throws Exception {
         return freemarkerService.renderTemplate(templateName,new HashMap<>());
     }
 }
