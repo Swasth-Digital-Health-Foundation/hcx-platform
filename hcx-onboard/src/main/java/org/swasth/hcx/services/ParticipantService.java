@@ -195,7 +195,7 @@ public class ParticipantService extends BaseController {
         regenerateCount++;
         emailService.sendMail(primaryEmail,otpSub,otpTemplate((String) requestBody.get(PARTICIPANT_NAME),(String) requestBody.get(PARTICIPANT_CODE),emailOtp));
         String query1 = String.format("UPDATE %s SET phone_otp='%s',email_otp='%s',updatedOn=%d,expiry=%d ,regenerate_count=%d, last_regenerate_date='%s' WHERE primary_email='%s'",
-                onboardingOtpTable, phoneOtp, emailOtp, System.currentTimeMillis(), System.currentTimeMillis() + otpExpiry, regenerateCount + 1, currentDate, requestBody.get(PRIMARY_EMAIL));
+                onboardingOtpTable, phoneOtp, emailOtp, System.currentTimeMillis(), System.currentTimeMillis() + otpExpiry, regenerateCount, currentDate, requestBody.get(PRIMARY_EMAIL));
         postgreSQLClient.execute(query1);
         auditIndexer.createDocument(eventGenerator.getSendOTPEvent(requestBody, regenerateCount, currentDate));
         return getSuccessResponse(new Response());
