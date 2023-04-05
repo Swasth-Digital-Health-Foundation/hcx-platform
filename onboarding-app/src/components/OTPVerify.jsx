@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Button, Form, Grid, Loader } from 'semantic-ui-react'
+import { Button, Form, Grid, Label, Loader } from 'semantic-ui-react'
 import { post } from '../service/APIService';
 import { useForm } from "react-hook-form";
 import { ToastContainer, toast } from 'react-toastify';
@@ -13,12 +13,14 @@ export const OTPVerify = ({ changeTab, formState, setState }) => {
     const [sending, setSending] = useState(false)
     const formStore = useSelector((state) => state)
     const [formErrors , setFormErrors] = useState({});
+    const [identityVerification , setIdentityVerfication] = useState('pending');
 
     useEffect(() => {
         if (_.get(formState, 'participant') == null) {
             setState({ ...formState, ...formStore.formState })
         }
-    }, []);
+        setIdentityVerfication(_.get(formState, 'identity_verification'))
+    }, [formState]);
 
     const onSubmit = (data) => {
         setSending(true)
@@ -75,7 +77,16 @@ export const OTPVerify = ({ changeTab, formState, setState }) => {
                     </Grid.Row>
                     <Grid.Row>
                         <Grid.Column>
-                            <b>Identity Verification:</b>&ensp; {_.get(formState, 'identity_verification')} &ensp;
+                            <b>Identity Verification:</b>&ensp;
+                            { identityVerification === 'accepted' ?
+                            <Label color='green' horizontal> Accepted </Label>
+                            : null}
+                            { identityVerification === 'rejected' ?
+                            <Label color='red' horizontal> Rejected </Label>
+                            : null}
+                            {  identityVerification === 'Pending' ?
+                            <Label color='yellow' horizontal> Pending </Label>
+                            : null}
                         </Grid.Column>
                     </Grid.Row>
                     <Grid.Row style={{ width: "70px" }}>

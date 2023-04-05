@@ -30,7 +30,7 @@ export const UpdateRegistry = ({ changeTab, formState, setState }) => {
 
     const onSubmit = (data) => {
         setSending(true)
-        const formData = { "jwt_token": _.get(formState, 'access_token'), participant: { "participant_code": _.get(formState, 'participant_code'), "participant_name": _.get(formState, 'participant.participant_name'), "endpoint_url": data.endpoint_url, "certificates_type": data.certificates_type, "encryption_cert": data.encryption_cert } };
+        const formData = { "jwt_token": _.get(formState, 'access_token'), participant: { "participant_code": _.get(formState, 'participant_code'), "participant_name": _.get(formState, 'participant.participant_name'), "endpoint_url": data.endpoint_url, "encryption_cert": data.encryption_cert } };
         post("/participant/onboard/update", formData).then((data => {
             reset()
             history.push("/onboarding/success");

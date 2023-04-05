@@ -6,12 +6,14 @@ import { Grid, Image } from 'semantic-ui-react'
 import { BasicDetails } from './BasicDetails'
 import { useQuery } from '../service/QueryService'
 import { SetPassword } from './SetPassword'
+import { useHistory } from 'react-router-dom'
 
 export const Onboarding = () => {
 
     let query = useQuery();
     const [activeIndex, setActiveIndex] = useState(0)
     const [state, setState] = useState({})
+    let history = useHistory();
     const props = {
         changeTab: setActiveIndex,
         formState: state,
@@ -32,13 +34,17 @@ export const Onboarding = () => {
             setActiveIndex(formState);
         }
     }, []);
+    
+    function redirectHome(){
+        history.push("/onboarding");
+    }
 
     return <>
         <Grid centered container>
             <Grid.Row columns="1">
                 <div className='banner' style={{ width: '65%', marginTop: '30px' }}>
                     <Grid.Column>
-                        <Image src='/images/logo.png' style={{ width: '50px', marginRight: '20px' }} />
+                        <Image src='/images/logo.png' onClick={e => {redirectHome()}} style={{ width: '50px', marginRight: '20px' }} />
                     </Grid.Column>
                     <Grid.Column>
                         <p style={{ color: 'white', fontSize: '30px' }}><b>HCX Onboarding</b></p>
@@ -46,7 +52,6 @@ export const Onboarding = () => {
                 </div>
             </Grid.Row>
             <Segment style={{ width: '65%' }} textAlign='left'>
-                {/* <Tab panes={panes} activeIndex={activeIndex}/> */}
                 <Tab
                     menu={{ fluid: true, vertical: true }}
                     menuPosition='left'

@@ -25,13 +25,14 @@ export const Home = () => {
         setLoader(true)
         get(apiVersion + "/participant/read/" + participantCode + "?fields=verificationStatus,sponsors")
             .then(( function (data) {
-                let participant = _.get(data, 'data.participants')[0] || {}
-                if (participant.verificationstatus.status === 'successful') {
+                const participant = _.get(data, 'data.participants')[0] || {}
+                const verificationStatus = _.get(participant, 'verificationStatus') || ""
+                if (verificationStatus === 'successful') {
                     state = 2;
                 } else {
                     state = 1;
                 }
-                dispatch(updateForm({ participant: participant, participant_code: participantCode, identity_verification: participant.sponsors[0] ? participant.sponsors[0].status : 'pending' }))
+                dispatch(updateForm({ participant: participant, participant_code: participantCode, identity_verification: _.get(participant, 'sponsors') ? participant.sponsors[0].status : 'Pending' }))
                 if (participant.status === 'Active') {
                     history.push("/onboarding/success");
                 } else {
