@@ -4,14 +4,14 @@ import org.junit.Test;
 
 public class OTPVerificationExceptionTest {
 
-    @Test(expected = OTPVerificationException.class)
-    public void testOTPVerificationException() throws OTPVerificationException {
-        throw new OTPVerificationException("Invalid otp");
+    @Test(expected = VerificationException.class)
+    public void testOTPVerificationException() throws VerificationException {
+        throw new VerificationException("Invalid otp");
     }
 
-    @Test(expected = OTPVerificationException.class)
-    public void testOTPVerificationExceptionWithErrorCode() throws OTPVerificationException {
-        throw new OTPVerificationException(ErrorCodes.ERR_INVALID_OTP, "Invalid otp");
+    @Test(expected = VerificationException.class)
+    public void testOTPVerificationExceptionWithErrorCode() throws VerificationException {
+        throw new VerificationException(ErrorCodes.ERR_INVALID_LINK, "Invalid otp");
     }
 }
 

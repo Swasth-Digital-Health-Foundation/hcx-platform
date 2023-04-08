@@ -69,7 +69,7 @@ public class Constants {
     public static final String PARTICIPANT_DELETE = "/participant/delete";
     public static final String PARTICIPANT_VERIFY = "/participant/verify";
     public static final String APPLICANT_GET_INFO = "/applicant/getinfo";
-    public static final String PARTICIPANT_OTP_SEND = "/participant/otp/send";
+    public static final String PARTICIPANT_VERIFICATION_LINK_SEND = "/participant/verification/link/send";
     public static final String PARTICIPANT_ONBOARD_UPDATE = "/participant/onboard/update";
     public static final String PARTICIPANT_VERIFY_IDENTITY = "/participant/verify/identity";
     public static final String APPLICANT_VERIFY = "/applicant/verify";
@@ -117,6 +117,7 @@ public class Constants {
     public static  final String EDATA = "edata";
     public static  final String ID = "id";
     public static  final String TYPE = "type";
+    public static final String TYP = "typ";
     public static  final String AUDIT_STATUS = "status";
     public static  final String PREV_STATUS = "prevStatus";
     public static  final String PROPS = "props";

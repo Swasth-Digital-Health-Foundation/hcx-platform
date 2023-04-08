@@ -17,7 +17,7 @@ import org.swasth.common.dto.ParticipantResponse;
 import org.swasth.common.dto.Response;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
-import org.swasth.common.exception.OTPVerificationException;
+import org.swasth.common.exception.VerificationException;
 import org.swasth.common.utils.HttpUtils;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.utils.JWTUtils;
@@ -25,14 +25,12 @@ import org.swasth.hcx.controllers.BaseController;
 import org.swasth.hcx.helpers.EventGenerator;
 import org.swasth.postgresql.IDatabaseService;
 
-import java.io.IOException;
+import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.sql.ResultSet;
-import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.*;
-
 import static org.swasth.common.response.ResponseMessage.*;
 import static org.swasth.common.utils.Constants.*;
 
@@ -44,13 +42,19 @@ public class ParticipantService extends BaseController {
     @Value("${email.otpSub}")
     private String otpSub;
 
+    @Value("${domain}")
+    private String domain;
     @Value("${email.successIdentitySub}")
     private String successIdentitySub;
 
     @Value("${email.onboardingSuccessSub}")
     private String onboardingSuccessSub;
 
-    @Value("${onboarding.successURL}")
+    @Value("${onboard.verification.email}")
+    private Boolean emailEnabled;
+    @Value("${onboard.verification.phone}")
+    private Boolean phoneEnabled;
+    @Value("${onboard.successURL}")
     private String onboardingSuccessURL;
 
     @Value("${hcx-api.basePath}")
@@ -96,7 +100,7 @@ public class ParticipantService extends BaseController {
 
     @Autowired
     protected EventGenerator eventGenerator;
-    
+
     @Autowired
     private FreemarkerService freemarkerService;
 
@@ -147,11 +151,11 @@ public class ParticipantService extends BaseController {
         }
         String participantCode = (String) JSONUtils.deserialize(createResponse.getBody(), Map.class).get(PARTICIPANT_CODE);
         participant.put(PARTICIPANT_CODE, participantCode);
-        String query = String.format("INSERT INTO %s (participant_code,primary_email,primary_mobile,email_otp,phone_otp,createdOn," +
-                        "updatedOn,expiry,phone_otp_verified,email_otp_verified,status,attempt_count) VALUES ('%s','%s','%s','%s','%s',%d,%d,%d,%b,%b,'%s',%d)", onboardingOtpTable, participantCode,
-                participant.get(PRIMARY_EMAIL), participant.get(PRIMARY_MOBILE), "", "", System.currentTimeMillis(), System.currentTimeMillis(), System.currentTimeMillis(), false, false, PENDING, 0);
+        String query = String.format("INSERT INTO %s (participant_code,primary_email,primary_mobile,createdOn," +
+                        "updatedOn,expiry,phone_verified,email_verified,status,attempt_count) VALUES ('%s','%s','%s',%d,%d,%d,%b,%b,'%s',%d)", onboardingOtpTable, participantCode,
+                participant.get(PRIMARY_EMAIL), participant.get(PRIMARY_MOBILE), System.currentTimeMillis(), System.currentTimeMillis(), System.currentTimeMillis(), false, false, PENDING, 0);
         postgreSQLClient.execute(query);
-        sendOTP(participant);
+        sendVerificationLink(participant);
         output.put(PARTICIPANT_CODE, participantCode);
         output.put(IDENTITY_VERIFICATION, identityVerified);
         auditIndexer.createDocument(eventGenerator.getOnboardVerifyEvent(request, participantCode));
@@ -171,7 +175,7 @@ public class ParticipantService extends BaseController {
         return body;
     }
 
-    public ResponseEntity<Object> sendOTP(Map<String, Object> requestBody) throws Exception {
+    public ResponseEntity<Object> sendVerificationLink(Map<String, Object> requestBody) throws Exception {
         String primaryEmail = (String) requestBody.get(PRIMARY_EMAIL);
         String query = String.format("SELECT regenerate_count, last_regenerate_date FROM %s WHERE primary_email='%s'", onboardingOtpTable, primaryEmail);
         ResultSet result = (ResultSet) postgreSQLClient.executeQuery(query);
@@ -186,73 +190,96 @@ public class ParticipantService extends BaseController {
             regenerateCount = 0;
         }
         if (regenerateCount >= maxRegenerate) {
-            throw new ClientException(ErrorCodes.ERR_MAXIMUM_OTP_REGENERATE, MAXIMUM_OTP_REGENERATE);
+            throw new ClientException(ErrorCodes.ERR_MAXIMUM_LINK_REGENERATE, MAXIMUM_LINK_REGENERATE);
         }
-        String phoneOtp = new DecimalFormat("000000").format(new Random().nextInt(999999));
-        smsService.sendOTP((String) requestBody.get(PRIMARY_MOBILE), phoneOtp);
-        String emailOtp = new DecimalFormat("000000").format(new Random().nextInt(999999));
+        if(phoneEnabled) {
+            smsService.sendLink((String) requestBody.get(PRIMARY_MOBILE), generateURL(requestBody,PHONE,(String) requestBody.get(PRIMARY_MOBILE)).toString());
+        }
+        if(emailEnabled) {
+            emailService.sendMail(primaryEmail, otpSub, otpTemplate((String) requestBody.get(PARTICIPANT_NAME), (String) requestBody.get(PARTICIPANT_CODE), generateURL(requestBody,EMAIL,(String) requestBody.get(PRIMARY_EMAIL))));
+        }
         regenerateCount++;
-        emailService.sendMail(primaryEmail,otpSub,otpTemplate((String) requestBody.get(PARTICIPANT_NAME),(String) requestBody.get(PARTICIPANT_CODE),emailOtp));
-        String query1 = String.format("UPDATE %s SET phone_otp='%s',email_otp='%s',updatedOn=%d,expiry=%d ,regenerate_count=%d, last_regenerate_date='%s' WHERE primary_email='%s'",
-                onboardingOtpTable, phoneOtp, emailOtp, System.currentTimeMillis(), System.currentTimeMillis() + otpExpiry, regenerateCount, currentDate, requestBody.get(PRIMARY_EMAIL));
+        String query1 = String.format("UPDATE %s SET updatedOn=%d,expiry=%d ,regenerate_count=%d, last_regenerate_date='%s' WHERE primary_email='%s'",
+                onboardingOtpTable, System.currentTimeMillis(), System.currentTimeMillis() + otpExpiry, regenerateCount, currentDate, requestBody.get(PRIMARY_EMAIL));
         postgreSQLClient.execute(query1);
-        auditIndexer.createDocument(eventGenerator.getSendOTPEvent(requestBody, regenerateCount, currentDate));
+        auditIndexer.createDocument(eventGenerator.getSendOTPEvent(requestBody, regenerateCount , currentDate));
         return getSuccessResponse(new Response());
     }
 
-
-
-    public String verifyOTP(Map<String, Object> requestBody) throws Exception {
-        String participantCode = (String) requestBody.get(PARTICIPANT_CODE);
-        ResultSet resultSet = null;
-        boolean emailOtpVerified = false;
-        boolean phoneOtpVerified = false;
+    public String communicationVerify(Map<String, Object> requestBody) throws Exception {
+        boolean emailVerified = false;
+        boolean phoneVerified = false;
         int attemptCount = 0;
-        String status = FAILED;
-        List<Map<String, Object>> otpVerificationList = (List<Map<String, Object>>) requestBody.get(OTPVERIFICATION);
+        ResultSet resultSet = null;
+        String participantCode = null;
+        String type;
+        String communicationStatus = PENDING;
+        Map<String, Object> participantDetails;
         try {
+            String jwtToken = (String) requestBody.get(JWT_TOKEN);
+            Map<String, Object> jwtPayload = JSONUtils.decodeBase64String(jwtToken.split("\\.")[1], Map.class);
+            participantCode = (String) jwtPayload.get(PARTICIPANT_CODE);
+            participantDetails = getParticipant(PARTICIPANT_CODE, hcxCode);
+            if (!jwtPayload.isEmpty() && !jwtUtils.isValidSignature(jwtToken, (String) participantDetails.get(ENCRYPTION_CERT))) {
+                throw new ClientException(ErrorCodes.ERR_INVALID_JWT, "Invalid JWT token signature");
+            }
             String selectQuery = String.format("SELECT * FROM %s WHERE participant_code='%s'", onboardingOtpTable, participantCode);
             resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
             if (resultSet.next()) {
+                emailVerified = resultSet.getBoolean("email_verified");
+                phoneVerified = resultSet.getBoolean("phone_verified");
                 attemptCount = resultSet.getInt(ATTEMPT_COUNT);
                 if (resultSet.getString("status").equals(SUCCESSFUL)) {
-                    status = SUCCESSFUL;
-                    throw new ClientException(ErrorCodes.ERR_INVALID_OTP, OTP_ALREADY_VERIFIED);
+                    throw new ClientException(ErrorCodes.ERR_INVALID_LINK,LINK_VERIFIED);
                 }
                 if (resultSet.getLong(EXPIRY) > System.currentTimeMillis()) {
                     if (attemptCount < otpMaxAttempt) {
-                        for (Map<String, Object> otpVerification : otpVerificationList) {
-                            if (otpVerification.get(CHANNEL).equals(EMAIL)) {
-                                emailOtpVerified = verifyOTP(resultSet, otpVerification, EMAIL_OTP);
+                        type = (String) jwtPayload.get(TYP);
+                        if (Objects.equals(requestBody.get("status"), ACCEPTED)) {
+                            if (emailEnabled && phoneEnabled) {
+                                if (type.equals(EMAIL)) {
+                                    emailVerified = true;
+                                } else if (type.equals(PHONE)) {
+                                    phoneVerified = true;
+                                }
+                                if (phoneVerified && emailVerified) {
+                                    communicationStatus = SUCCESSFUL;
+                                }
+                            } else if (emailEnabled) {
+                                emailVerified = true;
+                                communicationStatus = SUCCESSFUL;
                             }
-                            if (otpVerification.get(CHANNEL).equals(PHONE)) {
-                                phoneOtpVerified = verifyOTP(resultSet, otpVerification, PHONE_OTP);
+                            else if(phoneEnabled) {
+                                phoneVerified = true;
+                                communicationStatus = SUCCESSFUL;
                             }
                         }
                     } else {
-                        throw new ClientException(ErrorCodes.ERR_INVALID_OTP, OTP_RETRY_LIMIT);
+                        throw new ClientException(ErrorCodes.ERR_INVALID_LINK, LINK_RETRY_LIMIT);
                     }
-                } else {
-                    throw new ClientException(ErrorCodes.ERR_INVALID_OTP, OTP_EXPIRED);
                 }
-            } else {
-                throw new ClientException(ErrorCodes.ERR_INVALID_OTP, OTP_RECORD_NOT_EXIST);
+                else {
+                    throw new ClientException(ErrorCodes.ERR_INVALID_LINK, LINK_EXPIRED);
+                }
             }
-            updateOtpStatus(true, true, attemptCount, SUCCESSFUL, participantCode);
-            auditIndexer.createDocument(eventGenerator.getOTPVerifyEvent(requestBody, attemptCount, emailOtpVerified, phoneOtpVerified));
+            else {
+                throw new ClientException(ErrorCodes.ERR_INVALID_LINK, LINK_RECORD_NOT_EXIST);
+            }
+            updateOtpStatus(emailVerified, phoneVerified, attemptCount, communicationStatus, participantCode,"");
+            auditIndexer.createDocument(eventGenerator.getOTPVerifyEvent(requestBody, attemptCount, emailVerified, phoneVerified));
             logger.info("Communication details verification is successful :: participant_code  : " + participantCode);
             return ACCEPTED;
-        } catch (Exception e) {
-            updateOtpStatus(emailOtpVerified, phoneOtpVerified, attemptCount, status, participantCode);
-            throw new OTPVerificationException(e.getMessage());
-        } finally {
+            }  catch (Exception e) {
+            updateOtpStatus(emailVerified, phoneVerified, attemptCount, FAILED, participantCode,(String) requestBody.get("comments"));
+            throw new VerificationException(e.getMessage());
+        }
+        finally {
             if (resultSet != null) resultSet.close();
         }
     }
-
-    private void updateOtpStatus(boolean emailOtpVerified, boolean phoneOtpVerified, int attemptCount, String status, String email) throws Exception {
-        String updateOtpQuery = String.format("UPDATE %s SET email_otp_verified=%b,phone_otp_verified=%b,status='%s',updatedOn=%d,attempt_count=%d WHERE participant_code='%s'",
-                onboardingOtpTable, emailOtpVerified, phoneOtpVerified, status, System.currentTimeMillis(), attemptCount + 1, email);
+    private void updateOtpStatus(boolean emailVerified, boolean phoneVerified, int attemptCount, String status, String code,String comments) throws Exception {
+        String updateOtpQuery = String.format("UPDATE %s SET email_verified=%b,phone_verified=%b,status='%s',updatedOn=%d,attempt_count=%d ,comments='%s' WHERE participant_code='%s'",
+                onboardingOtpTable, emailVerified, phoneVerified, status, System.currentTimeMillis(), attemptCount + 1,comments,code);
         postgreSQLClient.execute(updateOtpQuery);
     }
 
@@ -347,8 +374,8 @@ public class ParticipantService extends BaseController {
     public ResponseEntity<Object> applicantVerify(Map<String, Object> requestBody) throws Exception {
         OnboardResponse response = new OnboardResponse((String) requestBody.get(PARTICIPANT_CODE), (String) requestBody.get(VERIFIER_CODE));
         String result;
-        if (requestBody.containsKey(OTPVERIFICATION)) {
-            result = verifyOTP(requestBody);
+        if (requestBody.containsKey(JWT_TOKEN)) {
+            result = communicationVerify(requestBody);
         } else {
             result = identityVerify(requestBody);
         }
@@ -376,14 +403,6 @@ public class ParticipantService extends BaseController {
         return result;
     }
 
-    private boolean verifyOTP(ResultSet resultSet, Map<String, Object> otpVerification, String key) throws Exception {
-        if (resultSet.getString(key).equals(otpVerification.get(OTP))) {
-            return true;
-        } else {
-            throw new ClientException(StringUtils.capitalize(key.replace("_", " "))  +  " is invalid, please try again!");
-        }
-    }
-
     private Map<String,String> headers(String verifierCode) throws NoSuchAlgorithmException, InvalidKeySpecException {
         Map<String,String> headers = new HashMap<>();
         headers.put(AUTHORIZATION,"Bearer "+ jwtUtils.generateAuthToken(privatekey,verifierCode,hcxCode,expiryTime));
@@ -399,13 +418,35 @@ public class ParticipantService extends BaseController {
             logger.error("Error while parsing JWT token");
             return "";
         }
-    }    
+    }
 
-    public String otpTemplate(String name ,String code,String otp) throws Exception {
+    public URL generateURL(Map<String,Object> participant,String type,String sub) throws Exception{
+        String token = generateToken(sub,type,(String) participant.get(PARTICIPANT_NAME),(String) participant.get(PARTICIPANT_CODE));
+        String url = String.format("%s/onboarding/verify?%s=%s&jwt_token=%s",domain,type,sub,token) ;
+        return new URL(url);
+    }
+
+    public String generateToken(String sub,String typ,String name,String code) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        long date = new Date().getTime();
+        Map<String, Object> headers = new HashMap<>();
+        headers.put(ALG,RS256);
+        headers.put(TYPE, JWT);
+        Map<String, Object> payload = new HashMap<>();
+        payload.put(JTI, UUID.randomUUID());
+        payload.put(ISS, hcxCode);
+        payload.put(TYP, typ);
+        payload.put(PARTICIPANT_NAME,name);
+        payload.put(PARTICIPANT_CODE,code);
+        payload.put(SUB, sub);
+        payload.put(IAT, date);
+        payload.put(EXP, new Date(date + expiryTime).getTime());
+        return jwtUtils.generateJWS(headers,payload,privatekey);
+    }
+    public String otpTemplate(String name ,String code,URL signedURL) throws Exception {
         Map<String, Object> model = new HashMap<>();
         model.put("USER_NAME", name);
         model.put("PARTICIPANT_CODE", code);
-        model.put("RANDOM_CODE",otp);
+        model.put("URL",signedURL);
         return freemarkerService.renderTemplate("send-otp.ftl",model);
     }
 
@@ -416,7 +457,7 @@ public class ParticipantService extends BaseController {
         return freemarkerService.renderTemplate("onboard-success.ftl",model);
 
     }
-    
+
     public String commonTemplate(String templateName) throws Exception {
         return freemarkerService.renderTemplate(templateName,new HashMap<>());
     }

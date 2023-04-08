@@ -40,7 +40,7 @@ public class EventGenerator {
         event.put(EID, ONBOARD);
         event.put(MID, UUIDUtils.getUUID());
         event.put(ETS, System.currentTimeMillis());
-        event.put(ACTION, PARTICIPANT_OTP_SEND);
+        event.put(ACTION, PARTICIPANT_VERIFICATION_LINK_SEND);
         event.put(PARTICIPANT_NAME, request.getOrDefault(PARTICIPANT_NAME, ""));
         event.put(PRIMARY_EMAIL, request.getOrDefault(PRIMARY_EMAIL, ""));
         event.put(PRIMARY_MOBILE, request.getOrDefault(PRIMARY_MOBILE, ""));
