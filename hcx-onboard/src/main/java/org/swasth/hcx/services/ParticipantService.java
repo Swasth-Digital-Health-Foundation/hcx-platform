@@ -158,7 +158,7 @@ public class ParticipantService extends BaseController {
         output.put(PARTICIPANT_CODE, participantCode);
         output.put(IDENTITY_VERIFICATION, identityVerified);
         auditIndexer.createDocument(eventGenerator.getOnboardVerifyEvent(request, participantCode));
-        logger.info("OTP has been sent successfully :: participant code : " + participantCode + " :: primary email : " + participant.get(PRIMARY_EMAIL));
+        logger.info("verification link  has been sent successfully :: participant code : " + participantCode + " :: primary email : " + participant.get(PRIMARY_EMAIL));
     }
 
     // TODO: change request body to pojo
@@ -229,7 +229,7 @@ public class ParticipantService extends BaseController {
                 phoneVerified = resultSet.getBoolean("phone_verified");
                 attemptCount = resultSet.getInt(ATTEMPT_COUNT);
                 if (resultSet.getString("status").equals(SUCCESSFUL)) {
-                    throw new ClientException(ErrorCodes.ERR_INVALID_LINK,LINK_VERIFIED);
+                    throw new ClientException(ErrorCodes.ERR_INVALID_LINK, LINK_VERIFIED);
                 }
                 if (resultSet.getLong(EXPIRY) > System.currentTimeMillis()) {
                     if (attemptCount < otpMaxAttempt) {
@@ -247,32 +247,32 @@ public class ParticipantService extends BaseController {
                             } else if (emailEnabled) {
                                 emailVerified = true;
                                 communicationStatus = SUCCESSFUL;
-                            }
-                            else if(phoneEnabled) {
+                            } else if (phoneEnabled) {
                                 phoneVerified = true;
                                 communicationStatus = SUCCESSFUL;
                             }
                         }
+                        else if (requestBody.get("status").equals(REJECTED)) {
+                            updateOtpStatus(false, false, attemptCount, FAILED, participantCode, (String) requestBody.get("comments"));
+                            return REJECTED;
+                        }
                     } else {
                         throw new ClientException(ErrorCodes.ERR_INVALID_LINK, LINK_RETRY_LIMIT);
                     }
-                }
-                else {
+                } else {
                     throw new ClientException(ErrorCodes.ERR_INVALID_LINK, LINK_EXPIRED);
                 }
-            }
-            else {
+            } else {
                 throw new ClientException(ErrorCodes.ERR_INVALID_LINK, LINK_RECORD_NOT_EXIST);
             }
-            updateOtpStatus(emailVerified, phoneVerified, attemptCount, communicationStatus, participantCode,"");
+            updateOtpStatus(emailVerified, phoneVerified, attemptCount, communicationStatus, participantCode, "");
             auditIndexer.createDocument(eventGenerator.getVerifyLinkEvent(requestBody, attemptCount, emailVerified, phoneVerified));
             logger.info("Communication details verification is successful :: participant_code  : " + participantCode);
             return ACCEPTED;
-            }  catch (Exception e) {
-            updateOtpStatus(emailVerified, phoneVerified, attemptCount, FAILED, participantCode,(String) requestBody.get("comments"));
+        } catch (Exception e) {
+            updateOtpStatus(emailVerified, phoneVerified, attemptCount, FAILED, participantCode, (String) requestBody.get("comments"));
             throw new VerificationException(e.getMessage());
-        }
-        finally {
+        } finally {
             if (resultSet != null) resultSet.close();
         }
     }
