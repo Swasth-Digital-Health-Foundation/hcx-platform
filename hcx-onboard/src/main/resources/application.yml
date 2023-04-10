@@ -7,6 +7,7 @@ logging:
 
 env: ${ENV:local}
 
+domain: ${domain_name:https://hcx.swasth.app}
 #elasticsearch config
 es:
   host: ${es_host:localhost}
@@ -22,8 +23,11 @@ aws:
   accessSecret: ${aws_accessSecret:}
   region: ${aws_region:}
 
-onboarding:
+onboard:
   successURL: ${onboarding_success_url:http://localhost:3000/onboardingsuccess}
+  verification:
+    email: ${email_enabled:true}
+    phone: ${phone_enabled:true}
 
 email:
   id: ${email_id:test@gmail.com}
@@ -47,11 +51,11 @@ postgres:
 
 otp:
   expiry: ${otp_expiry:600000}
-  maxAttempt: ${otp_max_attempt:3}
-  maxRegenerate: ${otp_max_regenerate:5}
+  maxAttempt: ${otp_max_attempt:10}
+  maxRegenerate: ${otp_max_regenerate:10}
 
 registry:
-  hcxCode: ${registry_hcx_code:1-d2d56996-1b77-4abb-b9e9-0e6e7343c72e}
+  hcxCode: ${registry_hcx_code:hcx.gateway@swasth-hcx-dev}
 
 jwt-token:
   privateKey : ${private_key:test-private-key}
