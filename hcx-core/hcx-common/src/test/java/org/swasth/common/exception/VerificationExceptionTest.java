@@ -20,7 +20,7 @@ public class VerificationExceptionTest {
     @Test
     public void getErrorcodeTest(){
         VerificationException verificationException = new VerificationException(ErrorCodes.ERR_INVALID_LINK,"Invalid otp");
-        assertEquals(verificationException.getErrCode(),ErrorCodes.ERR_INVALID_LINK);
+        assertEquals(ErrorCodes.ERR_INVALID_LINK,verificationException.getErrCode());
     }
 }
 
