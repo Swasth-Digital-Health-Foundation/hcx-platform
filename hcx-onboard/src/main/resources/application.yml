@@ -24,10 +24,10 @@ aws:
   region: ${aws_region:}
 
 onboard:
-  successURL: ${onboarding_success_url:http://localhost:3000/onboardingsuccess}
+  successURL: ${onboarding_success_url:${hcxURL}/onboarding/success}
   verification:
-    email: ${email_enabled:true}
-    phone: ${phone_enabled:true}
+    email: ${onboard_email_verification:true}
+    phone: ${onboard_phone_verification:true}
 
 email:
   id: ${email_id:test@gmail.com}
@@ -58,5 +58,5 @@ registry:
   hcxCode: ${registry_hcx_code:hcx.gateway@swasth-hcx-dev}
 
 jwt-token:
-  privateKey : ${private_key:test-private-key}
+  privateKey : ${hcx_private_key:test-private-key}
   expiryTime : ${expiry_time:86400000}
