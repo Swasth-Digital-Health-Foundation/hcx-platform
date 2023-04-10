@@ -100,7 +100,6 @@ public class ParticipantService extends BaseController {
 
     @Autowired
     protected EventGenerator eventGenerator;
-
     @Autowired
     private FreemarkerService freemarkerService;
 
