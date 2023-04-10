@@ -226,7 +226,7 @@ public class ParticipantService extends BaseController {
             resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
             if (resultSet.next()) {
                 emailVerified = resultSet.getBoolean(EMAIL_VERIFIED);
-                phoneVerified = resultSet.getBoolean(PHONE_VERIIED);
+                phoneVerified = resultSet.getBoolean(PHONE_VERIFIED);
                 attemptCount = resultSet.getInt(ATTEMPT_COUNT);
                 if (resultSet.getString("status").equals(SUCCESSFUL)) {
                     throw new ClientException(ErrorCodes.ERR_INVALID_LINK, LINK_VERIFIED);
@@ -267,10 +267,10 @@ public class ParticipantService extends BaseController {
             }
             updateOtpStatus(emailVerified, phoneVerified, attemptCount, communicationStatus, participantCode, "");
             auditIndexer.createDocument(eventGenerator.getVerifyLinkEvent(requestBody, attemptCount, emailVerified, phoneVerified));
-            logger.info("Communication details verification for type: {} is successful and participant_code of the user is:{} ",type,participantCode);
+            logger.info("Communication details verification is successful :: participant_code : {} :: type : {}" + participantCode,type);
             return ACCEPTED;
         } catch (Exception e) {
-            updateOtpStatus(emailVerified, phoneVerified, attemptCount, FAILED, participantCode, (String) requestBody.get("comments"));
+            updateOtpStatus(emailVerified, phoneVerified, attemptCount, FAILED, participantCode, (String) requestBody.get(COMMENTS));
             throw new VerificationException(e.getMessage());
         } finally {
             if (resultSet != null) resultSet.close();
@@ -307,7 +307,7 @@ public class ParticipantService extends BaseController {
         ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(otpQuery);
         if (resultSet.next()) {
             emailVerified = resultSet.getBoolean(EMAIL_VERIFIED);
-            phoneVerified = resultSet.getBoolean(PHONE_VERIIED);
+            phoneVerified = resultSet.getBoolean(PHONE_VERIFIED);
         }
 
         String onboardingQuery = String.format("SELECT * FROM %s WHERE applicant_email ILIKE '%s'", onboardingTable, email);

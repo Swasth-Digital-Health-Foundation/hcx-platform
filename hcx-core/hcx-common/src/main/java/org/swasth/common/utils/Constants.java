@@ -202,7 +202,7 @@ public class Constants {
     //Notification constants
     public static final String ACTIVE = "Active";
     public static final String INACTIVE = "Inactive";
-    public static final String PENDING = "Pending";
+    public static final String PENDING = "pending";
     public static final String SUBSCRIPTION_ID = "subscription_id";
     public static final String SUBSCRIPTION_REQUEST_ID = "subscription_request_id";
     public static final String NOTIFICATION_HEADERS_MANDATORY = "notification.headers.mandatory";
@@ -284,15 +284,13 @@ public class Constants {
     public static final String TIME_STAMP = "timestamp";
     public static final String APPLICANT_EMAIL = "applicant_email";
     public static final String EMAIL_VERIFIED = "email_verified";
-    public static final String PHONE_VERIIED = "phone_verified";
+    public static final String PHONE_VERIFIED = "phone_verified";
     public static final String SUCCESSFUL = "successful";
     public static final String FAILED = "failed";
     public static final String ATTEMPT_COUNT = "attempt_count";
     public static final String REJECTED = "rejected";
     public static final String ACCEPTED = "accepted";
     public static final String IDENTITY_VERIFICATION = "identity_verification";
-    public static final String EMAIL_OTP_VERIFIED = "email_otp_verified";
-    public static final String PHONE_OTP_VERIFIED = "phone_otp_verified";
     public static final String COMMENTS = "comments";
     public static final List<String> ALLOWED_ONBOARD_STATUS = Arrays.asList(REJECTED, ACCEPTED);
     public static final String STAGING = "staging";

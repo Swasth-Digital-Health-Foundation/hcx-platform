@@ -60,7 +60,7 @@ public class EventGenerator {
         event.put(PARTICIPANT_CODE, request.getOrDefault(PARTICIPANT_CODE, ""));
         event.put(ATTEMPT_COUNT, attemptCount);
         event.put(EMAIL_VERIFIED, emailOtpVerified);
-        event.put(PHONE_VERIIED, phoneOtpVerified);
+        event.put(PHONE_VERIFIED, phoneOtpVerified);
         return event;
     }
 
@@ -109,7 +109,7 @@ public class EventGenerator {
         event.put(ACTION, PARTICIPANT_ONBOARD_UPDATE);
         event.put(PRIMARY_EMAIL, email);
         event.put(EMAIL_VERIFIED, emailOtpVerified);
-        event.put(PHONE_VERIIED, phoneOtpVerified);
+        event.put(PHONE_VERIFIED, phoneOtpVerified);
         event.put(IDENTITY_VERIFICATION, identityStatus);
         return event;
     }
