@@ -35,7 +35,7 @@ public class EventGenerator {
         return event;
     }
 
-    public Map<String, Object> getSendOTPEvent(Map<String,Object> request, int regenCount, LocalDate regenDate) {
+    public Map<String, Object> getSendLinkEvent(Map<String,Object> request, int regenCount, LocalDate regenDate) {
         Map<String,Object> event = new HashMap<>();
         event.put(EID, ONBOARD);
         event.put(MID, UUIDUtils.getUUID());
@@ -50,7 +50,7 @@ public class EventGenerator {
         return event;
     }
 
-    public Map<String, Object> getOTPVerifyEvent(Map<String,Object> request, int attemptCount, boolean emailOtpVerified, boolean phoneOtpVerified) {
+    public Map<String, Object> getVerifyLinkEvent(Map<String,Object> request, int attemptCount, boolean emailOtpVerified, boolean phoneOtpVerified) {
         Map<String,Object> event = new HashMap<>();
         event.put(EID, ONBOARD);
         event.put(MID, UUIDUtils.getUUID());

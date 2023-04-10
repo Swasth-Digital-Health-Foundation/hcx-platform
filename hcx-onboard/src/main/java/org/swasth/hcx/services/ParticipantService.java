@@ -195,13 +195,13 @@ public class ParticipantService extends BaseController {
             smsService.sendLink((String) requestBody.get(PRIMARY_MOBILE), generateURL(requestBody,PHONE,(String) requestBody.get(PRIMARY_MOBILE)).toString());
         }
         if(emailEnabled) {
-            emailService.sendMail(primaryEmail, otpSub, otpTemplate((String) requestBody.get(PARTICIPANT_NAME), (String) requestBody.get(PARTICIPANT_CODE), generateURL(requestBody,EMAIL,(String) requestBody.get(PRIMARY_EMAIL))));
+            emailService.sendMail(primaryEmail, otpSub, linkTemplate((String) requestBody.get(PARTICIPANT_NAME), (String) requestBody.get(PARTICIPANT_CODE), generateURL(requestBody,EMAIL,(String) requestBody.get(PRIMARY_EMAIL))));
         }
         regenerateCount++;
         String query1 = String.format("UPDATE %s SET updatedOn=%d,expiry=%d ,regenerate_count=%d, last_regenerate_date='%s' WHERE primary_email='%s'",
                 onboardingOtpTable, System.currentTimeMillis(), System.currentTimeMillis() + otpExpiry, regenerateCount, currentDate, requestBody.get(PRIMARY_EMAIL));
         postgreSQLClient.execute(query1);
-        auditIndexer.createDocument(eventGenerator.getSendOTPEvent(requestBody, regenerateCount , currentDate));
+        auditIndexer.createDocument(eventGenerator.getSendLinkEvent(requestBody, regenerateCount , currentDate));
         return getSuccessResponse(new Response());
     }
 
@@ -265,7 +265,7 @@ public class ParticipantService extends BaseController {
                 throw new ClientException(ErrorCodes.ERR_INVALID_LINK, LINK_RECORD_NOT_EXIST);
             }
             updateOtpStatus(emailVerified, phoneVerified, attemptCount, communicationStatus, participantCode,"");
-            auditIndexer.createDocument(eventGenerator.getOTPVerifyEvent(requestBody, attemptCount, emailVerified, phoneVerified));
+            auditIndexer.createDocument(eventGenerator.getVerifyLinkEvent(requestBody, attemptCount, emailVerified, phoneVerified));
             logger.info("Communication details verification is successful :: participant_code  : " + participantCode);
             return ACCEPTED;
             }  catch (Exception e) {
@@ -441,7 +441,7 @@ public class ParticipantService extends BaseController {
         payload.put(EXP, new Date(date + expiryTime).getTime());
         return jwtUtils.generateJWS(headers,payload,privatekey);
     }
-    public String otpTemplate(String name ,String code,URL signedURL) throws Exception {
+    public String linkTemplate(String name ,String code,URL signedURL) throws Exception {
         Map<String, Object> model = new HashMap<>();
         model.put("USER_NAME", name);
         model.put("PARTICIPANT_CODE", code);
