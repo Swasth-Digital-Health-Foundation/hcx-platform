@@ -3,7 +3,7 @@
   <body>
     Hi ${USER_NAME},<br/><br/>
     Your participant code is <b>${PARTICIPANT_CODE}</b>.<br/>
-    Your Verify link is <a href= ${URL}>verify link</a>
+    Click on the <a href= ${URL}>link</a> to Verify your email address
     Thanks,<br/>
     HCX Team
   </body>

@@ -7,7 +7,7 @@ logging:
 
 env: ${ENV:local}
 
-domain: ${domain_name:https://hcx.swasth.app}
+hcxURL: ${hcx_url:https://hcx.swasth.app}
 #elasticsearch config
 es:
   host: ${es_host:localhost}
@@ -49,10 +49,10 @@ postgres:
   onboardingTable: ${onboarding_table:onboarding}
 
 
-otp:
-  expiry: ${otp_expiry:600000}
-  maxAttempt: ${otp_max_attempt:10}
-  maxRegenerate: ${otp_max_regenerate:10}
+verificationLink:
+  expiry: ${link_expiry:604800000}
+  maxAttempt: ${link_max_attempt:10}
+  maxRegenerate: ${link_max_regenerate:10}
 
 registry:
   hcxCode: ${registry_hcx_code:hcx.gateway@swasth-hcx-dev}

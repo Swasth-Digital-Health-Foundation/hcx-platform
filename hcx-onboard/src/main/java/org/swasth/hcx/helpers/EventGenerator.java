@@ -59,8 +59,8 @@ public class EventGenerator {
         event.put(TYPE, OTPVERIFICATION);
         event.put(PARTICIPANT_CODE, request.getOrDefault(PARTICIPANT_CODE, ""));
         event.put(ATTEMPT_COUNT, attemptCount);
-        event.put(EMAIL_OTP_VERIFIED, emailOtpVerified);
-        event.put(PHONE_OTP_VERIFIED, phoneOtpVerified);
+        event.put(EMAIL_VERIFIED, emailOtpVerified);
+        event.put(PHONE_VERIIED, phoneOtpVerified);
         return event;
     }
 
@@ -108,8 +108,8 @@ public class EventGenerator {
         event.put(ETS, System.currentTimeMillis());
         event.put(ACTION, PARTICIPANT_ONBOARD_UPDATE);
         event.put(PRIMARY_EMAIL, email);
-        event.put(EMAIL_OTP_VERIFIED, emailOtpVerified);
-        event.put(PHONE_OTP_VERIFIED, phoneOtpVerified);
+        event.put(EMAIL_VERIFIED, emailOtpVerified);
+        event.put(PHONE_VERIIED, phoneOtpVerified);
         event.put(IDENTITY_VERIFICATION, identityStatus);
         return event;
     }
