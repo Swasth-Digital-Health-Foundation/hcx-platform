@@ -273,7 +273,7 @@ public class ParticipantService extends BaseController {
             } else {
                 throw new ClientException(ErrorCodes.ERR_INVALID_LINK, LINK_RECORD_NOT_EXIST);
             }
-            updateOtpStatus(emailVerified, phoneVerified, attemptCount, communicationStatus, participantCode, (String) requestBody.get(COMMENTS));
+            updateOtpStatus(emailVerified, phoneVerified, attemptCount, communicationStatus, participantCode, (String) requestBody.getOrDefault(COMMENTS,""));
             auditIndexer.createDocument(eventGenerator.getVerifyLinkEvent(requestBody, attemptCount, emailVerified, phoneVerified));
             logger.info("Communication details verification :: participant_code : {} :: type : {} :: status : {}",participantCode,type,communicationStatus);
             if(StringUtils.equals(type,EMAIL)){
@@ -288,7 +288,7 @@ public class ParticipantService extends BaseController {
             }
             return communicationStatus;
         } catch (Exception e) {
-            updateOtpStatus(emailVerified, phoneVerified, attemptCount, FAILED, participantCode, (String) requestBody.get(COMMENTS));
+            updateOtpStatus(emailVerified, phoneVerified, attemptCount, FAILED, participantCode, (String) requestBody.getOrDefault(COMMENTS,""));
             throw new VerificationException(e.getMessage());
         } finally {
             if (resultSet != null) resultSet.close();
