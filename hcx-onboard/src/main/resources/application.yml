@@ -30,12 +30,17 @@ onboard:
     phone: ${onboard_phone_verification:false}
 
 email:
-  id: ${email_id:test@gmail.com}
-  pwd: ${email_pwd:test@123}
-  otpSub: ${otp_sub:HCX - Onboarding Started}
+  id: ${email_id:}
+  pwd: ${email_pwd:}
+  linkSub: ${link_sub:HCX - Onboarding Started}
   successIdentitySub: ${success_identity_sub:HCX - Identity Verified}
   failedIdentitySub: ${failed_identity_sub:HCX - Identity Verification Failed}
   onboardingSuccessSub: ${onboarding_success_sub:HCX - Onboarding Successful}
+  verificationSub: ${verification_success:HCX - Verification Status}
+
+phone:
+  sendLinkMsg : ${send_link_msg:HCX mobile verification link is :}
+  verificationMsg: ${phone_verification_msg:Your phone verification is STATUS. Thanks, Team HCX}
 
 hcx-api:
   basePath: ${HCX_API_BASEPATH:http://localhost:8080}

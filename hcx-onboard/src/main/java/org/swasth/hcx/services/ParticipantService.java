@@ -39,9 +39,17 @@ public class ParticipantService extends BaseController {
 
     private static final Logger logger = LoggerFactory.getLogger(BaseController.class);
 
-    @Value("${email.otpSub}")
-    private String otpSub;
+    @Value("${email.linkSub}")
+    private String linkSub;
 
+    @Value("${email.verificationSub}")
+    private String verificationSub;
+
+    @Value("${phone.sendLinkMsg}")
+    private String phoneSub;
+
+    @Value("${phone.verificationMsg}")
+    private  String phoneStatus;
     @Value("${hcxURL}")
     private String hcxURL;
     @Value("${email.successIdentitySub}")
@@ -192,10 +200,10 @@ public class ParticipantService extends BaseController {
             throw new ClientException(ErrorCodes.ERR_MAXIMUM_LINK_REGENERATE, MAXIMUM_LINK_REGENERATE);
         }
         if(phoneEnabled) {
-            smsService.sendLink((String) requestBody.get(PRIMARY_MOBILE), generateURL(requestBody,PHONE,(String) requestBody.get(PRIMARY_MOBILE)).toString());
+            smsService.sendLink((String) requestBody.get(PRIMARY_MOBILE),phoneSub + generateURL(requestBody,PHONE,(String) requestBody.get(PRIMARY_MOBILE)).toString());
         }
         if(emailEnabled) {
-            emailService.sendMail(primaryEmail, otpSub, linkTemplate((String) requestBody.get(PARTICIPANT_NAME), (String) requestBody.get(PARTICIPANT_CODE), generateURL(requestBody,EMAIL,(String) requestBody.get(PRIMARY_EMAIL))));
+            emailService.sendMail(primaryEmail, linkSub, linkTemplate((String) requestBody.get(PARTICIPANT_NAME), (String) requestBody.get(PARTICIPANT_CODE), generateURL(requestBody,EMAIL,(String) requestBody.get(PRIMARY_EMAIL))));
         }
         regenerateCount++;
         String query1 = String.format("UPDATE %s SET updatedOn=%d,expiry=%d ,regenerate_count=%d, last_regenerate_date='%s' WHERE primary_email='%s'",
@@ -213,11 +221,13 @@ public class ParticipantService extends BaseController {
         String participantCode = null;
         String type;
         String communicationStatus = PENDING;
+        String name;
         Map<String, Object> participantDetails;
         try {
             String jwtToken = (String) requestBody.get(JWT_TOKEN);
             Map<String, Object> jwtPayload = JSONUtils.decodeBase64String(jwtToken.split("\\.")[1], Map.class);
             participantCode = (String) jwtPayload.get(PARTICIPANT_CODE);
+            name =  (String) jwtPayload.get(PARTICIPANT_NAME);
             participantDetails = getParticipant(PARTICIPANT_CODE, hcxCode);
             if (!jwtPayload.isEmpty() && !jwtUtils.isValidSignature(jwtToken, (String) participantDetails.get(ENCRYPTION_CERT))) {
                 throw new ClientException(ErrorCodes.ERR_INVALID_JWT, "Invalid JWT token signature");
@@ -234,7 +244,7 @@ public class ParticipantService extends BaseController {
                 if (resultSet.getLong(EXPIRY) > System.currentTimeMillis()) {
                     if (attemptCount < linkMaxAttempt) {
                         type = (String) jwtPayload.get(TYP);
-                        if (StringUtils.equals((String)requestBody.get("status"), ACCEPTED)) {
+                        if (StringUtils.equals((String)requestBody.get("status"), SUCCESSFUL)) {
                             if (emailEnabled && phoneEnabled) {
                                 if (type.equals(EMAIL)) {
                                     emailVerified = true;
@@ -251,10 +261,8 @@ public class ParticipantService extends BaseController {
                                 phoneVerified = true;
                                 communicationStatus = SUCCESSFUL;
                             }
-                        }
-                        else if (StringUtils.equals((String)requestBody.get("status"),REJECTED)) {
-                            updateOtpStatus(emailVerified, phoneVerified, attemptCount, FAILED, participantCode, (String) requestBody.get(COMMENTS));
-                            return REJECTED;
+                        } else if (StringUtils.equals((String)requestBody.get("status"),FAILED)) {
+                            communicationStatus = FAILED;
                         }
                     } else {
                         throw new ClientException(ErrorCodes.ERR_INVALID_LINK, LINK_RETRY_LIMIT);
@@ -265,10 +273,20 @@ public class ParticipantService extends BaseController {
             } else {
                 throw new ClientException(ErrorCodes.ERR_INVALID_LINK, LINK_RECORD_NOT_EXIST);
             }
-            updateOtpStatus(emailVerified, phoneVerified, attemptCount, communicationStatus, participantCode, "");
+            updateOtpStatus(emailVerified, phoneVerified, attemptCount, communicationStatus, participantCode, (String) requestBody.get(COMMENTS));
             auditIndexer.createDocument(eventGenerator.getVerifyLinkEvent(requestBody, attemptCount, emailVerified, phoneVerified));
-            logger.info("Communication details verification is successful :: participant_code : {} :: type : {}" + participantCode,type);
-            return ACCEPTED;
+            logger.info("Communication details verification :: participant_code : {} :: type : {} :: status : {}",participantCode,type,communicationStatus);
+            if(StringUtils.equals(type,EMAIL)){
+                communicationStatus =  emailVerified ? SUCCESSFUL : FAILED;
+                emailService.sendMail((String) jwtPayload.get(SUB) ,verificationSub,verificationStatus(name,communicationStatus));
+            }
+            if(StringUtils.equals(type,PHONE)) {
+                communicationStatus =  phoneVerified ? SUCCESSFUL : FAILED;
+                String phoneverification = phoneStatus;
+                phoneverification = phoneverification.replace("STATUS",communicationStatus);
+                smsService.sendLink((String) jwtPayload.get(SUB),phoneverification);
+            }
+            return communicationStatus;
         } catch (Exception e) {
             updateOtpStatus(emailVerified, phoneVerified, attemptCount, FAILED, participantCode, (String) requestBody.get(COMMENTS));
             throw new VerificationException(e.getMessage());
@@ -316,19 +334,24 @@ public class ParticipantService extends BaseController {
             identityStatus = resultSet1.getString("status");
         }
         auditIndexer.createDocument(eventGenerator.getOnboardUpdateEvent(email, emailVerified, phoneVerified, identityStatus));
-        logger.info("Email verification: {} :: Phone verification: {} :: Identity verification: {}", emailVerified, emailVerified, identityStatus);
-        if (emailVerified && phoneVerified && StringUtils.equalsIgnoreCase(identityStatus, ACCEPTED)) {
-            HttpResponse<String> response = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_UPDATE, JSONUtils.serialize(participant), headersMap);
-            if (response.getStatus() == 200) {
-                logger.info("Participant details are updated successfully :: participant code : " + participant.get(PARTICIPANT_CODE));
-                emailService.sendMail(email,onboardingSuccessSub,successTemplate((String) requestBody.get(PARTICIPANT_NAME)));
-                return getSuccessResponse(new Response(PARTICIPANT_CODE, participant.get(PARTICIPANT_CODE)));
-            } else return new ResponseEntity<>(response.getBody(), HttpStatus.valueOf(response.getStatus()));
-        } else {
-            logger.info("Participant details are not updated, due to failed identity verification :: participant code : " + participant.get(PARTICIPANT_CODE));
+        logger.info("Email verification: {} :: Phone verification: {} :: Identity verification: {}", emailVerified, phoneVerified, identityStatus);
+        if (emailEnabled && !emailVerified) {
+            throw new ClientException(ErrorCodes.ERR_UPDATE_PARTICIPANT_DETAILS, "Email verification is failed");
+        }
+        if(phoneEnabled && !phoneVerified){
+            throw  new ClientException(ErrorCodes.ERR_UPDATE_PARTICIPANT_DETAILS,"Phone verification is failed");
+        }
+        if(!StringUtils.equalsIgnoreCase(identityStatus, ACCEPTED)){
             throw new ClientException(ErrorCodes.ERR_UPDATE_PARTICIPANT_DETAILS, "Identity verification failed");
         }
+        HttpResponse<String> response = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_UPDATE, JSONUtils.serialize(participant), headersMap);
+        if (response.getStatus() == 200) {
+            logger.info("Participant details are updated successfully :: participant code : " + participant.get(PARTICIPANT_CODE));
+            emailService.sendMail(email,onboardingSuccessSub,successTemplate((String) requestBody.get(PARTICIPANT_NAME)));
+                return getSuccessResponse(new Response(PARTICIPANT_CODE, participant.get(PARTICIPANT_CODE)));
+            } else return new ResponseEntity<>(response.getBody(), HttpStatus.valueOf(response.getStatus()));
     }
+
 
     public ResponseEntity<Object> manualIdentityVerify(Map<String, Object> requestBody) throws Exception {
         String applicantEmail = (String) requestBody.get(PRIMARY_EMAIL);
@@ -459,5 +482,12 @@ public class ParticipantService extends BaseController {
 
     public String commonTemplate(String templateName) throws Exception {
         return freemarkerService.renderTemplate(templateName,new HashMap<>());
+    }
+
+    public String verificationStatus(String name , String status) throws  Exception{
+        Map<String,Object>  model = new HashMap<>();
+        model.put("USER_NAME",name);
+        model.put("STATUS",status);
+        return freemarkerService.renderTemplate("verification-status.ftl",model);
     }
 }

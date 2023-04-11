@@ -29,7 +29,6 @@ public class SMSService {
 
     @Async
     public CompletableFuture<String> sendLink(String phone, String content) {
-        String message = "HCX mobile verification link is:" + content;
         String phoneNumber = "+91"+ phone;  // Ex: +91XXX4374XX
         AmazonSNS snsClient = AmazonSNSClient.builder().withCredentials(new AWSCredentialsProvider() {
             @Override
@@ -44,7 +43,7 @@ public class SMSService {
         }).withRegion(awsRegion).build();
 
         PublishResult result = snsClient.publish(new PublishRequest()
-                .withMessage(message)
+                .withMessage(content)
                 .withPhoneNumber(phoneNumber));
         return CompletableFuture.completedFuture(result.getMessageId());
     }
