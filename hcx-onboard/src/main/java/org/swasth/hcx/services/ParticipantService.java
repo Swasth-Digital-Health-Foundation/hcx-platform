@@ -347,7 +347,7 @@ public class ParticipantService extends BaseController {
         HttpResponse<String> response = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_UPDATE, JSONUtils.serialize(participant), headersMap);
         if (response.getStatus() == 200) {
             logger.info("Participant details are updated successfully :: participant code : " + participant.get(PARTICIPANT_CODE));
-            emailService.sendMail(email,onboardingSuccessSub,successTemplate((String) requestBody.get(PARTICIPANT_NAME)));
+            emailService.sendMail(email,onboardingSuccessSub,successTemplate((String) participant.get(PARTICIPANT_NAME)));
                 return getSuccessResponse(new Response(PARTICIPANT_CODE, participant.get(PARTICIPANT_CODE)));
             } else return new ResponseEntity<>(response.getBody(), HttpStatus.valueOf(response.getStatus()));
     }
