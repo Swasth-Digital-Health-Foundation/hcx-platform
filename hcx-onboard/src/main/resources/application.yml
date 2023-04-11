@@ -27,7 +27,7 @@ onboard:
   successURL: ${onboarding_success_url:${hcxURL}/onboarding/success}
   verification:
     email: ${onboard_email_verification:true}
-    phone: ${onboard_phone_verification:true}
+    phone: ${onboard_phone_verification:false}
 
 email:
   id: ${email_id:test@gmail.com}
