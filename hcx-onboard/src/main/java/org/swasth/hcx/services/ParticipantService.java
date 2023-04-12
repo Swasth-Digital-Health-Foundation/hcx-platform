@@ -348,13 +348,9 @@ public class ParticipantService extends BaseController {
             logger.info("Participant details are updated successfully :: participant code : " + participant.get(PARTICIPANT_CODE));
             emailService.sendMail(email, onboardingSuccessSub, successTemplate((String) participant.get(PARTICIPANT_NAME)));
             Response response = new Response(PARTICIPANT_CODE, participant.get(PARTICIPANT_CODE));
-            if (emailEnabled && !emailVerified) {
-                response.put(EMAIL_VERIFIED, false);
-            } else if(phoneEnabled && !phoneVerified){
-                response.put(PHONE_VERIFIED, false);
-            } else if(!StringUtils.equalsIgnoreCase(identityStatus, ACCEPTED)){
-                response.put(IDENTITY_VERIFICATION, REJECTED);
-            }
+            response.put(IDENTITY_VERIFICATION, identityStatus);
+            if (emailEnabled) response.put(EMAIL_VERIFIED, emailVerified);
+            if (phoneEnabled) response.put(PHONE_VERIFIED, phoneVerified);
             return getSuccessResponse(response);
         } else {
             return new ResponseEntity<>(httpResponse.getBody(), HttpStatus.valueOf(httpResponse.getStatus()));
