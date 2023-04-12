@@ -380,7 +380,7 @@ public class ParticipantService extends BaseController {
         if (fields != null && fields.toLowerCase().contains(SPONSORS))
             addSponsors(participantList);
         if(fields != null && fields.toLowerCase().contains(COMMUNICATION_STATUS))
-            addVerificationStatus(participantList);
+            addCommunicationStatus(participantList);
         return new ResponseEntity<>(new ParticipantResponse(participantList), HttpStatus.OK);
     }
 
@@ -442,14 +442,17 @@ public class ParticipantService extends BaseController {
         filterSponsors(sponsorMap, participantsList);
     }
 
-    public void addVerificationStatus(List<Map<String, Object>> participantsList) throws Exception {
+    public void addCommunicationStatus(List<Map<String, Object>> participantsList) throws Exception {
         String participantCodeList = participantsList.stream().map(participant -> participant.get(PARTICIPANT_CODE)).collect(Collectors.toList()).toString();
         String participantCodeQuote = getParticipantWithQuote(participantCodeList);
         String selectQuery = String.format("SELECT * FROM %s WHERE participant_code IN (%s)", onboardingOtpTable, participantCodeQuote);
         ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
         Map<String,Object> verificationMap = new HashMap<>();
         while (resultSet.next()) {
-            verificationMap.put(resultSet.getString(PARTICIPANT_CODE),resultSet.getString("status"));
+            Map<String,Object>  verification = new HashMap<>();
+            verification.put("emailVerified",resultSet.getBoolean("email_verified"));
+            verification.put("phoneVerified",resultSet.getBoolean("phone_verified"));
+            verificationMap.put(resultSet.getString(PARTICIPANT_CODE),verification);
         }
         filterVerification(verificationMap,participantsList);
     }
