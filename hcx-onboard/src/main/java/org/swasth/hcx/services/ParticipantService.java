@@ -350,6 +350,7 @@ public class ParticipantService extends BaseController {
             }
             Response response = new Response(PARTICIPANT_CODE, participant.get(PARTICIPANT_CODE));
             response.put(IDENTITY_VERIFICATION, identityStatus);
+            response.put(COMMUNICATION_VERIFICATION, commStatus);
             if (emailEnabled) response.put(EMAIL_VERIFIED, emailVerified);
             if (phoneEnabled) response.put(PHONE_VERIFIED, phoneVerified);
             return getSuccessResponse(response);

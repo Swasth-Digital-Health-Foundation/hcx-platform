@@ -293,6 +293,8 @@ public class Constants {
     public static final String REJECTED = "rejected";
     public static final String ACCEPTED = "accepted";
     public static final String IDENTITY_VERIFICATION = "identity_verification";
+
+    public static final String COMMUNICATION_VERIFICATION = "communication_verification";
     public static final String COMMENTS = "comments";
     public static final List<String> ALLOWED_ONBOARD_STATUS = Arrays.asList(REJECTED, ACCEPTED);
     public static final String STAGING = "staging";
