@@ -355,7 +355,7 @@ public class ParticipantService extends BaseController {
             } else if(!StringUtils.equalsIgnoreCase(identityStatus, ACCEPTED)){
                 response.put(IDENTITY_VERIFICATION, REJECTED);
             }
-            return getSuccessResponse(new Response(PARTICIPANT_CODE, participant.get(PARTICIPANT_CODE)));
+            return getSuccessResponse(response);
         } else {
             return new ResponseEntity<>(httpResponse.getBody(), HttpStatus.valueOf(httpResponse.getStatus()));
         }
