@@ -209,7 +209,7 @@ public class ParticipantService extends BaseController {
         if (regenerateCount >= linkMaxRegenerate) {
             throw new ClientException(ErrorCodes.ERR_MAXIMUM_LINK_REGENERATE, MAXIMUM_LINK_REGENERATE);
         }
-        if(phoneEnabled) {
+        if(phoneEnabled && !phoneVerified) {
             RandomStringGenerator randomStringGenerator = new RandomStringGenerator.Builder().withinRange('0', 'z').filteredBy(CharacterPredicates.LETTERS, CharacterPredicates.DIGITS).build();
             shortUrl = hcxURL+"/api/url/" + randomStringGenerator.generate(10);
             longUrl = generateURL(requestBody,PHONE,(String) requestBody.get(PRIMARY_MOBILE)).toString();
