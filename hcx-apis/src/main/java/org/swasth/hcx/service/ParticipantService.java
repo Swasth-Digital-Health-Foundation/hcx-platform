@@ -13,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.swasth.ICloudService;
 import org.swasth.common.dto.ParticipantResponse;
-import org.swasth.common.dto.Sponsor;
 import org.swasth.common.exception.*;
 import org.swasth.common.helpers.EventGenerator;
 import org.swasth.common.utils.HttpUtils;
@@ -25,9 +24,7 @@ import org.swasth.redis.cache.RedisCache;
 
 import java.io.IOException;
 import java.security.cert.CertificateException;
-import java.sql.ResultSet;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static org.swasth.common.response.ResponseMessage.*;
 import static org.swasth.common.utils.Constants.*;
@@ -91,23 +88,17 @@ public class ParticipantService {
         return responseHandler(response, code);
     }
 
-    public ParticipantResponse search(Map<String, Object> requestBody, String registryUrl, String fields) throws Exception {
+    public ParticipantResponse search(Map<String, Object> requestBody, String registryUrl) throws Exception {
         String url = registryUrl + registryApiPath + SEARCH;
         HttpResponse<String> response = HttpUtils.post(url, JSONUtils.serialize(requestBody), new HashMap<>());
-        ArrayList<Map<String, Object>> participantList = JSONUtils.deserialize(response.getBody(), ArrayList.class);
-        if (fields != null && fields.toLowerCase().contains(SPONSORS))
-            addSponsors(participantList);
-        if(fields != null && fields.toLowerCase().contains(VERIFICATION_STATUS))
-            addVerificationStatus(participantList);
         if(response.getStatus() == 200){
             logger.info("Search is completed :: status code: {}", response.getStatus());
-            return new ParticipantResponse(participantList);
         }
         return responseHandler(response, null);
     }
 
-    public ParticipantResponse read(String code, String registryUrl, String pathParam) throws Exception {
-        ResponseEntity<Object> searchResponse = getSuccessResponse(search(JSONUtils.deserialize(getRequestBody(code), Map.class), registryUrl, pathParam));
+    public ParticipantResponse read(String code, String registryUrl) throws Exception {
+        ResponseEntity<Object> searchResponse = getSuccessResponse(search(JSONUtils.deserialize(getRequestBody(code), Map.class), registryUrl));
         ParticipantResponse searchResp = (ParticipantResponse) searchResponse.getBody();
         logger.info("Read participant is completed");
         return searchResp;
@@ -135,51 +126,6 @@ public class ParticipantService {
             cloudClient.putObject(participantCode, bucketName);
             cloudClient.putObject(bucketName, participantCode + "/" + key + ".pem", certificateData);
             requestBody.put(key, cloudClient.getUrl(bucketName, participantCode + "/" + key + ".pem").toString());
-        }
-    }
-
-    public void addSponsors(List<Map<String, Object>> participantsList) throws Exception {
-        String primaryEmailList = participantsList.stream().map(participant -> participant.get(PRIMARY_EMAIL)).collect(Collectors.toList()).toString();
-        String primaryEmailWithQuote = getParticipantWithQuote(primaryEmailList);
-        String selectQuery = String.format("SELECT * FROM %S WHERE applicant_email IN (%s)", onboardingTable, primaryEmailWithQuote);
-        ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
-        Map<String, Object> sponsorMap = new HashMap<>();
-        while (resultSet.next()) {
-            Sponsor sponsorResponse = new Sponsor(resultSet.getString(APPLICANT_EMAIL), resultSet.getString(APPLICANT_CODE), resultSet.getString(VERIFIER_CODE), resultSet.getString(FORMSTATUS), resultSet.getLong("createdon"), resultSet.getLong("updatedon"));
-            sponsorMap.put(resultSet.getString(APPLICANT_EMAIL), sponsorResponse);
-        }
-        filterSponsors(sponsorMap, participantsList);
-    }
-
-    public void addVerificationStatus(List<Map<String, Object>> participantsList) throws Exception {
-        String participantCodeList = participantsList.stream().map(participant -> participant.get(PARTICIPANT_CODE)).collect(Collectors.toList()).toString();
-        String participantCodeQuote = getParticipantWithQuote(participantCodeList);
-        String selectQuery = String.format("SELECT * FROM %s WHERE participant_code IN (%s)", onboardOtpTable, participantCodeQuote);
-        ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
-        Map<String,Object> verificationMap = new HashMap<>();
-        while (resultSet.next()) {
-            verificationMap.put(resultSet.getString(PARTICIPANT_CODE),resultSet.getString("status"));
-        }
-        filterVerification(verificationMap,participantsList);
-    }
-    private String getParticipantWithQuote(String participantList) {
-        return "'" + participantList.replace("[", "").replace("]", "").replace(" ", "").replace(",", "','") + "'";
-    }
-
-    private void filterSponsors(Map<String, Object> sponsorMap, List<Map<String, Object>> participantsList) {
-        for (Map<String, Object> responseList : participantsList) {
-            String email = (String) responseList.get(PRIMARY_EMAIL);
-            if (sponsorMap.containsKey(email)) {
-                responseList.put(SPONSORS, Collections.singletonList(sponsorMap.get(email)));
-            }
-        }
-    }
-
-    private void filterVerification(Map<String, Object> verificationMap, List<Map<String, Object>> participantsList) {
-        for (Map<String, Object> responseList : participantsList) {
-            String code = (String) responseList.get(PARTICIPANT_CODE);
-            if(verificationMap.containsKey(code))
-                responseList.put("verificationStatus", verificationMap.get(code));
         }
     }
     public ResponseEntity<Object> getSuccessResponse(Object response) {
@@ -234,7 +180,7 @@ public class ParticipantService {
     }
 
     public Map<String, Object> getParticipant(String code, String registryUrl) throws Exception {
-        ResponseEntity<Object> searchResponse = getSuccessResponse(search(JSONUtils.deserialize(getRequestBody(code), Map.class), registryUrl, ""));
+        ResponseEntity<Object> searchResponse = getSuccessResponse(search(JSONUtils.deserialize(getRequestBody(code), Map.class), registryUrl));
         ParticipantResponse participantResponse = (ParticipantResponse) Objects.requireNonNull(searchResponse.getBody());
         if (participantResponse.getParticipants().isEmpty())
             throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_CODE, INVALID_PARTICIPANT_CODE);

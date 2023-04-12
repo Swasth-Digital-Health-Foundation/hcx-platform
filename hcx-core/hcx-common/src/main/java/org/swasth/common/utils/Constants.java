@@ -65,10 +65,13 @@ public class Constants {
     public static final String PARTICIPANT_UPDATE = "/participant/update";
     public static final String SPONSORS = "sponsors";
     public static final String VERIFICATION_STATUS = "verificationstatus";
+    public static final String COMMUNICATION = "communication";
     public static final String FORMSTATUS = "status";
     public static final String PARTICIPANT_DELETE = "/participant/delete";
     public static final String PARTICIPANT_VERIFY = "/participant/verify";
     public static final String APPLICANT_GET_INFO = "/applicant/getinfo";
+    public static final String APPLICANT_SEARCH = "/applicant/search";
+    public static final String PARTICIPANT_OTP_SEND = "/participant/otp/send";
     public static final String PARTICIPANT_VERIFICATION_LINK_SEND = "/participant/verification/link/send";
     public static final String PARTICIPANT_ONBOARD_UPDATE = "/participant/onboard/update";
     public static final String PARTICIPANT_VERIFY_IDENTITY = "/participant/verify/identity";
@@ -239,7 +242,6 @@ public class Constants {
 
     //Constants from api-gateway
     // Entity types
-    public static final String COMMUNICATION = "communication";
     public static final String NOTIFICATION = "notification";
     public static final String PAYMENT = "paymentnotice";
 

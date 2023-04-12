@@ -50,8 +50,8 @@ postgres:
   url: ${postgres_url:jdbc:postgresql://localhost:5432/postgres}
   user: ${postgres_user:postgres}
   password: ${postgres_password:postgres}
-  onboardingOtpTable: ${onboarding_otp_table:onboarding_otp}
-  onboardingTable: ${onboarding_table:onboarding}
+  onboardVerificationTable: ${onboarding_verification_table:onboard_verification}
+  onboardVerifierTable: ${onboarding_verifier_table:onboard_verifier}
 
 
 verificationLink:
