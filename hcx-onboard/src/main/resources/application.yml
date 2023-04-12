@@ -20,9 +20,9 @@ audit:
   alias: ${audit_alias:onboard_audit}
 
 aws:
-  accessKey: ${aws_accessKey:AKIA6I75KJYE2AIRJ24B}
-  accessSecret: ${aws_accessSecret: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}
-  region: ${aws_region:ap-south-1}
+  accessKey: ${aws_accessKey:}
+  accessSecret: ${aws_accessSecret:}
+  region: ${aws_region:}
 
 onboard:
   successURL: ${onboarding_success_url:${hcxURL}/onboarding/success}
