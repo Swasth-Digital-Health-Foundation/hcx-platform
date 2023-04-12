@@ -185,12 +185,16 @@ public class ParticipantService extends BaseController {
         String primaryEmail = (String) requestBody.get(PRIMARY_EMAIL);
         String query = String.format("SELECT regenerate_count, last_regenerate_date FROM %s WHERE primary_email='%s'", onboardVerificationTable, primaryEmail);
         ResultSet result = (ResultSet) postgreSQLClient.executeQuery(query);
+        boolean emailVerified = false;
+        boolean phoneVerified = false;
         LocalDate lastRegenerateDate = null;
         int regenerateCount = 0;
         LocalDate currentDate = LocalDate.now();
         if (result.next()) {
             regenerateCount = result.getInt("regenerate_count");
             lastRegenerateDate = result.getObject("last_regenerate_date", LocalDate.class);
+            emailVerified = result.getBoolean(EMAIL_VERIFIED);
+            phoneVerified = result.getBoolean(PHONE_VERIFIED);
         }
         if (!currentDate.equals(lastRegenerateDate)) {
             regenerateCount = 0;
@@ -198,10 +202,10 @@ public class ParticipantService extends BaseController {
         if (regenerateCount >= linkMaxRegenerate) {
             throw new ClientException(ErrorCodes.ERR_MAXIMUM_LINK_REGENERATE, MAXIMUM_LINK_REGENERATE);
         }
-        if(phoneEnabled) {
+        if(phoneEnabled && !phoneVerified) {
             smsService.sendLink((String) requestBody.get(PRIMARY_MOBILE),phoneSub + generateURL(requestBody,PHONE,(String) requestBody.get(PRIMARY_MOBILE)).toString());
         }
-        if(emailEnabled) {
+        if(emailEnabled && !emailVerified) {
             emailService.sendMail(primaryEmail, linkSub, linkTemplate((String) requestBody.get(PARTICIPANT_NAME), (String) requestBody.get(PARTICIPANT_CODE), generateURL(requestBody,EMAIL,(String) requestBody.get(PRIMARY_EMAIL)),linkExpiry/86400000));
         }
         regenerateCount++;
