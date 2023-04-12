@@ -125,10 +125,10 @@ public class ResponseMessage {
     public static final String UNSUBSCRIBE_ERR_MSG = "Provide valid participant code(s) as * is not allowed for unsubscribe";
     public static final String EMPTY_SENDER_LIST_ERR_MSG = "Provide valid participant code(s) in the request. sender_list can not be empty";
     public static final String NOTIFICATION_SUBSCRIBE_ERR_MSG = "Requester participant code can not be sent in the sender_list";
-    public static final String OTP_ALREADY_VERIFIED = "Email and phone OTP has already verified.";
-    public static final String OTP_RECORD_NOT_EXIST = "Participant record does not exist, please register.";
-    public static final String OTP_RETRY_LIMIT = "Email and phone OTP retry limit has reached, please re-generate otp and try again!";
-    public static final String OTP_EXPIRED= "Email and phone OTP has expired, please re-generate otp and try again!";
-    public static final String MAXIMUM_OTP_REGENERATE = "Maximum limit for OTP regeneration has been reached. Please try again tomorrow!";
+    public static final String LINK_VERIFIED = "The link has been verified already.";
+    public static final String LINK_RECORD_NOT_EXIST = "Participant record does not exist, please register.";
+    public static final String LINK_RETRY_LIMIT = "generate a new link and try again as the retry limit for the current link has been reached.";
+    public static final String LINK_EXPIRED= "link has been expired, please re-generate and try again!";
+    public static final String MAXIMUM_LINK_REGENERATE = "Maximum limit for link regeneration has been reached. Please try again tomorrow!";
 
 }

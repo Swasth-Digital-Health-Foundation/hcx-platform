@@ -7,6 +7,7 @@ logging:
 
 env: ${ENV:local}
 
+hcxURL: ${hcx_url:https://hcx.swasth.app}
 #elasticsearch config
 es:
   host: ${es_host:localhost}
@@ -22,16 +23,24 @@ aws:
   accessSecret: ${aws_accessSecret:}
   region: ${aws_region:}
 
-onboarding:
-  successURL: ${onboarding_success_url:http://localhost:3000/onboardingsuccess}
+onboard:
+  successURL: ${onboarding_success_url:${hcxURL}/onboarding/success}
+  verification:
+    email: ${onboard_email_verification:true}
+    phone: ${onboard_phone_verification:false}
 
 email:
-  id: ${email_id:test@gmail.com}
-  pwd: ${email_pwd:test@123}
-  otpSub: ${otp_sub:HCX - Onboarding Started}
+  id: ${email_id:}
+  pwd: ${email_pwd:}
+  linkSub: ${link_sub:HCX - Onboarding Started}
   successIdentitySub: ${success_identity_sub:HCX - Identity Verified}
   failedIdentitySub: ${failed_identity_sub:HCX - Identity Verification Failed}
   onboardingSuccessSub: ${onboarding_success_sub:HCX - Onboarding Successful}
+  verificationSub: ${verification_success:HCX - Verification Status}
+
+phone:
+  sendLinkMsg : ${send_link_msg:HCX mobile verification link is :}
+  verificationMsg: ${phone_verification_msg:Your phone verification is STATUS. Thanks, Team HCX}
 
 hcx-api:
   basePath: ${HCX_API_BASEPATH:http://localhost:8080}
@@ -45,14 +54,14 @@ postgres:
   onboardingTable: ${onboarding_table:onboarding}
 
 
-otp:
-  expiry: ${otp_expiry:600000}
-  maxAttempt: ${otp_max_attempt:3}
-  maxRegenerate: ${otp_max_regenerate:5}
+verificationLink:
+  expiry: ${link_expiry:604800000}
+  maxAttempt: ${link_max_attempt:10}
+  maxRegenerate: ${link_max_regenerate:10}
 
 registry:
-  hcxCode: ${registry_hcx_code:1-d2d56996-1b77-4abb-b9e9-0e6e7343c72e}
+  hcxCode: ${registry_hcx_code:hcx.gateway@swasth-hcx-dev}
 
 jwt-token:
-  privateKey : ${private_key:test-private-key}
+  privateKey : ${hcx_private_key:test-private-key}
   expiryTime : ${expiry_time:86400000}
