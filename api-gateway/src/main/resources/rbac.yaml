@@ -17,6 +17,7 @@ rbac:
       - /v0.7/audit/notification/search
       - /v0.7/participant/search
       - /v0.7/participant/update
+      - /v0.7/applicant/search/**
       - /v0.8/coverageeligibility/check
       - /v0.8/predetermination/submit
       - /v0.8/preauth/submit
@@ -26,7 +27,7 @@ rbac:
       - /v0.8/hcx/status
       - /v0.8/audit/search
       - /v0.8/audit/notification/search
-      - /v0.8/participant/search**
+      - /v0.8/participant/search
       - /v0.8/participant/update
       - /v0.8/participant/read/**
       - /v0.8/notification/subscribe
@@ -53,6 +54,7 @@ rbac:
       - /v0.7/audit/notification/search
       - /v0.7/participant/search
       - /v0.7/participant/update
+      - /v0.7/applicant/search/**
       - /v0.8/coverageeligibility/check
       - /v0.8/preauth/submit
       - /v0.8/claim/submit
@@ -66,7 +68,7 @@ rbac:
       - /v0.8/hcx/on_status
       - /v0.8/audit/search
       - /v0.8/audit/notification/search
-      - /v0.8/participant/search**
+      - /v0.8/participant/search
       - /v0.8/participant/update
       - /v0.8/participant/read/**
       - /v0.8/notification/subscribe
@@ -96,6 +98,7 @@ rbac:
       - /v0.7/audit/notification/search
       - /v0.7/participant/search
       - /v0.7/participant/update
+      - /v0.7/applicant/search/**
       - /v0.8/coverageeligibility/check
       - /v0.8/preauth/submit
       - /v0.8/claim/submit
@@ -109,7 +112,7 @@ rbac:
       - /v0.8/hcx/on_status
       - /v0.8/audit/search
       - /v0.8/audit/notification/search
-      - /v0.8/participant/search/**
+      - /v0.8/participant/search
       - /v0.8/participant/update
       - /v0.8/participant/read/**
   - role: agency.regulator
@@ -119,10 +122,11 @@ rbac:
       - /v0.7/audit/notification/search
       - /v0.7/participant/search
       - /v0.7/participant/update
+      - /v0.7/applicant/search/**
       - /v0.8/hcx/status
       - /v0.8/audit/search
       - /v0.8/audit/notification/search
-      - /v0.8/participant/search/**
+      - /v0.8/participant/search
       - /v0.8/participant/update
       - /v0.8/participant/read/**
   - role: research
@@ -133,13 +137,14 @@ rbac:
       - /v0.7/audit/search
       - /v0.7/audit/notification/search
       - /v0.7/participant/search
+      - /v0.7/applicant/search/**
       - /v0.7/participant/update
       - /v0.8/coverageeligibility/on_check
       - /v0.8/predetermination/on_submit
       - /v0.8/hcx/status
       - /v0.8/audit/search
       - /v0.8/audit/notification/search
-      - /v0.8/participant/search/**
+      - /v0.8/participant/search
       - /v0.8/participant/update
       - /v0.8/participant/read/**
   - role: member.isnp
@@ -152,13 +157,14 @@ rbac:
       - /v0.7/audit/notification/search
       - /v0.7/participant/search
       - /v0.7/participant/update
+      - /v0.7/applicant/search/**
       - /v0.8/coverageeligibility/on_check
       - /v0.8/coverageeligibility/check
       - /v0.8/predetermination/on_submit
       - /v0.8/hcx/status
       - /v0.8/audit/search
       - /v0.8/audit/notification/search
-      - /v0.8/participant/search/**
+      - /v0.8/participant/search
       - /v0.8/participant/update
       - /v0.8/participant/read/**
   - role: agency.sponsor
@@ -174,6 +180,7 @@ rbac:
       - /v0.7/audit/notification/search
       - /v0.7/participant/search
       - /v0.7/participant/update
+      - /v0.7/applicant/search/**
       - /v0.8/coverageeligibility/on_check
       - /v0.8/predetermination/on_submit
       - /v0.8/preauth/on_submit
@@ -183,7 +190,7 @@ rbac:
       - /v0.8/hcx/on_status
       - /v0.8/audit/search
       - /v0.8/audit/notification/search
-      - /v0.8/participant/search/**
+      - /v0.8/participant/search
       - /v0.8/participant/update
       - /v0.8/participant/read/**
   - role: HIE/HIO.HCX
