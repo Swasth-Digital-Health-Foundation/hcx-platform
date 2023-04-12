@@ -3,6 +3,7 @@ rbac:
     paths:
       - /health
       - /service/health
+    regexPaths:
       - /url/**
   - role: AUTHENTICATED
   - role: provider
