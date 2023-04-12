@@ -15,12 +15,9 @@ import org.swasth.common.exception.ErrorCodes;
 import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.hcx.controllers.BaseSpec;
-import org.swasth.hcx.utils.MockResultSet;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -30,7 +27,6 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.swasth.common.utils.Constants.VERIFICATION_STATUS;
 
 class ParticipantControllerTests extends BaseSpec{
 

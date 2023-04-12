@@ -67,11 +67,11 @@ public class ParticipantService extends BaseController {
     @Value("${hcx-api.basePath}")
     private String hcxAPIBasePath;
 
-    @Value("${postgres.onboardingOtpTable}")
-    private String onboardingOtpTable;
+    @Value("${postgres.onboardVerificationTable}")
+    private String onboardVerificationTable;
 
-    @Value("${postgres.onboardingTable}")
-    private String onboardingTable;
+    @Value("${postgres.onboardVerifierTable}")
+    private String onboardingVerifierTable;
 
     @Value("${verificationLink.expiry}")
     private int linkExpiry;
@@ -121,13 +121,13 @@ public class ParticipantService extends BaseController {
     }
 
     private void updateStatus(String email, String status) throws Exception {
-        String query = String.format("UPDATE %s SET status='%s',updatedOn=%d WHERE applicant_email='%s'", onboardingTable, status, System.currentTimeMillis(), email);
+        String query = String.format("UPDATE %s SET status='%s',updatedOn=%d WHERE applicant_email='%s'", onboardingVerifierTable, status, System.currentTimeMillis(), email);
         postgreSQLClient.execute(query);
     }
 
     private void updateIdentityVerificationStatus(String email, String applicantCode, String verifierCode, String status) throws Exception {
         String query = String.format("INSERT INTO %s (applicant_email,applicant_code,verifier_code,status,createdOn,updatedOn) VALUES ('%s','%s','%s','%s',%d,%d) ON CONFLICT (applicant_email) DO NOTHING;",
-                onboardingTable, email, applicantCode, verifierCode, status, System.currentTimeMillis(), System.currentTimeMillis());
+                onboardingVerifierTable, email, applicantCode, verifierCode, status, System.currentTimeMillis(), System.currentTimeMillis());
         postgreSQLClient.execute(query);
     }
 
@@ -140,7 +140,7 @@ public class ParticipantService extends BaseController {
             participant.put(SCHEME_CODE, "default");
         String identityVerified = PENDING;
         if (ONBOARD_FOR_PROVIDER.contains(request.getType())) {
-            String query = String.format("SELECT * FROM %s WHERE applicant_email ILIKE '%s' AND status IN ('%s', '%s')", onboardingTable, request.getPrimaryEmail(),PENDING,REJECTED);
+            String query = String.format("SELECT * FROM %s WHERE applicant_email ILIKE '%s' AND status IN ('%s', '%s')", onboardingVerifierTable, request.getPrimaryEmail(),PENDING,REJECTED);
             ResultSet result = (ResultSet) postgreSQLClient.executeQuery(query);
             if (result.next()) {
                 identityVerified = identityVerify(getApplicantBody(request));
@@ -158,7 +158,7 @@ public class ParticipantService extends BaseController {
         String participantCode = (String) JSONUtils.deserialize(createResponse.getBody(), Map.class).get(PARTICIPANT_CODE);
         participant.put(PARTICIPANT_CODE, participantCode);
         String query = String.format("INSERT INTO %s (participant_code,primary_email,primary_mobile,createdOn," +
-                        "updatedOn,expiry,phone_verified,email_verified,status,attempt_count) VALUES ('%s','%s','%s',%d,%d,%d,%b,%b,'%s',%d)", onboardingOtpTable, participantCode,
+                        "updatedOn,expiry,phone_verified,email_verified,status,attempt_count) VALUES ('%s','%s','%s',%d,%d,%d,%b,%b,'%s',%d)", onboardVerificationTable, participantCode,
                 participant.get(PRIMARY_EMAIL), participant.get(PRIMARY_MOBILE), System.currentTimeMillis(), System.currentTimeMillis(), System.currentTimeMillis(), false, false, PENDING, 0);
         postgreSQLClient.execute(query);
         sendVerificationLink(participant);
@@ -183,7 +183,7 @@ public class ParticipantService extends BaseController {
 
     public ResponseEntity<Object> sendVerificationLink(Map<String, Object> requestBody) throws Exception {
         String primaryEmail = (String) requestBody.get(PRIMARY_EMAIL);
-        String query = String.format("SELECT regenerate_count, last_regenerate_date FROM %s WHERE primary_email='%s'", onboardingOtpTable, primaryEmail);
+        String query = String.format("SELECT regenerate_count, last_regenerate_date FROM %s WHERE primary_email='%s'", onboardVerificationTable, primaryEmail);
         ResultSet result = (ResultSet) postgreSQLClient.executeQuery(query);
         LocalDate lastRegenerateDate = null;
         int regenerateCount = 0;
@@ -202,11 +202,11 @@ public class ParticipantService extends BaseController {
             smsService.sendLink((String) requestBody.get(PRIMARY_MOBILE),phoneSub + generateURL(requestBody,PHONE,(String) requestBody.get(PRIMARY_MOBILE)).toString());
         }
         if(emailEnabled) {
-            emailService.sendMail(primaryEmail, linkSub, linkTemplate((String) requestBody.get(PARTICIPANT_NAME), (String) requestBody.get(PARTICIPANT_CODE), generateURL(requestBody,EMAIL,(String) requestBody.get(PRIMARY_EMAIL))));
+            emailService.sendMail(primaryEmail, linkSub, linkTemplate((String) requestBody.get(PARTICIPANT_NAME), (String) requestBody.get(PARTICIPANT_CODE), generateURL(requestBody,EMAIL,(String) requestBody.get(PRIMARY_EMAIL)),linkExpiry/86400000));
         }
         regenerateCount++;
         String query1 = String.format("UPDATE %s SET updatedOn=%d,expiry=%d ,regenerate_count=%d, last_regenerate_date='%s' WHERE primary_email='%s'",
-                onboardingOtpTable, System.currentTimeMillis(), System.currentTimeMillis() + linkExpiry, regenerateCount, currentDate, requestBody.get(PRIMARY_EMAIL));
+                onboardVerificationTable, System.currentTimeMillis(), System.currentTimeMillis() + linkExpiry, regenerateCount, currentDate, requestBody.get(PRIMARY_EMAIL));
         postgreSQLClient.execute(query1);
         auditIndexer.createDocument(eventGenerator.getSendLinkEvent(requestBody, regenerateCount , currentDate));
         return getSuccessResponse(new Response());
@@ -231,7 +231,7 @@ public class ParticipantService extends BaseController {
             if (!jwtPayload.isEmpty() && !jwtUtils.isValidSignature(jwtToken, (String) participantDetails.get(ENCRYPTION_CERT))) {
                 throw new ClientException(ErrorCodes.ERR_INVALID_JWT, "Invalid JWT token signature");
             }
-            String selectQuery = String.format("SELECT * FROM %s WHERE participant_code='%s'", onboardingOtpTable, participantCode);
+            String selectQuery = String.format("SELECT * FROM %s WHERE participant_code='%s'", onboardVerificationTable, participantCode);
             resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
             if (resultSet.next()) {
                 emailVerified = resultSet.getBoolean(EMAIL_VERIFIED);
@@ -295,7 +295,7 @@ public class ParticipantService extends BaseController {
     }
     private void updateOtpStatus(boolean emailVerified, boolean phoneVerified, int attemptCount, String status, String code,String comments) throws Exception {
         String updateOtpQuery = String.format("UPDATE %s SET email_verified=%b,phone_verified=%b,status='%s',updatedOn=%d,attempt_count=%d ,comments='%s' WHERE participant_code='%s'",
-                onboardingOtpTable, emailVerified, phoneVerified, status, System.currentTimeMillis(), attemptCount + 1,comments,code);
+                onboardVerificationTable, emailVerified, phoneVerified, status, System.currentTimeMillis(), attemptCount + 1,comments,code);
         postgreSQLClient.execute(updateOtpQuery);
     }
 
@@ -320,7 +320,7 @@ public class ParticipantService extends BaseController {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put(AUTHORIZATION, "Bearer " + jwtToken);
 
-        String otpQuery = String.format("SELECT * FROM %s WHERE primary_email ILIKE '%s'", onboardingOtpTable, email);
+        String otpQuery = String.format("SELECT * FROM %s WHERE primary_email ILIKE '%s'", onboardVerificationTable, email);
         ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(otpQuery);
         if (resultSet.next()) {
             emailVerified = resultSet.getBoolean(EMAIL_VERIFIED);
@@ -328,7 +328,7 @@ public class ParticipantService extends BaseController {
             commStatus = resultSet.getString("status");
         }
 
-        String onboardingQuery = String.format("SELECT * FROM %s WHERE applicant_email ILIKE '%s'", onboardingTable, email);
+        String onboardingQuery = String.format("SELECT * FROM %s WHERE applicant_email ILIKE '%s'", onboardingVerifierTable, email);
         ResultSet resultSet1 = (ResultSet) postgreSQLClient.executeQuery(onboardingQuery);
         if (resultSet1.next()) {
             identityStatus = resultSet1.getString("status");
@@ -365,7 +365,7 @@ public class ParticipantService extends BaseController {
             throw new ClientException(ErrorCodes.ERR_INVALID_ONBOARD_STATUS, "Invalid onboard status, allowed values are: " + ALLOWED_ONBOARD_STATUS);
         //Update status for the user
         String query = String.format("UPDATE %s SET status='%s',updatedOn=%d WHERE applicant_email='%s'",
-                onboardingTable, status, System.currentTimeMillis(), applicantEmail);
+                onboardingVerifierTable, status, System.currentTimeMillis(), applicantEmail);
         postgreSQLClient.execute(query);
         auditIndexer.createDocument(eventGenerator.getManualIdentityVerifyEvent(applicantEmail, status));
         if (status.equals(ACCEPTED)) {
@@ -480,11 +480,12 @@ public class ParticipantService extends BaseController {
         payload.put(EXP, new Date(date + expiryTime).getTime());
         return jwtUtils.generateJWS(headers,payload,privatekey);
     }
-    public String linkTemplate(String name ,String code,URL signedURL) throws Exception {
+    public String linkTemplate(String name ,String code,URL signedURL,int day) throws Exception {
         Map<String, Object> model = new HashMap<>();
         model.put("USER_NAME", name);
         model.put("PARTICIPANT_CODE", code);
         model.put("URL",signedURL);
+        model.put("DAY",day);
         return freemarkerService.renderTemplate("send-link.ftl",model);
     }
 
@@ -503,7 +504,7 @@ public class ParticipantService extends BaseController {
     public void addSponsors(List<Map<String, Object>> participantsList) throws Exception {
         String primaryEmailList = participantsList.stream().map(participant -> participant.get(PRIMARY_EMAIL)).collect(Collectors.toList()).toString();
         String primaryEmailWithQuote = getParticipantWithQuote(primaryEmailList);
-        String selectQuery = String.format("SELECT * FROM %S WHERE applicant_email IN (%s)", onboardingTable, primaryEmailWithQuote);
+        String selectQuery = String.format("SELECT * FROM %S WHERE applicant_email IN (%s)", onboardingVerifierTable, primaryEmailWithQuote);
         ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
         Map<String, Object> sponsorMap = new HashMap<>();
         while (resultSet.next()) {
@@ -516,13 +517,17 @@ public class ParticipantService extends BaseController {
     public void addCommunicationStatus(List<Map<String, Object>> participantsList) throws Exception {
         String participantCodeList = participantsList.stream().map(participant -> participant.get(PARTICIPANT_CODE)).collect(Collectors.toList()).toString();
         String participantCodeQuote = getParticipantWithQuote(participantCodeList);
-        String selectQuery = String.format("SELECT * FROM %s WHERE participant_code IN (%s)", onboardingOtpTable, participantCodeQuote);
+        String selectQuery = String.format("SELECT * FROM %s WHERE participant_code IN (%s)", onboardVerificationTable, participantCodeQuote);
         ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
         Map<String,Object> verificationMap = new HashMap<>();
         while (resultSet.next()) {
             Map<String,Object>  verification = new HashMap<>();
-            verification.put("emailVerified",resultSet.getBoolean("email_verified"));
-            verification.put("phoneVerified",resultSet.getBoolean("phone_verified"));
+            if(emailEnabled) {
+                verification.put("emailVerified", resultSet.getBoolean("email_verified"));
+            }
+            if(phoneEnabled) {
+                verification.put("phoneVerified", resultSet.getBoolean("phone_verified"));
+            }
             verificationMap.put(resultSet.getString(PARTICIPANT_CODE),verification);
         }
         filterVerification(verificationMap,participantsList);
@@ -543,9 +548,10 @@ public class ParticipantService extends BaseController {
     private void filterVerification(Map<String, Object> verificationMap, List<Map<String, Object>> participantsList) {
         for (Map<String, Object> responseList : participantsList) {
             String code = (String) responseList.get(PARTICIPANT_CODE);
-            if(verificationMap.containsKey(code))
+            if (verificationMap.containsKey(code))
                 responseList.put("communicationStatus", verificationMap.get(code));
         }
+    }
     public String verificationStatus(String name , String status) throws  Exception{
         Map<String,Object>  model = new HashMap<>();
         model.put("USER_NAME",name);
