@@ -312,12 +312,12 @@ public class ParticipantService extends BaseController {
         logger.info("Onboard update: " + requestBody);
         boolean emailVerified = false;
         boolean phoneVerified = false;
+        String commStatus = PENDING;
         String identityStatus = REJECTED;
         String jwtToken = (String) requestBody.get(JWT_TOKEN);
         Map<String, Object> payload = JSONUtils.decodeBase64String(jwtToken.split("\\.")[1], Map.class);
         String email = (String) payload.get("email");
         Map<String, Object> participant = (Map<String, Object>) requestBody.get(PARTICIPANT);
-        participant.put(REGISTRY_STATUS, ACTIVE);
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put(AUTHORIZATION, "Bearer " + jwtToken);
 
@@ -326,6 +326,7 @@ public class ParticipantService extends BaseController {
         if (resultSet.next()) {
             emailVerified = resultSet.getBoolean(EMAIL_VERIFIED);
             phoneVerified = resultSet.getBoolean(PHONE_VERIFIED);
+            commStatus = resultSet.getString("status");
         }
 
         String onboardingQuery = String.format("SELECT * FROM %s WHERE applicant_email ILIKE '%s'", onboardingTable, email);
@@ -333,23 +334,33 @@ public class ParticipantService extends BaseController {
         if (resultSet1.next()) {
             identityStatus = resultSet1.getString("status");
         }
+
         auditIndexer.createDocument(eventGenerator.getOnboardUpdateEvent(email, emailVerified, phoneVerified, identityStatus));
         logger.info("Email verification: {} :: Phone verification: {} :: Identity verification: {}", emailVerified, phoneVerified, identityStatus);
-        if (emailEnabled && !emailVerified) {
-            throw new ClientException(ErrorCodes.ERR_UPDATE_PARTICIPANT_DETAILS, "Email verification is failed");
+
+        if (commStatus.equals(SUCCESSFUL) && identityStatus.equals(ACCEPTED)) {
+            participant.put(REGISTRY_STATUS, ACTIVE);
         }
-        if(phoneEnabled && !phoneVerified){
-            throw  new ClientException(ErrorCodes.ERR_UPDATE_PARTICIPANT_DETAILS,"Phone verification is failed");
-        }
-        if(!StringUtils.equalsIgnoreCase(identityStatus, ACCEPTED)){
-            throw new ClientException(ErrorCodes.ERR_UPDATE_PARTICIPANT_DETAILS, "Identity verification failed");
-        }
-        HttpResponse<String> response = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_UPDATE, JSONUtils.serialize(participant), headersMap);
-        if (response.getStatus() == 200) {
+
+        HttpResponse<String> httpResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_UPDATE, JSONUtils.serialize(participant), headersMap);
+
+        if (httpResponse.getStatus() == 200) {
             logger.info("Participant details are updated successfully :: participant code : " + participant.get(PARTICIPANT_CODE));
-            emailService.sendMail(email,onboardingSuccessSub,successTemplate((String) participant.get(PARTICIPANT_NAME)));
-                return getSuccessResponse(new Response(PARTICIPANT_CODE, participant.get(PARTICIPANT_CODE)));
-            } else return new ResponseEntity<>(response.getBody(), HttpStatus.valueOf(response.getStatus()));
+            emailService.sendMail(email, onboardingSuccessSub, successTemplate((String) participant.get(PARTICIPANT_NAME)));
+            Response response = new Response();
+            response.put(PARTICIPANT_CODE, participant.get(PARTICIPANT_CODE));
+            if (emailEnabled && !emailVerified) {
+                response.put(EMAIL_VERIFIED, false);
+            } else if(phoneEnabled && !phoneVerified){
+                response.put(PHONE_VERIFIED, false);
+            } else if(!StringUtils.equalsIgnoreCase(identityStatus, ACCEPTED)){
+                response.put(IDENTITY_VERIFICATION, REJECTED);
+            }
+            return getSuccessResponse(new Response(PARTICIPANT_CODE, participant.get(PARTICIPANT_CODE)));
+        } else {
+            return new ResponseEntity<>(httpResponse.getBody(), HttpStatus.valueOf(httpResponse.getStatus()));
+        }
+
     }
 
 
