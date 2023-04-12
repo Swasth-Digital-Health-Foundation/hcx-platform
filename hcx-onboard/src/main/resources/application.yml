@@ -22,7 +22,7 @@ audit:
 aws:
   accessKey: ${aws_accessKey:}
   accessSecret: ${aws_accessSecret:}
-  region: ${aws_region:ap-south-1}
+  region: ${aws_region:}
 
 onboard:
   successURL: ${onboarding_success_url:${hcxURL}/onboarding/success}
