@@ -23,7 +23,7 @@ public class UrlService {
     private String apiVersion;
 
     public String getLongurl(String id) throws Exception {
-        String shortUrl = hcxURL+"/api/"+apiVersion+"/url/"+id;
+        String shortUrl = hcxURL+"/api/url/"+id;
         String selectQuery = String.format("SELECT * FROM %s WHERE phone_short_url = '%s'", onboardVerificationTable, shortUrl);
         ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
         String longUrl = null;
