@@ -436,7 +436,7 @@ public class ParticipantService extends BaseController {
         ArrayList<Map<String,Object>> participantList = JSONUtils.convert(responseMap.get(PARTICIPANTS),ArrayList.class);
         if (fields != null && fields.toLowerCase().contains(SPONSORS))
             addSponsors(participantList);
-        if(fields != null && fields.toLowerCase().contains(COMMUNICATION_STATUS))
+        if(fields != null && fields.toLowerCase().contains(COMMUNICATION))
             addCommunicationStatus(participantList);
         return new ResponseEntity<>(new ParticipantResponse(participantList), HttpStatus.OK);
     }
@@ -522,6 +522,7 @@ public class ParticipantService extends BaseController {
         Map<String,Object> verificationMap = new HashMap<>();
         while (resultSet.next()) {
             Map<String,Object>  verification = new HashMap<>();
+            verification.put("status",resultSet.getString("status"));
             if(emailEnabled) {
                 verification.put("emailVerified", resultSet.getBoolean("email_verified"));
             }
@@ -549,7 +550,7 @@ public class ParticipantService extends BaseController {
         for (Map<String, Object> responseList : participantsList) {
             String code = (String) responseList.get(PARTICIPANT_CODE);
             if (verificationMap.containsKey(code))
-                responseList.put("communicationStatus", verificationMap.get(code));
+                responseList.put(COMMUNICATION, verificationMap.get(code));
         }
     }
     public String verificationStatus(String name , String status) throws  Exception{

@@ -65,7 +65,7 @@ public class Constants {
     public static final String PARTICIPANT_UPDATE = "/participant/update";
     public static final String SPONSORS = "sponsors";
     public static final String VERIFICATION_STATUS = "verificationstatus";
-    public static final String COMMUNICATION_STATUS = "communicationstatus";
+    public static final String COMMUNICATION = "communication";
     public static final String FORMSTATUS = "status";
     public static final String PARTICIPANT_DELETE = "/participant/delete";
     public static final String PARTICIPANT_VERIFY = "/participant/verify";
@@ -242,7 +242,6 @@ public class Constants {
 
     //Constants from api-gateway
     // Entity types
-    public static final String COMMUNICATION = "communication";
     public static final String NOTIFICATION = "notification";
     public static final String PAYMENT = "paymentnotice";
 
