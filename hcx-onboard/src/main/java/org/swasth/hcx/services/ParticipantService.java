@@ -188,7 +188,7 @@ public class ParticipantService extends BaseController {
 
     public ResponseEntity<Object> sendVerificationLink(Map<String, Object> requestBody) throws Exception {
         String primaryEmail = (String) requestBody.get(PRIMARY_EMAIL);
-        String query = String.format("SELECT regenerate_count, last_regenerate_date FROM %s WHERE primary_email='%s'", onboardVerificationTable, primaryEmail);
+        String query = String.format("SELECT regenerate_count, last_regenerate_date, email_verified, phone_verified FROM %s WHERE primary_email='%s'", onboardVerificationTable, primaryEmail);
         ResultSet result = (ResultSet) postgreSQLClient.executeQuery(query);
         boolean emailVerified = false;
         boolean phoneVerified = false;
