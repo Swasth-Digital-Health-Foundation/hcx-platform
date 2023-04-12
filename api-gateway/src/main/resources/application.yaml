@@ -160,7 +160,7 @@ spring:
             - RewritePath=/${version.external08}/request/retry/(?<segment>/?.*), /${version.internal}/request/retry/$\{segment}
             - RewritePath=/${version.external08}/audit/onboard/search, /${version.internal}/audit/onboard/search
           predicates:
-            - Path=/${version.external07}/participant/create, /${version.external07}/participant/update, /${version.external07}/participant/search*, /${version.external07}/participant/delete, /${version.external08}/participant/create, /${version.external08}/participant/update, /${version.external08}/participant/search* , /${version.external08}/participant/read/*, /${version.external08}/participant/delete, /health, /service/health, /${version.external08}/notification/topic/list,  /${version.external08}/request/retry/**, /${version.external08}/audit/onboard/search
+            - Path=/${version.external07}/participant/create, /${version.external07}/participant/update, /${version.external07}/participant/search, /${version.external07}/participant/delete, /${version.external08}/participant/create, /${version.external08}/participant/update, /${version.external08}/participant/search , /${version.external08}/participant/read/*, /${version.external08}/participant/delete, /health, /service/health, /${version.external08}/notification/topic/list,  /${version.external08}/request/retry/**, /${version.external08}/audit/onboard/search
 
         - id: hcx-onboard-api-route
           uri: ${hcx-onboard.basePath}
@@ -172,7 +172,7 @@ spring:
             - RewritePath=/${version.external07}/participant/(?<segment>/?.*), /${version.internal}/participant/$\{segment}
             - RewritePath=/${version.external07}/applicant/(?<segment>/?.*), /${version.internal}/applicant/$\{segment}
           predicates:
-            - Path=/${version.external07}/participant/verify, /${version.external07}/participant/verify/identity, /${version.external07}/participant/verification/link/send, /${version.external07}/participant/onboard/update, /${version.external07}/applicant/getinfo, /${version.external07}/applicant/verify
+            - Path=/${version.external07}/participant/verify, /${version.external07}/participant/verify/identity, /${version.external07}/participant/otp/send, /${version.external07}/participant/onboard/update, /${version.external07}/applicant/getinfo, /${version.external07}/applicant/verify,/${version.external07}/applicant/search/*
 
         - id: hcx-mock-service-route
           uri: ${hcx-mock-service.basePath}

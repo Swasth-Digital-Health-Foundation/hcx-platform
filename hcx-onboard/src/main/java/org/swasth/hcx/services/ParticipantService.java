@@ -11,10 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.swasth.auditindexer.function.AuditIndexer;
-import org.swasth.common.dto.OnboardRequest;
-import org.swasth.common.dto.OnboardResponse;
-import org.swasth.common.dto.ParticipantResponse;
-import org.swasth.common.dto.Response;
+import org.swasth.common.dto.*;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
 import org.swasth.common.exception.VerificationException;
@@ -31,6 +28,8 @@ import java.security.spec.InvalidKeySpecException;
 import java.sql.ResultSet;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
+
 import static org.swasth.common.response.ResponseMessage.*;
 import static org.swasth.common.utils.Constants.*;
 
@@ -431,6 +430,17 @@ public class ParticipantService extends BaseController {
         return result;
     }
 
+    public ResponseEntity<Object> applicantSearch(Map<String,Object> requestBody,String fields) throws Exception {
+        HttpResponse<String> response = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_SEARCH, JSONUtils.serialize(requestBody), new HashMap<>());
+        Map<String,Object> responseMap = JSONUtils.deserialize(response.getBody(),Map.class);
+        ArrayList<Map<String,Object>> participantList = JSONUtils.convert(responseMap.get(PARTICIPANTS),ArrayList.class);
+        if (fields != null && fields.toLowerCase().contains(SPONSORS))
+            addSponsors(participantList);
+        if(fields != null && fields.toLowerCase().contains(COMMUNICATION_STATUS))
+            addCommunicationStatus(participantList);
+        return new ResponseEntity<>(new ParticipantResponse(participantList), HttpStatus.OK);
+    }
+
     private Map<String,String> headers(String verifierCode) throws NoSuchAlgorithmException, InvalidKeySpecException {
         Map<String,String> headers = new HashMap<>();
         headers.put(AUTHORIZATION,"Bearer "+ jwtUtils.generateAuthToken(privatekey,verifierCode,hcxCode,expiryTime));
@@ -490,6 +500,52 @@ public class ParticipantService extends BaseController {
         return freemarkerService.renderTemplate(templateName,new HashMap<>());
     }
 
+    public void addSponsors(List<Map<String, Object>> participantsList) throws Exception {
+        String primaryEmailList = participantsList.stream().map(participant -> participant.get(PRIMARY_EMAIL)).collect(Collectors.toList()).toString();
+        String primaryEmailWithQuote = getParticipantWithQuote(primaryEmailList);
+        String selectQuery = String.format("SELECT * FROM %S WHERE applicant_email IN (%s)", onboardingTable, primaryEmailWithQuote);
+        ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
+        Map<String, Object> sponsorMap = new HashMap<>();
+        while (resultSet.next()) {
+            Sponsor sponsorResponse = new Sponsor(resultSet.getString(APPLICANT_EMAIL), resultSet.getString(APPLICANT_CODE), resultSet.getString(VERIFIER_CODE), resultSet.getString(FORMSTATUS), resultSet.getLong("createdon"), resultSet.getLong("updatedon"));
+            sponsorMap.put(resultSet.getString(APPLICANT_EMAIL), sponsorResponse);
+        }
+        filterSponsors(sponsorMap, participantsList);
+    }
+
+    public void addCommunicationStatus(List<Map<String, Object>> participantsList) throws Exception {
+        String participantCodeList = participantsList.stream().map(participant -> participant.get(PARTICIPANT_CODE)).collect(Collectors.toList()).toString();
+        String participantCodeQuote = getParticipantWithQuote(participantCodeList);
+        String selectQuery = String.format("SELECT * FROM %s WHERE participant_code IN (%s)", onboardingOtpTable, participantCodeQuote);
+        ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
+        Map<String,Object> verificationMap = new HashMap<>();
+        while (resultSet.next()) {
+            Map<String,Object>  verification = new HashMap<>();
+            verification.put("emailVerified",resultSet.getBoolean("email_verified"));
+            verification.put("phoneVerified",resultSet.getBoolean("phone_verified"));
+            verificationMap.put(resultSet.getString(PARTICIPANT_CODE),verification);
+        }
+        filterVerification(verificationMap,participantsList);
+    }
+    
+    private String getParticipantWithQuote(String participantList) {
+        return "'" + participantList.replace("[", "").replace("]", "").replace(" ", "").replace(",", "','") + "'";
+    }
+  
+  private void filterSponsors(Map<String, Object> sponsorMap, List<Map<String, Object>> participantsList) {
+        for (Map<String, Object> responseList : participantsList) {
+            String email = (String) responseList.get(PRIMARY_EMAIL);
+            if (sponsorMap.containsKey(email)) {
+                responseList.put(SPONSORS, Collections.singletonList(sponsorMap.get(email)));
+            }
+        }
+    }
+    private void filterVerification(Map<String, Object> verificationMap, List<Map<String, Object>> participantsList) {
+        for (Map<String, Object> responseList : participantsList) {
+            String code = (String) responseList.get(PARTICIPANT_CODE);
+            if(verificationMap.containsKey(code))
+                responseList.put("communicationStatus", verificationMap.get(code));
+        }
     public String verificationStatus(String name , String status) throws  Exception{
         Map<String,Object>  model = new HashMap<>();
         model.put("USER_NAME",name);

@@ -86,4 +86,13 @@ public class ParticipantController extends BaseController {
             return exceptionHandler("", APPLICANT_GET_INFO, new Response(), e);
         }
     }
+
+    @PostMapping(APPLICANT_SEARCH)
+    public ResponseEntity<Object> applicantSearch(@RequestParam(required = false) String fields,@RequestBody Map<String,Object> requestBody) throws Exception{
+        try{
+            return service.applicantSearch(requestBody,fields);
+        } catch (Exception e){
+            return exceptionHandler("",APPLICANT_SEARCH,new Response(),e);
+        }
+    }
 }
