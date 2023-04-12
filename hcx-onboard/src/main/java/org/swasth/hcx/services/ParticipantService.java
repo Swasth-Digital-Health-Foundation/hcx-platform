@@ -2,6 +2,8 @@ package org.swasth.hcx.services;
 
 import kong.unirest.HttpResponse;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.CharacterPredicates;
+import org.apache.commons.text.RandomStringGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +53,9 @@ public class ParticipantService extends BaseController {
     private  String phoneStatus;
     @Value("${hcxURL}")
     private String hcxURL;
+
+    @Value("${apiVersion}")
+    private String apiVersion;
     @Value("${email.successIdentitySub}")
     private String successIdentitySub;
 
@@ -190,6 +195,8 @@ public class ParticipantService extends BaseController {
         LocalDate lastRegenerateDate = null;
         int regenerateCount = 0;
         LocalDate currentDate = LocalDate.now();
+        String shortUrl = null;
+        String longUrl = null;
         if (result.next()) {
             regenerateCount = result.getInt("regenerate_count");
             lastRegenerateDate = result.getObject("last_regenerate_date", LocalDate.class);
@@ -202,15 +209,18 @@ public class ParticipantService extends BaseController {
         if (regenerateCount >= linkMaxRegenerate) {
             throw new ClientException(ErrorCodes.ERR_MAXIMUM_LINK_REGENERATE, MAXIMUM_LINK_REGENERATE);
         }
-        if(phoneEnabled && !phoneVerified) {
-            smsService.sendLink((String) requestBody.get(PRIMARY_MOBILE),phoneSub + generateURL(requestBody,PHONE,(String) requestBody.get(PRIMARY_MOBILE)).toString());
+        if(phoneEnabled) {
+            RandomStringGenerator randomStringGenerator = new RandomStringGenerator.Builder().withinRange('0', 'z').filteredBy(CharacterPredicates.LETTERS, CharacterPredicates.DIGITS).build();
+            shortUrl = hcxURL+"/api/"+apiVersion+"/url/" + randomStringGenerator.generate(10);
+            longUrl = generateURL(requestBody,PHONE,(String) requestBody.get(PRIMARY_MOBILE)).toString();
+            smsService.sendLink((String) requestBody.get(PRIMARY_MOBILE),phoneSub + shortUrl);
         }
         if(emailEnabled && !emailVerified) {
             emailService.sendMail(primaryEmail, linkSub, linkTemplate((String) requestBody.get(PARTICIPANT_NAME), (String) requestBody.get(PARTICIPANT_CODE), generateURL(requestBody,EMAIL,(String) requestBody.get(PRIMARY_EMAIL)),linkExpiry/86400000));
         }
         regenerateCount++;
-        String query1 = String.format("UPDATE %s SET updatedOn=%d,expiry=%d ,regenerate_count=%d, last_regenerate_date='%s' WHERE primary_email='%s'",
-                onboardVerificationTable, System.currentTimeMillis(), System.currentTimeMillis() + linkExpiry, regenerateCount, currentDate, requestBody.get(PRIMARY_EMAIL));
+        String query1 = String.format("UPDATE %s SET updatedOn=%d,expiry=%d ,regenerate_count=%d, last_regenerate_date='%s',phone_short_url = '%s',phone_long_url = '%s' WHERE primary_email='%s'",
+                onboardVerificationTable, System.currentTimeMillis(), System.currentTimeMillis() + linkExpiry, regenerateCount, currentDate, shortUrl,longUrl,requestBody.get(PRIMARY_EMAIL));
         postgreSQLClient.execute(query1);
         auditIndexer.createDocument(eventGenerator.getSendLinkEvent(requestBody, regenerateCount , currentDate));
         return getSuccessResponse(new Response());

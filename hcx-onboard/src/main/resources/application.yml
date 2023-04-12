@@ -8,6 +8,7 @@ logging:
 env: ${ENV:local}
 
 hcxURL: ${hcx_url:https://hcx.swasth.app}
+apiVersion: ${api_version:v0.7}
 #elasticsearch config
 es:
   host: ${es_host:localhost}
@@ -19,15 +20,15 @@ audit:
   alias: ${audit_alias:onboard_audit}
 
 aws:
-  accessKey: ${aws_accessKey:}
-  accessSecret: ${aws_accessSecret:}
-  region: ${aws_region:}
+  accessKey: ${aws_accessKey:AKIA6I75KJYE2AIRJ24B}
+  accessSecret: ${aws_accessSecret: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}
+  region: ${aws_region:ap-south-1}
 
 onboard:
   successURL: ${onboarding_success_url:${hcxURL}/onboarding/success}
   verification:
     email: ${onboard_email_verification:true}
-    phone: ${onboard_phone_verification:false}
+    phone: ${onboard_phone_verification:true}
 
 email:
   id: ${email_id:}
