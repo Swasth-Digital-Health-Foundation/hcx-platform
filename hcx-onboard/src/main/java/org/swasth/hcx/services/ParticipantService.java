@@ -347,8 +347,7 @@ public class ParticipantService extends BaseController {
         if (httpResponse.getStatus() == 200) {
             logger.info("Participant details are updated successfully :: participant code : " + participant.get(PARTICIPANT_CODE));
             emailService.sendMail(email, onboardingSuccessSub, successTemplate((String) participant.get(PARTICIPANT_NAME)));
-            Response response = new Response();
-            response.put(PARTICIPANT_CODE, participant.get(PARTICIPANT_CODE));
+            Response response = new Response(PARTICIPANT_CODE, participant.get(PARTICIPANT_CODE));
             if (emailEnabled && !emailVerified) {
                 response.put(EMAIL_VERIFIED, false);
             } else if(phoneEnabled && !phoneVerified){
