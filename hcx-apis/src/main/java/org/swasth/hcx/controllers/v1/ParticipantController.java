@@ -82,20 +82,20 @@ public class ParticipantController extends BaseController {
     }
 
     @PostMapping(PARTICIPANT_SEARCH)
-    public ResponseEntity<Object> search(@RequestParam(required = false) String fields, @RequestBody Map<String, Object> requestBody) {
+    public ResponseEntity<Object> search(@RequestBody Map<String, Object> requestBody) {
         try {
             logger.info("Searching participant: {}", requestBody);
-            return getSuccessResponse(service.search(requestBody, registryUrl, fields));
+            return getSuccessResponse(service.search(requestBody,registryUrl));
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }
     }
 
     @GetMapping(PARTICIPANT_READ)
-    public ResponseEntity<Object> read(@PathVariable("participantCode") String code, @RequestParam(required = false) String fields) {
+    public ResponseEntity<Object> read(@PathVariable("participantCode") String code) {
         try {
             logger.info("Reading participant :: participant code: {}", code);
-            return getSuccessResponse(service.read(code,registryUrl,fields));
+            return getSuccessResponse(service.read(code,registryUrl));
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }

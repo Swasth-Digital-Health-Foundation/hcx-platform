@@ -301,7 +301,7 @@ class NotificationControllerTest extends BaseSpec {
                 new Object[][]{ // data
                         {"subscription_id-001", "subscription_request_1", "Active", "topic_code-12345", "hcx-apollo-12345", "ICICI Lombard", 1629057611000l, false},
                         {"subscription_id-002", "subscription_request_2", "Inactive", "topic_code-12346", "hcx-apollo-12346", "ICICI Lombard", 1629057611000l, false},
-                        {"subscription_id-003", "subscription_request_3", "Pending", "topic_code-12347", "hcx-apollo-12347", "ICICI Lombard", 1629057611000l, true}
+                        {"subscription_id-003", "subscription_request_3", "pending", "topic_code-12347", "hcx-apollo-12347", "ICICI Lombard", 1629057611000l, true}
                 });
     }
 
