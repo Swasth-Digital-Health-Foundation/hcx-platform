@@ -84,7 +84,7 @@ public class EventGenerator {
         return event;
     }
 
-    public Map<String, Object> getApplicantGetInfoEvent(Map<String,Object> request, String applicantCode, String verifiercode, HttpResponse<String> response) {
+    public Map<String, Object> getApplicantGetInfoEvent(Map<String,Object> request, String applicantCode, String verifiercode, Map<String,Object> response,int status) {
         Map<String,Object> event = new HashMap<>();
         event.put(EID, ONBOARD);
         event.put(MID, UUIDUtils.getUUID());
@@ -92,8 +92,8 @@ public class EventGenerator {
         event.put(ACTION, APPLICANT_GET_INFO);
         event.put(APPLICANT_CODE, applicantCode);
         event.put(VERIFIER_CODE, verifiercode);
-        event.put(AUDIT_STATUS, response.getStatus() == 200 ? SUCCESSFUL : FAILED);
-        event.put(RESPONSE_OBJ, response.getBody());
+        event.put(AUDIT_STATUS, status == 200 ? SUCCESSFUL : FAILED);
+        event.put(RESPONSE_OBJ, response);
         if (request.containsKey(EMAIL))
             event.put(EMAIL, request.get(EMAIL));
         if (request.containsKey(MOBILE))
