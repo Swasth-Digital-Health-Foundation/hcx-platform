@@ -56,9 +56,9 @@ public class BaseController {
         if (e instanceof ClientException) {
             status = HttpStatus.BAD_REQUEST;
             errorCode = ((ClientException) e).getErrCode();
-        } else if (e instanceof OTPVerificationException) {
+        } else if (e instanceof VerificationException) {
             status = HttpStatus.BAD_REQUEST;
-            errorCode = ((OTPVerificationException) e).getErrCode();
+            errorCode = ((VerificationException) e).getErrCode();
         } else if (e instanceof ServiceUnavailbleException) {
             status = HttpStatus.SERVICE_UNAVAILABLE;
             errorCode = ((ServiceUnavailbleException) e).getErrCode();

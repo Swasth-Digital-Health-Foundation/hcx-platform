@@ -1,14 +1,14 @@
 package org.swasth.common.exception;
 
-public class OTPVerificationException extends Exception {
+public class VerificationException extends Exception {
 
     private ErrorCodes errCode;
 
-    public OTPVerificationException(String message) {
+    public VerificationException(String message) {
         super(message);
     }
 
-    public OTPVerificationException(ErrorCodes errCode, String message) {
+    public VerificationException(ErrorCodes errCode, String message) {
         super(message);
         this.errCode = errCode;
     }

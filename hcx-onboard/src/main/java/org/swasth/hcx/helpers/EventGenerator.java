@@ -35,12 +35,12 @@ public class EventGenerator {
         return event;
     }
 
-    public Map<String, Object> getSendOTPEvent(Map<String,Object> request, int regenCount, LocalDate regenDate) {
+    public Map<String, Object> getSendLinkEvent(Map<String,Object> request, int regenCount, LocalDate regenDate) {
         Map<String,Object> event = new HashMap<>();
         event.put(EID, ONBOARD);
         event.put(MID, UUIDUtils.getUUID());
         event.put(ETS, System.currentTimeMillis());
-        event.put(ACTION, PARTICIPANT_OTP_SEND);
+        event.put(ACTION, PARTICIPANT_VERIFICATION_LINK_SEND);
         event.put(PARTICIPANT_NAME, request.getOrDefault(PARTICIPANT_NAME, ""));
         event.put(PRIMARY_EMAIL, request.getOrDefault(PRIMARY_EMAIL, ""));
         event.put(PRIMARY_MOBILE, request.getOrDefault(PRIMARY_MOBILE, ""));
@@ -50,7 +50,7 @@ public class EventGenerator {
         return event;
     }
 
-    public Map<String, Object> getOTPVerifyEvent(Map<String,Object> request, int attemptCount, boolean emailOtpVerified, boolean phoneOtpVerified) {
+    public Map<String, Object> getVerifyLinkEvent(Map<String,Object> request, int attemptCount, boolean emailOtpVerified, boolean phoneOtpVerified) {
         Map<String,Object> event = new HashMap<>();
         event.put(EID, ONBOARD);
         event.put(MID, UUIDUtils.getUUID());
@@ -59,8 +59,8 @@ public class EventGenerator {
         event.put(TYPE, OTPVERIFICATION);
         event.put(PARTICIPANT_CODE, request.getOrDefault(PARTICIPANT_CODE, ""));
         event.put(ATTEMPT_COUNT, attemptCount);
-        event.put(EMAIL_OTP_VERIFIED, emailOtpVerified);
-        event.put(PHONE_OTP_VERIFIED, phoneOtpVerified);
+        event.put(EMAIL_VERIFIED, emailOtpVerified);
+        event.put(PHONE_VERIFIED, phoneOtpVerified);
         return event;
     }
 
@@ -108,8 +108,8 @@ public class EventGenerator {
         event.put(ETS, System.currentTimeMillis());
         event.put(ACTION, PARTICIPANT_ONBOARD_UPDATE);
         event.put(PRIMARY_EMAIL, email);
-        event.put(EMAIL_OTP_VERIFIED, emailOtpVerified);
-        event.put(PHONE_OTP_VERIFIED, phoneOtpVerified);
+        event.put(EMAIL_VERIFIED, emailOtpVerified);
+        event.put(PHONE_VERIFIED, phoneOtpVerified);
         event.put(IDENTITY_VERIFICATION, identityStatus);
         return event;
     }
