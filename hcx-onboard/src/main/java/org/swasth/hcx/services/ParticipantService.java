@@ -121,7 +121,7 @@ public class ParticipantService extends BaseController {
         OnboardRequest request = new OnboardRequest(body);
         Map<String, Object> output = new HashMap<>();
         updateIdentityStatus(request.getPrimaryEmail(), request.getApplicantCode(), request.getVerifierCode(), PENDING);
-        processOnboarding(header, request, output);
+        processOnboard(header, request, output);
         return getSuccessResponse(new Response(output));
     }
 
@@ -136,7 +136,7 @@ public class ParticipantService extends BaseController {
         postgreSQLClient.execute(query);
     }
 
-    private void processOnboarding(HttpHeaders headers, OnboardRequest request, Map<String, Object> output) throws Exception {
+    private void processOnboard(HttpHeaders headers, OnboardRequest request, Map<String, Object> output) throws Exception {
         Map<String, Object> participant = request.getParticipant();
         participant.put(ENDPOINT_URL, "http://testurl/v0.7");
         participant.put(ENCRYPTION_CERT, "https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/hcx-platform/sprint-35/hcx-apis/src/test/resources/examples/x509-self-signed-certificate.pem");
