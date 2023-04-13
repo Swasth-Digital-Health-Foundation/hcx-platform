@@ -213,7 +213,7 @@ public class ParticipantService extends BaseController {
             RandomStringGenerator randomStringGenerator = new RandomStringGenerator.Builder().withinRange('0', 'z').filteredBy(CharacterPredicates.LETTERS, CharacterPredicates.DIGITS).build();
             shortUrl = hcxURL+"/api/url/" + randomStringGenerator.generate(10);
             longUrl = generateURL(requestBody,PHONE,(String) requestBody.get(PRIMARY_MOBILE)).toString();
-            smsService.sendLink((String) requestBody.get(PRIMARY_MOBILE),phoneSub + shortUrl);
+            smsService.sendLink((String) requestBody.get(PRIMARY_MOBILE),phoneSub +"\r\n"+ shortUrl);
         }
         if(emailEnabled && !emailVerified) {
             emailService.sendMail(primaryEmail, linkSub, linkTemplate((String) requestBody.get(PARTICIPANT_NAME), (String) requestBody.get(PARTICIPANT_CODE), generateURL(requestBody,EMAIL,(String) requestBody.get(PRIMARY_EMAIL)),linkExpiry/86400000));
@@ -297,7 +297,7 @@ public class ParticipantService extends BaseController {
                 communicationStatus =  phoneVerified ? SUCCESSFUL : FAILED;
                 String phoneverification = phoneStatus;
                 phoneverification = phoneverification.replace("STATUS",communicationStatus);
-                smsService.sendLink((String) jwtPayload.get(SUB),phoneverification);
+                smsService.sendLink((String) jwtPayload.get(SUB),phoneverification + "\r\n" + "Thanks, HCX Team.");
             }
             return communicationStatus;
         } catch (Exception e) {
