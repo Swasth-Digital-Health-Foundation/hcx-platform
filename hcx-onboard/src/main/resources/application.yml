@@ -40,8 +40,8 @@ email:
   verificationSub: ${verification_success:HCX - Verification Status}
 
 phone:
-  sendLinkMsg : ${send_link_msg:HCX mobile verification link is :}
-  verificationMsg: ${phone_verification_msg:Your phone verification is STATUS. Thanks, Team HCX}
+  sendLinkMsg : ${send_link_msg:HCX mobile verification link is:}
+  verificationMsg: ${phone_verification_msg:Your phone verification is STATUS. Thanks, HCX Team.}
 
 hcx-api:
   basePath: ${HCX_API_BASEPATH:http://localhost:8080}

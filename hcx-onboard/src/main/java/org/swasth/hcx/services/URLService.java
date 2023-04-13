@@ -8,7 +8,7 @@ import org.swasth.postgresql.IDatabaseService;
 import java.sql.ResultSet;
 
 @Service
-public class UrlService {
+public class URLService {
 
     @Autowired
     private IDatabaseService postgreSQLClient;
@@ -22,7 +22,7 @@ public class UrlService {
     @Value("${apiVersion}")
     private String apiVersion;
 
-    public String getLongurl(String id) throws Exception {
+    public String getLongUrl(String id) throws Exception {
         String shortUrl = hcxURL+"/api/url/"+id;
         String selectQuery = String.format("SELECT * FROM %s WHERE phone_short_url = '%s'", onboardVerificationTable, shortUrl);
         ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);

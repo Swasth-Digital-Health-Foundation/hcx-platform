@@ -120,8 +120,8 @@ public class ParticipantService extends BaseController {
         logger.info("Participant verification :: " + body);
         OnboardRequest request = new OnboardRequest(body);
         Map<String, Object> output = new HashMap<>();
-        updateIdentityVerificationStatus(request.getPrimaryEmail(), request.getApplicantCode(), request.getVerifierCode(), PENDING);
-        createParticipantAndSendOTP(header, request, output);
+        updateIdentityStatus(request.getPrimaryEmail(), request.getApplicantCode(), request.getVerifierCode(), PENDING);
+        processOnboarding(header, request, output);
         return getSuccessResponse(new Response(output));
     }
 
@@ -130,16 +130,16 @@ public class ParticipantService extends BaseController {
         postgreSQLClient.execute(query);
     }
 
-    private void updateIdentityVerificationStatus(String email, String applicantCode, String verifierCode, String status) throws Exception {
+    private void updateIdentityStatus(String email, String applicantCode, String verifierCode, String status) throws Exception {
         String query = String.format("INSERT INTO %s (applicant_email,applicant_code,verifier_code,status,createdOn,updatedOn) VALUES ('%s','%s','%s','%s',%d,%d) ON CONFLICT (applicant_email) DO NOTHING;",
                 onboardingVerifierTable, email, applicantCode, verifierCode, status, System.currentTimeMillis(), System.currentTimeMillis());
         postgreSQLClient.execute(query);
     }
 
-    private void createParticipantAndSendOTP(HttpHeaders headers, OnboardRequest request, Map<String, Object> output) throws Exception {
+    private void processOnboarding(HttpHeaders headers, OnboardRequest request, Map<String, Object> output) throws Exception {
         Map<String, Object> participant = request.getParticipant();
         participant.put(ENDPOINT_URL, "http://testurl/v0.7");
-        participant.put(ENCRYPTION_CERT, "https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/hcx-platform/sprint-27/hcx-apis/src/test/resources/examples/x509-self-signed-certificate.pem");
+        participant.put(ENCRYPTION_CERT, "https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/hcx-platform/sprint-35/hcx-apis/src/test/resources/examples/x509-self-signed-certificate.pem");
         participant.put(REGISTRY_STATUS, CREATED);
         if (((ArrayList<String>) participant.get(ROLES)).contains(PAYOR))
             participant.put(SCHEME_CODE, "default");
@@ -213,7 +213,7 @@ public class ParticipantService extends BaseController {
             RandomStringGenerator randomStringGenerator = new RandomStringGenerator.Builder().withinRange('0', 'z').filteredBy(CharacterPredicates.LETTERS, CharacterPredicates.DIGITS).build();
             shortUrl = hcxURL+"/api/url/" + randomStringGenerator.generate(10);
             longUrl = generateURL(requestBody,PHONE,(String) requestBody.get(PRIMARY_MOBILE)).toString();
-            smsService.sendLink((String) requestBody.get(PRIMARY_MOBILE),phoneSub + shortUrl);
+            smsService.sendLink((String) requestBody.get(PRIMARY_MOBILE),phoneSub + " " + shortUrl);
         }
         if(emailEnabled && !emailVerified) {
             emailService.sendMail(primaryEmail, linkSub, linkTemplate((String) requestBody.get(PARTICIPANT_NAME), (String) requestBody.get(PARTICIPANT_CODE), generateURL(requestBody,EMAIL,(String) requestBody.get(PRIMARY_EMAIL)),linkExpiry/86400000));
