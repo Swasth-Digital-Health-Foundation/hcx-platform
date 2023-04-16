@@ -1,12 +1,13 @@
 import { useState, } from 'react'
 import { Button, Form, Segment, Grid, Image, Loader, Message } from 'semantic-ui-react'
-import { get } from '../service/APIService';
+import { get, post } from '../service/APIService';
 import { useForm } from "react-hook-form";
 import { ToastContainer, toast } from 'react-toastify';
 import * as _ from 'lodash'
 import { useHistory } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
 import { updateForm } from '../store/store';
+import { showError } from '../utils/Error';
 
 export const Home = () => {
 
@@ -21,28 +22,28 @@ export const Home = () => {
 
     const apiVersion = process.env.REACT_APP_PARTICIPANT_API_VERSION;
 
-    const getParticipantDetails =  () => {
+    const getParticipantDetails = () => {
         setLoader(true)
-        get(apiVersion + "/participant/read/" + participantCode + "?fields=verificationStatus,sponsors")
-            .then(( function (data) {
+        const reqBody = { filters: { participant_code: { 'eq': participantCode}}};
+        post("/applicant/search/?fields=communication,sponsors", reqBody)
+            .then((function (data) {
                 const participant = _.get(data, 'data.participants')[0] || {}
-                const verificationStatus = _.get(participant, 'verificationStatus') || ""
-                if (verificationStatus === 'successful') {
-                    state = 2;
+                console.log(Object.keys(participant).length)
+                if (Object.keys(participant).length !== 0) {
+                    const communicationStatus = _.get(participant, 'communication.status') || 'pending'
+                    dispatch(updateForm({ participant: participant, participant_code: participantCode, identity_verification: _.get(participant, 'sponsors') ? participant.sponsors[0].status : 'pending', communicationStatus: communicationStatus }))
+                    if (participant.status === 'Active') {
+                        history.push("/onboarding/success");
+                    } else {
+                        history.push("/onboarding/process?state=1");
+                    }
                 } else {
-                    state = 1;
-                }
-                dispatch(updateForm({ participant: participant, participant_code: participantCode, identity_verification: _.get(participant, 'sponsors') ? participant.sponsors[0].status : 'Pending' }))
-                if (participant.status === 'Active') {
-                    history.push("/onboarding/success");
-                } else {
-                    history.push("/onboarding/process" + "?state=" + state);
+                    throw "Invalid Participant Code";
                 }
             })).catch((function (err) {
                 console.error(err)
-                let errMsg = _.get(err, 'response.data.error.message')
-                toast.error(errMsg || "Internal Server Error", {
-                    position: toast.POSITION.TOP_CENTER
+                toast.error(_.get(err, 'response.data.error.message') || err, {
+                    position: toast.POSITION.TOP_CENTER, autoClose: 2000
                 });
             }))
             .finally(() => {
@@ -71,16 +72,15 @@ export const Home = () => {
                 <Segment raised padded style={{ width: '45%' }}>
                     {loader && <Loader active />}
                     <Message>
-                        <Message.Header>Welcome to HCX Onboarding!</Message.Header><br/>
-                        <Message.Content style={{ textAlign:'left' }}>Following is the onboarding process for new and existing users:</Message.Content>
-                        <Message.Content style={{ textAlign:'left' }}><b>New User:</b> There are 4 steps in onboarding process:</Message.Content>
+                        <Message.Header>Welcome to HCX Onboarding!</Message.Header><br />
+                        <Message.Content style={{ textAlign: 'left' }}>Following is the onboarding process for new and existing users:</Message.Content>
+                        <Message.Content style={{ textAlign: 'left' }}><b>New User:</b> There are 3 steps in onboarding process:</Message.Content>
                         <Message.List>
                             <Message.Item><b>Basic Details</b></Message.Item>
-                            <Message.Item><b>OTP Verification</b></Message.Item>
                             <Message.Item><b>Set Password</b></Message.Item>
                             <Message.Item><b>Update Complete Details</b></Message.Item>
-                        </Message.List><br/>
-                        <Message.Content style={{ textAlign:'left' }}><b>Existing User:</b> If the onboarding process has started and exited the form before completion. Please select <b>existing user</b> and enter your <b>participant code</b>. Form will take you to the stage from where you have exited.</Message.Content>
+                        </Message.List><br />
+                        <Message.Content style={{ textAlign: 'left' }}><b>Existing User:</b> If the onboarding process has started and exited the form before completion. Please select <b>existing user</b> and enter your <b>participant code</b>. Form will take you to the stage from where you have exited.</Message.Content>
                     </Message>
                     <Form>
                         <Grid centered>

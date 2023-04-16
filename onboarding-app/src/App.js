@@ -11,6 +11,7 @@ import { Success } from './components/Success';
 import { Onboarded } from './components/Onboarded';
 import { PayorSystem } from './components/PayorSystem';
 import { UpdateDetails } from './components/UpdateDetails';
+import { CommunicationVerify } from './components/CommunicationVerify';
 
 function App() {
 
@@ -32,6 +33,9 @@ function App() {
           </Route>
           <Route path="/onboarding/success">
             <Success />
+          </Route>
+          <Route path="/onboarding/verify">
+            <CommunicationVerify />
           </Route>
           <Route path="/onboarded">
             <Onboarded />

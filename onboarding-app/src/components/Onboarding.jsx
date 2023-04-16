@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react'
 import { Segment, Tab } from 'semantic-ui-react'
-import { OTPVerify } from './OTPVerify'
 import { UpdateRegistry } from './UpdateRegistry'
 import { Grid, Image } from 'semantic-ui-react'
 import { BasicDetails } from './BasicDetails'
@@ -21,7 +20,6 @@ export const Onboarding = () => {
     }
     const panes = [
         { menuItem: 'Basic Details', render: () => <Tab.Pane><BasicDetails {...props} /></Tab.Pane> },
-        { menuItem: 'OTP Verification', render: () => <Tab.Pane><OTPVerify {...props} /></Tab.Pane> },
         { menuItem: 'Set or Verify Password', render: () => <Tab.Pane><SetPassword {...props} /></Tab.Pane> },
         { menuItem: 'Update Complete Details', render: () => <Tab.Pane><UpdateRegistry {...props} /></Tab.Pane> },
     ]
@@ -31,7 +29,7 @@ export const Onboarding = () => {
         if (formState == null) {
             setActiveIndex(0);
         } else {
-            setActiveIndex(formState);
+            setActiveIndex(formState);  
         }
     }, []);
     
