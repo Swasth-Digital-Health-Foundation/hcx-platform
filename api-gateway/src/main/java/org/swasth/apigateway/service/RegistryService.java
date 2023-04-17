@@ -1,7 +1,6 @@
 package org.swasth.apigateway.service;
 
 import kong.unirest.HttpResponse;
-import kong.unirest.UnirestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,18 +8,15 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.swasth.apigateway.exception.ErrorCodes;
 import org.swasth.apigateway.exception.ServerException;
+import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.HttpUtils;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.redis.cache.RedisCache;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static org.swasth.common.response.ResponseMessage.REGISTRY_SERVICE_ERROR;
-import static org.swasth.common.response.ResponseMessage.REGISTRY_SERVICE_FETCH_MSG;
 
 @Service
 public class RegistryService {
@@ -35,6 +31,12 @@ public class RegistryService {
 
     @Value("${redis.expires}")
     private int redisExpires;
+
+    @Value("${hcx-api.basePath}")
+    private String hcxApiUrl;
+
+    @Value("${version.internal}")
+    private String internalVersion;
 
     public Map<String, Object> fetchDetails(String filterKey, String filterValue) throws Exception {
         String requestBody = "{\"filters\":{\"" + filterKey + "\":{\"eq\":\"" + filterValue + "\"}}}";
@@ -58,18 +60,20 @@ public class RegistryService {
     }
 
     public List<Map<String, Object>> getDetails(String requestBody) throws Exception {
-        String url = registryUrl + "/api/v1/Organisation/search";
-        HttpResponse response = null;
-        try {
-            response = HttpUtils.post(url, requestBody);
-        } catch (UnirestException e) {
-            throw new ServerException(ErrorCodes.SERVICE_UNAVAILABLE, MessageFormat.format(REGISTRY_SERVICE_ERROR, e.getMessage()));
-        }
+        HttpResponse<String> response = HttpUtils.post(hcxApiUrl + "/" + internalVersion + "/participant/search", requestBody);
+        Map<String, Object> respMap = JSONUtils.deserialize(response.getBody(), Map.class);
         List<Map<String, Object>> details;
         if (response.getStatus() == 200) {
-            details = JSONUtils.deserialize((String) response.getBody(), ArrayList.class);
+            details = (List<Map<String, Object>>) respMap.get(Constants.PARTICIPANTS);
         } else {
-            throw new Exception(MessageFormat.format(REGISTRY_SERVICE_FETCH_MSG, response.getStatus()));
+            String errMsg;
+            if(respMap.get(Constants.ERROR) instanceof String) {
+                errMsg = respMap.get(Constants.ERROR).toString();
+            } else {
+                errMsg = ((Map<String,Object>) respMap.getOrDefault(Constants.ERROR,  new HashMap<>())).getOrDefault("message", respMap).toString();
+            }
+            logger.error("Error while fetching the participant details from the registry :: status: {} :: message: {}", response.getStatus(), errMsg);
+            throw new ServerException(ErrorCodes.INTERNAL_SERVER_ERROR, MessageFormat.format("Error while fetching the participant details from the registry :: status: {0} :: message: {1}", response.getStatus(), errMsg));
         }
         return details;
     }

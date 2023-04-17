@@ -33,6 +33,10 @@
 			<version>${spring.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-freemarker</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.swasth</groupId>
 			<artifactId>hcx-common</artifactId>
 			<version>1.0-SNAPSHOT</version>
@@ -84,6 +88,12 @@
             <groupId>org.swasth</groupId>
             <artifactId>postgresql-client</artifactId>
             <version>1.0-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-text</artifactId>
+            <version>1.1</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>

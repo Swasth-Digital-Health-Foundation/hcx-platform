@@ -4,10 +4,7 @@ import org.junit.Test;
 import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -49,11 +46,13 @@ public class OnboardingRequestTest {
         participant.put(PARTICIPANT, participant);
         participant.put(APPLICANT_CODE, "applicant_code");
         participant.put(VERIFIER_CODE, "verifier_code");
+        participant.put(ROLES, Arrays.asList("provider"));
         body.add(participant);
         OnboardRequest onboardRequest = new OnboardRequest(body);
         assertEquals(participant.get(PARTICIPANT_NAME), onboardRequest.getParticipantName());
         assertEquals(participant.get(PRIMARY_MOBILE), onboardRequest.getPrimaryMobile());
         assertEquals(participant.get(PARTICIPANT), onboardRequest.getParticipant());
-        assertEquals(participant.get(PRIMARY_EMAIL),onboardRequest.getPrimaryEmail());
+        assertEquals(participant.get(PRIMARY_EMAIL), onboardRequest.getPrimaryEmail());
+        assertEquals(participant.get(ROLES), onboardRequest.getRoles());
     }
 }

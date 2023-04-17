@@ -2,6 +2,8 @@ package org.swasth.hcx.service;
 
 import kong.unirest.HttpResponse;
 import org.apache.commons.validator.routines.EmailValidator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
@@ -11,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.swasth.ICloudService;
 import org.swasth.common.dto.ParticipantResponse;
-import org.swasth.common.dto.Sponsor;
 import org.swasth.common.exception.*;
 import org.swasth.common.helpers.EventGenerator;
 import org.swasth.common.utils.HttpUtils;
@@ -23,15 +24,15 @@ import org.swasth.redis.cache.RedisCache;
 
 import java.io.IOException;
 import java.security.cert.CertificateException;
-import java.sql.ResultSet;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static org.swasth.common.response.ResponseMessage.*;
 import static org.swasth.common.utils.Constants.*;
 
 @Service
 public class ParticipantService {
+
+    private static final Logger logger = LoggerFactory.getLogger(ParticipantService.class);
     @Value("${certificates.bucketName}")
     private String bucketName;
 
@@ -70,6 +71,7 @@ public class ParticipantService {
             cdata.putAll(requestBody);
             eventHandler.createAudit(eventGenerator.createAuditLog(code, PARTICIPANT, cdata,
                     getEData(CREATED, "", Collections.emptyList())));
+            logger.info("Created participant :: participant code: {}", requestBody.get(PARTICIPANT_CODE));
         }
         return responseHandler(response, code);
     }
@@ -81,29 +83,26 @@ public class ParticipantService {
         HttpResponse<String> response = HttpUtils.put(url, JSONUtils.serialize(requestBody), headersMap);
         if (response.getStatus() == 200) {
             deleteCache(code);
+            logger.info("Updated participant :: participant code: {}", requestBody.get(PARTICIPANT_CODE));
         }
         return responseHandler(response, code);
     }
 
-    public ParticipantResponse search(Map<String, Object> requestBody, String registryUrl, String fields) throws Exception {
+    public ParticipantResponse search(Map<String, Object> requestBody, String registryUrl) throws Exception {
         String url = registryUrl + registryApiPath + SEARCH;
         HttpResponse<String> response = HttpUtils.post(url, JSONUtils.serialize(requestBody), new HashMap<>());
-        if (fields != null && fields.toLowerCase().contains(SPONSORS)) {
-            ArrayList<Map<String, Object>> participantList = JSONUtils.deserialize(response.getBody(), ArrayList.class);
-            return getSponsors(participantList);
+        if(response.getStatus() == 200){
+            logger.info("Search is completed :: status code: {}", response.getStatus());
         }
         return responseHandler(response, null);
     }
 
-    public ResponseEntity<Object> read(String fields, String code, String registryUrl, String pathParam) throws Exception {
-        ResponseEntity<Object> searchResponse = getSuccessResponse(search(JSONUtils.deserialize(getRequestBody(code), Map.class), registryUrl, pathParam));
+    public ParticipantResponse read(String code, String registryUrl) throws Exception {
+        ResponseEntity<Object> searchResponse = getSuccessResponse(search(JSONUtils.deserialize(getRequestBody(code), Map.class), registryUrl));
         ParticipantResponse searchResp = (ParticipantResponse) searchResponse.getBody();
-        if (fields != null && fields.toLowerCase().contains(VERIFICATION_STATUS) && searchResp != null) {
-            ((Map<String, Object>) searchResp.getParticipants().get(0)).putAll(getVerificationStatus(code));
-        }
-        return getSuccessResponse(searchResp);
+        logger.info("Read participant is completed");
+        return searchResp;
     }
-
     public ParticipantResponse delete(Map<String, Object> participant, String registryUrl, HttpHeaders header, String code) throws Exception {
         String url = registryUrl + registryApiPath + participant.get(OSID);
         Map<String, String> headersMap = new HashMap<>();
@@ -116,6 +115,7 @@ public class ParticipantService {
             cdata.putAll(participant);
             eventHandler.createAudit(eventGenerator.createAuditLog(code, PARTICIPANT, cdata,
                     getEData(INACTIVE, (String) participant.get(AUDIT_STATUS), Collections.emptyList())));
+            logger.info("Participant deleted :: participant code: {}", code);
         }
         return responseHandler(response, code);
     }
@@ -128,48 +128,6 @@ public class ParticipantService {
             requestBody.put(key, cloudClient.getUrl(bucketName, participantCode + "/" + key + ".pem").toString());
         }
     }
-
-    public Map<String, Object> getVerificationStatus(String code) throws Exception {
-        String selectQuery = String.format("SELECT status FROM %s WHERE participant_code ='%s'", onboardOtpTable, code);
-        ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
-        Map<String, Object> responseMap = new HashMap<>();
-        while (resultSet.next()) {
-            responseMap.put(FORMSTATUS, resultSet.getString("status"));
-        }
-        return Collections.singletonMap(VERIFICATION_STATUS, responseMap);
-    }
-
-    public ParticipantResponse getSponsors(List<Map<String, Object>> participantsList) throws Exception {
-        String primaryEmailList = participantsList.stream().map(participant -> participant.get(PRIMARY_EMAIL)).collect(Collectors.toList()).toString();
-        String primaryEmailWithQuote = getPrimaryEmailWithQuote(primaryEmailList);
-        String selectQuery = String.format("SELECT * FROM %S WHERE applicant_email IN (%s)", onboardingTable, primaryEmailWithQuote);
-        ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
-        Map<String, Object> sponsorMap = new HashMap<>();
-        while (resultSet.next()) {
-            Sponsor sponsorResponse = new Sponsor(resultSet.getString(APPLICANT_EMAIL), resultSet.getString(APPLICANT_CODE), resultSet.getString(VERIFIER_CODE), resultSet.getString(FORMSTATUS), resultSet.getLong("createdon"), resultSet.getLong("updatedon"));
-            sponsorMap.put(resultSet.getString(APPLICANT_EMAIL), sponsorResponse);
-        }
-        ArrayList<Object> modifiedResponseList = new ArrayList<>();
-        filterSponsors(sponsorMap, participantsList, modifiedResponseList);
-        return new ParticipantResponse(modifiedResponseList);
-    }
-
-    private String getPrimaryEmailWithQuote(String primaryEmailList) {
-        return "'" + primaryEmailList.replace("[", "").replace("]", "").replace(" ", "").replace(",", "','") + "'";
-    }
-
-    private void filterSponsors(Map<String, Object> sponsorMap, List<Map<String, Object>> participantsList, ArrayList<Object> modifiedResponseList) {
-        for (Map<String, Object> responseList : participantsList) {
-            String email = (String) responseList.get(PRIMARY_EMAIL);
-            if (sponsorMap.containsKey(email)) {
-                responseList.put(SPONSORS, Collections.singletonList(sponsorMap.get(email)));
-            } else {
-                responseList.put(SPONSORS, new ArrayList<>());
-            }
-            modifiedResponseList.add(responseList);
-        }
-    }
-
     public ResponseEntity<Object> getSuccessResponse(Object response) {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -218,11 +176,11 @@ public class ParticipantService {
     public void getCertificatesUrl(Map<String, Object> requestBody, String code) {
         getCertificates(requestBody, code, ENCRYPTION_CERT);
         if(requestBody.containsKey(SIGNING_CERT_PATH))
-          getCertificates(requestBody, code, SIGNING_CERT_PATH);
+            getCertificates(requestBody, code, SIGNING_CERT_PATH);
     }
 
     public Map<String, Object> getParticipant(String code, String registryUrl) throws Exception {
-        ResponseEntity<Object> searchResponse = getSuccessResponse(search(JSONUtils.deserialize(getRequestBody(code), Map.class), registryUrl, ""));
+        ResponseEntity<Object> searchResponse = getSuccessResponse(search(JSONUtils.deserialize(getRequestBody(code), Map.class), registryUrl));
         ParticipantResponse participantResponse = (ParticipantResponse) Objects.requireNonNull(searchResponse.getBody());
         if (participantResponse.getParticipants().isEmpty())
             throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_CODE, INVALID_PARTICIPANT_CODE);
