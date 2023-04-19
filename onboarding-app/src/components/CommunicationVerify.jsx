@@ -39,7 +39,7 @@ export const CommunicationVerify = () => {
     (async () => {
       let participantCode = getPayload(query.get('jwt_token')).participant_code
       const reqBody = { filters: { participant_code: { 'eq': participantCode } } };
-      await post("/applicant/search/?fields=communication,sponsors", reqBody)
+      await post("/applicant/search?fields=communication,sponsors", reqBody)
         .then((async function (data) {
           let participant = _.get(data, 'data.participants')[0] || {}
           if (participant) {

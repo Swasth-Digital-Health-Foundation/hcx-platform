@@ -31,7 +31,7 @@ export const UpdateRegistry = ({ changeTab, formState, setState }) => {
         (async () => {
             let participantCode = _.get(formState, 'participant_code') || formStore.formState.participant_code
             const reqBody = { filters: { participant_code: { 'eq': participantCode } } };
-            await post("/applicant/search/?fields=communication,sponsors", reqBody)
+            await post("/applicant/search?fields=communication,sponsors", reqBody)
                 .then((async function (data) {
                     let participant = _.get(data, 'data.participants')[0] || {}
                     if (participant) {
@@ -97,7 +97,7 @@ export const UpdateRegistry = ({ changeTab, formState, setState }) => {
     const getVerificationStatus = () => {
         setSending(true)
         const reqBody = { filters: { participant_code: { 'eq': _.get(formState, 'participant_code') } } };
-        post("/applicant/search/?fields=communication,sponsors", reqBody)
+        post("/applicant/search?fields=communication,sponsors", reqBody)
             .then((function (data) {
                 const participant = _.get(data, 'data.participants')[0] || {}
                 setIdentityVerfication(_.get(participant, 'sponsors') ? participant.sponsors[0].status : 'pending')

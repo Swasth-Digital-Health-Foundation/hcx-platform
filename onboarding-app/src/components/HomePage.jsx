@@ -25,7 +25,7 @@ export const Home = () => {
     const getParticipantDetails = () => {
         setLoader(true)
         const reqBody = { filters: { participant_code: { 'eq': participantCode}}};
-        post("/applicant/search/?fields=communication,sponsors", reqBody)
+        post("/applicant/search?fields=communication,sponsors", reqBody)
             .then((function (data) {
                 const participant = _.get(data, 'data.participants')[0] || {}
                 console.log(Object.keys(participant).length)
