@@ -53,6 +53,10 @@ public class Constants {
     // Audit APIs
     public static final String AUDIT_SEARCH = "/audit/search";
     public static final String AUDIT_NOTIFICATION_SEARCH = "/audit/notification/search";
+    public static final String AUDIT_ONBOARD_SEARCH = "/audit/onboard/search";
+
+    // Supportability APIs
+    public static final String REQUEST_RETRY = "/request/retry/{mid}";
 
     // Registry Participant APIs
     public static final String PARTICIPANT_CREATE = "/participant/create";
@@ -61,11 +65,14 @@ public class Constants {
     public static final String PARTICIPANT_UPDATE = "/participant/update";
     public static final String SPONSORS = "sponsors";
     public static final String VERIFICATION_STATUS = "verificationstatus";
+    public static final String COMMUNICATION = "communication";
     public static final String FORMSTATUS = "status";
     public static final String PARTICIPANT_DELETE = "/participant/delete";
     public static final String PARTICIPANT_VERIFY = "/participant/verify";
     public static final String APPLICANT_GET_INFO = "/applicant/getinfo";
+    public static final String APPLICANT_SEARCH = "/applicant/search";
     public static final String PARTICIPANT_OTP_SEND = "/participant/otp/send";
+    public static final String PARTICIPANT_VERIFICATION_LINK_SEND = "/participant/verification/link/send";
     public static final String PARTICIPANT_ONBOARD_UPDATE = "/participant/onboard/update";
     public static final String PARTICIPANT_VERIFY_IDENTITY = "/participant/verify/identity";
     public static final String APPLICANT_VERIFY = "/applicant/verify";
@@ -92,6 +99,7 @@ public class Constants {
 
     //event generator props
     public static final String MID = "mid";
+    public static final String DATA = "data";
     public static final String PAYLOAD = "payload";
     public static final String ETS = "ets";
     public static final String ACTION = "action";
@@ -113,6 +121,7 @@ public class Constants {
     public static  final String EDATA = "edata";
     public static  final String ID = "id";
     public static  final String TYPE = "type";
+    public static final String TYP = "typ";
     public static  final String AUDIT_STATUS = "status";
     public static  final String PREV_STATUS = "prevStatus";
     public static  final String PROPS = "props";
@@ -135,6 +144,7 @@ public class Constants {
     public static final String RECIPIENTDETAILS = "recipientDetails";
     public static final String SENDER_PRIMARY_EMAIL = "senderPrimaryEmail";
     public static final String RECIPIENT_PRIMARY_EMAIL = "recipientPrimaryEmail";
+    public static final String TAGS = "tags";
     public static final String API_CALL_ID = "x-hcx-api_call_id";
     public static final String CORRELATION_ID = "x-hcx-correlation_id";
     public static final String WORKFLOW_ID = "x-hcx-workflow_id";
@@ -196,7 +206,7 @@ public class Constants {
     //Notification constants
     public static final String ACTIVE = "Active";
     public static final String INACTIVE = "Inactive";
-    public static final String PENDING = "Pending";
+    public static final String PENDING = "pending";
     public static final String SUBSCRIPTION_ID = "subscription_id";
     public static final String SUBSCRIPTION_REQUEST_ID = "subscription_request_id";
     public static final String NOTIFICATION_HEADERS_MANDATORY = "notification.headers.mandatory";
@@ -233,7 +243,6 @@ public class Constants {
 
     //Constants from api-gateway
     // Entity types
-    public static final String COMMUNICATION = "communication";
     public static final String NOTIFICATION = "notification";
     public static final String PAYMENT = "paymentnotice";
 
@@ -277,17 +286,17 @@ public class Constants {
     public static final String ADDITIONALVERIFICATION = "additionalVerification";
     public static final String TIME_STAMP = "timestamp";
     public static final String APPLICANT_EMAIL = "applicant_email";
-    public static final String PHONE_OTP = "phone_otp";
-    public static final String EMAIL_OTP = "email_otp";
-    public static final String OTP = "otp";
+    public static final String EMAIL_VERIFIED = "email_verified";
+    public static final String PHONE_VERIFIED = "phone_verified";
     public static final String SUCCESSFUL = "successful";
     public static final String FAILED = "failed";
     public static final String ATTEMPT_COUNT = "attempt_count";
     public static final String REJECTED = "rejected";
     public static final String ACCEPTED = "accepted";
     public static final String IDENTITY_VERIFICATION = "identity_verification";
-    public static final String EMAIL_OTP_VERIFIED = "email_otp_verified";
-    public static final String PHONE_OTP_VERIFIED = "phone_otp_verified";
+
+    public static final String COMMUNICATION_VERIFICATION = "communication_verification";
+    public static final String COMMENTS = "comments";
     public static final List<String> ALLOWED_ONBOARD_STATUS = Arrays.asList(REJECTED, ACCEPTED);
     public static final String STAGING = "staging";
 
@@ -298,4 +307,13 @@ public class Constants {
    public static final String IAT = "iat";
    public static final String EXP = "exp";
 
+
+   public static final String PARTICIPANTS = "participants";
+   public static final String ERROR = "error";
+   public static final String REQUEST_LOG = "Processing request :: action: {} :: request: {}";
+   public static final String ONBOARD = "ONBOARD";
+
+   public static final String OTP_REGENERATE_COUNT = "otp_regenerate_count";
+   public static final String LAST_REGENERATE_DATE = "last_regenerate_date";
+   public static final String RESPONSE_OBJ = "response_obj";
 }

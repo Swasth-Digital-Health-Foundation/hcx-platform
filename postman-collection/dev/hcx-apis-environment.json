@@ -1,0 +1,189 @@
+{
+  "id": "3fe923e0-c5ce-4eea-a943-339b28b01a22",
+  "name": "Newman Environment",
+  "values": [
+    {
+      "key": "api-version",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "host",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "keycloak_host",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "sender_code",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "recipient_code",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "blocked_sender_code",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "blocked_recipient_code",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "recipient_2_code",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "provider_username",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "provider_password",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "provider_token",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "payor_username",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "payor_password",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "payor_token",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "blocked_provider_username",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "blocked_provider_token",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "blocked_provider_password",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "payor_2_username",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "payor_2_password",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "payor_2_token",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "check_req_api_call_id",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "check_req_correlation_id",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "predetermination_submit_req_correlation_id",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "preauth_submit_req_correlation_id",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "claim_submit_req_correlation_id",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "payment_req_correlation_id",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "local",
+      "value": "http://localhost:8080",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "hiu_username",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "hiu_token",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "hiu_password",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "hiu_participant_code",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "hiu_check_req_correlation_id",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "provider_subscription_id",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "eligibility_check_payload",
+      "value": "",
+      "type": "any",
+      "enabled": true
+    }
+  ],
+  "_postman_variable_scope": "environment",
+  "_postman_exported_at": "2023-02-27T05:16:34.015Z",
+  "_postman_exported_using": "Postman/10.9.4"
+}

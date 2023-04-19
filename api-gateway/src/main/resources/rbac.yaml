@@ -3,6 +3,8 @@ rbac:
     paths:
       - /health
       - /service/health
+    regexPaths:
+      - /url/**
   - role: AUTHENTICATED
   - role: provider
     paths:
@@ -28,6 +30,7 @@ rbac:
       - /v0.8/audit/notification/search
       - /v0.8/participant/search
       - /v0.8/participant/update
+      - /v0.8/participant/read/**
       - /v0.8/notification/subscribe
       - /v0.8/notification/unsubscribe
       - /v0.8/notification/subscription/list
@@ -35,6 +38,9 @@ rbac:
       - /v0.8/notification/notify
       - /v0.8/notification/subscription/update
       - /v0.8/notification/on_subscribe
+    regexPaths:
+      - /v0.7/applicant/search**
+
   - role: payor
     paths:
       - /v0.7/coverageeligibility/check
@@ -65,8 +71,9 @@ rbac:
       - /v0.8/hcx/on_status
       - /v0.8/audit/search
       - /v0.8/audit/notification/search
-      - /v0.8/participant/search**
+      - /v0.8/participant/search
       - /v0.8/participant/update
+      - /v0.8/participant/read/**
       - /v0.8/notification/subscribe
       - /v0.8/notification/unsubscribe
       - /v0.8/notification/subscription/list
@@ -74,6 +81,12 @@ rbac:
       - /v0.8/notification/notify
       - /v0.8/notification/subscription/update
       - /v0.8/notification/on_subscribe
+      - /payer/request/approve
+      - /payer/request/reject
+      - /payer/request/list
+    regexPaths:
+      - /v0.7/applicant/search**
+
   - role: agency.tpa
     paths:
       - /v0.7/coverageeligibility/check
@@ -104,10 +117,14 @@ rbac:
       - /v0.8/hcx/on_status
       - /v0.8/audit/search
       - /v0.8/audit/notification/search
-      - /v0.8/participant/search/**
+      - /v0.8/participant/search
       - /v0.8/participant/update
+      - /v0.8/participant/read/**
+    regexPaths:
+      - /v0.7/applicant/search**
+
   - role: agency.regulator
-    pahts:
+    paths:
       - /v0.7/hcx/status
       - /v0.7/audit/search
       - /v0.7/audit/notification/search
@@ -116,8 +133,12 @@ rbac:
       - /v0.8/hcx/status
       - /v0.8/audit/search
       - /v0.8/audit/notification/search
-      - /v0.8/participant/search/**
+      - /v0.8/participant/search
       - /v0.8/participant/update
+      - /v0.8/participant/read/**
+    regexPaths:
+      - /v0.7/applicant/search**
+
   - role: research
     paths:
       - /v0.7/coverageeligibility/on_check
@@ -132,8 +153,12 @@ rbac:
       - /v0.8/hcx/status
       - /v0.8/audit/search
       - /v0.8/audit/notification/search
-      - /v0.8/participant/search/**
+      - /v0.8/participant/search
       - /v0.8/participant/update
+      - /v0.8/participant/read/**
+    regexPaths:
+      - /v0.7/applicant/search**
+
   - role: member.isnp
     paths:
       - /v0.7/coverageeligibility/on_check
@@ -150,8 +175,12 @@ rbac:
       - /v0.8/hcx/status
       - /v0.8/audit/search
       - /v0.8/audit/notification/search
-      - /v0.8/participant/search/**
+      - /v0.8/participant/search
       - /v0.8/participant/update
+      - /v0.8/participant/read/**
+    regexPaths:
+      - /v0.7/applicant/search**
+
   - role: agency.sponsor
     paths:
       - /v0.7/coverageeligibility/on_check
@@ -174,8 +203,12 @@ rbac:
       - /v0.8/hcx/on_status
       - /v0.8/audit/search
       - /v0.8/audit/notification/search
-      - /v0.8/participant/search/**
+      - /v0.8/participant/search
       - /v0.8/participant/update
+      - /v0.8/participant/read/**
+    regexPaths:
+      - /v0.7/applicant/search**
+
   - role: HIE/HIO.HCX
     paths:
     regexPaths:

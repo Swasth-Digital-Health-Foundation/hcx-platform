@@ -1,5 +1,7 @@
 package org.swasth.hcx.managers;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.swasth.auditindexer.utils.ElasticSearchUtil;
@@ -17,6 +19,8 @@ import java.util.Map;
 
 @Component
 public class HealthCheckManager {
+
+    private static final Logger logger = LoggerFactory.getLogger(HealthCheckManager.class);
 
     @Autowired
     private IEventService kafkaClient;
@@ -49,6 +53,7 @@ public class HealthCheckManager {
         }
         Response response = new Response(Constants.CHECKS, allChecks);
         response.put(Constants.HEALTHY, allSystemHealthResult);
+        logger.info("All System Health :: Overall Status: {} :: Checks: {}", allSystemHealthResult, allChecks);
         return response;
     }
 

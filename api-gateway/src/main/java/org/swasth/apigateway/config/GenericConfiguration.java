@@ -41,6 +41,8 @@ public class GenericConfiguration {
     @Value("${notification.workflowPath:workflowNotifications.yaml}")
     private String workflowPath;
 
+    @Value("${tag.name}")
+    private String tag;
     @Bean
     public AuditIndexer auditIndexer() throws Exception {
         return new AuditIndexer(esHost, esPort, auditIndex, auditAlias);
@@ -62,7 +64,7 @@ public class GenericConfiguration {
     }
     @Bean
     public EventGenerator eventGenerator(){
-        return new EventGenerator();
+        return new EventGenerator(tag);
     }
 
 }

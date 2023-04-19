@@ -1,6 +1,8 @@
 package org.swasth.hcx.controllers.v1;
 
 import org.apache.commons.collections.MapUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,12 +20,13 @@ import org.swasth.hcx.controllers.BaseController;
 import java.util.List;
 import java.util.Map;
 
-import static org.swasth.common.utils.Constants.HCX_ON_SEARCH;
-import static org.swasth.common.utils.Constants.HCX_SEARCH;
+import static org.swasth.common.utils.Constants.*;
 
 @RestController
 @RequestMapping(Constants.VERSION_PREFIX)
 public class SearchController extends BaseController {
+
+    private static final Logger logger = LoggerFactory.getLogger(SearchController.class);
 
     @Value("${kafka.topic.search}")
     private String topic;
@@ -36,6 +39,7 @@ public class SearchController extends BaseController {
         SearchRequest request = new SearchRequest(requestBody, HCX_SEARCH);
         Response response = new Response(request);
         try {
+            logger.info("Processing request :: action: {} :: api call id: {}", HCX_SEARCH, request.getApiCallId());
             // Validations
             validateRegistryCode(request);
             Map<String,Object> requestMap = request.getSearchRequest();
@@ -55,6 +59,7 @@ public class SearchController extends BaseController {
         SearchRequest request = new SearchRequest(requestBody, HCX_ON_SEARCH);
         Response response = new Response(request);
         try {
+            logger.info("Processing request :: action: {} :: api call id: {}", HCX_ON_SEARCH, request.getApiCallId());
             // Validations
             validateRegistryCode(request);
             Map<String, Object> responseMap = request.getSearchResponse();

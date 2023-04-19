@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.net.URL;
 import java.util.concurrent.CompletableFuture;
 
 @Service
@@ -27,8 +28,7 @@ public class SMSService {
     private String awsRegion;
 
     @Async
-    public CompletableFuture<String> sendOTP(String phone, String phoneOtp) {
-        String message = "HCX mobile verification code is:" +phoneOtp;
+    public CompletableFuture<String> sendLink(String phone, String content) {
         String phoneNumber = "+91"+ phone;  // Ex: +91XXX4374XX
         AmazonSNS snsClient = AmazonSNSClient.builder().withCredentials(new AWSCredentialsProvider() {
             @Override
@@ -43,7 +43,7 @@ public class SMSService {
         }).withRegion(awsRegion).build();
 
         PublishResult result = snsClient.publish(new PublishRequest()
-                .withMessage(message)
+                .withMessage(content)
                 .withPhoneNumber(phoneNumber));
         return CompletableFuture.completedFuture(result.getMessageId());
     }
