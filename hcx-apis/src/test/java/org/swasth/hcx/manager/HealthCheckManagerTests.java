@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.swasth.auditindexer.utils.ElasticSearchUtil;
 import org.swasth.common.dto.Response;
 import org.swasth.hcx.managers.HealthCheckManager;
 import org.swasth.kafka.client.IEventService;
@@ -25,6 +26,8 @@ public class HealthCheckManagerTests {
   @MockBean
   IDatabaseService postgreSQLClient;
 
+  @MockBean
+  ElasticSearchUtil elasticSearchUtil;
   @Autowired
   HealthCheckManager healthCheckManager;
 
@@ -33,6 +36,7 @@ public class HealthCheckManagerTests {
     when(kafkaClient.isHealthy()).thenReturn(true);
     when(postgreSQLClient.isHealthy()).thenReturn(true);
     when(redisCache.isHealthy()).thenReturn(true);
+    when(elasticSearchUtil.isHealthy()).thenReturn(true);
     Response resp = healthCheckManager.checkAllSystemHealth();
     assertEquals(true, resp.get("healthy"));
   }
