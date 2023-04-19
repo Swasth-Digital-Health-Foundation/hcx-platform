@@ -234,6 +234,19 @@ public class EventGenerator {
         return event;
     }
 
+    public void getTag(Request request, Map<String,Object> event){
+        Set<String> tagSet = new HashSet<>();
+        tagSet.add(request.getSenderTag().toString());
+        tagSet.add(request.getRecipientTag().toString());
+        if (!StringUtils.isEmpty(tag)) {
+            tagSet.add(tag);
+        }
+        String tags = tagSet.toString().replace("[","").replace("]","").replace(" ","");
+        if(!tags.isEmpty()) {
+            event.put(TAGS, tags);
+        }
+    }
+
     public String createNotifyEvent(String topicCode, String senderCode, String recipientType, List<String> recipients, long expiry, String message, String privateKey) throws Exception {
         Map<String, Object> notificationHeaders = new HashMap<>();
         notificationHeaders.put(SENDER_CODE, senderCode);
@@ -261,18 +274,5 @@ public class EventGenerator {
         event.put(HEADERS, Collections.singletonMap(PROTOCOL, protocolHeaders));
 
         return JSONUtils.serialize(event);
-    }
-
-    public void getTag(Request request, Map<String,Object> event){
-        Set<String> tagSet = new HashSet<>();
-        tagSet.add(request.getSenderTag().toString());
-        tagSet.add(request.getRecipientTag().toString());
-        if (!StringUtils.isEmpty(tag)) {
-            tagSet.add(tag);
-        }
-        String tags = tagSet.toString().replace("[","").replace("]","").replace(" ","");
-        if(!tags.isEmpty()) {
-            event.put(TAGS, tags);
-        }
     }
 }
