@@ -11,7 +11,7 @@ public class ElasticSearchConfigurationTest {
             .withUserConfiguration(ElasticSearchConfiguration.class);
 
     @Test
-    void should_check_presence_of_redis_configuration_bean() {
+    void should_check_presence_of_elastic_search_configuration_bean() {
         context.run(it -> assertThat(it).hasSingleBean(ElasticSearchConfiguration.class));
     }
 
