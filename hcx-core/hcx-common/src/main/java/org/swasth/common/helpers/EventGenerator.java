@@ -183,17 +183,6 @@ public class EventGenerator {
         return event;
     }
 
-    public String generateSubscriptionEvent(Request request, Map<String, String> subscriptionMap) throws JsonProcessingException {
-        Map<String, Object> event = new HashMap<>();
-        event.put(MID, request.getMid());
-        event.put(ETS, System.currentTimeMillis());
-        event.put(ACTION, request.getApiAction());
-        event.put(AUDIT_STATUS, QUEUED_STATUS);
-        event.put(PAYLOAD, createSubscriptionPayload(request.getTopicCode(), request.getSenderList(), subscriptionMap));
-        event.put(HCX_SENDER_CODE, request.getRecipientCode());
-        return JSONUtils.serialize(event);
-    }
-
     private Map<String, Object> createSubscriptionPayload(String topicCode, List<String> senderList, Map<String, String> subscriptionMap) {
         Map<String, Object> event = new HashMap<>();
         event.put(TOPIC_CODE, topicCode);
@@ -213,6 +202,17 @@ public class EventGenerator {
         event.put(ETS, System.currentTimeMillis());
         event.put(STATUS, status);
         return event;
+    }
+
+    public String generateSubscriptionEvent(Request request, Map<String, String> subscriptionMap) throws JsonProcessingException {
+        Map<String, Object> event = new HashMap<>();
+        event.put(MID, request.getMid());
+        event.put(ETS, System.currentTimeMillis());
+        event.put(ACTION, request.getApiAction());
+        event.put(AUDIT_STATUS, QUEUED_STATUS);
+        event.put(PAYLOAD, createSubscriptionPayload(request.getTopicCode(), request.getSenderList(), subscriptionMap));
+        event.put(HCX_SENDER_CODE, request.getRecipientCode());
+        return JSONUtils.serialize(event);
     }
 
     public Map<String, Object> generateSubscriptionUpdateAuditEvent(Request request, Response response) {
