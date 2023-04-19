@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.swasth.auditindexer.utils.ElasticSearchUtil;
 import org.swasth.common.dto.Response;
 import org.swasth.common.utils.Constants;
 import org.swasth.kafka.client.IEventService;
@@ -27,6 +28,8 @@ public class HealthCheckManager {
     private IDatabaseService postgreSQLClient;
     @Autowired
     private RedisCache redisClient;
+    @Autowired
+    private ElasticSearchUtil elasticSearchUtil;
     public static boolean allSystemHealthResult = true;
 
     @PostConstruct
@@ -39,6 +42,7 @@ public class HealthCheckManager {
         allChecks.add(generateCheck(Constants.KAFKA, kafkaClient.isHealthy()));
         allChecks.add(generateCheck(Constants.POSTGRESQL, postgreSQLClient.isHealthy()));
         allChecks.add(generateCheck(Constants.REDIS, redisClient.isHealthy()));
+        allChecks.add(generateCheck(Constants.ELASTICSEARCH,elasticSearchUtil.isHealthy()));
         for(Map<String,Object> check:allChecks) {
             if((boolean)check.get(Constants.HEALTHY)) {
                 allSystemHealthResult = true;
