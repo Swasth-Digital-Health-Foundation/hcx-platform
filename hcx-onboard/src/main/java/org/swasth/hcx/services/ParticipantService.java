@@ -408,7 +408,7 @@ public class ParticipantService extends BaseController {
             verifierDetails = getParticipant(PARTICIPANT_CODE, verifierCode);
         }
         HttpResponse<String> response = HttpUtils.post(verifierDetails.get(ENDPOINT_URL) + APPLICANT_GET_INFO, JSONUtils.serialize(requestBody), headers(verifierCode));
-        auditIndexer.createDocument(eventGenerator.getApplicantGetInfoEvent(requestBody, applicantCode, verifierCode, response));
+        auditIndexer.createDocument(eventGenerator.getApplicantGetInfoEvent(requestBody, applicantCode, verifierCode,JSONUtils.deserialize(response.getBody(),Map.class), response.getStatus()));
         return new ResponseEntity<>(response.getBody(), HttpStatus.valueOf(response.getStatus()));
     }
 
