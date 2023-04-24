@@ -62,7 +62,7 @@ export const BasicDetails = ({ changeTab, formState, setState }) => {
             }
         })()
 
-        if(env === 'poc'){
+        if(env !== 'staging'){
             setValue("onboard_through", 'actual_payor');
         }
     }, []);
@@ -104,7 +104,9 @@ export const BasicDetails = ({ changeTab, formState, setState }) => {
             .then((data => {
                 reset();
                 setState({ ...formState, ...(formData[0]), ...{ "participant_code": _.get(data, 'data.result.participant_code'), "verifier_code": payor.participant_code, "identity_verification": _.get(data, 'data.result.identity_verification') } })
-                changeTab(1)
+                setTimeout(() => {
+                    changeTab(1)
+                }, 1000);
             })).catch(err => {
                 if (_.get(err, 'response.data.error.message') && _.get(err, 'response.data.error.message') == "Username already invited / registered for Organisation") {
                     setFormErrors({ primary_email: 'This email address already exists' });
@@ -114,7 +116,9 @@ export const BasicDetails = ({ changeTab, formState, setState }) => {
                     });
                 }
             }).finally(() => {
-                setSending(false)
+                setTimeout(() => {
+                    setSending(false)
+                }, 1000);
             })
     }
 
@@ -253,9 +257,9 @@ export const BasicDetails = ({ changeTab, formState, setState }) => {
                             /> Actual Payor
                         </Form.Field> : null}
                 </Grid> : null }
-                {watchOnboardThrough === 'mock_payor' ?
+                {/* {watchOnboardThrough === 'mock_payor' ?
                     <Message disabled={sending} style={{ textAlign: 'left' }} visible>Please enter the below details</Message>
-                    : null}
+                    : null} */}
                 {watchRoles === "provider" && watchOnboardThrough === 'actual_payor' ?
                     <Message disabled={sending} style={{ textAlign: 'left' }} visible>Select the payor and enter the <b>applicant code</b> and click on <b>fetch details</b>. Using the applicant code, details will fetched from the selected payor system and populated in the form.</Message>
                     : null}
