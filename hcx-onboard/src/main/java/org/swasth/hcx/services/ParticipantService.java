@@ -76,13 +76,13 @@ public class ParticipantService extends BaseController {
     @Value("${hcx-api.basePath}")
     private String hcxAPIBasePath;
 
-    @Value("${postgres.onboardVerificationTable}")
+    @Value("${postgres.table.onboard-verification}")
     private String onboardVerificationTable;
 
-    @Value("${postgres.onboardVerifierTable}")
+    @Value("${postgres.table-onboard-verifier}")
     private String onboardingVerifierTable;
 
-    @Value("${postgres.mockParticipantsTable}")
+    @Value("${postgres.table.mock-participant}")
     private String mockParticipantsTable;
     @Value("${verificationLink.expiry}")
     private int linkExpiry;
@@ -95,7 +95,7 @@ public class ParticipantService extends BaseController {
 
     @Value("${env}")
     private String env;
-    @Value("${mock-participant.allowedEnv}")
+    @Value("${mock-service.allowedEnv}")
     private ArrayList<String> mockParticipantAllowedEnv;
     @Value("${registry.hcxCode}")
     private String hcxCode;
@@ -617,6 +617,24 @@ public class ParticipantService extends BaseController {
     public Map<String,Object> createMockParticipant(HttpHeaders headers, String role,Map<String,Object> participantDetails) throws Exception {
         String parentParticipantCode = (String) participantDetails.getOrDefault(PARTICIPANT_CODE,"");
         logger.info("creating Mock participant for :: parent participant code is : " + parentParticipantCode + " :: Role: " + role);
+        Map<String, String> headersMap = new HashMap<>();
+        headersMap.put(AUTHORIZATION, Objects.requireNonNull(headers.get(AUTHORIZATION)).get(0));
+        Map<String,Object> mockParticipant = getMockParticipantBody(participantDetails,role,parentParticipantCode);
+        HttpResponse<String> createResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_CREATE, JSONUtils.serialize(mockParticipant), headersMap);
+        ParticipantResponse pcptResponse = JSONUtils.deserialize(createResponse.getBody(), ParticipantResponse.class);
+        if (createResponse.getStatus() != 200) {
+            throw new ClientException(pcptResponse.getError().getCode() == null ? ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS : pcptResponse.getError().getCode(), pcptResponse.getError().getMessage());
+        }
+        String childParticipantCode = (String) JSONUtils.deserialize(createResponse.getBody(), Map.class).get(PARTICIPANT_CODE);
+        return updateMockDetails(mockParticipant,parentParticipantCode,childParticipantCode);
+    }
+
+    public void getEmailAndName(String role, Map<String, Object> mockParticipant, Map<String, Object> participantDetails, String name) {
+        mockParticipant.put(PRIMARY_EMAIL, SlugUtils.makeEmailSlug((String) participantDetails.getOrDefault(PRIMARY_EMAIL, ""), role));
+        mockParticipant.put(PARTICIPANT_NAME, participantDetails.getOrDefault(PARTICIPANT_NAME, "") + " " + name);
+    }
+
+    public Map<String,Object> getMockParticipantBody(Map<String,Object> participantDetails,String role,String parentParticipantCode) throws Exception {
         Map<String, Object> mockParticipant = new HashMap<>();
         if (role.equalsIgnoreCase(PAYOR)) {
             mockParticipant.put(ROLES, new ArrayList<>(List.of(PAYOR)));
@@ -633,15 +651,11 @@ public class ParticipantService extends BaseController {
         mockParticipant.put(SIGNING_CERT_PATH, certificate.getOrDefault(PUBLIC_KEY, ""));
         mockParticipant.put(ENCRYPTION_CERT, certificate.getOrDefault(PUBLIC_KEY, ""));
         mockParticipant.put(REGISTRY_STATUS, ACTIVE);
-        Map<String, String> headersMap = new HashMap<>();
-        headersMap.put(AUTHORIZATION, Objects.requireNonNull(headers.get(AUTHORIZATION)).get(0));
-        HttpResponse<String> createResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_CREATE, JSONUtils.serialize(mockParticipant), headersMap);
-        ParticipantResponse pcptResponse = JSONUtils.deserialize(createResponse.getBody(), ParticipantResponse.class);
-        if (createResponse.getStatus() != 200) {
-            throw new ClientException(pcptResponse.getError().getCode() == null ? ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS : pcptResponse.getError().getCode(), pcptResponse.getError().getMessage());
-        }
+        return mockParticipant;
+    }
+
+    public Map<String,Object> updateMockDetails(Map<String,Object> mockParticipant,String parentParticipantCode,String childParticipantCode) throws Exception {
         String childPrimaryEmail = (String) mockParticipant.get(PRIMARY_EMAIL);
-        String childParticipantCode = (String) JSONUtils.deserialize(createResponse.getBody(), Map.class).get(PARTICIPANT_CODE);
         RandomStringGenerator randomStringGenerator = new RandomStringGenerator.Builder().withinRange('0', 'z').filteredBy(CharacterPredicates.LETTERS, CharacterPredicates.DIGITS).build();
         String password = randomStringGenerator.generate(12);
         String query = String.format("INSERT INTO %s (parent_participant_code,child_participant_code,primary_email,password,private_key) VALUES ('%s','%s','%s','%s','%s');",
@@ -653,10 +667,5 @@ public class ParticipantService extends BaseController {
         mockParticipantDetails.put(PASSWORD,password);
         logger.info("created Mock participant for :: parent participant code  : " + parentParticipantCode + " :: child participant code  : " + childParticipantCode);
         return mockParticipantDetails;
-    }
-
-    public void getEmailAndName(String role, Map<String, Object> mockParticipant, Map<String, Object> participantDetails, String name) {
-        mockParticipant.put(PRIMARY_EMAIL, SlugUtils.makeEmailSlug((String) participantDetails.getOrDefault(PRIMARY_EMAIL, ""), role));
-        mockParticipant.put(PARTICIPANT_NAME, participantDetails.getOrDefault(PARTICIPANT_NAME, "") + " " + name);
     }
 }
