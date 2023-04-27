@@ -1,5 +1,6 @@
 package org.swasth.hcx.services;
 
+import freemarker.template.TemplateException;
 import kong.unirest.HttpResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.CharacterPredicates;
@@ -24,8 +25,10 @@ import org.swasth.hcx.controllers.BaseController;
 import org.swasth.hcx.helpers.EventGenerator;
 import org.swasth.postgresql.IDatabaseService;
 
+import java.io.IOException;
 import java.net.URL;
-import java.security.NoSuchAlgorithmException;
+import java.security.*;
+import java.security.cert.X509Certificate;
 import java.security.spec.InvalidKeySpecException;
 import java.sql.ResultSet;
 import java.time.LocalDate;
@@ -78,6 +81,8 @@ public class ParticipantService extends BaseController {
     @Value("${postgres.onboardVerifierTable}")
     private String onboardingVerifierTable;
 
+    @Value("${postgres.mockParticipantsTable}")
+    private String mockParticipantsTable;
     @Value("${verificationLink.expiry}")
     private int linkExpiry;
 
@@ -89,12 +94,20 @@ public class ParticipantService extends BaseController {
 
     @Value("${env}")
     private String env;
+    @Value("${mock-participant.allowedEnv}")
+    private ArrayList<String> mockParticipantAllowedEnv;
     @Value("${registry.hcxCode}")
     private String hcxCode;
     @Value("${jwt-token.privateKey}")
     private String privatekey;
     @Value("${jwt-token.expiryTime}")
     private Long expiryTime;
+
+    @Value("${mock-service.provider}")
+    private String mockServiceURLProvider;
+
+    @Value("${mock-service.payor}")
+    private String mockServiceURLPayor;
     @Autowired
     private SMSService smsService;
 
@@ -115,6 +128,8 @@ public class ParticipantService extends BaseController {
     @Autowired
     private FreemarkerService freemarkerService;
 
+    @Autowired
+    private GenerateX509Certificate generateX509Certificate;
 
     public ResponseEntity<Object> verify(HttpHeaders header, ArrayList<Map<String, Object>> body) throws Exception {
         logger.info("Participant verification :: " + body);
@@ -319,12 +334,14 @@ public class ParticipantService extends BaseController {
         return (Map<String, Object>) participantResponse.getParticipants().get(0);
     }
 
-    public ResponseEntity<Object> onboardUpdate(Map<String, Object> requestBody) throws Exception {
+    public ResponseEntity<Object> onboardUpdate(HttpHeaders headers,Map<String, Object> requestBody) throws Exception {
         logger.info("Onboard update: " + requestBody);
         boolean emailVerified = false;
         boolean phoneVerified = false;
         String commStatus = PENDING;
         String identityStatus = REJECTED;
+        Map<String,Object> mockProviderDetails = new HashMap<>();
+        Map<String,Object> mockPayorDetails = new HashMap<>();
         String jwtToken = (String) requestBody.get(JWT_TOKEN);
         Map<String, Object> payload = JSONUtils.decodeBase64String(jwtToken.split("\\.")[1], Map.class);
         String email = (String) payload.get("email");
@@ -352,13 +369,25 @@ public class ParticipantService extends BaseController {
         if (commStatus.equals(SUCCESSFUL) && identityStatus.equals(ACCEPTED)) {
             participant.put(REGISTRY_STATUS, ACTIVE);
         }
-
+        Map<String, Object> participantDetails = getParticipant(PARTICIPANT_CODE, (String) participant.get(PARTICIPANT_CODE));
         HttpResponse<String> httpResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_UPDATE, JSONUtils.serialize(participant), headersMap);
 
         if (httpResponse.getStatus() == 200) {
             logger.info("Participant details are updated successfully :: participant code : " + participant.get(PARTICIPANT_CODE));
             if (commStatus.equals(SUCCESSFUL) && identityStatus.equals(ACCEPTED)) {
-                emailService.sendMail(email, onboardingSuccessSub, successTemplate((String) participant.get(PARTICIPANT_NAME)));
+                if (mockParticipantAllowedEnv.contains(env)) {
+                    String searchQuery = String.format("SELECT * FROM %s WHERE parent_participant_code ILIKE '%s'", mockParticipantsTable, participant.get(PARTICIPANT_CODE));
+                    ResultSet result = (ResultSet) postgreSQLClient.executeQuery(searchQuery);
+                    if (!result.next()) {
+                       mockProviderDetails = createMockParticipant(headers, PROVIDER, participantDetails);
+                       mockPayorDetails = createMockParticipant(headers, PAYOR, participantDetails);
+                    }
+                    if(participantDetails.getOrDefault("status","").equals(CREATED)) {
+                        emailService.sendMail(email, onboardingSuccessSub, successTemplate((String) participant.get(PARTICIPANT_NAME),mockProviderDetails,mockPayorDetails));
+                    }
+                }else if(participantDetails.getOrDefault("status","").equals(CREATED)) {
+                    emailService.sendMail(email, onboardingSuccessSub, pocSuccessTemplate((String) participant.get(PARTICIPANT_NAME)));
+                }
             }
             Response response = new Response(PARTICIPANT_CODE, participant.get(PARTICIPANT_CODE));
             response.put(IDENTITY_VERIFICATION, identityStatus);
@@ -369,7 +398,6 @@ public class ParticipantService extends BaseController {
         } else {
             return new ResponseEntity<>(httpResponse.getBody(), HttpStatus.valueOf(httpResponse.getStatus()));
         }
-
     }
 
 
@@ -503,14 +531,24 @@ public class ParticipantService extends BaseController {
         return freemarkerService.renderTemplate("send-link.ftl",model);
     }
 
-    public String successTemplate(String name) throws Exception {
+    public String successTemplate(String ParentName,Map<String,Object> mockProviderDetails,Map<String,Object> mockPayorDetails) throws Exception {
+        Map<String,Object> model = new HashMap<>();
+        model.put("USER_NAME",ParentName);
+        model.put("MOCK_PROVIDER_CODE", mockProviderDetails.getOrDefault(PARTICIPANT_CODE,""));
+        model.put("MOCK_PROVIDER_USER_NAME",mockProviderDetails.getOrDefault(PRIMARY_EMAIL,""));
+        model.put("MOCK_PROVIDER_PASSWORD",mockProviderDetails.getOrDefault(PASSWORD,""));
+        model.put("MOCK_PAYOR_CODE",mockPayorDetails.getOrDefault(PARTICIPANT_CODE,""));
+        model.put("MOCK_PAYOR_USER_NAME",mockPayorDetails.getOrDefault(PRIMARY_EMAIL,""));
+        model.put("MOCK_PAYOR_PASSWORD",mockPayorDetails.getOrDefault(PASSWORD,""));
+        return freemarkerService.renderTemplate("onboard-success.ftl",model);
+    }
+
+    public String pocSuccessTemplate(String name) throws TemplateException, IOException {
         Map<String,Object> model = new HashMap<>();
         model.put("USER_NAME",name);
         model.put("ONBOARDING_SUCCESS_URL",onboardingSuccessURL);
-        return freemarkerService.renderTemplate("onboard-success.ftl",model);
-
+        return freemarkerService.renderTemplate("onboard-poc-success.ftl",model);
     }
-
     public String commonTemplate(String templateName) throws Exception {
         return freemarkerService.renderTemplate(templateName,new HashMap<>());
     }
@@ -572,5 +610,74 @@ public class ParticipantService extends BaseController {
         model.put("USER_NAME",name);
         model.put("STATUS",status);
         return freemarkerService.renderTemplate("verification-status.ftl",model);
+    }
+
+    public Map<String,Object> createMockParticipant(HttpHeaders headers, String role,Map<String,Object> participantDetails) throws Exception {
+        String parentParticipantCode = (String) participantDetails.getOrDefault(PARTICIPANT_CODE,"");
+        logger.info("creating Mock participant for :: parent participant code is : " + parentParticipantCode + " :: Role: " + role);
+        Map<String, Object> mockParticipants = new HashMap<>();
+        if (role.equalsIgnoreCase(PAYOR)) {
+            mockParticipants.put(ROLES, new ArrayList<>(List.of(PAYOR)));
+            mockParticipants.put(SCHEME_CODE, "default");
+            mockParticipants.put(ENDPOINT_URL,mockServiceURLPayor);
+            getEmailAndName("mock_payor", mockParticipants, participantDetails, "Mock Payor");
+        }
+        if (role.equalsIgnoreCase(PROVIDER)) {
+            mockParticipants.put(ROLES, new ArrayList<>(List.of(PROVIDER)));
+            mockParticipants.put(ENDPOINT_URL,mockServiceURLProvider);
+            getEmailAndName("mock_provider", mockParticipants, participantDetails, "Mock Provider");
+        }
+        mockParticipants.put(SIGNING_CERT_PATH, generateCertificates(parentParticipantCode).getOrDefault(PUBLIC_KEY, ""));
+        mockParticipants.put(ENCRYPTION_CERT, generateCertificates(parentParticipantCode).getOrDefault(PUBLIC_KEY, ""));
+        mockParticipants.put(REGISTRY_STATUS, ACTIVE);
+        Map<String, String> headersMap = new HashMap<>();
+        headersMap.put(AUTHORIZATION, Objects.requireNonNull(headers.get(AUTHORIZATION)).get(0));
+        HttpResponse<String> createResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_CREATE, JSONUtils.serialize(mockParticipants), headersMap);
+        ParticipantResponse pcptResponse = JSONUtils.deserialize(createResponse.getBody(), ParticipantResponse.class);
+        if (createResponse.getStatus() != 200) {
+            throw new ClientException(pcptResponse.getError().getCode() == null ? ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS : pcptResponse.getError().getCode(), pcptResponse.getError().getMessage());
+        }
+        String childPrimaryEmail = (String) mockParticipants.get(PRIMARY_EMAIL);
+        String childParticipantCode = (String) JSONUtils.deserialize(createResponse.getBody(), Map.class).get(PARTICIPANT_CODE);
+        RandomStringGenerator randomStringGenerator = new RandomStringGenerator.Builder().withinRange('0', 'z').filteredBy(CharacterPredicates.LETTERS, CharacterPredicates.DIGITS).build();
+        String password = randomStringGenerator.generate(12);
+        String query = String.format("INSERT INTO %s (parent_participant_code,child_participant_code,primary_email,password,private_key) VALUES ('%s','%s','%s','%s','%s');",
+                mockParticipantsTable, parentParticipantCode, childParticipantCode, childPrimaryEmail,password, generateCertificates(parentParticipantCode).getOrDefault(PRIVATE_KEY, ""));
+        postgreSQLClient.execute(query);
+        Map<String,Object> mockParticipantDetails = new HashMap<>();
+        mockParticipantDetails.put(PARTICIPANT_CODE,childParticipantCode);
+        mockParticipantDetails.put(PRIMARY_EMAIL,childPrimaryEmail);
+        mockParticipantDetails.put(PASSWORD,password);
+        logger.info("created Mock participant for :: parent participant code  : " + parentParticipantCode + " :: child participant code  : " + childParticipantCode);
+        return mockParticipantDetails;
+    }
+
+    public void getEmailAndName(String role, Map<String, Object> mockParticipants, Map<String, Object> participantDetails, String name) {
+        mockParticipants.put(PRIMARY_EMAIL, makeEmailSlug((String) participantDetails.getOrDefault(PRIMARY_EMAIL, ""), role));
+        mockParticipants.put(PARTICIPANT_NAME, participantDetails.getOrDefault(PARTICIPANT_NAME, "") + " " + name);
+    }
+
+    public String makeEmailSlug(String primaryEmail, String role) {
+        primaryEmail = primaryEmail.trim();
+        String[] str = primaryEmail.split("@");
+        return str[0] + "+" + role + "@" + str[1];
+    }
+
+    public Map<String, Object> generateCertificates(String parentParticipantCode) throws Exception {
+        Map<String, Object> mockParticipantsKeys = new HashMap<>();
+        Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA", "BC");
+        keyPairGenerator.initialize(2048);
+        // Generate key pair
+        KeyPair keyPair = keyPairGenerator.generateKeyPair();
+        PublicKey publicKey = keyPair.getPublic();
+        PrivateKey privateKey = keyPair.getPrivate();
+        // Generate X.509 certificate
+        X509Certificate certificate = GenerateX509Certificate.generateX509Certificate(publicKey, privateKey, parentParticipantCode);
+        byte[] X509CertificatePublicKey = certificate.getEncoded();
+        byte[] X509CertificatePrivateKey = privateKey.getEncoded();
+        mockParticipantsKeys.put(PUBLIC_KEY, generateX509Certificate.constructKeys(X509CertificatePublicKey, true));
+        mockParticipantsKeys.put(PRIVATE_KEY, generateX509Certificate.constructKeys(X509CertificatePrivateKey, false));
+        return mockParticipantsKeys;
     }
 }

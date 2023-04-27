@@ -50,9 +50,9 @@ public class ParticipantController extends BaseController {
     }
 
     @PostMapping(PARTICIPANT_ONBOARD_UPDATE)
-    public ResponseEntity<Object> onboardUpdate(@RequestBody Map<String, Object> requestBody) throws Exception {
+    public ResponseEntity<Object> onboardUpdate(@RequestHeader HttpHeaders header,@RequestBody Map<String, Object> requestBody) throws Exception {
         try {
-            return service.onboardUpdate(requestBody);
+            return service.onboardUpdate(header,requestBody);
         } catch (Exception e) {
             return exceptionHandler(service.getEmail(requestBody.getOrDefault(JWT_TOKEN, "").toString()), PARTICIPANT_ONBOARD_UPDATE, new Response(), e);
         }

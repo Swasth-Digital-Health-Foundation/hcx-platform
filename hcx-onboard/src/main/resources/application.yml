@@ -6,6 +6,8 @@ logging:
     root: ${LOGGING_LEVEL_ROOT:INFO}
 
 env: ${ENV:local}
+mock-participant:
+   allowedEnv: ${allowed_env:staging,dev}
 
 hcxURL: ${hcx_url:https://hcx.swasth.app}
 apiVersion: ${api_version:v0.7}
@@ -46,6 +48,10 @@ phone:
 hcx-api:
   basePath: ${HCX_API_BASEPATH:http://localhost:8080}
 
+mock-service:
+  payor: ${mock_service_url_provider:http://test-mock-provider-url}
+  provider: ${mock_service_url_payor:http://test-mock-provider-url}
+
 #postgres config
 postgres:
   url: ${postgres_url:jdbc:postgresql://localhost:5432/postgres}
@@ -53,7 +59,7 @@ postgres:
   password: ${postgres_password:postgres}
   onboardVerificationTable: ${onboarding_verification_table:onboard_verification}
   onboardVerifierTable: ${onboarding_verifier_table:onboard_verifier}
-
+  mockParticipantsTable: ${mock_participants:mock_participants}
 
 verificationLink:
   expiry: ${link_expiry:604800000}
