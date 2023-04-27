@@ -134,7 +134,7 @@ export const UpdateDetails = () => {
                 disabled={sending}
                 onSubmit={handleSubmit(onSubmit)}
                 className="container"
-                style={{ width: "50%", textAlign: "left" }}
+                style={{ width: "60%", textAlign: "left" }}
               >
                 {sending && <Loader active />}
                 <Form.Field

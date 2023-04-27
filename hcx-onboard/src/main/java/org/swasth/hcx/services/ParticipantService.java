@@ -202,6 +202,9 @@ public class ParticipantService extends BaseController {
     }
 
     public ResponseEntity<Object> sendVerificationLink(Map<String, Object> requestBody) throws Exception {
+        if(!requestBody.containsKey(ROLES)){
+            requestBody = getParticipant(PARTICIPANT_CODE,(String) requestBody.get(PARTICIPANT_CODE));
+        }
         String primaryEmail = (String) requestBody.get(PRIMARY_EMAIL);
         String query = String.format("SELECT regenerate_count, last_regenerate_date, email_verified, phone_verified FROM %s WHERE primary_email='%s'", onboardVerificationTable, primaryEmail);
         ResultSet result = (ResultSet) postgreSQLClient.executeQuery(query);
@@ -229,7 +232,7 @@ public class ParticipantService extends BaseController {
 
         }
         if (emailEnabled && !emailVerified) {
-            emailService.sendMail(primaryEmail, linkSub, linkTemplate((String) requestBody.get(PARTICIPANT_NAME), (String) requestBody.get(PARTICIPANT_CODE), generateURL(requestBody, EMAIL, primaryEmail), linkExpiry / 86400000));
+            emailService.sendMail(primaryEmail, linkSub, linkTemplate((String) requestBody.get(PARTICIPANT_NAME), (String) requestBody.get(PARTICIPANT_CODE), generateURL(requestBody, EMAIL, primaryEmail),linkExpiry / 86400000, (ArrayList<String>) requestBody.get(ROLES)));
         }
         regenerateCount++;
         String updateQuery = String.format("UPDATE %s SET updatedOn=%d, expiry=%d, regenerate_count=%d, last_regenerate_date='%s', phone_short_url='%s', phone_long_url='%s' WHERE primary_email='%s'",
@@ -522,11 +525,12 @@ public class ParticipantService extends BaseController {
         payload.put(EXP, new Date(date + expiryTime).getTime());
         return jwtUtils.generateJWS(headers,payload,privatekey);
     }
-    public String linkTemplate(String name ,String code,URL signedURL,int day) throws Exception {
+    public String linkTemplate(String name ,String code,URL signedURL,int day,ArrayList<String> role) throws Exception {
         Map<String, Object> model = new HashMap<>();
         model.put("USER_NAME", name);
         model.put("PARTICIPANT_CODE", code);
         model.put("URL",signedURL);
+        model.put("role",role.get(0));
         model.put("DAY",day);
         return freemarkerService.renderTemplate("send-link.ftl",model);
     }
