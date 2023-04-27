@@ -617,30 +617,30 @@ public class ParticipantService extends BaseController {
     public Map<String,Object> createMockParticipant(HttpHeaders headers, String role,Map<String,Object> participantDetails) throws Exception {
         String parentParticipantCode = (String) participantDetails.getOrDefault(PARTICIPANT_CODE,"");
         logger.info("creating Mock participant for :: parent participant code is : " + parentParticipantCode + " :: Role: " + role);
-        Map<String, Object> mockParticipants = new HashMap<>();
+        Map<String, Object> mockParticipant = new HashMap<>();
         if (role.equalsIgnoreCase(PAYOR)) {
-            mockParticipants.put(ROLES, new ArrayList<>(List.of(PAYOR)));
-            mockParticipants.put(SCHEME_CODE, "default");
-            mockParticipants.put(ENDPOINT_URL,mockPayorEndpointURL);
-            getEmailAndName("mock_payor", mockParticipants, participantDetails, "Mock Payor");
+            mockParticipant.put(ROLES, new ArrayList<>(List.of(PAYOR)));
+            mockParticipant.put(SCHEME_CODE, "default");
+            mockParticipant.put(ENDPOINT_URL,mockPayorEndpointURL);
+            getEmailAndName("mock_payor", mockParticipant, participantDetails, "Mock Payor");
         }
         if (role.equalsIgnoreCase(PROVIDER)) {
-            mockParticipants.put(ROLES, new ArrayList<>(List.of(PROVIDER)));
-            mockParticipants.put(ENDPOINT_URL,mockProviderEndpointURL);
-            getEmailAndName("mock_provider", mockParticipants, participantDetails, "Mock Provider");
+            mockParticipant.put(ROLES, new ArrayList<>(List.of(PROVIDER)));
+            mockParticipant.put(ENDPOINT_URL,mockProviderEndpointURL);
+            getEmailAndName("mock_provider", mockParticipant, participantDetails, "Mock Provider");
         }
         Map<String,Object> certificate = CertificateUtil.generateCertificates(parentParticipantCode);
-        mockParticipants.put(SIGNING_CERT_PATH, certificate.getOrDefault(PUBLIC_KEY, ""));
-        mockParticipants.put(ENCRYPTION_CERT, certificate.getOrDefault(PUBLIC_KEY, ""));
-        mockParticipants.put(REGISTRY_STATUS, ACTIVE);
+        mockParticipant.put(SIGNING_CERT_PATH, certificate.getOrDefault(PUBLIC_KEY, ""));
+        mockParticipant.put(ENCRYPTION_CERT, certificate.getOrDefault(PUBLIC_KEY, ""));
+        mockParticipant.put(REGISTRY_STATUS, ACTIVE);
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put(AUTHORIZATION, Objects.requireNonNull(headers.get(AUTHORIZATION)).get(0));
-        HttpResponse<String> createResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_CREATE, JSONUtils.serialize(mockParticipants), headersMap);
+        HttpResponse<String> createResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_CREATE, JSONUtils.serialize(mockParticipant), headersMap);
         ParticipantResponse pcptResponse = JSONUtils.deserialize(createResponse.getBody(), ParticipantResponse.class);
         if (createResponse.getStatus() != 200) {
             throw new ClientException(pcptResponse.getError().getCode() == null ? ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS : pcptResponse.getError().getCode(), pcptResponse.getError().getMessage());
         }
-        String childPrimaryEmail = (String) mockParticipants.get(PRIMARY_EMAIL);
+        String childPrimaryEmail = (String) mockParticipant.get(PRIMARY_EMAIL);
         String childParticipantCode = (String) JSONUtils.deserialize(createResponse.getBody(), Map.class).get(PARTICIPANT_CODE);
         RandomStringGenerator randomStringGenerator = new RandomStringGenerator.Builder().withinRange('0', 'z').filteredBy(CharacterPredicates.LETTERS, CharacterPredicates.DIGITS).build();
         String password = randomStringGenerator.generate(12);
@@ -655,8 +655,8 @@ public class ParticipantService extends BaseController {
         return mockParticipantDetails;
     }
 
-    public void getEmailAndName(String role, Map<String, Object> mockParticipants, Map<String, Object> participantDetails, String name) {
-        mockParticipants.put(PRIMARY_EMAIL, SlugUtils.makeEmailSlug((String) participantDetails.getOrDefault(PRIMARY_EMAIL, ""), role));
-        mockParticipants.put(PARTICIPANT_NAME, participantDetails.getOrDefault(PARTICIPANT_NAME, "") + " " + name);
+    public void getEmailAndName(String role, Map<String, Object> mockParticipant, Map<String, Object> participantDetails, String name) {
+        mockParticipant.put(PRIMARY_EMAIL, SlugUtils.makeEmailSlug((String) participantDetails.getOrDefault(PRIMARY_EMAIL, ""), role));
+        mockParticipant.put(PARTICIPANT_NAME, participantDetails.getOrDefault(PARTICIPANT_NAME, "") + " " + name);
     }
 }
