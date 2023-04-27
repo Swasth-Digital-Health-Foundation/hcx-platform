@@ -533,9 +533,9 @@ public class ParticipantService extends BaseController {
         return freemarkerService.renderTemplate("send-link.ftl",model);
     }
 
-    public String successTemplate(String ParentName,Map<String,Object> mockProviderDetails,Map<String,Object> mockPayorDetails) throws Exception {
+    public String successTemplate(String participantName,Map<String,Object> mockProviderDetails,Map<String,Object> mockPayorDetails) throws Exception {
         Map<String,Object> model = new HashMap<>();
-        model.put("USER_NAME",ParentName);
+        model.put("USER_NAME",participantName);
         model.put("MOCK_PROVIDER_CODE", mockProviderDetails.getOrDefault(PARTICIPANT_CODE,""));
         model.put("MOCK_PROVIDER_USER_NAME",mockProviderDetails.getOrDefault(PRIMARY_EMAIL,""));
         model.put("MOCK_PROVIDER_PASSWORD",mockProviderDetails.getOrDefault(PASSWORD,""));
