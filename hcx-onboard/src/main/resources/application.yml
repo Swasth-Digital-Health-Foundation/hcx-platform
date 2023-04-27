@@ -49,8 +49,10 @@ hcx-api:
   basePath: ${HCX_API_BASEPATH:http://localhost:8080}
 
 mock-service:
-  payor: ${mock_service_url_provider:http://test-mock-provider-url}
-  provider: ${mock_service_url_payor:http://test-mock-provider-url}
+    payor:
+      endpointURL: ${mock_service_endpoint_url_provider:http://test-mock-payor-url}
+    provider:
+      endpointURL: ${mock_service_endpoint_url_payor:http://test-mock-provider-url}
 
 #postgres config
 postgres:

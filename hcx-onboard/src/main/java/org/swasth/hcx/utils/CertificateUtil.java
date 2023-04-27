@@ -1,5 +1,6 @@
-package org.swasth.hcx.services;
+package org.swasth.hcx.utils;
 
+import lombok.experimental.UtilityClass;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.bouncycastle.cert.X509CertificateHolder;
@@ -9,7 +10,6 @@ import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
 import java.math.BigInteger;
 import java.security.*;
@@ -17,9 +17,14 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
-@Service
-public class GenerateX509Certificate {
+import static org.swasth.common.utils.Constants.PRIVATE_KEY;
+import static org.swasth.common.utils.Constants.PUBLIC_KEY;
+
+@UtilityClass
+public class CertificateUtil {
 
     @Value("${hcxURL}")
     private static  String hcxURL;
@@ -63,5 +68,23 @@ public class GenerateX509Certificate {
         Base64.Encoder encoder = Base64.getMimeEncoder(64, LINE_SEPARATOR.getBytes());
         String encodedCertText = new String(encoder.encode(key));
         return prefix + LINE_SEPARATOR + encodedCertText + LINE_SEPARATOR + suffix;
+    }
+
+    public Map<String, Object> generateCertificates(String parentParticipantCode) throws Exception {
+        Map<String, Object> mockParticipantsKeys = new HashMap<>();
+        Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA", "BC");
+        keyPairGenerator.initialize(2048);
+        // Generate key pair
+        KeyPair keyPair = keyPairGenerator.generateKeyPair();
+        PublicKey publicKey = keyPair.getPublic();
+        PrivateKey privateKey = keyPair.getPrivate();
+        // Generate X.509 certificate
+        X509Certificate certificate = generateX509Certificate(publicKey, privateKey, parentParticipantCode);
+        byte[] X509CertificatePublicKey = certificate.getEncoded();
+        byte[] X509CertificatePrivateKey = privateKey.getEncoded();
+        mockParticipantsKeys.put(PUBLIC_KEY, constructKeys(X509CertificatePublicKey, true));
+        mockParticipantsKeys.put(PRIVATE_KEY, constructKeys(X509CertificatePrivateKey, false));
+        return mockParticipantsKeys;
     }
 }

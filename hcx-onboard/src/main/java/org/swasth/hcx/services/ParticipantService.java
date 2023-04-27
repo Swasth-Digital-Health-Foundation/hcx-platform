@@ -23,12 +23,13 @@ import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.utils.JWTUtils;
 import org.swasth.hcx.controllers.BaseController;
 import org.swasth.hcx.helpers.EventGenerator;
+import org.swasth.hcx.utils.CertificateUtil;
+import org.swasth.hcx.utils.SlugUtils;
 import org.swasth.postgresql.IDatabaseService;
 
 import java.io.IOException;
 import java.net.URL;
-import java.security.*;
-import java.security.cert.X509Certificate;
+import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.sql.ResultSet;
 import java.time.LocalDate;
@@ -103,11 +104,11 @@ public class ParticipantService extends BaseController {
     @Value("${jwt-token.expiryTime}")
     private Long expiryTime;
 
-    @Value("${mock-service.provider}")
-    private String mockServiceURLProvider;
+    @Value("${mock-service.provider.endpointURL}")
+    private String mockProviderEndpointURL;
 
-    @Value("${mock-service.payor}")
-    private String mockServiceURLPayor;
+    @Value("${mock-service.payor.endpointURL}")
+    private String mockPayorEndpointURL;
     @Autowired
     private SMSService smsService;
 
@@ -127,9 +128,6 @@ public class ParticipantService extends BaseController {
     protected EventGenerator eventGenerator;
     @Autowired
     private FreemarkerService freemarkerService;
-
-    @Autowired
-    private GenerateX509Certificate generateX509Certificate;
 
     public ResponseEntity<Object> verify(HttpHeaders header, ArrayList<Map<String, Object>> body) throws Exception {
         logger.info("Participant verification :: " + body);
@@ -623,16 +621,17 @@ public class ParticipantService extends BaseController {
         if (role.equalsIgnoreCase(PAYOR)) {
             mockParticipants.put(ROLES, new ArrayList<>(List.of(PAYOR)));
             mockParticipants.put(SCHEME_CODE, "default");
-            mockParticipants.put(ENDPOINT_URL,mockServiceURLPayor);
+            mockParticipants.put(ENDPOINT_URL,mockPayorEndpointURL);
             getEmailAndName("mock_payor", mockParticipants, participantDetails, "Mock Payor");
         }
         if (role.equalsIgnoreCase(PROVIDER)) {
             mockParticipants.put(ROLES, new ArrayList<>(List.of(PROVIDER)));
-            mockParticipants.put(ENDPOINT_URL,mockServiceURLProvider);
+            mockParticipants.put(ENDPOINT_URL,mockProviderEndpointURL);
             getEmailAndName("mock_provider", mockParticipants, participantDetails, "Mock Provider");
         }
-        mockParticipants.put(SIGNING_CERT_PATH, generateCertificates(parentParticipantCode).getOrDefault(PUBLIC_KEY, ""));
-        mockParticipants.put(ENCRYPTION_CERT, generateCertificates(parentParticipantCode).getOrDefault(PUBLIC_KEY, ""));
+        Map<String,Object> certificate = CertificateUtil.generateCertificates(parentParticipantCode);
+        mockParticipants.put(SIGNING_CERT_PATH, certificate.getOrDefault(PUBLIC_KEY, ""));
+        mockParticipants.put(ENCRYPTION_CERT, certificate.getOrDefault(PUBLIC_KEY, ""));
         mockParticipants.put(REGISTRY_STATUS, ACTIVE);
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put(AUTHORIZATION, Objects.requireNonNull(headers.get(AUTHORIZATION)).get(0));
@@ -646,7 +645,7 @@ public class ParticipantService extends BaseController {
         RandomStringGenerator randomStringGenerator = new RandomStringGenerator.Builder().withinRange('0', 'z').filteredBy(CharacterPredicates.LETTERS, CharacterPredicates.DIGITS).build();
         String password = randomStringGenerator.generate(12);
         String query = String.format("INSERT INTO %s (parent_participant_code,child_participant_code,primary_email,password,private_key) VALUES ('%s','%s','%s','%s','%s');",
-                mockParticipantsTable, parentParticipantCode, childParticipantCode, childPrimaryEmail,password, generateCertificates(parentParticipantCode).getOrDefault(PRIVATE_KEY, ""));
+                mockParticipantsTable, parentParticipantCode, childParticipantCode, childPrimaryEmail,password, CertificateUtil.generateCertificates(parentParticipantCode).getOrDefault(PRIVATE_KEY, ""));
         postgreSQLClient.execute(query);
         Map<String,Object> mockParticipantDetails = new HashMap<>();
         mockParticipantDetails.put(PARTICIPANT_CODE,childParticipantCode);
@@ -657,31 +656,7 @@ public class ParticipantService extends BaseController {
     }
 
     public void getEmailAndName(String role, Map<String, Object> mockParticipants, Map<String, Object> participantDetails, String name) {
-        mockParticipants.put(PRIMARY_EMAIL, makeEmailSlug((String) participantDetails.getOrDefault(PRIMARY_EMAIL, ""), role));
+        mockParticipants.put(PRIMARY_EMAIL, SlugUtils.makeEmailSlug((String) participantDetails.getOrDefault(PRIMARY_EMAIL, ""), role));
         mockParticipants.put(PARTICIPANT_NAME, participantDetails.getOrDefault(PARTICIPANT_NAME, "") + " " + name);
-    }
-
-    public String makeEmailSlug(String primaryEmail, String role) {
-        primaryEmail = primaryEmail.trim();
-        String[] str = primaryEmail.split("@");
-        return str[0] + "+" + role + "@" + str[1];
-    }
-
-    public Map<String, Object> generateCertificates(String parentParticipantCode) throws Exception {
-        Map<String, Object> mockParticipantsKeys = new HashMap<>();
-        Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
-        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA", "BC");
-        keyPairGenerator.initialize(2048);
-        // Generate key pair
-        KeyPair keyPair = keyPairGenerator.generateKeyPair();
-        PublicKey publicKey = keyPair.getPublic();
-        PrivateKey privateKey = keyPair.getPrivate();
-        // Generate X.509 certificate
-        X509Certificate certificate = GenerateX509Certificate.generateX509Certificate(publicKey, privateKey, parentParticipantCode);
-        byte[] X509CertificatePublicKey = certificate.getEncoded();
-        byte[] X509CertificatePrivateKey = privateKey.getEncoded();
-        mockParticipantsKeys.put(PUBLIC_KEY, generateX509Certificate.constructKeys(X509CertificatePublicKey, true));
-        mockParticipantsKeys.put(PRIVATE_KEY, generateX509Certificate.constructKeys(X509CertificatePrivateKey, false));
-        return mockParticipantsKeys;
     }
 }
