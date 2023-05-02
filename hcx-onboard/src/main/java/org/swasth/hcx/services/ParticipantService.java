@@ -715,7 +715,7 @@ public class ParticipantService extends BaseController {
             userResource.resetPassword(passwordCred);
             logger.info("The Keycloak password for the userID :" + osOwner.get(0) + " has been successfully updated");
          } catch (Exception e){
-           throw new ClientException("unable to set keycloack password");
+           throw new ClientException(e.getMessage());
         }
     }
 }
