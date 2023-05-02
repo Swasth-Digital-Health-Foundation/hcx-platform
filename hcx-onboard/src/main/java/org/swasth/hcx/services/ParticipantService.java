@@ -519,13 +519,13 @@ public class ParticipantService extends BaseController {
         }
     }
 
-    public URL generateURL(Map<String,Object> participant,String type,String sub) throws Exception{
+    private URL generateURL(Map<String,Object> participant,String type,String sub) throws Exception{
         String token = generateToken(sub,type,(String) participant.get(PARTICIPANT_NAME),(String) participant.get(PARTICIPANT_CODE));
         String url = String.format("%s/onboarding/verify?%s=%s&jwt_token=%s",hcxURL,type,sub,token) ;
         return new URL(url);
     }
 
-    public String generateToken(String sub,String typ,String name,String code) throws NoSuchAlgorithmException, InvalidKeySpecException {
+    private String generateToken(String sub,String typ,String name,String code) throws NoSuchAlgorithmException, InvalidKeySpecException {
         long date = new Date().getTime();
         Map<String, Object> headers = new HashMap<>();
         headers.put(ALG,RS256);
@@ -541,7 +541,7 @@ public class ParticipantService extends BaseController {
         payload.put(EXP, new Date(date + expiryTime).getTime());
         return jwtUtils.generateJWS(headers,payload,privatekey);
     }
-    public String linkTemplate(String name ,String code,URL signedURL,int day,ArrayList<String> role) throws Exception {
+    private String linkTemplate(String name ,String code,URL signedURL,int day,ArrayList<String> role) throws Exception {
         Map<String, Object> model = new HashMap<>();
         model.put("USER_NAME", name);
         model.put("PARTICIPANT_CODE", code);
@@ -551,7 +551,7 @@ public class ParticipantService extends BaseController {
         return freemarkerService.renderTemplate("send-link.ftl",model);
     }
 
-    public String successTemplate(String participantName,Map<String,Object> mockProviderDetails,Map<String,Object> mockPayorDetails) throws Exception {
+    private String successTemplate(String participantName,Map<String,Object> mockProviderDetails,Map<String,Object> mockPayorDetails) throws Exception {
         Map<String,Object> model = new HashMap<>();
         model.put("USER_NAME",participantName);
         model.put("MOCK_PROVIDER_CODE", mockProviderDetails.getOrDefault(PARTICIPANT_CODE,""));
@@ -563,7 +563,7 @@ public class ParticipantService extends BaseController {
         return freemarkerService.renderTemplate("onboard-success.ftl",model);
     }
 
-    public String pocSuccessTemplate(String name) throws TemplateException, IOException {
+    private String pocSuccessTemplate(String name) throws TemplateException, IOException {
         Map<String,Object> model = new HashMap<>();
         model.put("USER_NAME",name);
         model.put("ONBOARDING_SUCCESS_URL",onboardingSuccessURL);
@@ -573,7 +573,7 @@ public class ParticipantService extends BaseController {
         return freemarkerService.renderTemplate(templateName,new HashMap<>());
     }
 
-    public void addSponsors(List<Map<String, Object>> participantsList) throws Exception {
+    private void addSponsors(List<Map<String, Object>> participantsList) throws Exception {
         String primaryEmailList = participantsList.stream().map(participant -> participant.get(PRIMARY_EMAIL)).collect(Collectors.toList()).toString();
         String primaryEmailWithQuote = getParticipantWithQuote(primaryEmailList);
         String selectQuery = String.format("SELECT * FROM %S WHERE applicant_email IN (%s)", onboardingVerifierTable, primaryEmailWithQuote);
@@ -586,7 +586,7 @@ public class ParticipantService extends BaseController {
         filterSponsors(sponsorMap, participantsList);
     }
 
-    public void addCommunicationStatus(List<Map<String, Object>> participantsList) throws Exception {
+    private void addCommunicationStatus(List<Map<String, Object>> participantsList) throws Exception {
         String participantCodeList = participantsList.stream().map(participant -> participant.get(PARTICIPANT_CODE)).collect(Collectors.toList()).toString();
         String participantCodeQuote = getParticipantWithQuote(participantCodeList);
         String selectQuery = String.format("SELECT * FROM %s WHERE participant_code IN (%s)", onboardVerificationTable, participantCodeQuote);
@@ -625,7 +625,7 @@ public class ParticipantService extends BaseController {
                 responseList.put(COMMUNICATION, verificationMap.get(code));
         }
     }
-    public String verificationStatus(String name , String status) throws  Exception{
+    private String verificationStatus(String name , String status) throws  Exception{
         Map<String,Object>  model = new HashMap<>();
         model.put("USER_NAME",name);
         model.put("STATUS",status);
@@ -633,7 +633,7 @@ public class ParticipantService extends BaseController {
     }
 
     @Async
-    public Map<String,Object> createMockParticipant(HttpHeaders headers, String role,Map<String,Object> participantDetails) throws Exception {
+    private Map<String,Object> createMockParticipant(HttpHeaders headers, String role,Map<String,Object> participantDetails) throws Exception {
         String parentParticipantCode = (String) participantDetails.getOrDefault(PARTICIPANT_CODE,"");
         logger.info("creating Mock participant for :: parent participant code : " + parentParticipantCode + " :: Role: " + role);
         Map<String, String> headersMap = new HashMap<>();
@@ -648,12 +648,12 @@ public class ParticipantService extends BaseController {
         return updateMockDetails(mockParticipant,parentParticipantCode,childParticipantCode);
     }
 
-    public void getEmailAndName(String role, Map<String, Object> mockParticipant, Map<String, Object> participantDetails, String name) {
+    private void getEmailAndName(String role, Map<String, Object> mockParticipant, Map<String, Object> participantDetails, String name) {
         mockParticipant.put(PRIMARY_EMAIL, SlugUtils.makeEmailSlug((String) participantDetails.getOrDefault(PRIMARY_EMAIL, ""), role));
         mockParticipant.put(PARTICIPANT_NAME, participantDetails.getOrDefault(PARTICIPANT_NAME, "") + " " + name);
     }
 
-    public Map<String,Object> getMockParticipantBody(Map<String,Object> participantDetails,String role,String parentParticipantCode) throws Exception {
+    private Map<String,Object> getMockParticipantBody(Map<String,Object> participantDetails,String role,String parentParticipantCode) throws Exception {
         Map<String, Object> mockParticipant = new HashMap<>();
         if (role.equalsIgnoreCase(PAYOR)) {
             mockParticipant.put(ROLES, new ArrayList<>(List.of(PAYOR)));
@@ -673,7 +673,7 @@ public class ParticipantService extends BaseController {
         return mockParticipant;
     }
 
-    public Map<String,Object> updateMockDetails(Map<String,Object> mockParticipant,String parentParticipantCode,String childParticipantCode) throws Exception {
+    private Map<String,Object> updateMockDetails(Map<String,Object> mockParticipant,String parentParticipantCode,String childParticipantCode) throws Exception {
         String childPrimaryEmail = (String) mockParticipant.get(PRIMARY_EMAIL);
         RandomStringGenerator randomStringGenerator = new RandomStringGenerator.Builder().withinRange('0', 'z').filteredBy(CharacterPredicates.LETTERS, CharacterPredicates.DIGITS).build();
         String password = randomStringGenerator.generate(12) + "@";
@@ -689,7 +689,7 @@ public class ParticipantService extends BaseController {
         return mockParticipantDetails;
     }
 
-    public void setKeycloakPassword(String childParticipantCode, String password) throws ClientException {
+    private void setKeycloakPassword(String childParticipantCode, String password) throws ClientException {
         try {
             Map<String,Object> participantDetails = getParticipant(PARTICIPANT_CODE,childParticipantCode);
             ArrayList<String> osOwner = (ArrayList<String>) participantDetails.get(OS_OWNER);
