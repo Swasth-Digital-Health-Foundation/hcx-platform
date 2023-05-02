@@ -32,6 +32,7 @@ import org.swasth.hcx.utils.CertificateUtil;
 import org.swasth.hcx.utils.SlugUtils;
 import org.swasth.postgresql.IDatabaseService;
 
+import javax.annotation.Resource;
 import java.io.IOException;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
@@ -87,7 +88,7 @@ public class ParticipantService extends BaseController {
     @Value("${postgres.table.onboard-verifier}")
     private String onboardingVerifierTable;
 
-    @Value("${postgres.table.mock-participant}")
+    @Value("${postgres.mock-service.table.mock-participant}")
     private String mockParticipantsTable;
     @Value("${verificationLink.expiry}")
     private int linkExpiry;
@@ -135,6 +136,10 @@ public class ParticipantService extends BaseController {
 
     @Autowired
     private IDatabaseService postgreSQLClient;
+
+    @Resource(name="postgresClientMockService")
+    @Autowired
+    private IDatabaseService postgresClientMockService;
 
     @Autowired
     private JWTUtils jwtUtils;
@@ -396,7 +401,7 @@ public class ParticipantService extends BaseController {
             if (commStatus.equals(SUCCESSFUL) && identityStatus.equals(ACCEPTED)) {
                 if (mockParticipantAllowedEnv.contains(env)) {
                     String searchQuery = String.format("SELECT * FROM %s WHERE parent_participant_code = '%s'", mockParticipantsTable, participant.get(PARTICIPANT_CODE));
-                    ResultSet result = (ResultSet) postgreSQLClient.executeQuery(searchQuery);
+                    ResultSet result = (ResultSet) postgresClientMockService.executeQuery(searchQuery);
                     if (!result.next()) {
                        mockProviderDetails = createMockParticipant(headers, PROVIDER, participantDetails);
                        mockPayorDetails = createMockParticipant(headers, PAYOR, participantDetails);
@@ -679,7 +684,7 @@ public class ParticipantService extends BaseController {
         String password = randomStringGenerator.generate(12) + "@";
         String query = String.format("INSERT INTO %s (parent_participant_code,child_participant_code,primary_email,password,private_key) VALUES ('%s','%s','%s','%s','%s');",
                 mockParticipantsTable, parentParticipantCode, childParticipantCode, childPrimaryEmail,password, CertificateUtil.generateCertificates(parentParticipantCode).getOrDefault(PRIVATE_KEY, ""));
-        postgreSQLClient.execute(query);
+        postgresClientMockService.execute(query);
         Map<String,Object> mockParticipantDetails = new HashMap<>();
         mockParticipantDetails.put(PARTICIPANT_CODE,childParticipantCode);
         mockParticipantDetails.put(PRIMARY_EMAIL,childPrimaryEmail);
