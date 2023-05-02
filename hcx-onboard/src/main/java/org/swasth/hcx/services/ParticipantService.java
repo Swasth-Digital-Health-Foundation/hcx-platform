@@ -698,14 +698,7 @@ public class ParticipantService extends BaseController {
         try {
             Thread.sleep(3000);
             Map<String,Object> participantDetails = getParticipant(PARTICIPANT_CODE,childParticipantCode);
-            System.out.println("---------participantDetails---------"+ participantDetails);
             ArrayList<String> osOwner = (ArrayList<String>) participantDetails.get(OS_OWNER);
-            System.out.println("------------osOwner---------------" + osOwner);
-            System.out.println("keycloakURL" + keycloakURL);
-            System.out.println("keycloakAdminPassword"+ keycloakAdminPassword);
-            System.out.println(keycloackUserRealm);
-            System.out.println(keycloakAdminUserName);
-            System.out.println(keycloackClientId);
             Keycloak keycloak = Keycloak.getInstance(keycloakURL, keycloakMasterRealm,keycloakAdminUserName, keycloakAdminPassword, keycloackClientId);
             RealmResource realmResource = keycloak.realm(keycloackUserRealm);
             UserResource userResource = realmResource.users().get(osOwner.get(0));
