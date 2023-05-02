@@ -13,7 +13,7 @@ public class URLService {
     @Autowired
     private IDatabaseService postgreSQLClient;
 
-    @Value("${postgres.onboardVerificationTable}")
+    @Value("${postgres.table.onboard-verification}")
     private String onboardVerificationTable;
 
     @Value("${hcxURL}")
