@@ -101,7 +101,7 @@ public class ParticipantService {
         ResponseEntity<Object> searchResponse = getSuccessResponse(search(JSONUtils.deserialize(getRequestBody(code), Map.class), registryUrl));
         ParticipantResponse searchResp = (ParticipantResponse) searchResponse.getBody();
         logger.info("Read participant is completed");
-        if(searchResp.getParticipants() != null && !searchResp.getParticipants().isEmpty())
+        if(searchResp != null && !searchResp.getParticipants().isEmpty())
             return (Map<String,Object>) searchResp.getParticipants().get(0);
         else
             throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_CODE, "Please provide valid participant code");
