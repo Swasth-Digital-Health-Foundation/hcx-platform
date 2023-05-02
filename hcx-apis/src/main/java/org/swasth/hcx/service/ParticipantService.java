@@ -101,10 +101,10 @@ public class ParticipantService {
         ResponseEntity<Object> searchResponse = getSuccessResponse(search(JSONUtils.deserialize(getRequestBody(code), Map.class), registryUrl));
         ParticipantResponse searchResp = (ParticipantResponse) searchResponse.getBody();
         logger.info("Read participant is completed");
-        if(!searchResp.getParticipants().isEmpty())
+        if(searchResp.getParticipants() != null && !searchResp.getParticipants().isEmpty())
             return (Map<String,Object>) searchResp.getParticipants().get(0);
         else
-            return new HashMap<>();
+            throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_CODE, "Please provide valid participant code")
 
     }
     public ParticipantResponse delete(Map<String, Object> participant, String registryUrl, HttpHeaders header, String code) throws Exception {
