@@ -74,3 +74,11 @@ registry:
 jwt-token:
   privateKey : ${hcx_private_key:test-private-key}
   expiryTime : ${expiry_time:86400000}
+
+keycloak:
+  base-url: ${keycloak_service_url:test-auth-url}
+  admin-user: ${keycloack_admin_user_name:test-user-name}
+  admin-password: ${keycloak_admin_password:test-password}
+  master-realm: ${keycloak_master_realm:test-realm}
+  client-id: ${keycloack_client_id:test-client}
+  users-realm: ${keycloack_users_realm:test-users-realm}

@@ -5,6 +5,10 @@ import kong.unirest.HttpResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.CharacterPredicates;
 import org.apache.commons.text.RandomStringGenerator;
+import org.keycloak.admin.client.Keycloak;
+import org.keycloak.admin.client.resource.RealmResource;
+import org.keycloak.admin.client.resource.UserResource;
+import org.keycloak.representations.idm.CredentialRepresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.swasth.auditindexer.function.AuditIndexer;
 import org.swasth.common.dto.*;
@@ -109,6 +114,19 @@ public class ParticipantService extends BaseController {
 
     @Value("${mock-service.payor.endpointURL}")
     private String mockPayorEndpointURL;
+
+    @Value("${keycloak.base-url}")
+    private String keycloakURL;
+    @Value("${keycloak.admin-password}")
+    private String keycloakAdminPassword;
+    @Value("${keycloak.admin-user}")
+    private String keycloakAdminUserName;
+    @Value("${keycloak.master-realm}")
+    private String keycloakMasterRealm;
+    @Value("${keycloak.users-realm}")
+    private String keycloackUserRealm;
+    @Value("${keycloak.client-id}")
+    private String keycloackClientId;
     @Autowired
     private SMSService smsService;
 
@@ -614,9 +632,10 @@ public class ParticipantService extends BaseController {
         return freemarkerService.renderTemplate("verification-status.ftl",model);
     }
 
+    @Async
     public Map<String,Object> createMockParticipant(HttpHeaders headers, String role,Map<String,Object> participantDetails) throws Exception {
         String parentParticipantCode = (String) participantDetails.getOrDefault(PARTICIPANT_CODE,"");
-        logger.info("creating Mock participant for :: parent participant code is : " + parentParticipantCode + " :: Role: " + role);
+        logger.info("creating Mock participant for :: parent participant code : " + parentParticipantCode + " :: Role: " + role);
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put(AUTHORIZATION, Objects.requireNonNull(headers.get(AUTHORIZATION)).get(0));
         Map<String,Object> mockParticipant = getMockParticipantBody(participantDetails,role,parentParticipantCode);
@@ -657,7 +676,7 @@ public class ParticipantService extends BaseController {
     public Map<String,Object> updateMockDetails(Map<String,Object> mockParticipant,String parentParticipantCode,String childParticipantCode) throws Exception {
         String childPrimaryEmail = (String) mockParticipant.get(PRIMARY_EMAIL);
         RandomStringGenerator randomStringGenerator = new RandomStringGenerator.Builder().withinRange('0', 'z').filteredBy(CharacterPredicates.LETTERS, CharacterPredicates.DIGITS).build();
-        String password = randomStringGenerator.generate(12);
+        String password = randomStringGenerator.generate(12) + "@";
         String query = String.format("INSERT INTO %s (parent_participant_code,child_participant_code,primary_email,password,private_key) VALUES ('%s','%s','%s','%s','%s');",
                 mockParticipantsTable, parentParticipantCode, childParticipantCode, childPrimaryEmail,password, CertificateUtil.generateCertificates(parentParticipantCode).getOrDefault(PRIVATE_KEY, ""));
         postgreSQLClient.execute(query);
@@ -665,7 +684,26 @@ public class ParticipantService extends BaseController {
         mockParticipantDetails.put(PARTICIPANT_CODE,childParticipantCode);
         mockParticipantDetails.put(PRIMARY_EMAIL,childPrimaryEmail);
         mockParticipantDetails.put(PASSWORD,password);
+        setKeycloakPassword(childParticipantCode,password);
         logger.info("created Mock participant for :: parent participant code  : " + parentParticipantCode + " :: child participant code  : " + childParticipantCode);
         return mockParticipantDetails;
+    }
+
+    public void setKeycloakPassword(String childParticipantCode, String password) throws ClientException {
+        try {
+            Map<String,Object> participantDetails = getParticipant(PARTICIPANT_CODE,childParticipantCode);
+            ArrayList<String> osOwner = (ArrayList<String>) participantDetails.get(OS_OWNER);
+            Keycloak keycloak = Keycloak.getInstance(keycloakURL, keycloakMasterRealm,keycloakAdminUserName, keycloakAdminPassword, keycloackClientId);
+            RealmResource realmResource = keycloak.realm(keycloackUserRealm);
+            UserResource userResource = realmResource.users().get(osOwner.get(0));
+            CredentialRepresentation passwordCred = new CredentialRepresentation();
+            passwordCred.setTemporary(false);
+            passwordCred.setType(CredentialRepresentation.PASSWORD);
+            passwordCred.setValue(password);
+            userResource.resetPassword(passwordCred);
+            logger.info("The Keycloak password for the userID :" + osOwner.get(0) + " has been successfully updated");
+         } catch (Exception e){
+           throw new ClientException("unable to set keycloack password");
+        }
     }
 }
