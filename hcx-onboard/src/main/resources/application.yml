@@ -46,14 +46,25 @@ phone:
 hcx-api:
   basePath: ${HCX_API_BASEPATH:http://localhost:8080}
 
+mock-service:
+    payor:
+      endpointURL: ${mock_service_endpoint_url_provider:http://test-mock-payor-url}
+    provider:
+      endpointURL: ${mock_service_endpoint_url_payor:http://test-mock-provider-url}
+    allowedEnv: ${mock_service_allowed_env:staging,dev}
+
 #postgres config
 postgres:
   url: ${postgres_url:jdbc:postgresql://localhost:5432/postgres}
   user: ${postgres_user:postgres}
   password: ${postgres_password:postgres}
-  onboardVerificationTable: ${onboarding_verification_table:onboard_verification}
-  onboardVerifierTable: ${onboarding_verifier_table:onboard_verifier}
-
+  table:
+     onboard-verification: ${onboarding_verification_table:onboard_verification}
+     onboard-verifier: ${onboarding_verifier_table:onboard_verifier}
+  mock-service:
+    url: ${mock_service_db_url:jdbc:postgresql://localhost:5432/mock_service}
+    table:
+      mock-participant: ${mock_participant_table:mock_participant}
 
 verificationLink:
   expiry: ${link_expiry:604800000}
@@ -66,3 +77,11 @@ registry:
 jwt-token:
   privateKey : ${hcx_private_key:test-private-key}
   expiryTime : ${expiry_time:86400000}
+
+keycloak:
+  base-url: ${keycloak_base_url:${hcxURL}/auth}
+  admin-user: ${keycloack_admin_user_name:admin}
+  admin-password: ${keycloak_admin_password:test-password}
+  master-realm: ${keycloak_master_realm:master}
+  client-id: ${keycloack_client_id:admin-cli}
+  users-realm: ${keycloack_users_realm:swasth-health-claim-exchange}
