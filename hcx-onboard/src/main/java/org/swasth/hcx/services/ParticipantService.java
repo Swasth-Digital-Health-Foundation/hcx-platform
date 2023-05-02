@@ -696,6 +696,7 @@ public class ParticipantService extends BaseController {
 
     private void setKeycloakPassword(String childParticipantCode, String password) throws ClientException {
         try {
+            Thread.sleep(3000);
             Map<String,Object> participantDetails = getParticipant(PARTICIPANT_CODE,childParticipantCode);
             System.out.println("---------participantDetails---------"+ participantDetails);
             ArrayList<String> osOwner = (ArrayList<String>) participantDetails.get(OS_OWNER);
