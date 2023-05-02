@@ -62,7 +62,7 @@ postgres:
      onboard-verification: ${onboarding_verification_table:onboard_verification}
      onboard-verifier: ${onboarding_verifier_table:onboard_verifier}
   mock-service:
-    url: ${mock_service_url:jdbc:postgresql://localhost:5432/mock_service}
+    url: ${mock_service_db_url:jdbc:postgresql://localhost:5432/mock_service}
     table:
       mock-participant: ${mock_participant_table:mock_participant}
 
@@ -79,7 +79,7 @@ jwt-token:
   expiryTime : ${expiry_time:86400000}
 
 keycloak:
-  base-url: ${keycloak_service_url:test-auth-url}
+  base-url: ${keycloak_base_url:test-auth-url}
   admin-user: ${keycloack_admin_user_name:test-user-name}
   admin-password: ${keycloak_admin_password:test-password}
   master-realm: ${keycloak_master_realm:test-realm}
