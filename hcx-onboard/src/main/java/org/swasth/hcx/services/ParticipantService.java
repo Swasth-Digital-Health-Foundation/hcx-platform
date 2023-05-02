@@ -395,7 +395,7 @@ public class ParticipantService extends BaseController {
             logger.info("Participant details are updated successfully :: participant code : " + participant.get(PARTICIPANT_CODE));
             if (commStatus.equals(SUCCESSFUL) && identityStatus.equals(ACCEPTED)) {
                 if (mockParticipantAllowedEnv.contains(env)) {
-                    String searchQuery = String.format("SELECT * FROM %s WHERE parent_participant_code ILIKE '%s'", mockParticipantsTable, participant.get(PARTICIPANT_CODE));
+                    String searchQuery = String.format("SELECT * FROM %s WHERE parent_participant_code = '%s'", mockParticipantsTable, participant.get(PARTICIPANT_CODE));
                     ResultSet result = (ResultSet) postgreSQLClient.executeQuery(searchQuery);
                     if (!result.next()) {
                        mockProviderDetails = createMockParticipant(headers, PROVIDER, participantDetails);
