@@ -697,7 +697,7 @@ public class ParticipantService extends BaseController {
 
     private void setKeycloakPassword(String childParticipantCode, String password) throws ClientException {
         try {
-            TimeUnit.SECONDS.sleep(2); // added delay for search API because mock participant created recently
+            TimeUnit.SECONDS.sleep(2); // After creating participant, elasticsearch will retrieve data after one second hence added two seconds delay for search API.
             Map<String,Object> participantDetails = getParticipant(PARTICIPANT_CODE,childParticipantCode);
             ArrayList<String> osOwner = (ArrayList<String>) participantDetails.get(OS_OWNER);
             Keycloak keycloak = Keycloak.getInstance(keycloakURL, keycloakMasterRealm,keycloakAdminUserName, keycloakAdminPassword, keycloackClientId);
@@ -710,7 +710,7 @@ public class ParticipantService extends BaseController {
             userResource.resetPassword(passwordCred);
             logger.info("The Keycloak password for the userID :" + osOwner.get(0) + " has been successfully updated");
          } catch (Exception e){
-           throw new ClientException(e.getMessage());
+           throw new ClientException("Unable to set keycloack password : " + e.getMessage());
         }
     }
 }
