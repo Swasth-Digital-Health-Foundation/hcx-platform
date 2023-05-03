@@ -697,7 +697,7 @@ public class ParticipantService extends BaseController {
 
     private void setKeycloakPassword(String childParticipantCode, String password) throws ClientException {
         try {
-            TimeUnit.SECONDS.sleep(1);
+            TimeUnit.SECONDS.sleep(2);
             Map<String,Object> participantDetails = getParticipant(PARTICIPANT_CODE,childParticipantCode);
             ArrayList<String> osOwner = (ArrayList<String>) participantDetails.get(OS_OWNER);
             Keycloak keycloak = Keycloak.getInstance(keycloakURL, keycloakMasterRealm,keycloakAdminUserName, keycloakAdminPassword, keycloackClientId);
