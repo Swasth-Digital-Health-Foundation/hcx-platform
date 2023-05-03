@@ -97,11 +97,15 @@ public class ParticipantService {
         return responseHandler(response, null);
     }
 
-    public ParticipantResponse read(String code, String registryUrl) throws Exception {
+    public Map<String,Object> read(String code, String registryUrl) throws Exception {
         ResponseEntity<Object> searchResponse = getSuccessResponse(search(JSONUtils.deserialize(getRequestBody(code), Map.class), registryUrl));
         ParticipantResponse searchResp = (ParticipantResponse) searchResponse.getBody();
         logger.info("Read participant is completed");
-        return searchResp;
+        if(searchResp != null && !searchResp.getParticipants().isEmpty())
+            return (Map<String,Object>) searchResp.getParticipants().get(0);
+        else
+            throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_CODE, "Please provide valid participant code");
+
     }
     public ParticipantResponse delete(Map<String, Object> participant, String registryUrl, HttpHeaders header, String code) throws Exception {
         String url = registryUrl + registryApiPath + participant.get(OSID);
