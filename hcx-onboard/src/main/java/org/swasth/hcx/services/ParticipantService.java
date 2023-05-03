@@ -40,6 +40,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.sql.ResultSet;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static org.swasth.common.response.ResponseMessage.*;
@@ -696,7 +697,7 @@ public class ParticipantService extends BaseController {
 
     private void setKeycloakPassword(String childParticipantCode, String password) throws ClientException {
         try {
-            Thread.sleep(2000);
+            TimeUnit.SECONDS.sleep(1);
             Map<String,Object> participantDetails = getParticipant(PARTICIPANT_CODE,childParticipantCode);
             ArrayList<String> osOwner = (ArrayList<String>) participantDetails.get(OS_OWNER);
             Keycloak keycloak = Keycloak.getInstance(keycloakURL, keycloakMasterRealm,keycloakAdminUserName, keycloakAdminPassword, keycloackClientId);
