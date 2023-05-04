@@ -60,8 +60,8 @@ public class CertificateUtil {
             prefix = "-----BEGIN CERTIFICATE-----";
             suffix = "-----END CERTIFICATE-----";
         }else{
-            prefix = "-----BEGIN PRIVATE KEY-----\\n";
-            suffix = "\\n-----END PRIVATE KEY-----";
+            prefix = "-----BEGIN PRIVATE KEY-----\n";
+            suffix = "\n-----END PRIVATE KEY-----";
         }
         String LINE_SEPARATOR = " ";
         Base64.Encoder encoder = Base64.getMimeEncoder(64, LINE_SEPARATOR.getBytes());
