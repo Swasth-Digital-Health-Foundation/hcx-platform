@@ -1,4 +1,4 @@
-name: HCX Platform - Build
+name: HCX Onboard - Build
 
 on:
   workflow_dispatch
