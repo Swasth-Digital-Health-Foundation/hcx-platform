@@ -741,7 +741,7 @@ public class ParticipantService extends BaseController {
         Map<String, Object> realmAccess = (Map<String, Object>) token.get("realm_access");
         ArrayList<String> role = (ArrayList<String>) realmAccess.get(ROLES);
         if (!role.get(0).equalsIgnoreCase(ADMIN_ROLE)) {
-            throw new ClientException("Invalid Path Parameter");
+            throw new ClientException("Invalid Token,Provide a valid admin token ");
         }
     }
 
