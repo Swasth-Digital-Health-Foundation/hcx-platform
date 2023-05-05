@@ -644,13 +644,15 @@ public class ParticipantService extends BaseController {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put(AUTHORIZATION, Objects.requireNonNull(headers.get(AUTHORIZATION)).get(0));
         Map<String,Object> mockParticipant = getMockParticipantBody(participantDetails,role,parentParticipantCode);
+        String privateKey = (String) mockParticipant.getOrDefault(PRIVATE_KEY,"");
+        mockParticipant.remove(PRIVATE_KEY);
         HttpResponse<String> createResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_CREATE, JSONUtils.serialize(mockParticipant), headersMap);
         ParticipantResponse pcptResponse = JSONUtils.deserialize(createResponse.getBody(), ParticipantResponse.class);
         if (createResponse.getStatus() != 200) {
             throw new ClientException(pcptResponse.getError().getCode() == null ? ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS : pcptResponse.getError().getCode(), pcptResponse.getError().getMessage());
         }
         String childParticipantCode = (String) JSONUtils.deserialize(createResponse.getBody(), Map.class).get(PARTICIPANT_CODE);
-        return updateMockDetails(mockParticipant,parentParticipantCode,childParticipantCode);
+        return updateMockDetails(mockParticipant,parentParticipantCode,childParticipantCode,privateKey);
     }
 
     private void getEmailAndName(String role, Map<String, Object> mockParticipant, Map<String, Object> participantDetails, String name) {
@@ -671,19 +673,20 @@ public class ParticipantService extends BaseController {
             mockParticipant.put(ENDPOINT_URL,mockProviderEndpointURL);
             getEmailAndName("mock_provider", mockParticipant, participantDetails, "Mock Provider");
         }
-        Map<String,Object> certificate = CertificateUtil.generateCertificates(parentParticipantCode);
+        Map<String,Object> certificate = CertificateUtil.generateCertificates(parentParticipantCode,hcxURL);
         mockParticipant.put(SIGNING_CERT_PATH, certificate.getOrDefault(PUBLIC_KEY, ""));
         mockParticipant.put(ENCRYPTION_CERT, certificate.getOrDefault(PUBLIC_KEY, ""));
+        mockParticipant.put(PRIVATE_KEY,certificate.getOrDefault(PRIVATE_KEY,""));
         mockParticipant.put(REGISTRY_STATUS, ACTIVE);
         return mockParticipant;
     }
 
-    private Map<String,Object> updateMockDetails(Map<String,Object> mockParticipant,String parentParticipantCode,String childParticipantCode) throws Exception {
+    private Map<String,Object> updateMockDetails(Map<String,Object> mockParticipant,String parentParticipantCode,String childParticipantCode,String privateKey) throws Exception {
         String childPrimaryEmail = (String) mockParticipant.get(PRIMARY_EMAIL);
         RandomStringGenerator randomStringGenerator = new RandomStringGenerator.Builder().withinRange('0', 'z').filteredBy(CharacterPredicates.LETTERS, CharacterPredicates.DIGITS).build();
         String password = randomStringGenerator.generate(12) + "@";
         String query = String.format("INSERT INTO %s (parent_participant_code,child_participant_code,primary_email,password,private_key) VALUES ('%s','%s','%s','%s','%s');",
-                mockParticipantsTable, parentParticipantCode, childParticipantCode, childPrimaryEmail,password, CertificateUtil.generateCertificates(parentParticipantCode).getOrDefault(PRIVATE_KEY, ""));
+                mockParticipantsTable, parentParticipantCode, childParticipantCode, childPrimaryEmail,password, privateKey);
         postgresClientMockService.execute(query);
         Map<String,Object> mockParticipantDetails = new HashMap<>();
         mockParticipantDetails.put(PARTICIPANT_CODE,childParticipantCode);

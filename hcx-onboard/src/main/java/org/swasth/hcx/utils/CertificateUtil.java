@@ -1,6 +1,5 @@
 package org.swasth.hcx.utils;
 
-import lombok.experimental.UtilityClass;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.bouncycastle.cert.X509CertificateHolder;
@@ -10,6 +9,7 @@ import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 import java.math.BigInteger;
 import java.security.*;
@@ -23,12 +23,11 @@ import java.util.Map;
 import static org.swasth.common.utils.Constants.PRIVATE_KEY;
 import static org.swasth.common.utils.Constants.PUBLIC_KEY;
 
-@UtilityClass
+@Service
 public class CertificateUtil {
 
-    @Value("${hcxURL}")
-    private static  String hcxURL;
-    public static X509Certificate generateX509Certificate(PublicKey publicKey, PrivateKey privateKey,String parentParticipantCode) throws CertificateException, NoSuchAlgorithmException, SignatureException, InvalidKeyException, NoSuchProviderException, OperatorCreationException {
+
+    public static X509Certificate generateX509Certificate(PublicKey publicKey, PrivateKey privateKey,String parentParticipantCode,String hcxURL) throws CertificateException, NoSuchAlgorithmException, SignatureException, InvalidKeyException, NoSuchProviderException, OperatorCreationException {
 
         // Prepare the certificate data
         String issuer = String.format("CN=%s",hcxURL);
@@ -54,15 +53,15 @@ public class CertificateUtil {
         return certificate;
     }
 
-    public String constructKeys(byte[] key,boolean isPublic){
+    public static String constructKeys(byte[] key,boolean isPublic){
         String prefix;
         String suffix;
         if(isPublic) {
             prefix = "-----BEGIN CERTIFICATE-----";
             suffix = "-----END CERTIFICATE-----";
         }else{
-            prefix = "-----BEGIN PRIVATE KEY-----";
-            suffix = "-----END PRIVATE KEY-----";
+            prefix = "-----BEGIN PRIVATE KEY-----\n";
+            suffix = "\n-----END PRIVATE KEY-----";
         }
         String LINE_SEPARATOR = " ";
         Base64.Encoder encoder = Base64.getMimeEncoder(64, LINE_SEPARATOR.getBytes());
@@ -70,7 +69,7 @@ public class CertificateUtil {
         return prefix + LINE_SEPARATOR + encodedCertText + LINE_SEPARATOR + suffix;
     }
 
-    public Map<String, Object> generateCertificates(String parentParticipantCode) throws Exception {
+    public static Map<String, Object> generateCertificates(String parentParticipantCode,String hcxURL) throws Exception {
         Map<String, Object> mockParticipantsKeys = new HashMap<>();
         Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA", "BC");
@@ -80,7 +79,7 @@ public class CertificateUtil {
         PublicKey publicKey = keyPair.getPublic();
         PrivateKey privateKey = keyPair.getPrivate();
         // Generate X.509 certificate
-        X509Certificate certificate = generateX509Certificate(publicKey, privateKey, parentParticipantCode);
+        X509Certificate certificate = generateX509Certificate(publicKey, privateKey, parentParticipantCode,hcxURL);
         byte[] X509CertificatePublicKey = certificate.getEncoded();
         byte[] X509CertificatePrivateKey = privateKey.getEncoded();
         mockParticipantsKeys.put(PUBLIC_KEY, constructKeys(X509CertificatePublicKey, true));

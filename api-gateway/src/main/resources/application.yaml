@@ -182,4 +182,4 @@ spring:
                 redis-rate-limiter.replenishRate: 10
                 redis-rate-limiter.burstCapacity: 20
           predicates:
-            - Path=/payer/request/**
+            - Path=/payer/**
