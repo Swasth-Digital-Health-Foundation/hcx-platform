@@ -1,4 +1,4 @@
-name: HCX Pipeline Jobs - Build
+name: HCX-Scheduler-Jobs - Build
 
 on:
   workflow_dispatch
@@ -29,8 +29,10 @@ jobs:
 
       - name: Maven Build
         run: |
-          cd hcx-pipeline-jobs
-          mvn clean install -DskipTests
+          cd hcx-core
+          mvn clean install
+          cd ../hcx-scheduler-jobs
+          mvn clean install
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -44,13 +46,13 @@ jobs:
       - name: Set the Image TAG
         run: echo "IMAGE_TAG=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
-      - name: Build and push Docker image for HCX Pipeline Jobs
+      - name: Build and push Docker image for HCX Scheduler Jobs
         uses: docker/build-push-action@v3
         with:
-          context: ./hcx-pipeline-jobs/jobs-distribution
+          context: ./hcx-scheduler-jobs
           push: true
-          tags: swasth2021/hcx-pipeline-jobs:${{ env.IMAGE_TAG }}_${{ github.run_number }}
-          labels: hcx-pipeline-jobs image
+          tags: swasth2021/hcx-scheduler-jobs:${{ env.IMAGE_TAG }}_${{ github.run_number }}
+          labels: hcx-scheduler-jobs image
 
       - name: Configure AWS CLI
         uses: aws-actions/configure-aws-credentials@v1
@@ -58,3 +60,8 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-south-1
+
+      - name: Build and push Docker image for HCX Scheduler Job to S3 bucket
+        run: |
+          echo ${{ env.IMAGE_TAG }}_${{ github.run_number }} >> /tmp/tag.txt
+          aws s3 cp /tmp/tag.txt s3://build-tags/tag.txt
