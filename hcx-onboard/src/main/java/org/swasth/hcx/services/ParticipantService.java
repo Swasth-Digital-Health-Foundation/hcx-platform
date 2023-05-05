@@ -714,38 +714,35 @@ public class ParticipantService extends BaseController {
     }
 
     private void getMockParticipant(List<Map<String, Object>> participantsList, HttpHeaders headers) throws Exception {
-        try {
-            ArrayList<String> role = validateRole(headers);
-            if (role.get(0).equalsIgnoreCase(ADMIN_ROLE)) {
-                String selectQuery = String.format("SELECT * FROM %s WHERE parent_participant_code IN (%s)", mockParticipantsTable, getParticipantCodeList(participantsList));
-                ResultSet resultSet = (ResultSet) postgresClientMockService.executeQuery(selectQuery);
-                Map<String, Object> mockProviderAndPayorDetails = new HashMap<>();
-                while (resultSet.next()) {
-                    String childParticipantCode = resultSet.getString(CHILD_PARTICIPANT_CODE);
-                    String parentParticipantCode = resultSet.getString(PARENT_PARTICIPANT_CODE);
-                    Map<String, Object> mockUsers = (Map<String, Object>) mockProviderAndPayorDetails.getOrDefault(parentParticipantCode, new HashMap<>());
-                    if (childParticipantCode.contains(MOCK_PROVIDER)) {
-                        addCommonDetails(resultSet, mockUsers, childParticipantCode, MOCK_PROVIDER);
-                    } else if (childParticipantCode.contains(MOCK_PAYOR)) {
-                        addCommonDetails(resultSet, mockUsers, childParticipantCode, MOCK_PAYOR);
-                    }
-                    mockProviderAndPayorDetails.put(parentParticipantCode, mockUsers);
-                }
-                filterMockParticipants(mockProviderAndPayorDetails, participantsList);
+        validateRole(headers);
+        String selectQuery = String.format("SELECT * FROM %s WHERE parent_participant_code IN (%s)", mockParticipantsTable, getParticipantCodeList(participantsList));
+        ResultSet resultSet = (ResultSet) postgresClientMockService.executeQuery(selectQuery);
+        Map<String, Object> mockDetails = new HashMap<>();
+        while (resultSet.next()) {
+            String childParticipantCode = resultSet.getString(CHILD_PARTICIPANT_CODE);
+            String parentParticipantCode = resultSet.getString(PARENT_PARTICIPANT_CODE);
+            Map<String, Object> mockUsers = (Map<String, Object>) mockDetails.getOrDefault(parentParticipantCode, new HashMap<>());
+            if (childParticipantCode.contains(MOCK_PROVIDER)) {
+                addDetails(resultSet, mockUsers, childParticipantCode, MOCK_PROVIDER);
+            } else if (childParticipantCode.contains(MOCK_PAYOR)) {
+                addDetails(resultSet, mockUsers, childParticipantCode, MOCK_PAYOR);
             }
-        } catch (Exception e) {
-            throw new ClientException("Invalid path parameter : " + e.getMessage());
+            mockDetails.put(parentParticipantCode, mockUsers);
         }
+        filterMockParticipants(mockDetails, participantsList);
     }
 
-    private ArrayList<String> validateRole(HttpHeaders headers) throws Exception {
+    private void validateRole(HttpHeaders headers) throws Exception {
         String jwtToken = Objects.requireNonNull(headers.get(AUTHORIZATION)).get(0);
         Map<String, Object> token = JSONUtils.decodeBase64String(jwtToken.split("\\.")[1], Map.class);
         Map<String, Object> realmAccess = (Map<String, Object>) token.get("realm_access");
-        return (ArrayList<String>) realmAccess.get(ROLES);
+        ArrayList<String> role = (ArrayList<String>) realmAccess.get(ROLES);
+        if (!role.get(0).equalsIgnoreCase(ADMIN_ROLE)) {
+            throw new ClientException("Invalid Path Parameter");
+        }
     }
 
-    private void addCommonDetails(ResultSet resultSet, Map<String, Object> mockUsers, String childParticipantCode, String type) throws SQLException {
+    private void addDetails(ResultSet resultSet, Map<String, Object> mockUsers, String childParticipantCode, String type) throws SQLException {
         Map<String, Object> mockParticipant = new HashMap<>();
         mockParticipant.put(PARTICIPANT_CODE, childParticipantCode);
         mockParticipant.put(PRIMARY_EMAIL, resultSet.getString(PRIMARY_EMAIL));
@@ -753,10 +750,10 @@ public class ParticipantService extends BaseController {
         mockUsers.put(type, mockParticipant);
     }
 
-    private void filterMockParticipants(Map<String, Object> mockProviderAndPayor, List<Map<String, Object>> participantsList) {
+    private void filterMockParticipants(Map<String, Object> mockDetails, List<Map<String, Object>> participantsList) {
         for (Map<String, Object> responseList : participantsList) {
             String code = (String) responseList.get(PARTICIPANT_CODE);
-            Map<String, Object> mockUsers = (Map<String, Object>) mockProviderAndPayor.get(code);
+            Map<String, Object> mockUsers = (Map<String, Object>) mockDetails.get(code);
             if (mockUsers != null) {
                 Map<String, Object> mockProvider = (Map<String, Object>) mockUsers.get(MOCK_PROVIDER);
                 Map<String, Object> mockPayor = (Map<String, Object>) mockUsers.get(MOCK_PAYOR);
