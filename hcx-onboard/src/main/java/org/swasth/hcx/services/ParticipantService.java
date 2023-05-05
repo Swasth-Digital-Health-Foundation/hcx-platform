@@ -38,6 +38,7 @@ import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -497,7 +498,7 @@ public class ParticipantService extends BaseController {
         return result;
     }
 
-    public ResponseEntity<Object> applicantSearch(Map<String,Object> requestBody,String fields) throws Exception {
+    public ResponseEntity<Object> applicantSearch(Map<String,Object> requestBody,String fields,HttpHeaders headers) throws Exception {
         HttpResponse<String> response = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_SEARCH, JSONUtils.serialize(requestBody), new HashMap<>());
         Map<String,Object> responseMap = JSONUtils.deserialize(response.getBody(),Map.class);
         ArrayList<Map<String,Object>> participantList = JSONUtils.convert(responseMap.get(PARTICIPANTS),ArrayList.class);
@@ -505,6 +506,8 @@ public class ParticipantService extends BaseController {
             addSponsors(participantList);
         if(fields != null && fields.toLowerCase().contains(COMMUNICATION))
             addCommunicationStatus(participantList);
+        if(fields != null && fields.toLowerCase().contains(MOCK_PARTICIPANT))
+            getMockParticipant(participantList,headers);
         return new ResponseEntity<>(new ParticipantResponse(participantList), HttpStatus.OK);
     }
 
@@ -579,10 +582,14 @@ public class ParticipantService extends BaseController {
         return freemarkerService.renderTemplate(templateName,new HashMap<>());
     }
 
+    private String verificationStatus(String name , String status) throws  Exception{
+        Map<String,Object>  model = new HashMap<>();
+        model.put("USER_NAME",name);
+        model.put("STATUS",status);
+        return freemarkerService.renderTemplate("verification-status.ftl",model);
+    }
     private void addSponsors(List<Map<String, Object>> participantsList) throws Exception {
-        String primaryEmailList = participantsList.stream().map(participant -> participant.get(PRIMARY_EMAIL)).collect(Collectors.toList()).toString();
-        String primaryEmailWithQuote = getParticipantWithQuote(primaryEmailList);
-        String selectQuery = String.format("SELECT * FROM %S WHERE applicant_email IN (%s)", onboardingVerifierTable, primaryEmailWithQuote);
+        String selectQuery = String.format("SELECT * FROM %S WHERE applicant_email IN (%s)", onboardingVerifierTable, getParticipantCodeList(participantsList));
         ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
         Map<String, Object> sponsorMap = new HashMap<>();
         while (resultSet.next()) {
@@ -593,9 +600,7 @@ public class ParticipantService extends BaseController {
     }
 
     private void addCommunicationStatus(List<Map<String, Object>> participantsList) throws Exception {
-        String participantCodeList = participantsList.stream().map(participant -> participant.get(PARTICIPANT_CODE)).collect(Collectors.toList()).toString();
-        String participantCodeQuote = getParticipantWithQuote(participantCodeList);
-        String selectQuery = String.format("SELECT * FROM %s WHERE participant_code IN (%s)", onboardVerificationTable, participantCodeQuote);
+        String selectQuery = String.format("SELECT * FROM %s WHERE participant_code IN (%s)", onboardVerificationTable, getParticipantCodeList(participantsList));
         ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
         Map<String,Object> verificationMap = new HashMap<>();
         while (resultSet.next()) {
@@ -630,12 +635,6 @@ public class ParticipantService extends BaseController {
             if (verificationMap.containsKey(code))
                 responseList.put(COMMUNICATION, verificationMap.get(code));
         }
-    }
-    private String verificationStatus(String name , String status) throws  Exception{
-        Map<String,Object>  model = new HashMap<>();
-        model.put("USER_NAME",name);
-        model.put("STATUS",status);
-        return freemarkerService.renderTemplate("verification-status.ftl",model);
     }
 
     @Async
@@ -712,5 +711,62 @@ public class ParticipantService extends BaseController {
          } catch (Exception e){
            throw new ClientException("Unable to set keycloack password : " + e.getMessage());
         }
+    }
+
+    private void getMockParticipant(List<Map<String, Object>> participantsList, HttpHeaders headers) throws Exception {
+        try {
+            ArrayList<String> role = validateRole(headers);
+            if (role.get(0).equalsIgnoreCase(ADMIN_ROLE)) {
+                String selectQuery = String.format("SELECT * FROM %s WHERE parent_participant_code IN (%s)", mockParticipantsTable, getParticipantCodeList(participantsList));
+                ResultSet resultSet = (ResultSet) postgresClientMockService.executeQuery(selectQuery);
+                Map<String, Object> mockProviderAndPayorDetails = new HashMap<>();
+                while (resultSet.next()) {
+                    String childParticipantCode = resultSet.getString(CHILD_PARTICIPANT_CODE);
+                    String parentParticipantCode = resultSet.getString(PARENT_PARTICIPANT_CODE);
+                    Map<String, Object> mockUsers = (Map<String, Object>) mockProviderAndPayorDetails.getOrDefault(parentParticipantCode, new HashMap<>());
+                    if (childParticipantCode.contains(MOCK_PROVIDER)) {
+                        addCommonDetails(resultSet, mockUsers, childParticipantCode, MOCK_PROVIDER);
+                    } else if (childParticipantCode.contains(MOCK_PAYOR)) {
+                        addCommonDetails(resultSet, mockUsers, childParticipantCode, MOCK_PAYOR);
+                    }
+                    mockProviderAndPayorDetails.put(parentParticipantCode, mockUsers);
+                }
+                filterMockParticipants(mockProviderAndPayorDetails, participantsList);
+            }
+        } catch (Exception e) {
+            throw new ClientException("Invalid path parameter : " + e.getMessage());
+        }
+    }
+
+    private ArrayList<String> validateRole(HttpHeaders headers) throws Exception {
+        String jwtToken = Objects.requireNonNull(headers.get(AUTHORIZATION)).get(0);
+        Map<String, Object> token = JSONUtils.decodeBase64String(jwtToken.split("\\.")[1], Map.class);
+        Map<String, Object> realmAccess = (Map<String, Object>) token.get("realm_access");
+        return (ArrayList<String>) realmAccess.get(ROLES);
+    }
+
+    private void addCommonDetails(ResultSet resultSet, Map<String, Object> mockUsers, String childParticipantCode, String type) throws SQLException {
+        Map<String, Object> mockParticipant = new HashMap<>();
+        mockParticipant.put(PARTICIPANT_CODE, childParticipantCode);
+        mockParticipant.put(PRIMARY_EMAIL, resultSet.getString(PRIMARY_EMAIL));
+        mockParticipant.put(PASSWORD, resultSet.getString(PASSWORD));
+        mockUsers.put(type, mockParticipant);
+    }
+
+    private void filterMockParticipants(Map<String, Object> mockProviderAndPayor, List<Map<String, Object>> participantsList) {
+        for (Map<String, Object> responseList : participantsList) {
+            String code = (String) responseList.get(PARTICIPANT_CODE);
+            Map<String, Object> mockUsers = (Map<String, Object>) mockProviderAndPayor.get(code);
+            if (mockUsers != null) {
+                Map<String, Object> mockProvider = (Map<String, Object>) mockUsers.get(MOCK_PROVIDER);
+                Map<String, Object> mockPayor = (Map<String, Object>) mockUsers.get(MOCK_PAYOR);
+                responseList.put(MOCK_PROVIDER, mockProvider);
+                responseList.put(MOCK_PAYOR, mockPayor);
+            }
+        }
+    }
+    private String getParticipantCodeList(List<Map<String, Object>> participantsList){
+        String participantCodeList = participantsList.stream().map(participant -> participant.get(PARTICIPANT_CODE)).collect(Collectors.toList()).toString();
+        return getParticipantWithQuote(participantCodeList);
     }
 }
