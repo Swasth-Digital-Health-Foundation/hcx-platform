@@ -1,7 +1,10 @@
-name: HCX Platform - Build
+name: HCX-Scheduler-Jobs - Build
 
 on:
   workflow_dispatch
+
+#    tags:
+#      - *
 
 jobs:
   build:
@@ -17,20 +20,19 @@ jobs:
         with:
           java-version: 11
 
+      - name: Cache Maven dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-maven-
+
       - name: Maven Build
         run: |
+          cd hcx-core
           mvn clean install
-          cd hcx-scheduler-jobs
+          cd ../hcx-scheduler-jobs
           mvn clean install
-          cd ../hcx-pipeline-jobs
-          mvn clean install -DskipTests
-
-      - name: Cache Maven packages
-        uses: actions/cache@v1
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -44,22 +46,6 @@ jobs:
       - name: Set the Image TAG
         run: echo "IMAGE_TAG=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
-      - name: Build and push Docker image for API-Gateway
-        uses: docker/build-push-action@v3
-        with:
-          context: ./api-gateway
-          push: true
-          tags: swasth2021/api-gateway:${{ env.IMAGE_TAG }}_${{ github.run_number }}
-          labels: api-gateway image
-
-      - name: Build and push Docker image for HCX-APIs
-        uses: docker/build-push-action@v3
-        with:
-          context: ./hcx-apis
-          push: true
-          tags: swasth2021/hcx-api:${{ env.IMAGE_TAG }}_${{ github.run_number }}
-          labels: hcx-api image
-
       - name: Build and push Docker image for HCX Scheduler Jobs
         uses: docker/build-push-action@v3
         with:
@@ -67,14 +53,6 @@ jobs:
           push: true
           tags: swasth2021/hcx-scheduler-jobs:${{ env.IMAGE_TAG }}_${{ github.run_number }}
           labels: hcx-scheduler-jobs image
-
-      - name: Build and push Docker image for HCX Pipeline Jobs
-        uses: docker/build-push-action@v3
-        with:
-          context: ./hcx-pipeline-jobs/jobs-distribution
-          push: true
-          tags: swasth2021/hcx-pipeline-jobs:${{ env.IMAGE_TAG }}_${{ github.run_number }}
-          labels: hcx-pipeline-jobs image
 
       - name: Configure AWS CLI
         uses: aws-actions/configure-aws-credentials@v1
