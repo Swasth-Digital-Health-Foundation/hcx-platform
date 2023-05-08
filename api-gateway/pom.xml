@@ -14,7 +14,6 @@
     <name>api-gateway</name>
     <description>API Gateway</description>
     <properties>
-        <java.version>1.8</java.version>
         <spring-cloud.version>2020.0.4</spring-cloud.version>
         <argLine>-XX:+StartAttachListener<!-- required to attach test reports --> </argLine>
     </properties>
