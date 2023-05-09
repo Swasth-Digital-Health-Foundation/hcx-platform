@@ -112,3 +112,7 @@ certificates:
   accesskey : ${certificates_accessKey:}
   secretKey : ${certificates_accessSecret:}
   bucketName : ${certificates_bucketName:}
+
+spring:
+  application:
+       name: hcx-api

@@ -94,6 +94,8 @@ audit:
   alias: ${audit_alias:hcx_audit}
 
 spring:
+  application:
+    name: api-gateway
   main:
     web-application-type: reactive
     allow-bean-definition-overriding: true
