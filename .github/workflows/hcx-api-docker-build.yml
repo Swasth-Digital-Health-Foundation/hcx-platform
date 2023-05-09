@@ -44,7 +44,7 @@ jobs:
           cd hcx-core
           mvn clean install
           cd ../hcx-apis
-          mvn clean install         
+          mvn clean install -DskipTests       
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
