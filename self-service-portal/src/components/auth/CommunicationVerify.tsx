@@ -132,7 +132,7 @@ export default function CommunicationVerify() {
                 <form>
                   {participantName ? <p className="mb-4">Participant Name : {participantName}</p> : null}  
                   {email ? <p className="mb-4">Email Address : {email}</p> : null}  
-                  {phone ? <p className="mb-4">Phone Number : {participantName}</p> : null}  
+                  {phone ? <p className="mb-4">Phone Number : {phone}</p> : null}  
                   {email ? <p className="mb-4">Please verify your Email Address</p> :
                   <p className="mb-4">Please verify your Phone Number</p> }
                   {/*Username input*/}
