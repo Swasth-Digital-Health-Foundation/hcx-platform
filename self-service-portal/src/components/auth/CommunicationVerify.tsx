@@ -137,8 +137,8 @@ export default function CommunicationVerify() {
                   <p className="mb-4">Please verify your Phone Number</p> }
                   {/*Username input*/}
                   {/*Submit button*/}
-                  <div className="mb-12 pb-1 pt-1 text-center">
-                    {submitted || emailVerified || phoneVerified ? 
+                  {email ? <div className="mb-12 pb-1 pt-1 text-center">
+                    {submitted || emailVerified ? 
                                         <button
                                         className="mb-3 inline-block w-full rounded px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white shadow-[0_4px_9px_-4px_rgba(0,0,0,0.2)] transition duration-150 ease-in-out hover:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:outline-none focus:ring-0 active:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)]"
                                         type="button"
@@ -161,7 +161,32 @@ export default function CommunicationVerify() {
                     >
                         Verify
                     </button>}
-                  </div>
+                  </div> : null }
+                  {phone ? <div className="mb-12 pb-1 pt-1 text-center">
+                    {submitted || phoneVerified ? 
+                                        <button
+                                        className="mb-3 inline-block w-full rounded px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white shadow-[0_4px_9px_-4px_rgba(0,0,0,0.2)] transition duration-150 ease-in-out hover:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:outline-none focus:ring-0 active:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)]"
+                                        type="button"
+                                        disabled
+                                        style={{
+                                          background:"#2da852"
+                                        }}
+                                      >
+                                          Verified
+                                      </button> :
+                  
+                    <button
+                      className="mb-3 inline-block w-full rounded px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white shadow-[0_4px_9px_-4px_rgba(0,0,0,0.2)] transition duration-150 ease-in-out hover:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:outline-none focus:ring-0 active:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)]"
+                      type="button"
+                      style={{
+                        background:
+                          "linear-gradient(to right, #1C4DC3, #3632BE, #1D1991, #060347)"
+                      }}
+                      onClick={() => onSubmit()}
+                    >
+                        Verify
+                    </button>}
+                  </div> : null }
                 </form>
               </div>
             </div>
