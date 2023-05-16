@@ -94,6 +94,8 @@ audit:
   alias: ${audit_alias:hcx_audit}
 
 spring:
+  codec:
+    max-in-memory-size: 10MB
   main:
     web-application-type: reactive
     allow-bean-definition-overriding: true
