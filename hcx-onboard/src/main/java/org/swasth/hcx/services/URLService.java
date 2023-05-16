@@ -16,10 +16,10 @@ public class URLService {
     @Value("${postgres.table.onboard-verification}")
     private String onboardVerificationTable;
 
-    @Value("${hcxURL}")
+    @Value("${hcx-url}")
     private String hcxURL;
 
-    @Value("${apiVersion}")
+    @Value("${api-version}")
     private String apiVersion;
 
     public String getLongUrl(String id) throws Exception {

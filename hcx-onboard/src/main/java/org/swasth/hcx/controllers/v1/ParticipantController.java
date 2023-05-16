@@ -21,7 +21,7 @@ import static org.swasth.common.utils.Constants.*;
 @RequestMapping(Constants.VERSION_PREFIX)
 public class ParticipantController extends BaseController {
 
-    @Value("${email.failedIdentitySub}")
+    @Value("${email.failed-identity-sub}")
     private String failedIdentitySub;
     @Autowired
     private EmailService emailService;
