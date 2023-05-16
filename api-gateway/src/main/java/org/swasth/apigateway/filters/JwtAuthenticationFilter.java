@@ -78,6 +78,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
 
                 ServerHttpRequest request = exchange.getRequest().mutate().
                         header(X_JWT_SUB_HEADER, decodedJWT.getSubject()).
+                        header("Content-Length", "16777216").
                         build();
 
                 if (!authenticatedAllowedPaths.getPaths().contains(path) && !Utils.containsRegexPath(authenticatedAllowedPaths.getRegexPaths(), path)) {
