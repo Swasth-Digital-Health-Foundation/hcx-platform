@@ -72,7 +72,7 @@ registry:
   hcxRoles: ${REGISTRY_HCX_ROLE:HIE/HIO.HCX}
 
 hcx:
-  baseURL: ${base_url:http://localhost:8095}
+  baseUrl: ${base_url:http://localhost:8095}
 
 hcx-api:
   basePath: ${HCX_API_BASEPATH:http://localhost:8080}
