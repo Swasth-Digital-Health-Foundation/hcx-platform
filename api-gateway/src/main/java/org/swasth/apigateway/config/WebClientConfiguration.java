@@ -1,21 +1,42 @@
 package org.swasth.apigateway.config;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.boot.web.codec.CodecCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.codec.ClientCodecConfigurer;
-import org.springframework.http.codec.ServerCodecConfigurer;
-import org.springframework.web.reactive.config.EnableWebFlux;
-import org.springframework.web.reactive.config.WebFluxConfigurer;
+import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 
 @Configuration
-@EnableWebFlux
-public class WebClientConfiguration implements WebFluxConfigurer {
-    @Override
-    public void configureHttpMessageCodecs(ServerCodecConfigurer configurer) {
-        configurer.defaultCodecs().maxInMemorySize(16 * 1024 * 1024);
+public class WebClientConfiguration {
+
+    private final CodecCustomizer codecCustomizer;
+
+    public WebClientConfiguration(ObjectProvider<CodecCustomizer> codecCustomizerProvider) {
+        this.codecCustomizer = codecCustomizerProvider.getIfAvailable();
+    }
+
+    @Bean
+    public WebClient webClient() {
+        WebClient.Builder webClientBuilder = WebClient.builder();
+
+        ExchangeStrategies exchangeStrategies = ExchangeStrategies.builder()
+                .codecs(this::customizeCodecs)
+                .build();
+
+        webClientBuilder.exchangeStrategies(exchangeStrategies);
+
+        return webClientBuilder.build();
+    }
+
+    private void customizeCodecs(ClientCodecConfigurer configurer) {
+        if (codecCustomizer != null) {
+            this.codecCustomizer.customize(configurer);
+        }
+
+        configurer.defaultCodecs()
+                .maxInMemorySize(16777216); // Set the maximum buffer size to 524,288 bytes (512 KB)
     }
 }
+
