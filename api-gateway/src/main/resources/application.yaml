@@ -71,6 +71,9 @@ registry:
   hcxCode: ${REGISTRY_HCX_CODE:1-d2d56996-1b77-4abb-b9e9-0e6e7343c72e}
   hcxRoles: ${REGISTRY_HCX_ROLE:HIE/HIO.HCX}
 
+hcx:
+  baseURL: ${base_url:http://localhost:8095}
+
 hcx-api:
   basePath: ${HCX_API_BASEPATH:http://localhost:8080}
 
@@ -95,7 +98,7 @@ audit:
 
 spring:
   codec:
-    max-in-memory-size: -1
+    max-in-memory-size: 16777216
   main:
     web-application-type: reactive
     allow-bean-definition-overriding: true
