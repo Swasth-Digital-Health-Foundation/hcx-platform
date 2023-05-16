@@ -6,26 +6,16 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.ClientCodecConfigurer;
+import org.springframework.http.codec.ServerCodecConfigurer;
+import org.springframework.web.reactive.config.EnableWebFlux;
+import org.springframework.web.reactive.config.WebFluxConfigurer;
 import org.springframework.web.reactive.function.client.WebClient;
 
 @Configuration
-public class WebClientConfiguration {
-
-    @Value("${hcx.baseUrl}")
-    private String baseUrl;
-
-    @Bean
-    public WebClient webClient() {
-        return WebClient.builder()
-                .codecs(this::configureCodec)
-                .baseUrl(baseUrl)
-                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .build();
-    }
-
-    private void configureCodec(ClientCodecConfigurer configurer) {
-        configurer
-                .defaultCodecs()
-                .maxInMemorySize(16 * 1024 * 1024);
+@EnableWebFlux
+public class WebClientConfiguration implements WebFluxConfigurer {
+    @Override
+    public void configureHttpMessageCodecs(ServerCodecConfigurer configurer) {
+        configurer.defaultCodecs().maxInMemorySize(16 * 1024 * 1024);
     }
 }
