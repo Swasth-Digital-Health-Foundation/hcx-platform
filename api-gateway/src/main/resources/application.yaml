@@ -95,7 +95,7 @@ audit:
 
 spring:
   codec:
-    max-in-memory-size: 10485760
+    max-in-memory-size: -1
   main:
     web-application-type: reactive
     allow-bean-definition-overriding: true
