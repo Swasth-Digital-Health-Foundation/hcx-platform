@@ -1,4 +1,4 @@
-name: HCX Onboard - Build
+name: HCX-APIs - Build
 
 on:
   workflow_dispatch:
@@ -40,10 +40,13 @@ jobs:
 
       - name: Maven Build
         run: |
-          cd  hcx-core
-          mvn clean install 
-          cd ../hcx-onboard
+          cd hcx-core
           mvn clean install
+          cd ../hcx-apis
+          mvn clean install         
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
@@ -54,13 +57,13 @@ jobs:
       - name: Set the Image TAG
         run: echo "IMAGE_TAG=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
-      - name: Build and push Docker image for HCX-Onboard
+      - name: Build and push Docker image for HCX-APIs
         uses: docker/build-push-action@v3
         with:
-          context: ./hcx-onboard
+          context: ./hcx-apis
           push: true
-          tags: swasth2021/hcx-onboard:${{ env.IMAGE_TAG }}_${{ github.run_number }}
-          labels: hcx-onboard image
+          tags: swasth2021/hcx-api:${{ env.IMAGE_TAG }}_${{ github.run_number }}
+          labels: hcx-api image
 
       - name: Configure AWS CLI
         uses: aws-actions/configure-aws-credentials@v1
@@ -68,3 +71,4 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-south-1
+
