@@ -55,7 +55,7 @@ allowedRolesForForward: ${allowed_roles_for_forward:payor, agency.tpa}
 allowedParticipantStatus: ${allowed_participant_status:Active}
 
 jwt:
-  enabled: ${JWT_ENABLED:true}
+  enabled: ${JWT_ENABLED:false}
   issuer: ${JWT_ISSUER:}
   audience: ${JWT_AUDIENCE:}
   jwkUrl: ${JWT_JWK_URL:http://aef8101c432d04a659e6317b3e5031cf-1674586068.ap-south-1.elb.amazonaws.com:8080/auth/realms/swasth-health-claim-exchange/protocol/openid-connect/certs}
@@ -67,7 +67,7 @@ redis:
   expires: ${REDIS_EXPIRES:3600}
 
 registry:
-  basePath: ${REGISTRY_BASE_PATH:http://a0b2bab079318431d8ca99f1efb1c25c-874274596.ap-south-1.elb.amazonaws.com:8081}
+  basePath: ${REGISTRY_BASE_PATH:http://a65d6a493998b4d0e98bd690a123328b-1532825861.ap-south-1.elb.amazonaws.com:8081}
   hcxCode: ${REGISTRY_HCX_CODE:1-d2d56996-1b77-4abb-b9e9-0e6e7343c72e}
   hcxRoles: ${REGISTRY_HCX_ROLE:HIE/HIO.HCX}
 
@@ -75,7 +75,7 @@ hcx:
   baseUrl: ${base_url:http://localhost:8095}
 
 hcx-api:
-  basePath: ${HCX_API_BASEPATH:http://localhost:8080}
+  basePath: ${HCX_API_BASEPATH:http://a6e18e5b348514fd6ac14299464c6283-1893754775.ap-south-1.elb.amazonaws.com:8080}
 
 hcx-onboard:
   basePath: ${HCX_ONBOARD_BASEPATH:http://localhost:8082}
@@ -108,10 +108,6 @@ spring:
         - id: hcx-api-route
           uri: ${hcx-api.basePath}
           filters:
-            - name: RequestRateLimiter
-              args:
-                redis-rate-limiter.replenishRate: 10
-                redis-rate-limiter.burstCapacity: 20
             - RewritePath=/${version.external07}/coverageeligibility/(?<segment>/?.*), /${version.internal}/coverageeligibility/$\{segment}
             - RewritePath=/${version.external07}/preauth/(?<segment>/?.*), /${version.internal}/preauth/$\{segment}
             - RewritePath=/${version.external07}/claim/(?<segment>/?.*), /${version.internal}/claim/$\{segment}
