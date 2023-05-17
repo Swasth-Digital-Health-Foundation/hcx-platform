@@ -75,9 +75,7 @@ public class AuditValidationFilter extends AbstractGatewayFilterFactory<AuditVal
             return modifiedReq;
         };
     }
-
-
-
+    
     public static class Config {
     }
 
