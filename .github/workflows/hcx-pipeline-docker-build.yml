@@ -1,4 +1,4 @@
-name: HCX Platform - Build
+name: HCX Pipeline Jobs - Build
 
 on:
   workflow_dispatch
@@ -29,13 +29,8 @@ jobs:
 
       - name: Maven Build
         run: |
-          mvn clean install
-          cd hcx-scheduler-jobs
-          mvn clean install
-          cd ../hcx-pipeline-jobs
+          cd hcx-pipeline-jobs
           mvn clean install -DskipTests
-          cd ../hcx-onboard
-          mvn clean install
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -48,38 +43,6 @@ jobs:
 
       - name: Set the Image TAG
         run: echo "IMAGE_TAG=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
-
-      - name: Build and push Docker image for API-Gateway
-        uses: docker/build-push-action@v3
-        with:
-          context: ./api-gateway
-          push: true
-          tags: swasth2021/api-gateway:${{ env.IMAGE_TAG }}_${{ github.run_number }}
-          labels: api-gateway image
-
-      - name: Build and push Docker image for HCX-APIs
-        uses: docker/build-push-action@v3
-        with:
-          context: ./hcx-apis
-          push: true
-          tags: swasth2021/hcx-api:${{ env.IMAGE_TAG }}_${{ github.run_number }}
-          labels: hcx-api image
-
-      - name: Build and push Docker image for HCX-Onboard
-        uses: docker/build-push-action@v3
-        with:
-          context: ./hcx-onboard
-          push: true
-          tags: swasth2021/hcx-onboard:${{ env.IMAGE_TAG }}_${{ github.run_number }}
-          labels: hcx-onboard image
-
-      - name: Build and push Docker image for HCX Scheduler Jobs
-        uses: docker/build-push-action@v3
-        with:
-          context: ./hcx-scheduler-jobs
-          push: true
-          tags: swasth2021/hcx-scheduler-jobs:${{ env.IMAGE_TAG }}_${{ github.run_number }}
-          labels: hcx-scheduler-jobs image
 
       - name: Build and push Docker image for HCX Pipeline Jobs
         uses: docker/build-push-action@v3
@@ -95,8 +58,3 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-south-1
-
-      - name: Build and push Docker image for HCX Scheduler Job to S3 bucket
-        run: |
-          echo ${{ env.IMAGE_TAG }}_${{ github.run_number }} >> /tmp/tag.txt
-          aws s3 cp /tmp/tag.txt s3://build-tags/tag.txt
