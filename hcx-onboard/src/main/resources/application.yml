@@ -48,9 +48,9 @@ hcx-api:
 
 mock-service:
     payor:
-      endpointURL: ${mock_service_endpoint_url_provider:http://test-mock-payor-url}
+      endpointURL: ${mock_service_endpoint_url_payor:http://test-mock-payor-url}
     provider:
-      endpointURL: ${mock_service_endpoint_url_payor:http://test-mock-provider-url}
+      endpointURL: ${mock_service_endpoint_url_provider:http://test-mock-provider-url}
     allowedEnv: ${mock_service_allowed_env:staging,dev}
 
 #postgres config
