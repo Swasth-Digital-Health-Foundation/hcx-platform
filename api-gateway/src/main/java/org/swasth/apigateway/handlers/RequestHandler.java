@@ -1,10 +1,10 @@
 package org.swasth.apigateway.handlers;
 
-import kong.unirest.ContentType;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
-import org.springframework.cloud.gateway.filter.factory.rewrite.ModifyRequestBodyGatewayFilterFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
+import org.swasth.apigateway.decorator.RequestDecorator;
+import org.swasth.common.utils.JSONUtils;
 import reactor.core.publisher.Mono;
 
 import java.util.Map;
@@ -12,11 +12,11 @@ import java.util.Map;
 @Component
 public class RequestHandler {
 
-    public Mono<Void> getUpdatedBody(ServerWebExchange exchange, GatewayFilterChain chain, Map<String, Object> updatedBody) {
-        ModifyRequestBodyGatewayFilterFactory.Config modifyRequestConfig = new ModifyRequestBodyGatewayFilterFactory.Config()
-                .setContentType(ContentType.APPLICATION_JSON.getMimeType())
-                .setRewriteFunction(String.class, Map.class, (exchange1, cachedBody) -> Mono.just(updatedBody));
-        return new ModifyRequestBodyGatewayFilterFactory().apply(modifyRequestConfig).filter(exchange, chain);
+    public Mono<Void> getUpdatedBody(ServerWebExchange exchange, GatewayFilterChain chain, Map<String,Object> request) throws Exception {
+        byte[] modifiedBody = JSONUtils.serialize(request).getBytes();
+        RequestDecorator requestDecorator = new RequestDecorator(exchange.getRequest(), modifiedBody);
+        exchange = exchange.mutate().request(requestDecorator.mutate().header("Content-Length", String.valueOf(modifiedBody.length)).build()).build();
+        return chain.filter(exchange);
     }
 
 }
