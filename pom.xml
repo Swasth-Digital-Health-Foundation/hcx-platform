@@ -14,10 +14,28 @@
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     </properties>
 
-    <modules>
-        <module>hcx-apis</module>
-        <module>hcx-core</module>
-        <module>api-gateway</module>
-    </modules>
+    <profiles>
+        <profile>
+            <id>All modules</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>hcx-apis</module>
+                <module>hcx-core</module>
+                <module>api-gateway</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>hcx-apis</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <modules>
+                <module>hcx-core</module>
+                <module>hcx-apis</module>
+            </modules>
+        </profile>
+    </profiles>
 
 </project>
