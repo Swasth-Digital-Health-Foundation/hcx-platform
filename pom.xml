@@ -13,7 +13,6 @@
         <sonar.organization>swasth-digital-health-foundation</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     </properties>
-
     <profiles>
         <profile>
             <id>All modules</id>
@@ -36,6 +35,15 @@
                 <module>hcx-apis</module>
             </modules>
         </profile>
+        <profile>
+            <id>api-gateway</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <modules>
+                <module>hcx-core</module>
+                <module>api-gateway</module>
+            </modules>
+        </profile>
     </profiles>
-
 </project>
