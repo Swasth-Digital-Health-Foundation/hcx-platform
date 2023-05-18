@@ -550,6 +550,7 @@ public class ParticipantService extends BaseController {
         payload.put(EXP, new Date(date + expiryTime).getTime());
         return jwtUtils.generateJWS(headers,payload,privatekey);
     }
+
     private String linkTemplate(String name ,String code,URL signedURL,int day,ArrayList<String> role) throws Exception {
         Map<String, Object> model = new HashMap<>();
         model.put("USER_NAME", name);
