@@ -35,15 +35,11 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-maven-
+          key: ${{ runner.os }}-maven-hcx-onboard
+          restore-keys: ${{ runner.os }}-maven-hcx-onboard
 
       - name: Maven Build
-        run: |
-          cd  hcx-core
-          mvn clean install 
-          cd ../hcx-onboard
-          mvn clean install
+        run: mvn clean install -DskipTests -P hcx-onboard
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v2

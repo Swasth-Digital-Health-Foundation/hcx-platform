@@ -45,5 +45,15 @@
                 <module>api-gateway</module>
             </modules>
         </profile>
+        <profile>
+            <id>hcx-onboard</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <modules>
+                <module>hcx-core</module>
+                <module>hcx-onboard</module>
+            </modules>
+        </profile>
     </profiles>
 </project>
