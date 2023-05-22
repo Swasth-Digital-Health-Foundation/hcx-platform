@@ -13,10 +13,12 @@ import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
 import org.swasth.common.utils.Constants;
 import org.swasth.hcx.controllers.BaseController;
+import org.swasth.hcx.helpers.ParticipantHelper;
 import org.swasth.hcx.models.Participant;
 import org.swasth.hcx.service.ParticipantService;
 
 import java.util.Map;
+import java.util.Objects;
 
 import static org.swasth.common.response.ResponseMessage.PARTICIPANT_CODE_MSG;
 import static org.swasth.common.utils.Constants.*;
@@ -50,6 +52,9 @@ public class ParticipantController extends BaseController {
     @Autowired
     private ParticipantService service;
 
+    @Autowired
+    private ParticipantHelper helper;
+
     @PostMapping(PARTICIPANT_CREATE)
     public ResponseEntity<Object> create(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
         try {
@@ -60,7 +65,6 @@ public class ParticipantController extends BaseController {
             service.getCertificatesUrl(requestBody, code);
             service.validateCertificates(requestBody);
             return getSuccessResponse(service.invite(requestBody, registryUrl, header, code));
-
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }
@@ -75,6 +79,7 @@ public class ParticipantController extends BaseController {
             service.getCertificatesUrl(requestBody, code);
             service.validate(requestBody,false);
             Map<String, Object> details = service.getParticipant(code,registryUrl);
+            helper.authorizeEntity(Objects.requireNonNull(header.get(AUTHORIZATION)).get(0), participant.getParticipantCode(), (String) details.get(PRIMARY_EMAIL));
             return getSuccessResponse(service.update(requestBody, details, registryUrl, header, code));
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);

@@ -320,4 +320,8 @@ public class Constants {
    public static final String OTP_REGENERATE_COUNT = "otp_regenerate_count";
    public static final String LAST_REGENERATE_DATE = "last_regenerate_date";
    public static final String RESPONSE_OBJ = "response_obj";
+
+   public static final List<String> PARTICIPANT_ROLES = Arrays.asList("provider", "payor", "agency.tpa", "agency.regulator", "research", "member.isnp", "agency.sponsor", "HIE/HIO.HCX");
+
+    public static final String CONFIG_MANAGER = "config-manager";
 }
