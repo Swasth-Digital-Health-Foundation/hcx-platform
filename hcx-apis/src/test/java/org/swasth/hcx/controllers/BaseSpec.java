@@ -26,6 +26,7 @@ import org.swasth.common.utils.JWTUtils;
 import org.swasth.hcx.config.GenericConfiguration;
 import org.swasth.hcx.controllers.v1.*;
 import org.swasth.hcx.handlers.EventHandler;
+import org.swasth.hcx.helpers.ParticipantHelper;
 import org.swasth.hcx.managers.HealthCheckManager;
 import org.swasth.hcx.service.AuditService;
 import org.swasth.hcx.service.NotificationService;
@@ -94,6 +95,9 @@ public class BaseSpec {
 
     @Autowired
     protected ParticipantService participantService;
+
+    @Autowired
+    protected ParticipantHelper participantHelper;
 
     @BeforeEach
     public void setup() {
