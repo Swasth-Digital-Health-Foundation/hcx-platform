@@ -258,6 +258,26 @@ class ParticipantControllerTests extends BaseSpec{
     }
 
     @Test
+    void participant_update_user_token_scenario() throws Exception {
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("[{\"primary_email\":\"provider01@gmail.com\", \"osid\":\"1-68c5deca-8299-4feb-b441-923bb649a9a3\"}]")
+                .addHeader("Content-Type", "application/json"));
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{ \"message\": \"success\" }")
+                .addHeader("Content-Type", "application/json"));
+        Mockito.when(redisCache.isExists(any())).thenReturn(true);
+        doNothing().when(cloudStorageClient).putObject(anyString(), anyString(), anyString());
+        doNothing().when(cloudStorageClient).putObject(anyString(), anyString());
+        doReturn(getUrl()).when(cloudStorageClient).getUrl(anyString(), anyString());
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_UPDATE).content(getParticipantUpdateBody()).header(HttpHeaders.AUTHORIZATION, getUserToken()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        assertEquals(200, status);
+    }
+
+    @Test
     void participant_update_internal_server_scenario() throws Exception {
         registryServer.enqueue(new MockResponse()
                 .setResponseCode(500)
