@@ -12,7 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.swasth.ICloudService;
-import org.swasth.common.dto.ParticipantResponse;
+import org.swasth.common.dto.RegistryResponse;
 import org.swasth.common.exception.*;
 import org.swasth.common.helpers.EventGenerator;
 import org.swasth.common.utils.HttpUtils;
@@ -42,6 +42,8 @@ public class ParticipantService {
     @Value("${postgres.onboardingTable}")
     private String onboardingTable;
 
+    @Value("${registry.userPath}")
+    private String registryUserPath;
     @Value("${registry.apiPath}")
     private String registryApiPath;
 
@@ -60,46 +62,65 @@ public class ParticipantService {
     @Autowired
     private EventHandler eventHandler;
 
-    public ParticipantResponse invite(Map<String, Object> requestBody, String registryUrl, HttpHeaders header, String code) throws Exception {
-        String url = registryUrl + registryApiPath + INVITE;
+    public RegistryResponse invite(Map<String, Object> requestBody, String registryUrl, HttpHeaders header, String code, String registryPath, boolean isParticipant) throws Exception {
+        String url = registryUrl + registryPath + INVITE;
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put(AUTHORIZATION, Objects.requireNonNull(header.get(AUTHORIZATION)).get(0));
         HttpResponse<String> response = HttpUtils.post(url, JSONUtils.serialize(requestBody), headersMap);
         if (response.getStatus() == 200) {
-            Map<String, Object> cdata = new HashMap<>();
-            cdata.put(ACTION, PARTICIPANT_CREATE);
-            cdata.putAll(requestBody);
-            eventHandler.createAudit(eventGenerator.createAuditLog(code, PARTICIPANT, cdata,
-                    getEData(CREATED, "", Collections.emptyList())));
-            logger.info("Created participant :: participant code: {}", requestBody.get(PARTICIPANT_CODE));
+            if (isParticipant) {
+                pcptResponse(requestBody, code);
+            } else {
+                userResponse(code,requestBody);
+            }
         }
-        return responseHandler(response, code);
+        return responseHandler(response, code, isParticipant);
     }
 
-    public ParticipantResponse update(Map<String, Object> requestBody, Map<String, Object> participant, String registryUrl, HttpHeaders header, String code) throws Exception {
+    public void pcptResponse(Map<String, Object> requestBody, String code) throws Exception {
+        Map<String, Object> cdata = new HashMap<>();
+        cdata.put(ACTION, PARTICIPANT_CREATE);
+        cdata.putAll(requestBody);
+        eventHandler.createAudit(eventGenerator.createAuditLog(code, PARTICIPANT, cdata,
+                getEData(CREATED, "", Collections.emptyList())));
+        logger.info("Created participant :: participant code: {}", requestBody.get(PARTICIPANT_CODE));
+    }
+
+    public void userResponse(String userId,Map<String,Object> requestBody){
+        Map<String,Object> cdata = new HashMap<>();
+        cdata.put(ACTION,USER_CREATE);
+        cdata.putAll(requestBody);
+        logger.info("Created user :: user id: {}",userId);
+    }
+
+    public RegistryResponse update(Map<String, Object> requestBody, Map<String, Object> participant, String registryUrl, HttpHeaders header, String code, String registryApiPath, boolean isParticipant) throws Exception {
         String url = registryUrl + registryApiPath + participant.get(OSID);
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put(AUTHORIZATION, Objects.requireNonNull(header.get(AUTHORIZATION)).get(0));
         HttpResponse<String> response = HttpUtils.put(url, JSONUtils.serialize(requestBody), headersMap);
         if (response.getStatus() == 200) {
-            deleteCache(code);
-            logger.info("Updated participant :: participant code: {}", requestBody.get(PARTICIPANT_CODE));
+            if (isParticipant) {
+                deleteCache(code);
+                logger.info("Updated participant :: participant code: {}", requestBody.get(PARTICIPANT_CODE));
+            } else {
+                logger.info("Updated user :: user id : {}", requestBody.get(USER_ID));
+            }
         }
-        return responseHandler(response, code);
+        return responseHandler(response, code, isParticipant);
     }
 
-    public ParticipantResponse search(Map<String, Object> requestBody, String registryUrl) throws Exception {
+    public RegistryResponse search(Map<String, Object> requestBody, String registryUrl, String registryApiPath, boolean isParticipant) throws Exception {
         String url = registryUrl + registryApiPath + SEARCH;
         HttpResponse<String> response = HttpUtils.post(url, JSONUtils.serialize(requestBody), new HashMap<>());
         if(response.getStatus() == 200){
             logger.info("Search is completed :: status code: {}", response.getStatus());
         }
-        return responseHandler(response, null);
+        return responseHandler(response, null,isParticipant);
     }
 
-    public Map<String,Object> read(String code, String registryUrl) throws Exception {
-        ResponseEntity<Object> searchResponse = getSuccessResponse(search(JSONUtils.deserialize(getRequestBody(code), Map.class), registryUrl));
-        ParticipantResponse searchResp = (ParticipantResponse) searchResponse.getBody();
+    public Map<String,Object> read(String code, String registryUrl,boolean isParticipant) throws Exception {
+        ResponseEntity<Object> searchResponse = getSuccessResponse(search(JSONUtils.deserialize(getRequestBody(code), Map.class), registryUrl,registryApiPath,isParticipant));
+        RegistryResponse searchResp = (RegistryResponse) searchResponse.getBody();
         logger.info("Read participant is completed");
         if(searchResp != null && !searchResp.getParticipants().isEmpty())
             return (Map<String,Object>) searchResp.getParticipants().get(0);
@@ -107,21 +128,36 @@ public class ParticipantService {
             throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_CODE, "Please provide valid participant code");
 
     }
-    public ParticipantResponse delete(Map<String, Object> participant, String registryUrl, HttpHeaders header, String code) throws Exception {
+    public RegistryResponse delete(Map<String, Object> participant, String registryUrl, HttpHeaders header, String code, String registryApiPath, boolean isParticipant) throws Exception {
         String url = registryUrl + registryApiPath + participant.get(OSID);
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put(AUTHORIZATION, Objects.requireNonNull(header.get(AUTHORIZATION)).get(0));
         HttpResponse<String> response = HttpUtils.delete(url, headersMap);
         if (response.getStatus() == 200) {
-            deleteCache(code);
-            Map<String, Object> cdata = new HashMap<>();
-            cdata.put(ACTION, PARTICIPANT_DELETE);
-            cdata.putAll(participant);
-            eventHandler.createAudit(eventGenerator.createAuditLog(code, PARTICIPANT, cdata,
-                    getEData(INACTIVE, (String) participant.get(AUDIT_STATUS), Collections.emptyList())));
-            logger.info("Participant deleted :: participant code: {}", code);
+            if (isParticipant) {
+                pcptDeleteResponse(code, participant);
+            } else {
+                userDeleteResponse(code);
+                RegistryResponse registryResponse = new RegistryResponse(code,isParticipant);
+                registryResponse.setStatus(INACTIVE);
+                return registryResponse;
+            }
         }
-        return responseHandler(response, code);
+        return responseHandler(response,code,isParticipant);
+    }
+
+    public void pcptDeleteResponse(String code,Map<String,Object> participant) throws Exception {
+        deleteCache(code);
+        Map<String, Object> cdata = new HashMap<>();
+        cdata.put(ACTION, PARTICIPANT_DELETE);
+        cdata.putAll(participant);
+        eventHandler.createAudit(eventGenerator.createAuditLog(code, PARTICIPANT, cdata,
+                getEData(INACTIVE, (String) participant.get(AUDIT_STATUS), Collections.emptyList())));
+        logger.info("Participant deleted :: participant code: {}", code);
+    }
+
+    public void userDeleteResponse(String userId){
+        logger.info("User deleted :: userId: {}", userId);
     }
 
     public void getCertificates(Map<String, Object> requestBody, String participantCode, String key) {
@@ -141,16 +177,16 @@ public class ParticipantService {
         return (String) ((Map<String, Object>) result.get("params")).get("errmsg");
     }
 
-    public ParticipantResponse responseHandler(HttpResponse<String> response, String code) throws Exception {
+    public RegistryResponse responseHandler(HttpResponse<String> response, String code, boolean isParticipant) throws Exception {
         switch (response.getStatus()) {
             case 200:
                 if (response.getBody().isEmpty()) {
-                    return new ParticipantResponse("");
+                    return new RegistryResponse("",isParticipant);
                 } else {
                     if (response.getBody().startsWith("["))
-                        return new ParticipantResponse(JSONUtils.deserialize(response.getBody(), ArrayList.class));
+                        return new RegistryResponse(JSONUtils.deserialize(response.getBody(), ArrayList.class),isParticipant);
                     else
-                        return new ParticipantResponse(code);
+                        return new RegistryResponse(code,isParticipant);
                 }
             case 400:
                 throw new ClientException(getErrorMessage(response));
@@ -184,11 +220,11 @@ public class ParticipantService {
     }
 
     public Map<String, Object> getParticipant(String code, String registryUrl) throws Exception {
-        ResponseEntity<Object> searchResponse = getSuccessResponse(search(JSONUtils.deserialize(getRequestBody(code), Map.class), registryUrl));
-        ParticipantResponse participantResponse = (ParticipantResponse) Objects.requireNonNull(searchResponse.getBody());
-        if (participantResponse.getParticipants().isEmpty())
+        ResponseEntity<Object> searchResponse = getSuccessResponse(search(JSONUtils.deserialize(getRequestBody(code), Map.class), registryUrl,registryApiPath,true));
+        RegistryResponse registryResponse = (RegistryResponse) Objects.requireNonNull(searchResponse.getBody());
+        if (registryResponse.getParticipants().isEmpty())
             throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_CODE, INVALID_PARTICIPANT_CODE);
-        return (Map<String, Object>) participantResponse.getParticipants().get(0);
+        return (Map<String, Object>) registryResponse.getParticipants().get(0);
     }
 
     public void validate(Map<String, Object> requestBody, boolean isCreate) throws ClientException, CertificateException, IOException {
@@ -225,5 +261,17 @@ public class ParticipantService {
 
     public String getRequestBody(String code) {
         return "{ \"filters\": { \"participant_code\": { \"eq\": \" " + code + "\" } } }";
+    }
+
+    public Map<String, Object> getUser(String code, String registryUrl) throws Exception {
+        ResponseEntity<Object> searchResponse = getSuccessResponse(search(JSONUtils.deserialize(getUserRequest(code), Map.class), registryUrl,registryUserPath,false));
+        RegistryResponse registryResponse = (RegistryResponse) Objects.requireNonNull(searchResponse.getBody());
+        if (registryResponse.getUsers().isEmpty())
+            throw new ClientException(ErrorCodes.ERR_INVALID_USER_ID, INVALID_USER_ID);
+        return (Map<String, Object>) registryResponse.getUsers().get(0);
+    }
+    public String getUserRequest(String userId){
+        return "{ \"filters\": { \"user_id\": { \"eq\": \" " + userId + "\" } } }";
+
     }
 }

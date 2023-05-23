@@ -21,6 +21,7 @@ public class ResponseMessage {
     public static final String INVALID_CORRELATION_ID = "Invalid Correlation Id";
     public static final String INVALID_WORKFLOW_ID = "The request contains invalid workflow id";
     public static final String INVALID_PARTICIPANT_CODE = "Please provide valid participant code";
+    public static final String INVALID_USER_ID = "Please provide valid user id";
     public static final String PARTICIPANT_CODE_MSG = "Please provide valid participant code";
     public static final String PARTICIPANT_ERROR_MSG = "Error in creating participant :: Exception: {0}";
     public static final String INVALID_REGISTRY_RESPONSE = "Error in creating participant, invalid response from registry";

@@ -63,6 +63,12 @@ public class Constants {
     public static final String PARTICIPANT_SEARCH = "/participant/search";
     public static final String PARTICIPANT_READ = "/participant/read/{participantCode}";
     public static final String PARTICIPANT_UPDATE = "/participant/update";
+    public static final String USER_CREATE = "/user/create";
+    public static final String USER_READ  = "/user/read/{userId}";
+    public static final String USER_SEARCH = "/user/search";
+    public static final String USER_UPDATE = "/user/update";
+    public static final String USER_DELETE = "/user/delete";
+    public static final String USER_ID = "user_id";
     public static final String SPONSORS = "sponsors";
     public static final String COMMUNICATION = "communication";
     public static final String MOCK_PARTICIPANT = "mockparticipant";

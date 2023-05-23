@@ -47,6 +47,8 @@ public class ParticipantController extends BaseController {
 
     @Value("${postgres.onboardingOtpTable}")
     private String onboardOtpTable;
+    @Value("${registry.apiPath}")
+    private String registryApiPath;
     @Autowired
     private ParticipantService service;
 
@@ -59,7 +61,7 @@ public class ParticipantController extends BaseController {
             String code = participant.generateCode(participant.getprimaryEmail(), fieldSeparator, hcxInstanceName);
             service.getCertificatesUrl(requestBody, code);
             service.validateCertificates(requestBody);
-            return getSuccessResponse(service.invite(requestBody, registryUrl, header, code));
+            return getSuccessResponse(service.invite(requestBody, registryUrl, header, code,registryApiPath,true));
 
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
@@ -75,7 +77,7 @@ public class ParticipantController extends BaseController {
             service.getCertificatesUrl(requestBody, code);
             service.validate(requestBody,false);
             Map<String, Object> details = service.getParticipant(code,registryUrl);
-            return getSuccessResponse(service.update(requestBody, details, registryUrl, header, code));
+            return getSuccessResponse(service.update(requestBody, details, registryUrl, header, code,registryApiPath,true));
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }
@@ -85,7 +87,7 @@ public class ParticipantController extends BaseController {
     public ResponseEntity<Object> search(@RequestBody Map<String, Object> requestBody) {
         try {
             logger.info("Searching participant: {}", requestBody);
-            return getSuccessResponse(service.search(requestBody,registryUrl));
+            return getSuccessResponse(service.search(requestBody,registryUrl,registryApiPath,true));
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }
@@ -95,7 +97,7 @@ public class ParticipantController extends BaseController {
     public ResponseEntity<Object> read(@PathVariable("participantCode") String code) {
         try {
             logger.info("Reading participant :: participant code: {}", code);
-            return getSuccessResponse(service.read(code,registryUrl));
+            return getSuccessResponse(service.read(code,registryUrl,true));
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }
@@ -109,7 +111,7 @@ public class ParticipantController extends BaseController {
                 throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_CODE, PARTICIPANT_CODE_MSG);
             Participant participant = new Participant(requestBody);
             Map<String, Object> details = service.getParticipant(participant.getParticipantCode(),registryUrl);
-            return getSuccessResponse(service.delete(details, registryUrl, header, participant.getParticipantCode()));
+            return getSuccessResponse(service.delete(details, registryUrl, header, participant.getParticipantCode(),registryApiPath,true));
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }
