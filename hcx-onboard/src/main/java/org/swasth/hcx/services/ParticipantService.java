@@ -55,33 +55,33 @@ public class ParticipantService extends BaseController {
     @Value("${email.linkSub}")
     private String linkSub;
 
-    @Value("${email.verificationSub}")
+    @Value("${email.verification-sub}")
     private String verificationSub;
 
-    @Value("${phone.sendLinkMsg}")
+    @Value("${phone.send-link-msg}")
     private String phoneSub;
 
-    @Value("${phone.verificationMsg}")
+    @Value("${phone.verification-msg}")
     private  String phoneStatus;
-    @Value("${hcxURL}")
+    @Value("${hcx-url}")
     private String hcxURL;
 
-    @Value("${apiVersion}")
+    @Value("${api-version}")
     private String apiVersion;
-    @Value("${email.successIdentitySub}")
+    @Value("${email.success-identity-sub}")
     private String successIdentitySub;
 
-    @Value("${email.onboardingSuccessSub}")
+    @Value("${email.onboarding-success-sub}")
     private String onboardingSuccessSub;
 
     @Value("${onboard.verification.email}")
     private Boolean emailEnabled;
     @Value("${onboard.verification.phone}")
     private Boolean phoneEnabled;
-    @Value("${onboard.successURL}")
+    @Value("${onboard.success-url}")
     private String onboardingSuccessURL;
 
-    @Value("${hcx-api.basePath}")
+    @Value("${hcx-api.base-path}")
     private String hcxAPIBasePath;
 
     @Value("${postgres.table.onboard-verification}")
@@ -92,30 +92,30 @@ public class ParticipantService extends BaseController {
 
     @Value("${postgres.mock-service.table.mock-participant}")
     private String mockParticipantsTable;
-    @Value("${verificationLink.expiry}")
+    @Value("${verification-link.expiry}")
     private int linkExpiry;
 
-    @Value("${verificationLink.maxAttempt}")
+    @Value("${verification-link.max-attempt}")
     private int linkMaxAttempt;
 
-    @Value("${verificationLink.maxRegenerate}")
+    @Value("${verification-link.max-regenerate}")
     private int linkMaxRegenerate;
 
     @Value("${env}")
     private String env;
-    @Value("${mock-service.allowedEnv}")
+    @Value("${mock-service.allowed-env}")
     private ArrayList<String> mockParticipantAllowedEnv;
-    @Value("${registry.hcxCode}")
+    @Value("${registry.hcx-code}")
     private String hcxCode;
-    @Value("${jwt-token.privateKey}")
+    @Value("${jwt-token.private-key}")
     private String privatekey;
-    @Value("${jwt-token.expiryTime}")
+    @Value("${jwt-token.expiry-time}")
     private Long expiryTime;
 
-    @Value("${mock-service.provider.endpointURL}")
+    @Value("${mock-service.provider.endpoint-url}")
     private String mockProviderEndpointURL;
 
-    @Value("${mock-service.payor.endpointURL}")
+    @Value("${mock-service.payor.endpoint-url}")
     private String mockPayorEndpointURL;
 
     @Value("${keycloak.base-url}")
