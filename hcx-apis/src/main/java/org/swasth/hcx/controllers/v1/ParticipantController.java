@@ -27,15 +27,10 @@ public class ParticipantController extends BaseController {
 
     private static final Logger logger = LoggerFactory.getLogger(ParticipantController.class);
 
-    @Value("${registry.basePath}")
-    private String registryUrl;
-
     @Value("${redis.expires}")
     private int redisExpires;
-
     @Value("${participantCode.fieldSeparator}")
     private String fieldSeparator;
-
     @Value("${hcx.instanceName}")
     private String hcxInstanceName;
 
@@ -47,8 +42,7 @@ public class ParticipantController extends BaseController {
 
     @Value("${postgres.onboardingOtpTable}")
     private String onboardOtpTable;
-    @Value("${registry.apiPath}")
-    private String registryApiPath;
+
     @Autowired
     private ParticipantService service;
 
@@ -57,12 +51,11 @@ public class ParticipantController extends BaseController {
         try {
             logger.info("Creating participant: {}", requestBody);
             Participant participant = new Participant(requestBody);
-            service.validate(requestBody,true);
+            service.validate(requestBody, true);
             String code = participant.generateCode(participant.getprimaryEmail(), fieldSeparator, hcxInstanceName);
             service.getCertificatesUrl(requestBody, code);
             service.validateCertificates(requestBody);
-            return getSuccessResponse(service.invite(requestBody, registryUrl, header, code,registryApiPath,true));
-
+            return getSuccessResponse(service.invite(requestBody, header, code, ORGANISATION));
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }
@@ -75,9 +68,9 @@ public class ParticipantController extends BaseController {
             Participant participant = new Participant(requestBody);
             String code = participant.getParticipantCode();
             service.getCertificatesUrl(requestBody, code);
-            service.validate(requestBody,false);
-            Map<String, Object> details = service.getParticipant(code,registryUrl);
-            return getSuccessResponse(service.update(requestBody, details, registryUrl, header, code,registryApiPath,true));
+            service.validate(requestBody, false);
+            Map<String, Object> details = service.getParticipant(code, ORGANISATION);
+            return getSuccessResponse(service.update(requestBody, details, header, code, ORGANISATION));
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }
@@ -87,7 +80,7 @@ public class ParticipantController extends BaseController {
     public ResponseEntity<Object> search(@RequestBody Map<String, Object> requestBody) {
         try {
             logger.info("Searching participant: {}", requestBody);
-            return getSuccessResponse(service.search(requestBody,registryUrl,registryApiPath,true));
+            return getSuccessResponse(service.search(requestBody, ORGANISATION));
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }
@@ -97,7 +90,7 @@ public class ParticipantController extends BaseController {
     public ResponseEntity<Object> read(@PathVariable("participantCode") String code) {
         try {
             logger.info("Reading participant :: participant code: {}", code);
-            return getSuccessResponse(service.read(code,registryUrl,true));
+            return getSuccessResponse(service.read(code, ORGANISATION));
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }
@@ -110,12 +103,13 @@ public class ParticipantController extends BaseController {
             if (!requestBody.containsKey(PARTICIPANT_CODE))
                 throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_CODE, PARTICIPANT_CODE_MSG);
             Participant participant = new Participant(requestBody);
-            Map<String, Object> details = service.getParticipant(participant.getParticipantCode(),registryUrl);
-            return getSuccessResponse(service.delete(details, registryUrl, header, participant.getParticipantCode(),registryApiPath,true));
+            Map<String, Object> details = service.getParticipant(participant.getParticipantCode(), ORGANISATION);
+            return getSuccessResponse(service.delete(details, header, participant.getParticipantCode(), ORGANISATION));
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }
     }
+
     public ResponseEntity<Object> getSuccessResponse(Object response) {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

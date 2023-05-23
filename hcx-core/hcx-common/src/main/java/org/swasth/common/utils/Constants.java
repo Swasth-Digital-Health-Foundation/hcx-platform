@@ -82,6 +82,8 @@ public class Constants {
     public static final String PARTICIPANT_VERIFY_IDENTITY = "/participant/verify/identity";
     public static final String APPLICANT_VERIFY = "/applicant/verify";
     public static final String PARTICIPANT = "participant";
+    public static final String ORGANISATION = "Organisation";
+    public static final String USER = "User";
     public static final String VERIFIER_CODE = "verifier_code";
     public static final String RESULT = "result";
     public static final String ONBOARD_THROUGH_JWT = "onboard-through-jwt";

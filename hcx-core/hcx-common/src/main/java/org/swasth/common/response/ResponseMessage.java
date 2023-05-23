@@ -131,5 +131,5 @@ public class ResponseMessage {
     public static final String LINK_RETRY_LIMIT = "generate a new link and try again as the retry limit for the current link has been reached.";
     public static final String LINK_EXPIRED= "link has been expired, please re-generate and try again!";
     public static final String MAXIMUM_LINK_REGENERATE = "Maximum limit for link regeneration has been reached. Please try again tomorrow!";
-
+    public static final String INVALID_USER_DETAILS = "Email or mobile are mandatory";
 }

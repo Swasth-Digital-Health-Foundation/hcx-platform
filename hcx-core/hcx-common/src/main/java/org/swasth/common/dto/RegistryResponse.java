@@ -2,8 +2,10 @@ package org.swasth.common.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
+import static org.swasth.common.utils.Constants.ORGANISATION;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class RegistryResponse {
@@ -27,8 +29,8 @@ public class RegistryResponse {
         this.error = error;
     }
 
-    public RegistryResponse(String value, boolean isParticipant) {
-        if (isParticipant) {
+    public RegistryResponse(String value, String entity) {
+        if (StringUtils.equals(entity,ORGANISATION)) {
             this.participantCode = value;
         } else {
             this.timestamp = System.currentTimeMillis();
@@ -36,9 +38,9 @@ public class RegistryResponse {
         }
     }
 
-    public <T> RegistryResponse(ArrayList<T> response, boolean isParticipant) {
+    public <T> RegistryResponse(ArrayList<T> response, String entity) {
         this.timestamp = System.currentTimeMillis();
-        if (isParticipant) {
+        if (StringUtils.equals(entity,ORGANISATION)) {
             this.participants = (ArrayList<Object>) response;
         } else {
             this.users = (ArrayList<Object>) response;

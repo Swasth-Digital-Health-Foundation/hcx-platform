@@ -508,7 +508,7 @@ public class ParticipantService extends BaseController {
             addCommunicationStatus(participantList);
         if(fields != null && fields.toLowerCase().contains(MOCK_PARTICIPANT))
             getMockParticipant(participantList,headers);
-        return new ResponseEntity<>(new RegistryResponse(participantList,true), HttpStatus.OK);
+        return new ResponseEntity<>(new RegistryResponse(participantList,ORGANISATION), HttpStatus.OK);
     }
 
     private Map<String,String> headers(String verifierCode) throws NoSuchAlgorithmException, InvalidKeySpecException {
