@@ -79,7 +79,7 @@ public class ParticipantController extends BaseController {
             service.getCertificatesUrl(requestBody, code);
             service.validate(requestBody,false);
             Map<String, Object> details = service.getParticipant(code,registryUrl);
-            helper.authorizeEntity(Objects.requireNonNull(header.get(AUTHORIZATION)).get(0), participant.getParticipantCode(), (String) details.get(PRIMARY_EMAIL));
+            helper.authorizeEntity(Objects.requireNonNull(header.get(AUTHORIZATION)).get(0).split(" ")[1], participant.getParticipantCode(), (String) details.get(PRIMARY_EMAIL));
             return getSuccessResponse(service.update(requestBody, details, registryUrl, header, code));
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);

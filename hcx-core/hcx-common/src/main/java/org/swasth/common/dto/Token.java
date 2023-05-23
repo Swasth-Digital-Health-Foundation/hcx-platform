@@ -29,6 +29,6 @@ public class Token {
     }
 
     public String getUsername() {
-        return (String) ((Map<String,Object>) payload.get("realm_access")).get("preferred_username");
+        return (String) payload.get("preferred_username");
     }
 }
