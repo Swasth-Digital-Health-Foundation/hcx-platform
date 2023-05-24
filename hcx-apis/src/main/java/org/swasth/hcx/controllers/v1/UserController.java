@@ -28,8 +28,8 @@ public class UserController extends BaseController {
 
     @PostMapping(USER_CREATE)
     public ResponseEntity<Object> create(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
+        logger.info("Creating user: {}", requestBody);
         try {
-            logger.info("Creating user: {}", requestBody);
             String userId = userService.createUserId(requestBody);
             requestBody.put(USER_ID, userId);
             return getSuccessResponse(userService.create(requestBody, header, userId));
@@ -40,8 +40,8 @@ public class UserController extends BaseController {
 
     @PostMapping(USER_SEARCH)
     public ResponseEntity<Object> search(@RequestBody Map<String, Object> requestBody) {
+        logger.info("Searching participant: {}", requestBody);
         try {
-            logger.info("Searching participant: {}", requestBody);
             return getSuccessResponse(userService.search(requestBody));
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
@@ -50,8 +50,8 @@ public class UserController extends BaseController {
 
     @GetMapping(USER_READ)
     public ResponseEntity<Object> read(@PathVariable("userId") String userId) {
+        logger.info("Reading participant :: user Id : {}", userId);
         try {
-            logger.info("Reading participant :: user Id : {}", userId);
             return getSuccessResponse(userService.getUser(userId));
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
@@ -60,6 +60,7 @@ public class UserController extends BaseController {
 
     @PostMapping(USER_UPDATE)
     public ResponseEntity<Object> update(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
+        logger.info("Updating user: {}", requestBody);
         try {
             String userId = (String) requestBody.get(USER_ID);
             Map<String, Object> details = userService.getUser(userId);
@@ -70,9 +71,9 @@ public class UserController extends BaseController {
     }
 
     @PostMapping(USER_DELETE)
-    public ResponseEntity<Object> delete(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) throws Exception {
+    public ResponseEntity<Object> delete(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
+        logger.info("Deleting user: {}", requestBody);
         try {
-            logger.info("Deleting user: {}", requestBody);
             if (!requestBody.containsKey(USER_ID))
                 throw new ClientException(ErrorCodes.ERR_INVALID_USER_ID, INVALID_USER_ID);
             Map<String, Object> details = userService.getUser((String) requestBody.get(USER_ID));
