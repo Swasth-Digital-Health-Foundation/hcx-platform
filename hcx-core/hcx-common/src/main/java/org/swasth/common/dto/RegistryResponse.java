@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
+import java.util.List;
 import static org.swasth.common.utils.Constants.ORGANISATION;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -38,7 +39,7 @@ public class RegistryResponse {
         }
     }
 
-    public <T> RegistryResponse(ArrayList<T> response, String entity) {
+    public <T> RegistryResponse(List<T> response, String entity) {
         this.timestamp = System.currentTimeMillis();
         if (StringUtils.equals(entity,ORGANISATION)) {
             this.participants = (ArrayList<Object>) response;
@@ -55,7 +56,7 @@ public class RegistryResponse {
     }
 
     public String getParticipantCode() { return participantCode; }
-    public void setParticipantCode(String correlationId) {
+    public void setParticipantCode(String participantCode) {
         this.participantCode = participantCode;
     }
 

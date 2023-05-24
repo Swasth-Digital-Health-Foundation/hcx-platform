@@ -27,9 +27,7 @@ import org.swasth.hcx.config.GenericConfiguration;
 import org.swasth.hcx.controllers.v1.*;
 import org.swasth.hcx.handlers.EventHandler;
 import org.swasth.hcx.managers.HealthCheckManager;
-import org.swasth.hcx.service.AuditService;
-import org.swasth.hcx.service.NotificationService;
-import org.swasth.hcx.service.ParticipantService;
+import org.swasth.hcx.service.*;
 import org.swasth.kafka.client.IEventService;
 import org.swasth.postgresql.IDatabaseService;
 import org.swasth.redis.cache.RedisCache;
@@ -39,7 +37,7 @@ import java.net.URL;
 import java.util.*;
 
 
-@WebMvcTest({CoverageEligibilityController.class, PreAuthController.class, ClaimsController.class, PaymentsController.class, StatusController.class, SearchController.class, CommunicationController.class, PredeterminationController.class, ParticipantController.class, NotificationController.class, AuditService.class, NotificationService.class, EventHandler.class, EventGenerator.class, ParticipantService.class , RetryController.class})
+@WebMvcTest({CoverageEligibilityController.class, PreAuthController.class, ClaimsController.class, PaymentsController.class, StatusController.class, SearchController.class, CommunicationController.class, PredeterminationController.class, ParticipantController.class, NotificationController.class, AuditService.class, NotificationService.class, EventHandler.class, EventGenerator.class, ParticipantService.class , RetryController.class , UserController.class , UserService.class , BaseRegistryService.class})
 @ExtendWith(MockitoExtension.class)
 @ActiveProfiles("test")
 @Import(GenericConfiguration.class)
@@ -423,5 +421,74 @@ public class BaseSpec {
         obj.put("linked_registry_codes", new ArrayList<>(Collections.singleton("22344")));
         obj.put("encryption_cert", "urn:isbn:0-4234");
         return obj;
+    }
+
+    public String getUserCreateBody() throws JsonProcessingException {
+        Map<String, Object> obj = new HashMap<>();
+        obj.put("email","test-user-89@gmail.com");
+        obj.put("user_name", "user-01");
+        obj.put("created_by", "pcpt@hcx");
+        obj.put("pin", "1234");
+        obj.put("linked_user_id", "1234");
+        return JSONUtils.serialize(obj);
+    }
+    public String getUserCreateBodyWithMobile() throws JsonProcessingException {
+        Map<String, Object> obj = new HashMap<>();
+        obj.put("mobile", "9632492134");
+        obj.put("user_name", "user-01");
+        obj.put("created_by", "pcpt@hcx");
+        obj.put("pin", "1234");
+        obj.put("linked_user_id", "1234");
+        return JSONUtils.serialize(obj);
+    }
+    public String getEmailPhoneNotfound() throws JsonProcessingException {
+        Map<String, Object> obj = new HashMap<>();
+        obj.put("user_name", "user-01");
+        obj.put("created_by", "pcpt@hcx");
+        obj.put("pin", "1234");
+        obj.put("linked_user_id", "1234");
+        return JSONUtils.serialize(obj);
+    }
+    public Map<String, Object> getUserCreateAuditLog() throws Exception {
+        return JSONUtils.deserialize("{\"eid\":\"AUDIT\",\"edata\":{\"prevStatus\":\"\",\"status\":\"Created\"},\"ets\":1659434908868,\"mid\":\"5ee2b9e1-ded6-4b56-afa8-3380107632e0\",\"object\":{\"id\":\"097e0185-eeb1-48f1-b2b0-b68774d02c6d\",\"type\":\"User\"},\"cdata\":{\"action\":\"/user/create\"}}", Map.class);
+    }
+
+    public Map<String, Object> getUserUpdateAuditLog() throws Exception {
+        return JSONUtils.deserialize("{\"eid\":\"AUDIT\",\"edata\":{\"prevStatus\":\"\",\"status\":\"Created\"},\"ets\":1659434908868,\"mid\":\"5ee2b9e1-ded6-4b56-afa8-3380107632e0\",\"object\":{\"id\":\"097e0185-eeb1-48f1-b2b0-b68774d02c6d\",\"type\":\"User\"},\"cdata\":{\"action\":\"/user/update\"}}", Map.class);
+    }
+    public Map<String, Object> getUserDeleteAuditLog() throws Exception {
+        return JSONUtils.deserialize("{\"eid\":\"AUDIT\",\"edata\":{\"prevStatus\":\"Created\",\"status\":\"Inactive\"},\"ets\":1659434908868,\"mid\":\"5ee2b9e1-ded6-4b56-afa8-3380107632e0\",\"object\":{\"id\":\"097e0185-eeb1-48f1-b2b0-b68774d02c6d\",\"type\":\"User\"},\"cdata\":{\"action\":\"/user/delete\"}}", Map.class);
+    }
+
+    public String getUserSearchFilter() throws JsonProcessingException {
+        Map<String, Object> obj = new HashMap<>();
+        obj.put("filters", new HashMap<>() {{
+            put("email", new HashMap<>() {{
+                put("eq", "test-user-89@gmail.com");
+            }});
+        }});
+        return JSONUtils.serialize(obj);
+    }
+
+    public String getUserSearchNotfoundFilter() throws JsonProcessingException {
+        Map<String, Object> obj = new HashMap<>();
+        obj.put("filters", new HashMap<>() {{
+            put("email", new HashMap<>() {{
+                put("eq", "test-user");
+            }});
+        }});
+        return JSONUtils.serialize(obj);
+    }
+
+    public String getUserUpdateBody() throws JsonProcessingException {
+        Map<String, Object> obj = new HashMap<>();
+        obj.put("user_id", "test-user-89.gmail@swasth-hcx");
+        obj.put("mobile", "9632492134");
+        obj.put("email", "test@gmail.com");
+        obj.put("user_name", "user-01");
+        obj.put("created_by", "pcpt@hcx");
+        obj.put("pin", "1234");
+        obj.put("linked_user_id", "1234");
+        return JSONUtils.serialize(obj);
     }
 }

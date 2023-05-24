@@ -12,7 +12,7 @@ import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
 import org.swasth.common.utils.Constants;
 import org.swasth.hcx.controllers.BaseController;
-import org.swasth.hcx.service.ParticipantService;
+import org.swasth.hcx.service.UserService;
 
 import java.util.Map;
 
@@ -23,48 +23,47 @@ import static org.swasth.common.utils.Constants.*;
 @RequestMapping(Constants.VERSION_PREFIX)
 public class UserController extends BaseController {
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
-
     @Autowired
-    private ParticipantService participantService;
+    private UserService userService;
 
     @PostMapping(USER_CREATE)
     public ResponseEntity<Object> create(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
         try {
             logger.info("Creating user: {}", requestBody);
-            String userId = participantService.createUserId(requestBody);
-            requestBody.put(USER_ID,userId);
-            return getSuccessResponse(participantService.invite(requestBody, header, userId, USER));
+            String userId = userService.createUserId(requestBody);
+            requestBody.put(USER_ID, userId);
+            return getSuccessResponse(userService.create(requestBody, header, userId));
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }
     }
 
     @PostMapping(USER_SEARCH)
-    public ResponseEntity<Object> search(@RequestBody Map<String, Object> requestBody){
+    public ResponseEntity<Object> search(@RequestBody Map<String, Object> requestBody) {
         try {
             logger.info("Searching participant: {}", requestBody);
-            return getSuccessResponse(participantService.search(requestBody, USER));
+            return getSuccessResponse(userService.search(requestBody));
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }
     }
 
     @GetMapping(USER_READ)
-    public ResponseEntity<Object> read(@PathVariable("userId") String userId){
+    public ResponseEntity<Object> read(@PathVariable("userId") String userId) {
         try {
             logger.info("Reading participant :: user Id : {}", userId);
-            return getSuccessResponse(participantService.getUser(userId,USER));
+            return getSuccessResponse(userService.getUser(userId));
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }
     }
 
     @PostMapping(USER_UPDATE)
-    public ResponseEntity<Object> update(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody){
+    public ResponseEntity<Object> update(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
         try {
             String userId = (String) requestBody.get(USER_ID);
-            Map<String, Object> details = participantService.getUser(userId, USER);
-            return getSuccessResponse(participantService.update(requestBody,details,header,userId,USER));
+            Map<String, Object> details = userService.getUser(userId);
+            return getSuccessResponse(userService.update(requestBody, details, header, userId));
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }
@@ -76,12 +75,12 @@ public class UserController extends BaseController {
             logger.info("Deleting user: {}", requestBody);
             if (!requestBody.containsKey(USER_ID))
                 throw new ClientException(ErrorCodes.ERR_INVALID_USER_ID, INVALID_USER_ID);
-            Map<String, Object> details = participantService.getUser((String) requestBody.get(USER_ID), USER);
-            return getSuccessResponse(participantService.delete(details, header, (String) requestBody.get(USER_ID),USER));
+            Map<String, Object> details = userService.getUser((String) requestBody.get(USER_ID));
+            return getSuccessResponse(userService.delete(details, header, (String) requestBody.get(USER_ID)));
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }
-}
+    }
 
     public ResponseEntity<Object> getSuccessResponse(Object response) {
         return new ResponseEntity<>(response, HttpStatus.OK);

@@ -55,7 +55,7 @@ public class ParticipantController extends BaseController {
             String code = participant.generateCode(participant.getprimaryEmail(), fieldSeparator, hcxInstanceName);
             service.getCertificatesUrl(requestBody, code);
             service.validateCertificates(requestBody);
-            return getSuccessResponse(service.invite(requestBody, header, code, ORGANISATION));
+            return getSuccessResponse(service.create(requestBody, header, code));
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }
@@ -69,8 +69,8 @@ public class ParticipantController extends BaseController {
             String code = participant.getParticipantCode();
             service.getCertificatesUrl(requestBody, code);
             service.validate(requestBody, false);
-            Map<String, Object> details = service.getParticipant(code, ORGANISATION);
-            return getSuccessResponse(service.update(requestBody, details, header, code, ORGANISATION));
+            Map<String, Object> details = service.getParticipant(code);
+            return getSuccessResponse(service.update(requestBody, details, header, code));
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }
@@ -80,7 +80,7 @@ public class ParticipantController extends BaseController {
     public ResponseEntity<Object> search(@RequestBody Map<String, Object> requestBody) {
         try {
             logger.info("Searching participant: {}", requestBody);
-            return getSuccessResponse(service.search(requestBody, ORGANISATION));
+            return getSuccessResponse(service.search(requestBody));
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }
@@ -90,7 +90,7 @@ public class ParticipantController extends BaseController {
     public ResponseEntity<Object> read(@PathVariable("participantCode") String code) {
         try {
             logger.info("Reading participant :: participant code: {}", code);
-            return getSuccessResponse(service.read(code, ORGANISATION));
+            return getSuccessResponse(service.read(code));
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }
@@ -103,8 +103,8 @@ public class ParticipantController extends BaseController {
             if (!requestBody.containsKey(PARTICIPANT_CODE))
                 throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_CODE, PARTICIPANT_CODE_MSG);
             Participant participant = new Participant(requestBody);
-            Map<String, Object> details = service.getParticipant(participant.getParticipantCode(), ORGANISATION);
-            return getSuccessResponse(service.delete(details, header, participant.getParticipantCode(), ORGANISATION));
+            Map<String, Object> details = service.getParticipant(participant.getParticipantCode());
+            return getSuccessResponse(service.delete(details, header, participant.getParticipantCode()));
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }
