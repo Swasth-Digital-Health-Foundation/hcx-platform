@@ -1,6 +1,5 @@
 package org.swasth.hcx.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import kong.unirest.HttpResponse;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.slf4j.Logger;
@@ -25,7 +24,7 @@ import static org.swasth.common.utils.Constants.*;
 
 @Service
 public class UserService extends BaseRegistryService {
-    private static final Logger logger = LoggerFactory.getLogger(ParticipantService.class);
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
     @Value("${registry.user-api-path}")
     private String registryUserPath;
     @Value("${participantCode.fieldSeparator}")

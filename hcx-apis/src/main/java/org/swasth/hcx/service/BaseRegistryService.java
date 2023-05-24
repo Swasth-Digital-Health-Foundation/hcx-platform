@@ -39,7 +39,6 @@ public class BaseRegistryService {
     protected EventHandler eventHandler;
     public HttpResponse<String> registryInvite(Map<String, Object> requestBody, HttpHeaders header, String apiPath) throws JsonProcessingException {
         String url = registryURL + apiPath + "/" + INVITE;
-        System.out.println("url" + url);
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put(AUTHORIZATION, Objects.requireNonNull(header.get(AUTHORIZATION)).get(0));
         return HttpUtils.post(url, JSONUtils.serialize(requestBody), headersMap);

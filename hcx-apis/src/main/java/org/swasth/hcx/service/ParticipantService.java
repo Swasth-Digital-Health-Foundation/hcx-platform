@@ -1,7 +1,6 @@
 package org.swasth.hcx.service;
 
 import kong.unirest.HttpResponse;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,18 +8,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.swasth.ICloudService;
 import org.swasth.common.dto.RegistryResponse;
-import org.swasth.common.exception.*;
-import org.swasth.common.helpers.EventGenerator;
-import org.swasth.common.utils.HttpUtils;
+import org.swasth.common.exception.ClientException;
+import org.swasth.common.exception.ErrorCodes;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.utils.JWTUtils;
-import org.swasth.common.utils.SlugUtils;
-import org.swasth.hcx.handlers.EventHandler;
 import org.swasth.postgresql.IDatabaseService;
 import org.swasth.redis.cache.RedisCache;
 
