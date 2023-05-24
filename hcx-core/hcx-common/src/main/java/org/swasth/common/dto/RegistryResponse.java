@@ -80,8 +80,9 @@ public class RegistryResponse {
         return users;
     }
 
-    public void setParticipants(List<Object> participants) {
-        this.participants = (ArrayList<Object>) participants;
+    public String getUserId() {
+        return userId;
     }
+
 
 }
