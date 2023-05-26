@@ -483,12 +483,11 @@ public class BaseSpec {
     public String getUserUpdateBody() throws JsonProcessingException {
         Map<String, Object> obj = new HashMap<>();
         obj.put("user_id", "test-user-89.gmail@swasth-hcx");
-        obj.put("mobile", "9632492134");
-        obj.put("email", "test@gmail.com");
         obj.put("user_name", "user-01");
         obj.put("created_by", "pcpt@hcx");
         obj.put("pin", "1234");
         obj.put("linked_user_id", "1234");
         return JSONUtils.serialize(obj);
     }
+
 }
