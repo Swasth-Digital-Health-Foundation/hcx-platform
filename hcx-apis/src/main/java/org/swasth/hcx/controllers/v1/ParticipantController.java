@@ -48,7 +48,6 @@ public class ParticipantController extends BaseController {
 
     @PostMapping(PARTICIPANT_CREATE)
     public ResponseEntity<Object> create(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
-        logger.info("Creating participant: {}", requestBody);
         try {
             Participant participant = new Participant(requestBody);
             service.validate(requestBody, true);
@@ -63,7 +62,6 @@ public class ParticipantController extends BaseController {
 
     @PostMapping(PARTICIPANT_UPDATE)
     public ResponseEntity<Object> update(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
-        logger.info("Updating participant: {}", requestBody);
         try {
             Participant participant = new Participant(requestBody);
             String code = participant.getParticipantCode();
@@ -78,7 +76,6 @@ public class ParticipantController extends BaseController {
 
     @PostMapping(PARTICIPANT_SEARCH)
     public ResponseEntity<Object> search(@RequestBody Map<String, Object> requestBody) {
-        logger.info("Searching participant: {}", requestBody);
         try {
             return getSuccessResponse(service.search(requestBody));
         } catch (Exception e) {
@@ -88,7 +85,6 @@ public class ParticipantController extends BaseController {
 
     @GetMapping(PARTICIPANT_READ)
     public ResponseEntity<Object> read(@PathVariable("participantCode") String code) {
-        logger.info("Reading participant :: participant code: {}", code);
         try {
             return getSuccessResponse(service.read(code));
         } catch (Exception e) {
@@ -98,7 +94,6 @@ public class ParticipantController extends BaseController {
 
     @PostMapping(PARTICIPANT_DELETE)
     public ResponseEntity<Object> delete(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
-        logger.info("Deleting participant: {}", requestBody);
         try {
             if (!requestBody.containsKey(PARTICIPANT_CODE))
                 throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_CODE, PARTICIPANT_CODE_MSG);

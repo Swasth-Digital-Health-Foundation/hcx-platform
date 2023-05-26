@@ -68,7 +68,12 @@ public class Constants {
     public static final String USER_SEARCH = "/user/search";
     public static final String USER_UPDATE = "/user/update";
     public static final String USER_DELETE = "/user/delete";
+    public static final String USER_UPDATE_TENANT_ROLES = "/user/update/tenant_roles";
+    public static final String TENANT_ROLES = "tenant_roles";
     public static final String USER_ID = "user_id";
+    public static final String EMAIL = "email";
+    public static final String MOBILE = "mobile";
+    public static final List<String> NOT_ALLOWED_FIELDS_FOR_UPDATE = Arrays.asList(TENANT_ROLES,EMAIL,MOBILE);
     public static final String SPONSORS = "sponsors";
     public static final String COMMUNICATION = "communication";
     public static final String MOCK_PARTICIPANT = "mockparticipant";
@@ -91,7 +96,6 @@ public class Constants {
     public static final List<String> ONBOARD_FOR_PROVIDER = Arrays.asList(ONBOARD_THROUGH_JWT, ONBOARD_THROUGH_VERIFIER);
     public static final String ROLE = "role";
     public static final String LINK_VERIFICATION = "linkVerification";
-    public static final String EMAIL = "email";
     public static final String PHONE = "phone";
     public static final String HEALTHY = "healthy";
     public static final String NAME = "name";
@@ -289,7 +293,6 @@ public class Constants {
     public static final String JWT_TOKEN = "jwt_token";
     public static final String VERIFICATION_TOKEN = "verification_token";
     public static final String JWT = "jwt";
-    public static final String MOBILE = "mobile";
     public static final String SUB = "sub";
     public static final String ISS = "iss";
     public static final String SPONSOR_CODE = "sponsor_code";

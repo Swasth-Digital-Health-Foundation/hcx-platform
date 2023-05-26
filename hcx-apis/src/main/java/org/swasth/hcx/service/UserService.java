@@ -1,5 +1,6 @@
 package org.swasth.hcx.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import kong.unirest.HttpResponse;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.slf4j.Logger;
@@ -14,9 +15,7 @@ import org.swasth.common.exception.ErrorCodes;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.utils.SlugUtils;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import static org.swasth.common.response.ResponseMessage.INVALID_USER_DETAILS;
 import static org.swasth.common.response.ResponseMessage.INVALID_USER_ID;
@@ -33,6 +32,7 @@ public class UserService extends BaseRegistryService {
     private String hcxInstanceName;
 
     public RegistryResponse create(Map<String, Object> requestBody, HttpHeaders headers, String code) throws Exception {
+        logger.info("Creating user: {}", requestBody);
         HttpResponse<String> response = registryInvite(requestBody, headers, registryUserPath);
         if (response.getStatus() == 200) {
             generateUserAudit(code, requestBody, USER_CREATE);
@@ -42,10 +42,12 @@ public class UserService extends BaseRegistryService {
     }
 
     public RegistryResponse search(Map<String, Object> requestBody) throws Exception {
+        logger.info("Searching participant: {}", requestBody);
         return registrySearch(requestBody, registryUserPath,USER);
     }
 
     public RegistryResponse update(Map<String, Object> requestBody, Map<String, Object> registryDetails, HttpHeaders headers, String code) throws Exception {
+        logger.info("Updating user: {}", requestBody);
         HttpResponse<String> response = registryUpdate(requestBody, registryDetails, headers, registryUserPath);
         if (response.getStatus() == 200) {
             generateUserAudit(code, requestBody, USER_UPDATE);
@@ -55,6 +57,7 @@ public class UserService extends BaseRegistryService {
     }
 
     public RegistryResponse delete(Map<String, Object> registryDetails, HttpHeaders headers, String code) throws Exception {
+        logger.info("Deleting user: {}", code);
         HttpResponse<String> response = registryDelete(registryDetails, headers, registryUserPath);
         if (response.getStatus() == 200) {
             generateUserAudit(code, registryDetails, USER_DELETE);
@@ -63,6 +66,19 @@ public class UserService extends BaseRegistryService {
             registryResponse.setStatus(INACTIVE);
             return registryResponse;
         }
+        return responseHandler(response, code, USER);
+    }
+
+    public RegistryResponse tenantUpdate(Map<String, Object> requestBody, HttpHeaders headers, Map<String, Object> registryDetails, String code) throws Exception {
+        logger.info("Updating tenant roles: {}", requestBody);
+        HttpResponse<String> response;
+        if (registryDetails.containsKey(TENANT_ROLES)) {
+            ArrayList<Map<String, Object>> tenantRolesList = JSONUtils.convert(registryDetails.getOrDefault(TENANT_ROLES, ""), ArrayList.class);
+            List<Map<String, Object>> requestBodyList = (List<Map<String, Object>>) requestBody.get(TENANT_ROLES);
+            tenantRolesList.add(requestBodyList.get(0));
+            requestBody.put(TENANT_ROLES, tenantRolesList);
+        }
+        response = registryUpdate(requestBody, registryDetails, headers, registryUserPath);
         return responseHandler(response, code, USER);
     }
 
@@ -94,4 +110,11 @@ public class UserService extends BaseRegistryService {
         throw new ClientException(ErrorCodes.ERR_INVALID_USER_DETAILS,INVALID_USER_DETAILS);
     }
 
+    public void updateAllowedFields(Map<String, Object> requestBody) throws ClientException {
+        List<String> requestFields = new ArrayList<>(requestBody.keySet());
+        if (!NOT_ALLOWED_FIELDS_FOR_UPDATE.containsAll(requestFields)) {
+            requestFields.remove(USER_ID);
+            throw new ClientException(ErrorCodes.ERR_UPDATE_PARTICIPANT_DETAILS, "Fields not allowed for update: " + requestFields);
+        }
+    }
 }

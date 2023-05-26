@@ -53,6 +53,7 @@ public class ParticipantService extends BaseRegistryService {
     private Environment env;
 
     public RegistryResponse create(Map<String, Object> requestBody, HttpHeaders header, String code) throws Exception {
+        logger.info("Creating participant: {}", requestBody);
         HttpResponse<String> response = registryInvite(requestBody, header, registryOrgnisationPath);
         if (response.getStatus() == 200) {
             generatePcptAudit(code, PARTICIPANT_CREATE, requestBody, CREATED);
@@ -62,6 +63,7 @@ public class ParticipantService extends BaseRegistryService {
     }
 
     public RegistryResponse update(Map<String, Object> requestBody, Map<String, Object> registryDetails, HttpHeaders header, String code) throws Exception {
+        logger.info("Updating participant: {}", requestBody);
         HttpResponse<String> response = registryUpdate(requestBody, registryDetails, header, registryOrgnisationPath);
         if (response.getStatus() == 200) {
             deleteCache(code);
@@ -72,10 +74,12 @@ public class ParticipantService extends BaseRegistryService {
     }
 
     public RegistryResponse search(Map<String, Object> requestBody) throws Exception {
+        logger.info("Searching participant: {}", requestBody);
         return registrySearch(requestBody, registryOrgnisationPath,ORGANISATION);
     }
 
     public Map<String, Object> read(String code) throws Exception {
+        logger.info("Reading participant :: participant code: {}", code);
         ResponseEntity<Object> searchResponse = getSuccessResponse(search(JSONUtils.deserialize(getRequestBody(code), Map.class)));
         RegistryResponse searchResp = (RegistryResponse) searchResponse.getBody();
         logger.info("Read participant is completed");
@@ -87,6 +91,7 @@ public class ParticipantService extends BaseRegistryService {
     }
 
     public RegistryResponse delete(Map<String, Object> registryDetails, HttpHeaders header, String code) throws Exception {
+        logger.info("Deleting participant: {}", code);
         HttpResponse<String> response = registryDelete(registryDetails, header, registryOrgnisationPath);
         if (response.getStatus() == 200) {
             deleteCache(code);
