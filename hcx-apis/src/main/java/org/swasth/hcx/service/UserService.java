@@ -32,7 +32,6 @@ public class UserService extends BaseRegistryService {
     private String hcxInstanceName;
 
     public RegistryResponse create(Map<String, Object> requestBody, HttpHeaders headers, String code) throws Exception {
-        logger.info("Creating user: {}", requestBody);
         HttpResponse<String> response = registryInvite(requestBody, headers, registryUserPath);
         if (response.getStatus() == 200) {
             generateUserAudit(code, requestBody, USER_CREATE);
@@ -42,12 +41,10 @@ public class UserService extends BaseRegistryService {
     }
 
     public RegistryResponse search(Map<String, Object> requestBody) throws Exception {
-        logger.info("Searching participant: {}", requestBody);
         return registrySearch(requestBody, registryUserPath,USER);
     }
 
     public RegistryResponse update(Map<String, Object> requestBody, Map<String, Object> registryDetails, HttpHeaders headers, String code) throws Exception {
-        logger.info("Updating user: {}", requestBody);
         HttpResponse<String> response = registryUpdate(requestBody, registryDetails, headers, registryUserPath);
         if (response.getStatus() == 200) {
             generateUserAudit(code, requestBody, USER_UPDATE);
@@ -57,7 +54,6 @@ public class UserService extends BaseRegistryService {
     }
 
     public RegistryResponse delete(Map<String, Object> registryDetails, HttpHeaders headers, String code) throws Exception {
-        logger.info("Deleting user: {}", code);
         HttpResponse<String> response = registryDelete(registryDetails, headers, registryUserPath);
         if (response.getStatus() == 200) {
             generateUserAudit(code, registryDetails, USER_DELETE);
@@ -70,7 +66,6 @@ public class UserService extends BaseRegistryService {
     }
 
     public RegistryResponse tenantUpdate(Map<String, Object> requestBody, HttpHeaders headers, Map<String, Object> registryDetails, String code) throws Exception {
-        logger.info("Updating tenant roles: {}", requestBody);
         HttpResponse<String> response;
         if (registryDetails.containsKey(TENANT_ROLES)) {
             ArrayList<Map<String, Object>> tenantRolesList = JSONUtils.convert(registryDetails.getOrDefault(TENANT_ROLES, ""), ArrayList.class);
