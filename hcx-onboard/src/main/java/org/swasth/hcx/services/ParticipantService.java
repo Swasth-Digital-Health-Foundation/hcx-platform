@@ -194,7 +194,7 @@ public class ParticipantService extends BaseController {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put(AUTHORIZATION, Objects.requireNonNull(headers.get(AUTHORIZATION)).get(0));
         HttpResponse<String> createResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_CREATE, JSONUtils.serialize(participant), headersMap);
-        ParticipantResponse pcptResponse = JSONUtils.deserialize(createResponse.getBody(), ParticipantResponse.class);
+        RegistryResponse pcptResponse = JSONUtils.deserialize(createResponse.getBody(), RegistryResponse.class);
         if (createResponse.getStatus() != 200) {
             throw new ClientException(pcptResponse.getError().getCode() == null ? ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS : pcptResponse.getError().getCode(), pcptResponse.getError().getMessage());
         }
@@ -354,10 +354,10 @@ public class ParticipantService extends BaseController {
 
     private Map<String, Object> getParticipant(String key, String value) throws Exception {
         HttpResponse<String> searchResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_SEARCH, "{ \"filters\": { \"" + key + "\": { \"eq\": \" " + value + "\" } } }", new HashMap<>());
-        ParticipantResponse participantResponse = JSONUtils.deserialize(searchResponse.getBody(), ParticipantResponse.class);
-        if (participantResponse.getParticipants().isEmpty())
+        RegistryResponse registryResponse = JSONUtils.deserialize(searchResponse.getBody(), RegistryResponse.class);
+        if (registryResponse.getParticipants().isEmpty())
             throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_CODE, INVALID_PARTICIPANT_CODE);
-        return (Map<String, Object>) participantResponse.getParticipants().get(0);
+        return (Map<String, Object>) registryResponse.getParticipants().get(0);
     }
 
     public ResponseEntity<Object> onboardUpdate(HttpHeaders headers,Map<String, Object> requestBody) throws Exception {
@@ -508,7 +508,7 @@ public class ParticipantService extends BaseController {
             addCommunicationStatus(participantList);
         if(fields != null && fields.toLowerCase().contains(MOCK_PARTICIPANT))
             getMockParticipant(participantList,headers);
-        return new ResponseEntity<>(new ParticipantResponse(participantList), HttpStatus.OK);
+        return new ResponseEntity<>(new RegistryResponse(participantList,ORGANISATION), HttpStatus.OK);
     }
 
     private Map<String,String> headers(String verifierCode) throws NoSuchAlgorithmException, InvalidKeySpecException {
@@ -648,7 +648,7 @@ public class ParticipantService extends BaseController {
         String privateKey = (String) mockParticipant.getOrDefault(PRIVATE_KEY,"");
         mockParticipant.remove(PRIVATE_KEY);
         HttpResponse<String> createResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_CREATE, JSONUtils.serialize(mockParticipant), headersMap);
-        ParticipantResponse pcptResponse = JSONUtils.deserialize(createResponse.getBody(), ParticipantResponse.class);
+        RegistryResponse pcptResponse = JSONUtils.deserialize(createResponse.getBody(), RegistryResponse.class);
         if (createResponse.getStatus() != 200) {
             throw new ClientException(pcptResponse.getError().getCode() == null ? ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS : pcptResponse.getError().getCode(), pcptResponse.getError().getMessage());
         }
