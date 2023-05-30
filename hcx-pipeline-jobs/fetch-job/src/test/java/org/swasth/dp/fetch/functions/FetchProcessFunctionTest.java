@@ -7,7 +7,7 @@ import org.apache.flink.streaming.runtime.streamrecord.StreamRecord;
 import org.apache.flink.streaming.util.OneInputStreamOperatorTestHarness;
 import org.apache.flink.streaming.util.ProcessFunctionTestHarnesses;
 import org.junit.Test;
-import org.swasth.dp.claims.task.ClaimsConfig;
+import org.swasth.dp.fetch.task.FetchConfig;
 import org.swasth.fixture.EventFixture;
 
 import java.util.HashMap;
@@ -16,16 +16,16 @@ import java.util.Map;
 public class FetchProcessFunctionTest {
 
     Config config  = ConfigFactory.load("fetch-test.conf");
-    ClaimsConfig claimsConfig = new ClaimsConfig(config,"ClaimsTestJob");
+    FetchConfig fetchConfig = new FetchConfig(config,"FetchTestJob");
 
     //instantiate created user defined function
-    ClaimsProcessFunction processFunction = new ClaimsProcessFunction(claimsConfig);
+    FetchProcessFunction processFunction = new FetchProcessFunction(fetchConfig);
     //ObjectMapper objMapper = new ObjectMapper();
     Gson gson = new Gson();
 
 
     @Test
-    public void testClaimsJob() throws Exception {
+    public void testFetchJob() throws Exception {
         // wrap user defined function into the corresponding operator
         OneInputStreamOperatorTestHarness<Map<String, Object>, Map<String, Object>> harness = ProcessFunctionTestHarnesses.forProcessFunction(processFunction);
 
