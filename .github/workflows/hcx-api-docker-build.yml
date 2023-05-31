@@ -1,7 +1,16 @@
 name: HCX-APIs - Build
 
 on:
-  workflow_dispatch
+  workflow_dispatch:
+    inputs:
+      repo:
+        description: Custom build repository to be used
+        default: Swasth-Digital-Health-Foundation/hcx-platform
+        required: false
+      branch:
+        description: Custom build branch to be used
+        default: sprint-
+        required: true
 
 #    tags:
 #      - *
@@ -14,6 +23,8 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          repository: ${{ github.event.inputs.repo }}
+          ref: ${{ github.event.inputs.branch }}
 
       - name: Set up JDK 11
         uses: actions/setup-java@v1
@@ -24,15 +35,11 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-maven-
+          key: ${{ runner.os }}-maven-hcx-apis
+          restore-keys: ${{ runner.os }}-maven-hcx-apis
 
       - name: Maven Build
-        run: |
-          cd hcx-core
-          mvn clean install
-          cd ../hcx-apis
-          mvn clean install         
+        run: mvn clean install -P hcx-apis
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
