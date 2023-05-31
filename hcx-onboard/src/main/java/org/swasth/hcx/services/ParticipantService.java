@@ -1,9 +1,14 @@
 package org.swasth.hcx.services;
 
+import freemarker.template.TemplateException;
 import kong.unirest.HttpResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.CharacterPredicates;
 import org.apache.commons.text.RandomStringGenerator;
+import org.keycloak.admin.client.Keycloak;
+import org.keycloak.admin.client.resource.RealmResource;
+import org.keycloak.admin.client.resource.UserResource;
+import org.keycloak.representations.idm.CredentialRepresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.swasth.auditindexer.function.AuditIndexer;
 import org.swasth.common.dto.*;
@@ -22,14 +28,20 @@ import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.utils.JWTUtils;
 import org.swasth.hcx.controllers.BaseController;
 import org.swasth.hcx.helpers.EventGenerator;
+import org.swasth.hcx.utils.CertificateUtil;
+import org.swasth.hcx.utils.SlugUtils;
 import org.swasth.postgresql.IDatabaseService;
 
+import javax.annotation.Resource;
+import java.io.IOException;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static org.swasth.common.response.ResponseMessage.*;
@@ -43,58 +55,81 @@ public class ParticipantService extends BaseController {
     @Value("${email.linkSub}")
     private String linkSub;
 
-    @Value("${email.verificationSub}")
+    @Value("${email.verification-sub}")
     private String verificationSub;
 
-    @Value("${phone.sendLinkMsg}")
+    @Value("${phone.send-link-msg}")
     private String phoneSub;
 
-    @Value("${phone.verificationMsg}")
+    @Value("${phone.verification-msg}")
     private  String phoneStatus;
-    @Value("${hcxURL}")
+    @Value("${hcx-url}")
     private String hcxURL;
 
-    @Value("${apiVersion}")
+    @Value("${api-version}")
     private String apiVersion;
-    @Value("${email.successIdentitySub}")
+    @Value("${email.success-identity-sub}")
     private String successIdentitySub;
 
-    @Value("${email.onboardingSuccessSub}")
+    @Value("${email.onboarding-success-sub}")
     private String onboardingSuccessSub;
 
     @Value("${onboard.verification.email}")
     private Boolean emailEnabled;
     @Value("${onboard.verification.phone}")
     private Boolean phoneEnabled;
-    @Value("${onboard.successURL}")
+    @Value("${onboard.success-url}")
     private String onboardingSuccessURL;
 
-    @Value("${hcx-api.basePath}")
+    @Value("${hcx-api.base-path}")
     private String hcxAPIBasePath;
 
-    @Value("${postgres.onboardVerificationTable}")
+    @Value("${postgres.table.onboard-verification}")
     private String onboardVerificationTable;
 
-    @Value("${postgres.onboardVerifierTable}")
+    @Value("${postgres.table.onboard-verifier}")
     private String onboardingVerifierTable;
 
-    @Value("${verificationLink.expiry}")
+    @Value("${postgres.mock-service.table.mock-participant}")
+    private String mockParticipantsTable;
+    @Value("${verification-link.expiry}")
     private int linkExpiry;
 
-    @Value("${verificationLink.maxAttempt}")
+    @Value("${verification-link.max-attempt}")
     private int linkMaxAttempt;
 
-    @Value("${verificationLink.maxRegenerate}")
+    @Value("${verification-link.max-regenerate}")
     private int linkMaxRegenerate;
 
     @Value("${env}")
     private String env;
-    @Value("${registry.hcxCode}")
+    @Value("${mock-service.allowed-env}")
+    private ArrayList<String> mockParticipantAllowedEnv;
+    @Value("${registry.hcx-code}")
     private String hcxCode;
-    @Value("${jwt-token.privateKey}")
+    @Value("${jwt-token.private-key}")
     private String privatekey;
-    @Value("${jwt-token.expiryTime}")
+    @Value("${jwt-token.expiry-time}")
     private Long expiryTime;
+
+    @Value("${mock-service.provider.endpoint-url}")
+    private String mockProviderEndpointURL;
+
+    @Value("${mock-service.payor.endpoint-url}")
+    private String mockPayorEndpointURL;
+
+    @Value("${keycloak.base-url}")
+    private String keycloakURL;
+    @Value("${keycloak.admin-password}")
+    private String keycloakAdminPassword;
+    @Value("${keycloak.admin-user}")
+    private String keycloakAdminUserName;
+    @Value("${keycloak.master-realm}")
+    private String keycloakMasterRealm;
+    @Value("${keycloak.users-realm}")
+    private String keycloackUserRealm;
+    @Value("${keycloak.client-id}")
+    private String keycloackClientId;
     @Autowired
     private SMSService smsService;
 
@@ -103,6 +138,10 @@ public class ParticipantService extends BaseController {
 
     @Autowired
     private IDatabaseService postgreSQLClient;
+
+    @Resource(name="postgresClientMockService")
+    @Autowired
+    private IDatabaseService postgresClientMockService;
 
     @Autowired
     private JWTUtils jwtUtils;
@@ -114,7 +153,6 @@ public class ParticipantService extends BaseController {
     protected EventGenerator eventGenerator;
     @Autowired
     private FreemarkerService freemarkerService;
-
 
     public ResponseEntity<Object> verify(HttpHeaders header, ArrayList<Map<String, Object>> body) throws Exception {
         logger.info("Participant verification :: " + body);
@@ -217,7 +255,7 @@ public class ParticipantService extends BaseController {
 
         }
         if (emailEnabled && !emailVerified) {
-            emailService.sendMail(primaryEmail, linkSub, linkTemplate((String) requestBody.get(PARTICIPANT_NAME), (String) requestBody.get(PARTICIPANT_CODE), generateURL(requestBody, EMAIL, primaryEmail), linkExpiry / 86400000,(ArrayList<String>) requestBody.get(ROLES)));
+            emailService.sendMail(primaryEmail, linkSub, linkTemplate((String) requestBody.get(PARTICIPANT_NAME), (String) requestBody.get(PARTICIPANT_CODE), generateURL(requestBody, EMAIL, primaryEmail),linkExpiry / 86400000, (ArrayList<String>) requestBody.get(ROLES)));
         }
         regenerateCount++;
         String updateQuery = String.format("UPDATE %s SET updatedOn=%d, expiry=%d, regenerate_count=%d, last_regenerate_date='%s', phone_short_url='%s', phone_long_url='%s' WHERE primary_email='%s'",
@@ -322,12 +360,14 @@ public class ParticipantService extends BaseController {
         return (Map<String, Object>) participantResponse.getParticipants().get(0);
     }
 
-    public ResponseEntity<Object> onboardUpdate(Map<String, Object> requestBody) throws Exception {
+    public ResponseEntity<Object> onboardUpdate(HttpHeaders headers,Map<String, Object> requestBody) throws Exception {
         logger.info("Onboard update: " + requestBody);
         boolean emailVerified = false;
         boolean phoneVerified = false;
         String commStatus = PENDING;
         String identityStatus = REJECTED;
+        Map<String,Object> mockProviderDetails = new HashMap<>();
+        Map<String,Object> mockPayorDetails = new HashMap<>();
         String jwtToken = (String) requestBody.get(JWT_TOKEN);
         Map<String, Object> payload = JSONUtils.decodeBase64String(jwtToken.split("\\.")[1], Map.class);
         String email = (String) payload.get("email");
@@ -355,13 +395,25 @@ public class ParticipantService extends BaseController {
         if (commStatus.equals(SUCCESSFUL) && identityStatus.equals(ACCEPTED)) {
             participant.put(REGISTRY_STATUS, ACTIVE);
         }
-
+        Map<String, Object> participantDetails = getParticipant(PARTICIPANT_CODE, (String) participant.get(PARTICIPANT_CODE));
         HttpResponse<String> httpResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_UPDATE, JSONUtils.serialize(participant), headersMap);
 
         if (httpResponse.getStatus() == 200) {
             logger.info("Participant details are updated successfully :: participant code : " + participant.get(PARTICIPANT_CODE));
             if (commStatus.equals(SUCCESSFUL) && identityStatus.equals(ACCEPTED)) {
-                emailService.sendMail(email, onboardingSuccessSub, successTemplate((String) participant.get(PARTICIPANT_NAME)));
+                if (mockParticipantAllowedEnv.contains(env)) {
+                    String searchQuery = String.format("SELECT * FROM %s WHERE parent_participant_code = '%s'", mockParticipantsTable, participant.get(PARTICIPANT_CODE));
+                    ResultSet result = (ResultSet) postgresClientMockService.executeQuery(searchQuery);
+                    if (!result.next()) {
+                       mockProviderDetails = createMockParticipant(headers, PROVIDER, participantDetails);
+                       mockPayorDetails = createMockParticipant(headers, PAYOR, participantDetails);
+                    }
+                    if(participantDetails.getOrDefault("status","").equals(CREATED)) {
+                        emailService.sendMail(email, onboardingSuccessSub, successTemplate((String) participant.get(PARTICIPANT_NAME),mockProviderDetails,mockPayorDetails));
+                    }
+                }else if(participantDetails.getOrDefault("status","").equals(CREATED)) {
+                    emailService.sendMail(email, onboardingSuccessSub, pocSuccessTemplate((String) participant.get(PARTICIPANT_NAME)));
+                }
             }
             Response response = new Response(PARTICIPANT_CODE, participant.get(PARTICIPANT_CODE));
             response.put(IDENTITY_VERIFICATION, identityStatus);
@@ -372,7 +424,6 @@ public class ParticipantService extends BaseController {
         } else {
             return new ResponseEntity<>(httpResponse.getBody(), HttpStatus.valueOf(httpResponse.getStatus()));
         }
-
     }
 
 
@@ -447,7 +498,7 @@ public class ParticipantService extends BaseController {
         return result;
     }
 
-    public ResponseEntity<Object> applicantSearch(Map<String,Object> requestBody,String fields) throws Exception {
+    public ResponseEntity<Object> applicantSearch(Map<String,Object> requestBody,String fields,HttpHeaders headers) throws Exception {
         HttpResponse<String> response = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_SEARCH, JSONUtils.serialize(requestBody), new HashMap<>());
         Map<String,Object> responseMap = JSONUtils.deserialize(response.getBody(),Map.class);
         ArrayList<Map<String,Object>> participantList = JSONUtils.convert(responseMap.get(PARTICIPANTS),ArrayList.class);
@@ -455,6 +506,8 @@ public class ParticipantService extends BaseController {
             addSponsors(participantList);
         if(fields != null && fields.toLowerCase().contains(COMMUNICATION))
             addCommunicationStatus(participantList);
+        if(fields != null && fields.toLowerCase().contains(MOCK_PARTICIPANT))
+            getMockParticipant(participantList,headers);
         return new ResponseEntity<>(new ParticipantResponse(participantList), HttpStatus.OK);
     }
 
@@ -475,13 +528,13 @@ public class ParticipantService extends BaseController {
         }
     }
 
-    public URL generateURL(Map<String,Object> participant,String type,String sub) throws Exception{
+    private URL generateURL(Map<String,Object> participant,String type,String sub) throws Exception{
         String token = generateToken(sub,type,(String) participant.get(PARTICIPANT_NAME),(String) participant.get(PARTICIPANT_CODE));
         String url = String.format("%s/onboarding/verify?%s=%s&jwt_token=%s",hcxURL,type,sub,token) ;
         return new URL(url);
     }
 
-    public String generateToken(String sub,String typ,String name,String code) throws NoSuchAlgorithmException, InvalidKeySpecException {
+    private String generateToken(String sub,String typ,String name,String code) throws NoSuchAlgorithmException, InvalidKeySpecException {
         long date = new Date().getTime();
         Map<String, Object> headers = new HashMap<>();
         headers.put(ALG,RS256);
@@ -497,7 +550,8 @@ public class ParticipantService extends BaseController {
         payload.put(EXP, new Date(date + expiryTime).getTime());
         return jwtUtils.generateJWS(headers,payload,privatekey);
     }
-    public String linkTemplate(String name ,String code,URL signedURL,int day,ArrayList<String> role) throws Exception {
+
+    private String linkTemplate(String name ,String code,URL signedURL,int day,ArrayList<String> role) throws Exception {
         Map<String, Object> model = new HashMap<>();
         model.put("USER_NAME", name);
         model.put("PARTICIPANT_CODE", code);
@@ -507,22 +561,36 @@ public class ParticipantService extends BaseController {
         return freemarkerService.renderTemplate("send-link.ftl",model);
     }
 
-    public String successTemplate(String name) throws Exception {
+    private String successTemplate(String participantName,Map<String,Object> mockProviderDetails,Map<String,Object> mockPayorDetails) throws Exception {
+        Map<String,Object> model = new HashMap<>();
+        model.put("USER_NAME",participantName);
+        model.put("MOCK_PROVIDER_CODE", mockProviderDetails.getOrDefault(PARTICIPANT_CODE,""));
+        model.put("MOCK_PROVIDER_USER_NAME",mockProviderDetails.getOrDefault(PRIMARY_EMAIL,""));
+        model.put("MOCK_PROVIDER_PASSWORD",mockProviderDetails.getOrDefault(PASSWORD,""));
+        model.put("MOCK_PAYOR_CODE",mockPayorDetails.getOrDefault(PARTICIPANT_CODE,""));
+        model.put("MOCK_PAYOR_USER_NAME",mockPayorDetails.getOrDefault(PRIMARY_EMAIL,""));
+        model.put("MOCK_PAYOR_PASSWORD",mockPayorDetails.getOrDefault(PASSWORD,""));
+        return freemarkerService.renderTemplate("onboard-success.ftl",model);
+    }
+
+    private String pocSuccessTemplate(String name) throws TemplateException, IOException {
         Map<String,Object> model = new HashMap<>();
         model.put("USER_NAME",name);
         model.put("ONBOARDING_SUCCESS_URL",onboardingSuccessURL);
-        return freemarkerService.renderTemplate("onboard-success.ftl",model);
-
+        return freemarkerService.renderTemplate("onboard-poc-success.ftl",model);
     }
-
     public String commonTemplate(String templateName) throws Exception {
         return freemarkerService.renderTemplate(templateName,new HashMap<>());
     }
 
-    public void addSponsors(List<Map<String, Object>> participantsList) throws Exception {
-        String primaryEmailList = participantsList.stream().map(participant -> participant.get(PRIMARY_EMAIL)).collect(Collectors.toList()).toString();
-        String primaryEmailWithQuote = getParticipantWithQuote(primaryEmailList);
-        String selectQuery = String.format("SELECT * FROM %S WHERE applicant_email IN (%s)", onboardingVerifierTable, primaryEmailWithQuote);
+    private String verificationStatus(String name , String status) throws  Exception{
+        Map<String,Object>  model = new HashMap<>();
+        model.put("USER_NAME",name);
+        model.put("STATUS",status);
+        return freemarkerService.renderTemplate("verification-status.ftl",model);
+    }
+    private void addSponsors(List<Map<String, Object>> participantsList) throws Exception {
+        String selectQuery = String.format("SELECT * FROM %S WHERE applicant_email IN (%s)", onboardingVerifierTable, getParticipantCodeList(participantsList));
         ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
         Map<String, Object> sponsorMap = new HashMap<>();
         while (resultSet.next()) {
@@ -532,10 +600,8 @@ public class ParticipantService extends BaseController {
         filterSponsors(sponsorMap, participantsList);
     }
 
-    public void addCommunicationStatus(List<Map<String, Object>> participantsList) throws Exception {
-        String participantCodeList = participantsList.stream().map(participant -> participant.get(PARTICIPANT_CODE)).collect(Collectors.toList()).toString();
-        String participantCodeQuote = getParticipantWithQuote(participantCodeList);
-        String selectQuery = String.format("SELECT * FROM %s WHERE participant_code IN (%s)", onboardVerificationTable, participantCodeQuote);
+    private void addCommunicationStatus(List<Map<String, Object>> participantsList) throws Exception {
+        String selectQuery = String.format("SELECT * FROM %s WHERE participant_code IN (%s)", onboardVerificationTable, getParticipantCodeList(participantsList));
         ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
         Map<String,Object> verificationMap = new HashMap<>();
         while (resultSet.next()) {
@@ -571,10 +637,137 @@ public class ParticipantService extends BaseController {
                 responseList.put(COMMUNICATION, verificationMap.get(code));
         }
     }
-    public String verificationStatus(String name , String status) throws  Exception{
-        Map<String,Object>  model = new HashMap<>();
-        model.put("USER_NAME",name);
-        model.put("STATUS",status);
-        return freemarkerService.renderTemplate("verification-status.ftl",model);
+
+    @Async
+    private Map<String,Object> createMockParticipant(HttpHeaders headers, String role,Map<String,Object> participantDetails) throws Exception {
+        String parentParticipantCode = (String) participantDetails.getOrDefault(PARTICIPANT_CODE,"");
+        logger.info("creating Mock participant for :: parent participant code : " + parentParticipantCode + " :: Role: " + role);
+        Map<String, String> headersMap = new HashMap<>();
+        headersMap.put(AUTHORIZATION, Objects.requireNonNull(headers.get(AUTHORIZATION)).get(0));
+        Map<String,Object> mockParticipant = getMockParticipantBody(participantDetails,role,parentParticipantCode);
+        String privateKey = (String) mockParticipant.getOrDefault(PRIVATE_KEY,"");
+        mockParticipant.remove(PRIVATE_KEY);
+        HttpResponse<String> createResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_CREATE, JSONUtils.serialize(mockParticipant), headersMap);
+        ParticipantResponse pcptResponse = JSONUtils.deserialize(createResponse.getBody(), ParticipantResponse.class);
+        if (createResponse.getStatus() != 200) {
+            throw new ClientException(pcptResponse.getError().getCode() == null ? ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS : pcptResponse.getError().getCode(), pcptResponse.getError().getMessage());
+        }
+        String childParticipantCode = (String) JSONUtils.deserialize(createResponse.getBody(), Map.class).get(PARTICIPANT_CODE);
+        return updateMockDetails(mockParticipant,parentParticipantCode,childParticipantCode,privateKey);
+    }
+
+    private void getEmailAndName(String role, Map<String, Object> mockParticipant, Map<String, Object> participantDetails, String name) {
+        mockParticipant.put(PRIMARY_EMAIL, SlugUtils.makeEmailSlug((String) participantDetails.getOrDefault(PRIMARY_EMAIL, ""), role));
+        mockParticipant.put(PARTICIPANT_NAME, participantDetails.getOrDefault(PARTICIPANT_NAME, "") + " " + name);
+    }
+
+    private Map<String,Object> getMockParticipantBody(Map<String,Object> participantDetails,String role,String parentParticipantCode) throws Exception {
+        Map<String, Object> mockParticipant = new HashMap<>();
+        if (role.equalsIgnoreCase(PAYOR)) {
+            mockParticipant.put(ROLES, new ArrayList<>(List.of(PAYOR)));
+            mockParticipant.put(SCHEME_CODE, "default");
+            mockParticipant.put(ENDPOINT_URL,mockPayorEndpointURL);
+            getEmailAndName("mock_payor", mockParticipant, participantDetails, "Mock Payor");
+        }
+        if (role.equalsIgnoreCase(PROVIDER)) {
+            mockParticipant.put(ROLES, new ArrayList<>(List.of(PROVIDER)));
+            mockParticipant.put(ENDPOINT_URL,mockProviderEndpointURL);
+            getEmailAndName("mock_provider", mockParticipant, participantDetails, "Mock Provider");
+        }
+        Map<String,Object> certificate = CertificateUtil.generateCertificates(parentParticipantCode,hcxURL);
+        mockParticipant.put(SIGNING_CERT_PATH, certificate.getOrDefault(PUBLIC_KEY, ""));
+        mockParticipant.put(ENCRYPTION_CERT, certificate.getOrDefault(PUBLIC_KEY, ""));
+        mockParticipant.put(PRIVATE_KEY,certificate.getOrDefault(PRIVATE_KEY,""));
+        mockParticipant.put(REGISTRY_STATUS, ACTIVE);
+        return mockParticipant;
+    }
+
+    private Map<String,Object> updateMockDetails(Map<String,Object> mockParticipant,String parentParticipantCode,String childParticipantCode,String privateKey) throws Exception {
+        String childPrimaryEmail = (String) mockParticipant.get(PRIMARY_EMAIL);
+        RandomStringGenerator randomStringGenerator = new RandomStringGenerator.Builder().withinRange('0', 'z').filteredBy(CharacterPredicates.LETTERS, CharacterPredicates.DIGITS).build();
+        String password = randomStringGenerator.generate(12) + "@";
+        String query = String.format("INSERT INTO %s (parent_participant_code,child_participant_code,primary_email,password,private_key) VALUES ('%s','%s','%s','%s','%s');",
+                mockParticipantsTable, parentParticipantCode, childParticipantCode, childPrimaryEmail,password, privateKey);
+        postgresClientMockService.execute(query);
+        Map<String,Object> mockParticipantDetails = new HashMap<>();
+        mockParticipantDetails.put(PARTICIPANT_CODE,childParticipantCode);
+        mockParticipantDetails.put(PRIMARY_EMAIL,childPrimaryEmail);
+        mockParticipantDetails.put(PASSWORD,password);
+        setKeycloakPassword(childParticipantCode,password);
+        logger.info("created Mock participant for :: parent participant code  : " + parentParticipantCode + " :: child participant code  : " + childParticipantCode);
+        return mockParticipantDetails;
+    }
+
+    private void setKeycloakPassword(String childParticipantCode, String password) throws ClientException {
+        try {
+            TimeUnit.SECONDS.sleep(2); // After creating participant, elasticsearch will retrieve data after one second hence added two seconds delay for search API.
+            Map<String,Object> participantDetails = getParticipant(PARTICIPANT_CODE,childParticipantCode);
+            ArrayList<String> osOwner = (ArrayList<String>) participantDetails.get(OS_OWNER);
+            Keycloak keycloak = Keycloak.getInstance(keycloakURL, keycloakMasterRealm,keycloakAdminUserName, keycloakAdminPassword, keycloackClientId);
+            RealmResource realmResource = keycloak.realm(keycloackUserRealm);
+            UserResource userResource = realmResource.users().get(osOwner.get(0));
+            CredentialRepresentation passwordCred = new CredentialRepresentation();
+            passwordCred.setTemporary(false);
+            passwordCred.setType(CredentialRepresentation.PASSWORD);
+            passwordCred.setValue(password);
+            userResource.resetPassword(passwordCred);
+            logger.info("The Keycloak password for the userID :" + osOwner.get(0) + " has been successfully updated");
+         } catch (Exception e){
+           throw new ClientException("Unable to set keycloack password : " + e.getMessage());
+        }
+    }
+
+    private void getMockParticipant(List<Map<String, Object>> participantsList, HttpHeaders headers) throws Exception {
+        validateRole(headers);
+        String selectQuery = String.format("SELECT * FROM %s WHERE parent_participant_code IN (%s)", mockParticipantsTable, getParticipantCodeList(participantsList));
+        ResultSet resultSet = (ResultSet) postgresClientMockService.executeQuery(selectQuery);
+        Map<String, Object> mockDetails = new HashMap<>();
+        while (resultSet.next()) {
+            String childParticipantCode = resultSet.getString(CHILD_PARTICIPANT_CODE);
+            String parentParticipantCode = resultSet.getString(PARENT_PARTICIPANT_CODE);
+            Map<String, Object> mockUsers = (Map<String, Object>) mockDetails.getOrDefault(parentParticipantCode, new HashMap<>());
+            if (childParticipantCode.contains(MOCK_PROVIDER)) {
+                addDetails(resultSet, mockUsers, childParticipantCode, MOCK_PROVIDER);
+            } else if (childParticipantCode.contains(MOCK_PAYOR)) {
+                addDetails(resultSet, mockUsers, childParticipantCode, MOCK_PAYOR);
+            }
+            mockDetails.put(parentParticipantCode, mockUsers);
+        }
+        filterMockParticipants(mockDetails, participantsList);
+    }
+
+    private void validateRole(HttpHeaders headers) throws Exception {
+        String jwtToken = Objects.requireNonNull(headers.get(AUTHORIZATION)).get(0);
+        Map<String, Object> token = JSONUtils.decodeBase64String(jwtToken.split("\\.")[1], Map.class);
+        Map<String, Object> realmAccess = (Map<String, Object>) token.get("realm_access");
+        ArrayList<String> role = (ArrayList<String>) realmAccess.get(ROLES);
+        if (!role.get(0).equalsIgnoreCase(ADMIN_ROLE)) {
+            throw new ClientException("Invalid Token,Provide a valid admin token ");
+        }
+    }
+
+    private void addDetails(ResultSet resultSet, Map<String, Object> mockUsers, String childParticipantCode, String type) throws SQLException {
+        Map<String, Object> mockParticipant = new HashMap<>();
+        mockParticipant.put(PARTICIPANT_CODE, childParticipantCode);
+        mockParticipant.put(PRIMARY_EMAIL, resultSet.getString(PRIMARY_EMAIL));
+        mockParticipant.put(PASSWORD, resultSet.getString(PASSWORD));
+        mockUsers.put(type, mockParticipant);
+    }
+
+    private void filterMockParticipants(Map<String, Object> mockDetails, List<Map<String, Object>> participantsList) {
+        for (Map<String, Object> responseList : participantsList) {
+            String code = (String) responseList.get(PARTICIPANT_CODE);
+            Map<String, Object> mockUsers = (Map<String, Object>) mockDetails.get(code);
+            if (mockUsers != null) {
+                Map<String, Object> mockProvider = (Map<String, Object>) mockUsers.get(MOCK_PROVIDER);
+                Map<String, Object> mockPayor = (Map<String, Object>) mockUsers.get(MOCK_PAYOR);
+                responseList.put(MOCK_PROVIDER, mockProvider);
+                responseList.put(MOCK_PAYOR, mockPayor);
+            }
+        }
+    }
+    private String getParticipantCodeList(List<Map<String, Object>> participantsList){
+        String participantCodeList = participantsList.stream().map(participant -> participant.get(PARTICIPANT_CODE)).collect(Collectors.toList()).toString();
+        return getParticipantWithQuote(participantCodeList);
     }
 }

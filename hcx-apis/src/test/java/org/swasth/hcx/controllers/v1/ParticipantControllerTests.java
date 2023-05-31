@@ -323,13 +323,16 @@ class ParticipantControllerTests extends BaseSpec{
     @Test
     void participant_read_invalid_scenario() throws Exception {
         registryServer.enqueue(new MockResponse()
-                .setResponseCode(500)
+                .setResponseCode(200)
                 .setBody("[]")
                 .addHeader("Content-Type", "application/json"));
         MvcResult mvcResult = mockMvc.perform(get(Constants.VERSION_PREFIX + "/participant/read/d2d56996-1b77-4abb-b9e9-0e6e7343c72e").content(getSearchFilter()).header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
-        assertEquals(500, status);
+        Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
+        assertEquals(400, status);
+        assertEquals(ErrorCodes.ERR_INVALID_PARTICIPANT_CODE, resObj.getError().getCode());
+        assertEquals("Please provide valid participant code", resObj.getError().getMessage());
     }
 
 }

@@ -7,8 +7,8 @@ logging:
 
 env: ${ENV:local}
 
-hcxURL: ${hcx_url:https://hcx.swasth.app}
-apiVersion: ${api_version:v0.7}
+hcx-url: ${hcx_url:https://hcx.swasth.app}
+api-version: ${api_version:v0.7}
 #elasticsearch config
 es:
   host: ${es_host:localhost}
@@ -20,12 +20,12 @@ audit:
   alias: ${audit_alias:onboard_audit}
 
 aws:
-  accessKey: ${aws_accessKey:}
-  accessSecret: ${aws_accessSecret:}
+  access-key: ${aws_accessKey:}
+  access-secret: ${aws_accessSecret:}
   region: ${aws_region:}
 
 onboard:
-  successURL: ${onboarding_success_url:${hcxURL}/onboarding/success}
+  success-url: ${onboarding_success_url:${hcx-url}/onboarding/success}
   verification:
     email: ${onboard_email_verification:true}
     phone: ${onboard_phone_verification:true}
@@ -34,35 +34,54 @@ email:
   id: ${email_id:}
   pwd: ${email_pwd:}
   linkSub: ${link_sub:HCX - Onboarding Started}
-  successIdentitySub: ${success_identity_sub:HCX - Identity Verified}
-  failedIdentitySub: ${failed_identity_sub:HCX - Identity Verification Failed}
-  onboardingSuccessSub: ${onboarding_success_sub:HCX - Onboarding Successful}
-  verificationSub: ${verification_success:HCX - Verification Status}
+  success-identity-sub: ${success_identity_sub:HCX - Identity Verified}
+  failed-identity-sub: ${failed_identity_sub:HCX - Identity Verification Failed}
+  onboarding-success-sub: ${onboarding_success_sub:HCX - Onboarding Successful}
+  verification-sub: ${verification_success:HCX - Verification Status}
 
 phone:
-  sendLinkMsg : ${send_link_msg:HCX mobile verification link is :}
-  verificationMsg: ${phone_verification_msg:Your phone verification is STATUS.}
+  send-link-msg : ${send_link_msg:HCX mobile verification link is :}
+  verification-msg: ${phone_verification_msg:Your phone verification is STATUS.}
 
 hcx-api:
-  basePath: ${HCX_API_BASEPATH:http://localhost:8080}
+  base-path: ${HCX_API_BASEPATH:http://localhost:8080}
+
+mock-service:
+    payor:
+      endpoint-url: ${mock_service_endpoint_url_provider:http://test-mock-payor-url}
+    provider:
+      endpoint-url: ${mock_service_endpoint_url_payor:http://test-mock-provider-url}
+    allowed-env: ${mock_service_allowed_env:staging,dev}
 
 #postgres config
 postgres:
   url: ${postgres_url:jdbc:postgresql://localhost:5432/postgres}
   user: ${postgres_user:postgres}
   password: ${postgres_password:postgres}
-  onboardVerificationTable: ${onboarding_verification_table:onboard_verification}
-  onboardVerifierTable: ${onboarding_verifier_table:onboard_verifier}
+  table:
+     onboard-verification: ${onboarding_verification_table:onboard_verification}
+     onboard-verifier: ${onboarding_verifier_table:onboard_verifier}
+  mock-service:
+    url: ${mock_service_db_url:jdbc:postgresql://localhost:5432/mock_service}
+    table:
+      mock-participant: ${mock_participant_table:mock_participant}
 
-
-verificationLink:
+verification-link:
   expiry: ${link_expiry:604800000}
-  maxAttempt: ${link_max_attempt:10}
-  maxRegenerate: ${link_max_regenerate:10}
+  max-attempt: ${link_max_attempt:10}
+  max-regenerate: ${link_max_regenerate:10}
 
 registry:
-  hcxCode: ${registry_hcx_code:hcx.gateway@swasth-hcx-dev}
+  hcx-code: ${registry_hcx_code:hcx.gateway@swasth-hcx-dev}
 
 jwt-token:
-  privateKey : ${hcx_private_key:test-private-key}
-  expiryTime : ${expiry_time:86400000}
+  private-key : ${hcx_private_key:test-private-key}
+  expiry-time : ${expiry_time:86400000}
+
+keycloak:
+  base-url: ${keycloak_base_url:${hcx-url}/auth}
+  admin-user: ${keycloack_admin_user_name:admin}
+  admin-password: ${keycloak_admin_password:test-password}
+  master-realm: ${keycloak_master_realm:master}
+  client-id: ${keycloack_client_id:admin-cli}
+  users-realm: ${keycloack_users_realm:swasth-health-claim-exchange}
