@@ -21,7 +21,7 @@ import static org.swasth.common.utils.Constants.*;
 @RequestMapping(Constants.VERSION_PREFIX)
 public class ParticipantController extends BaseController {
 
-    @Value("${email.failedIdentitySub}")
+    @Value("${email.failed-identity-sub}")
     private String failedIdentitySub;
     @Autowired
     private EmailService emailService;
@@ -50,9 +50,9 @@ public class ParticipantController extends BaseController {
     }
 
     @PostMapping(PARTICIPANT_ONBOARD_UPDATE)
-    public ResponseEntity<Object> onboardUpdate(@RequestBody Map<String, Object> requestBody) throws Exception {
+    public ResponseEntity<Object> onboardUpdate(@RequestHeader HttpHeaders header,@RequestBody Map<String, Object> requestBody) throws Exception {
         try {
-            return service.onboardUpdate(requestBody);
+            return service.onboardUpdate(header,requestBody);
         } catch (Exception e) {
             return exceptionHandler(service.getEmail(requestBody.getOrDefault(JWT_TOKEN, "").toString()), PARTICIPANT_ONBOARD_UPDATE, new Response(), e);
         }
@@ -88,9 +88,9 @@ public class ParticipantController extends BaseController {
     }
 
     @PostMapping(APPLICANT_SEARCH)
-    public ResponseEntity<Object> applicantSearch(@RequestParam(required = false) String fields,@RequestBody Map<String,Object> requestBody) throws Exception{
+    public ResponseEntity<Object> applicantSearch(@RequestHeader HttpHeaders header,@RequestParam(required = false) String fields,@RequestBody Map<String,Object> requestBody) throws Exception{
         try{
-            return service.applicantSearch(requestBody,fields);
+            return service.applicantSearch(requestBody,fields,header);
         } catch (Exception e){
             return exceptionHandler("",APPLICANT_SEARCH,new Response(),e);
         }
