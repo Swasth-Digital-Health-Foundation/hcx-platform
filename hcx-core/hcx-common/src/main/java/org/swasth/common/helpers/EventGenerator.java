@@ -281,7 +281,7 @@ public class EventGenerator {
         audit.put(EID, AUDIT);
         audit.put(MID, UUID.randomUUID().toString());
         audit.put(ACTION, NOTIFICATION_NOTIFY);
-        audit.put(ETS, Calendar.getInstance().getTime());
+        audit.put(ETS, System.currentTimeMillis());
         audit.put(TOPIC_CODE, request.getTopicCode());
         audit.put(SENDER_CODE, request.getHcxSenderCode() );
         audit.put(NOTIFICATION_CORRELATION_ID, request.getCorrelationId());
