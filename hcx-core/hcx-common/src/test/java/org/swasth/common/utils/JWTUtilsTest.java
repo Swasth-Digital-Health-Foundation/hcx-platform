@@ -31,6 +31,6 @@ public class JWTUtilsTest {
         String iss = "1-d2d56996-1b77-4abb-b9e9-0e6e7343c72e";
         Long expiryTime = Long.valueOf(86400000);
         String token = jwtUtils.generateAuthToken(privateKey,sub,iss,expiryTime);
-        assertTrue(jwtUtils.isValidSignature(token,"https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/hcx-platform/sprint-30/hcx-apis/src/test/resources/examples/test-keys/public-key.pem"));
+        assertTrue(jwtUtils.isValidSignature(token,"https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/hcx-platform/main/hcx-apis/src/test/resources/examples/test-keys/public-key.pem"));
     }
 }
