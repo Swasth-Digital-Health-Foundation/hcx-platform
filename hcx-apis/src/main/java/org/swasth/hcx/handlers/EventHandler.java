@@ -19,8 +19,7 @@ import org.swasth.postgresql.IDatabaseService;
 import java.sql.ResultSet;
 import java.util.Map;
 
-import static org.swasth.common.utils.Constants.KAFKA_TOPIC_PAYLOAD;
-import static org.swasth.common.utils.Constants.QUEUED_STATUS;
+import static org.swasth.common.utils.Constants.*;
 
 @Component
 public class EventHandler {
@@ -64,7 +63,11 @@ public class EventHandler {
         postgreSQLClient.execute(query);
         kafkaClient.send(payloadTopic, key, payloadEvent);
         kafkaClient.send(metadataTopic, key, metadataEvent);
-        auditIndexer.createDocument(eventGenerator.generateAuditEvent(request));
+        if (request.getApiAction().equalsIgnoreCase(NOTIFICATION_NOTIFY)) {
+            auditIndexer.createDocument(eventGenerator.createNotifyAuditEvent(request));
+        } else {
+            auditIndexer.createDocument(eventGenerator.generateAuditEvent(request));
+        }
         logger.info("Request processed and event is pushed to kafka");
     }
 
