@@ -48,12 +48,12 @@ public class ParticipantValidationScheduler extends BaseScheduler {
         logger.info("Participant validation scheduler started");
         String expiryMessage = "";
         String beforeExpiryMessage = "";
+        List<Map<String, Object>> participants = new ArrayList<>();
         List<String> expiredParticipantCodes = new ArrayList<>();
         List<String> aboutToExpireParticipantCodes = new ArrayList<>();
         for (int beforeExpiryDay : beforeExpiryDaysList) {
             long expiryTime = System.currentTimeMillis() + beforeExpiryDay * 24L * 60 * 60 * 1000;
-            List<Map<String, Object>> participants = registryService.getDetails("{ \"filters\": { \"encryption_cert_expiry\": { \"<\": " + expiryTime + " } } }");
-            logger.info("Total number of participants with expired or expiring encryption certificate in {} days: {}", beforeExpiryDay, participants.size());
+             participants = registryService.getDetails("{ \"filters\": { \"encryption_cert_expiry\": { \"<\": " + expiryTime + " } } }");
             for (Map<String, Object> participant : participants) {
                 long certExpiry = (long) participant.get("encryption_cert_expiry");
                 String participantCode = (String) participant.get(Constants.PARTICIPANT_CODE);
@@ -66,6 +66,7 @@ public class ParticipantValidationScheduler extends BaseScheduler {
                 }
             }
         }
+        logger.info("Total number of participants with expired or expiring encryption certificate in {}", participants.size());
         generateEvent(expiredParticipantCodes,expiryMessage,expiryTopicCode);
         generateEvent(aboutToExpireParticipantCodes,beforeExpiryMessage,beforeExpiryTopicCode);
         logger.info("Participant validation scheduler ended");
