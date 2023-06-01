@@ -43,7 +43,7 @@ public class ParticipantValidationScheduler extends BaseScheduler {
     public void process() throws Exception {
         logger.info("Participant validation scheduler started");
         for (int beforeExpiryDay : beforeExpiryDaysList) {
-            List<Map<String, Object>> participants = registryService.getDetails("{ \"filters\": { \"encryption_cert_expiry\": { \"<\": " + (System.currentTimeMillis() ) + " } } }");
+            List<Map<String, Object>> participants = registryService.getDetails("{ \"filters\": { \"encryption_cert_expiry\": { \"<\": " + (System.currentTimeMillis() + beforeExpiryDay * 24L * 60 * 60 * 1000) + " } } }");
             logger.info("Total number of participants with expired encryption certificate: {}", participants.size());
             if (!participants.isEmpty()) {
                 List<String> participantCodes = participants.stream().map(obj -> obj.get(Constants.PARTICIPANT_CODE).toString()).collect(Collectors.toList());
