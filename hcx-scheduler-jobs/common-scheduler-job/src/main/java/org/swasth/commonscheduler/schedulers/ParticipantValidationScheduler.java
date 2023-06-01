@@ -9,6 +9,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.swasth.common.service.RegistryService;
 import org.swasth.common.utils.Constants;
+import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.utils.NotificationUtils;
 
 import java.util.*;
@@ -47,7 +48,7 @@ public class ParticipantValidationScheduler extends BaseScheduler {
             logger.info("Total number of participants with expired encryption certificate: {}", participants.size());
             if (!participants.isEmpty()) {
                 List<String> participantCodes = participants.stream().map(obj -> obj.get(Constants.PARTICIPANT_CODE).toString()).collect(Collectors.toList());
-                String message = (String) NotificationUtils.getNotification(topicCode).get(Constants.MESSAGE);
+                String message = (String) ((Map<String, Object>) NotificationUtils.getNotification(topicCode).get("template")).get("message");
                 Calendar cal = Calendar.getInstance();
                 cal.add(Calendar.MILLISECOND, notificationExpiry);
                 String notifyEvent = eventGenerator.createNotifyEvent(topicCode, hcxParticipantCode, Constants.PARTICIPANT_CODE, participantCodes, cal.getTime().toInstant().toEpochMilli(), message, hcxPrivateKey);
