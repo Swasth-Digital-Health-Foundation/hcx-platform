@@ -57,4 +57,5 @@ notification:
   masterListPath: ${notification_masterListPath:notifications.yaml}
   expiry: ${notification_expiry:86400000}
 
-
+certificate:
+  expiry-days: ${certificate_expiry_days:5,10,15}
