@@ -48,7 +48,7 @@ public class ParticipantValidationScheduler extends BaseScheduler {
             logger.info("Total number of participants with expired encryption certificate: {}", participants.size());
             if (!participants.isEmpty()) {
                 List<String> participantCodes = participants.stream().map(obj -> obj.get(Constants.PARTICIPANT_CODE).toString()).collect(Collectors.toList());
-                String message = (String) ((Map<String, Object>) NotificationUtils.getNotification(topicCode).get("template")).get("message");
+                String message = (String) ((Map<String, Object>) NotificationUtils.getNotification(topicCode).get(JSONUtils.deserialize(Constants.TEMPLATE,Map.class))).get(Constants.MESSAGE);
                 Calendar cal = Calendar.getInstance();
                 cal.add(Calendar.MILLISECOND, notificationExpiry);
                 String notifyEvent = eventGenerator.createNotifyEvent(topicCode, hcxParticipantCode, Constants.PARTICIPANT_CODE, participantCodes, cal.getTime().toInstant().toEpochMilli(), message, hcxPrivateKey);

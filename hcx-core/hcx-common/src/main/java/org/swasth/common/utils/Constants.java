@@ -153,6 +153,7 @@ public class Constants {
     public static final String NOTIFICATION_TIMESTAMP = "timestamp";
     public static final String NOTIFICATION_CORRELATION_ID = "correlation_id";
     public static final String ALG = "alg";
+    public static final String TEMPLATE = "template";
     public static final String KAFKA_TOPIC_PAYLOAD = "kafka.topic.payload";
     public static final String ENDPOINT_URL = "endpoint_url";
     public static final String HCX_NOT_ALLOWED_URLS = "hcx.urls.notallowed";
