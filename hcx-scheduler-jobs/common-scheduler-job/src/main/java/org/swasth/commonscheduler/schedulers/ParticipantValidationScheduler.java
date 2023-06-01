@@ -24,7 +24,10 @@ public class ParticipantValidationScheduler extends BaseScheduler {
     private RegistryService registryService;
 
     @Value("${topicCode.encryptionCertExpired}")
-    private String topicCode;
+    private String expiryTopicCode;
+
+    @Value("${topicCode.beforeExpiry}")
+    private String beforeExpiryTopicCode;
 
     @Value("${kafka.topic.notification}")
     private String notifyTopic;
@@ -43,19 +46,36 @@ public class ParticipantValidationScheduler extends BaseScheduler {
     @Scheduled(fixedDelayString = "${fixedDelay.in.milliseconds.participantVerify}")
     public void process() throws Exception {
         logger.info("Participant validation scheduler started");
+        String expiryMessage = "";
+        String beforeExpiryMessage = "";
+        List<String> expiredParticipantCodes = new ArrayList<>();
+        List<String> aboutToExpireParticipantCodes = new ArrayList<>();
         for (int beforeExpiryDay : beforeExpiryDaysList) {
-            List<Map<String, Object>> participants = registryService.getDetails("{ \"filters\": { \"encryption_cert_expiry\": { \"<\": " + (System.currentTimeMillis() + beforeExpiryDay * 24L * 60 * 60 * 1000) + " } } }");
-            logger.info("Total number of participants with expired encryption certificate: {}", participants.size());
-            if (!participants.isEmpty()) {
-                List<String> participantCodes = participants.stream().map(obj -> obj.get(Constants.PARTICIPANT_CODE).toString()).collect(Collectors.toList());
-                String message = (String) JSONUtils.deserialize((String)(NotificationUtils.getNotification(topicCode).get(Constants.TEMPLATE)),Map.class).get(Constants.MESSAGE);
-                Calendar cal = Calendar.getInstance();
-                cal.add(Calendar.MILLISECOND, notificationExpiry);
-                String notifyEvent = eventGenerator.createNotifyEvent(topicCode, hcxParticipantCode, Constants.PARTICIPANT_CODE, participantCodes, cal.getTime().toInstant().toEpochMilli(), message, hcxPrivateKey);
-                kafkaClient.send(notifyTopic, Constants.NOTIFICATION, notifyEvent);
-                logger.info("Notify event is pushed to kafka: {}", notifyEvent);
+            long expiryTime = System.currentTimeMillis() + beforeExpiryDay * 24L * 60 * 60 * 1000;
+            List<Map<String, Object>> participants = registryService.getDetails("{ \"filters\": { \"encryption_cert_expiry\": { \"<\": " + expiryTime + " } } }");
+            logger.info("Total number of participants with expired or expiring encryption certificate in {} days: {}", beforeExpiryDay, participants.size());
+            for (Map<String, Object> participant : participants) {
+                long certExpiry = (long) participant.get("encryption_cert_expiry");
+                String participantCode = (String) participant.get(Constants.PARTICIPANT_CODE);
+                if (certExpiry <= System.currentTimeMillis()) {
+                    expiredParticipantCodes.add(participantCode);
+                     expiryMessage = (String) JSONUtils.deserialize((String) (NotificationUtils.getNotification(expiryTopicCode).get(Constants.TEMPLATE)), Map.class).get(Constants.MESSAGE);
+                } else {
+                    aboutToExpireParticipantCodes.add(participantCode);
+                    beforeExpiryMessage = (String) JSONUtils.deserialize((String) (NotificationUtils.getNotification(beforeExpiryTopicCode).get(Constants.TEMPLATE)), Map.class).get(Constants.MESSAGE);
+                }
             }
-            logger.info("Participant validation scheduler ended");
         }
+        generateEvent(expiredParticipantCodes,expiryMessage,expiryTopicCode);
+        generateEvent(aboutToExpireParticipantCodes,beforeExpiryMessage,beforeExpiryTopicCode);
+        logger.info("Participant validation scheduler ended");
+    }
+
+    private void generateEvent(List<String> participantCodes , String message , String topiCode) throws Exception {
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.MILLISECOND, notificationExpiry);
+        String event = eventGenerator.createNotifyEvent(topiCode, hcxParticipantCode, Constants.PARTICIPANT_CODE, participantCodes, cal.getTime().toInstant().toEpochMilli(), message, hcxPrivateKey);
+        kafkaClient.send(notifyTopic,Constants.NOTIFICATION,event);
+        logger.info("Notify event is pushed to kafka: {}", event);
     }
 }
