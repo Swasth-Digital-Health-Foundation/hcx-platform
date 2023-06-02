@@ -127,10 +127,11 @@ spring:
             - RewritePath=/${version.external08}/notification/subscription/list, /${version.internal}/notification/subscription/list
             - RewritePath=/${version.external08}/notification/on_subscribe, /${version.internal}/notification/on_subscribe
             - RewritePath=/${version.external08}/notification/subscription/update, /${version.internal}/notification/subscription/update
+            - RewritePath=/${version.external08}/eob/(?<segment>/?.*), /${version.internal}/eob/$\{segment}
             - CachingRequestBodyFilter
             - HCXValidationFilter
           predicates:
-            - Path=/${version.external07}/coverageeligibility/**, /${version.external07}/preauth/**, /${version.external07}/claim/**, /${version.external07}/paymentnotice/**, /${version.external07}/hcx/**, /${version.external07}/predetermination/**, /${version.external07}/communication/**, /${version.external08}/coverageeligibility/**, /${version.external08}/preauth/**, /${version.external08}/claim/**, /${version.external08}/paymentnotice/**, /${version.external08}/hcx/**, /${version.external08}/predetermination/**, /${version.external08}/communication/**, /${version.external08}/notification/subscribe, /${version.external08}/notification/unsubscribe, /${version.external08}/notification/subscription/list, /${version.external08}/notification/notify, /${version.external08}/notification/subscription/update, /${version.external08}/notification/on_subscribe
+            - Path=/${version.external07}/coverageeligibility/**, /${version.external07}/preauth/**, /${version.external07}/claim/**, /${version.external07}/paymentnotice/**, /${version.external07}/hcx/**, /${version.external07}/predetermination/**, /${version.external07}/communication/**, /${version.external08}/coverageeligibility/**, /${version.external08}/preauth/**, /${version.external08}/claim/**, /${version.external08}/paymentnotice/**, /${version.external08}/hcx/**, /${version.external08}/predetermination/**, /${version.external08}/communication/**, /${version.external08}/notification/subscribe, /${version.external08}/notification/unsubscribe, /${version.external08}/notification/subscription/list, /${version.external08}/notification/notify, /${version.external08}/notification/subscription/update, /${version.external08}/notification/on_subscribe, /${version.external08}/eob/**
 
         - id: hcx-api-route-audit
           uri: ${hcx-api.basePath}

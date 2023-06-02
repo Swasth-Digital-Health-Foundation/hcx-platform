@@ -41,6 +41,10 @@ public class Constants {
     public static final String PREDETERMINATION_SUBMIT = "/predetermination/submit";
     public static final String PREDETERMINATION_ONSUBMIT = "/predetermination/on_submit";
 
+    //Fetch APIs
+    public static final String EOB_FETCH = "/eob/fetch";
+    public static final String EOB_ON_FETCH = "/eob/on_fetch";
+
     // Notification APIs
     public static final String NOTIFICATION_SUBSCRIBE = "/notification/subscribe";
     public static final String NOTIFICATION_UNSUBSCRIBE = "/notification/unsubscribe";
