@@ -47,7 +47,6 @@ public class ParticipantValidationScheduler extends BaseScheduler {
         logger.info("Participant validation scheduler started");
         String expiryMessage = "";
         String beforeExpiryMessage = "";
-        String message;
         List<Map<String, Object>> participants = new ArrayList<>();
         List<String> expiredParticipantCodes = new ArrayList<>();
         List<String> aboutToExpireParticipantCodes = new ArrayList<>();
@@ -60,19 +59,18 @@ public class ParticipantValidationScheduler extends BaseScheduler {
                 long earlierDayTime = expiryTime - (24L * 60 * 60 * 1000) ;
                 if (certExpiry <= System.currentTimeMillis()) {
                     expiredParticipantCodes.add(participantCode);
-                    expiryMessage = (String) JSONUtils.deserialize((String) (NotificationUtils.getNotification(expiryTopicCode).get(Constants.TEMPLATE)), Map.class).get(Constants.MESSAGE);
+                    expiryMessage = getTemplateMessage(expiryTopicCode);
                 } else if (certExpiry > earlierDayTime && certExpiry < expiryTime){
                     aboutToExpireParticipantCodes.add(participantCode);
-                    message = (String) JSONUtils.deserialize((String) (NotificationUtils.getNotification(beforeExpiryTopicCode).get(Constants.TEMPLATE)), Map.class).get(Constants.MESSAGE);
-                    beforeExpiryMessage = message.replace("${days}", String.valueOf(beforeExpiryDay));
+                    beforeExpiryMessage = getTemplateMessage(beforeExpiryTopicCode).replace("${days}", String.valueOf(beforeExpiryDay));
                 }
             }
             generateEvent(aboutToExpireParticipantCodes, beforeExpiryMessage, beforeExpiryTopicCode);
             aboutToExpireParticipantCodes.clear();
         }
-        logger.info("Total number of participants with expired or expiring encryption certificate in {}", participants.size());
         generateEvent(expiredParticipantCodes, expiryMessage, expiryTopicCode);
         logger.info("Participant validation scheduler ended");
+        logger.info("Total number of participants with expired or expiring encryption certificate in {}", participants.size());
     }
 
     private void generateEvent(List<String> participantCodes, String message, String topiCode) throws Exception {
@@ -81,5 +79,8 @@ public class ParticipantValidationScheduler extends BaseScheduler {
         String event = eventGenerator.createNotifyEvent(topiCode, hcxParticipantCode, Constants.PARTICIPANT_CODE, participantCodes, cal.getTime().toInstant().toEpochMilli(), message, hcxPrivateKey);
         kafkaClient.send(notifyTopic, Constants.NOTIFICATION, event);
         logger.info("Notify event is pushed to kafka: {}", event);
+    }
+    private String getTemplateMessage(String topicCode) throws Exception {
+        return (String) JSONUtils.deserialize((String) (NotificationUtils.getNotification(topicCode).get(Constants.TEMPLATE)), Map.class).get(Constants.MESSAGE);
     }
 }
