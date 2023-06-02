@@ -69,8 +69,9 @@ public class ParticipantValidationScheduler extends BaseScheduler {
             aboutToExpireParticipantCodes.clear();
         }
         generateEvent(expiredParticipantCodes, expiryMessage, expiryTopicCode);
-        logger.info("Participant validation scheduler ended");
         logger.info("Total number of participants with expired or expiring encryption certificate in {}", participants.size());
+        logger.info("Participant validation scheduler ended");
+
     }
 
     private void generateEvent(List<String> participantCodes, String message, String topiCode) throws Exception {
