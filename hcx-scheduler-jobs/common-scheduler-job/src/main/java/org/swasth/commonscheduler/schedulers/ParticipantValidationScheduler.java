@@ -12,8 +12,10 @@ import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.utils.NotificationUtils;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Map;
 
 @Component
 public class ParticipantValidationScheduler extends BaseScheduler {
@@ -48,6 +50,7 @@ public class ParticipantValidationScheduler extends BaseScheduler {
         logger.info("Participant validation scheduler started");
         String expiryMessage = "";
         String beforeExpiryMessage = "";
+        String message = "";
         List<Map<String, Object>> participants = new ArrayList<>();
         List<String> expiredParticipantCodes = new ArrayList<>();
         List<String> aboutToExpireParticipantCodes = new ArrayList<>();
@@ -59,16 +62,17 @@ public class ParticipantValidationScheduler extends BaseScheduler {
                 String participantCode = (String) participant.get(Constants.PARTICIPANT_CODE);
                 if (certExpiry <= System.currentTimeMillis()) {
                     expiredParticipantCodes.add(participantCode);
-                     expiryMessage = (String) JSONUtils.deserialize((String) (NotificationUtils.getNotification(expiryTopicCode).get(Constants.TEMPLATE)), Map.class).get(Constants.MESSAGE);
+                    expiryMessage = (String) JSONUtils.deserialize((String) (NotificationUtils.getNotification(expiryTopicCode).get(Constants.TEMPLATE)), Map.class).get(Constants.MESSAGE);
                 } else {
                     aboutToExpireParticipantCodes.add(participantCode);
                     beforeExpiryMessage = (String) JSONUtils.deserialize((String) (NotificationUtils.getNotification(beforeExpiryTopicCode).get(Constants.TEMPLATE)), Map.class).get(Constants.MESSAGE);
+                    message = beforeExpiryMessage.replace("${days}", String.valueOf(beforeExpiryDay));
                 }
             }
+            generateEvent(aboutToExpireParticipantCodes,message,beforeExpiryTopicCode);
         }
         logger.info("Total number of participants with expired or expiring encryption certificate in {}", participants.size());
         generateEvent(expiredParticipantCodes,expiryMessage,expiryTopicCode);
-        generateEvent(aboutToExpireParticipantCodes,beforeExpiryMessage,beforeExpiryTopicCode);
         logger.info("Participant validation scheduler ended");
     }
 
