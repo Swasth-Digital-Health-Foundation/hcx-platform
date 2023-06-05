@@ -56,7 +56,7 @@ public class EventGenerator {
         event.put(MID, UUIDUtils.getUUID());
         event.put(ETS, System.currentTimeMillis());
         event.put(ACTION, APPLICANT_VERIFY);
-        event.put(TYPE, OTPVERIFICATION);
+        event.put(TYPE, COMMUNICATION_VERIFICATION);
         event.put(PARTICIPANT_CODE, request.getOrDefault(PARTICIPANT_CODE, ""));
         event.put(ATTEMPT_COUNT, attemptCount);
         event.put(EMAIL_VERIFIED, emailOtpVerified);

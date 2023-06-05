@@ -33,15 +33,11 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-maven-
+          key: ${{ runner.os }}-maven-api-gateway
+          restore-keys: ${{ runner.os }}-maven-api-gateway
 
       - name: Maven Build
-        run: |
-          cd hcx-core
-          mvn clean install
-          cd ../api-gateway
-          mvn clean install         
+        run: mvn clean install -P api-gateway
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
@@ -66,4 +62,3 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-south-1
-

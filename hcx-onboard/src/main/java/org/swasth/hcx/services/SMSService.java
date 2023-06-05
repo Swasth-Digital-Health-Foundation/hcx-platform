@@ -18,10 +18,10 @@ import java.util.concurrent.CompletableFuture;
 @Service
 public class SMSService {
 
-    @Value("${aws.accessKey}")
+    @Value("${aws.access-key}")
     private String accessKey;
 
-    @Value("${aws.accessSecret}")
+    @Value("${aws.access-secret}")
     private String accessSecret;
 
     @Value("${aws.region}")

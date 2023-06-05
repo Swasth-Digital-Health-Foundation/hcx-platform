@@ -15,6 +15,7 @@ import org.swasth.apigateway.models.BaseRequest;
 import org.swasth.apigateway.service.RegistryService;
 import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
+import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -47,6 +48,7 @@ public class AuditValidationFilter extends AbstractGatewayFilterFactory<AuditVal
     public GatewayFilter apply(Config config) {
         return (exchange, chain) -> {
             Map<String, Object> filterMap;
+            Mono<Void> modifiedReq;
             try {
                 String sub = exchange.getRequest().getHeaders().getFirst("X-jwt-sub");
                 StringBuilder cachedBody = new StringBuilder(StandardCharsets.UTF_8.decode(((DataBuffer) exchange.getAttribute(CACHED_REQUEST_BODY_ATTR)).asByteBuffer()));
@@ -66,13 +68,14 @@ public class AuditValidationFilter extends AbstractGatewayFilterFactory<AuditVal
                 } else {
                     throw new ClientException(ErrorCodes.ERR_INVALID_SENDER, INVALID_SENDER);
                 }
+            modifiedReq = requestHandler.getUpdatedBody(exchange, chain, filterMap);
             } catch (Exception e) {
                 return exceptionHandler.errorResponse(e, exchange, null, null, new BaseRequest());
             }
-            return requestHandler.getUpdatedBody(exchange, chain, filterMap);
+            return modifiedReq;
         };
     }
-
+    
     public static class Config {
     }
 

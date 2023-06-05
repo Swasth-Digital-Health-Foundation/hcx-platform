@@ -24,6 +24,7 @@ import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.utils.JWTUtils;
 import org.swasth.common.utils.NotificationUtils;
+import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
@@ -90,6 +91,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
             BaseRequest requestObj = null;
             String path;
             Map<String, Object> requestBody;
+            Mono<Void> modifiedReq;
             try {
                 StringBuilder cachedBody = new StringBuilder(StandardCharsets.UTF_8.decode(((DataBuffer) exchange.getAttribute(CACHED_REQUEST_BODY_ATTR)).asByteBuffer()));
                 ServerHttpRequest request = exchange.getRequest();
@@ -186,11 +188,12 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                     }
                     validateParticipantCtxDetails(getParticipantCtxAuditData(jsonRequest.getHcxSenderCode(), jsonRequest.getHcxRecipientCode(), jsonRequest.getCorrelationId()), path);
                 }
+               modifiedReq = requestHandler.getUpdatedBody(exchange, chain, requestObj.getPayload());
             } catch (Exception e) {
                 logger.error(MessageFormat.format(CORRELATION_ERR_MSG, correlationId,  e.getMessage()));
                 return exceptionHandler.errorResponse(e, exchange, correlationId, apiCallId, requestObj);
             }
-            return requestHandler.getUpdatedBody(exchange, chain, requestObj.getPayload());
+            return modifiedReq;
         };
     }
 

@@ -20,6 +20,7 @@ kafka:
     audit: ${kafka_audit_topic:${env}.hcx.audit}
     onsubscription: ${kafka_onsubscription_topic:${env}.hcx.request.onsubscription}
     retry: ${kafka_retry_topic:${env}.hcx.request.retry}
+    fetch: ${kafka_fetch_topic:${env}.hcx.request.fetch}
 
 
 registry:
