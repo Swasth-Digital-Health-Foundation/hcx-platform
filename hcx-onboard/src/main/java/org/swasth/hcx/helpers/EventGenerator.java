@@ -32,6 +32,7 @@ public class EventGenerator {
         event.put(PRIMARY_MOBILE, request.getPrimaryMobile());
         event.put(ROLES, request.getRoles());
         event.put(PARTICIPANT_CODE, participantCode);
+        event.put(TERMS_AND_CONDITIONS, ACCEPTED);
         return event;
     }
 
