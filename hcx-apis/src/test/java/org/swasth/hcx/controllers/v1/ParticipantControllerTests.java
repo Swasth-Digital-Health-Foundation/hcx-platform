@@ -269,6 +269,7 @@ class ParticipantControllerTests extends BaseSpec{
                 .setBody("{ \"message\": \"success\" }")
                 .addHeader("Content-Type", "application/json"));
         Mockito.when(redisCache.isExists(any())).thenReturn(true);
+        doReturn(getParticipantCreateAuditLog()).when(mockEventGenerator).createAuditLog(anyString(), anyString(), anyMap(), anyMap());
         doNothing().when(cloudStorageClient).putObject(anyString(), anyString(), anyString());
         doNothing().when(cloudStorageClient).putObject(anyString(), anyString());
         doReturn(getUrl()).when(cloudStorageClient).getUrl(anyString(), anyString());
@@ -356,5 +357,4 @@ class ParticipantControllerTests extends BaseSpec{
         assertEquals(ErrorCodes.ERR_INVALID_PARTICIPANT_CODE, resObj.getError().getCode());
         assertEquals("Please provide valid participant code", resObj.getError().getMessage());
     }
-
 }

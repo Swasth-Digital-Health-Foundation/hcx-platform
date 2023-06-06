@@ -497,5 +497,16 @@ public class BaseSpec {
         obj.put("linked_user_id", "1234");
         return JSONUtils.serialize(obj);
     }
-
+    public String getParticipantAddBody() throws JsonProcessingException{
+        Map<String,Object> obj = new HashMap<>();
+        obj.put("participant_code","test-participant-code-4@swasth");
+        obj.put("users",List.of(Map.of("user_id","test-user-89.gmail@swasth-hcx","role","admin")));
+        return JSONUtils.serialize(obj);
+    }
+    public String getParticipantRemoveBody() throws JsonProcessingException {
+        Map<String,Object> obj = new HashMap<>();
+        obj.put("participant_code","test-participant-code-4@swasth");
+        obj.put("users",List.of("test-user-89.gmail@swasth-hcx"));
+        return JSONUtils.serialize(obj);
+    }
 }

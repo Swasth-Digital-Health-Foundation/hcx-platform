@@ -1,6 +1,5 @@
 package org.swasth.hcx.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import kong.unirest.HttpResponse;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.slf4j.Logger;
@@ -16,6 +15,7 @@ import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.utils.SlugUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.swasth.common.response.ResponseMessage.INVALID_USER_DETAILS;
 import static org.swasth.common.response.ResponseMessage.INVALID_USER_ID;
@@ -41,7 +41,7 @@ public class UserService extends BaseRegistryService {
     }
 
     public RegistryResponse search(Map<String, Object> requestBody) throws Exception {
-        return registrySearch(requestBody, registryUserPath,USER);
+        return registrySearch(requestBody, registryUserPath, USER);
     }
 
     public RegistryResponse update(Map<String, Object> requestBody, Map<String, Object> registryDetails, HttpHeaders headers, String code) throws Exception {
@@ -65,17 +65,50 @@ public class UserService extends BaseRegistryService {
         return responseHandler(response, code, USER);
     }
 
-    public RegistryResponse tenantUpdate(Map<String, Object> requestBody, HttpHeaders headers, Map<String, Object> registryDetails, String code) throws Exception {
+    public RegistryResponse addUser(Map<String, Object> userBody, HttpHeaders headers) throws Exception {
         HttpResponse<String> response;
+        Map<String, Object> registryDetails = getUser((String) userBody.get(USER_ID));
+        ArrayList<Map<String, Object>> tenantRolesList = new ArrayList<>();
+        Map<String, Object> requestBody = new HashMap<>();
         if (registryDetails.containsKey(TENANT_ROLES)) {
-            ArrayList<Map<String, Object>> tenantRolesList = JSONUtils.convert(registryDetails.getOrDefault(TENANT_ROLES, ""), ArrayList.class);
-            List<Map<String, Object>> requestBodyList = (List<Map<String, Object>>) requestBody.get(TENANT_ROLES);
-            tenantRolesList.add(requestBodyList.get(0));
-            requestBody.put(TENANT_ROLES, tenantRolesList);
+            tenantRolesList = JSONUtils.convert(registryDetails.getOrDefault(TENANT_ROLES, new ArrayList<>()), ArrayList.class);
+            for (Map<String, Object> roleExist : tenantRolesList) {
+                if (roleExist.get(ROLE).equals(userBody.get(ROLE)) && roleExist.get(PARTICIPANT_CODE).equals(userBody.get(PARTICIPANT_CODE))) {
+                    throw new ClientException("User with the role : " + userBody.get(ROLE) + " and participant code : " + userBody.get(PARTICIPANT_CODE) + " is already exist for the user_id : " + userBody.get(USER_ID));
+                }
+            }
         }
+        requestBody.put(TENANT_ROLES, tenantRolesList);
+        userBody.remove(USER_ID);
+        tenantRolesList.add(userBody);
         response = registryUpdate(requestBody, registryDetails, headers, registryUserPath);
-        return responseHandler(response, code, USER);
+        logger.info("added role for the user_id : " + registryDetails.get(USER_ID));
+        return responseHandler(response, (String) registryDetails.get(USER_ID), USER);
     }
+
+    public RegistryResponse removeUser(Map<String, Object> requestBody, HttpHeaders headers) throws Exception {
+        HttpResponse<String> response;
+        String userId = (String) requestBody.get(USER_ID);
+        Map<String, Object> registryDetails = getUser(userId);
+        ArrayList<Map<String, Object>> filteredTenantRoles = new ArrayList<>();
+        if (registryDetails.containsKey(TENANT_ROLES)) {
+            ArrayList<Map<String, Object>> tenantRolesList = JSONUtils.convert(registryDetails.get(TENANT_ROLES), ArrayList.class);
+            for (Map<String, Object> tenantRole : tenantRolesList) {
+                String role = (String) tenantRole.get(ROLE);
+                String participantCode = (String) tenantRole.get(PARTICIPANT_CODE);
+                if (!ALLOWED_REMOVE_ROLES.contains(role) && participantCode.equals(requestBody.get(PARTICIPANT_CODE))) {
+                    filteredTenantRoles.add(tenantRole);
+                } else if (tenantRole.get(ROLE).equals(ADMIN) && !tenantRole.equals(requestBody.get(PARTICIPANT_CODE))) {
+                    throw new Exception("Invalid participant code : " + requestBody.get(PARTICIPANT_CODE) + " or admin role cannot be removed.");
+                }
+            }
+        }
+        Map<String, Object> newMap = new HashMap<>();
+        newMap.put(TENANT_ROLES, filteredTenantRoles);
+        response = registryUpdate(newMap, registryDetails, headers, registryUserPath);
+        return responseHandler(response, userId, USER);
+    }
+
 
     public Map<String, Object> getUser(String userId) throws Exception {
         logger.info("searching for :: user id : {}", userId);
@@ -96,20 +129,28 @@ public class UserService extends BaseRegistryService {
 
     public String createUserId(Map<String, Object> requestBody) throws ClientException {
         if (requestBody.containsKey(EMAIL) || requestBody.containsKey(MOBILE)) {
-            if (requestBody.containsKey(EMAIL) && EmailValidator.getInstance().isValid((String) requestBody.get(EMAIL) )) {
+            if (requestBody.containsKey(EMAIL) && EmailValidator.getInstance().isValid((String) requestBody.get(EMAIL))) {
                 return SlugUtils.makeSlug((String) requestBody.get(EMAIL), "", fieldSeparator, hcxInstanceName);
             } else if (requestBody.containsKey(MOBILE)) {
                 return requestBody.get(MOBILE) + "@" + hcxInstanceName;
             }
         }
-        throw new ClientException(ErrorCodes.ERR_INVALID_USER_DETAILS,INVALID_USER_DETAILS);
+        throw new ClientException(ErrorCodes.ERR_INVALID_USER_DETAILS, INVALID_USER_DETAILS);
     }
 
     public void updateAllowedFields(Map<String, Object> requestBody) throws ClientException {
         List<String> requestFields = new ArrayList<>(requestBody.keySet());
-        if (NOT_ALLOWED_FIELDS_FOR_UPDATE.containsAll(requestFields)) {
+        if (ALLOWED_FIELDS_FOR_UPDATE.containsAll(requestFields)) {
             requestFields.remove(USER_ID);
             throw new ClientException(ErrorCodes.ERR_INVALID_USER_DETAILS, "Fields not allowed for update: " + requestFields);
         }
+    }
+
+    public Map<String, Object> constructRequestBody(Map<String, Object> requestBody, Map<String, Object> user) {
+        Map<String, Object> userRequest = new HashMap<>();
+        userRequest.put(PARTICIPANT_CODE, requestBody.get(PARTICIPANT_CODE));
+        userRequest.put(ROLE, user.get(ROLE));
+        userRequest.put(USER_ID, user.get(USER_ID));
+        return userRequest;
     }
 }
