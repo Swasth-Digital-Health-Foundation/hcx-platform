@@ -308,6 +308,20 @@ class UserControllerTests extends BaseSpec {
         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_USER_REMOVE).content(getParticipantRemoveBody()).header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
-        assertEquals(500, status);
+        assertEquals(400, status);
+    }
+
+    @Test
+    void participant_remove_user_empty_tenat_body() throws Exception {
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("[{ \"user_name\": \"test-user-89\",\"created_by\":\"test-participant-code-4@swasth\", \"mobile\": \"9620499129\", \"email\": \"test-user-89@gmail.com\", \"tenant_roles\": [], \"osOwner\": [ \"d3a64f93-7c0e-4b10-8f32-eb26ee65400f\" ], \"user_id\": \"test-user-89.gmail@swasth-hcx\",\"osid\":\"916d667b-6e39-4750-95eb-f3dc5061ab63\" }]")
+                .addHeader("Content-Type", "application/json"));
+        Mockito.when(redisCache.isExists(any())).thenReturn(true);
+        doReturn(getUserUpdateAuditLog()).when(mockEventGenerator).createAuditLog(anyString(), anyString(), anyMap(), anyMap());
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_USER_REMOVE).content(getParticipantRemoveBody()).header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        assertEquals(400, status);
     }
 }
