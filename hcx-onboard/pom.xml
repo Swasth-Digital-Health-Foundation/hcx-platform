@@ -73,11 +73,7 @@
 			<version>3.14.9</version>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>commons-validator</groupId>
-			<artifactId>commons-validator</artifactId>
-			<version>1.4.1</version>
-		</dependency>
+
 		<!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk -->
 		<dependency>
 			<groupId>com.amazonaws</groupId>

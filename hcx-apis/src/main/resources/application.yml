@@ -3,6 +3,9 @@ bootstrap-servers: ${bootstrap_servers:localhost:9092}
 
 env: local
 
+server:
+  port: ${SERVER_PORT:8094}
+
 kafka:
   topic:
     payload: ${kafka_payload_topic:${env}.hcx.request.payload}
