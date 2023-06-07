@@ -39,7 +39,10 @@ public class RegistryResponse {
             this.users = (ArrayList<Object>) response;
         }
     }
-
+    public RegistryResponse(long timestamp,String status){
+        this.timestamp = timestamp;
+        this.status = status;
+    }
     public Long getTimestamp() {
         return timestamp;
     }
@@ -83,6 +86,4 @@ public class RegistryResponse {
     public String getUserId() {
         return userId;
     }
-
-
 }

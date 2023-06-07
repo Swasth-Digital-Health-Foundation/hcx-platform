@@ -160,8 +160,9 @@ spring:
             - RewritePath=/${version.external08}/request/retry/(?<segment>/?.*), /${version.internal}/request/retry/$\{segment}
             - RewritePath=/${version.external08}/audit/onboard/search, /${version.internal}/audit/onboard/search
             - RewritePath=/${version.external08}/user/(?<segment>/?.*), /${version.internal}/user/$\{segment}
+            - RewritePath=/${version.external08}/participant/user/(?<segment>/?.*)}, /${version.internal/participant/user/$\{segment}
           predicates:
-            - Path=/${version.external07}/participant/create, /${version.external07}/participant/update, /${version.external07}/participant/search, /${version.external07}/participant/delete, /${version.external08}/participant/create, /${version.external08}/participant/update, /${version.external08}/participant/search , /${version.external08}/participant/read/*, /${version.external08}/participant/delete, /health, /service/health, /${version.external08}/notification/topic/list,  /${version.external08}/request/retry/**, /${version.external08}/audit/onboard/search, /${version.external08}/user/create,/${version.external08}/user/update,/${version.external08}/user/read/*,/${version.external08}/user/search,/${version.external08}/user/delete
+            - Path=/${version.external07}/participant/create, /${version.external07}/participant/update, /${version.external07}/participant/search, /${version.external07}/participant/delete, /${version.external08}/participant/create, /${version.external08}/participant/update, /${version.external08}/participant/search , /${version.external08}/participant/read/*, /${version.external08}/participant/delete, /health, /service/health, /${version.external08}/notification/topic/list,  /${version.external08}/request/retry/**, /${version.external08}/audit/onboard/search, /${version.external08}/user/create,/${version.external08}/user/update,/${version.external08}/user/read/*,/${version.external08}/user/search,/${version.external08}/user/delete,/${version.external08}/participant/user/add,/${version.external08}/participant/user/remove
 
         - id: hcx-onboard-api-route
           uri: ${hcx-onboard.basePath}

@@ -104,4 +104,8 @@ public class BaseRegistryService {
     protected ResponseEntity<Object> getSuccessResponse(Object response) {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+    public RegistryResponse addRemoveResponse(RegistryResponse registryResponse){
+            return new RegistryResponse(System.currentTimeMillis(), registryResponse.getStatus());
+        }
 }

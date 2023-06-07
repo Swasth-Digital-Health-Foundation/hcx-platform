@@ -72,8 +72,8 @@ public class UserService extends BaseRegistryService {
         Map<String, Object> requestBody = new HashMap<>();
         if (registryDetails.containsKey(TENANT_ROLES)) {
             tenantRolesList = JSONUtils.convert(registryDetails.getOrDefault(TENANT_ROLES, new ArrayList<>()), ArrayList.class);
-            for (Map<String, Object> roleExist : tenantRolesList) {
-                if (roleExist.get(ROLE).equals(userBody.get(ROLE)) && roleExist.get(PARTICIPANT_CODE).equals(userBody.get(PARTICIPANT_CODE))) {
+            for (Map<String, Object> userExist : tenantRolesList) {
+                if (userExist.get(ROLE).equals(userBody.get(ROLE)) && userExist.get(PARTICIPANT_CODE).equals(userBody.get(PARTICIPANT_CODE))) {
                     throw new ClientException("User with the role : " + userBody.get(ROLE) + " and participant code : " + userBody.get(PARTICIPANT_CODE) + " is already exist for the user_id : " + userBody.get(USER_ID));
                 }
             }
@@ -93,6 +93,9 @@ public class UserService extends BaseRegistryService {
         ArrayList<Map<String, Object>> filteredTenantRoles = new ArrayList<>();
         if (registryDetails.containsKey(TENANT_ROLES)) {
             ArrayList<Map<String, Object>> tenantRolesList = JSONUtils.convert(registryDetails.get(TENANT_ROLES), ArrayList.class);
+            if(tenantRolesList.isEmpty()) {
+               throw new Exception("user does not have any role to remove");
+            }
             for (Map<String, Object> tenantRole : tenantRolesList) {
                 String role = (String) tenantRole.get(ROLE);
                 String participantCode = (String) tenantRole.get(PARTICIPANT_CODE);
@@ -103,9 +106,10 @@ public class UserService extends BaseRegistryService {
                 }
             }
         }
-        Map<String, Object> newMap = new HashMap<>();
-        newMap.put(TENANT_ROLES, filteredTenantRoles);
-        response = registryUpdate(newMap, registryDetails, headers, registryUserPath);
+        Map<String, Object> request = new HashMap<>();
+        request.put(TENANT_ROLES, filteredTenantRoles);
+        response = registryUpdate(request, registryDetails, headers, registryUserPath);
+        logger.info("removed role for the user_id : " + registryDetails.get(USER_ID));
         return responseHandler(response, userId, USER);
     }
 

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class RegistryResponseTest {
 
@@ -47,5 +48,13 @@ public class RegistryResponseTest {
         value.add(Map.of("user_id", "test-user@swasth-hcx", "user_name", "test-user"));
         RegistryResponse response = new RegistryResponse(value, entity);
         assertEquals(value, response.getUsers());
+    }
+
+    @Test
+    public void testAddRemoveResponse(){
+        long timestamp = System.currentTimeMillis();
+        String status = "SUCCESS";
+        RegistryResponse response = new RegistryResponse(timestamp,status);
+        assertEquals(status,response.getStatus());
     }
 }

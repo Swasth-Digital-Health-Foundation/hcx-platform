@@ -97,9 +97,9 @@ public class UserController extends BaseController {
             for (Map<String, Object> user : users) {
                 Map<String, Object> userRequest = userService.constructRequestBody(requestBody,user);
                 response = userService.addUser(userRequest, headers);
-                response.setStatus(SUCCESS);
             }
-            return getSuccessResponse(response);
+            response.setStatus(SUCCESS);
+            return getSuccessResponse(userService.addRemoveResponse(response));
         } catch (Exception e) {
             return exceptionHandler(new Response(),e);
         }
@@ -111,14 +111,15 @@ public class UserController extends BaseController {
         try {
             logger.info("Removing users : {}", requestBody);
             RegistryResponse response = null;
-            List<String> removeUsers = (List<String>) requestBody.get(USERS);
-            for(String users : removeUsers){
-                Map<String,Object> removeMap = new HashMap<>();
-                removeMap.put(PARTICIPANT_CODE,requestBody.get(PARTICIPANT_CODE));
-                removeMap.put(USER_ID,users);
-                response = userService.removeUser(removeMap,headers);
+            List<String> users = (List<String>) requestBody.get(USERS);
+            for(String user : users){
+                Map<String,Object> removeUser = new HashMap<>();
+                removeUser.put(PARTICIPANT_CODE,requestBody.get(PARTICIPANT_CODE));
+                removeUser.put(USER_ID,user);
+                response = userService.removeUser(removeUser,headers);
             }
-            return getSuccessResponse(response);
+            response.setStatus(SUCCESS);
+            return getSuccessResponse(userService.addRemoveResponse(response));
         } catch (Exception e) {
             return exceptionHandler(new Response(),e);
         }
