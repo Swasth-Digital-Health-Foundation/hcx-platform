@@ -94,7 +94,7 @@ public class UserService extends BaseRegistryService {
         if (registryDetails.containsKey(TENANT_ROLES)) {
             ArrayList<Map<String, Object>> tenantRolesList = JSONUtils.convert(registryDetails.get(TENANT_ROLES), ArrayList.class);
             if(tenantRolesList.isEmpty()) {
-               throw new Exception("user does not have any role to remove");
+               throw new ClientException("user does not have any role to remove");
             }
             for (Map<String, Object> tenantRole : tenantRolesList) {
                 String role = (String) tenantRole.get(ROLE);
@@ -102,7 +102,7 @@ public class UserService extends BaseRegistryService {
                 if (!ALLOWED_REMOVE_ROLES.contains(role) && participantCode.equals(requestBody.get(PARTICIPANT_CODE))) {
                     filteredTenantRoles.add(tenantRole);
                 } else if (tenantRole.get(ROLE).equals(ADMIN) && !tenantRole.equals(requestBody.get(PARTICIPANT_CODE))) {
-                    throw new Exception("Invalid participant code : " + requestBody.get(PARTICIPANT_CODE) + " or admin role cannot be removed.");
+                    throw new ClientException("Invalid participant code : " + requestBody.get(PARTICIPANT_CODE) + " or admin role cannot be removed.");
                 }
             }
         }
