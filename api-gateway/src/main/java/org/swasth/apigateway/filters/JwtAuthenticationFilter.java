@@ -87,7 +87,8 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
             try {
                 String token = this.extractJWTToken(exchange.getRequest());
                 String path = exchange.getRequest().getPath().value();
-                DecodedJWT decodedJWT = getJWTVerifier(token).verify(token);
+                String entityType = getEntityType(token);
+                DecodedJWT decodedJWT = getJWTVerifier(entityType).verify(token);
 
                 ServerHttpRequest request = exchange.getRequest().mutate().
                         header(X_JWT_SUB_HEADER, decodedJWT.getSubject()).
@@ -96,9 +97,9 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
                 if (!authenticatedAllowedPaths.getPaths().contains(path) && !Utils.containsRegexPath(authenticatedAllowedPaths.getRegexPaths(), path)) {
                     String payload = new String(Base64.getDecoder().decode(decodedJWT.getPayload()));
                     JSONArray claims = JsonPath.read(payload, jwtConfigs.getClaimsNamespacePath());
-                    if (!authorizationService.isAuthorized(exchange, claims)) {
+                    if (!authorizationService.isAuthorized(exchange, claims, entityType)) {
                         throw new JWTVerificationException(ErrorCodes.ERR_ACCESS_DENIED, ACCESS_DENIED_MSG);
-                    }
+                    } 
                 }
 
                 return chain.filter(exchange.mutate().request(request).build());
@@ -111,13 +112,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         }
     }
 
-    private JWTVerifier getJWTVerifier(String token) throws InvalidKeySpecException, NoSuchAlgorithmException, JwkException, IOException, ClientException{
-        String entityType = "";
-        try{
-            entityType =  ((List<String>) JSONUtils.decodeBase64String(token.split("\\.")[1], Map.class).get("entity")).get(0);
-        } catch (Exception e) {
-            throw new ClientException(ErrorCodes.ERR_ACCESS_DENIED, "Invalid authorization token");
-        }
+    private JWTVerifier getJWTVerifier(String entityType) throws InvalidKeySpecException, NoSuchAlgorithmException, JwkException, IOException, ClientException{
         if (verifierCache.containsKey(entityType)) {
             return verifierCache.get(entityType);
         } else {
@@ -138,6 +133,16 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
             }
         }
         return entityRealm;
+    }
+
+    private String getEntityType(String token) throws ClientException{
+        String entityType = "";
+        try{
+            entityType =  ((List<String>) JSONUtils.decodeBase64String(token.split("\\.")[1], Map.class).get("entity")).get(0);
+        } catch (Exception e) {
+            throw new ClientException(ErrorCodes.ERR_ACCESS_DENIED, "Invalid authorization token");
+        }
+        return entityType;
     }
 
     @Override
