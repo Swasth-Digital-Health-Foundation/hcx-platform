@@ -2,6 +2,7 @@ package org.swasth.apigateway.service;
 
 import org.swasth.apigateway.models.Acl;
 import org.swasth.apigateway.utils.Utils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ServerWebExchange;
 
@@ -18,9 +19,13 @@ public class JwtAuthorization implements AuthorizationService{
     }
 
     @Override
-    public boolean isAuthorized(ServerWebExchange exchange, Object payload) {
+    public boolean isAuthorized(ServerWebExchange exchange, Object payload, String entityType) {
         String path = exchange.getRequest().getPath().value();
         List<String> userRoles = (List) payload;
+
+        if(StringUtils.equalsAnyIgnoreCase(entityType, "User")) {
+            userRoles.add(entityType.toLowerCase());
+        }
 
         for(String role : userRoles){
             if(aclMap.containsKey(role)){
