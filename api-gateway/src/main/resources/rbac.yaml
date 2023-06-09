@@ -257,3 +257,7 @@ rbac:
     regexPaths:
       - /v0.7/**
       - /v0.8/**
+  - role: user
+    regexPaths:
+      - /v0.8/user/**
+      - /v0.8/participant/user/**
