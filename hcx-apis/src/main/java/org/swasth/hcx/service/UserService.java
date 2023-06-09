@@ -176,7 +176,7 @@ public class UserService extends BaseRegistryService {
             Map<String,Object> userDetails = getUser((String) payload.get("preferred_username"));
             List<Map<String,Object>> tenantRoles = (List<Map<String, Object>>) userDetails.get(TENANT_ROLES);
             for(Map<String,Object> roleMap: tenantRoles){
-                if(StringUtils.equals((String) roleMap.get(PARTICIPANT_CODE), participantCode)) {
+                if(StringUtils.equals((String) roleMap.get(PARTICIPANT_CODE), participantCode) && StringUtils.equals((String) roleMap.get(ROLE), ADMIN)) {
                     result = true;
                 }
             }
