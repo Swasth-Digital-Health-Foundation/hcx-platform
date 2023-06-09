@@ -1,18 +1,24 @@
 package org.swasth.hcx.service;
 
 import kong.unirest.HttpResponse;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.elasticsearch.repository.support.StringQueryUtil;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.swasth.common.dto.RegistryResponse;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
+import org.swasth.common.response.ResponseMessage;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.utils.SlugUtils;
+import org.swasth.hcx.models.Participant;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -30,6 +36,9 @@ public class UserService extends BaseRegistryService {
     private String fieldSeparator;
     @Value("${hcx.instanceName}")
     private String hcxInstanceName;
+
+    @Autowired
+    private ParticipantService participantService;
 
     public RegistryResponse create(Map<String, Object> requestBody, HttpHeaders headers, String code) throws Exception {
         HttpResponse<String> response = registryInvite(requestBody, headers, registryUserPath);
@@ -157,4 +166,29 @@ public class UserService extends BaseRegistryService {
         userRequest.put(USER_ID, user.get(USER_ID));
         return userRequest;
     }
+    
+    public void authorizeToken(HttpHeaders headers, String participantCode) throws Exception {
+        String token = Objects.requireNonNull(headers.get(AUTHORIZATION)).get(0);
+        Map<String,Object> payload = JSONUtils.decodeBase64String(token.split("\\.")[1], Map.class);
+        String entityType =  ((List<String>) payload.get("entity")).get(0);
+        boolean result = false;
+        if(StringUtils.equals(entityType, "User")){
+            Map<String,Object> userDetails = getUser((String) payload.get("preferred_username"));
+            List<Map<String,Object>> tenantRoles = (List<Map<String, Object>>) userDetails.get(TENANT_ROLES);
+            for(Map<String,Object> roleMap: tenantRoles){
+                if(StringUtils.equals((String) roleMap.get(PARTICIPANT_CODE), participantCode)) {
+                    result = true;
+                }
+            }
+        } else if (StringUtils.equals(entityType, "Organisation")) {
+            Map<String,Object> details = participantService.getParticipant(participantCode);
+            if(StringUtils.equals((String) payload.get("sub"), (String) ((List<String>) details.get(OS_OWNER)).get(0))) {
+                result = true;
+            }
+        }
+        if(!result){
+            throw new ClientException(ErrorCodes.ERR_ACCESS_DENIED, "Participant/User does not have permission to perform this operation");
+        }
+    }
+    
 }

@@ -93,6 +93,7 @@ public class UserController extends BaseController {
         try {
             logger.info("Adding users : {}", requestBody);
             RegistryResponse response = null;
+            userService.authorizeToken(headers, (String) requestBody.get(PARTICIPANT_CODE));
             List<Map<String, Object>> users = (List<Map<String, Object>>) requestBody.get(USERS);
             for (Map<String, Object> user : users) {
                 Map<String, Object> userRequest = userService.constructRequestBody(requestBody,user);
@@ -111,6 +112,7 @@ public class UserController extends BaseController {
         try {
             logger.info("Removing users : {}", requestBody);
             RegistryResponse response = null;
+            userService.authorizeToken(headers, (String) requestBody.get(PARTICIPANT_CODE));
             List<String> users = (List<String>) requestBody.get(USERS);
             for(String user : users){
                 Map<String,Object> removeUser = new HashMap<>();
