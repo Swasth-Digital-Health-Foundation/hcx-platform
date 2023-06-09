@@ -38,6 +38,12 @@ rbac:
       - /v0.8/notification/notify
       - /v0.8/notification/subscription/update
       - /v0.8/notification/on_subscribe
+      - /v0.8/user/create
+      - /v0.8/user/read
+      - /v0.8/user/search
+      - /v0.8/user/delete
+      - /v0.8/participant/user/add
+      - /v0.8/participant/user/remove
     regexPaths:
       - /v0.7/applicant/search**
 
@@ -81,6 +87,12 @@ rbac:
       - /v0.8/notification/notify
       - /v0.8/notification/subscription/update
       - /v0.8/notification/on_subscribe
+      - /v0.8/user/create
+      - /v0.8/user/read
+      - /v0.8/user/search
+      - /v0.8/user/delete
+      - /v0.8/participant/user/add
+      - /v0.8/participant/user/remove
     regexPaths:
       - /v0.7/applicant/search**
       - /payer/**
@@ -118,6 +130,12 @@ rbac:
       - /v0.8/participant/search
       - /v0.8/participant/update
       - /v0.8/participant/read/**
+      - /v0.8/user/create
+      - /v0.8/user/read
+      - /v0.8/user/search
+      - /v0.8/user/delete
+      - /v0.8/participant/user/add
+      - /v0.8/participant/user/remove 
     regexPaths:
       - /v0.7/applicant/search**
 
@@ -134,6 +152,12 @@ rbac:
       - /v0.8/participant/search
       - /v0.8/participant/update
       - /v0.8/participant/read/**
+      - /v0.8/user/create
+      - /v0.8/user/read
+      - /v0.8/user/search
+      - /v0.8/user/delete
+      - /v0.8/participant/user/add
+      - /v0.8/participant/user/remove
     regexPaths:
       - /v0.7/applicant/search**
 
@@ -154,6 +178,12 @@ rbac:
       - /v0.8/participant/search
       - /v0.8/participant/update
       - /v0.8/participant/read/**
+      - /v0.8/user/create
+      - /v0.8/user/read
+      - /v0.8/user/search
+      - /v0.8/user/delete
+      - /v0.8/participant/user/add
+      - /v0.8/participant/user/remove
     regexPaths:
       - /v0.7/applicant/search**
 
@@ -176,6 +206,12 @@ rbac:
       - /v0.8/participant/search
       - /v0.8/participant/update
       - /v0.8/participant/read/**
+      - /v0.8/user/create
+      - /v0.8/user/read
+      - /v0.8/user/search
+      - /v0.8/user/delete
+      - /v0.8/participant/user/add
+      - /v0.8/participant/user/remove
     regexPaths:
       - /v0.7/applicant/search**
 
@@ -204,6 +240,12 @@ rbac:
       - /v0.8/participant/search
       - /v0.8/participant/update
       - /v0.8/participant/read/**
+      - /v0.8/user/create
+      - /v0.8/user/read
+      - /v0.8/user/search
+      - /v0.8/user/delete
+      - /v0.8/participant/user/add
+      - /v0.8/participant/user/remove
     regexPaths:
       - /v0.7/applicant/search**
 
