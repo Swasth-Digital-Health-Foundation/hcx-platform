@@ -143,9 +143,9 @@ public class UserService extends BaseRegistryService {
     public String createUserId(Map<String, Object> requestBody) throws ClientException {
         if (requestBody.containsKey(EMAIL) || requestBody.containsKey(MOBILE)) {
             if (requestBody.containsKey(EMAIL) && EmailValidator.getInstance().isValid((String) requestBody.get(EMAIL))) {
-                return SlugUtils.makeSlug((String) requestBody.get(EMAIL), "", fieldSeparator, hcxInstanceName);
+                return (String) requestBody.get(EMAIL);
             } else if (requestBody.containsKey(MOBILE)) {
-                return requestBody.get(MOBILE) + "@" + hcxInstanceName;
+                return (String) requestBody.get(MOBILE);
             }
         }
         throw new ClientException(ErrorCodes.ERR_INVALID_USER_DETAILS, INVALID_USER_DETAILS);
