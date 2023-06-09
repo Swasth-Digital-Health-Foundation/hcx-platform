@@ -41,6 +41,10 @@ public class Constants {
     public static final String PREDETERMINATION_SUBMIT = "/predetermination/submit";
     public static final String PREDETERMINATION_ONSUBMIT = "/predetermination/on_submit";
 
+    //Fetch APIs
+    public static final String EOB_FETCH = "/eob/fetch";
+    public static final String EOB_ON_FETCH = "/eob/on_fetch";
+
     // Notification APIs
     public static final String NOTIFICATION_SUBSCRIBE = "/notification/subscribe";
     public static final String NOTIFICATION_UNSUBSCRIBE = "/notification/unsubscribe";
@@ -171,6 +175,7 @@ public class Constants {
     public static final String NOTIFICATION_TIMESTAMP = "timestamp";
     public static final String NOTIFICATION_CORRELATION_ID = "correlation_id";
     public static final String ALG = "alg";
+    public static final String TEMPLATE = "template";
     public static final String KAFKA_TOPIC_PAYLOAD = "kafka.topic.payload";
     public static final String ENDPOINT_URL = "endpoint_url";
     public static final String HCX_NOT_ALLOWED_URLS = "hcx.urls.notallowed";

@@ -275,4 +275,23 @@ public class EventGenerator {
 
         return JSONUtils.serialize(event);
     }
+
+    public Map<String,Object> createNotifyAuditEvent(Request request){
+        Map<String,Object> audit = new HashMap<>();
+        audit.put(EID, AUDIT);
+        audit.put(MID, UUID.randomUUID().toString());
+        audit.put(ACTION, NOTIFICATION_NOTIFY);
+        audit.put(ETS, System.currentTimeMillis());
+        audit.put(TOPIC_CODE, request.getTopicCode());
+        audit.put(SENDER_CODE, request.getHcxSenderCode() );
+        audit.put(NOTIFICATION_CORRELATION_ID, request.getCorrelationId());
+        audit.put(NOTIFICATION_TIMESTAMP, System.currentTimeMillis());
+        audit.put(STATUS, request.getStatus());
+        audit.put(RECIPIENT_TYPE,request.getRecipientType());
+        audit.put(RECIPIENTS,request.getRecipients());
+        audit.put(MESSAGE,request.getNotificationMessage());
+        audit.put(ERROR_DETAILS, request.getErrorDetails());
+        audit.put(DEBUG_DETAILS, request.getDebugDetails());
+        return audit;
+    }
 }
