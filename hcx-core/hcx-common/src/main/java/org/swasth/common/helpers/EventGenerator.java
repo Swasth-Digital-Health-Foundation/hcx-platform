@@ -59,6 +59,37 @@ public class EventGenerator {
         return event;
     }
 
+    public Map<String, Object> generateAuditEvent(Request request) {
+        Map<String, Object> event = new HashMap<>();
+        event.put(EID, AUDIT);
+        event.put(HCX_RECIPIENT_CODE, request.getHcxRecipientCode());
+        event.put(HCX_SENDER_CODE, request.getHcxSenderCode());
+        event.put(API_CALL_ID, request.getApiCallId());
+        event.put(CORRELATION_ID, request.getCorrelationId());
+        event.put(WORKFLOW_ID, request.getWorkflowId());
+        event.put(TIMESTAMP, request.getTimestamp());
+        event.put(ERROR_DETAILS, request.getErrorDetails());
+        event.put(DEBUG_DETAILS, request.getDebugDetails());
+        event.put(MID, request.getMid());
+        event.put(ACTION, request.getApiAction());
+        if (StringUtils.isEmpty(request.getStatus()))
+            event.put(STATUS, QUEUED_STATUS);
+        else
+            event.put(STATUS, request.getStatus());
+        event.put(REQUEST_TIME, System.currentTimeMillis());
+        event.put(UPDATED_TIME, System.currentTimeMillis());
+        event.put(ETS, System.currentTimeMillis());
+        event.put(PAYLOAD, request.getPayloadWithoutSensitiveData());
+        event.put(SENDER_ROLE, request.getSenderRole());
+        event.put(RECIPIENT_ROLE, request.getRecipientRole());
+        event.put(SENDER_NAME, request.getSenderName());
+        event.put(RECIPIENT_NAME, request.getRecipientName());
+        event.put(SENDER_PRIMARY_EMAIL, request.getSenderPrimaryEmail());
+        event.put(RECIPIENT_PRIMARY_EMAIL, request.getRecipientPrimaryEmail());
+        getTag(request,event);
+        return event;
+    }
+
     public String generateMetadataEvent(Request request) throws Exception {
         Map<String, Object> event = new HashMap<>();
         if (request.getPayload().containsKey(PAYLOAD) && !request.getApiAction().equals(NOTIFICATION_NOTIFY)) {
@@ -117,37 +148,6 @@ public class EventGenerator {
             event.put(ACTION, request.getApiAction());
         }
         return JSONUtils.serialize(event);
-    }
-
-    public Map<String, Object> generateAuditEvent(Request request) {
-        Map<String, Object> event = new HashMap<>();
-        event.put(EID, AUDIT);
-        event.put(HCX_RECIPIENT_CODE, request.getHcxRecipientCode());
-        event.put(HCX_SENDER_CODE, request.getHcxSenderCode());
-        event.put(API_CALL_ID, request.getApiCallId());
-        event.put(CORRELATION_ID, request.getCorrelationId());
-        event.put(WORKFLOW_ID, request.getWorkflowId());
-        event.put(TIMESTAMP, request.getTimestamp());
-        event.put(ERROR_DETAILS, request.getErrorDetails());
-        event.put(DEBUG_DETAILS, request.getDebugDetails());
-        event.put(MID, request.getMid());
-        event.put(ACTION, request.getApiAction());
-        if (StringUtils.isEmpty(request.getStatus()))
-            event.put(STATUS, QUEUED_STATUS);
-        else
-            event.put(STATUS, request.getStatus());
-        event.put(REQUEST_TIME, System.currentTimeMillis());
-        event.put(UPDATED_TIME, System.currentTimeMillis());
-        event.put(ETS, System.currentTimeMillis());
-        event.put(PAYLOAD, request.getPayloadWithoutSensitiveData());
-        event.put(SENDER_ROLE, request.getSenderRole());
-        event.put(RECIPIENT_ROLE, request.getRecipientRole());
-        event.put(SENDER_NAME, request.getSenderName());
-        event.put(RECIPIENT_NAME, request.getRecipientName());
-        event.put(SENDER_PRIMARY_EMAIL, request.getSenderPrimaryEmail());
-        event.put(RECIPIENT_PRIMARY_EMAIL, request.getRecipientPrimaryEmail());
-        getTag(request,event);
-        return event;
     }
 
     public String createNotifyEvent(String topicCode, String senderCode, String recipientType, List<String> recipients, long expiry, String message, String privateKey) throws Exception {
@@ -239,25 +239,6 @@ public class EventGenerator {
         return event;
     }
 
-    public Map<String, Object> generateSubscriptionUpdateAuditEvent(Request request, Response response) {
-        Map<String, Object> event = new HashMap<>();
-        event.put(EID, AUDIT);
-        event.put(MID, request.getMid());
-        event.put(ETS, System.currentTimeMillis());
-        event.put(ACTION, request.getApiAction());
-        event.put(TOPIC_CODE, request.getTopicCode() == null ? "" : request.getTopicCode());
-        event.put(HCX_RECIPIENT_CODE, request.getRecipientCode());
-        event.put(HCX_SENDER_CODE, request.getSenderCode());
-        event.put(SUBSCRIPTION_ID, response.getSubscriptionId());
-        event.put(SUBSCRIPTION_STATUS, response.getSubscriptionStatus());
-        if (request.getHcxHeaders().containsKey(EXPIRY))
-            event.put(EXPIRY, request.getExpiry());
-        if (request.getHcxHeaders().containsKey(IS_DELEGATED))
-            event.put(IS_DELEGATED, request.getIsDelegated());
-        event.put(STATUS, QUEUED_STATUS);
-        return event;
-    }
-
     public Map<String, Object> generateSubscriptionAuditEvent(Request request, String status, List<String> senderList) {
         Map<String, Object> event = new HashMap<>();
         event.put(EID, AUDIT);
@@ -280,6 +261,25 @@ public class EventGenerator {
         event.put(PAYLOAD, createSubscriptionPayload(request.getTopicCode(), request.getSenderList(), subscriptionMap));
         event.put(HCX_SENDER_CODE, request.getRecipientCode());
         return JSONUtils.serialize(event);
+    }
+
+    public Map<String, Object> generateSubscriptionUpdateAuditEvent(Request request, Response response) {
+        Map<String, Object> event = new HashMap<>();
+        event.put(EID, AUDIT);
+        event.put(MID, request.getMid());
+        event.put(ETS, System.currentTimeMillis());
+        event.put(ACTION, request.getApiAction());
+        event.put(TOPIC_CODE, request.getTopicCode() == null ? "" : request.getTopicCode());
+        event.put(HCX_RECIPIENT_CODE, request.getRecipientCode());
+        event.put(HCX_SENDER_CODE, request.getSenderCode());
+        event.put(SUBSCRIPTION_ID, response.getSubscriptionId());
+        event.put(SUBSCRIPTION_STATUS, response.getSubscriptionStatus());
+        if (request.getHcxHeaders().containsKey(EXPIRY))
+            event.put(EXPIRY, request.getExpiry());
+        if (request.getHcxHeaders().containsKey(IS_DELEGATED))
+            event.put(IS_DELEGATED, request.getIsDelegated());
+        event.put(STATUS, QUEUED_STATUS);
+        return event;
     }
 
     public void getTag(Request request, Map<String,Object> event){
