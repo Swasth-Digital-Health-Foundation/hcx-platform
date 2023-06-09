@@ -41,8 +41,8 @@ public class JWTVerifierFactory {
         this.jwtConfigs = jwtConfigs;
     }
 
-    @Bean
-    public JWTVerifier create()
+
+    public JWTVerifier create(String jwkUrl)
             throws JwkException, IOException, InvalidKeySpecException, NoSuchAlgorithmException {
 
         Verification verifier = null;
@@ -77,8 +77,8 @@ public class JWTVerifierFactory {
             }
 
         }
-        else if (jwtConfigs.getJwkUrl() != null){
-            UrlJwkProvider urlJwkProvider = new UrlJwkProvider(new URL(jwtConfigs.getJwkUrl()));
+        else if (jwkUrl != null){
+            UrlJwkProvider urlJwkProvider = new UrlJwkProvider(new URL(jwkUrl));
             Jwk jwk = urlJwkProvider.getAll().get(0);
             verifier = JWT.require(Algorithm.RSA256((RSAPublicKey) jwk.getPublicKey(), null));
         }

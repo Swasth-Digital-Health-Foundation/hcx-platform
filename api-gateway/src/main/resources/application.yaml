@@ -58,9 +58,9 @@ jwt:
   enabled: ${JWT_ENABLED:true}
   issuer: ${JWT_ISSUER:}
   audience: ${JWT_AUDIENCE:}
-  jwkUrl: ${JWT_JWK_URL:https://dev-hcx.swasth.app/auth/realms/swasth-health-claim-exchange/protocol/openid-connect/certs}
+  jwkUrl: ${JWT_JWK_URL:https://dev-hcx.swasth.app/auth/realms/realm-name/protocol/openid-connect/certs}
   claimsNamespacePath: ${JWT_NS_PATH:$.realm_access.roles}
-
+  entityRealm: ${JWT_ENTITY_REALM:Organisation@swasth-health-claim-exchange,User@swasth-health-claim-exchange-user}
 redis:
   host: ${REDIS_HOST:localhost}
   port: ${REDIS_PORT:6379}
@@ -127,10 +127,11 @@ spring:
             - RewritePath=/${version.external08}/notification/subscription/list, /${version.internal}/notification/subscription/list
             - RewritePath=/${version.external08}/notification/on_subscribe, /${version.internal}/notification/on_subscribe
             - RewritePath=/${version.external08}/notification/subscription/update, /${version.internal}/notification/subscription/update
+            - RewritePath=/${version.external08}/eob/(?<segment>/?.*), /${version.internal}/eob/$\{segment}
             - CachingRequestBodyFilter
             - HCXValidationFilter
           predicates:
-            - Path=/${version.external07}/coverageeligibility/**, /${version.external07}/preauth/**, /${version.external07}/claim/**, /${version.external07}/paymentnotice/**, /${version.external07}/hcx/**, /${version.external07}/predetermination/**, /${version.external07}/communication/**, /${version.external08}/coverageeligibility/**, /${version.external08}/preauth/**, /${version.external08}/claim/**, /${version.external08}/paymentnotice/**, /${version.external08}/hcx/**, /${version.external08}/predetermination/**, /${version.external08}/communication/**, /${version.external08}/notification/subscribe, /${version.external08}/notification/unsubscribe, /${version.external08}/notification/subscription/list, /${version.external08}/notification/notify, /${version.external08}/notification/subscription/update, /${version.external08}/notification/on_subscribe
+            - Path=/${version.external07}/coverageeligibility/**, /${version.external07}/preauth/**, /${version.external07}/claim/**, /${version.external07}/paymentnotice/**, /${version.external07}/hcx/**, /${version.external07}/predetermination/**, /${version.external07}/communication/**, /${version.external08}/coverageeligibility/**, /${version.external08}/preauth/**, /${version.external08}/claim/**, /${version.external08}/paymentnotice/**, /${version.external08}/hcx/**, /${version.external08}/predetermination/**, /${version.external08}/communication/**, /${version.external08}/notification/subscribe, /${version.external08}/notification/unsubscribe, /${version.external08}/notification/subscription/list, /${version.external08}/notification/notify, /${version.external08}/notification/subscription/update, /${version.external08}/notification/on_subscribe, /${version.external08}/eob/**
 
         - id: hcx-api-route-audit
           uri: ${hcx-api.basePath}
@@ -184,4 +185,4 @@ spring:
                 redis-rate-limiter.replenishRate: 10
                 redis-rate-limiter.burstCapacity: 20
           predicates:
-            - Path=/payer/**
+            - Path=/payer/**,/${version.external08}/user/create
