@@ -26,7 +26,6 @@ import org.swasth.common.utils.JWTUtils;
 import org.swasth.hcx.config.GenericConfiguration;
 import org.swasth.hcx.controllers.v1.*;
 import org.swasth.hcx.handlers.EventHandler;
-import org.swasth.hcx.helpers.ParticipantHelper;
 import org.swasth.hcx.managers.HealthCheckManager;
 import org.swasth.hcx.service.*;
 import org.swasth.kafka.client.IEventService;
@@ -38,7 +37,7 @@ import java.net.URL;
 import java.util.*;
 
 
-@WebMvcTest({CoverageEligibilityController.class, PreAuthController.class, ClaimsController.class, PaymentsController.class, StatusController.class, SearchController.class, CommunicationController.class, PredeterminationController.class, ParticipantController.class, NotificationController.class, AuditService.class, NotificationService.class, EventHandler.class, EventGenerator.class, ParticipantService.class , RetryController.class , UserController.class , UserService.class , BaseRegistryService.class, ParticipantHelper.class, FetchController.class})
+@WebMvcTest({CoverageEligibilityController.class, PreAuthController.class, ClaimsController.class, PaymentsController.class, StatusController.class, SearchController.class, CommunicationController.class, PredeterminationController.class, ParticipantController.class, NotificationController.class, AuditService.class, NotificationService.class, EventHandler.class, EventGenerator.class, ParticipantService.class , RetryController.class , UserController.class , UserService.class , BaseRegistryService.class, FetchController.class})
 @ExtendWith(MockitoExtension.class)
 @ActiveProfiles("test")
 @Import(GenericConfiguration.class)
@@ -93,9 +92,6 @@ public class BaseSpec {
 
     @Autowired
     protected ParticipantService participantService;
-
-    @Autowired
-    protected ParticipantHelper participantHelper;
 
     @BeforeEach
     public void setup() {
