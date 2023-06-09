@@ -13,7 +13,6 @@ import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
 import org.swasth.common.utils.Constants;
 import org.swasth.hcx.controllers.BaseController;
-import org.swasth.hcx.helpers.ParticipantHelper;
 import org.swasth.hcx.models.Participant;
 import org.swasth.hcx.service.ParticipantService;
 

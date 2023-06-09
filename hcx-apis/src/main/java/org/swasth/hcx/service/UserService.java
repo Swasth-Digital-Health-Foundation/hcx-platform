@@ -8,21 +8,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.elasticsearch.repository.support.StringQueryUtil;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.swasth.common.dto.RegistryResponse;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
-import org.swasth.common.response.ResponseMessage;
 import org.swasth.common.utils.JSONUtils;
-import org.swasth.common.utils.SlugUtils;
-import org.swasth.hcx.models.Participant;
-
 import java.util.*;
-import java.util.stream.Collectors;
-
 import static org.swasth.common.response.ResponseMessage.INVALID_USER_DETAILS;
 import static org.swasth.common.response.ResponseMessage.INVALID_USER_ID;
 import static org.swasth.common.utils.Constants.*;
