@@ -19,6 +19,13 @@ import org.swasth.common.utils.JWTUtils;
 import org.swasth.postgresql.IDatabaseService;
 import org.swasth.redis.cache.RedisCache;
 
+import io.netty.util.internal.StringUtil;
+
+import org.apache.commons.collections.ListUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.swasth.common.dto.Token;
+import org.swasth.common.utils.Constants;
+
 import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.util.*;
@@ -51,6 +58,8 @@ public class ParticipantService extends BaseRegistryService {
     private RedisCache redisCache;
     @Autowired
     private Environment env;
+    @Autowired
+    private UserService userService;
 
     public RegistryResponse create(Map<String, Object> requestBody, HttpHeaders header, String code) throws Exception {
         HttpResponse<String> response = registryInvite(requestBody, header, registryOrgnisationPath);
@@ -173,6 +182,33 @@ public class ParticipantService extends BaseRegistryService {
     private void generatePcptAudit(String code, String action, Map<String, Object> requestBody, String registryStatus) throws Exception {
         eventHandler.createAudit(eventGenerator.createAuditLog(code, PARTICIPANT, getCData(action, requestBody),
                 getEData(registryStatus, "", Collections.emptyList())));
+    }
+
+    public void authorizeEntity(String authToken, String participantCode, String email) throws Exception {
+        Token token = new Token(authToken);
+        if(validateRoles(token.getRoles())){
+            if(!StringUtils.equalsIgnoreCase(token.getUsername(), email))
+                throw new ClientException(ErrorCodes.ERR_ACCESS_DENIED, "Invalid authorization token");
+        } else if (StringUtils.equals(token.getEntityType(), "User")) {
+            Map<String,Object> userDetails = userService.getUser(token.getUsername());
+            boolean result = false;
+            for(Map<String, String> roleMap: (List<Map<String,String>>) userDetails.getOrDefault(TENANT_ROLES, ListUtils.EMPTY_LIST)){
+                if(StringUtils.equals((String) roleMap.get(PARTICIPANT_CODE), participantCode) && StringUtils.equals((String) roleMap.get(ROLE), CONFIG_MANAGER)) {
+                    result = true;
+                }
+            }
+            if(!result){
+                throw new ClientException(ErrorCodes.ERR_ACCESS_DENIED, "User does not have permissions to update the participant details");
+            }
+        }
+    }
+
+    private boolean validateRoles(List<String> tokenRoles) {
+        for(String role: tokenRoles) {
+            if(Constants.PARTICIPANT_ROLES.contains(role))
+                return true;
+        }
+        return false;
     }
 
 

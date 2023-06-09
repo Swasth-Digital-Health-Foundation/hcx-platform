@@ -187,7 +187,7 @@ public class UserService extends BaseRegistryService {
             }
         }
         if(!result){
-            throw new ClientException(ErrorCodes.ERR_ACCESS_DENIED, "Participant/User does not have permission to perform this operation");
+            throw new ClientException(ErrorCodes.ERR_ACCESS_DENIED, "Participant/User does not have permissions to perform this operation");
         }
     }
     

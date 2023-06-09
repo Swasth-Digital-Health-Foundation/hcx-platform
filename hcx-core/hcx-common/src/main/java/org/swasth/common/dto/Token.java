@@ -4,6 +4,7 @@ import org.swasth.common.utils.JSONUtils;
 
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.List;
 
 public class Token {
 
@@ -30,5 +31,9 @@ public class Token {
 
     public String getUsername() {
         return (String) payload.get("preferred_username");
+    }
+
+    public String getEntityType() {
+        return (String) ((List<String>) payload.get("entity")).get(0);
     }
 }
