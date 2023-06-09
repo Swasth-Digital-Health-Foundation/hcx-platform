@@ -239,6 +239,25 @@ public class EventGenerator {
         return event;
     }
 
+    public Map<String, Object> generateSubscriptionUpdateAuditEvent(Request request, Response response) {
+        Map<String, Object> event = new HashMap<>();
+        event.put(EID, AUDIT);
+        event.put(MID, request.getMid());
+        event.put(ETS, System.currentTimeMillis());
+        event.put(ACTION, request.getApiAction());
+        event.put(TOPIC_CODE, request.getTopicCode() == null ? "" : request.getTopicCode());
+        event.put(HCX_RECIPIENT_CODE, request.getRecipientCode());
+        event.put(HCX_SENDER_CODE, request.getSenderCode());
+        event.put(SUBSCRIPTION_ID, response.getSubscriptionId());
+        event.put(SUBSCRIPTION_STATUS, response.getSubscriptionStatus());
+        if (request.getHcxHeaders().containsKey(EXPIRY))
+            event.put(EXPIRY, request.getExpiry());
+        if (request.getHcxHeaders().containsKey(IS_DELEGATED))
+            event.put(IS_DELEGATED, request.getIsDelegated());
+        event.put(STATUS, QUEUED_STATUS);
+        return event;
+    }
+
     public Map<String, Object> generateSubscriptionAuditEvent(Request request, String status, List<String> senderList) {
         Map<String, Object> event = new HashMap<>();
         event.put(EID, AUDIT);
@@ -261,25 +280,6 @@ public class EventGenerator {
         event.put(PAYLOAD, createSubscriptionPayload(request.getTopicCode(), request.getSenderList(), subscriptionMap));
         event.put(HCX_SENDER_CODE, request.getRecipientCode());
         return JSONUtils.serialize(event);
-    }
-
-    public Map<String, Object> generateSubscriptionUpdateAuditEvent(Request request, Response response) {
-        Map<String, Object> event = new HashMap<>();
-        event.put(EID, AUDIT);
-        event.put(MID, request.getMid());
-        event.put(ETS, System.currentTimeMillis());
-        event.put(ACTION, request.getApiAction());
-        event.put(TOPIC_CODE, request.getTopicCode() == null ? "" : request.getTopicCode());
-        event.put(HCX_RECIPIENT_CODE, request.getRecipientCode());
-        event.put(HCX_SENDER_CODE, request.getSenderCode());
-        event.put(SUBSCRIPTION_ID, response.getSubscriptionId());
-        event.put(SUBSCRIPTION_STATUS, response.getSubscriptionStatus());
-        if (request.getHcxHeaders().containsKey(EXPIRY))
-            event.put(EXPIRY, request.getExpiry());
-        if (request.getHcxHeaders().containsKey(IS_DELEGATED))
-            event.put(IS_DELEGATED, request.getIsDelegated());
-        event.put(STATUS, QUEUED_STATUS);
-        return event;
     }
 
     public void getTag(Request request, Map<String,Object> event){
