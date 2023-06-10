@@ -39,9 +39,7 @@ public class BaseRegistryService {
     protected EventHandler eventHandler;
     public HttpResponse<String> registryInvite(Map<String, Object> requestBody, HttpHeaders header, String apiPath) throws JsonProcessingException {
         String url = registryURL + apiPath + "/" + INVITE;
-        Map<String, String> headersMap = new HashMap<>();
-        headersMap.put(AUTHORIZATION, Objects.requireNonNull(header.get(AUTHORIZATION)).get(0));
-        return HttpUtils.post(url, JSONUtils.serialize(requestBody), headersMap);
+        return HttpUtils.post(url, JSONUtils.serialize(requestBody), new HashMap<>());
     }
 
     public RegistryResponse registrySearch(Map<String,Object> requestBody,String apiPath, String entity) throws Exception {
@@ -55,16 +53,12 @@ public class BaseRegistryService {
 
     public HttpResponse<String> registryUpdate(Map<String, Object> requestBody, Map<String, Object> registryDetails, HttpHeaders header, String apiPath) throws JsonProcessingException {
         String url = registryURL + apiPath + "/" + registryDetails.get(OSID);
-        Map<String, String> headersMap = new HashMap<>();
-        headersMap.put(AUTHORIZATION, Objects.requireNonNull(header.get(AUTHORIZATION)).get(0));
-        return HttpUtils.put(url, JSONUtils.serialize(requestBody), headersMap);
+        return HttpUtils.put(url, JSONUtils.serialize(requestBody), new HashMap<>());
     }
 
     public HttpResponse<String> registryDelete(Map<String, Object> registryDetails, HttpHeaders header, String apiPath){
         String url = registryURL + apiPath + "/" + registryDetails.get(OSID);
-        Map<String, String> headersMap = new HashMap<>();
-        headersMap.put(AUTHORIZATION, Objects.requireNonNull(header.get(AUTHORIZATION)).get(0));
-        return HttpUtils.delete(url, headersMap);
+        return HttpUtils.delete(url, new HashMap<>());
     }
 
     private String getErrorMessage(HttpResponse<String> response) throws Exception {
