@@ -56,14 +56,14 @@ public class JWTUtils {
         return Jwts.builder().setHeader(headers).setClaims(payload).signWith(SignatureAlgorithm.RS256, rsaPrivateKey).compact();
     }
 
-    public String generateAuthToken(String privateKey, String sub, String iss, Long expiryTime) throws NoSuchAlgorithmException, InvalidKeySpecException {
+    public String generateAuthToken(String privateKey, String hcxCode, Long expiryTime) throws NoSuchAlgorithmException, InvalidKeySpecException {
         long date = new Date().getTime();
         Map<String, Object> headers = new HashMap<>();
         headers.put(TYPE, JWT);
         Map<String, Object> payload = new HashMap<>();
         payload.put(JTI, UUID.randomUUID());
-        payload.put(SUB, sub);
-        payload.put(ISS, iss);
+        payload.put(SUB, hcxCode);
+        payload.put(ISS, hcxCode);
         payload.put(IAT, date);
         payload.put(EXP, new Date(date + expiryTime).getTime());
         return generateJWS(headers, payload, privateKey);
