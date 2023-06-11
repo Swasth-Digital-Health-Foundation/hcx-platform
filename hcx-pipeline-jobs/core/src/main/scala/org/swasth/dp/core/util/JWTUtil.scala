@@ -16,6 +16,7 @@ class JWTUtil(config: BaseJobConfig) extends Serializable {
     headers.put(Constants.TYP, Constants.JWT)
     val payload = new util.HashMap[String, AnyRef]()
     payload.put(Constants.JTI, UUID.randomUUID())
+    Console.println("HCX Registry code: " + config.hcxRegistryCode)
     payload.put(Constants.ISS, config.hcxRegistryCode)
     payload.put(Constants.SUB, recipientCode)
     payload.put(Constants.IAT, date)
