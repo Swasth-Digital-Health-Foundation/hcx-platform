@@ -242,7 +242,7 @@ public class EventGenerator {
     public Map<String, Object> generateSubscriptionAuditEvent(Request request, String status, List<String> senderList) {
         Map<String, Object> event = new HashMap<>();
         event.put(EID, AUDIT);
-        event.put(MID, request.getMid());
+        event.put(MID, UUID.randomUUID().toString());
         event.put(ACTION, request.getApiAction());
         event.put(TOPIC_CODE, request.getTopicCode() == null ? "" : request.getTopicCode());
         event.put(SENDER_LIST, senderList);
