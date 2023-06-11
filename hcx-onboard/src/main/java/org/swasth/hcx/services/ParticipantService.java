@@ -217,9 +217,8 @@ public class ParticipantService extends BaseController {
     }
 
     private String createAdminUser(Map<String, String> headers, Map<String,Object> participant, String participantCode) throws Exception{
-        HttpResponse<String> createUser = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + USER_CREATE, JSONUtils.serialize(participant), headers);
         Map<String,Object> requestBody = new HashMap<>();
-        requestBody.put(USER_NAME, (String) participant.get(PARTICIPANT) + " Admin" );
+        requestBody.put(USER_NAME, (String) participant.get(PARTICIPANT_NAME) + " Admin" );
         requestBody.put(EMAIL, participant.get(PRIMARY_EMAIL));
         requestBody.put(MOBILE, participant.get(PRIMARY_MOBILE));
         requestBody.put(CREATED_BY, participantCode);
@@ -228,6 +227,7 @@ public class ParticipantService extends BaseController {
         tenantRole.put(ROLE, ADMIN);
         requestBody.put(TENANT_ROLES, Arrays.asList(tenantRole));
         logger.info("User Request Body: " + requestBody);
+        HttpResponse<String> createUser = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + USER_CREATE, JSONUtils.serialize(requestBody), headers);
         RegistryResponse userResponse = JSONUtils.deserialize(createUser.getBody(), RegistryResponse.class);
         if (createUser.getStatus() != 200) {
             throw new ClientException(userResponse.getError().getCode() == null ? ErrorCodes.ERR_INVALID_USER_DETAILS : userResponse.getError().getCode(), userResponse.getError().getMessage());
