@@ -345,5 +345,6 @@ public class Constants {
    public static final String LAST_REGENERATE_DATE = "last_regenerate_date";
    public static final String RESPONSE_OBJ = "response_obj";
    public static final List<String> PARTICIPANT_ROLES = Arrays.asList(PROVIDER,PAYOR,AGENCY_TPA,"agency.regulator", "research",MEMBER_ISNP, "agency.sponsor", "HIE/HIO.HCX");
+   public static final String USER_NAME = "user_name";
 
 }

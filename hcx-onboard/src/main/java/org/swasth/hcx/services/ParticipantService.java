@@ -32,6 +32,8 @@ import org.swasth.hcx.utils.CertificateUtil;
 import org.swasth.hcx.utils.SlugUtils;
 import org.swasth.postgresql.IDatabaseService;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.net.URL;
@@ -192,7 +194,8 @@ public class ParticipantService extends BaseController {
             }
         }
         Map<String, String> headersMap = new HashMap<>();
-        headersMap.put(AUTHORIZATION, Objects.requireNonNull(headers.get(AUTHORIZATION)).get(0));
+        String token = Objects.requireNonNull(headers.get(AUTHORIZATION)).get(0);
+        headersMap.put(AUTHORIZATION, token);
         HttpResponse<String> createResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_CREATE, JSONUtils.serialize(participant), headersMap);
         RegistryResponse pcptResponse = JSONUtils.deserialize(createResponse.getBody(), RegistryResponse.class);
         if (createResponse.getStatus() != 200) {
@@ -200,6 +203,7 @@ public class ParticipantService extends BaseController {
         }
         String participantCode = (String) JSONUtils.deserialize(createResponse.getBody(), Map.class).get(PARTICIPANT_CODE);
         participant.put(PARTICIPANT_CODE, participantCode);
+        String userId = createAdminUser(headersMap, participant, participantCode);
         String query = String.format("INSERT INTO %s (participant_code,primary_email,primary_mobile,createdOn," +
                         "updatedOn,expiry,phone_verified,email_verified,status,attempt_count) VALUES ('%s','%s','%s',%d,%d,%d,%b,%b,'%s',%d)", onboardVerificationTable, participantCode,
                 participant.get(PRIMARY_EMAIL), participant.get(PRIMARY_MOBILE), System.currentTimeMillis(), System.currentTimeMillis(), System.currentTimeMillis(), false, false, PENDING, 0);
@@ -207,8 +211,28 @@ public class ParticipantService extends BaseController {
         sendVerificationLink(participant);
         output.put(PARTICIPANT_CODE, participantCode);
         output.put(IDENTITY_VERIFICATION, identityVerified);
+        output.put(USER_ID, userId);
         auditIndexer.createDocument(eventGenerator.getOnboardVerifyEvent(request, participantCode));
         logger.info("Verification link  has been sent successfully :: participant code : " + participantCode + " :: primary email : " + participant.get(PRIMARY_EMAIL));
+    }
+
+    private String createAdminUser(Map<String, String> headers, Map<String,Object> participant, String participantCode) throws Exception{
+        HttpResponse<String> createUser = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + USER_CREATE, JSONUtils.serialize(participant), headers);
+        Map<String,Object> requestBody = new HashMap<>();
+        requestBody.put(USER_NAME, (String) participant.get(PARTICIPANT) + " Admin" );
+        requestBody.put(EMAIL, participant.get(PRIMARY_EMAIL));
+        requestBody.put(MOBILE, participant.get(PRIMARY_MOBILE));
+        requestBody.put(CREATED_BY, participantCode);
+        Map<String,String> tenantRole = new HashMap();
+        tenantRole.put(PARTICIPANT_CODE, participantCode);
+        tenantRole.put(ROLE, ADMIN);
+        requestBody.put(TENANT_ROLES, Arrays.asList(tenantRole));
+        RegistryResponse userResponse = JSONUtils.deserialize(createUser.getBody(), RegistryResponse.class);
+        if (createUser.getStatus() != 200) {
+            throw new ClientException(userResponse.getError().getCode() == null ? ErrorCodes.ERR_INVALID_USER_DETAILS : pcptResponse.getError().getCode(), pcptResponse.getError().getMessage());
+        }
+        String userId = (String) JSONUtils.deserialize(createUser.getBody(), Map.class).get(USER_ID);
+        return userId;
     }
 
     // TODO: change request body to pojo
