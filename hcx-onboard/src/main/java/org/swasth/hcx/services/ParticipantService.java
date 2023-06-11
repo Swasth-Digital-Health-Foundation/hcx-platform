@@ -217,7 +217,6 @@ public class ParticipantService extends BaseController {
     }
 
     private String createAdminUser(Map<String, String> headers, Map<String,Object> participant, String participantCode) throws Exception{
-        Thread.sleep(1500);
         Map<String,Object> requestBody = new HashMap<>();
         requestBody.put(USER_NAME, (String) participant.get(PARTICIPANT_NAME) + " Admin" );
         requestBody.put(EMAIL, participant.get(PRIMARY_EMAIL));

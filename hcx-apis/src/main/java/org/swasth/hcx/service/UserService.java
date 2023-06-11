@@ -165,7 +165,9 @@ public class UserService extends BaseRegistryService {
         Map<String,Object> payload = JSONUtils.decodeBase64String(token.split("\\.")[1], Map.class);
         String entityType =  ((List<String>) payload.get("entity")).get(0);
         boolean result = false;
-        if(StringUtils.equals(entityType, "User")){
+        if (((List<String>) ((Map<String,Object>) payload.get("realm_access")).get("roles")).contains(ADMIN_ROLE)) {
+            result = true;
+        } else if (StringUtils.equals(entityType, "User")){
             Map<String,Object> userDetails = getUser((String) payload.get("preferred_username"));
             List<Map<String,Object>> tenantRoles = (List<Map<String, Object>>) userDetails.get(TENANT_ROLES);
             for(Map<String,Object> roleMap: tenantRoles){
@@ -178,7 +180,7 @@ public class UserService extends BaseRegistryService {
             if(StringUtils.equals((String) payload.get("sub"), (String) ((List<String>) details.get(OS_OWNER)).get(0))) {
                 result = true;
             }
-        }
+        } 
         if(!result){
             throw new ClientException(ErrorCodes.ERR_ACCESS_DENIED, "Participant/User does not have permissions to perform this operation");
         }
