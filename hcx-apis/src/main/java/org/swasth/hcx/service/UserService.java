@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.swasth.auditindexer.function.AuditIndexer;
 import org.swasth.common.dto.RegistryResponse;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
@@ -32,6 +33,9 @@ public class UserService extends BaseRegistryService {
 
     @Autowired
     private ParticipantService participantService;
+
+    @Autowired
+    protected AuditIndexer auditIndexer;
 
     public RegistryResponse create(Map<String, Object> requestBody, HttpHeaders headers, String code) throws Exception {
         HttpResponse<String> response = registryInvite(requestBody, headers, registryUserPath);
@@ -84,6 +88,7 @@ public class UserService extends BaseRegistryService {
         userBody.remove(USER_ID);
         tenantRolesList.add(userBody);
         response = registryUpdate(requestBody, registryDetails, headers, registryUserPath);
+        auditIndexer.createDocument(eventGenerator.generateAddRemoveAudit(registryDetails, PARTICIPANT_USER_ADD));
         logger.info("added role for the user_id : " + registryDetails.get(USER_ID));
         return responseHandler(response, (String) registryDetails.get(USER_ID), USER);
     }
@@ -111,6 +116,7 @@ public class UserService extends BaseRegistryService {
         Map<String, Object> request = new HashMap<>();
         request.put(TENANT_ROLES, filteredTenantRoles);
         response = registryUpdate(request, registryDetails, headers, registryUserPath);
+        auditIndexer.createDocument(eventGenerator.generateAddRemoveAudit(registryDetails, PARTICIPANT_USER_REMOVE));
         logger.info("removed role for the user_id : " + registryDetails.get(USER_ID));
         return responseHandler(response, userId, USER);
     }
@@ -130,7 +136,7 @@ public class UserService extends BaseRegistryService {
     }
 
     private void generateUserAudit(String userId, Map<String, Object> requestBody, String action) throws Exception {
-        eventHandler.createAudit(eventGenerator.createAuditLog(userId, USER, getCData(action, requestBody), new HashMap<>()));
+        auditIndexer.createDocument(eventGenerator.createAuditLog(userId, USER, getCData(action, requestBody), new HashMap<>()));
     }
 
     public String createUserId(Map<String, Object> requestBody) throws ClientException {
@@ -177,7 +183,7 @@ public class UserService extends BaseRegistryService {
             }
         } else if (StringUtils.equals(entityType, "Organisation")) {
             Map<String,Object> details = participantService.getParticipant(participantCode);
-            if(StringUtils.equals((String) payload.get("sub"), (String) ((List<String>) details.get(OS_OWNER)).get(0))) {
+            if(StringUtils.equals((String) payload.get("sub"), ((List<String>) details.get(OS_OWNER)).get(0))) {
                 result = true;
             }
         } 
