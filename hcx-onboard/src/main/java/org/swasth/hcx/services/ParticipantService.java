@@ -229,7 +229,7 @@ public class ParticipantService extends BaseController {
         requestBody.put(TENANT_ROLES, Arrays.asList(tenantRole));
         RegistryResponse userResponse = JSONUtils.deserialize(createUser.getBody(), RegistryResponse.class);
         if (createUser.getStatus() != 200) {
-            throw new ClientException(userResponse.getError().getCode() == null ? ErrorCodes.ERR_INVALID_USER_DETAILS : pcptResponse.getError().getCode(), pcptResponse.getError().getMessage());
+            throw new ClientException(userResponse.getError().getCode() == null ? ErrorCodes.ERR_INVALID_USER_DETAILS : userResponse.getError().getCode(), userResponse.getError().getMessage());
         }
         String userId = (String) JSONUtils.deserialize(createUser.getBody(), Map.class).get(USER_ID);
         return userId;
