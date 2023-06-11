@@ -31,6 +31,8 @@ public class UserService extends BaseRegistryService {
     @Value("${hcx.instanceName}")
     private String hcxInstanceName;
 
+    @Value("${es.user-index}")
+    private String userIndex;
     @Autowired
     private ParticipantService participantService;
 
@@ -88,7 +90,7 @@ public class UserService extends BaseRegistryService {
         userBody.remove(USER_ID);
         tenantRolesList.add(userBody);
         response = registryUpdate(requestBody, registryDetails, headers, registryUserPath);
-        auditIndexer.createDocument(eventGenerator.generateAddRemoveAudit(registryDetails, PARTICIPANT_USER_ADD));
+        auditIndexer.createDocumentUserParticipant(eventGenerator.generateAddAudit(registryDetails, PARTICIPANT_USER_ADD),userIndex);
         logger.info("added role for the user_id : " + registryDetails.get(USER_ID));
         return responseHandler(response, (String) registryDetails.get(USER_ID), USER);
     }
@@ -116,7 +118,7 @@ public class UserService extends BaseRegistryService {
         Map<String, Object> request = new HashMap<>();
         request.put(TENANT_ROLES, filteredTenantRoles);
         response = registryUpdate(request, registryDetails, headers, registryUserPath);
-        auditIndexer.createDocument(eventGenerator.generateAddRemoveAudit(registryDetails, PARTICIPANT_USER_REMOVE));
+        auditIndexer.createDocumentUserParticipant(eventGenerator.generateRemoveAudit(registryDetails, PARTICIPANT_USER_REMOVE),userIndex);
         logger.info("removed role for the user_id : " + registryDetails.get(USER_ID));
         return responseHandler(response, userId, USER);
     }
@@ -136,7 +138,7 @@ public class UserService extends BaseRegistryService {
     }
 
     private void generateUserAudit(String userId, Map<String, Object> requestBody, String action) throws Exception {
-        auditIndexer.createDocument(eventGenerator.createAuditLog(userId, USER, getCData(action, requestBody), new HashMap<>()));
+        auditIndexer.createDocumentUserParticipant(eventGenerator.createAuditLog(userId, USER, getCData(action, requestBody), new HashMap<>()),"user_index");
     }
 
     public String createUserId(Map<String, Object> requestBody) throws ClientException {

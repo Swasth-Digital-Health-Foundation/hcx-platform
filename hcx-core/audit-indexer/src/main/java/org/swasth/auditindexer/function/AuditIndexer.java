@@ -47,4 +47,14 @@ public class AuditIndexer {
         return getClass().getClassLoader().getResourceAsStream(filename);
     }
 
+    public void createDocumentUserParticipant(Map<String,Object> event,String indexName) throws Exception {
+        try {
+            String mid = (String) event.get("mid");
+            esUtil.addIndex(settings, mappings, indexName, auditAlias);
+            esUtil.addDocumentWithIndex(JSONUtils.serialize(event), indexName, mid);
+            logger.info("Audit document created for mid: " + mid);
+        } catch (Exception e) {
+            throw new Exception("Error while processing event :: " + event + " :: " + e.getMessage());
+        }
+    }
 }

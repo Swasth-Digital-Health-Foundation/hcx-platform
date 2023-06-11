@@ -68,6 +68,7 @@ allowedEntitiesForStatusSearch: ${allowed_entities_for_status_search:coverageeli
 es:
   host: ${es_host:localhost}
   port: ${es_port:9200}
+  user-index : ${user_index:user_index}
 
 #redis config
 redis:
