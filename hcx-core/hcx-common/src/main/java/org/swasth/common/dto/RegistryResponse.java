@@ -22,6 +22,19 @@ public class RegistryResponse {
     private ArrayList<Object> participants;
     private ArrayList<Object> users;
 
+    public RegistryResponse() {
+        this.timestamp = System.currentTimeMillis();
+    }
+
+    public RegistryResponse(ResponseError error) {
+        this.timestamp = System.currentTimeMillis();
+        this.error = error;
+    }
+
+    public RegistryResponse(String participantCode) {
+        this.participantCode = participantCode;
+    }
+
     public RegistryResponse(String value, String entity) {
         if (StringUtils.equals(entity, ORGANISATION)) {
             this.participantCode = value;
