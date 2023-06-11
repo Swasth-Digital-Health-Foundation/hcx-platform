@@ -93,11 +93,6 @@ paths:
               schema:
                 allOf:
                   - $ref: '#/components/schemas/Applicant'
-                  - properties:
-                      jwt:
-                        description: JWT to be used for the following requests for Authorization. This is required only for HCX instance implementation.
-                        allOf:
-                          - $ref: '#/components/schemas/json_web_token'
                           
                           
         '400':
@@ -165,7 +160,7 @@ paths:
                       role:
                         type: string
                         enum: ["provider", "payer", "agency.tpa", "agency.regulator", "research", "member.isnp", "agency.sponsor", "HIE/HIO.HCX"]
-                        example: payer
+                        example: payor
                         description: Roles assigned to the applicant as per the definition in the HCX domain specifications. This will be used for access control.
                 - allOf:
                   - required:

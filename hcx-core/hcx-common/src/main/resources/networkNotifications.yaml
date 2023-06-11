@@ -246,9 +246,8 @@
   category: Network
   priority: 1
   template: >-
-    {"message": "${participant_name} encryption key will be expiring on
-    ${DDMMYYYY}. Please renew your encryption key before ${DDMMYYYY} to carry on
-    operating on HCX."}
+    {"message": "Encryption key will be going to expiry in
+    ${days} days.Please renew your encryption certificate."}
   status: Active
 - topic_code: notif-subscription-update
   title: Subscription Update Notification

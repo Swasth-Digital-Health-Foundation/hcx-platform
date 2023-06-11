@@ -41,6 +41,10 @@ public class Constants {
     public static final String PREDETERMINATION_SUBMIT = "/predetermination/submit";
     public static final String PREDETERMINATION_ONSUBMIT = "/predetermination/on_submit";
 
+    //Fetch APIs
+    public static final String EOB_FETCH = "/eob/fetch";
+    public static final String EOB_ON_FETCH = "/eob/on_fetch";
+
     // Notification APIs
     public static final String NOTIFICATION_SUBSCRIBE = "/notification/subscribe";
     public static final String NOTIFICATION_UNSUBSCRIBE = "/notification/unsubscribe";
@@ -64,14 +68,13 @@ public class Constants {
     public static final String PARTICIPANT_READ = "/participant/read/{participantCode}";
     public static final String PARTICIPANT_UPDATE = "/participant/update";
     public static final String SPONSORS = "sponsors";
-    public static final String VERIFICATION_STATUS = "verificationstatus";
     public static final String COMMUNICATION = "communication";
+    public static final String MOCK_PARTICIPANT = "mockparticipant";
     public static final String FORMSTATUS = "status";
     public static final String PARTICIPANT_DELETE = "/participant/delete";
     public static final String PARTICIPANT_VERIFY = "/participant/verify";
     public static final String APPLICANT_GET_INFO = "/applicant/getinfo";
     public static final String APPLICANT_SEARCH = "/applicant/search";
-    public static final String PARTICIPANT_OTP_SEND = "/participant/otp/send";
     public static final String PARTICIPANT_VERIFICATION_LINK_SEND = "/participant/verification/link/send";
     public static final String PARTICIPANT_ONBOARD_UPDATE = "/participant/onboard/update";
     public static final String PARTICIPANT_VERIFY_IDENTITY = "/participant/verify/identity";
@@ -81,12 +84,9 @@ public class Constants {
     public static final String RESULT = "result";
     public static final String ONBOARD_THROUGH_JWT = "onboard-through-jwt";
     public static final String ONBOARD_THROUGH_VERIFIER = "onboard-through-verifier";
-    public static final String EMAIL_OTP_VALIDATION = "email-otp-validation";
-    public static final String PHONE_OTP_VALIDATION = "phone-otp-validation";
     public static final List<String> ONBOARD_FOR_PROVIDER = Arrays.asList(ONBOARD_THROUGH_JWT, ONBOARD_THROUGH_VERIFIER);
     public static final String ROLE = "role";
-    public static final String OTPVERIFICATION = "otpVerification";
-    public static final String CHANNEL = "channel";
+    public static final String LINK_VERIFICATION = "linkVerification";
     public static final String EMAIL = "email";
     public static final String PHONE = "phone";
     public static final String HEALTHY = "healthy";
@@ -157,6 +157,7 @@ public class Constants {
     public static final String NOTIFICATION_TIMESTAMP = "timestamp";
     public static final String NOTIFICATION_CORRELATION_ID = "correlation_id";
     public static final String ALG = "alg";
+    public static final String TEMPLATE = "template";
     public static final String KAFKA_TOPIC_PAYLOAD = "kafka.topic.payload";
     public static final String ENDPOINT_URL = "endpoint_url";
     public static final String HCX_NOT_ALLOWED_URLS = "hcx.urls.notallowed";
@@ -169,6 +170,7 @@ public class Constants {
     public static final String ROLES = "roles";
     public static final String SCHEME_CODE = "scheme_code";
     public static final String PARTICIPANT_CODE = "participant_code";
+    public static final String TERMS_AND_CONDITIONS = "terms_and_conditions";
     public static final String PARTICIPANT_NAME = "participant_name";
     public static final String PARTICIPANT_ROLE = "participant_role";
     public static final String PRIMARY_EMAIL = "primary_email";
@@ -177,6 +179,14 @@ public class Constants {
     public static final String ENCRYPTION_CERT = "encryption_cert";
     public static final String ENCRYPTION_CERT_EXPIRY = "encryption_cert_expiry";
     public static final String SIGNING_CERT_PATH_EXPIRY = "sigining_cert_expiry";
+    public static final String PUBLIC_KEY = "public_key";
+    public static final String PRIVATE_KEY = "private_key";
+    public static final String PASSWORD = "password";
+    public static final String CHILD_PARTICIPANT_CODE = "child_participant_code";
+    public static final String PARENT_PARTICIPANT_CODE = "parent_participant_code";
+    public static final String ADMIN_ROLE = "HIE/HIO.HCX";
+    public static final String MOCK_PROVIDER = "mock_provider";
+    public static final String MOCK_PAYOR = "mock_payor";
     public static final String EQUAL_OPERATION = "eq";
     public static final String OSID = "osid";
     public static final String AUTHORIZATION = "Authorization";

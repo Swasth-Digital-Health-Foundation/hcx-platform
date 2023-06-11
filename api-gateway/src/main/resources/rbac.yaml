@@ -38,6 +38,7 @@ rbac:
       - /v0.8/notification/notify
       - /v0.8/notification/subscription/update
       - /v0.8/notification/on_subscribe
+      - /v0.8/eob/fetch
     regexPaths:
       - /v0.7/applicant/search**
 
@@ -81,11 +82,10 @@ rbac:
       - /v0.8/notification/notify
       - /v0.8/notification/subscription/update
       - /v0.8/notification/on_subscribe
-      - /payer/request/approve
-      - /payer/request/reject
-      - /payer/request/list
+      - /v0.8/eob/on_fetch
     regexPaths:
       - /v0.7/applicant/search**
+      - /payer/**
 
   - role: agency.tpa
     paths:
@@ -120,6 +120,7 @@ rbac:
       - /v0.8/participant/search
       - /v0.8/participant/update
       - /v0.8/participant/read/**
+      - /v0.8/eob/on_fetch
     regexPaths:
       - /v0.7/applicant/search**
 
@@ -214,3 +215,7 @@ rbac:
     regexPaths:
       - /v0.7/**
       - /v0.8/**
+  - role: user
+    regexPaths:
+      - /v0.8/user/**
+      - /v0.8/participant/user/**
