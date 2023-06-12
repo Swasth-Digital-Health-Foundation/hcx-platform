@@ -32,6 +32,9 @@ public class UserController extends BaseController {
     public ResponseEntity<Object> create(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
         try {
             logger.info("Creating user: {}", requestBody);
+            if(requestBody.containsKey(EMAIL)) {
+                requestBody.put(EMAIL,requestBody.get(EMAIL).toString().toLowerCase());
+            }
             userService.authorizeToken(header, (String) ((List<Map<String,Object>>) requestBody.get(TENANT_ROLES)).get(0).get(PARTICIPANT_CODE));
             String userId = userService.createUserId(requestBody);
             requestBody.put(USER_ID, userId);

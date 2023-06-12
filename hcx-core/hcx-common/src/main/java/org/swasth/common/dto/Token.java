@@ -34,7 +34,10 @@ public class Token {
     }
 
     public String getEntityType() {
-        return (String) ((List<String>) payload.get("entity")).get(0);
+        if (payload.containsKey("entity")) {
+            return ((List<String>) payload.get("entity")).get(0);
+        }
+        return "";
     }
 
     public String getParticipantCode() {

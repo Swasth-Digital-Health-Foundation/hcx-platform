@@ -143,7 +143,6 @@ public class UserService extends BaseRegistryService {
     }
 
     public String createUserId(Map<String, Object> requestBody) throws ClientException {
-        requestBody.get(EMAIL).toString().toLowerCase();
         if (requestBody.containsKey(EMAIL) || requestBody.containsKey(MOBILE)) {
             if (requestBody.containsKey(EMAIL) && EmailValidator.getInstance().isValid((String) requestBody.get(EMAIL))) {
                 return ((String) requestBody.get(EMAIL));
