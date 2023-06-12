@@ -116,3 +116,10 @@ certificates:
   accesskey : ${certificates_accessKey:}
   secretKey : ${certificates_accessSecret:}
   bucketName : ${certificates_bucketName:}
+
+keycloak:
+  client-id: ${client_id:registry-frontend}
+  grant-type: ${grant_type:password}
+  client-secret: ${client_secret:c4f23c80-96d1-4f39-9784-8a7cb1f61e7a}
+  user-realm-url: ${user_realm-url:http://dev-hcx.swasth.app/auth/realms/swasth-health-claim-exchange-user/protocol/openid-connect/token}
+  participant-realm-url: ${participant_realm_url:http://dev-hcx.swasth.app/auth/realms/swasth-health-claim-exchange/protocol/openid-connect/token}
