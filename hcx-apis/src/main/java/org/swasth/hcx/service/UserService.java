@@ -130,7 +130,11 @@ public class UserService extends BaseRegistryService {
 
     private void generateUserAudit(String userId, String action, Map<String, Object> requestBody, String updatedBy) throws Exception {
         Map<String,Object> edata = new HashMap<>();
-        edata.put(UPDATED_BY, updatedBy);
+        if (StringUtils.equals(action, USER_CREATE)){
+           edata.put("createdBy", updatedBy);
+        } else {
+            edata.put(UPDATED_BY, updatedBy);
+        }
         Map<String,Object> event = eventGenerator.createAuditLog(userId, USER, getCData(action, requestBody), edata);
         eventHandler.createUserAudit(event);
     }
