@@ -187,9 +187,8 @@ public class ParticipantService extends BaseRegistryService {
             if(!StringUtils.equalsIgnoreCase(token.getUsername(), email))
                 throw new ClientException(ErrorCodes.ERR_ACCESS_DENIED, "Invalid authorization token");
         } else if (StringUtils.equals(token.getEntityType(), "User")) {
-            Map<String,Object> userDetails = userService.getUser(token.getUsername());
             boolean result = false;
-            for(Map<String, String> roleMap: (List<Map<String,String>>) userDetails.getOrDefault(TENANT_ROLES, ListUtils.EMPTY_LIST)){
+            for(Map<String, String> roleMap: token.getTenantRoles()){
                 if(StringUtils.equals(roleMap.get(PARTICIPANT_CODE), participantCode) && StringUtils.equals((String) roleMap.get(ROLE), CONFIG_MANAGER)) {
                     result = true;
                 }

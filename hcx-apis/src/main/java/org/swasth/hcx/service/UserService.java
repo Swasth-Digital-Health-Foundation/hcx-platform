@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.swasth.auditindexer.function.AuditIndexer;
 import org.swasth.common.dto.RegistryResponse;
+import org.swasth.common.dto.Token;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
 import org.swasth.common.utils.JSONUtils;
@@ -174,23 +175,19 @@ public class UserService extends BaseRegistryService {
     }
     
     public void authorizeToken(HttpHeaders headers, String participantCode) throws Exception {
-        String token = Objects.requireNonNull(headers.get(AUTHORIZATION)).get(0);
-        Map<String,Object> payload = JSONUtils.decodeBase64String(token.split("\\.")[1], Map.class);
-        String entityType =  ((List<String>) payload.get("entity")).get(0);
+        Token token = new Token(Objects.requireNonNull(headers.get(AUTHORIZATION)).get(0));
         boolean result = false;
-        if (((List<String>) ((Map<String,Object>) payload.get("realm_access")).get("roles")).contains(ADMIN_ROLE)) {
+        if (token.getRoles().contains(ADMIN_ROLE)) {
             result = true;
-        } else if (StringUtils.equals(entityType, "User")){
-            Map<String,Object> userDetails = getUser((String) payload.get("preferred_username"));
-            List<Map<String,Object>> tenantRoles = (List<Map<String, Object>>) userDetails.get(TENANT_ROLES);
-            for(Map<String,Object> roleMap: tenantRoles){
+        } else if (StringUtils.equals(token.getEntityType(), "User")){
+            for(Map<String,String> roleMap: token.getTenantRoles()){
                 if(StringUtils.equals((String) roleMap.get(PARTICIPANT_CODE), participantCode) && StringUtils.equals((String) roleMap.get(ROLE), ADMIN)) {
                     result = true;
                 }
             }
-        } else if (StringUtils.equals(entityType, "Organisation")) {
+        } else if (StringUtils.equals(token.getEntityType(), "Organisation")) {
             Map<String,Object> details = participantService.getParticipant(participantCode);
-            if(StringUtils.equals((String) payload.get("sub"), ((List<String>) details.get(OS_OWNER)).get(0))) {
+            if(StringUtils.equals(token.getSubject(), ((List<String>) details.get(OS_OWNER)).get(0))) {
                 result = true;
             }
         } 

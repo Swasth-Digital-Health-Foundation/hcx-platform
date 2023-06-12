@@ -26,7 +26,7 @@ public class Token {
     }
 
     public ArrayList<String> getRoles() {
-        return (ArrayList<String>) ((Map<String,Object>) payload.get("realm_access")).get("roles");
+        return (ArrayList<String>) ((Map<String,Object>) payload.get("realm_access")).getOrDefault("roles", new ArrayList<>());
     }
 
     public String getUsername() {
@@ -46,5 +46,13 @@ public class Token {
 
     public String getUserId() {
         return (String) payload.getOrDefault("user_id", "");
+    }
+
+    public ArrayList<Map<String,String>> getTenantRoles() {
+        return (ArrayList<Map<String,String>>) ((Map<String,Object>) payload.get("realm_access")).getOrDefault("tenant_roles", new ArrayList<>());
+    }
+
+    public String getSubject() {
+        return (String) payload.get("sub");
     }
 }
