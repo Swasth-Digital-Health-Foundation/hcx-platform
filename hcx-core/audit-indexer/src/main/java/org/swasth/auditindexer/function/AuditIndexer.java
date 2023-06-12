@@ -26,32 +26,26 @@ public class AuditIndexer {
     }
 
     public void createDocument(Map<String, Object> event) throws Exception {
-        try {
-            String indexName = getIndexName((Long) event.get("ets"));
-            String mid = (String) event.get("mid");
-            esUtil.addIndex(settings, mappings, indexName, auditAlias);
-            esUtil.addDocumentWithIndex(JSONUtils.serialize(event), indexName, mid);
-            logger.info("Audit document created for mid: " + mid);
-        } catch (Exception e) {
-            throw new Exception("Error while processing event :: " + event + " :: " + e.getMessage());
-        }
+        createDocument(event, auditIndex, auditAlias);
     }
 
-    private String getIndexName(long ets){
+    private String getIndexName(long ets, String indexName){
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("IST"));
         cal.setTime(new Date(ets));
-        return auditIndex + "_" + cal.get(Calendar.YEAR) + "_" + cal.get(Calendar.WEEK_OF_YEAR);
+        return indexName + "_" + cal.get(Calendar.YEAR) + "_" + cal.get(Calendar.WEEK_OF_YEAR);
     }
 
     private InputStream getStream(String filename){
         return getClass().getClassLoader().getResourceAsStream(filename);
     }
 
-    public void createDocument(Map<String,Object> event,String indexName) throws Exception {
+
+    public void createDocument(Map<String,Object> event, String indexName, String indexAlias) throws Exception {
         try {
+            String index = getIndexName((Long) event.get("ets"), indexName);
             String mid = (String) event.get("mid");
-            esUtil.addIndex(settings, mappings, indexName, auditAlias);
-            esUtil.addDocumentWithIndex(JSONUtils.serialize(event), indexName, mid);
+            esUtil.addIndex(settings, mappings, index, indexAlias);
+            esUtil.addDocumentWithIndex(JSONUtils.serialize(event), index, mid);
             logger.info("Audit document created for mid: " + mid);
         } catch (Exception e) {
             throw new Exception("Error while processing event :: " + event + " :: " + e.getMessage());

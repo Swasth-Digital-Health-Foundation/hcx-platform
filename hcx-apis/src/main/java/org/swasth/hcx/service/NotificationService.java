@@ -229,7 +229,7 @@ public class NotificationService {
             SUBSCRIPTION_UPDATE_PROPS.forEach(prop -> {
                 if (request.getPayload().containsKey(prop)) updatedProps.put(prop, request.getPayload().get(prop));
             });
-            eventHandler.createAudit(eventGenerator.createAuditLog(response.getSubscriptionId(), NOTIFICATION, getCData(request),
+            eventHandler.pushAuditToKafka(eventGenerator.createAuditLog(response.getSubscriptionId(), NOTIFICATION, getCData(request),
                     getEData(response.getSubscriptionStatus(), prevStatus, updatedProps)));
             auditIndexer.createDocument(eventGenerator.generateSubscriptionUpdateAuditEvent(request, response));
             logger.info("Subscription is updated successfully :: subscription id: {}", response.getSubscriptionId());
