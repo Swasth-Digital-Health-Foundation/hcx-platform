@@ -11,7 +11,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.swasth.ICloudService;
-import org.swasth.auditindexer.function.AuditIndexer;
 import org.swasth.common.dto.RegistryResponse;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
@@ -19,8 +18,6 @@ import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.utils.JWTUtils;
 import org.swasth.postgresql.IDatabaseService;
 import org.swasth.redis.cache.RedisCache;
-
-import io.netty.util.internal.StringUtil;
 
 import org.apache.commons.collections.ListUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -67,7 +64,7 @@ public class ParticipantService extends BaseRegistryService {
     public RegistryResponse create(Map<String, Object> requestBody, HttpHeaders header, String code) throws Exception {
         HttpResponse<String> response = registryInvite(requestBody, header, registryOrgnisationPath);
         if (response.getStatus() == 200) {
-            generatePcptAudit(code, PARTICIPANT_CREATE, requestBody, CREATED);
+            generateCreateAudit(code, PARTICIPANT_CREATE, requestBody, CREATED, getUserFromToken(header));
             logger.info("Created participant :: participant code: {}", requestBody.get(PARTICIPANT_CODE));
         }
         return responseHandler(response, code, ORGANISATION);
@@ -78,7 +75,7 @@ public class ParticipantService extends BaseRegistryService {
         if (response.getStatus() == 200) {
             deleteCache(code);
             String status = (String) registryDetails.get(REGISTRY_STATUS);
-            generateUpdateAudit(code, PARTICIPANT_UPDATE, requestBody, status, (String) requestBody.getOrDefault(REGISTRY_STATUS, status), getUpdatedProps(requestBody, registryDetails));
+            generateUpdateAudit(code, PARTICIPANT_UPDATE, requestBody, status, (String) requestBody.getOrDefault(REGISTRY_STATUS, status), getUpdatedProps(requestBody, registryDetails), getUserFromToken(header));
             logger.info("Updated participant :: participant code: {}", requestBody.get(PARTICIPANT_CODE));
         }
         return responseHandler(response, code, ORGANISATION);
@@ -103,7 +100,7 @@ public class ParticipantService extends BaseRegistryService {
         HttpResponse<String> response = registryDelete(registryDetails, header, registryOrgnisationPath);
         if (response.getStatus() == 200) {
             deleteCache(code);
-            generatePcptAudit(code, PARTICIPANT_DELETE, registryDetails, INACTIVE);
+            generateUpdateAudit(code, PARTICIPANT_DELETE, Collections.emptyMap(), (String) registryDetails.get(REGISTRY_STATUS), INACTIVE, Collections.emptyList(), getUserFromToken(header));
             logger.info("Participant deleted :: participant code: {}", code);
         }
         return responseHandler(response, code, ORGANISATION);
@@ -124,12 +121,18 @@ public class ParticipantService extends BaseRegistryService {
             redisCache.delete(code);
     }
 
+    private Map<String, Object> getEData(String status, String prevStatus, List<String> props, String updatedBy) {
+        Map<String, Object> data = getEData(status, prevStatus, props);
+        data.put(UPDATED_BY, updatedBy);
+        return data;
+    }
+
     private Map<String, Object> getEData(String status, String prevStatus, List<String> props) {
         Map<String, Object> data = new HashMap<>();
         data.put(AUDIT_STATUS, status);
         data.put(PREV_STATUS, prevStatus);
         if (!props.isEmpty())
-            data.put(PROPS, props);
+            data.put(PROPS, props);    
         return data;
     }
 
@@ -183,13 +186,15 @@ public class ParticipantService extends BaseRegistryService {
         return "{ \"filters\": { \"participant_code\": { \"eq\": \" " + code + "\" } } }";
     }
 
-    private void generatePcptAudit(String code, String action, Map<String, Object> requestBody, String registryStatus) throws Exception {
-        Map<String,Object> event = eventGenerator.createAuditLog(code, PARTICIPANT, getCData(action, requestBody), getEData(registryStatus, "", Collections.emptyList()));
+    private void generateCreateAudit(String code, String action, Map<String, Object> requestBody, String registryStatus, String createdBy) throws Exception {
+        Map<String,Object> edata = getEData(registryStatus, "", Collections.emptyList());
+        edata.put("createdBy", createdBy);
+        Map<String,Object> event = eventGenerator.createAuditLog(code, PARTICIPANT, getCData(action, requestBody), edata);
         eventHandler.createParticipantAudit(event);
     }
 
-    private void generateUpdateAudit(String code, String action, Map<String, Object> requestBody, String prevStatus, String currentStatus, List<String> props) throws Exception {
-        Map<String,Object> event = eventGenerator.createAuditLog(code, PARTICIPANT, getCData(action, requestBody), getEData(currentStatus, prevStatus, props));
+    private void generateUpdateAudit(String code, String action, Map<String, Object> requestBody, String prevStatus, String currentStatus, List<String> props, String updatedBy) throws Exception {
+        Map<String,Object> event = eventGenerator.createAuditLog(code, PARTICIPANT, getCData(action, requestBody), getEData(currentStatus, prevStatus, props, updatedBy));
         eventHandler.createParticipantAudit(event);      
     }
 
@@ -221,7 +226,7 @@ public class ParticipantService extends BaseRegistryService {
     }
 
 
-    public static <K, V> List<K> getUpdatedProps(Map<K, V> map1, Map<K, V> map2) {
+    private static <K, V> List<K> getUpdatedProps(Map<K, V> map1, Map<K, V> map2) {
         Map<K, V> differentEntries = new HashMap<>();
         
         for (Map.Entry<K, V> entry : map1.entrySet()) {
@@ -235,6 +240,15 @@ public class ParticipantService extends BaseRegistryService {
         }
 
         return new ArrayList<>(differentEntries.keySet());
+    }
+
+    private String getUserFromToken(HttpHeaders headers) throws Exception {
+        Token token = new Token(Objects.requireNonNull(headers.get(AUTHORIZATION)).get(0));
+        if (StringUtils.equals(token.getEntityType(), "Organisation")){
+            return token.getParticipantCode();
+        } else {
+            return token.getUserId();
+        }
     }
 
 

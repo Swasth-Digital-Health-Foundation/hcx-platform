@@ -144,6 +144,7 @@ public class Constants {
     public static final String TYP = "typ";
     public static  final String AUDIT_STATUS = "status";
     public static  final String PREV_STATUS = "prevStatus";
+    public static  final String UPDATED_BY = "updatedBy";
     public static  final String PROPS = "props";
     public static  final String CREATED = "Created";
 
