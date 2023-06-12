@@ -39,6 +39,7 @@ public class AuditIndexer {
         return getClass().getClassLoader().getResourceAsStream(filename);
     }
 
+
     public void createDocument(Map<String,Object> event, String indexName, String indexAlias) throws Exception {
         try {
             String index = getIndexName((Long) event.get("ets"), indexName);

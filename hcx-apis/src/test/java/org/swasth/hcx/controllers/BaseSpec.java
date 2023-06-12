@@ -394,8 +394,12 @@ public class BaseSpec {
         return "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJMYU9HdVRrYVpsVEtzaERwUng1R25JaXUwV1A1S3VGUUoyb29WMEZnWGx3In0.eyJleHAiOjE2NDcwNzgwNjksImlhdCI6MTY0Njk5MTY2OSwianRpIjoiNDcyYzkwOTAtZWQ4YS00MDYxLTg5NDQtMzk4MjhmYzBjM2I4IiwiaXNzIjoiaHR0cDovL2E5ZGQ2M2RlOTFlZTk0ZDU5ODQ3YTEyMjVkYThiMTExLTI3Mzk1NDEzMC5hcC1zb3V0aC0xLmVsYi5hbWF6b25hd3MuY29tOjgwODAvYXV0aC9yZWFsbXMvc3dhc3RoLWhlYWx0aC1jbGFpbS1leGNoYW5nZSIsImF1ZCI6ImFjY291bnQiLCJzdWIiOiIwYzU3NjNkZS03MzJkLTRmZDQtODU0Ny1iMzk2MGMxMzIwZjUiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJyZWdpc3RyeS1mcm9udGVuZCIsInNlc3Npb25fc3RhdGUiOiIxMThhMTRmMS04OTAxLTQxZTMtYWE5Zi1iNWFjMjYzNjkzMzIiLCJhY3IiOiIxIiwiYWxsb3dlZC1vcmlnaW5zIjpbImh0dHBzOi8vbG9jYWxob3N0OjQyMDIiLCJodHRwOi8vbG9jYWxob3N0OjQyMDIiLCJodHRwczovL2xvY2FsaG9zdDo0MjAwIiwiaHR0cHM6Ly9uZGVhci54aXYuaW4iLCJodHRwOi8vbG9jYWxob3N0OjQyMDAiLCJodHRwOi8vbmRlYXIueGl2LmluIiwiaHR0cDovLzIwLjE5OC42NC4xMjgiXSwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbIkhJRS9ISU8uSENYIiwiZGVmYXVsdC1yb2xlcy1uZGVhciJdfSwicmVzb3VyY2VfYWNjZXNzIjp7ImFjY291bnQiOnsicm9sZXMiOlsibWFuYWdlLWFjY291bnQiLCJtYW5hZ2UtYWNjb3VudC1saW5rcyIsInZpZXctcHJvZmlsZSJdfX0sInNjb3BlIjoicHJvZmlsZSBlbWFpbCIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwibmFtZSI6ImhjeCBhZG1pbiIsInByZWZlcnJlZF91c2VybmFtZSI6ImhjeC1hZG1pbiIsImdpdmVuX25hbWUiOiJoY3ggYWRtaW4ifQ.SwDJNGkHOs7MrArqwdkArLkRDgPIU3SHwMdrppmG2JHQkpYRLqFpfmFPgIYNAyi_b_ZQnXKwuhT6ABNEV2-viJWTPLYe4z5JkeUGNurnrkSoMMObrd0s1tLYjdgu5j5kLaeUBeSeULTkdBfAM9KZX5Gn6Ri6AKs6uFq22hJOmhtw3RTyX-7kozG-SzSfIyN_-7mvJBZjBR73gaNJyEms4-aKULAnQ6pYkj4hzzlac2WCucq2zZnipeupBOJzx5z27MLdMs8lfNRTTqkQVhoUK0DhDxyj9N_TzbycPdykajhOrerKfpEnYcZpWfC-bJJSDagnP9D407OqoxoE3_niHw";
     }
 
-    public String getUserToken() {
+    public String getParticipantToken() {
         return "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICI3Q1l0Z2VYMzA2NEQ3VUU0czdCQWlJZmUzN3hxczBtNEVSQnpmdzVuMzdNIn0.eyJleHAiOjE2ODY1Njc5NzcsImlhdCI6MTY4NDgzOTk3NywianRpIjoiZWY3NzMwNGMtZWQ2NC00NDBkLWFmZmUtNDJiNDM2ZTkzNDUwIiwiaXNzIjoiaHR0cDovL2Rldi1oY3guc3dhc3RoLmFwcC9hdXRoL3JlYWxtcy9zd2FzdGgtaGVhbHRoLWNsYWltLWV4Y2hhbmdlIiwic3ViIjoiODUyNzg1M2MtYjQ0Mi00NGRiLWFlZGEtZGJiZGNmNDcyZDliIiwidHlwIjoiQmVhcmVyIiwiYXpwIjoicmVnaXN0cnktZnJvbnRlbmQiLCJzZXNzaW9uX3N0YXRlIjoiNTMzOTEyYjUtMjRhYS00MzMyLTg3ZGEtYTM3ODRiNDI4ZWJkIiwiYWNyIjoiMSIsInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJkZWZhdWx0LXJvbGVzLW5kZWFyIl19LCJzY29wZSI6InByb2ZpbGUgZW1haWwiLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsInByZWZlcnJlZF91c2VybmFtZSI6InRlc3Rwcm92aWRlcjFAYXBvbGxvLmNvbSIsImVudGl0eSI6WyJPcmdhbmlzYXRpb24iXSwiZW1haWwiOiJ0ZXN0cHJvdmlkZXIxQGFwb2xsby5jb20ifQ.SMrKfkWeKjzfep9giWpBOmMwokj3owjPYU6UvKEznODmf5ewgYB55bEIkVWoK171WUeGkrXulLD8szvAUSRuIkIAAVs9YwPK6PUtpc0xZ-0j6prt5FctF5v5oS5tQNJnkHsR9_iw_cgob-4fOO2azGg25_l13jfExfjd2o1JHa6fBsc6wWUV98NQRK6dkvDzG7TETkH1Z47WxndYuY32as54m7wTG4_kb1RF2UR9UomYUn2Uze5tSsE2jSZ9MSo--KeN4u6yuLRbFw9M7vvIaE-530jPP0bAxhmhTsvrZMSk25hsiAmDEWJgeI7Ul3P27RN6Yeb_ek4KViJbd6MlFw";
+    }
+
+    public String getUserToken(){
+        return "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJRWmJkMFhtRVJJSzZuaFBtT1BSSWUtdXhYcE1QNXpzMlpfM3h6Q2tNdnA0In0.eyJleHAiOjE2ODY1OTIzMTAsImlhdCI6MTY4NjU1NjMxMCwianRpIjoiMTY1ZmYwMWUtYWE2Ny00Njc0LTkwYTYtYjhlM2EyZDcyZjBjIiwiaXNzIjoiaHR0cDovL2Rldi1oY3guc3dhc3RoLmFwcC9hdXRoL3JlYWxtcy9zd2FzdGgtaGVhbHRoLWNsYWltLWV4Y2hhbmdlLXVzZXIiLCJhdWQiOiJhY2NvdW50Iiwic3ViIjoiYTUwN2UyM2ItODI4MC00NmE3LWI5ZTEtNzlhZmM3Zjg2NGZjIiwidHlwIjoiQmVhcmVyIiwiYXpwIjoicmVnaXN0cnktZnJvbnRlbmQiLCJzZXNzaW9uX3N0YXRlIjoiYmMxYTIzOGYtODU2Ni00NjQ4LTg4MjEtNmZkZDMxZDkxN2QwIiwiYWNyIjoiMSIsInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJkZWZhdWx0LXJvbGVzLXN3YXN0aC1oZWFsdGgtY2xhaW0tZXhjaGFuZ2UtdXNlciIsIm9mZmxpbmVfYWNjZXNzIiwidW1hX2F1dGhvcml6YXRpb24iXX0sInJlc291cmNlX2FjY2VzcyI6eyJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50IiwibWFuYWdlLWFjY291bnQtbGlua3MiLCJ2aWV3LXByb2ZpbGUiXX19LCJzY29wZSI6ImVtYWlsIHByb2ZpbGUiLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsInByZWZlcnJlZF91c2VybmFtZSI6Im1vY2sxNUBnbWFpbC5jb20iLCJlbWFpbCI6Im1vY2sxNUBnbWFpbC5jb20iLCJlbnRpdHkiOlsiVXNlciJdfQ.Z1kIohORTdbQr_WrbF1H5kuluQ3sTH7p5rZVkSds9gTuWwWofpYvT8CDVBxBL_0x2loOvbW0eU8Vor5VinhYBpA4uTNHxcEHMXcWJqG95fBbcbX_qiIrzOiG8uYqu8o5G_-TWT4F6rLvXd2ASLp4Gy3MOHkbN3lxePqtwTYBdbo5E_SXHiiMP1Po8x7Lj6QLtcBITDZWf9hcxd9BH13WhCJtIYHZsvAckekv7LDGtScIwHJ-srWp31x-AsJjEUanwdpyzghhfrr5U8xyx7sz62nzcJQokkn0JcOjvMCubmQNGbHT8NkDGZbe8vO2UV2QKkVKk4PXypkgFJgK8JTX5g";
     }
 
     public Map<String, Object> getHIUParticipant() throws JsonProcessingException {
@@ -434,6 +438,7 @@ public class BaseSpec {
         obj.put("created_by", "pcpt@hcx");
         obj.put("pin", "1234");
         obj.put("linked_user_id", "1234");
+        obj.put("tenant_roles",List.of(Map.of("participant_code","testprovider1.apollo@swasth-hcx-dev","role","admin")));
         return JSONUtils.serialize(obj);
     }
     public String getUserCreateBodyWithMobile() throws JsonProcessingException {
@@ -443,16 +448,10 @@ public class BaseSpec {
         obj.put("created_by", "pcpt@hcx");
         obj.put("pin", "1234");
         obj.put("linked_user_id", "1234");
+        obj.put("tenant_roles",List.of(Map.of("participant_code","testprovider1.apollo@swasth-hcx-dev","role","admin")));
         return JSONUtils.serialize(obj);
     }
-    public String getEmailPhoneNotfound() throws JsonProcessingException {
-        Map<String, Object> obj = new HashMap<>();
-        obj.put("user_name", "user-01");
-        obj.put("created_by", "pcpt@hcx");
-        obj.put("pin", "1234");
-        obj.put("linked_user_id", "1234");
-        return JSONUtils.serialize(obj);
-    }
+
     public Map<String, Object> getUserCreateAuditLog() throws Exception {
         return JSONUtils.deserialize("{\"eid\":\"AUDIT\",\"edata\":{\"prevStatus\":\"\",\"status\":\"Created\"},\"ets\":1659434908868,\"mid\":\"5ee2b9e1-ded6-4b56-afa8-3380107632e0\",\"object\":{\"id\":\"097e0185-eeb1-48f1-b2b0-b68774d02c6d\",\"type\":\"User\"},\"cdata\":{\"action\":\"/user/create\"}}", Map.class);
     }
