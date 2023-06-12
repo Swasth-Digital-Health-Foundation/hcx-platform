@@ -4,7 +4,7 @@ bootstrap-servers: ${bootstrap_servers:localhost:9092}
 env: local
 
 server:
-  port: ${SERVER_PORT:8094}
+  port: ${SERVER_PORT:8080}
 
 kafka:
   topic:
