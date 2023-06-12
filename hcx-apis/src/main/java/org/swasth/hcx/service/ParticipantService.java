@@ -11,6 +11,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.swasth.ICloudService;
+import org.swasth.auditindexer.function.AuditIndexer;
 import org.swasth.common.dto.RegistryResponse;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
@@ -47,6 +48,7 @@ public class ParticipantService extends BaseRegistryService {
     private String onboardingTable;
     @Value("${registry.organisation-api-path}")
     private String registryOrgnisationPath;
+    
 
     @Autowired
     protected IDatabaseService postgreSQLClient;
@@ -61,6 +63,7 @@ public class ParticipantService extends BaseRegistryService {
     @Autowired
     private UserService userService;
 
+
     public RegistryResponse create(Map<String, Object> requestBody, HttpHeaders header, String code) throws Exception {
         HttpResponse<String> response = registryInvite(requestBody, header, registryOrgnisationPath);
         if (response.getStatus() == 200) {
@@ -74,7 +77,8 @@ public class ParticipantService extends BaseRegistryService {
         HttpResponse<String> response = registryUpdate(requestBody, registryDetails, header, registryOrgnisationPath);
         if (response.getStatus() == 200) {
             deleteCache(code);
-            generatePcptAudit(code, PARTICIPANT_UPDATE, requestBody, "");
+            String status = (String) registryDetails.get(REGISTRY_STATUS);
+            generateUpdateAudit(code, PARTICIPANT_UPDATE, requestBody, status, (String) requestBody.getOrDefault(REGISTRY_STATUS, status), getUpdatedProps(requestBody, registryDetails));
             logger.info("Updated participant :: participant code: {}", requestBody.get(PARTICIPANT_CODE));
         }
         return responseHandler(response, code, ORGANISATION);
@@ -180,8 +184,13 @@ public class ParticipantService extends BaseRegistryService {
     }
 
     private void generatePcptAudit(String code, String action, Map<String, Object> requestBody, String registryStatus) throws Exception {
-        eventHandler.createAudit(eventGenerator.createAuditLog(code, PARTICIPANT, getCData(action, requestBody),
-                getEData(registryStatus, "", Collections.emptyList())));
+        Map<String,Object> event = eventGenerator.createAuditLog(code, PARTICIPANT, getCData(action, requestBody), getEData(registryStatus, "", Collections.emptyList()));
+        eventHandler.createParticipantAudit(event);
+    }
+
+    private void generateUpdateAudit(String code, String action, Map<String, Object> requestBody, String prevStatus, String currentStatus, List<String> props) throws Exception {
+        Map<String,Object> event = eventGenerator.createAuditLog(code, PARTICIPANT, getCData(action, requestBody), getEData(currentStatus, prevStatus, props));
+        eventHandler.createParticipantAudit(event);      
     }
 
     public void authorizeEntity(String authToken, String participantCode, String email) throws Exception {
@@ -209,6 +218,23 @@ public class ParticipantService extends BaseRegistryService {
                 return true;
         }
         return false;
+    }
+
+
+    public static <K, V> List<K> getUpdatedProps(Map<K, V> map1, Map<K, V> map2) {
+        Map<K, V> differentEntries = new HashMap<>();
+        
+        for (Map.Entry<K, V> entry : map1.entrySet()) {
+            K key = entry.getKey();
+            V value1 = entry.getValue();
+            V value2 = map2.get(key);
+
+            if (value2 == null || !value2.equals(value1)) {
+                differentEntries.put(key, value1);
+            }
+        }
+
+        return new ArrayList<>(differentEntries.keySet());
     }
 
 
