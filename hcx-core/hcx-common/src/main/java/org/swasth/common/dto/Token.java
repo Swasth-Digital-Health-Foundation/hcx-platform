@@ -36,4 +36,12 @@ public class Token {
     public String getEntityType() {
         return (String) ((List<String>) payload.get("entity")).get(0);
     }
+
+    public String getParticipantCode() {
+        return (String) payload.getOrDefault("participant_code", "");
+    }
+
+    public String getUserId() {
+        return (String) payload.getOrDefault("user_id", "");
+    }
 }
