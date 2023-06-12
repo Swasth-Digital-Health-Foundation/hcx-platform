@@ -3,7 +3,8 @@ rbac:
     paths:
       - /health
       - /service/health
-      - /v0.8/generate/token
+      - /v0.8/participant/generate/token
+      - /v0.8/user/generate/token
     regexPaths:
       - /url/**
   - role: AUTHENTICATED
