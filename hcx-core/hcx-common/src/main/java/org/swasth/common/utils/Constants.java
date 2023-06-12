@@ -58,6 +58,8 @@ public class Constants {
     public static final String AUDIT_SEARCH = "/audit/search";
     public static final String AUDIT_NOTIFICATION_SEARCH = "/audit/notification/search";
     public static final String AUDIT_ONBOARD_SEARCH = "/audit/onboard/search";
+    public static final String AUDIT_PARTICIPANT_SEARCH = "/audit/participant/search";
+    public static final String AUDIT_USER_SEARCH = "/audit/user/search";
 
     // Supportability APIs
     public static final String REQUEST_RETRY = "/request/retry/{mid}";

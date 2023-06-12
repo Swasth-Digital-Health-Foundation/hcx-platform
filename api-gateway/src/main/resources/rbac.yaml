@@ -261,3 +261,5 @@ rbac:
     regexPaths:
       - /v0.8/user/**
       - /v0.8/participant/user/**
+      - /v0.8/audit/participant/search
+      - /v0.8/audit/user/search

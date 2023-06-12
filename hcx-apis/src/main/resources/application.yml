@@ -82,6 +82,10 @@ audit:
   hcxAlias: ${hcx_alias:hcx_audit}
   onboardIndex: ${onboard_index:onboard_audit}
   onboardAlias: ${onboard_alias:onboard_audit}
+  participantIndex: ${participant_index:participant_audit}
+  participantAlias: ${participant_alias:participant_audit}
+  userIndex: ${user_index:user_audit}
+  userAlias: ${user_alias:user_audit}
 
 
 #hcx redirect headers
