@@ -2,6 +2,7 @@ package org.swasth.hcx.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import kong.unirest.HttpResponse;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.swasth.common.dto.RegistryResponse;
+import org.swasth.common.dto.Token;
 import org.swasth.common.exception.AuthorizationException;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ResourceNotFoundException;
@@ -19,10 +21,7 @@ import org.swasth.common.utils.HttpUtils;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.hcx.handlers.EventHandler;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import static org.swasth.common.utils.Constants.*;
 
@@ -102,4 +101,29 @@ public class BaseRegistryService {
     public RegistryResponse addRemoveResponse(RegistryResponse registryResponse){
             return new RegistryResponse(System.currentTimeMillis(), registryResponse.getStatus());
         }
+
+    public String getUserFromToken(HttpHeaders headers) throws Exception {
+        Token token = new Token(Objects.requireNonNull(headers.get(AUTHORIZATION)).get(0));
+        if (StringUtils.equals(token.getEntityType(), ORGANISATION)){
+            return token.getParticipantCode();
+        } else {
+            return token.getUserId();
+        }
+    }
+
+
+    public Map<String, Object> getEData(String status, String prevStatus, List<String> props) {
+        Map<String, Object> data = new HashMap<>();
+        data.put(AUDIT_STATUS, status);
+        data.put(PREV_STATUS, prevStatus);
+        if (!props.isEmpty())
+            data.put(PROPS, props);
+        return data;
+    }
+    public Map<String, Object> getEData(String status, String prevStatus, List<String> props, String updatedBy) {
+        Map<String, Object> data = getEData(status, prevStatus, props);
+        data.put(UPDATED_BY, updatedBy);
+        return data;
+    }
+
 }

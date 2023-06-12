@@ -115,25 +115,9 @@ public class ParticipantService extends BaseRegistryService {
         }
     }
 
-
     private void deleteCache(String code) throws Exception {
         if (redisCache.isExists(code))
             redisCache.delete(code);
-    }
-
-    private Map<String, Object> getEData(String status, String prevStatus, List<String> props, String updatedBy) {
-        Map<String, Object> data = getEData(status, prevStatus, props);
-        data.put(UPDATED_BY, updatedBy);
-        return data;
-    }
-
-    private Map<String, Object> getEData(String status, String prevStatus, List<String> props) {
-        Map<String, Object> data = new HashMap<>();
-        data.put(AUDIT_STATUS, status);
-        data.put(PREV_STATUS, prevStatus);
-        if (!props.isEmpty())
-            data.put(PROPS, props);    
-        return data;
     }
 
     public void getCertificatesUrl(Map<String, Object> requestBody, String code) {
@@ -188,11 +172,10 @@ public class ParticipantService extends BaseRegistryService {
 
     private void generateCreateAudit(String code, String action, Map<String, Object> requestBody, String registryStatus, String createdBy) throws Exception {
         Map<String,Object> edata = getEData(registryStatus, "", Collections.emptyList());
-        edata.put("createdBy", createdBy);
+        edata.put(CREATED_BY, createdBy);
         Map<String,Object> event = eventGenerator.createAuditLog(code, PARTICIPANT, getCData(action, requestBody), edata);
         eventHandler.createParticipantAudit(event);
     }
-
     private void generateUpdateAudit(String code, String action, Map<String, Object> requestBody, String prevStatus, String currentStatus, List<String> props, String updatedBy) throws Exception {
         Map<String,Object> event = eventGenerator.createAuditLog(code, PARTICIPANT, getCData(action, requestBody), getEData(currentStatus, prevStatus, props, updatedBy));
         eventHandler.createParticipantAudit(event);      
@@ -207,7 +190,7 @@ public class ParticipantService extends BaseRegistryService {
             Map<String,Object> userDetails = userService.getUser(token.getUsername());
             boolean result = false;
             for(Map<String, String> roleMap: (List<Map<String,String>>) userDetails.getOrDefault(TENANT_ROLES, ListUtils.EMPTY_LIST)){
-                if(StringUtils.equals((String) roleMap.get(PARTICIPANT_CODE), participantCode) && StringUtils.equals((String) roleMap.get(ROLE), CONFIG_MANAGER)) {
+                if(StringUtils.equals(roleMap.get(PARTICIPANT_CODE), participantCode) && StringUtils.equals((String) roleMap.get(ROLE), CONFIG_MANAGER)) {
                     result = true;
                 }
             }
@@ -241,15 +224,4 @@ public class ParticipantService extends BaseRegistryService {
 
         return new ArrayList<>(differentEntries.keySet());
     }
-
-    private String getUserFromToken(HttpHeaders headers) throws Exception {
-        Token token = new Token(Objects.requireNonNull(headers.get(AUTHORIZATION)).get(0));
-        if (StringUtils.equals(token.getEntityType(), "Organisation")){
-            return token.getParticipantCode();
-        } else {
-            return token.getUserId();
-        }
-    }
-
-
 }

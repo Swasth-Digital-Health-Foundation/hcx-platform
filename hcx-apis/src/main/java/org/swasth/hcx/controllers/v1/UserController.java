@@ -114,12 +114,10 @@ public class UserController extends BaseController {
             logger.info("Removing users : {}", requestBody);
             RegistryResponse response = null;
             userService.authorizeToken(headers, (String) requestBody.get(PARTICIPANT_CODE));
-            List<String> users = (List<String>) requestBody.get(USERS);
-            for(String user : users){
-                Map<String,Object> removeUser = new HashMap<>();
-                removeUser.put(PARTICIPANT_CODE,requestBody.get(PARTICIPANT_CODE));
-                removeUser.put(USER_ID,user);
-                response = userService.removeUser(removeUser,headers);
+            List<Map<String, Object>> users = (List<Map<String, Object>>) requestBody.get(USERS);
+            for(Map<String,Object> user : users){
+                Map<String, Object> userRequest = userService.constructRequestBody(requestBody,user);
+                response = userService.removeUser(userRequest,headers);
             }
             response.setStatus(SUCCESS);
             return getSuccessResponse(userService.addRemoveResponse(response));

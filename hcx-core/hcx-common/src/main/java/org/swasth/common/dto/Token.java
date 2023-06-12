@@ -12,11 +12,11 @@ public class Token {
     private Map<String,Object> payload;
 
     public Token(String token) throws Exception {
-        String tokenValues[] = token.split("\\.");
+        String removeBearer = token.replace("Bearer ", "");
+        String tokenValues[] = removeBearer.split("\\.");
         headers = JSONUtils.decodeBase64String(tokenValues[0], Map.class);
         payload = JSONUtils.decodeBase64String(tokenValues[1], Map.class);
     }
-
     public Map<String,Object> getHeaders() {
         return headers;
     }

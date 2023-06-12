@@ -26,13 +26,6 @@ public class UserService extends BaseRegistryService {
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
     @Value("${registry.user-api-path}")
     private String registryUserPath;
-    @Value("${participantCode.fieldSeparator}")
-    private String fieldSeparator;
-    @Value("${hcx.instanceName}")
-    private String hcxInstanceName;
-
-    @Value("${es.user-index}")
-    private String userIndex;
     @Autowired
     private ParticipantService participantService;
 
@@ -42,7 +35,7 @@ public class UserService extends BaseRegistryService {
     public RegistryResponse create(Map<String, Object> requestBody, HttpHeaders headers, String code) throws Exception {
         HttpResponse<String> response = registryInvite(requestBody, headers, registryUserPath);
         if (response.getStatus() == 200) {
-            generateUserAudit(code, requestBody, USER_CREATE);
+            generateUserAudit(code,USER_CREATE,requestBody,(String) requestBody.get(CREATED_BY));
             logger.info("Created user :: user id: {}", code);
         }
         return responseHandler(response, code, USER);
@@ -55,7 +48,7 @@ public class UserService extends BaseRegistryService {
     public RegistryResponse update(Map<String, Object> requestBody, Map<String, Object> registryDetails, HttpHeaders headers, String code) throws Exception {
         HttpResponse<String> response = registryUpdate(requestBody, registryDetails, headers, registryUserPath);
         if (response.getStatus() == 200) {
-            generateUserAudit(code, requestBody, USER_UPDATE);
+            generateUserAudit(code,USER_UPDATE,requestBody,getUserFromToken(headers));
             logger.info("Updated user :: user id: {}", code);
         }
         return responseHandler(response, code, USER);
@@ -64,7 +57,7 @@ public class UserService extends BaseRegistryService {
     public RegistryResponse delete(Map<String, Object> registryDetails, HttpHeaders headers, String code) throws Exception {
         HttpResponse<String> response = registryDelete(registryDetails, headers, registryUserPath);
         if (response.getStatus() == 200) {
-            generateUserAudit(code, registryDetails, USER_DELETE);
+            generateUserAudit(code,USER_DELETE,registryDetails,getUserFromToken(headers));
             logger.info("User deleted :: userId: {}", code);
             RegistryResponse registryResponse = new RegistryResponse(code, USER);
             registryResponse.setStatus(INACTIVE);
@@ -90,7 +83,7 @@ public class UserService extends BaseRegistryService {
         userBody.remove(USER_ID);
         tenantRolesList.add(userBody);
         response = registryUpdate(requestBody, registryDetails, headers, registryUserPath);
-        //auditIndexer.createDocumentUserParticipant(eventGenerator.generateAddAudit(registryDetails, PARTICIPANT_USER_ADD),userIndex);
+        generateAddRemoveUserAudit((String) registryDetails.get(USER_ID), PARTICIPANT_USER_ADD, userBody, getUserFromToken(headers));
         logger.info("added role for the user_id : " + registryDetails.get(USER_ID));
         return responseHandler(response, (String) registryDetails.get(USER_ID), USER);
     }
@@ -103,22 +96,20 @@ public class UserService extends BaseRegistryService {
         if (registryDetails.containsKey(TENANT_ROLES)) {
             ArrayList<Map<String, Object>> tenantRolesList = JSONUtils.convert(registryDetails.get(TENANT_ROLES), ArrayList.class);
             if(tenantRolesList.isEmpty()) {
-               throw new ClientException("user does not have any role to remove");
+               throw new ClientException("User does not have any role to remove");
             }
             for (Map<String, Object> tenantRole : tenantRolesList) {
                 String role = (String) tenantRole.get(ROLE);
                 String participantCode = (String) tenantRole.get(PARTICIPANT_CODE);
-                if (!ALLOWED_REMOVE_ROLES.contains(role) && participantCode.equals(requestBody.get(PARTICIPANT_CODE))) {
+                if (!requestBody.get(ROLE).equals(role) && participantCode.equals(requestBody.get(PARTICIPANT_CODE))) {
                     filteredTenantRoles.add(tenantRole);
-                } else if (tenantRole.get(ROLE).equals(ADMIN) && !tenantRole.equals(requestBody.get(PARTICIPANT_CODE))) {
-                    throw new ClientException("Invalid participant code : " + requestBody.get(PARTICIPANT_CODE) + " or admin role cannot be removed.");
                 }
             }
         }
         Map<String, Object> request = new HashMap<>();
         request.put(TENANT_ROLES, filteredTenantRoles);
         response = registryUpdate(request, registryDetails, headers, registryUserPath);
-        //auditIndexer.createDocumentUserParticipant(eventGenerator.generateRemoveAudit(registryDetails, PARTICIPANT_USER_REMOVE),userIndex);
+        generateAddRemoveUserAudit(userId, PARTICIPANT_USER_REMOVE, requestBody, getUserFromToken(headers));
         logger.info("removed role for the user_id : " + registryDetails.get(USER_ID));
         return responseHandler(response, userId, USER);
     }
@@ -137,15 +128,25 @@ public class UserService extends BaseRegistryService {
         return "{ \"filters\": { \"user_id\": { \"eq\": \" " + userId + "\" } } }";
     }
 
-    private void generateUserAudit(String userId, Map<String, Object> requestBody, String action) throws Exception {
-        Map<String, Object> event = eventGenerator.createAuditLog(userId, USER, getCData(action, requestBody), new HashMap<>());
+    private void generateUserAudit(String userId, String action, Map<String, Object> requestBody, String updatedBy) throws Exception {
+        Map<String,Object> edata = new HashMap<>();
+        edata.put(UPDATED_BY, updatedBy);
+        Map<String,Object> event = eventGenerator.createAuditLog(userId, USER, getCData(action, requestBody), edata);
+        eventHandler.createUserAudit(event);
+    }
+
+    public void generateAddRemoveUserAudit(String userId, String action, Map<String, Object> requestBody, String updatedBy) throws Exception {
+        Map<String,Object> edata = new HashMap<>();
+        edata.put(UPDATED_BY, updatedBy);
+        Map<String, Object> event = eventGenerator.createAuditLog(userId, USER, getCData(action, requestBody), edata);
         eventHandler.createUserAudit(event);
     }
 
     public String createUserId(Map<String, Object> requestBody) throws ClientException {
+        requestBody.get(EMAIL).toString().toLowerCase();
         if (requestBody.containsKey(EMAIL) || requestBody.containsKey(MOBILE)) {
             if (requestBody.containsKey(EMAIL) && EmailValidator.getInstance().isValid((String) requestBody.get(EMAIL))) {
-                return (String) requestBody.get(EMAIL);
+                return ((String) requestBody.get(EMAIL));
             } else if (requestBody.containsKey(MOBILE)) {
                 return (String) requestBody.get(MOBILE);
             }
