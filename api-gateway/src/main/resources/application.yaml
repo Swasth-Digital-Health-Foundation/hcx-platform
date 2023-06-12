@@ -161,7 +161,9 @@ spring:
             - RewritePath=/${version.external08}/request/retry/(?<segment>/?.*), /${version.internal}/request/retry/$\{segment}
             - RewritePath=/${version.external08}/audit/onboard/search, /${version.internal}/audit/onboard/search
             - RewritePath=/${version.external08}/user/(?<segment>/?.*), /${version.internal}/user/$\{segment}
-            - RewritePath=/${version.external08}/participant/user/(?<segment>/?.*)}, /${version.internal/participant/user/$\{segment}
+            - RewritePath=/${version.external08}/participant/user/(?<segment>/?.*)}, /${version.internal}/participant/user/$\{segment}
+            - RewritePath=/${version.external08}/audit/participant/search, /${version.internal}/audit/participant/search
+            - RewritePath=/${version.external08}/audit/user/search, /${version.internal}/audit/user/search
           predicates:
             - Path=/${version.external07}/participant/create, /${version.external07}/participant/update, /${version.external07}/participant/search, /${version.external07}/participant/delete, /${version.external08}/participant/create, /${version.external08}/participant/update, /${version.external08}/participant/search , /${version.external08}/participant/read/*, /${version.external08}/participant/delete, /health, /service/health, /${version.external08}/notification/topic/list,  /${version.external08}/request/retry/**, /${version.external08}/audit/onboard/search, /${version.external08}/user/create,/${version.external08}/user/update,/${version.external08}/user/read/*,/${version.external08}/user/search,/${version.external08}/user/delete,/${version.external08}/participant/user/add,/${version.external08}/participant/user/remove,/${version.external08}/audit/participant/search,/${version.external08}/audit/user/search
 
