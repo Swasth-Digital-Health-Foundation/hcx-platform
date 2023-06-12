@@ -64,10 +64,12 @@ public class KeycloackService extends BaseRegistryService {
            JWTClaimsSet originalPayload = parsedToken.getJWTClaimsSet();
            JWTClaimsSet.Builder modifiedPayloadBuilder = new JWTClaimsSet.Builder(originalPayload);
            if (keyFilePath.contains("user_realm.der")) {
-               ArrayList<Map<String, Object>> tenantRolesList = getTenantRoles(email);
+               Map<String,Object> userDetails = getUser(email);
+               ArrayList<Map<String, Object>> tenantRolesList  = JSONUtils.convert(userDetails.getOrDefault(Constants.TENANT_ROLES, new ArrayList<>()), ArrayList.class);
                Map<String,Object> realmAccess = (Map<String, Object>) modifiedPayloadBuilder.getClaims().get("realm_access");
                realmAccess.put("tenant_roles", tenantRolesList);
                modifiedPayloadBuilder.claim("realm_access", realmAccess);
+               modifiedPayloadBuilder.claim("user_id", userDetails.get(Constants.USER_ID));
            } else if (keyFilePath.contains("participant_realm.der")) {
                modifiedPayloadBuilder.claim(Constants.PARTICIPANT_CODE, getParticipantCode((String) modifiedPayloadBuilder.getClaims().get("email")));
            }
@@ -129,11 +131,9 @@ public class KeycloackService extends BaseRegistryService {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    public ArrayList<Map<String, Object>> getTenantRoles(String emailId) throws Exception {
+    public Map<String, Object> getUser(String emailId) throws Exception {
         RegistryResponse registryResponse = registrySearch(JSONUtils.deserialize(getRequestBody("email", emailId),Map.class),registryUserPath,Constants.USER);
         Map<String,Object> userDetails = (Map<String, Object>) registryResponse.getUsers().get(0);
-        ArrayList<Map<String, Object>> tenantRolesList  = JSONUtils.convert(userDetails.getOrDefault(Constants.TENANT_ROLES, new ArrayList<>()), ArrayList.class);
-        System.out.println(tenantRolesList);
-        return tenantRolesList;
+        return userDetails;
     }
 }

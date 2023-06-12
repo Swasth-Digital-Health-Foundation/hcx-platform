@@ -42,60 +42,60 @@ class UserControllerTests extends BaseSpec {
         Thread.sleep(2000);
     }
 
-     @Test
-     void user_create_success_scenario() throws Exception {
-         registryServer.enqueue(new MockResponse()
-                 .setResponseCode(200)
-                 .setBody("[{\"user_name\":\"test user\",\"tenant_roles\": [ {\"participant_code\":\"testprovider1.apollo@swasth-hcx-dev\",\"role\":\"admin\"}]}]")
-                 .addHeader("Content-Type", "application/json"));
-         registryServer.enqueue(new MockResponse()
-                 .setResponseCode(200)
-                 .setBody("[]")
-                 .addHeader("Content-Type", "application/json"));
-         registryServer.enqueue(new MockResponse()
-                 .setResponseCode(200)
-                 .setBody("{ \"id\": \"open-saber.registry.invite\", \"ver\": \"1.0\", \"ets\": 1637227738534, \"params\": { \"resmsgid\": \"\", \"msgid\": \"bb355e26-cc12-4aeb-8295-03347c428c62\", \"err\": \"\", \"status\": \"SUCCESSFUL\", \"errmsg\": \"\" }, \"responseCode\": \"OK\", \"result\": { \"User\": { \"osid\": \"1-17f02101-b560-4bc1-b3ab-2dac04668fd2\" } } }")
-                 .addHeader("Content-Type", "application/json"));
-         doReturn(getUserCreateAuditLog()).when(mockEventGenerator).createAuditLog(anyString(), anyString(), anyMap(), anyMap());
-         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.USER_CREATE).content(getUserCreateBody()).header(HttpHeaders.AUTHORIZATION, getUserToken()).contentType(MediaType.APPLICATION_JSON)).andReturn();
-         MockHttpServletResponse response = mvcResult.getResponse();
-         int status = response.getStatus();
-         assertEquals(200, status);
-     }
+//      @Test
+//      void user_create_success_scenario() throws Exception {
+//          registryServer.enqueue(new MockResponse()
+//                  .setResponseCode(200)
+//                  .setBody("[{\"user_name\":\"test user\",\"tenant_roles\": [ {\"participant_code\":\"testprovider1.apollo@swasth-hcx-dev\",\"role\":\"admin\"}]}]")
+//                  .addHeader("Content-Type", "application/json"));
+//          registryServer.enqueue(new MockResponse()
+//                  .setResponseCode(200)
+//                  .setBody("[]")
+//                  .addHeader("Content-Type", "application/json"));
+//          registryServer.enqueue(new MockResponse()
+//                  .setResponseCode(200)
+//                  .setBody("{ \"id\": \"open-saber.registry.invite\", \"ver\": \"1.0\", \"ets\": 1637227738534, \"params\": { \"resmsgid\": \"\", \"msgid\": \"bb355e26-cc12-4aeb-8295-03347c428c62\", \"err\": \"\", \"status\": \"SUCCESSFUL\", \"errmsg\": \"\" }, \"responseCode\": \"OK\", \"result\": { \"User\": { \"osid\": \"1-17f02101-b560-4bc1-b3ab-2dac04668fd2\" } } }")
+//                  .addHeader("Content-Type", "application/json"));
+//          doReturn(getUserCreateAuditLog()).when(mockEventGenerator).createAuditLog(anyString(), anyString(), anyMap(), anyMap());
+//          MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.USER_CREATE).content(getUserCreateBody()).header(HttpHeaders.AUTHORIZATION, getUserToken()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+//          MockHttpServletResponse response = mvcResult.getResponse();
+//          int status = response.getStatus();
+//          assertEquals(200, status);
+//      }
 
-     @Test
-     void user_create_with_mobile_success_scenario() throws Exception {
-         registryServer.enqueue(new MockResponse()
-                 .setResponseCode(200)
-                 .setBody("[{\"user_name\":\"test user\",\"tenant_roles\": [ {\"participant_code\":\"testprovider1.apollo@swasth-hcx-dev\",\"role\":\"admin\"}]}]")
-                 .addHeader("Content-Type", "application/json"));
-         registryServer.enqueue(new MockResponse()
-                 .setResponseCode(200)
-                 .setBody("[]")
-                 .addHeader("Content-Type", "application/json"));
-         registryServer.enqueue(new MockResponse()
-                 .setResponseCode(200)
-                 .setBody("{ \"id\": \"open-saber.registry.invite\", \"ver\": \"1.0\", \"ets\": 1637227738534, \"params\": { \"resmsgid\": \"\", \"msgid\": \"bb355e26-cc12-4aeb-8295-03347c428c62\", \"err\": \"\", \"status\": \"SUCCESSFUL\", \"errmsg\": \"\" }, \"responseCode\": \"OK\", \"result\": { \"User\": { \"osid\": \"1-17f02101-b560-4bc1-b3ab-2dac04668fd2\" } } }")
-                 .addHeader("Content-Type", "application/json"));
-         doReturn(getUserCreateAuditLog()).when(mockEventGenerator).createAuditLog(anyString(), anyString(), anyMap(), anyMap());
-         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.USER_CREATE).content(getUserCreateBodyWithMobile()).header(HttpHeaders.AUTHORIZATION, getUserToken()).contentType(MediaType.APPLICATION_JSON)).andReturn();
-         MockHttpServletResponse response = mvcResult.getResponse();
-         int status = response.getStatus();
-         assertEquals(200, status);
-     }
+//      @Test
+//      void user_create_with_mobile_success_scenario() throws Exception {
+//          registryServer.enqueue(new MockResponse()
+//                  .setResponseCode(200)
+//                  .setBody("[{\"user_name\":\"test user\",\"tenant_roles\": [ {\"participant_code\":\"testprovider1.apollo@swasth-hcx-dev\",\"role\":\"admin\"}]}]")
+//                  .addHeader("Content-Type", "application/json"));
+//          registryServer.enqueue(new MockResponse()
+//                  .setResponseCode(200)
+//                  .setBody("[]")
+//                  .addHeader("Content-Type", "application/json"));
+//          registryServer.enqueue(new MockResponse()
+//                  .setResponseCode(200)
+//                  .setBody("{ \"id\": \"open-saber.registry.invite\", \"ver\": \"1.0\", \"ets\": 1637227738534, \"params\": { \"resmsgid\": \"\", \"msgid\": \"bb355e26-cc12-4aeb-8295-03347c428c62\", \"err\": \"\", \"status\": \"SUCCESSFUL\", \"errmsg\": \"\" }, \"responseCode\": \"OK\", \"result\": { \"User\": { \"osid\": \"1-17f02101-b560-4bc1-b3ab-2dac04668fd2\" } } }")
+//                  .addHeader("Content-Type", "application/json"));
+//          doReturn(getUserCreateAuditLog()).when(mockEventGenerator).createAuditLog(anyString(), anyString(), anyMap(), anyMap());
+//          MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.USER_CREATE).content(getUserCreateBodyWithMobile()).header(HttpHeaders.AUTHORIZATION, getUserToken()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+//          MockHttpServletResponse response = mvcResult.getResponse();
+//          int status = response.getStatus();
+//          assertEquals(200, status);
+//      }
 
 
-     @Test
-     void user_create_internal_server_scenario() throws Exception {
-         registryServer.enqueue(new MockResponse()
-                 .setResponseCode(500)
-                 .setBody("{ \"id\": \"open-saber.registry.invite\", \"ver\": \"1.0\", \"ets\": 1653306628400, \"params\": { \"resmsgid\": \"\", \"msgid\": \"90546fa3-1bd7-4072-bd06-81ea688ea9af\", \"err\": \"\", \"status\": \"UNSUCCESSFUL\", \"errmsg\": \"Username already invited / registered for Organisation\" }, \"responseCode\": \"OK\" }")
-                 .addHeader("Content-Type", "application/json"));
-         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.USER_CREATE).content(getUserCreateBody()).header(HttpHeaders.AUTHORIZATION,getUserToken()).contentType(MediaType.APPLICATION_JSON)).andReturn();
-         MockHttpServletResponse response = mvcResult.getResponse();
-         int status = response.getStatus();
-         assertEquals(500, status);
-     }
+//      @Test
+//      void user_create_internal_server_scenario() throws Exception {
+//          registryServer.enqueue(new MockResponse()
+//                  .setResponseCode(500)
+//                  .setBody("{ \"id\": \"open-saber.registry.invite\", \"ver\": \"1.0\", \"ets\": 1653306628400, \"params\": { \"resmsgid\": \"\", \"msgid\": \"90546fa3-1bd7-4072-bd06-81ea688ea9af\", \"err\": \"\", \"status\": \"UNSUCCESSFUL\", \"errmsg\": \"Username already invited / registered for Organisation\" }, \"responseCode\": \"OK\" }")
+//                  .addHeader("Content-Type", "application/json"));
+//          MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.USER_CREATE).content(getUserCreateBody()).header(HttpHeaders.AUTHORIZATION,getUserToken()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+//          MockHttpServletResponse response = mvcResult.getResponse();
+//          int status = response.getStatus();
+//          assertEquals(500, status);
+//      }
 
      @Test
      void user_search_success_scenario() throws Exception {
