@@ -47,7 +47,7 @@ public class AuditIndexer {
         return getClass().getClassLoader().getResourceAsStream(filename);
     }
 
-    public void createDocumentUserParticipant(Map<String,Object> event,String indexName) throws Exception {
+    public void createDocument(Map<String,Object> event,String indexName) throws Exception {
         try {
             String mid = (String) event.get("mid");
             esUtil.addIndex(settings, mappings, indexName, auditAlias);
