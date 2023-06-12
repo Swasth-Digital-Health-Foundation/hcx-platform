@@ -103,7 +103,8 @@ public class KeycloakController extends BaseController {
         try{
              AccessTokenResponse accessTokenResponse = keycloackService.generateToken(requestBody,participantRealmUrl);
              String modifiedAccessToken = keycloackService.modifyToken(accessTokenResponse.getToken(),requestBody.getFirst("username"));
-             return ResponseEntity.ok(modifiedAccessToken);
+             Map<String,Object> response = keycloackService.getResponse(accessTokenResponse,modifiedAccessToken);
+             return ResponseEntity.ok(response);
         } catch (Exception e){
              return exceptionHandler(new Response(),e);
         }
@@ -114,7 +115,8 @@ public class KeycloakController extends BaseController {
         try{
             AccessTokenResponse accessTokenResponse = keycloackService.generateToken(requestBody,userRealmUrl);
             String modifiedAccessToken = keycloackService.modifyToken(accessTokenResponse.getToken(),requestBody.getFirst("username"));
-            return ResponseEntity.ok(modifiedAccessToken);
+            Map<String,Object> response = keycloackService.getResponse(accessTokenResponse,modifiedAccessToken);
+            return ResponseEntity.ok(response);
         } catch (Exception e){
             return exceptionHandler(new Response(),e);
         }
