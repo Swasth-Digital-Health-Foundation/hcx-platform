@@ -172,7 +172,7 @@ public class ParticipantService extends BaseRegistryService {
 
     private void generateCreateAudit(String code, String action, Map<String, Object> requestBody, String registryStatus, String createdBy) throws Exception {
         Map<String,Object> edata = getEData(registryStatus, "", Collections.emptyList());
-        edata.put(CREATED_BY, createdBy);
+        edata.put("createdBy", createdBy);
         Map<String,Object> event = eventGenerator.createAuditLog(code, PARTICIPANT, getCData(action, requestBody), edata);
         eventHandler.createParticipantAudit(event);
     }
