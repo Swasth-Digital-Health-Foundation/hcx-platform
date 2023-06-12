@@ -208,6 +208,7 @@ public class ParticipantService extends BaseController {
                         "updatedOn,expiry,phone_verified,email_verified,status,attempt_count) VALUES ('%s','%s','%s',%d,%d,%d,%b,%b,'%s',%d)", onboardVerificationTable, participantCode,
                 participant.get(PRIMARY_EMAIL), participant.get(PRIMARY_MOBILE), System.currentTimeMillis(), System.currentTimeMillis(), System.currentTimeMillis(), false, false, PENDING, 0);
         postgreSQLClient.execute(query);
+        participant.put(USER_ID, userId);
         sendVerificationLink(participant);
         output.put(PARTICIPANT_CODE, participantCode);
         output.put(IDENTITY_VERIFICATION, identityVerified);
@@ -281,7 +282,7 @@ public class ParticipantService extends BaseController {
 
         }
         if (emailEnabled && !emailVerified) {
-            emailService.sendMail(primaryEmail, linkSub, linkTemplate((String) requestBody.get(PARTICIPANT_NAME), (String) requestBody.get(PARTICIPANT_CODE), generateURL(requestBody, EMAIL, primaryEmail),linkExpiry / 86400000, (ArrayList<String>) requestBody.get(ROLES)));
+            emailService.sendMail(primaryEmail, linkSub, linkTemplate((String) requestBody.get(PARTICIPANT_NAME), (String) requestBody.get(PARTICIPANT_CODE), generateURL(requestBody, EMAIL, primaryEmail),linkExpiry / 86400000, (ArrayList<String>) requestBody.get(ROLES), (String) requestBody.getOrDefault("user_id", "")));
         }
         regenerateCount++;
         String updateQuery = String.format("UPDATE %s SET updatedOn=%d, expiry=%d, regenerate_count=%d, last_regenerate_date='%s', phone_short_url='%s', phone_long_url='%s' WHERE primary_email='%s'",
@@ -577,13 +578,14 @@ public class ParticipantService extends BaseController {
         return jwtUtils.generateJWS(headers,payload,privatekey);
     }
 
-    private String linkTemplate(String name ,String code,URL signedURL,int day,ArrayList<String> role) throws Exception {
+    private String linkTemplate(String name ,String code,URL signedURL,int day,ArrayList<String> role, String userId) throws Exception {
         Map<String, Object> model = new HashMap<>();
         model.put("USER_NAME", name);
         model.put("PARTICIPANT_CODE", code);
         model.put("URL",signedURL);
         model.put("role",role.get(0));
         model.put("DAY",day);
+        model.put("USER_ID", userId);
         return freemarkerService.renderTemplate("send-link.ftl",model);
     }
 
