@@ -58,9 +58,9 @@ jwt:
   enabled: ${JWT_ENABLED:true}
   issuer: ${JWT_ISSUER:}
   audience: ${JWT_AUDIENCE:}
-  jwkUrl: ${JWT_JWK_URL:https://dev-hcx.swasth.app/auth/realms/swasth-health-claim-exchange/protocol/openid-connect/certs}
+  jwkUrl: ${JWT_JWK_URL:https://dev-hcx.swasth.app/auth/realms/realm-name/protocol/openid-connect/certs}
   claimsNamespacePath: ${JWT_NS_PATH:$.realm_access.roles}
-
+  entityRealm: ${JWT_ENTITY_REALM:Organisation@swasth-health-claim-exchange,User@swasth-health-claim-exchange-user}
 redis:
   host: ${REDIS_HOST:localhost}
   port: ${REDIS_PORT:6379}
@@ -160,10 +160,14 @@ spring:
             - RewritePath=/${version.external08}/notification/topic/list, /${version.internal}/notification/topic/list
             - RewritePath=/${version.external08}/request/retry/(?<segment>/?.*), /${version.internal}/request/retry/$\{segment}
             - RewritePath=/${version.external08}/audit/onboard/search, /${version.internal}/audit/onboard/search
+            - RewritePath=/${version.external08}/user/(?<segment>/?.*), /${version.internal}/user/$\{segment}
+            - RewritePath=/${version.external08}/participant/user/(?<segment>/?.*)}, /${version.internal}/participant/user/$\{segment}
+            - RewritePath=/${version.external08}/audit/participant/search, /${version.internal}/audit/participant/search
+            - RewritePath=/${version.external08}/audit/user/search, /${version.internal}/audit/user/search
             - RewritePath=/${version.external08}/participant/generate/token, /${version.internal}/participant/generate/token
             - RewritePath=/${version.external08}/user/generate/token, /${version.internal}/user/generate/token
           predicates:
-            - Path=/${version.external07}/participant/create, /${version.external07}/participant/update, /${version.external07}/participant/search, /${version.external07}/participant/delete, /${version.external08}/participant/create, /${version.external08}/participant/update, /${version.external08}/participant/search , /${version.external08}/participant/read/*, /${version.external08}/participant/delete, /health, /service/health, /${version.external08}/notification/topic/list,  /${version.external08}/request/retry/**, /${version.external08}/audit/onboard/search, /${version.external08}/user/generate/token, /${version.external08}/participant/generate/token
+            - Path=/${version.external07}/participant/create, /${version.external07}/participant/update, /${version.external07}/participant/search, /${version.external07}/participant/delete, /${version.external08}/participant/create, /${version.external08}/participant/update, /${version.external08}/participant/search , /${version.external08}/participant/read/*, /${version.external08}/participant/delete, /health, /service/health, /${version.external08}/notification/topic/list,  /${version.external08}/request/retry/**, /${version.external08}/audit/onboard/search, /${version.external08}/user/create,/${version.external08}/user/update,/${version.external08}/user/read/*,/${version.external08}/user/search,/${version.external08}/user/delete,/${version.external08}/participant/user/add,/${version.external08}/participant/user/remove,/${version.external08}/audit/participant/search,/${version.external08}/audit/user/search, /${version.external08}/user/generate/token, /${version.external08}/participant/generate/token
 
         - id: hcx-onboard-api-route
           uri: ${hcx-onboard.basePath}
@@ -185,4 +189,4 @@ spring:
                 redis-rate-limiter.replenishRate: 10
                 redis-rate-limiter.burstCapacity: 20
           predicates:
-            - Path=/payer/**
+            - Path=/payer/**,/${version.external08}/user/create

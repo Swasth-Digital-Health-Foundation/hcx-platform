@@ -29,7 +29,8 @@ kafka:
 registry:
   basePath: ${registry_basePath:http://a0b2bab079318431d8ca99f1efb1c25c-874274596.ap-south-1.elb.amazonaws.com:8081}
   hcxcode: ${registry_hcxcode:1-d2d56996-1b77-4abb-b9e9-0e6e7343c72e}
-  apiPath: ${registry_api_path:/api/v1/Organisation/}
+  organisation-api-path: ${registry_api_path:/api/v1/Organisation}
+  user-api-path: ${registry_user_api_path:/api/v1/User}
 
 participantCode:
   fieldSeparator: ${participant_code_field_separator:.}
@@ -70,6 +71,7 @@ allowedEntitiesForStatusSearch: ${allowed_entities_for_status_search:coverageeli
 es:
   host: ${es_host:localhost}
   port: ${es_port:9200}
+  user-index : ${user_index:user_index}
 
 #redis config
 redis:
@@ -83,6 +85,10 @@ audit:
   hcxAlias: ${hcx_alias:hcx_audit}
   onboardIndex: ${onboard_index:onboard_audit}
   onboardAlias: ${onboard_alias:onboard_audit}
+  participantIndex: ${participant_index:participant_audit}
+  participantAlias: ${participant_alias:participant_audit}
+  userIndex: ${user_index:user_audit}
+  userAlias: ${user_alias:user_audit}
 
 
 #hcx redirect headers

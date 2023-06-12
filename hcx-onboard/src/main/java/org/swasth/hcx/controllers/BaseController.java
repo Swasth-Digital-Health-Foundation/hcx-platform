@@ -1,6 +1,5 @@
 package org.swasth.hcx.controllers;
 
-import kong.unirest.HttpResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
@@ -10,16 +9,10 @@ import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.swasth.auditindexer.function.AuditIndexer;
-import org.swasth.common.dto.ParticipantResponse;
 import org.swasth.common.dto.Response;
 import org.swasth.common.dto.ResponseError;
 import org.swasth.common.exception.*;
-import org.swasth.common.utils.JSONUtils;
 import org.swasth.hcx.helpers.EventGenerator;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.swasth.common.utils.Constants.FAILED;
 import static org.swasth.common.utils.Constants.SUCCESSFUL;

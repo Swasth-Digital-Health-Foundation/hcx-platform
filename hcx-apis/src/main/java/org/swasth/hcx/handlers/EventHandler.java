@@ -16,6 +16,8 @@ import org.swasth.common.utils.PayloadUtils;
 import org.swasth.kafka.client.IEventService;
 import org.swasth.postgresql.IDatabaseService;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 import java.sql.ResultSet;
 import java.util.Map;
 
@@ -50,6 +52,18 @@ public class EventHandler {
     @Value("${kafka.topic.retry}")
     private String retryTopic;
 
+    @Value("${audit.participantIndex}")
+	public String participantIndex;
+
+    @Value("${audit.participantAlias}")
+	public String participantIndexAlias;
+
+    @Value("${audit.userIndex}")
+	public String userIndex;
+
+    @Value("${audit.userAlias}")
+	public String userIndexAlias;
+
     public void processAndSendEvent(String metadataTopic, Request request) throws Exception {
         String payloadTopic = env.getProperty(KAFKA_TOPIC_PAYLOAD);
         String key = request.getHcxSenderCode();
@@ -71,7 +85,17 @@ public class EventHandler {
         logger.info("Request processed and event is pushed to kafka");
     }
 
-    public void createAudit(Map<String,Object> event) throws Exception {
+    public void createParticipantAudit(Map<String,Object> event) throws Exception {
+        pushAuditToKafka(event);
+        auditIndexer.createDocument(event, participantIndex, participantIndexAlias);  
+    }
+
+    public void createUserAudit(Map<String,Object> event) throws Exception {
+        pushAuditToKafka(event);
+        auditIndexer.createDocument(event, userIndex, userIndexAlias);  
+    }
+
+    public void pushAuditToKafka(Map<String,Object> event) throws Exception{
         kafkaClient.send(auditTopic , (String) ((Map<String,Object>) event.get(Constants.OBJECT)).get(Constants.TYPE) , JSONUtils.serialize(event));
     }
 
