@@ -247,14 +247,13 @@ public class ParticipantService extends BaseController {
         }
         String shortUrl = null;
         String longUrl = null;
-        if (phoneEnabled && !phoneVerified) {
+        if (!phoneVerified) {
             RandomStringGenerator randomStringGenerator = new RandomStringGenerator.Builder().withinRange('0', 'z').filteredBy(CharacterPredicates.LETTERS, CharacterPredicates.DIGITS).build();
             shortUrl = hcxURL+"/api/url/" + randomStringGenerator.generate(10);
             longUrl = generateURL(requestBody,PHONE,(String) requestBody.get(PRIMARY_MOBILE)).toString();
             smsService.sendLink((String) requestBody.get(PRIMARY_MOBILE),phoneSub +"\r\n"+ shortUrl);
-
         }
-        if (emailEnabled && !emailVerified) {
+        if (!emailVerified) {
             emailService.sendMail(primaryEmail, linkSub, linkTemplate((String) requestBody.get(PARTICIPANT_NAME), (String) requestBody.get(PARTICIPANT_CODE), generateURL(requestBody, EMAIL, primaryEmail),linkExpiry / 86400000, (ArrayList<String>) requestBody.get(ROLES)));
         }
         regenerateCount++;
@@ -307,11 +306,19 @@ public class ParticipantService extends BaseController {
                                     communicationStatus = SUCCESSFUL;
                                 }
                             } else if (emailEnabled) {
-                                emailVerified = true;
-                                communicationStatus = SUCCESSFUL;
+                                if(type.equals(EMAIL)) {
+                                    emailVerified = true;
+                                    communicationStatus = SUCCESSFUL;
+                                } else{
+                                    phoneVerified = true;
+                                }
                             } else if (phoneEnabled) {
-                                phoneVerified = true;
-                                communicationStatus = SUCCESSFUL;
+                                if(type.equals(PHONE)) {
+                                    phoneVerified = true;
+                                    communicationStatus = SUCCESSFUL;
+                                } else {
+                                    emailVerified = true;
+                                }
                             }
                         } else if (StringUtils.equals((String)requestBody.get("status"),FAILED)) {
                             communicationStatus = FAILED;
@@ -328,11 +335,11 @@ public class ParticipantService extends BaseController {
             updateOtpStatus(emailVerified, phoneVerified, attemptCount, communicationStatus, participantCode, (String) requestBody.getOrDefault(COMMENTS,""));
             auditIndexer.createDocument(eventGenerator.getVerifyLinkEvent(requestBody, attemptCount, emailVerified, phoneVerified));
             logger.info("Communication details verification :: participant_code : {} :: type : {} :: status : {}",participantCode,type,communicationStatus);
-            if(StringUtils.equals(type,EMAIL)){
+            if(StringUtils.equals(type,EMAIL) && emailEnabled){
                 communicationStatus =  emailVerified ? SUCCESSFUL : FAILED;
                 emailService.sendMail((String) jwtPayload.get(SUB) ,verificationSub,verificationStatus(name,communicationStatus));
             }
-            if(StringUtils.equals(type,PHONE)) {
+            if(StringUtils.equals(type,PHONE) && phoneEnabled) {
                 communicationStatus =  phoneVerified ? SUCCESSFUL : FAILED;
                 String phoneverification = phoneStatus;
                 phoneverification = phoneverification.replace("STATUS",communicationStatus);

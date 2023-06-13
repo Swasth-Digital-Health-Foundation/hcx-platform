@@ -28,7 +28,7 @@ onboard:
   success-url: ${onboarding_success_url:${hcx-url}/onboarding/success}
   verification:
     email: ${onboard_email_verification:true}
-    phone: ${onboard_phone_verification:true}
+    phone: ${onboard_phone_verification:false}
 
 email:
   id: ${email_id:}
@@ -72,7 +72,7 @@ verification-link:
   max-regenerate: ${link_max_regenerate:10}
 
 registry:
-  hcx-code: ${registry_hcx_code:hcx.gateway@swasth-hcx-dev}
+  hcx-code: ${registry_hcx_code:hcxgateway.swasth@swasth-hcx-dev}
 
 jwt-token:
   private-key : ${hcx_private_key:test-private-key}
