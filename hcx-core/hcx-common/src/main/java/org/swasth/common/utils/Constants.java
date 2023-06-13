@@ -350,5 +350,6 @@ public class Constants {
    public static final List<String> PARTICIPANT_ROLES = Arrays.asList(PROVIDER,PAYOR,AGENCY_TPA,"agency.regulator", "research",MEMBER_ISNP, "agency.sponsor", "HIE/HIO.HCX");
    public static final String USER_NAME = "user_name";
    public static final String CREATED_BY = "created_by";
+   public static final List<String> ALLOWED_DELEGATED_TOPICS = Arrays.asList("notif-workflow-update");
 
 }
