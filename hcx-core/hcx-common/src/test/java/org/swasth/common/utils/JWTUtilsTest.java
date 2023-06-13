@@ -38,25 +38,5 @@ public class JWTUtilsTest {
         String token = jwtUtils.generateAuthToken(privateKey,iss,expiryTime);
         assertTrue(jwtUtils.isValidSignature(token,"https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/hcx-platform/main/hcx-apis/src/test/resources/examples/test-keys/public-key.pem"));
     }
-
-
-    @Test
-    public void generateJws() throws NoSuchAlgorithmException, InvalidKeySpecException {
-        String privateKey = "";
-        Map<String,Object> headers = new HashMap<>();
-        Map<String,Object> headersMap = new HashMap<>();
-        headersMap.put("x-hcx-correlation_id",UUIDUtils.getUUID());
-        headersMap.put("alg","RS256");
-        headersMap.put("sender_code","testpayor1.swasthmock@swasth-hcx-staging");
-        headersMap.put("timestamp",System.currentTimeMillis());
-        headersMap.put("recipient_type","participant_role");
-        headersMap.put("recipients", List.of("provider"));
-        headers.put("alg","RS256");
-        headers.put("x-hcx-notification_headers",headersMap);
-        Map<String,Object> payload = new HashMap<>();
-        payload.put("topic_code","notif-workflow-update");
-        payload.put("message","${participant_name} has updated a ${entity_type} request with correlation id: ${correlation_id} status to ${status}");
-        String jwsToken = jwtUtils.generateJWS(headers,payload,privateKey);
-        System.out.println(jwsToken);
-    }
+    
 }
