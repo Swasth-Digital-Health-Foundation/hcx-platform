@@ -642,12 +642,8 @@ public class ParticipantService extends BaseController {
         while (resultSet.next()) {
             Map<String,Object>  verification = new HashMap<>();
             verification.put("status",resultSet.getString("status"));
-            if(emailEnabled) {
-                verification.put("emailVerified", resultSet.getBoolean("email_verified"));
-            }
-            if(phoneEnabled) {
-                verification.put("phoneVerified", resultSet.getBoolean("phone_verified"));
-            }
+            verification.put("emailVerified", resultSet.getBoolean("email_verified"));
+            verification.put("phoneVerified", resultSet.getBoolean("phone_verified"));
             verificationMap.put(resultSet.getString(PARTICIPANT_CODE),verification);
         }
         filterVerification(verificationMap,participantsList);
