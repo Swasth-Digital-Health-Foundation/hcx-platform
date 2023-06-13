@@ -32,6 +32,8 @@ import org.swasth.hcx.utils.CertificateUtil;
 import org.swasth.hcx.utils.SlugUtils;
 import org.swasth.postgresql.IDatabaseService;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.net.URL;
@@ -192,23 +194,48 @@ public class ParticipantService extends BaseController {
             }
         }
         Map<String, String> headersMap = new HashMap<>();
-        headersMap.put(AUTHORIZATION, Objects.requireNonNull(headers.get(AUTHORIZATION)).get(0));
+        String token = Objects.requireNonNull(headers.get(AUTHORIZATION)).get(0);
+        headersMap.put(AUTHORIZATION, token);
         HttpResponse<String> createResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_CREATE, JSONUtils.serialize(participant), headersMap);
-        ParticipantResponse pcptResponse = JSONUtils.deserialize(createResponse.getBody(), ParticipantResponse.class);
+        RegistryResponse pcptResponse = JSONUtils.deserialize(createResponse.getBody(), RegistryResponse.class);
         if (createResponse.getStatus() != 200) {
             throw new ClientException(pcptResponse.getError().getCode() == null ? ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS : pcptResponse.getError().getCode(), pcptResponse.getError().getMessage());
         }
         String participantCode = (String) JSONUtils.deserialize(createResponse.getBody(), Map.class).get(PARTICIPANT_CODE);
         participant.put(PARTICIPANT_CODE, participantCode);
+        String userId = createAdminUser(headersMap, participant, participantCode);
         String query = String.format("INSERT INTO %s (participant_code,primary_email,primary_mobile,createdOn," +
                         "updatedOn,expiry,phone_verified,email_verified,status,attempt_count) VALUES ('%s','%s','%s',%d,%d,%d,%b,%b,'%s',%d)", onboardVerificationTable, participantCode,
                 participant.get(PRIMARY_EMAIL), participant.get(PRIMARY_MOBILE), System.currentTimeMillis(), System.currentTimeMillis(), System.currentTimeMillis(), false, false, PENDING, 0);
         postgreSQLClient.execute(query);
+        participant.put(USER_ID, userId);
         sendVerificationLink(participant);
         output.put(PARTICIPANT_CODE, participantCode);
         output.put(IDENTITY_VERIFICATION, identityVerified);
+        output.put(USER_ID, userId);
         auditIndexer.createDocument(eventGenerator.getOnboardVerifyEvent(request, participantCode));
         logger.info("Verification link  has been sent successfully :: participant code : " + participantCode + " :: primary email : " + participant.get(PRIMARY_EMAIL));
+    }
+
+    private String createAdminUser(Map<String, String> headers, Map<String,Object> participant, String participantCode) throws Exception{
+        Map<String,Object> requestBody = new HashMap<>();
+        requestBody.put(USER_NAME, (String) participant.get(PARTICIPANT_NAME) + " Admin" );
+        requestBody.put(EMAIL, participant.get(PRIMARY_EMAIL));
+        requestBody.put(MOBILE, participant.get(PRIMARY_MOBILE));
+        requestBody.put(CREATED_BY, participantCode);
+        Map<String,String> tenantRole = new HashMap();
+        tenantRole.put(PARTICIPANT_CODE, participantCode);
+        tenantRole.put(ROLE, ADMIN);
+        requestBody.put(TENANT_ROLES, Arrays.asList(tenantRole));
+        logger.info("User Request Body: " + requestBody);
+        HttpResponse<String> createUser = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + USER_CREATE, JSONUtils.serialize(requestBody), headers);
+        RegistryResponse userResponse = JSONUtils.deserialize(createUser.getBody(), RegistryResponse.class);
+        if (createUser.getStatus() != 200) {
+            throw new ClientException(userResponse.getError().getCode() == null ? ErrorCodes.ERR_INVALID_USER_DETAILS : userResponse.getError().getCode(), userResponse.getError().getMessage());
+        }
+        String userId = (String) JSONUtils.deserialize(createUser.getBody(), Map.class).get(USER_ID);
+        logger.info("Create user: " + userId);
+        return userId;
     }
 
     // TODO: change request body to pojo
@@ -254,7 +281,7 @@ public class ParticipantService extends BaseController {
             smsService.sendLink((String) requestBody.get(PRIMARY_MOBILE),phoneSub +"\r\n"+ shortUrl);
         }
         if (!emailVerified) {
-            emailService.sendMail(primaryEmail, linkSub, linkTemplate((String) requestBody.get(PARTICIPANT_NAME), (String) requestBody.get(PARTICIPANT_CODE), generateURL(requestBody, EMAIL, primaryEmail),linkExpiry / 86400000, (ArrayList<String>) requestBody.get(ROLES)));
+            emailService.sendMail(primaryEmail, linkSub, linkTemplate((String) requestBody.get(PARTICIPANT_NAME), (String) requestBody.get(PARTICIPANT_CODE), generateURL(requestBody, EMAIL, primaryEmail),linkExpiry / 86400000, (ArrayList<String>) requestBody.get(ROLES), (String) requestBody.getOrDefault("user_id", "")));
         }
         regenerateCount++;
         String updateQuery = String.format("UPDATE %s SET updatedOn=%d, expiry=%d, regenerate_count=%d, last_regenerate_date='%s', phone_short_url='%s', phone_long_url='%s' WHERE primary_email='%s'",
@@ -361,10 +388,10 @@ public class ParticipantService extends BaseController {
 
     private Map<String, Object> getParticipant(String key, String value) throws Exception {
         HttpResponse<String> searchResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_SEARCH, "{ \"filters\": { \"" + key + "\": { \"eq\": \" " + value + "\" } } }", new HashMap<>());
-        ParticipantResponse participantResponse = JSONUtils.deserialize(searchResponse.getBody(), ParticipantResponse.class);
-        if (participantResponse.getParticipants().isEmpty())
+        RegistryResponse registryResponse = JSONUtils.deserialize(searchResponse.getBody(), RegistryResponse.class);
+        if (registryResponse.getParticipants().isEmpty())
             throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_CODE, INVALID_PARTICIPANT_CODE);
-        return (Map<String, Object>) participantResponse.getParticipants().get(0);
+        return (Map<String, Object>) registryResponse.getParticipants().get(0);
     }
 
     public ResponseEntity<Object> onboardUpdate(HttpHeaders headers,Map<String, Object> requestBody) throws Exception {
@@ -515,7 +542,7 @@ public class ParticipantService extends BaseController {
             addCommunicationStatus(participantList);
         if(fields != null && fields.toLowerCase().contains(MOCK_PARTICIPANT))
             getMockParticipant(participantList,headers);
-        return new ResponseEntity<>(new ParticipantResponse(participantList), HttpStatus.OK);
+        return new ResponseEntity<>(new RegistryResponse(participantList,ORGANISATION), HttpStatus.OK);
     }
 
     private Map<String,String> headers(String verifierCode) throws NoSuchAlgorithmException, InvalidKeySpecException {
@@ -558,13 +585,14 @@ public class ParticipantService extends BaseController {
         return jwtUtils.generateJWS(headers,payload,privatekey);
     }
 
-    private String linkTemplate(String name ,String code,URL signedURL,int day,ArrayList<String> role) throws Exception {
+    private String linkTemplate(String name ,String code,URL signedURL,int day,ArrayList<String> role, String userId) throws Exception {
         Map<String, Object> model = new HashMap<>();
         model.put("USER_NAME", name);
         model.put("PARTICIPANT_CODE", code);
         model.put("URL",signedURL);
         model.put("role",role.get(0));
         model.put("DAY",day);
+        model.put("USER_ID", userId);
         return freemarkerService.renderTemplate("send-link.ftl",model);
     }
 
@@ -655,7 +683,7 @@ public class ParticipantService extends BaseController {
         String privateKey = (String) mockParticipant.getOrDefault(PRIVATE_KEY,"");
         mockParticipant.remove(PRIVATE_KEY);
         HttpResponse<String> createResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_CREATE, JSONUtils.serialize(mockParticipant), headersMap);
-        ParticipantResponse pcptResponse = JSONUtils.deserialize(createResponse.getBody(), ParticipantResponse.class);
+        RegistryResponse pcptResponse = JSONUtils.deserialize(createResponse.getBody(), RegistryResponse.class);
         if (createResponse.getStatus() != 200) {
             throw new ClientException(pcptResponse.getError().getCode() == null ? ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS : pcptResponse.getError().getCode(), pcptResponse.getError().getMessage());
         }

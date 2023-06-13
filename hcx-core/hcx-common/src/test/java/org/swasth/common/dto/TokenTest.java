@@ -1,0 +1,18 @@
+package org.swasth.common.dto;
+
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+public class TokenTest {
+
+    @Test
+    public void testToken() throws Exception {
+        Token token = new Token("eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICI3Q1l0Z2VYMzA2NEQ3VUU0czdCQWlJZmUzN3hxczBtNEVSQnpmdzVuMzdNIn0.eyJleHAiOjE2ODQ5OTExNjgsImlhdCI6MTY4MzI2MzE2OCwianRpIjoiN2ZiYjEwMDYtYTVhNS00ZDBkLTg5OGUtMTEzYmM1NWMwNTA1IiwiaXNzIjoiaHR0cDovL2Rldi1oY3guc3dhc3RoLmFwcC9hdXRoL3JlYWxtcy9zd2FzdGgtaGVhbHRoLWNsYWltLWV4Y2hhbmdlIiwic3ViIjoiODUyNzg1M2MtYjQ0Mi00NGRiLWFlZGEtZGJiZGNmNDcyZDliIiwidHlwIjoiQmVhcmVyIiwiYXpwIjoicmVnaXN0cnktZnJvbnRlbmQiLCJzZXNzaW9uX3N0YXRlIjoiZDMwZTlmOWItOGI1OC00ZjFjLTgyMGEtYjM1YmVhNGI2ZTJkIiwiYWNyIjoiMSIsInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJwcm92aWRlciIsImRlZmF1bHQtcm9sZXMtbmRlYXIiXX0sInNjb3BlIjoicHJvZmlsZSBlbWFpbCIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwicHJlZmVycmVkX3VzZXJuYW1lIjoidGVzdHByb3ZpZGVyMUBhcG9sbG8uY29tIiwiZW50aXR5IjpbIk9yZ2FuaXNhdGlvbiJdLCJlbWFpbCI6InRlc3Rwcm92aWRlcjFAYXBvbGxvLmNvbSJ9.Ob8AaHB6RJdcXP5WEVpHkYBTTYfKQO_iu9pFRCuu9tA7cGPr2ZF7ZMyUGHe6jZVkb2d_Je7co-wmD-GW2xoL1W1uoD8cUkJo8yegYM1ItRD0pmHlvjLo4m79hWva4LJpv6a_CK0ZrjMmfHwgQiLNv4LTv9GPMUIFP-oLbfcPt3rUczOSelO_irJJgBbJJwEP3Gd44Orx4rlYm5Mx7TbK2NDt9rR8tZREb4MBH5nsf0E4odwp65_NHvlc9IR630GLOvX1kXwyqSNIJozoYZfcLk03rN5b7IFwQuhjf_Iamd9dsBZD_J2yxrX362a9M9_kF5QUPZx4hrihPY-iCD1DYg");
+        assertTrue(token.getHeaders().containsKey("alg"));
+        assertTrue(token.getPayload().containsKey("preferred_username"));
+        assertTrue(token.getRoles().contains("provider"));
+        assertEquals("testprovider1@apollo.com", token.getUsername());
+    }
+}
