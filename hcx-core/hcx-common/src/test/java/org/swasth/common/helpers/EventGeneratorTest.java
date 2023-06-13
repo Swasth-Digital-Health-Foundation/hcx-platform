@@ -59,6 +59,12 @@ public class EventGeneratorTest {
         Map<String,Object> result = eventGenerator.generateAuditEvent(getRequest());
         assertEquals("/test", result.get(Constants.ACTION));
     }
+
+    @Test
+    public void check_notify_audit_event() throws Exception {
+        Map<String,Object> result = eventGenerator.createNotifyAuditEvent(getNotificationRequest());
+        assertEquals(NOTIFICATION_NOTIFY,result.get(ACTION));
+    }
     @Test
     public void check_generateAuditEventTagEmpty() throws Exception {
         Map<String,Object> result = eventGeneratorTag.generateAuditEvent(getRequest());
