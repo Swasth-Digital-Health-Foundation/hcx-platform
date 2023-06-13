@@ -21,6 +21,7 @@ registry:
 
 topicCode:
  encryptionCertExpired: ${topic_code_encryption_cert_expired:notif-encryption-cert-expired}
+ beforeExpiry: ${topic_code_before_encryption_cert_expiry:notif-encryption-key-expiry}
 
 #postgres config
 postgres:
@@ -57,4 +58,5 @@ notification:
   masterListPath: ${notification_masterListPath:notifications.yaml}
   expiry: ${notification_expiry:86400000}
 
-
+certificate:
+  expiry-days: ${certificate_expiry_days:5,10,15}

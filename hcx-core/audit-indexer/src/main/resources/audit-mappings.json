@@ -21,6 +21,9 @@
     "x-hcx-timestamp":{
       "type":"date"
     },
+    "timestamp":{
+      "type":"long"
+    },
     "mid":{
       "type":"keyword"
     },
