@@ -76,6 +76,7 @@ public class Constants {
     public static final String USER_DELETE = "/user/delete";
     public static final String USERS = "users";
     public static final String PARTICIPANT_USER_ADD = "/participant/user/add";
+    public static final String USERNAME = "username";
     public static final String PARTICIPANT_USER_REMOVE = "/participant/user/remove";
     public static final String VIEWER = "viewer";
     public static final String CONFIG_MANAGER = "config-manager";

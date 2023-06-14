@@ -15,7 +15,7 @@ import org.swasth.hcx.service.KeycloackService;
 
 import java.util.Map;
 
-import static org.swasth.common.utils.Constants.VERSION_PREFIX;
+import static org.swasth.common.utils.Constants.*;
 
 @RestController()
 @RequestMapping(VERSION_PREFIX)
@@ -34,7 +34,7 @@ public class KeycloakController extends BaseController {
     public ResponseEntity<Object> participantToken(@RequestBody MultiValueMap<String, String> requestBody){
         try{
              AccessTokenResponse accessTokenResponse = keycloackService.generateToken(requestBody,participantRealmUrl);
-             String modifiedAccessToken = keycloackService.modifyToken(accessTokenResponse.getToken(),requestBody.getFirst("username"), "src/main/resources/participant_realm.der");
+             String modifiedAccessToken = keycloackService.modifyToken(accessTokenResponse.getToken(),requestBody.getFirst(USERNAME), "src/main/resources/participant_realm.der");
              Map<String,Object> response = keycloackService.getResponse(accessTokenResponse,modifiedAccessToken);
              return ResponseEntity.ok(response);
         } catch (Exception e){
@@ -46,7 +46,7 @@ public class KeycloakController extends BaseController {
     public ResponseEntity<Object> userToken(@RequestBody MultiValueMap<String, String> requestBody){
         try{
             AccessTokenResponse accessTokenResponse = keycloackService.generateToken(requestBody,userRealmUrl);
-            String modifiedAccessToken = keycloackService.modifyToken(accessTokenResponse.getToken(),requestBody.getFirst("username"), "src/main/resources/user_realm.der");
+            String modifiedAccessToken = keycloackService.modifyToken(accessTokenResponse.getToken(),requestBody.getFirst(USERNAME), "src/main/resources/user_realm.der");
             Map<String,Object> response = keycloackService.getResponse(accessTokenResponse,modifiedAccessToken);
             return ResponseEntity.ok(response);
         } catch (Exception e){

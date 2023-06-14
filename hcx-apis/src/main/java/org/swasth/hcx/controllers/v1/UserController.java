@@ -1,6 +1,5 @@
 package org.swasth.hcx.controllers.v1;
 
-import org.apache.http.HttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +15,8 @@ import org.swasth.common.utils.Constants;
 import org.swasth.hcx.controllers.BaseController;
 import org.swasth.hcx.service.UserService;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 import static org.swasth.common.response.ResponseMessage.INVALID_USER_ID;
 import static org.swasth.common.utils.Constants.*;

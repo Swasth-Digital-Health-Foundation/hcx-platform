@@ -16,8 +16,6 @@ import org.swasth.common.utils.PayloadUtils;
 import org.swasth.kafka.client.IEventService;
 import org.swasth.postgresql.IDatabaseService;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
 import java.sql.ResultSet;
 import java.util.Map;
 
