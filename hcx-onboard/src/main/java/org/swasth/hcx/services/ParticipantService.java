@@ -89,7 +89,7 @@ public class ParticipantService extends BaseController {
     @Value("${postgres.table.onboard-verifier}")
     private String onboardingVerifierTable;
 
-    @Value("${postgres.table.onboard-user_invite}")
+    @Value("${postgres.table.onboard-user-invite}")
     private String onboardUserInviteTable;
 
     @Value("${postgres.mock-service.table.mock-participant}")
@@ -607,6 +607,8 @@ public class ParticipantService extends BaseController {
             addCommunicationStatus(participantList);
         if(fields != null && fields.toLowerCase().contains(MOCK_PARTICIPANT))
             getMockParticipant(participantList,headers);
+        if(fields != null && fields.toLowerCase().contains(ONBOARDVALIDATIONS))
+            getOnboardValidations(participantList);
         return new ResponseEntity<>(new RegistryResponse(participantList,ORGANISATION), HttpStatus.OK);
     }
 
@@ -829,7 +831,7 @@ public class ParticipantService extends BaseController {
         return freemarkerService.renderTemplate("verification-status.ftl",model);
     }
     private void addSponsors(List<Map<String, Object>> participantsList) throws Exception {
-        String selectQuery = String.format("SELECT * FROM %S WHERE applicant_email IN (%s)", onboardingVerifierTable, getParticipantCodeList(participantsList));
+        String selectQuery = String.format("SELECT * FROM %S WHERE applicant_email IN (%s)", onboardingVerifierTable, getParticipantCodeList(participantsList,PRIMARY_EMAIL));
         ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
         Map<String, Object> sponsorMap = new HashMap<>();
         while (resultSet.next()) {
@@ -840,19 +842,37 @@ public class ParticipantService extends BaseController {
     }
 
     private void addCommunicationStatus(List<Map<String, Object>> participantsList) throws Exception {
-        String selectQuery = String.format("SELECT * FROM %s WHERE participant_code IN (%s)", onboardVerificationTable, getParticipantCodeList(participantsList));
+        String selectQuery = String.format("SELECT * FROM %s WHERE participant_code IN (%s)", onboardVerificationTable, getParticipantCodeList(participantsList,PARTICIPANT_CODE));
         ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
         Map<String,Object> verificationMap = new HashMap<>();
         while (resultSet.next()) {
-            Map<String,Object>  verification = new HashMap<>();
+            Map<String,Object> verification = new HashMap<>();
             verification.put("status",resultSet.getString("status"));
             verification.put("emailVerified", resultSet.getBoolean("email_verified"));
             verification.put("phoneVerified", resultSet.getBoolean("phone_verified"));
             verificationMap.put(resultSet.getString(PARTICIPANT_CODE),verification);
         }
-        filterVerification(verificationMap,participantsList);
+        filterDetails(verificationMap,participantsList,COMMUNICATION);
     }
-    
+
+    private void getOnboardValidations(ArrayList<Map<String, Object>> participantsList) throws Exception {
+        String selectQuery = String.format("SELECT * FROM %s WHERE participant_code IN (%s)", onboardVerificationTable, getParticipantCodeList(participantsList,PARTICIPANT_CODE));
+        ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
+        List<String> onboardValidations = new ArrayList<>();
+        Map<String,Object> validationsMap = new HashMap<>();
+        while (resultSet.next()) {
+            PgArray pgArray = (PgArray) resultSet.getArray(ONBOARD_VALIDATIONS);
+            if (pgArray != null) {
+                String[] array = (String[]) pgArray.getArray();
+                onboardValidations = Arrays.asList(array);
+            }
+            if(!onboardValidations.isEmpty()) {
+                validationsMap.put(resultSet.getString(PARTICIPANT_CODE), onboardValidations);
+            }
+        }
+        filterDetails(validationsMap,participantsList,ONBOARD_VALIDATIONS);
+    }
+
     private String getParticipantWithQuote(String participantList) {
         return "'" + participantList.replace("[", "").replace("]", "").replace(" ", "").replace(",", "','") + "'";
     }
@@ -865,11 +885,12 @@ public class ParticipantService extends BaseController {
             }
         }
     }
-    private void filterVerification(Map<String, Object> verificationMap, List<Map<String, Object>> participantsList) {
+
+    private void filterDetails(Map<String, Object> verificationMap, List<Map<String, Object>> participantsList, String type) {
         for (Map<String, Object> responseList : participantsList) {
             String code = (String) responseList.get(PARTICIPANT_CODE);
             if (verificationMap.containsKey(code))
-                responseList.put(COMMUNICATION, verificationMap.get(code));
+                responseList.put(type, verificationMap.get(code));
         }
     }
 
@@ -954,7 +975,7 @@ public class ParticipantService extends BaseController {
 
     private void getMockParticipant(List<Map<String, Object>> participantsList, HttpHeaders headers) throws Exception {
         validateRole(headers);
-        String selectQuery = String.format("SELECT * FROM %s WHERE parent_participant_code IN (%s)", mockParticipantsTable, getParticipantCodeList(participantsList));
+        String selectQuery = String.format("SELECT * FROM %s WHERE parent_participant_code IN (%s)", mockParticipantsTable, getParticipantCodeList(participantsList,PARTICIPANT_CODE));
         ResultSet resultSet = (ResultSet) postgresClientMockService.executeQuery(selectQuery);
         Map<String, Object> mockDetails = new HashMap<>();
         while (resultSet.next()) {
@@ -1001,9 +1022,8 @@ public class ParticipantService extends BaseController {
             }
         }
     }
-
-    private String getParticipantCodeList(List<Map<String, Object>> participantsList){
-        String participantCodeList = participantsList.stream().map(participant -> participant.get(PARTICIPANT_CODE)).collect(Collectors.toList()).toString();
+    private String getParticipantCodeList(List<Map<String, Object>> participantsList,String key){
+        String participantCodeList = participantsList.stream().map(participant -> participant.get(key)).collect(Collectors.toList()).toString();
         return getParticipantWithQuote(participantCodeList);
     }
 }

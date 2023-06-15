@@ -76,6 +76,7 @@ public class Constants {
     public static final String USER_DELETE = "/user/delete";
     public static final String USERS = "users";
     public static final String ONBOARD_VALIDATIONS = "onboard_validations";
+    public static final String ONBOARDVALIDATIONS = "onboardvalidations";
     public static final String VALIDATIONS = "validations";
     public static final String PARTICIPANT_USER_ADD = "/participant/user/add";
     public static final String USERNAME = "username";

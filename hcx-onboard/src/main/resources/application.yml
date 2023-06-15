@@ -63,7 +63,7 @@ postgres:
   table:
      onboard-verification: ${onboard_verification_table:onboard_verification}
      onboard-verifier: ${onboard_verifier_table:onboard_verifier}
-     onboard-user-invite: ${onboard_user_invite_table:onboard_user_invite}
+     onboard-user-invite: ${onboard_user_invite_table:onboard_user_invite_details}
   mock-service:
     url: ${mock_service_db_url:jdbc:postgresql://localhost:5432/mock_service}
     table:
