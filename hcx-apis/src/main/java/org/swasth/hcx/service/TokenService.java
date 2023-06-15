@@ -75,7 +75,6 @@ public class TokenService extends BaseRegistryService {
            } else if (keyFilePath.contains("participant_realm.der")) {
                modifiedPayloadBuilder.claim(PARTICIPANT_CODE, getParticipantCode((String) modifiedPayloadBuilder.getClaims().get(EMAIL)));
            }
-           
            JWTClaimsSet modifiedPayload = modifiedPayloadBuilder.build();
            SignedJWT newToken = new SignedJWT(new JWSHeader.Builder(JWSAlgorithm.RS256).build(), modifiedPayload);
            newToken.sign(signer);
@@ -108,8 +107,8 @@ public class TokenService extends BaseRegistryService {
         return keycloakMap;
     }
 
-    public Map<String,Object> getToken(MultiValueMap<String, String> requestBody, String filename) throws Exception {
-        AccessTokenResponse accessTokenResponse = generateToken(requestBody,participantRealmUrl);
+    public Map<String,Object> getToken(MultiValueMap<String, String> requestBody, String filename,String realm) throws Exception {
+        AccessTokenResponse accessTokenResponse = generateToken(requestBody,realm);
         String modifiedAccessToken = modifyToken(accessTokenResponse.getToken(),requestBody.getFirst("username"), filename);
         Map<String,Object> response = getResponse(accessTokenResponse,modifiedAccessToken);
         return response;

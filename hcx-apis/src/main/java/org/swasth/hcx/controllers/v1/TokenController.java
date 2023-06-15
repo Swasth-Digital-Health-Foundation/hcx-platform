@@ -33,9 +33,7 @@ public class TokenController extends BaseController {
     @PostMapping(PARTICIPANT_GENERATE_TOKEN)
     public ResponseEntity<Object> participantToken(@RequestBody MultiValueMap<String, String> requestBody){
         try{
-             AccessTokenResponse accessTokenResponse = tokenService.generateToken(requestBody,participantRealmUrl);
-             String modifiedAccessToken = tokenService.modifyToken(accessTokenResponse.getToken(),requestBody.getFirst(USERNAME), "src/main/resources/participant_realm.der");
-             Map<String,Object> response = tokenService.getResponse(accessTokenResponse,modifiedAccessToken);
+             Map<String,Object> response = tokenService.getToken(requestBody,"src/main/resources/participant_realm.der",participantRealmUrl);
              return ResponseEntity.ok(response);
         } catch (Exception e){
              return exceptionHandler(new Response(),e);
@@ -45,9 +43,7 @@ public class TokenController extends BaseController {
     @PostMapping(USER_GENERATE_TOKEN)
     public ResponseEntity<Object> userToken(@RequestBody MultiValueMap<String, String> requestBody){
         try{
-            AccessTokenResponse accessTokenResponse = tokenService.generateToken(requestBody,userRealmUrl);
-            String modifiedAccessToken = tokenService.modifyToken(accessTokenResponse.getToken(),requestBody.getFirst(USERNAME), "src/main/resources/user_realm.der");
-            Map<String,Object> response = tokenService.getResponse(accessTokenResponse,modifiedAccessToken);
+            Map<String,Object> response = tokenService.getToken(requestBody,"src/main/resources/user_realm.der",userRealmUrl);
             return ResponseEntity.ok(response);
         } catch (Exception e){
             return exceptionHandler(new Response(),e);
