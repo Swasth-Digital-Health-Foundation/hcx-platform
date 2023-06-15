@@ -89,7 +89,7 @@ public class ParticipantService extends BaseController {
     @Value("${postgres.table.onboard-verifier}")
     private String onboardingVerifierTable;
 
-    @Value("${postgres.table.onboard-user_invite}")
+    @Value("${postgres.table.onboard-user-invite}")
     private String onboardUserInviteTable;
 
     @Value("${postgres.mock-service.table.mock-participant}")
