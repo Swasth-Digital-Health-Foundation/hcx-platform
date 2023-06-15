@@ -226,10 +226,10 @@ public class ParticipantService extends BaseController {
         requestBody.put(EMAIL, participant.get(PRIMARY_EMAIL));
         requestBody.put(MOBILE, participant.get(PRIMARY_MOBILE));
         requestBody.put(CREATED_BY, participantCode);
-        Map<String,String> tenantRole = new HashMap();
+        Map<String,String> tenantRole = new HashMap<>();
         tenantRole.put(PARTICIPANT_CODE, participantCode);
         tenantRole.put(ROLE, ADMIN);
-        requestBody.put(TENANT_ROLES, Arrays.asList(tenantRole));
+        requestBody.put(TENANT_ROLES, List.of(tenantRole));
         logger.info("User Request Body: " + requestBody);
         HttpResponse<String> createUser = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + USER_CREATE, JSONUtils.serialize(requestBody), headers);
         RegistryResponse userResponse = JSONUtils.deserialize(createUser.getBody(), RegistryResponse.class);
