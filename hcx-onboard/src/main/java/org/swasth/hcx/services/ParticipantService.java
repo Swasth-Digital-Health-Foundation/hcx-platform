@@ -9,6 +9,7 @@ import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
+import org.postgresql.jdbc.PgArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,10 +77,6 @@ public class ParticipantService extends BaseController {
     @Value("${email.onboarding-success-sub}")
     private String onboardingSuccessSub;
 
-    @Value("${onboard.verification.email}")
-    private Boolean emailEnabled;
-    @Value("${onboard.verification.phone}")
-    private Boolean phoneEnabled;
     @Value("${onboard.success-url}")
     private String onboardingSuccessURL;
 
@@ -147,6 +144,8 @@ public class ParticipantService extends BaseController {
 
     @Value("${email.user-invite-reject-sub}")
     private String userInviteRejectSub;
+    @Value("${onboard.validations}")
+    private List<String> systemConfig;
 
     @Autowired
     private SMSService smsService;
@@ -195,7 +194,7 @@ public class ParticipantService extends BaseController {
     private void processOnboard(HttpHeaders headers, OnboardRequest request, Map<String, Object> output) throws Exception {
         Map<String, Object> participant = request.getParticipant();
         participant.put(ENDPOINT_URL, "http://testurl/v0.7");
-        participant.put(ENCRYPTION_CERT, "https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/hcx-platform/sprint-35/hcx-apis/src/test/resources/examples/x509-self-signed-certificate.pem");
+        participant.put(ENCRYPTION_CERT, "https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/hcx-platform/main/hcx-apis/src/test/resources/examples/test-keys/public-key.pem");
         participant.put(REGISTRY_STATUS, CREATED);
         if (((ArrayList<String>) participant.get(ROLES)).contains(PAYOR))
             participant.put(SCHEME_CODE, "default");
@@ -226,6 +225,10 @@ public class ParticipantService extends BaseController {
                         "updatedOn,expiry,phone_verified,email_verified,status,attempt_count) VALUES ('%s','%s','%s',%d,%d,%d,%b,%b,'%s',%d)", onboardVerificationTable, participantCode,
                 participant.get(PRIMARY_EMAIL), participant.get(PRIMARY_MOBILE), System.currentTimeMillis(), System.currentTimeMillis(), System.currentTimeMillis(), false, false, PENDING, 0);
         postgreSQLClient.execute(query);
+        if(ONBOARD_FOR_PROVIDER.contains(request.getType())){
+           List<String> onboardValidations = getConfig(request.getVerifierCode(),ONBOARD_VALIDATIONS);
+           updateConfig(participantCode,onboardValidations);
+        }
         participant.put(USER_ID, userId);
         sendVerificationLink(participant);
         output.put(PARTICIPANT_CODE, participantCode);
@@ -317,6 +320,9 @@ public class ParticipantService extends BaseController {
             String jwtToken = (String) requestBody.get(JWT_TOKEN);
             Map<String, Object> jwtPayload = JSONUtils.decodeBase64String(jwtToken.split("\\.")[1], Map.class);
             participantCode = (String) jwtPayload.get(PARTICIPANT_CODE);
+            OnboardValidations validations = new OnboardValidations(getConfig(participantCode,VALIDATIONS));
+            boolean emailEnabled = validations.isEmailEnabled();
+            boolean phoneEnabled = validations.isPhoneEnabled();
             name =  (String) jwtPayload.get(PARTICIPANT_NAME);
             participantDetails = getParticipant(PARTICIPANT_CODE, hcxCode);
             if (!jwtPayload.isEmpty() && !jwtUtils.isValidSignature(jwtToken, (String) participantDetails.get(ENCRYPTION_CERT))) {
@@ -427,9 +433,13 @@ public class ParticipantService extends BaseController {
         Map<String, Object> payload = JSONUtils.decodeBase64String(jwtToken.split("\\.")[1], Map.class);
         String email = (String) payload.get("email");
         Map<String, Object> participant = (Map<String, Object>) requestBody.get(PARTICIPANT);
+        OnboardValidations validations = new OnboardValidations(getConfig((String) participant.get(PARTICIPANT_CODE),VALIDATIONS));
+        boolean emailEnabled = validations.isEmailEnabled();
+        boolean phoneEnabled = validations.isPhoneEnabled();
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put(AUTHORIZATION, "Bearer " + jwtToken);
-
+        List<String> roles = (List<String>) ((Map<String, Object>) payload.get("realm_access")).get(ROLES);
+        setOnboardValidations(participant,roles,(String) participant.get(PARTICIPANT_CODE));
         String otpQuery = String.format("SELECT * FROM %s WHERE primary_email ILIKE '%s'", onboardVerificationTable, email);
         ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(otpQuery);
         if (resultSet.next()) {
@@ -449,6 +459,9 @@ public class ParticipantService extends BaseController {
 
         if (commStatus.equals(SUCCESSFUL) && identityStatus.equals(ACCEPTED)) {
             participant.put(REGISTRY_STATUS, ACTIVE);
+        }
+        if(participant.containsKey(ONBOARD_VALIDATIONS)) {
+         participant.remove(ONBOARD_VALIDATIONS);
         }
         Map<String, Object> participantDetails = getParticipant(PARTICIPANT_CODE, (String) participant.get(PARTICIPANT_CODE));
         HttpResponse<String> httpResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_UPDATE, JSONUtils.serialize(participant), headersMap);
@@ -481,6 +494,37 @@ public class ParticipantService extends BaseController {
         }
     }
 
+    private void setOnboardValidations(Map<String, Object> participant, List<String> roles, String participantCode) throws Exception {
+        List<String> onboardValidations;
+        if (roles.contains(PAYOR)) {
+            if (participant.containsKey(ONBOARD_VALIDATIONS)) {
+                onboardValidations = (List<String>) participant.get(ONBOARD_VALIDATIONS);
+                String query = String.format("UPDATE %s SET onboard_validations = ARRAY %s WHERE participant_code='%s'",
+                        onboardVerificationTable, Collections.singletonList(onboardValidations.stream().collect(Collectors.joining("','", "'", "'"))), participantCode);
+                postgreSQLClient.execute(query);
+            }
+        }
+    }
+    private List<String> getConfig(String code,String type) throws Exception {List<String> onboardValidations;
+        String selectQuery = String.format("SELECT %s from %s where participant_code = '%s'", type, onboardVerificationTable, code);
+        ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
+        if (resultSet.next()) {
+            PgArray pgArray = (PgArray) resultSet.getArray(type);
+            if (pgArray != null) {
+                String[] array = (String[]) pgArray.getArray();
+                onboardValidations = Arrays.asList(array);
+            } else {
+                onboardValidations = systemConfig;
+            }
+        } else {
+            onboardValidations = systemConfig;
+        }
+        return onboardValidations;
+    }
+    private void updateConfig(String participantCode,List<String> onboardValidations) throws Exception {
+        String updateQuery = String.format("UPDATE %s SET validations= ARRAY %s WHERE participant_code='%s'",onboardVerificationTable,Collections.singletonList(onboardValidations.stream().collect(Collectors.joining("','", "'", "'"))),participantCode);
+        postgreSQLClient.execute(updateQuery);
+    }
 
     public ResponseEntity<Object> manualIdentityVerify(Map<String, Object> requestBody) throws Exception {
         String applicantEmail = (String) requestBody.get(PRIMARY_EMAIL);
@@ -631,7 +675,7 @@ public class ParticipantService extends BaseController {
         }
     }
 
-    private String getAddUserRequestBody(String userId, String participantCode, String userRole) throws JsonProcessingException{
+    private String getAddUserRequestBody(String userId, String participantCode, String userRole) throws JsonProcessingException {
         Map<String,Object> body = new HashMap<>();
         body.put(PARTICIPANT_CODE, participantCode);
         Map<String,Object> user = new HashMap<>();

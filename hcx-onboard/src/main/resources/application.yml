@@ -26,9 +26,8 @@ aws:
 
 onboard:
   success-url: ${onboarding_success_url:${hcx-url}/onboarding/success}
-  verification:
-    email: ${onboard_email_verification:true}
-    phone: ${onboard_phone_verification:false}
+  validations: ${onboard_validations:email,phone}
+
 
 email:
   id: ${email_id:}
