@@ -32,6 +32,10 @@ public class JSONUtils {
         return mapper.readValue(value, clazz);
     }
 
+    public static <T> T deserialize(Object value, Class<T> clazz) throws Exception {
+        return mapper.convertValue(value, clazz);
+    }
+
     public static <T> T convert(Object obj, Class<T> clazz) {
         return mapper.convertValue(obj, clazz);
     }
