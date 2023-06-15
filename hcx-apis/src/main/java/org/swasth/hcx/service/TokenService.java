@@ -28,9 +28,11 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import static org.swasth.common.utils.Constants.*;
+
 
 @Service
-public class KeycloackService extends BaseRegistryService {
+public class TokenService extends BaseRegistryService {
 
     @Value("${keycloak.client-id}")
     private String clientId;
@@ -53,7 +55,7 @@ public class KeycloackService extends BaseRegistryService {
     private ParticipantService participantService;
     
     public String modifyToken(String originalToken, String email, String keyFilePath) throws Exception {
-        FileInputStream keyFile = new FileInputStream(new File(keyFilePath));
+        FileInputStream keyFile = new FileInputStream(keyFilePath);
            byte[] privateKeyBytes = new byte[keyFile.available()];
            keyFile.read(privateKeyBytes);
            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
@@ -65,13 +67,13 @@ public class KeycloackService extends BaseRegistryService {
            JWTClaimsSet.Builder modifiedPayloadBuilder = new JWTClaimsSet.Builder(originalPayload);
            if (keyFilePath.contains("user_realm.der")) {
                Map<String,Object> userDetails = getUser(email);
-               ArrayList<Map<String, Object>> tenantRolesList  = JSONUtils.convert(userDetails.getOrDefault(Constants.TENANT_ROLES, new ArrayList<>()), ArrayList.class);
+               ArrayList<Map<String, Object>> tenantRolesList  = JSONUtils.convert(userDetails.getOrDefault(TENANT_ROLES, new ArrayList<>()), ArrayList.class);
                Map<String,Object> realmAccess = (Map<String, Object>) modifiedPayloadBuilder.getClaims().get("realm_access");
-               realmAccess.put("tenant_roles", tenantRolesList);
+               realmAccess.put(TENANT_ROLES, tenantRolesList);
                modifiedPayloadBuilder.claim("realm_access", realmAccess);
-               modifiedPayloadBuilder.claim("user_id", userDetails.get(Constants.USER_ID));
+               modifiedPayloadBuilder.claim(USER_ID, userDetails.get(USER_ID));
            } else if (keyFilePath.contains("participant_realm.der")) {
-               modifiedPayloadBuilder.claim(Constants.PARTICIPANT_CODE, getParticipantCode((String) modifiedPayloadBuilder.getClaims().get("email")));
+               modifiedPayloadBuilder.claim(PARTICIPANT_CODE, getParticipantCode((String) modifiedPayloadBuilder.getClaims().get(EMAIL)));
            }
            
            JWTClaimsSet modifiedPayload = modifiedPayloadBuilder.build();
@@ -87,8 +89,8 @@ public class KeycloackService extends BaseRegistryService {
         MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
         map.add("client_id", clientId);
         map.add("grant_type", grantType);
-        map.add("username", requestBody.getFirst("username"));
-        map.add("password", requestBody.getFirst("password"));
+        map.add(USERNAME, requestBody.getFirst(USERNAME));
+        map.add(PASSWORD, requestBody.getFirst(PASSWORD));
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
         return restTemplate.postForEntity(realm, request, AccessTokenResponse.class).getBody();
     }
@@ -114,13 +116,13 @@ public class KeycloackService extends BaseRegistryService {
     }
 
     public String getParticipantCode(String emailId) throws Exception {
-        ResponseEntity<Object> searchResponse = getSuccessResponse(participantService.search(JSONUtils.deserialize(getRequestBody(Constants.PRIMARY_EMAIL, emailId), Map.class)));
+        ResponseEntity<Object> searchResponse = getSuccessResponse(participantService.search(JSONUtils.deserialize(getRequestBody(PRIMARY_EMAIL, emailId), Map.class)));
         RegistryResponse searchResp = (RegistryResponse) searchResponse.getBody();
         if (searchResp.getParticipants().isEmpty()) {
             throw new ClientException(ErrorCodes.ERR_ACCESS_DENIED, "Invalid credentials");
         }
         Map<String, Object> userDetails = (Map<String, Object>) searchResp.getParticipants().get(0);
-        return (String) userDetails.get(Constants.PARTICIPANT_CODE);
+        return (String) userDetails.get(PARTICIPANT_CODE);
     }
 
     public String getRequestBody(String key, String value) {
@@ -132,7 +134,7 @@ public class KeycloackService extends BaseRegistryService {
     }
 
     public Map<String, Object> getUser(String emailId) throws Exception {
-        RegistryResponse registryResponse = registrySearch(JSONUtils.deserialize(getRequestBody("email", emailId),Map.class),registryUserPath,Constants.USER);
+        RegistryResponse registryResponse = registrySearch(JSONUtils.deserialize(getRequestBody(EMAIL, emailId),Map.class),registryUserPath,USER);
         Map<String,Object> userDetails = (Map<String, Object>) registryResponse.getUsers().get(0);
         return userDetails;
     }
