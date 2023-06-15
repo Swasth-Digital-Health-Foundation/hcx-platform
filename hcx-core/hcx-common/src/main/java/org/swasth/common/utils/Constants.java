@@ -95,6 +95,9 @@ public class Constants {
     public static final String PARTICIPANT_VERIFY = "/participant/verify";
     public static final String APPLICANT_GET_INFO = "/applicant/getinfo";
     public static final String APPLICANT_SEARCH = "/applicant/search";
+    public static final String ONBOARD_USER_INVITE = "/onboard/user/invite";
+    public static final String ONBOARD_USER_INVITE_ACCEPT = "/onboard/user/invite/accept";
+    public static final String ONBOARD_USER_INVITE_REJECT = "/onboard/user/invite/reject";
     public static final String PARTICIPANT_VERIFICATION_LINK_SEND = "/participant/verification/link/send";
     public static final String PARTICIPANT_ONBOARD_UPDATE = "/participant/onboard/update";
     public static final String PARTICIPANT_VERIFY_IDENTITY = "/participant/verify/identity";
@@ -192,6 +195,7 @@ public class Constants {
     public static final String ROLES = "roles";
     public static final String SCHEME_CODE = "scheme_code";
     public static final String PARTICIPANT_CODE = "participant_code";
+    public static final String INVITED_BY = "invited_by";
     public static final String TERMS_AND_CONDITIONS = "terms_and_conditions";
     public static final String PARTICIPANT_NAME = "participant_name";
     public static final String PARTICIPANT_ROLE = "participant_role";

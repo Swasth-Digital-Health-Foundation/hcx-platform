@@ -1,5 +1,6 @@
 package org.swasth.common.dto;
 
+import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
 
 import java.util.ArrayList;
@@ -10,13 +11,23 @@ public class Token {
 
     private Map<String,Object> headers;
     private Map<String,Object> payload;
+    private String token;
 
-    public Token(String token) throws Exception {
-        String removeBearer = token.replace("Bearer ", "");
-        String tokenValues[] = removeBearer.split("\\.");
+    public Token(String rawtoken) throws Exception {
+        if(rawtoken.contains("Bearer")){
+            this.token = rawtoken.replace("Bearer ", "");
+        } else {
+            this.token = rawtoken;
+        }
+        String tokenValues[] = token.split("\\.");
         headers = JSONUtils.decodeBase64String(tokenValues[0], Map.class);
         payload = JSONUtils.decodeBase64String(tokenValues[1], Map.class);
     }
+    
+    public String getToken(){
+        return token;
+    }
+
     public Map<String,Object> getHeaders() {
         return headers;
     }
@@ -54,5 +65,13 @@ public class Token {
 
     public String getSubject() {
         return (String) payload.get("sub");
+    }
+
+    public String getRole() {
+        return (String) payload.get("role");
+    }
+
+    public String getInvitedBy() {
+        return (String) payload.getOrDefault(Constants.INVITED_BY, "");
     }
 }
