@@ -3,6 +3,7 @@ package org.swasth.hcx.controllers.v1;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.swasth.common.dto.Response;
@@ -91,6 +92,36 @@ public class ParticipantController extends BaseController {
     public ResponseEntity<Object> applicantSearch(@RequestHeader HttpHeaders header,@RequestParam(required = false) String fields,@RequestBody Map<String,Object> requestBody) throws Exception{
         try{
             return service.applicantSearch(requestBody,fields,header);
+        } catch (Exception e){
+            return exceptionHandler("",APPLICANT_SEARCH,new Response(),e);
+        }
+    }
+
+    @PostMapping(ONBOARD_USER_INVITE)
+    public ResponseEntity<Object> userInvite(@RequestBody Map<String,Object> requestBody) throws Exception{
+        try{
+            service.userInvite(requestBody);
+            return new ResponseEntity<>(new Response(), HttpStatus.OK);
+        } catch (Exception e){
+            return exceptionHandler("",APPLICANT_SEARCH,new Response(),e);
+        }
+    }
+
+    @PostMapping(ONBOARD_USER_INVITE_ACCEPT)
+    public ResponseEntity<Object> userInviteAccept(@RequestHeader HttpHeaders headers,@RequestBody Map<String,Object> requestBody) throws Exception{
+        try{
+            service.userInviteAccept(headers,requestBody);
+            return new ResponseEntity<>(new Response(), HttpStatus.OK);
+        } catch (Exception e){
+            return exceptionHandler("",APPLICANT_SEARCH,new Response(),e);
+        }
+    }
+
+    @PostMapping(ONBOARD_USER_INVITE_REJECT)
+    public ResponseEntity<Object> userInviteReject(@RequestBody Map<String,Object> requestBody) throws Exception{
+        try{
+            service.userInviteReject(requestBody);
+            return new ResponseEntity<>(new Response(), HttpStatus.OK);
         } catch (Exception e){
             return exceptionHandler("",APPLICANT_SEARCH,new Response(),e);
         }

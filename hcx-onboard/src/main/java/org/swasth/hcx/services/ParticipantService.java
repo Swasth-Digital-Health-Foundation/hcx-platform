@@ -33,6 +33,8 @@ import org.swasth.hcx.utils.CertificateUtil;
 import org.swasth.hcx.utils.SlugUtils;
 import org.swasth.postgresql.IDatabaseService;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.net.URL;
@@ -87,6 +89,9 @@ public class ParticipantService extends BaseController {
     @Value("${postgres.table.onboard-verifier}")
     private String onboardingVerifierTable;
 
+    @Value("${postgres.table.onboard-user_invite}")
+    private String onboardUserInviteTable;
+
     @Value("${postgres.mock-service.table.mock-participant}")
     private String mockParticipantsTable;
     @Value("${verification-link.expiry}")
@@ -128,6 +133,17 @@ public class ParticipantService extends BaseController {
     @Value("${keycloak.client-id}")
     private String keycloackClientId;
 
+    @Value("${endpoint.user-invite}")
+    private String userInviteEndpoint;
+    
+    @Value("${email.user-invite-sub}")
+    private String userInviteSub;
+
+    @Value("${email.user-invite-accept-sub}")
+    private String userInviteAcceptSub;
+
+    @Value("${email.user-invite-reject-sub}")
+    private String userInviteRejectSub;
     @Value("${onboard.validations}")
     private List<String> systemConfig;
 
@@ -202,7 +218,9 @@ public class ParticipantService extends BaseController {
         }
         String participantCode = (String) JSONUtils.deserialize(createResponse.getBody(), Map.class).get(PARTICIPANT_CODE);
         participant.put(PARTICIPANT_CODE, participantCode);
-        String userId = createAdminUser(headersMap, participant, participantCode);
+        User user = new User((String) participant.get(PARTICIPANT_NAME) + " Admin",  (String) participant.get(PRIMARY_EMAIL), (String) participant.get(PRIMARY_MOBILE), participantCode);
+        user.addTenantRole(participantCode, ADMIN);
+        String userId = createUser(headers, user);
         String query = String.format("INSERT INTO %s (participant_code,primary_email,primary_mobile,createdOn," +
                         "updatedOn,expiry,phone_verified,email_verified,status,attempt_count) VALUES ('%s','%s','%s',%d,%d,%d,%b,%b,'%s',%d)", onboardVerificationTable, participantCode,
                 participant.get(PRIMARY_EMAIL), participant.get(PRIMARY_MOBILE), System.currentTimeMillis(), System.currentTimeMillis(), System.currentTimeMillis(), false, false, PENDING, 0);
@@ -220,18 +238,12 @@ public class ParticipantService extends BaseController {
         logger.info("Verification link  has been sent successfully :: participant code : " + participantCode + " :: primary email : " + participant.get(PRIMARY_EMAIL));
     }
 
-    private String createAdminUser(Map<String, String> headers, Map<String,Object> participant, String participantCode) throws Exception{
-        Map<String,Object> requestBody = new HashMap<>();
-        requestBody.put(USER_NAME, participant.get(PARTICIPANT_NAME) + " Admin" );
-        requestBody.put(EMAIL, participant.get(PRIMARY_EMAIL));
-        requestBody.put(MOBILE, participant.get(PRIMARY_MOBILE));
-        requestBody.put(CREATED_BY, participantCode);
-        Map<String,String> tenantRole = new HashMap<>();
-        tenantRole.put(PARTICIPANT_CODE, participantCode);
-        tenantRole.put(ROLE, ADMIN);
-        requestBody.put(TENANT_ROLES, List.of(tenantRole));
-        logger.info("User Request Body: " + requestBody);
-        HttpResponse<String> createUser = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + USER_CREATE, JSONUtils.serialize(requestBody), headers);
+    private String createUser(HttpHeaders headers, User user) throws Exception{
+        logger.info("User Request Body: " + JSONUtils.serialize(user));
+        Map<String, String> headersMap = new HashMap<>();
+        String token = Objects.requireNonNull(headers.get(AUTHORIZATION)).get(0);
+        headersMap.put(AUTHORIZATION, token);
+        HttpResponse<String> createUser = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + USER_CREATE, JSONUtils.serialize(user), headersMap);
         RegistryResponse userResponse = JSONUtils.deserialize(createUser.getBody(), RegistryResponse.class);
         if (createUser.getStatus() != 200) {
             throw new ClientException(userResponse.getError().getCode() == null ? ErrorCodes.ERR_INVALID_USER_DETAILS : userResponse.getError().getCode(), userResponse.getError().getMessage());
@@ -398,6 +410,15 @@ public class ParticipantService extends BaseController {
         if (registryResponse.getParticipants().isEmpty())
             throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_CODE, INVALID_PARTICIPANT_CODE);
         return (Map<String, Object>) registryResponse.getParticipants().get(0);
+    }
+
+    private Map<String, Object> userSearch(String requestBody) throws Exception {
+        HttpResponse<String> searchResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + USER_SEARCH, requestBody, new HashMap<>());
+        RegistryResponse registryResponse = JSONUtils.deserialize(searchResponse.getBody(), RegistryResponse.class);
+        if (registryResponse.getUsers().isEmpty())
+            return new HashMap<>();
+        else    
+            return (Map<String, Object>) registryResponse.getUsers().get(0);
     }
 
     public ResponseEntity<Object> onboardUpdate(HttpHeaders headers,Map<String, Object> requestBody) throws Exception {
@@ -591,6 +612,117 @@ public class ParticipantService extends BaseController {
         return new ResponseEntity<>(new RegistryResponse(participantList,ORGANISATION), HttpStatus.OK);
     }
 
+    public void userInvite(Map<String,Object> requestBody) throws Exception {
+        logger.info("User invite: " + requestBody); 
+        String email = (String) requestBody.getOrDefault(EMAIL, "");
+        String role = (String) requestBody.getOrDefault(ROLE, "");
+        String code = (String) requestBody.getOrDefault(PARTICIPANT_CODE, "");
+        String invitedBy = (String) requestBody.getOrDefault(INVITED_BY, "");
+        String token = generateInviteToken(code, email, role, invitedBy);
+        URL url = new URL(String.format("%s%s?jwt_token=%s",hcxURL,userInviteEndpoint,token));
+        Map<String,Object> participant = getParticipant(PARTICIPANT_CODE, code);
+        emailService.sendMail(email, userInviteSub, userInviteTemplate((String) participant.getOrDefault(PARTICIPANT_NAME, ""), role, url));
+        String query = String.format("INSERT INTO %s (participant_code,user_email,invited_by,invite_status,created_on) VALUES ('%s','%s','%s','pending',%d)", onboardUserInviteTable, code, email, invitedBy, System.currentTimeMillis());
+        postgreSQLClient.execute(query);
+        logger.info("User invitation sent"); 
+    }
+
+    private String generateInviteToken(String code, String userEmail, String userRole, String invitedBy) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        long date = new Date().getTime();
+        Map<String, Object> headers = new HashMap<>();
+        headers.put(ALG,RS256);
+        headers.put(TYPE, JWT);
+        Map<String, Object> payload = new HashMap<>();
+        payload.put(JTI, UUID.randomUUID());
+        payload.put(ISS, hcxCode);
+        payload.put(TYP, "invite");
+        payload.put(PARTICIPANT_CODE,code);
+        payload.put(EMAIL, userEmail);
+        payload.put(ROLE, userRole);
+        payload.put(INVITED_BY, invitedBy);
+        payload.put(IAT, date);
+        payload.put(EXP, new Date(date + expiryTime).getTime());
+        return jwtUtils.generateJWS(headers,payload,privatekey);
+    }
+
+    public void userInviteAccept(HttpHeaders headers,Map<String,Object> body) throws ClientException, Exception{
+        logger.info("User invite accepted: " + body);
+        Token token = new Token((String) body.getOrDefault(JWT_TOKEN, ""));
+        Map<String,Object> participantDetails = getParticipant(PARTICIPANT_CODE, hcxCode);
+        if (!jwtUtils.isValidSignature(token.getToken(), (String) participantDetails.get(ENCRYPTION_CERT))) {
+            throw new ClientException(ErrorCodes.ERR_INVALID_JWT, "Invalid JWT token signature");
+        }
+        User user = (User) body.get("user");
+        boolean isUserExists = isUserExists(user);
+        if (!isUserExists){
+            user.setUserId(createUser(headers, user));
+        }
+        boolean isUserExistsInOrg = isUserExistsInOrg(user, token.getParticipantCode());
+        if (!isUserExistsInOrg) {
+            addUser(headers, getAddUserRequestBody(user.getUserId(), token.getParticipantCode(), token.getRole()));
+        }
+        updateInviteStatus(user.getEmail(), "accepted");
+        if (!isUserExists){
+           emailService.sendMail(user.getEmail(), Arrays.asList(token.getInvitedBy()), userInviteAcceptSub, userInviteAcceptTemplate(user.getUserId(), (String) participantDetails.get(PARTICIPANT_NAME)));
+        } else if (!isUserExistsInOrg) {
+            emailService.sendMail(user.getEmail(), Arrays.asList(token.getInvitedBy()), userInviteAcceptSub, existingUserInviteAcceptTemplate((String) participantDetails.get(PARTICIPANT_NAME)));
+        }
+    }
+
+    private void addUser(HttpHeaders headers, String requestBody) throws Exception {
+        HttpResponse<String> response = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_USER_ADD, requestBody, new HashMap<>());
+        if (response.getStatus() != 200){
+            ResponseError error = JSONUtils.deserialize(response.getBody(), ResponseError.class);
+            throw new ClientException(error.getCode(), error.getMessage());
+        }
+    }
+
+    private String getAddUserRequestBody(String userId, String participantCode, String userRole) throws JsonProcessingException {
+        Map<String,Object> body = new HashMap<>();
+        body.put(PARTICIPANT_CODE, participantCode);
+        Map<String,Object> user = new HashMap<>();
+        user.put(USER_ID, userId);
+        user.put(ROLE, userRole);
+        List<Map<String,Object>> users = new ArrayList<>();
+        users.add(user);
+        body.put(USERS, users);
+        return JSONUtils.serialize(body);
+    }
+
+    private boolean isUserExistsInOrg(User user, String participantCode) throws Exception{
+        String body = "{ \"filters\": { \"email\": { \"eq\": \"" + user.getEmail() + "\" }, \"tenant_roles.participant_code\": { \"eq\": \"" + participantCode + "\" }, \"tenant_roles.role\": { \"eq\": \"" + user.getTenantRoles().get(0).get(ROLE) + "\" } } }";
+        return !userSearch(body).isEmpty();   
+    }
+
+    private boolean isUserExists(User user) throws Exception{
+        String body = "{ \"filters\": { \"email\": { \"eq\": \"" + user.getEmail() + "\" } } }";
+        Map<String,Object> userDetails = userSearch(body);
+        if(userDetails.isEmpty()){
+            return false;
+        } else {
+            user.setUserId((String) userDetails.get(USER_ID));
+            return true;
+        }
+    }
+
+    private void updateInviteStatus(String email, String status) throws Exception{
+        String query = String.format("UPDATE %s SET invite_status='%s',updated_on=%d WHERE user_email='%s", onboardUserInviteTable, status, System.currentTimeMillis(), email);
+        postgreSQLClient.execute(query);
+    }
+
+    public void userInviteReject(Map<String,Object> body) throws ClientException, Exception{
+        logger.info("User invite rejected: " + body);
+        Token token = new Token((String) body.getOrDefault(JWT_TOKEN, ""));
+        Map<String,Object> participantDetails = getParticipant(PARTICIPANT_CODE, hcxCode);
+        if (!jwtUtils.isValidSignature(token.getToken(), (String) participantDetails.get(ENCRYPTION_CERT))) {
+            throw new ClientException(ErrorCodes.ERR_INVALID_JWT, "Invalid JWT token signature");
+        }
+        User user = (User) body.get("user");
+        updateInviteStatus(user.getEmail(), "rejected");
+        emailService.sendMail(user.getEmail(), Arrays.asList(token.getInvitedBy()), userInviteRejectSub, userInviteRejectTemplate(user.getEmail(), (String) participantDetails.get(PARTICIPANT_NAME)));
+    }
+
+
     private Map<String,String> headers(String verifierCode) throws NoSuchAlgorithmException, InvalidKeySpecException {
         Map<String,String> headers = new HashMap<>();
         headers.put(AUTHORIZATION,"Bearer "+ jwtUtils.generateAuthToken(privatekey,hcxCode,expiryTime));
@@ -629,6 +761,34 @@ public class ParticipantService extends BaseController {
         payload.put(IAT, date);
         payload.put(EXP, new Date(date + expiryTime).getTime());
         return jwtUtils.generateJWS(headers,payload,privatekey);
+    }
+
+    private String userInviteRejectTemplate(String email, String participantName) throws Exception {
+        Map<String, Object> model = new HashMap<>();
+        model.put("EMAIL", email);
+        model.put("PARTICIPANT_NAME", participantName);
+        return freemarkerService.renderTemplate("user-create-reject.ftl",model);
+    }
+
+    private String userInviteAcceptTemplate(String userId, String participantName) throws Exception {
+        Map<String, Object> model = new HashMap<>();
+        model.put("USER_ID", userId);
+        model.put("PARTICIPANT_NAME", participantName);
+        return freemarkerService.renderTemplate("user-invite-accept.ftl",model);
+    }
+
+    private String existingUserInviteAcceptTemplate( String participantName) throws Exception {
+        Map<String, Object> model = new HashMap<>();
+        model.put(PARTICIPANT_NAME, participantName);
+        return freemarkerService.renderTemplate("existing-user-invite-accept.ftl",model);
+    }
+
+    private String userInviteTemplate(String name ,String role,URL signedURL) throws Exception {
+        Map<String, Object> model = new HashMap<>();
+        model.put("PARTICIPANT_NAME", name);
+        model.put("USER_ROLE", role);
+        model.put("USER_INVITE_URL",signedURL);
+        return freemarkerService.renderTemplate("user-invite.ftl",model);
     }
 
     private String linkTemplate(String name ,String code,URL signedURL,int day,ArrayList<String> role, String userId) throws Exception {

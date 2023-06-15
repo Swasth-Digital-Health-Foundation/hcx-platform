@@ -108,6 +108,7 @@
 			<artifactId>keycloak-admin-client</artifactId>
 			<version>21.0.1</version>
 		</dependency>
+
 	</dependencies>
 
 	<build>

@@ -37,6 +37,9 @@ email:
   failed-identity-sub: ${failed_identity_sub:HCX - Identity Verification Failed}
   onboarding-success-sub: ${onboarding_success_sub:HCX - Onboarding Successful}
   verification-sub: ${verification_success:HCX - Verification Status}
+  user-invite-sub: ${user_invite_sub:HCX - User Invitation}
+  user-invite-accept-sub: ${user_invite_accept_sub:HCX - User Details}
+  user-invite-reject-sub: ${user_invite_reject_sub:HCX - User Rejected Invitation}
 
 phone:
   send-link-msg : ${send_link_msg:HCX mobile verification link is :}
@@ -58,8 +61,9 @@ postgres:
   user: ${postgres_user:postgres}
   password: ${postgres_password:postgres}
   table:
-     onboard-verification: ${onboarding_verification_table:onboard_verification}
-     onboard-verifier: ${onboarding_verifier_table:onboard_verifier}
+     onboard-verification: ${onboard_verification_table:onboard_verification}
+     onboard-verifier: ${onboard_verifier_table:onboard_verifier}
+     onboard-user-invite: ${onboard_user_invite_table:onboard_user_invite}
   mock-service:
     url: ${mock_service_db_url:jdbc:postgresql://localhost:5432/mock_service}
     table:
@@ -84,3 +88,6 @@ keycloak:
   master-realm: ${keycloak_master_realm:master}
   client-id: ${keycloack_client_id:admin-cli}
   users-realm: ${keycloack_users_realm:swasth-health-claim-exchange}
+
+endpoint:
+  user-invite: ${user_invite_endpoint:/onboarding/user/invite}
