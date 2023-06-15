@@ -74,6 +74,8 @@ public class Constants {
     public static final String USER_SEARCH = "/user/search";
     public static final String USER_UPDATE = "/user/update";
     public static final String USER_DELETE = "/user/delete";
+    public static final String PARTICIPANT_GENERATE_TOKEN = "/participant/generate/token";
+    public static final String  USER_GENERATE_TOKEN = "/user/generate/token";
     public static final String USERS = "users";
     public static final String ONBOARD_VALIDATIONS = "onboard_validations";
     public static final String ONBOARDVALIDATIONS = "onboardvalidations";

@@ -179,13 +179,13 @@ public class UserService extends BaseRegistryService {
         boolean result = false;
         if (token.getRoles().contains(ADMIN_ROLE)) {
             result = true;
-        } else if (StringUtils.equals(token.getEntityType(), "User")){
+        } else if (StringUtils.equals(token.getEntityType(), USER)){
             for(Map<String,String> roleMap: token.getTenantRoles()){
-                if(StringUtils.equals((String) roleMap.get(PARTICIPANT_CODE), participantCode) && StringUtils.equals((String) roleMap.get(ROLE), ADMIN)) {
+                if(StringUtils.equals(roleMap.get(PARTICIPANT_CODE), participantCode) && StringUtils.equals(roleMap.get(ROLE), ADMIN)) {
                     result = true;
                 }
             }
-        } else if (StringUtils.equals(token.getEntityType(), "Organisation")) {
+        } else if (StringUtils.equals(token.getEntityType(), ORGANISATION)) {
             Map<String,Object> details = participantService.getParticipant(participantCode);
             if(StringUtils.equals(token.getSubject(), ((List<String>) details.get(OS_OWNER)).get(0))) {
                 result = true;
