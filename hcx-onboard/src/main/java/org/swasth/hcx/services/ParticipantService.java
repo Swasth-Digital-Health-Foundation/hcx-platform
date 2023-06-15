@@ -652,7 +652,7 @@ public class ParticipantService extends BaseController {
         if (!jwtUtils.isValidSignature(token.getToken(), (String) participantDetails.get(ENCRYPTION_CERT))) {
             throw new ClientException(ErrorCodes.ERR_INVALID_JWT, "Invalid JWT token signature");
         }
-        User user = (User) body.get("user");
+        User user = JSONUtils.deserialize(body.get("user"), User.class);
         boolean isUserExists = isUserExists(user);
         if (!isUserExists){
             user.setUserId(createUser(headers, user));
@@ -706,7 +706,7 @@ public class ParticipantService extends BaseController {
     }
 
     private void updateInviteStatus(String email, String status) throws Exception{
-        String query = String.format("UPDATE %s SET invite_status='%s',updated_on=%d WHERE user_email='%s", onboardUserInviteTable, status, System.currentTimeMillis(), email);
+        String query = String.format("UPDATE %s SET invite_status='%s',updated_on=%d WHERE user_email='%s'", onboardUserInviteTable, status, System.currentTimeMillis(), email);
         postgreSQLClient.execute(query);
     }
 
@@ -717,7 +717,7 @@ public class ParticipantService extends BaseController {
         if (!jwtUtils.isValidSignature(token.getToken(), (String) participantDetails.get(ENCRYPTION_CERT))) {
             throw new ClientException(ErrorCodes.ERR_INVALID_JWT, "Invalid JWT token signature");
         }
-        User user = (User) body.get("user");
+        User user = JSONUtils.deserialize(body.get("user"), User.class);
         updateInviteStatus(user.getEmail(), "rejected");
         emailService.sendMail(user.getEmail(), Arrays.asList(token.getInvitedBy()), userInviteRejectSub, userInviteRejectTemplate(user.getEmail(), (String) participantDetails.get(PARTICIPANT_NAME)));
     }
