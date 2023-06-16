@@ -10,7 +10,7 @@ const SideBar: React.FC<ChildProps> = ({ onDataUpdate }) => {
       onDataUpdate(data);
     };
 
-    const sideBarNames = ["Profile", "Create User"];
+    const sideBarNames = ["Profile", "Create User","Participants", "Users"];
     return(
     <aside
     id="logo-sidebar"

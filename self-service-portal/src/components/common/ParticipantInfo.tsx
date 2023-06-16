@@ -7,7 +7,7 @@ import _ from "lodash";
 import { toast } from "react-toastify";
 import { getParticipant } from "../../api/RegistryService";
 import { addParticipantDetails } from "../../reducers/participant_details_reducer";
-import { post } from "../../utils/HttpUtil";
+import { post } from "../../api/APIService";
 
 const ParticipantInfo =() =>{
 
@@ -107,14 +107,22 @@ const ParticipantInfo =() =>{
           >
             Basic Information
           </label>
-          <button type="button" 
-                  className="text-blue-700 border border-blue-700 hover:bg-blue-700 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:focus:ring-blue-800 dark:hover:bg-blue-500"
-                  onClick={() => refreshPage()}>
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-5 w-5">
-            <path fill-rule="evenodd" d="M2.52 10c0-3.29 2.67-5.96 5.96-5.96 1.56 0 2.97.6 4.05 1.57l-1.5 1.5a3.97 3.97 0 0 0-2.55-.93c-2.2 0-3.98 1.78-3.98 3.98s1.78 3.98 3.98 3.98c1.36 0 2.53-.69 3.24-1.74l1.43 1.43c-1.2 1.46-2.99 2.37-4.97 2.37-3.87 0-7.03-3.16-7.03-7.03zm13.94 0c0 3.29-2.67 5.96-5.96 5.96-1.56 0-2.97-.6-4.05-1.57l1.5-1.5a3.97 3.97 0 0 0 2.55.93c2.2 0 3.98-1.78 3.98-3.98s-1.78-3.98-3.98-3.98c-1.36 0-2.53.69-3.24 1.74l-1.43-1.43c1.2-1.46 2.99-2.37 4.97-2.37 3.87 0 7.03 3.16 7.03 7.03z" clip-rule="evenodd" />
-          </svg>
-            <span className="sr-only">Icon description</span>
-        </button>
+          <div className="flex flex-wrap mb-2">
+          {_.get(participantDetails,"communication.emailVerified") ?
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 inline-block mr-1 border rounded-full border-green-500" fill="none" viewBox="0 0 24 24" stroke="green">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /> 
+          </svg> :
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 inline-block mr-1" viewBox="0 0 24 24" fill="none" stroke="red" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 8v4M12 16h.01" />
+          </svg>}
+          <label
+            className="block uppercase tracking-wide text-green-700 text-xs font-bold m-1"
+            htmlFor="grid-first-name"
+          >
+            {_.get(participantDetails,"communication.emailVerified") ? "Active" : "Inactive"}
+          </label>
+          </div>
       </div> 
       <div className="flex flex-wrap -mx-3 mb-6">
         <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
@@ -152,7 +160,7 @@ const ParticipantInfo =() =>{
         </div>
       </div>
       <div className="flex flex-wrap -mx-3 mb-6">
-        <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
+        <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0 flex flex-wrap">
           <label
             className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
             htmlFor="grid-first-name"
@@ -160,7 +168,7 @@ const ParticipantInfo =() =>{
             Email Address
           </label>
           <input
-            className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
+            className="appearance-none block w-11/12 bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
             id="grid-first-name"
             type="text"
             placeholder="abc@abc.com"
@@ -168,28 +176,17 @@ const ParticipantInfo =() =>{
             value={_.get(participantDetails,"primary_email")}
           />
           {/* <p className="text-red-500 text-xs italic">Please fill out this field.</p> */}
+          &nbsp;&nbsp;
+          {_.get(participantDetails,"communication.emailVerified") ?
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 inline-block mr-1 border rounded-full border-green-500" fill="none" viewBox="0 0 24 24" stroke="green">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /> 
+          </svg> :
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 inline-block mr-1" viewBox="0 0 24 24" fill="none" stroke="red" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 8v4M12 16h.01" />
+          </svg>}
         </div>
-        <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
-          <label
-            className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-            htmlFor="grid-last-name"
-          >
-            &nbsp;&nbsp;
-          </label>
-          <button
-                              className={"mb-3 inline-block w-1/4 rounded-full px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white shadow-[0_4px_9px_-4px_rgba(0,0,0,0.2)] transition duration-150 ease-in-out hover:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:outline-none focus:ring-0 active:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)]"}
-                              type="button"
-                              disabled
-                              style={{
-                                background: _.get(participantDetails,"communication.emailVerified") ? "#2da852" : "#d62929"
-                              }}
-                            >
-                              {_.get(participantDetails,"communication.emailVerified") ? "Verified" : "Not Verified"}
-                            </button>
-        </div>
-      </div>
-      <div className="flex flex-wrap -mx-3 mb-6">
-        <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
+        <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0 flex flex-wrap">
           <label
             className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
             htmlFor="grid-first-name"
@@ -197,7 +194,7 @@ const ParticipantInfo =() =>{
             Phone Number
           </label>
           <input
-            className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
+            className="appearance-none block w-11/12 bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
             id="grid-first-name"
             type="number"
             placeholder=""
@@ -205,26 +202,83 @@ const ParticipantInfo =() =>{
             value={_.get(participantDetails,"primary_mobile")}
           />
           {/* <p className="text-red-500 text-xs italic">Please fill out this field.</p> */}
-        </div>
-        <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
-          <label
-            className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-            htmlFor="grid-last-name"
-          >
-            &nbsp;&nbsp;
-          </label>
-          <button
-                              className={"mb-3 inline-block w-1/4 rounded-full px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white shadow-[0_4px_9px_-4px_rgba(0,0,0,0.2)] transition duration-150 ease-in-out hover:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:outline-none focus:ring-0 active:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)]"}
-                              type="button"
-                              disabled
-                              style={{
-                                background: _.get(participantDetails,"communication.phoneVerified") ? "#2da852" : "#d62929"
-                              }}
-                            >
-                              {_.get(participantDetails,"communication.phoneVerified") ? "Verified" : "Not Verified"}
-                            </button>
+          &nbsp;&nbsp;
+          {_.get(participantDetails,"communication.phoneVerified") ?
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 inline-block mr-1 border rounded-full border-green-500" fill="none" viewBox="0 0 24 24" stroke="green">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /> 
+          </svg> :
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 inline-block mr-1" viewBox="0 0 24 24" fill="none" stroke="red" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10" />
+          <path d="M12 8v4M12 16h.01" />
+        </svg>
+          }
         </div>
       </div>
+      <div className="flex flex-wrap -mx-3 mb-6 border-b-2 shadow-l shadow-bottom">
+      <label
+            className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+          >
+            Encrytption Cert and Web Endpoint URL
+          </label>
+      </div> 
+      <div className="flex flex-wrap -mx-3 mb-6">
+        <div className="w-full px-3">
+          <label
+            className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+            htmlFor="grid-password"
+          >
+            Encryption Certificate
+          </label>
+          <div className="flex mb-3">
+              <div className="flex items-center mr-4">
+                  <input id="inline-radio" type="radio" value="" name="inline-radio-group" className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500"
+                         onClick={() => setCertType("text")} defaultChecked></input>
+                  <label htmlFor="inline-radio" className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">Certificate URL</label>
+              </div>
+              <div className="flex items-center mr-4">
+                  <input id="inline-2-radio" type="radio" value="" name="inline-radio-group" className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500"
+                  onClick={() => setCertType("textarea")}></input>
+                  <label htmlFor="inline-2-radio" className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">Certificate</label>
+              </div>
+    
+          </div>
+          {certType == "textarea" ? 
+          <textarea
+            className={"appearance-none block w-full bg-gray-100 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" + (certError? " border-red-600": "")}
+            id="grid-password"
+            placeholder="Please provide your public certificate here"
+            //value={encryptionCert}
+            onChange={(event) => {setEncryptionCert(event.target.value); setCertError(false)}}
+          /> :
+          <input
+            className={"appearance-none block w-full bg-gray-100 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" + (certError? " border-red-600": "")}
+            id="grid-password"
+            type="text"
+            placeholder=""
+            value={encryptionCert}
+            onChange={(event) => {setEncryptionCert(event.target.value); setCertError(false)}}
+          />}
+        </div>
+      </div>
+      <div className="flex flex-wrap -mx-3 mb-6">
+        <div className="w-full px-3">
+          <label
+            className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+            htmlFor="grid-password"
+          >
+            Endpoint URL
+          </label>
+          <input
+            className={"appearance-none block w-full bg-gray-100 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" + (endpointError ? " border-red-600": "")}
+            id="grid-password"
+            type="text"
+            placeholder=""
+            value={endpointUrl}
+            onChange={(event) => {setEndpointUrl(event.target.value); setEndPointError(false)}}
+          />
+        </div>
+      </div>
+
       <div className="flex flex-wrap -mx-3 mb-6 border-b-2 shadow-l shadow-bottom">
       <label
             className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
@@ -397,71 +451,7 @@ const ParticipantInfo =() =>{
         </div>
       </div>
       
-      <div className="flex flex-wrap -mx-3 mb-6 border-b-2 shadow-l shadow-bottom">
-      <label
-            className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-          >
-            Encrytption Cert and Web Endpoint URL
-          </label>
-      </div> 
-      <div className="flex flex-wrap -mx-3 mb-6">
-        <div className="w-full px-3">
-          <label
-            className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-            htmlFor="grid-password"
-          >
-            Encryption Certificate
-          </label>
-          <div className="flex mb-3">
-              <div className="flex items-center mr-4">
-                  <input id="inline-radio" type="radio" value="" name="inline-radio-group" className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500"
-                         onClick={() => setCertType("text")} defaultChecked></input>
-                  <label htmlFor="inline-radio" className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">Certificate URL</label>
-              </div>
-              <div className="flex items-center mr-4">
-                  <input id="inline-2-radio" type="radio" value="" name="inline-radio-group" className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500"
-                  onClick={() => setCertType("textarea")}></input>
-                  <label htmlFor="inline-2-radio" className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">Certificate</label>
-              </div>
-    
-          </div>
-          {certType == "textarea" ? 
-          <textarea
-            className={"appearance-none block w-full bg-gray-100 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" + (certError? " border-red-600": "")}
-            id="grid-password"
-            placeholder="Please provide your public certificate here"
-            //value={encryptionCert}
-            onChange={(event) => {setEncryptionCert(event.target.value); setCertError(false)}}
-          /> :
-          <input
-            className={"appearance-none block w-full bg-gray-100 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" + (certError? " border-red-600": "")}
-            id="grid-password"
-            type="text"
-            placeholder=""
-            value={encryptionCert}
-            onChange={(event) => {setEncryptionCert(event.target.value); setCertError(false)}}
-          />}
-        </div>
-      </div>
-      <div className="flex flex-wrap -mx-3 mb-6">
-        <div className="w-full px-3">
-          <label
-            className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-            htmlFor="grid-password"
-          >
-            Endpoint URL
-          </label>
-          <input
-            className={"appearance-none block w-full bg-gray-100 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" + (endpointError ? " border-red-600": "")}
-            id="grid-password"
-            type="text"
-            placeholder=""
-            value={endpointUrl}
-            onChange={(event) => {setEndpointUrl(event.target.value); setEndPointError(false)}}
-          />
-        </div>
-      </div>
-      <div className="flex flex-wrap -mx-3 mb-6">
+      <div className="flex flex-wrap -mx-3 mb-6 justify-between">
       <button
                               className="mb-3 inline-block w-1/4 rounded px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white shadow-[0_4px_9px_-4px_rgba(0,0,0,0.2)] transition duration-150 ease-in-out hover:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:outline-none focus:ring-0 active:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)]"
                               type="button"
@@ -475,6 +465,19 @@ const ParticipantInfo =() =>{
                             >
                               Update
                             </button>
+        <button  
+                  className="mb-3 inline-block w-1/5 rounded px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white shadow-[0_4px_9px_-4px_rgba(0,0,0,0.2)] transition duration-150 ease-in-out hover:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:outline-none focus:ring-0 active:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)]"
+                  type="button"
+                  data-te-ripple-init=""
+                  data-te-ripple-color="light"
+                  style={{
+                    background:
+                      "linear-gradient(to right, #1C4DC3, #3632BE, #1D1991, #060347)"
+                  }}
+                  onClick={() => refreshPage()}>
+             Refresh Page       
+        </button>
+                      
       </div>
     </form>
     

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { useAuthActions } from "../../recoil/actions/auth.actions";
 import logo from "../../swasth_logo.png";
 import { useQuery } from "../../api/QueryService";
@@ -10,10 +10,14 @@ import { setPassword } from "../../api/KeycloakService";
 import { useHistory } from "react-router-dom";
 import queryString from 'query-string';
 import { navigate } from "raviger";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { addParticipantDetails } from "../../reducers/participant_details_reducer";
 import { login } from "../../api/api";
 import { addParticipantToken } from "../../reducers/token_reducer";
+import TermsOfUse from "../common/TermsOfUse";
+import { addAppData } from "../../reducers/app_data";
+import CreateUser from "../common/CreateUser";
+import { RootState } from "../../store";
 
 type Payor = {
   participant_code: string,
@@ -59,7 +63,10 @@ export default function Register() {
   const [applicantError, setApplicantError] = useState(false);
   const [pass1Error, setPass1Error] = useState(false);
   const [pass2Error, setPass2Error] = useState(false);
+  const [showUserCreate, setShowUserCreate] = useState(false);
 
+  const appData:Object =useSelector((state: RootState) => state.appDataReducer.appData);
+  console.log("appData", appData);
 
 
   useEffect(() => {
@@ -87,7 +94,18 @@ export default function Register() {
     })()
 }, []);
 
+const [userDetials, setUserDetails] = useState([{"username":"","phone":"","email":"","role":""}])
 
+const addAnotherRow = () => {
+    console.log("i came here", userDetials);
+    userDetials.push({"username":"","phone":"","email":"","role":""})
+    setUserDetails(userDetials.map((value,index) => {return value}));
+}
+
+  const setShowTerms = (event: ChangeEvent<HTMLInputElement>) => {
+    console.log("event.target.value" , event.target.checked);
+    dispatch(addAppData({"showTerms":event.target.checked}));
+  }
   const resetPassword = () => {
       console.log("we are here to set the password");
       if(pass1 == '' && pass2 == ''){
@@ -105,7 +123,8 @@ export default function Register() {
             login({username : email,password : pass1}).then((res) => {
               dispatch(addParticipantToken(res["access_token"]));
             })
-            navigate("/onboarding/dashboard");
+            //navigate("/onboarding/dashboard");
+            setShowUserCreate(true);
         })).catch(err => {
             toast.error(_.get(err, 'response.data.error.message') || "Internal Server Error", {
                 position: toast.POSITION.TOP_CENTER
@@ -146,7 +165,7 @@ export default function Register() {
                     {checkResetPass ? 
                       <svg aria-hidden="true" className="w-4 h-4 mr-2 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
                       : <span className="mr-2">{radioRole == "provider" && showVerify ? 3 : 2}</span> }
-                  Change<span className="hidden sm:inline-flex sm:ml-2">Password</span>
+                  Create<span className="hidden sm:inline-flex sm:ml-2">Password</span>
               </li>
           </ol>)
       }
@@ -277,6 +296,7 @@ const getPayor = (participantName: string) => {
 
   return (
     <div className="flex flex-col items-center justify-center h-screen">
+        <TermsOfUse></TermsOfUse>
             { showLoader ? 
       <div className="fixed inset-0 bg-gray-300 bg-opacity-50 flex items-center justify-center z-50">
       <div role="status">
@@ -288,10 +308,13 @@ const getPayor = (participantName: string) => {
           </div>
       </div> : null }
       <div className="flex flex-row items-center justify-center w-full h-full">
-        <div className="g-6 flex h-full flex-wrap items-center justify-center text-neutral-800 dark:text-neutral-200">
+        <div className="g-6 flex w-full h-full flex-wrap items-center justify-center text-neutral-800 dark:text-neutral-200">
           <div className="w-11/12">
+
             <div className="block rounded-lg bg-white shadow-lg dark:bg-neutral-800">
-              <div className="g-0 lg:flex lg:flex-wrap">
+
+              {showUserCreate ? null : <div className="g-0 lg:flex lg:flex-wrap">
+
                 {/* Left column container*/}
                 <div className="px-4 md:px-0 lg:w-6/12">
                   <div className="md:mx-6 md:p-12">
@@ -475,12 +498,19 @@ const getPayor = (participantName: string) => {
 
                       {/*Submit button*/}
                       {radioOnboard !== "actual_payor" ? 
-                      <div className="mb-12 pb-1 pt-1 text-center">
+                      <div className="mb-12 pb-1 pt-1 text-center items-center">
+                        <div className="flex items-center justify-center mb-4">
+                            <input id="link-checkbox" type="checkbox" value="" className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                             onChange={(event) => setShowTerms(event)}
+                             checked={_.get(appData,"termsAccepted")}></input>
+                            <label htmlFor="link-checkbox" className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">I agree with the <a href="#" className="text-blue-600 dark:text-blue-500 hover:underline">terms and conditions</a>.</label>
+                        </div>
                         <button
-                          className="mb-3 inline-block w-full rounded px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white shadow-[0_4px_9px_-4px_rgba(0,0,0,0.2)] transition duration-150 ease-in-out hover:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:outline-none focus:ring-0 active:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)]"
+                          className={"mb-3 inline-block w-full rounded px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white shadow-[0_4px_9px_-4px_rgba(0,0,0,0.2)] transition duration-150 ease-in-out hover:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:outline-none focus:ring-0 active:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] " + (_.get(appData,"termsAccepted") ? "" : "disabled:opacity-75")}
                           type="button"
                           data-te-ripple-init=""
                           data-te-ripple-color="light"
+                          disabled={!_.get(appData,"termsAccepted")}
                           style={{
                             background:
                               "linear-gradient(to right, #1C4DC3, #3632BE, #1D1991, #060347)"
@@ -577,7 +607,123 @@ const getPayor = (participantName: string) => {
                     </p>
                   </div>
                 </div>
-              </div>
+              </div>}
+              {showUserCreate ?   <div className="g-0 lg:flex lg:flex-wrap">
+                <div className="px-4 md:px-0 lg:w-full">
+    {/* Modal content */}
+    <div className="relative bg-white rounded-lg shadow dark:bg-gray-700">
+      {/* Modal header */}
+      <div className="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600">
+        <h3 className="text-xl font-semibold text-green-500 dark:text-white">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 inline-block mr-1 border rounded-full border-green-500" fill="none" viewBox="0 0 24 24" stroke="green">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+  </svg>
+          &nbsp;Congratulations! Your onboarding process is complete.
+        </h3>
+        <button
+          type="button"
+          className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white"
+          data-modal-hide="defaultModal"
+        >
+          <svg
+            aria-hidden="true"
+            className="w-5 h-5"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              fillRule="evenodd"
+              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+              clipRule="evenodd"
+            />
+          </svg>
+          <span className="sr-only">Close modal</span>
+        </button>
+      </div>
+      {/* Modal body */}
+      <form className="w-full p-12">
+      <div className="flex flex-wrap -mx-3 mb-6 border-b-2 shadow-l shadow-bottom justify-between">
+            <label
+              className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+            >
+              Create Users
+            </label>
+          </div> 
+        {userDetials.map((value,index)=> {
+            return <>
+            
+          <div className="flex flex-wrap -mx-3 mb-6">
+          <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
+            <label
+              className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+              htmlFor="grid-first-name"
+            >
+              Email
+            </label>
+            <input
+              className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
+              id="grid-first-name"
+              type="text"
+              placeholder="Jane"
+            />
+            {/* <p className="text-red-500 text-xs italic">Please fill out this field.</p> */}
+          </div>
+          <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
+            <label
+              className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+              htmlFor="grid-last-name"
+            >
+              Role
+            </label>
+                          <select id="payordropdown" 
+                        className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" >
+                        <option selected value="1">Admin</option>
+                        <option value="2">Edit</option>
+                        <option value="2">View</option>
+                      </select>
+          </div>
+   
+        </div></>
+          })}    
+        
+      <div className="flex items-center justify-between -mx-3 mb-6 p-3">
+                    <button
+                      type="button"
+                      className="inline-block rounded border-2 border-blue-500 px-6 pb-[6px] pt-2 text-xs font-medium uppercase leading-normal text-blue-500 transition duration-150 ease-in-out hover:border-blue-600 hover:bg-neutral-500 hover:bg-opacity-10 hover:text-blue-600 focus:border-blue-600 focus:text-blue-600 focus:outline-none focus:ring-0 active:border-blue-700 active:text-blue-700 dark:hover:bg-neutral-100 dark:hover:bg-opacity-10"
+                      data-te-ripple-init=""
+                      data-te-ripple-color="light"
+                      onClick={() => addAnotherRow()}   
+                    >
+                      Add Another User
+                    </button>
+                    <button
+                      type="button"
+                      className="inline-block rounded border-2 border-blue-500 px-6 pb-[6px] pt-2 text-xs font-medium uppercase leading-normal text-blue-500 transition duration-150 ease-in-out hover:border-blue-600 hover:bg-neutral-500 hover:bg-opacity-10 hover:text-blue-600 focus:border-blue-600 focus:text-blue-600 focus:outline-none focus:ring-0 active:border-blue-700 active:text-blue-700 dark:hover:bg-neutral-100 dark:hover:bg-opacity-10"
+                      data-te-ripple-init=""
+                      data-te-ripple-color="light"
+                      onClick={() => navigate("/onboarding/dashboard")}
+                    >
+                      Invite
+                    </button>
+                  </div>
+      </form>
+      {/* Modal footer */}
+      <div className="flex items-center p-6 justify-between space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600">
+      <h5 className="text-l font-semibold text-gray-900 dark:text-white">
+          You can also create users after login. Click skip to go to Profile page
+        </h5>
+        <button
+          data-modal-hide="defaultModal"
+          type="button"
+          className="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
+          onClick={() => navigate("/onboarding/dashboard")}
+        >
+          Skip
+        </button>
+      </div>
+    </div>
+  </div></div> : null}
             </div>
           </div>
         </div>

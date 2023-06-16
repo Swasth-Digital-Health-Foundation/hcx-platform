@@ -13,16 +13,42 @@ import 'flowbite';
 import { navigate } from "raviger";
 import Sidebar from "../common/SideTab";
 import ParticipantInfo from "../common/ParticipantInfo";
+import LinkedParticipant from "../common/LinkedParticipants";
+import { constSelector } from "recoil";
+import CreateUser from "../common/CreateUser";
+import TermsOfUse from "../common/TermsOfUse";
+import Users from "../common/Users";
 
 export default function Dashboard() {
 
   const dispatch = useDispatch()
   const participantDetails : Object = useSelector((state: RootState) => state.participantDetailsReducer.participantDetails);
   const authToken = useSelector((state: RootState) => state.tokenReducer.participantToken);  
-
+  const [selectedSideTab, setSelectedSideTab] = useState('Profile');
+  console.log("dashboard reloaded")
+  
+  // useEffect(()=> {
+  // },[setSelectedSideTab])
+  
   const handleChildData = (data: string) => {
     console.log("Side Bar clicked", data);
+    console.log("selected side tab ", selectedSideTab);
+    setSelectedSideTab(data);
   };
+
+  const showComponent = (tabSelected:String) => {
+      console.log("tabSelected", tabSelected);
+      if(tabSelected == "Profile"){
+        console.log("selectedSideTab", selectedSideTab);
+         return (<ParticipantInfo></ParticipantInfo>) 
+      }else if(tabSelected == "Participants"){
+        return (<LinkedParticipant></LinkedParticipant>)
+      }else if(tabSelected == "Create User"){
+        return (<CreateUser></CreateUser>)
+      }else if(tabSelected == "Users"){
+        return(<Users></Users>)
+      }
+  }
 
   return (
 <>
@@ -83,7 +109,7 @@ export default function Dashboard() {
     </div>
   </nav>
   <Sidebar onDataUpdate={handleChildData}></Sidebar>
-  <ParticipantInfo></ParticipantInfo>
+  {showComponent(selectedSideTab)}
 </>
   );
 }
