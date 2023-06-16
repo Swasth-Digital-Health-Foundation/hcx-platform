@@ -22,7 +22,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
           repository: ${{ github.event.inputs.repo }}
           ref: ${{ github.event.inputs.branch }}
 
@@ -62,7 +62,9 @@ jobs:
         with:
           context: ./hcx-scheduler-jobs
           push: true
-          tags: swasth2021/hcx-scheduler-jobs:${{ env.IMAGE_TAG }}_${{ github.run_number }}
+          tags: |
+            swasth2021/hcx-scheduler-jobs:${{ env.IMAGE_TAG }}_${{ github.run_number }}
+            swasth2021/hcx-scheduler-jobs
           labels: hcx-scheduler-jobs image
 
       - name: Configure AWS CLI
