@@ -1,7 +1,6 @@
 name: HCX Platform - Build
 
-on:
-  workflow_dispatch
+on: workflow_dispatch
 
 #    tags:
 #      - *
@@ -13,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
 
       - name: Set up JDK 11
         uses: actions/setup-java@v1
@@ -54,7 +53,9 @@ jobs:
         with:
           context: ./api-gateway
           push: true
-          tags: swasth2021/api-gateway:${{ env.IMAGE_TAG }}_${{ github.run_number }}
+          tags: |
+            swasth2021/api-gateway:${{ env.IMAGE_TAG }}_${{ github.run_number }}
+            swasth2021/api-gateway
           labels: api-gateway image
 
       - name: Build and push Docker image for HCX-APIs
@@ -62,7 +63,9 @@ jobs:
         with:
           context: ./hcx-apis
           push: true
-          tags: swasth2021/hcx-api:${{ env.IMAGE_TAG }}_${{ github.run_number }}
+          tags: |
+            swasth2021/hcx-api:${{ env.IMAGE_TAG }}_${{ github.run_number }}
+            swasth2021/hcx-api
           labels: hcx-api image
 
       - name: Build and push Docker image for HCX-Onboard
@@ -70,7 +73,9 @@ jobs:
         with:
           context: ./hcx-onboard
           push: true
-          tags: swasth2021/hcx-onboard:${{ env.IMAGE_TAG }}_${{ github.run_number }}
+          tags: |
+            swasth2021/hcx-onboard:${{ env.IMAGE_TAG }}_${{ github.run_number }}
+            swasth2021/hcx-onboard
           labels: hcx-onboard image
 
       - name: Build and push Docker image for HCX Scheduler Jobs
@@ -78,7 +83,9 @@ jobs:
         with:
           context: ./hcx-scheduler-jobs
           push: true
-          tags: swasth2021/hcx-scheduler-jobs:${{ env.IMAGE_TAG }}_${{ github.run_number }}
+          tags: |
+            swasth2021/hcx-scheduler-jobs:${{ env.IMAGE_TAG }}_${{ github.run_number }}
+            swasth2021/hcx-scheduler-jobs
           labels: hcx-scheduler-jobs image
 
       - name: Build and push Docker image for HCX Pipeline Jobs
@@ -86,17 +93,7 @@ jobs:
         with:
           context: ./hcx-pipeline-jobs/jobs-distribution
           push: true
-          tags: swasth2021/hcx-pipeline-jobs:${{ env.IMAGE_TAG }}_${{ github.run_number }}
+          tags: |
+            swasth2021/hcx-pipeline-jobs:${{ env.IMAGE_TAG }}_${{ github.run_number }}
+            swasth2021/hcx-pipeline-jobs
           labels: hcx-pipeline-jobs image
-
-      - name: Configure AWS CLI
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-south-1
-
-      - name: Build and push Docker image for HCX Scheduler Job to S3 bucket
-        run: |
-          echo ${{ env.IMAGE_TAG }}_${{ github.run_number }} >> /tmp/tag.txt
-          aws s3 cp /tmp/tag.txt s3://build-tags/tag.txt
