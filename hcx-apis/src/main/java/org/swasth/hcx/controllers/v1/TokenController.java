@@ -34,7 +34,7 @@ public class TokenController extends BaseController {
     public ResponseEntity<Object> participantToken(@RequestBody MultiValueMap<String, String> requestBody){
         try{
              Map<String,Object> response = tokenService.getToken(requestBody,"src/main/resources/participant_realm.der",participantRealmUrl);
-             return ResponseEntity.ok(response);
+             return tokenService.getSuccessResponse(response);
         } catch (Exception e){
              return exceptionHandler(new Response(),e);
         }
@@ -44,7 +44,7 @@ public class TokenController extends BaseController {
     public ResponseEntity<Object> userToken(@RequestBody MultiValueMap<String, String> requestBody){
         try{
             Map<String,Object> response = tokenService.getToken(requestBody,"src/main/resources/user_realm.der",userRealmUrl);
-            return ResponseEntity.ok(response);
+            return tokenService.getSuccessResponse(response);
         } catch (Exception e){
             return exceptionHandler(new Response(),e);
         }
