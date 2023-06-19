@@ -54,7 +54,7 @@ public class UserController extends BaseController {
         }
     }
 
-    @GetMapping(USER_READ)
+
     public ResponseEntity<Object> read(@PathVariable("userId") String userId) {
         try {
             logger.info("Reading user :: user id: {}", userId);

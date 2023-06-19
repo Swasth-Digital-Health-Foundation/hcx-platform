@@ -32,7 +32,6 @@ rbac:
       - /v0.8/audit/notification/search
       - /v0.8/participant/search
       - /v0.8/participant/update
-      - /v0.8/participant/read/**
       - /v0.8/notification/subscribe
       - /v0.8/notification/unsubscribe
       - /v0.8/notification/subscription/list
@@ -41,7 +40,6 @@ rbac:
       - /v0.8/notification/subscription/update
       - /v0.8/notification/on_subscribe
       - /v0.8/user/create
-      - /v0.8/user/read
       - /v0.8/user/search
       - /v0.8/user/delete
       - /v0.8/participant/user/add
@@ -82,7 +80,6 @@ rbac:
       - /v0.8/audit/notification/search
       - /v0.8/participant/search
       - /v0.8/participant/update
-      - /v0.8/participant/read/**
       - /v0.8/notification/subscribe
       - /v0.8/notification/unsubscribe
       - /v0.8/notification/subscription/list
@@ -91,7 +88,6 @@ rbac:
       - /v0.8/notification/subscription/update
       - /v0.8/notification/on_subscribe
       - /v0.8/user/create
-      - /v0.8/user/read
       - /v0.8/user/search
       - /v0.8/user/delete
       - /v0.8/participant/user/add
@@ -133,9 +129,7 @@ rbac:
       - /v0.8/audit/notification/search
       - /v0.8/participant/search
       - /v0.8/participant/update
-      - /v0.8/participant/read/**
       - /v0.8/user/create
-      - /v0.8/user/read
       - /v0.8/user/search
       - /v0.8/user/delete
       - /v0.8/participant/user/add
@@ -156,9 +150,7 @@ rbac:
       - /v0.8/audit/notification/search
       - /v0.8/participant/search
       - /v0.8/participant/update
-      - /v0.8/participant/read/**
       - /v0.8/user/create
-      - /v0.8/user/read
       - /v0.8/user/search
       - /v0.8/user/delete
       - /v0.8/participant/user/add
@@ -182,9 +174,7 @@ rbac:
       - /v0.8/audit/notification/search
       - /v0.8/participant/search
       - /v0.8/participant/update
-      - /v0.8/participant/read/**
       - /v0.8/user/create
-      - /v0.8/user/read
       - /v0.8/user/search
       - /v0.8/user/delete
       - /v0.8/participant/user/add
@@ -210,9 +200,7 @@ rbac:
       - /v0.8/audit/notification/search
       - /v0.8/participant/search
       - /v0.8/participant/update
-      - /v0.8/participant/read/**
       - /v0.8/user/create
-      - /v0.8/user/read
       - /v0.8/user/search
       - /v0.8/user/delete
       - /v0.8/participant/user/add
@@ -244,9 +232,7 @@ rbac:
       - /v0.8/audit/notification/search
       - /v0.8/participant/search
       - /v0.8/participant/update
-      - /v0.8/participant/read/**
       - /v0.8/user/create
-      - /v0.8/user/read
       - /v0.8/user/search
       - /v0.8/user/delete
       - /v0.8/participant/user/add
