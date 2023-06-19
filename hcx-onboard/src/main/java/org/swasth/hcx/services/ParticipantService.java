@@ -226,7 +226,7 @@ public class ParticipantService extends BaseController {
                 participant.get(PRIMARY_EMAIL), participant.get(PRIMARY_MOBILE), System.currentTimeMillis(), System.currentTimeMillis(), System.currentTimeMillis(), false, false, PENDING, 0);
         postgreSQLClient.execute(query);
         if(ONBOARD_FOR_PROVIDER.contains(request.getType())){
-           List<String> onboardValidations = getConfig(request.getVerifierCode(),ONBOARD_VALIDATIONS);
+           List<String> onboardValidations = getConfig(request.getVerifierCode(),ONBOARD_VALIDATIONS_PROPERTIES);
            updateConfig(participantCode,onboardValidations);
         }
         participant.put(USER_ID, userId);
@@ -320,7 +320,7 @@ public class ParticipantService extends BaseController {
             String jwtToken = (String) requestBody.get(JWT_TOKEN);
             Map<String, Object> jwtPayload = JSONUtils.decodeBase64String(jwtToken.split("\\.")[1], Map.class);
             participantCode = (String) jwtPayload.get(PARTICIPANT_CODE);
-            OnboardValidations validations = new OnboardValidations(getConfig(participantCode,VALIDATIONS));
+            OnboardValidations validations = new OnboardValidations(getConfig(participantCode,PARTICIPANT_VALIDATIONS));
             boolean emailEnabled = validations.isEmailEnabled();
             boolean phoneEnabled = validations.isPhoneEnabled();
             name =  (String) jwtPayload.get(PARTICIPANT_NAME);
@@ -433,7 +433,7 @@ public class ParticipantService extends BaseController {
         Map<String, Object> payload = JSONUtils.decodeBase64String(jwtToken.split("\\.")[1], Map.class);
         String email = (String) payload.get("email");
         Map<String, Object> participant = (Map<String, Object>) requestBody.get(PARTICIPANT);
-        OnboardValidations validations = new OnboardValidations(getConfig((String) participant.get(PARTICIPANT_CODE),VALIDATIONS));
+        OnboardValidations validations = new OnboardValidations(getConfig((String) participant.get(PARTICIPANT_CODE),PARTICIPANT_VALIDATIONS));
         boolean emailEnabled = validations.isEmailEnabled();
         boolean phoneEnabled = validations.isPhoneEnabled();
         Map<String, String> headersMap = new HashMap<>();
@@ -460,8 +460,8 @@ public class ParticipantService extends BaseController {
         if (commStatus.equals(SUCCESSFUL) && identityStatus.equals(ACCEPTED)) {
             participant.put(REGISTRY_STATUS, ACTIVE);
         }
-        if(participant.containsKey(ONBOARD_VALIDATIONS)) {
-         participant.remove(ONBOARD_VALIDATIONS);
+        if(participant.containsKey(ONBOARD_VALIDATIONS_PROPERTIES)) {
+         participant.remove(ONBOARD_VALIDATIONS_PROPERTIES);
         }
         Map<String, Object> participantDetails = getParticipant(PARTICIPANT_CODE, (String) participant.get(PARTICIPANT_CODE));
         HttpResponse<String> httpResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_UPDATE, JSONUtils.serialize(participant), headersMap);
@@ -497,8 +497,8 @@ public class ParticipantService extends BaseController {
     private void setOnboardValidations(Map<String, Object> participant, List<String> roles, String participantCode) throws Exception {
         List<String> onboardValidations;
         if (roles.contains(PAYOR)) {
-            if (participant.containsKey(ONBOARD_VALIDATIONS)) {
-                onboardValidations = (List<String>) participant.get(ONBOARD_VALIDATIONS);
+            if (participant.containsKey(ONBOARD_VALIDATIONS_PROPERTIES)) {
+                onboardValidations = (List<String>) participant.get(ONBOARD_VALIDATIONS_PROPERTIES);
                 String query = String.format("UPDATE %s SET onboard_validations_properties = ARRAY %s WHERE participant_code='%s'",
                         onboardVerificationTable, Collections.singletonList(onboardValidations.stream().collect(Collectors.joining("','", "'", "'"))), participantCode);
                 postgreSQLClient.execute(query);
@@ -522,7 +522,7 @@ public class ParticipantService extends BaseController {
         return onboardValidations;
     }
     private void updateConfig(String participantCode,List<String> onboardValidations) throws Exception {
-        String updateQuery = String.format("UPDATE %s SET validations= ARRAY %s WHERE participant_code='%s'",onboardVerificationTable,Collections.singletonList(onboardValidations.stream().collect(Collectors.joining("','", "'", "'"))),participantCode);
+        String updateQuery = String.format("UPDATE %s SET participant_validations= ARRAY %s WHERE participant_code='%s'",onboardVerificationTable,Collections.singletonList(onboardValidations.stream().collect(Collectors.joining("','", "'", "'"))),participantCode);
         postgreSQLClient.execute(updateQuery);
     }
 
@@ -861,7 +861,7 @@ public class ParticipantService extends BaseController {
         List<String> onboardValidations = new ArrayList<>();
         Map<String,Object> validationsMap = new HashMap<>();
         while (resultSet.next()) {
-            PgArray pgArray = (PgArray) resultSet.getArray(ONBOARD_VALIDATIONS);
+            PgArray pgArray = (PgArray) resultSet.getArray(ONBOARD_VALIDATIONS_PROPERTIES);
             if (pgArray != null) {
                 String[] array = (String[]) pgArray.getArray();
                 onboardValidations = Arrays.asList(array);
@@ -870,7 +870,7 @@ public class ParticipantService extends BaseController {
                 validationsMap.put(resultSet.getString(PARTICIPANT_CODE), onboardValidations);
             }
         }
-        filterDetails(validationsMap,participantsList,ONBOARD_VALIDATIONS);
+        filterDetails(validationsMap,participantsList,ONBOARD_VALIDATIONS_PROPERTIES);
     }
 
     private String getParticipantWithQuote(String participantList) {
