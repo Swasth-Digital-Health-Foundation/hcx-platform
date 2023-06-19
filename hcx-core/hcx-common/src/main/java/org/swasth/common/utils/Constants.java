@@ -77,9 +77,9 @@ public class Constants {
     public static final String PARTICIPANT_GENERATE_TOKEN = "/participant/auth/token/generate";
     public static final String  USER_GENERATE_TOKEN = "/user/auth/token/generate";
     public static final String USERS = "users";
-    public static final String ONBOARD_VALIDATIONS_PROPERTIES = "onboard_validations_properties";
+    public static final String ONBOARD_VALIDATION_PROPERTIES = "onboard_validation_properties";
     public static final String ONBOARDVALIDATIONS = "onboardvalidations";
-    public static final String PARTICIPANT_VALIDATIONS = "participant_validations";
+    public static final String PARTICIPANT_VALIDATION_PROPERTIES= "participant_validation_properties";
     public static final String PARTICIPANT_USER_ADD = "/participant/user/add";
     public static final String USERNAME = "username";
     public static final String PARTICIPANT_USER_REMOVE = "/participant/user/remove";

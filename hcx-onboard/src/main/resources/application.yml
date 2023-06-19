@@ -26,7 +26,8 @@ aws:
 
 onboard:
   success-url: ${onboarding_success_url:${hcx-url}/onboarding/success}
-  validations: ${onboard_validations:email,phone}
+  email: ${email_validation:activation}
+  phone: ${phone_validation:activation}
 
 
 email:
@@ -78,7 +79,7 @@ registry:
   hcx-code: ${registry_hcx_code:hcxgateway.swasth@swasth-hcx-dev}
 
 jwt-token:
-  private-key : ${hcx_private_key:test-private-key}
+  private-key : ${hcx_private_key:}
   expiry-time : ${expiry_time:86400000}
 
 keycloak:

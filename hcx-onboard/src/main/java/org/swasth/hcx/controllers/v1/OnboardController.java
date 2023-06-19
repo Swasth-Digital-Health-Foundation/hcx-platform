@@ -10,7 +10,7 @@ import org.swasth.common.dto.Response;
 import org.swasth.common.utils.Constants;
 import org.swasth.hcx.controllers.BaseController;
 import org.swasth.hcx.services.EmailService;
-import org.swasth.hcx.services.ParticipantService;
+import org.swasth.hcx.services.OnboardService;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,7 +20,7 @@ import static org.swasth.common.utils.Constants.*;
 
 @RestController()
 @RequestMapping(Constants.VERSION_PREFIX)
-public class ParticipantController extends BaseController {
+public class OnboardController extends BaseController {
 
     @Value("${email.failed-identity-sub}")
     private String failedIdentitySub;
@@ -28,7 +28,7 @@ public class ParticipantController extends BaseController {
     private EmailService emailService;
 
     @Autowired
-    private ParticipantService service;
+    private OnboardService service;
 
     @PostMapping(PARTICIPANT_VERIFY)
     public ResponseEntity<Object> verify(@RequestHeader HttpHeaders header, @RequestBody ArrayList<Map<String, Object>> body) throws Exception {
