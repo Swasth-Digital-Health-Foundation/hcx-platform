@@ -28,6 +28,7 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
 import static org.swasth.common.utils.Constants.*;
 
 
@@ -45,7 +46,7 @@ public class TokenService extends BaseRegistryService {
 
     @Value("${keycloak.participant-realm-url}")
     private String participantRealmUrl;
-    
+
     @Value("${registry.basePath}")
     private String registryUrl;
 
@@ -53,34 +54,40 @@ public class TokenService extends BaseRegistryService {
     private String registryUserPath;
     @Autowired
     private ParticipantService participantService;
-    
+
+    public Map<String, Object> getToken(MultiValueMap<String, String> requestBody, String filename, String realm) throws Exception {
+        AccessTokenResponse accessTokenResponse = generateToken(requestBody, realm);
+        String modifiedAccessToken = modifyToken(accessTokenResponse.getToken(), requestBody.getFirst("username"), filename);
+        Map<String, Object> response = getResponse(accessTokenResponse, modifiedAccessToken);
+        return response;
+    }
+
     public String modifyToken(String originalToken, String email, String keyFilePath) throws Exception {
         FileInputStream keyFile = new FileInputStream(keyFilePath);
-           byte[] privateKeyBytes = new byte[keyFile.available()];
-           keyFile.read(privateKeyBytes);
-           KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-           PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(privateKeyBytes);
-           RSAPrivateKey privateKey = (RSAPrivateKey) keyFactory.generatePrivate(keySpec);
-           JWSSigner signer = new RSASSASigner(privateKey);
-           SignedJWT parsedToken = SignedJWT.parse(originalToken);
-           JWTClaimsSet originalPayload = parsedToken.getJWTClaimsSet();
-           JWTClaimsSet.Builder modifiedPayloadBuilder = new JWTClaimsSet.Builder(originalPayload);
-           if (keyFilePath.contains("user_realm.der")) {
-               Map<String,Object> userDetails = getUser(email);
-               ArrayList<Map<String, Object>> tenantRolesList  = JSONUtils.convert(userDetails.getOrDefault(TENANT_ROLES, new ArrayList<>()), ArrayList.class);
-               Map<String,Object> realmAccess = (Map<String, Object>) modifiedPayloadBuilder.getClaims().get("realm_access");
-               realmAccess.put(TENANT_ROLES, tenantRolesList);
-               modifiedPayloadBuilder.claim("realm_access", realmAccess);
-               modifiedPayloadBuilder.claim(USER_ID, userDetails.get(USER_ID));
-           } else if (keyFilePath.contains("participant_realm.der")) {
-               modifiedPayloadBuilder.claim(PARTICIPANT_CODE, getParticipantCode((String) modifiedPayloadBuilder.getClaims().get(EMAIL)));
-           }
-           
-           JWTClaimsSet modifiedPayload = modifiedPayloadBuilder.build();
-           SignedJWT newToken = new SignedJWT(new JWSHeader.Builder(JWSAlgorithm.RS256).build(), modifiedPayload);
-           newToken.sign(signer);
-           return newToken.serialize();
-   }
+        byte[] privateKeyBytes = new byte[keyFile.available()];
+        keyFile.read(privateKeyBytes);
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(privateKeyBytes);
+        RSAPrivateKey privateKey = (RSAPrivateKey) keyFactory.generatePrivate(keySpec);
+        JWSSigner signer = new RSASSASigner(privateKey);
+        SignedJWT parsedToken = SignedJWT.parse(originalToken);
+        JWTClaimsSet originalPayload = parsedToken.getJWTClaimsSet();
+        JWTClaimsSet.Builder modifiedPayloadBuilder = new JWTClaimsSet.Builder(originalPayload);
+        if (keyFilePath.contains("user_realm.der")) {
+            Map<String, Object> userDetails = getUser(email);
+            ArrayList<Map<String, Object>> tenantRolesList = JSONUtils.convert(userDetails.getOrDefault(TENANT_ROLES, new ArrayList<>()), ArrayList.class);
+            Map<String, Object> realmAccess = (Map<String, Object>) modifiedPayloadBuilder.getClaims().get("realm_access");
+            realmAccess.put(TENANT_ROLES, tenantRolesList);
+            modifiedPayloadBuilder.claim("realm_access", realmAccess);
+            modifiedPayloadBuilder.claim(USER_ID, userDetails.get(USER_ID));
+        } else if (keyFilePath.contains("participant_realm.der")) {
+            modifiedPayloadBuilder.claim(PARTICIPANT_CODE, getParticipantCode((String) modifiedPayloadBuilder.getClaims().get(EMAIL)));
+        }
+        JWTClaimsSet modifiedPayload = modifiedPayloadBuilder.build();
+        SignedJWT newToken = new SignedJWT(new JWSHeader.Builder(JWSAlgorithm.RS256).build(), modifiedPayload);
+        newToken.sign(signer);
+        return newToken.serialize();
+    }
 
     public AccessTokenResponse generateToken(MultiValueMap<String, String> requestBody, String realm) {
         RestTemplate restTemplate = new RestTemplate();
@@ -95,9 +102,9 @@ public class TokenService extends BaseRegistryService {
         return restTemplate.postForEntity(realm, request, AccessTokenResponse.class).getBody();
     }
 
-    public Map<String, Object> getResponse(AccessTokenResponse response,String accessToken) {
+    public Map<String, Object> getResponse(AccessTokenResponse response, String accessToken) {
         Map<String, Object> keycloakMap = new HashMap<>();
-        keycloakMap.put("access_token",accessToken);
+        keycloakMap.put("access_token", accessToken);
         keycloakMap.put("expires_in", response.getExpiresIn());
         keycloakMap.put("refresh_expires_in", response.getRefreshExpiresIn());
         keycloakMap.put("refresh_token", response.getRefreshToken());
@@ -106,13 +113,6 @@ public class TokenService extends BaseRegistryService {
         keycloakMap.put("session_state", response.getSessionState());
         keycloakMap.put("scope", response.getScope());
         return keycloakMap;
-    }
-
-    public Map<String,Object> getToken(MultiValueMap<String, String> requestBody, String filename) throws Exception {
-        AccessTokenResponse accessTokenResponse = generateToken(requestBody,participantRealmUrl);
-        String modifiedAccessToken = modifyToken(accessTokenResponse.getToken(),requestBody.getFirst("username"), filename);
-        Map<String,Object> response = getResponse(accessTokenResponse,modifiedAccessToken);
-        return response;
     }
 
     public String getParticipantCode(String emailId) throws Exception {
@@ -125,6 +125,12 @@ public class TokenService extends BaseRegistryService {
         return (String) userDetails.get(PARTICIPANT_CODE);
     }
 
+    public Map<String, Object> getUser(String emailId) throws Exception {
+        RegistryResponse registryResponse = registrySearch(JSONUtils.deserialize(getRequestBody(EMAIL, emailId), Map.class), registryUserPath, USER);
+        Map<String, Object> userDetails = (Map<String, Object>) registryResponse.getUsers().get(0);
+        return userDetails;
+    }
+
     public String getRequestBody(String key, String value) {
         return "{ \"filters\": { \"" + key + "\": { \"eq\": \"" + value + "\" } } }";
     }
@@ -133,9 +139,4 @@ public class TokenService extends BaseRegistryService {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    public Map<String, Object> getUser(String emailId) throws Exception {
-        RegistryResponse registryResponse = registrySearch(JSONUtils.deserialize(getRequestBody(EMAIL, emailId),Map.class),registryUserPath,USER);
-        Map<String,Object> userDetails = (Map<String, Object>) registryResponse.getUsers().get(0);
-        return userDetails;
-    }
 }
