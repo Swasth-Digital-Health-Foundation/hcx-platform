@@ -89,7 +89,6 @@ public class ParticipantController extends BaseController {
         }
     }
 
-    @GetMapping(PARTICIPANT_READ)
     public ResponseEntity<Object> read(@PathVariable("participantCode") String code) {
         try {
             logger.info("Reading participant :: participant code: {}", code);
