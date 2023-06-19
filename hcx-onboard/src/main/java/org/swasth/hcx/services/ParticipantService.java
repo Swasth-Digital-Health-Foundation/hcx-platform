@@ -618,6 +618,9 @@ public class ParticipantService extends BaseController {
         String role = (String) requestBody.getOrDefault(ROLE, "");
         String code = (String) requestBody.getOrDefault(PARTICIPANT_CODE, "");
         String invitedBy = (String) requestBody.getOrDefault(INVITED_BY, "");
+        if (isUserExistsInOrg(email, role, code)) {
+            throw new ClientException("User with " + role + " is already exist in organisation");
+        }
         String token = generateInviteToken(code, email, role, invitedBy);
         URL url = new URL(String.format("%s%s?jwt_token=%s",hcxURL,userInviteEndpoint,token));
         Map<String,Object> participant = getParticipant(PARTICIPANT_CODE, code);
@@ -657,15 +660,12 @@ public class ParticipantService extends BaseController {
         if (!isUserExists){
             user.setUserId(createUser(headers, user));
         }
-        boolean isUserExistsInOrg = isUserExistsInOrg(user, token.getParticipantCode());
-        if (!isUserExistsInOrg) {
-            addUser(headers, getAddUserRequestBody(user.getUserId(), token.getParticipantCode(), token.getRole()));
-        }
+        addUser(headers, getAddUserRequestBody(user.getUserId(), token.getParticipantCode(), token.getRole()));
         updateInviteStatus(user.getEmail(), "accepted");
-        if (!isUserExists){
-           emailService.sendMail(user.getEmail(), Arrays.asList(token.getInvitedBy()), userInviteAcceptSub, userInviteAcceptTemplate(user.getUserId(), (String) participantDetails.get(PARTICIPANT_NAME)));
-        } else if (!isUserExistsInOrg) {
+        if (isUserExists){
             emailService.sendMail(user.getEmail(), Arrays.asList(token.getInvitedBy()), userInviteAcceptSub, existingUserInviteAcceptTemplate((String) participantDetails.get(PARTICIPANT_NAME)));
+        } else {
+            emailService.sendMail(user.getEmail(), Arrays.asList(token.getInvitedBy()), userInviteAcceptSub, userInviteAcceptTemplate(user.getUserId(), (String) participantDetails.get(PARTICIPANT_NAME)));
         }
     }
 
@@ -689,8 +689,8 @@ public class ParticipantService extends BaseController {
         return JSONUtils.serialize(body);
     }
 
-    private boolean isUserExistsInOrg(User user, String participantCode) throws Exception{
-        String body = "{ \"filters\": { \"email\": { \"eq\": \"" + user.getEmail() + "\" }, \"tenant_roles.participant_code\": { \"eq\": \"" + participantCode + "\" }, \"tenant_roles.role\": { \"eq\": \"" + user.getTenantRoles().get(0).get(ROLE) + "\" } } }";
+    private boolean isUserExistsInOrg(String userEmail, String userRole, String participantCode) throws Exception{
+        String body = "{ \"filters\": { \"email\": { \"eq\": \"" + userEmail + "\" }, \"tenant_roles.participant_code\": { \"eq\": \"" + participantCode + "\" }, \"tenant_roles.role\": { \"eq\": \"" + userRole + "\" } } }";
         return !userSearch(body).isEmpty();   
     }
 
