@@ -27,7 +27,9 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.swasth.common.utils.Constants.*;
 
@@ -58,11 +60,10 @@ public class TokenService extends BaseRegistryService {
     public Map<String, Object> getToken(MultiValueMap<String, String> requestBody, String filename, String realm) throws Exception {
         AccessTokenResponse accessTokenResponse = generateToken(requestBody, realm);
         String modifiedAccessToken = modifyToken(accessTokenResponse.getToken(), requestBody.getFirst("username"), filename);
-        Map<String, Object> response = getResponse(accessTokenResponse, modifiedAccessToken);
-        return response;
+        return getResponse(accessTokenResponse, modifiedAccessToken);
     }
 
-    public String modifyToken(String originalToken, String email, String keyFilePath) throws Exception {
+    private String modifyToken(String originalToken, String email, String keyFilePath) throws Exception {
         FileInputStream keyFile = new FileInputStream(keyFilePath);
         byte[] privateKeyBytes = new byte[keyFile.available()];
         keyFile.read(privateKeyBytes);
@@ -75,9 +76,8 @@ public class TokenService extends BaseRegistryService {
         JWTClaimsSet.Builder modifiedPayloadBuilder = new JWTClaimsSet.Builder(originalPayload);
         if (keyFilePath.contains("user_realm.der")) {
             Map<String, Object> userDetails = getUser(email);
-            ArrayList<Map<String, Object>> tenantRolesList = JSONUtils.convert(userDetails.getOrDefault(TENANT_ROLES, new ArrayList<>()), ArrayList.class);
             Map<String, Object> realmAccess = (Map<String, Object>) modifiedPayloadBuilder.getClaims().get("realm_access");
-            realmAccess.put(TENANT_ROLES, tenantRolesList);
+            realmAccess.put(TENANT_ROLES, userDetails.getOrDefault(TENANT_ROLES,new ArrayList<>()));
             modifiedPayloadBuilder.claim("realm_access", realmAccess);
             modifiedPayloadBuilder.claim(USER_ID, userDetails.get(USER_ID));
         } else if (keyFilePath.contains("participant_realm.der")) {
@@ -89,7 +89,7 @@ public class TokenService extends BaseRegistryService {
         return newToken.serialize();
     }
 
-    public AccessTokenResponse generateToken(MultiValueMap<String, String> requestBody, String realm) {
+    private AccessTokenResponse generateToken(MultiValueMap<String, String> requestBody, String realm) {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -102,7 +102,7 @@ public class TokenService extends BaseRegistryService {
         return restTemplate.postForEntity(realm, request, AccessTokenResponse.class).getBody();
     }
 
-    public Map<String, Object> getResponse(AccessTokenResponse response, String accessToken) {
+    private Map<String, Object> getResponse(AccessTokenResponse response, String accessToken) {
         Map<String, Object> keycloakMap = new HashMap<>();
         keycloakMap.put("access_token", accessToken);
         keycloakMap.put("expires_in", response.getExpiresIn());
@@ -115,7 +115,7 @@ public class TokenService extends BaseRegistryService {
         return keycloakMap;
     }
 
-    public String getParticipantCode(String emailId) throws Exception {
+    private String getParticipantCode(String emailId) throws Exception {
         ResponseEntity<Object> searchResponse = getSuccessResponse(participantService.search(JSONUtils.deserialize(getRequestBody(PRIMARY_EMAIL, emailId), Map.class)));
         RegistryResponse searchResp = (RegistryResponse) searchResponse.getBody();
         if (searchResp.getParticipants().isEmpty()) {
@@ -125,13 +125,23 @@ public class TokenService extends BaseRegistryService {
         return (String) userDetails.get(PARTICIPANT_CODE);
     }
 
-    public Map<String, Object> getUser(String emailId) throws Exception {
+    private Map<String, Object> getUser(String emailId) throws Exception {
         RegistryResponse registryResponse = registrySearch(JSONUtils.deserialize(getRequestBody(EMAIL, emailId), Map.class), registryUserPath, USER);
         Map<String, Object> userDetails = (Map<String, Object>) registryResponse.getUsers().get(0);
-        return userDetails;
+        List<Map<String, Object>> tenantRolesList = (List<Map<String, Object>>) userDetails.getOrDefault(TENANT_ROLES, new ArrayList<>());
+        List<Map<String, Object>> outputList = tenantRolesList.stream().map(tenant -> {
+                    Map<String, Object> output = new HashMap<>();
+                    output.put(PARTICIPANT_CODE, tenant.getOrDefault(PARTICIPANT_CODE, ""));
+                    output.put(ROLE, tenant.getOrDefault(ROLE, ""));
+                    return output;
+                }).collect(Collectors.toList());
+        Map<String,Object> response = new HashMap<>();
+        response.put(USER_ID, userDetails.getOrDefault(USER_ID,""));
+        response.put(TENANT_ROLES,outputList);
+        return response;
     }
 
-    public String getRequestBody(String key, String value) {
+    private String getRequestBody(String key, String value) {
         return "{ \"filters\": { \"" + key + "\": { \"eq\": \"" + value + "\" } } }";
     }
 

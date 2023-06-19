@@ -1,6 +1,5 @@
 package org.swasth.hcx.controllers.v1;
 
-import org.keycloak.representations.AccessTokenResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
