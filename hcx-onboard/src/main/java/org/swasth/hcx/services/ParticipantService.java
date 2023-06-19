@@ -499,7 +499,7 @@ public class ParticipantService extends BaseController {
         if (roles.contains(PAYOR)) {
             if (participant.containsKey(ONBOARD_VALIDATIONS)) {
                 onboardValidations = (List<String>) participant.get(ONBOARD_VALIDATIONS);
-                String query = String.format("UPDATE %s SET onboard_validations = ARRAY %s WHERE participant_code='%s'",
+                String query = String.format("UPDATE %s SET onboard_validations_properties = ARRAY %s WHERE participant_code='%s'",
                         onboardVerificationTable, Collections.singletonList(onboardValidations.stream().collect(Collectors.joining("','", "'", "'"))), participantCode);
                 postgreSQLClient.execute(query);
             }
