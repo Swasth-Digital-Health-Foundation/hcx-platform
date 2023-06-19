@@ -440,7 +440,7 @@ public class OnboardService extends BaseController {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put(AUTHORIZATION, "Bearer " + jwtToken);
         List<String> roles = (List<String>) ((Map<String, Object>) payload.get("realm_access")).get(ROLES);
-        setOnboardValidations(participant, roles, (String) participant.get(PARTICIPANT_CODE));
+        setOnboardValidations(participant, roles);
         String otpQuery = String.format("SELECT * FROM %s WHERE primary_email ILIKE '%s'", onboardVerificationTable, email);
         ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(otpQuery);
         if (resultSet.next()) {
@@ -495,13 +495,13 @@ public class OnboardService extends BaseController {
         }
     }
 
-    private void setOnboardValidations(Map<String, Object> participant, List<String> roles, String participantCode) throws Exception {
+    private void setOnboardValidations(Map<String, Object> participant, List<String> roles) throws Exception {
         if (roles.contains(PAYOR)) {
             if (participant.containsKey(ONBOARD_VALIDATION_PROPERTIES)) {
                 Gson gson = new Gson();
                 String onboardValidationsJson = gson.toJson(participant.getOrDefault(ONBOARD_VALIDATION_PROPERTIES,new HashMap<>()));
                 String updateQuery = String.format("UPDATE %s SET onboard_validation_properties = '%s' WHERE participant_code = '%s'",
-                        onboardVerificationTable, onboardValidationsJson, participantCode);
+                        onboardVerificationTable, onboardValidationsJson, participant.get(PARTICIPANT_CODE));
                 postgreSQLClient.execute(updateQuery);
             }
         }
@@ -610,7 +610,7 @@ public class OnboardService extends BaseController {
             addCommunicationStatus(participantList);
         if (fields != null && fields.toLowerCase().contains(MOCK_PARTICIPANT))
             getMockParticipant(participantList, headers);
-        if (fields != null && fields.toLowerCase().contains(ONBOARDVALIDATIONS))
+        if (fields != null && fields.toLowerCase().contains(ONBOARD_VALIDATION_PROPERTIES))
             getOnboardValidations(participantList);
         return new ResponseEntity<>(new RegistryResponse(participantList, ORGANISATION), HttpStatus.OK);
     }
@@ -863,13 +863,12 @@ public class OnboardService extends BaseController {
     private void getOnboardValidations(ArrayList<Map<String, Object>> participantsList) throws Exception {
         String selectQuery = String.format("SELECT * FROM %s WHERE participant_code IN (%s)", onboardVerificationTable, getParticipantCodeList(participantsList, PARTICIPANT_CODE));
         ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
-        List<String> onboardValidations = new ArrayList<>();
+        Map<String, Object> onboardValidations = new HashMap<>();
         Map<String, Object> validationsMap = new HashMap<>();
         while (resultSet.next()) {
-            PgArray pgArray = (PgArray) resultSet.getArray(ONBOARD_VALIDATION_PROPERTIES);
-            if (pgArray != null) {
-                String[] array = (String[]) pgArray.getArray();
-                onboardValidations = Arrays.asList(array);
+            String jsonData = resultSet.getString(ONBOARD_VALIDATION_PROPERTIES);
+            if (jsonData != null) {
+                onboardValidations = JSONUtils.deserialize(jsonData, Map.class);
             }
             if (!onboardValidations.isEmpty()) {
                 validationsMap.put(resultSet.getString(PARTICIPANT_CODE), onboardValidations);
