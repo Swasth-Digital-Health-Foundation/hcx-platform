@@ -265,3 +265,5 @@ rbac:
       - /v0.8/participant/user/**
       - /v0.8/audit/participant/search
       - /v0.8/audit/user/search
+      - /v0.8/participant/search
+      - /v0.8/participant/update
