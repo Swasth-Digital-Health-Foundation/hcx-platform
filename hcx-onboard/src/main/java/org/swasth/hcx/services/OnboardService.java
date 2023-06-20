@@ -667,18 +667,25 @@ public class OnboardService extends BaseController {
         }
         updateInviteStatus(user.getEmail(), "accepted");
         if (isUserExists) {
-            emailService.sendMail(user.getEmail(), Arrays.asList(token.getInvitedBy()), userInviteAcceptSub, existingUserInviteAcceptTemplate((String) participantDetails.get(PARTICIPANT_NAME)));
+            emailService.sendMail(user.getEmail(), Arrays.asList(token.getInvitedBy()), userInviteAcceptSub, existingUserInviteAcceptTemplate((String) participantDetails.get(PARTICIPANT_NAME), user.getUsername()));
         } else {
-            emailService.sendMail(user.getEmail(), Arrays.asList(token.getInvitedBy()), userInviteAcceptSub, userInviteAcceptTemplate(user.getUserId(), (String) participantDetails.get(PARTICIPANT_NAME)));
+            emailService.sendMail(user.getEmail(), Arrays.asList(token.getInvitedBy()), userInviteAcceptSub, userInviteAcceptTemplate(user.getUserId(), (String) participantDetails.get(PARTICIPANT_NAME), user.getUsername()));
         }
     }
 
     private void addUser(HttpHeaders headers, String requestBody) throws Exception {
-        HttpResponse<String> response = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_USER_ADD, requestBody, new HashMap<>());
+        HttpResponse<String> response = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_USER_ADD, requestBody, getHeadersMap(headers));
         if (response.getStatus() != 200) {
-            ResponseError error = JSONUtils.deserialize(response.getBody(), ResponseError.class);
-            throw new ClientException(error.getCode(), error.getMessage());
+            Response resp = JSONUtils.deserialize(response.getBody(), Response.class);
+            throw new ClientException(resp.getError().getCode(), resp.getError().getMessage());
         }
+    }
+
+    private Map<String, String> getHeadersMap(HttpHeaders headers) {
+        Map<String, String> headersMap = new HashMap<>();
+        String token = Objects.requireNonNull(headers.get(AUTHORIZATION)).get(0);
+        headersMap.put(AUTHORIZATION, token);
+        return headersMap;
     }
 
     private String getAddUserRequestBody(String userId, String participantCode, String userRole) throws JsonProcessingException {
@@ -774,16 +781,18 @@ public class OnboardService extends BaseController {
         return freemarkerService.renderTemplate("user-create-reject.ftl", model);
     }
 
-    private String userInviteAcceptTemplate(String userId, String participantName) throws Exception {
+    private String userInviteAcceptTemplate(String userId, String participantName, String username) throws Exception {
         Map<String, Object> model = new HashMap<>();
+        model.put("USER_NAME", username);
         model.put("USER_ID", userId);
         model.put("PARTICIPANT_NAME", participantName);
         return freemarkerService.renderTemplate("user-invite-accept.ftl", model);
     }
 
-    private String existingUserInviteAcceptTemplate(String participantName) throws Exception {
+    private String existingUserInviteAcceptTemplate(String participantName, String username) throws Exception {
         Map<String, Object> model = new HashMap<>();
-        model.put(PARTICIPANT_NAME, participantName);
+        model.put("USER_NAME", username);
+        model.put("PARTICIPANT_NAME", participantName);
         return freemarkerService.renderTemplate("existing-user-invite-accept.ftl", model);
     }
 
