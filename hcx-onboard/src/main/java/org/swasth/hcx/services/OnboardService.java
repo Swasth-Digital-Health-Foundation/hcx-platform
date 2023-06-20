@@ -207,10 +207,7 @@ public class OnboardService extends BaseController {
                     throw new ClientException("Identity verification is rejected by the payer, Please reach out to them.");
             }
         }
-        Map<String, String> headersMap = new HashMap<>();
-        String token = Objects.requireNonNull(headers.get(AUTHORIZATION)).get(0);
-        headersMap.put(AUTHORIZATION, token);
-        HttpResponse<String> createResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_CREATE, JSONUtils.serialize(participant), headersMap);
+        HttpResponse<String> createResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_CREATE, JSONUtils.serialize(participant), getHeadersMap(headers));
         RegistryResponse pcptResponse = JSONUtils.deserialize(createResponse.getBody(), RegistryResponse.class);
         if (createResponse.getStatus() != 200) {
             throw new ClientException(pcptResponse.getError().getCode() == null ? ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS : pcptResponse.getError().getCode(), pcptResponse.getError().getMessage());
@@ -239,10 +236,7 @@ public class OnboardService extends BaseController {
 
     private String createUser(HttpHeaders headers, User user) throws Exception {
         logger.info("User Request Body: " + JSONUtils.serialize(user));
-        Map<String, String> headersMap = new HashMap<>();
-        String token = Objects.requireNonNull(headers.get(AUTHORIZATION)).get(0);
-        headersMap.put(AUTHORIZATION, token);
-        HttpResponse<String> createUser = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + USER_CREATE, JSONUtils.serialize(user), headersMap);
+        HttpResponse<String> createUser = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + USER_CREATE, JSONUtils.serialize(user), getHeadersMap(headers));
         RegistryResponse userResponse = JSONUtils.deserialize(createUser.getBody(), RegistryResponse.class);
         if (createUser.getStatus() != 200) {
             throw new ClientException(userResponse.getError().getCode() == null ? ErrorCodes.ERR_INVALID_USER_DETAILS : userResponse.getError().getCode(), userResponse.getError().getMessage());
