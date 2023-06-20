@@ -660,10 +660,11 @@ public class OnboardService extends BaseController {
         }
         User user = JSONUtils.deserialize(body.get("user"), User.class);
         boolean isUserExists = isUserExists(user);
-        if (!isUserExists) {
+        if (isUserExists){
+            addUser(headers, getAddUserRequestBody(user.getUserId(), token.getParticipantCode(), token.getRole()));
+        } else {
             user.setUserId(createUser(headers, user));
         }
-        addUser(headers, getAddUserRequestBody(user.getUserId(), token.getParticipantCode(), token.getRole()));
         updateInviteStatus(user.getEmail(), "accepted");
         if (isUserExists) {
             emailService.sendMail(user.getEmail(), Arrays.asList(token.getInvitedBy()), userInviteAcceptSub, existingUserInviteAcceptTemplate((String) participantDetails.get(PARTICIPANT_NAME)));
