@@ -1,8 +1,10 @@
 package org.swasth.hcx.services;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.Gson;
 import freemarker.template.TemplateException;
 import kong.unirest.HttpResponse;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.CharacterPredicates;
 import org.apache.commons.text.RandomStringGenerator;
@@ -10,7 +12,6 @@ import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
-import org.postgresql.jdbc.PgArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,8 +35,6 @@ import org.swasth.hcx.utils.CertificateUtil;
 import org.swasth.hcx.utils.SlugUtils;
 import org.swasth.postgresql.IDatabaseService;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.net.URL;
@@ -58,13 +57,14 @@ public class OnboardService extends BaseController {
 
     @Value("${email.linkSub}")
     private String linkSub;
-
     @Value("${email.verification-sub}")
     private String verificationSub;
     @Value("${phone.send-link-msg}")
     private String phoneSub;
     @Value("${phone.verification-msg}")
     private String phoneStatus;
+    @Value("${email.password-generate-sub}")
+    private String passwordGenerateSub;
     @Value("${hcx-url}")
     private String hcxURL;
 
@@ -289,8 +289,7 @@ public class OnboardService extends BaseController {
         String shortUrl = null;
         String longUrl = null;
         if (!phoneVerified) {
-            RandomStringGenerator randomStringGenerator = new RandomStringGenerator.Builder().withinRange('0', 'z').filteredBy(CharacterPredicates.LETTERS, CharacterPredicates.DIGITS).build();
-            shortUrl = hcxURL + "/api/url/" +randomStringGenerator.generate(10);
+            shortUrl = hcxURL + "/api/url/" + generateRandomPassword(10);
             longUrl = generateURL(requestBody, PHONE, (String) requestBody.get(PRIMARY_MOBILE)).toString();
             smsService.sendLink((String) requestBody.get(PRIMARY_MOBILE), phoneSub + "\r\n" + shortUrl);
         }
@@ -484,6 +483,7 @@ public class OnboardService extends BaseController {
                     emailService.sendMail(email, onboardingSuccessSub, pocSuccessTemplate((String) participant.get(PARTICIPANT_NAME)));
                 }
             }
+            generateAndSetPassword((String) participant.get(PARTICIPANT_CODE));
             Response response = new Response(PARTICIPANT_CODE, participant.get(PARTICIPANT_CODE));
             response.put(IDENTITY_VERIFICATION, identityStatus);
             response.put(COMMUNICATION_VERIFICATION, commStatus);
@@ -835,6 +835,14 @@ public class OnboardService extends BaseController {
         return freemarkerService.renderTemplate("verification-status.ftl", model);
     }
 
+    private String passwordGenerate(String participantName,String password,String email) throws Exception {
+        Map<String, Object> model = new HashMap<>();
+        model.put("PARTICIPANT_NAME", participantName);
+        model.put("USERNAME",email);
+        model.put("PASSWORD",password);
+        return freemarkerService.renderTemplate("password-generate.ftl", model);
+    }
+
     private void addSponsors(List<Map<String, Object>> participantsList) throws Exception {
         String selectQuery = String.format("SELECT * FROM %S WHERE applicant_email IN (%s)", onboardingVerifierTable, getParticipantCodeList(participantsList, PRIMARY_EMAIL));
         ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
@@ -953,16 +961,16 @@ public class OnboardService extends BaseController {
         mockParticipantDetails.put(PARTICIPANT_CODE, childParticipantCode);
         mockParticipantDetails.put(PRIMARY_EMAIL, childPrimaryEmail);
         mockParticipantDetails.put(PASSWORD, password);
-        setKeycloakPassword(childParticipantCode, password);
+        TimeUnit.SECONDS.sleep(3); // After creating participant, elasticsearch will retrieve data after one second hence added two seconds delay for search API.
+        Map<String,Object> registryDetails = getParticipant(PARTICIPANT_CODE,childParticipantCode);
+        setKeycloakPassword(childParticipantCode, password ,registryDetails);
         logger.info("created Mock participant for :: parent participant code  : " + parentParticipantCode + " :: child participant code  : " + childParticipantCode);
         return mockParticipantDetails;
     }
 
-    private void setKeycloakPassword(String childParticipantCode, String password) throws ClientException {
+    private void setKeycloakPassword(String participantCode, String password , Map<String,Object> registryDetails) throws ClientException {
         try {
-            TimeUnit.SECONDS.sleep(2); // After creating participant, elasticsearch will retrieve data after one second hence added two seconds delay for search API.
-            Map<String, Object> participantDetails = getParticipant(PARTICIPANT_CODE, childParticipantCode);
-            ArrayList<String> osOwner = (ArrayList<String>) participantDetails.get(OS_OWNER);
+            ArrayList<String> osOwner = (ArrayList<String>) registryDetails.get(OS_OWNER);
             Keycloak keycloak = Keycloak.getInstance(keycloakURL, keycloakMasterRealm, keycloakAdminUserName, keycloakAdminPassword, keycloackClientId);
             RealmResource realmResource = keycloak.realm(keycloackUserRealm);
             UserResource userResource = realmResource.users().get(osOwner.get(0));
@@ -971,7 +979,7 @@ public class OnboardService extends BaseController {
             passwordCred.setType(CredentialRepresentation.PASSWORD);
             passwordCred.setValue(password);
             userResource.resetPassword(passwordCred);
-            logger.info("The Keycloak password for the userID :" + osOwner.get(0) + " has been successfully updated");
+            logger.info("The Keycloak password for the os_owner :" + osOwner.get(0) + " has been successfully updated");
         } catch (Exception e) {
             throw new ClientException("Unable to set keycloack password : " + e.getMessage());
         }
@@ -1041,6 +1049,36 @@ public class OnboardService extends BaseController {
     private String convertMapJson(Map<String,Object> onboardValidations){
         Gson gson = new Gson();
         return gson.toJson(onboardValidations);
+    }
+
+    private String generateRandomPassword(int length){
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&*";
+        return RandomStringUtils.random(length, characters);
+    }
+
+    public ResponseEntity<Object> generateAndSetPassword(String participantCode) throws Exception {
+        String password = generateRandomPassword(24);
+        Map<String, Object> registryDetails = getParticipant(PARTICIPANT_CODE, participantCode);
+        setKeycloakPassword(participantCode, password, registryDetails);
+        emailService.sendMail((String) registryDetails.get(PRIMARY_EMAIL), passwordGenerateSub, passwordGenerate((String) registryDetails.get(PARTICIPANT_NAME),password,(String) registryDetails.get(PRIMARY_EMAIL)));
+        Response response = new Response();
+        response.setStatus(SUCCESSFUL);
+        return getSuccessResponse(response);
+    }
+
+    public void validateAdminRole(HttpHeaders headers, String participantCode) throws Exception {
+        String jwtToken = Objects.requireNonNull(headers.get(AUTHORIZATION)).get(0);
+        Map<String, Object> token = JSONUtils.decodeBase64String(jwtToken.split("\\.")[1], Map.class);
+        Map<String,Object> realmAccess = (Map<String, Object>) token.get("realm_access");
+        if(!realmAccess.containsKey(TENANT_ROLES)){
+            throw new ClientException("Token is not proper to generate password,provide a valid admin token");
+        }
+        List<Map<String, Object>> tenantRolesList = JSONUtils.convert(realmAccess.getOrDefault(TENANT_ROLES, new ArrayList<>()), ArrayList.class);
+        for (Map<String, Object> tenant : tenantRolesList) {
+            if (!tenant.get(ROLE).equals(ADMIN) || !tenant.get(PARTICIPANT_CODE).equals(participantCode)) {
+                throw new ClientException("Only user with admin role and part of the Organisation are able to generate the password");
+            }
+        }
     }
 
 }

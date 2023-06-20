@@ -103,7 +103,7 @@ public class OnboardController extends BaseController {
             service.userInvite(requestBody);
             return new ResponseEntity<>(new Response(), HttpStatus.OK);
         } catch (Exception e){
-            return exceptionHandler("",APPLICANT_SEARCH,new Response(),e);
+            return exceptionHandler("",ONBOARD_USER_INVITE,new Response(),e);
         }
     }
 
@@ -113,7 +113,7 @@ public class OnboardController extends BaseController {
             service.userInviteAccept(headers,requestBody);
             return new ResponseEntity<>(new Response(), HttpStatus.OK);
         } catch (Exception e){
-            return exceptionHandler("",APPLICANT_SEARCH,new Response(),e);
+            return exceptionHandler("",ONBOARD_USER_INVITE_ACCEPT,new Response(),e);
         }
     }
 
@@ -123,7 +123,18 @@ public class OnboardController extends BaseController {
             service.userInviteReject(requestBody);
             return new ResponseEntity<>(new Response(), HttpStatus.OK);
         } catch (Exception e){
-            return exceptionHandler("",APPLICANT_SEARCH,new Response(),e);
+            return exceptionHandler("",ONBOARD_USER_INVITE_REJECT,new Response(),e);
+        }
+    }
+
+    @PostMapping(ONBOARD_APPLICANT_PASSWORD_GENERATE)
+    public ResponseEntity<Object> generatePassword(@RequestBody Map<String, Object> requestBody,@RequestHeader HttpHeaders headers) throws Exception {
+        try {
+            String participantCode = (String) requestBody.get(PARTICIPANT_CODE);
+            service.validateAdminRole(headers,participantCode);
+            return service.generateAndSetPassword(participantCode);
+        } catch (Exception e) {
+            return exceptionHandler("", ONBOARD_APPLICANT_PASSWORD_GENERATE, new Response(), e);
         }
     }
 }
