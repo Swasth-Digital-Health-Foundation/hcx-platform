@@ -11,6 +11,7 @@ import { getParticipant } from "../../api/RegistryService";
 import { addParticipantDetails } from "../../reducers/participant_details_reducer";
 import { toast } from "react-toastify";
 import _ from "lodash";
+import { generateTokenUser } from "../../api/KeycloakService";
 
 export default function Login() {
   const dispatch = useDispatch()
@@ -31,8 +32,10 @@ export default function Login() {
     if (username == "" || password == ""){
       if(username == "") setUserError(true);
       if(password == "") setPassError(true);
+      
     }else{
-    login({username,password}).then((res) => {
+      console.log("i am here")
+      generateTokenUser(username,password).then((res) => {
         console.log("res", res);
         dispatch(addParticipantToken(res["access_token"]));
         getParticipant(userName).then((res :any) => {

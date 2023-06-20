@@ -24,12 +24,8 @@ export const userCreate = async (user_name, email, mobile, tenant_roles, created
 }
 
 export const serachUser = async (email) => {
-    var payload = { "filters": { "primary_email": { "contains":  email} } };
+    var payload = { "filters": { "email": { "contains":  email} } };
     return post("/user/search", payload);
-}
-
-export const readUser = async (email) => {
-    return get(`/user/read/${email}`);
 }
 
 export const userUpdate = async (request) => {

@@ -2,7 +2,7 @@ import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 
 export interface TokenInterface {
-  participantToken: String
+  participantToken: string
 }
 
 const initialState: TokenInterface = {
@@ -13,7 +13,7 @@ export const tokenReducer = createSlice({
   name: 'token',
   initialState,
   reducers: {
-    addParticipantToken: (state, action: PayloadAction<String>) => {
+    addParticipantToken: (state, action:PayloadAction<string>) => {
       // Redux Toolkit allows us to write "mutating" logic in reducers. It
       // doesn't actually mutate the state because it uses the Immer library,
       // which detects changes to a "draft state" and produces a brand new

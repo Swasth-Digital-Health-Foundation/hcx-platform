@@ -6,7 +6,7 @@ import { post } from "../../api/APIService";
 import * as _ from 'lodash';
 import { toast } from "react-toastify";
 import { getParticipant, getParticipantSearch } from "../../api/RegistryService";
-import { setPassword } from "../../api/KeycloakService";
+import { generateTokenUser, setPassword, setUserPassword } from "../../api/KeycloakService";
 import { useHistory } from "react-router-dom";
 import queryString from 'query-string';
 import { navigate } from "raviger";
@@ -18,10 +18,11 @@ import TermsOfUse from "../common/TermsOfUse";
 import { addAppData } from "../../reducers/app_data";
 import CreateUser from "../common/CreateUser";
 import { RootState } from "../../store";
+import { serachUser, userInvite } from "../../api/UserService";
 
 type Payor = {
   participant_code: string,
-  participant_name :string 
+  participant_name: string
 }
 
 export default function Register() {
@@ -51,190 +52,212 @@ export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [pass1, setPass1] = useState('');
   const [pass2, setPass2] = useState('');
+  const [pass1Error, setPass1Error] = useState(false);
+  const [pass2Error, setPass2Error] = useState(false);
   const [showLoader, setShowLoader] = useState(false);
-  const [checkBasic, setCheckBasic] =  useState(false);
-  const [checkVerify, setCheckVerify] =  useState(false);
-  const [checkResetPass, setCheckResetPass] =  useState(false);
+  const [checkBasic, setCheckBasic] = useState(false);
+  const [checkVerify, setCheckVerify] = useState(false);
+  const [checkResetPass, setCheckResetPass] = useState(false);
   const [showVerify, setShowVerify] = useState(false);
   const [isEnvStaging, setIsEnvStaging] = useState(true);
   const [emailError, setEmailError] = useState(false);
   const [phoneError, setPhoneError] = useState(false);
   const [orgError, setOrgError] = useState(false);
   const [applicantError, setApplicantError] = useState(false);
-  const [pass1Error, setPass1Error] = useState(false);
-  const [pass2Error, setPass2Error] = useState(false);
   const [showUserCreate, setShowUserCreate] = useState(false);
 
-  const appData:Object =useSelector((state: RootState) => state.appDataReducer.appData);
-  console.log("appData", appData);
+  const appData: Object = useSelector((state: RootState) => state.appDataReducer.appData);
+  const participantDetails : Object = useSelector((state: RootState) => state.participantDetailsReducer.participantDetails);
+  console.log("appData", appData, participantDetails);
 
 
   useEffect(() => {
-    const jwtToken = _.get(queryString.parse(window.location.search),"jwt_token");
-    console.log("env ",env);
-    if(env !== "staging"){
+    const jwtToken = _.get(queryString.parse(window.location.search), "jwt_token");
+    console.log("env ", env);
+    if (env !== "staging") {
       setIsEnvStaging(false);
     }
     setIsJWTPresent(jwtToken ? true : false);
 
 
     if (_.size(_.keys(jwtToken)) != 0) {
-        getParticipantDetails();
+      getParticipantDetails();
     }
 
     (async () => {
-        try {
-            const participants = await getParticipantSearch({}).then(response => response.data.participants || []);
-            const participantNames = participants.map((participant: { participant_name: any; }) => ({ value: participant.participant_name, ...participant }))
-            setPayorList(participantNames)
-            console.log("payor_list", participantNames);
-        } catch (error) {
-            setPayorList([])
-        }
+      try {
+        const participants = await getParticipantSearch({}).then(response => response.data.participants || []);
+        const participantNames = participants.map((participant: { participant_name: any; }) => ({ value: participant.participant_name, ...participant }))
+        setPayorList(participantNames)
+        console.log("payor_list", participantNames);
+      } catch (error) {
+        setPayorList([])
+      }
     })()
-}, []);
+  }, []);
 
-const [userDetials, setUserDetails] = useState([{"username":"","phone":"","email":"","role":""}])
+  const [userDetials, setUserDetails] = useState([{ "email": "", "role": "admin" }])
 
-const addAnotherRow = () => {
+  const addAnotherRow = () => {
     console.log("i came here", userDetials);
-    userDetials.push({"username":"","phone":"","email":"","role":""})
-    setUserDetails(userDetials.map((value,index) => {return value}));
-}
+    userDetials.push({ "email": "", "role": "" })
+    setUserDetails(userDetials.map((value, index) => { return value }));
+  }
+
+  const updateCreateUserData = (value: string, index: number, field: string) => {
+    const newUser = userDetials;
+    _.update(userDetials[index], field, function (n) { return value });
+    setUserDetails(userDetials.map((value, index) => { return value }));
+    console.log("user details", userDetials);
+  }
 
   const setShowTerms = (event: ChangeEvent<HTMLInputElement>) => {
-    console.log("event.target.value" , event.target.checked);
-    dispatch(addAppData({"showTerms":event.target.checked}));
+    console.log("event.target.value", event.target.checked);
+    dispatch(addAppData({ "showTerms": event.target.checked }));
+  }
+
+  const inviteUsers = () => {
+      userDetials.map((value,index) => {
+        console.log("values", value);
+        userInvite({"email":value.email,"participant_code":_.get(participantDetails,"participant_code"),"role":value.role, "invited_by":email})
+      });
+      toast.success("Users have been successfully invited");    
   }
   const resetPassword = () => {
-      console.log("we are here to set the password");
-      if(pass1 == '' && pass2 == ''){
-        setPass1Error(true);
-        setPass2Error(true);
-      }else{
+    console.log("we are here to set the password");
+    if (pass1 == '' && pass2 == '') {
+      setPass1Error(true);
+      setPass2Error(true);
+    } else {
       if (pass1 === pass2) {
         let osOwner;
         setCheckResetPass(true);
-        getParticipant(email).then((res :any) => {
-          console.log("we are in inside get par", res);
-           osOwner = res["data"]["participants"][0]["osOwner"];
-           dispatch(addParticipantDetails(res["data"]["participants"][0]));
-          setPassword(osOwner[0], pass1).then((async function () {
-            login({username : email,password : pass1}).then((res) => {
+
+        serachUser(email).then((res: any) => {
+          osOwner = res["data"]["users"][0]["osOwner"];
+          setUserPassword(osOwner[0], pass1).then((async function () {
+            generateTokenUser(email, pass1).then((res: any) => {
               dispatch(addParticipantToken(res["access_token"]));
             })
             //navigate("/onboarding/dashboard");
             setShowUserCreate(true);
-        })).catch(err => {
+          })).catch(err => {
             toast.error(_.get(err, 'response.data.error.message') || "Internal Server Error", {
-                position: toast.POSITION.TOP_CENTER
+              position: toast.POSITION.TOP_CENTER
             });
-        }).finally(() => {
+          }).finally(() => {
             setSending(false);
-        })
-        })
-    } else {
-        toast.error("Incorrect password", {
-            position: toast.POSITION.TOP_CENTER
+          })
         });
-    }}
+
+        getParticipant(email).then((res: any) => {
+          console.log("we are in inside get par", res);
+          osOwner = res["data"]["participants"][0]["osOwner"];
+          dispatch(addParticipantDetails(res["data"]["participants"][0]));
+        })
+      } else {
+        toast.error("Incorrect password", {
+          position: toast.POSITION.TOP_CENTER
+        });
+      }
+    }
   }
-  
+
 
   const stepper = () => {
     return (
-        <ol className="flex items-center w-full text-sm font-medium text-center text-gray-500 dark:text-gray-400 sm:text-base mb-4">
-              <li className="flex md:w-full items-center text-blue-600 dark:text-blue-500 sm:after:content-[''] after:w-full after:h-1 after:border-b after:border-gray-200 after:border-1 after:hidden sm:after:inline-block after:mx-1 xl:after:mx-3 dark:after:border-gray-700">
-                  <span className="flex items-center after:content-['/'] sm:after:hidden after:mx-2 after:text-gray-200 dark:after:text-gray-500">
-                      {checkBasic ? 
-                      <svg aria-hidden="true" className="w-4 h-4 mr-2 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-                      : <span className="mr-2">1</span> }
-                      Account <span className="hidden sm:inline-flex sm:ml-2">Info</span>
-                  </span>
-              </li>
-              {radioRole == "provider"  && showVerify ?
-              <li className="flex md:w-full items-center after:content-[''] after:w-full after:h-1 after:border-b after:border-gray-200 after:border-1 after:hidden sm:after:inline-block after:mx-6 xl:after:mx-3 dark:after:border-gray-700">
-                  <span className={"flex items-center after:content-['/'] sm:after:hidden after:mx-2 after:text-gray-200 dark:after:text-gray-500" + (checkVerify ? " text-blue-600": '')} >
-                      {checkVerify ? 
-                      <svg aria-hidden="true" className="w-4 h-4 mr-2 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-                      : <span className="mr-2">2</span> }
-                      Verify <span className="hidden sm:inline-flex sm:ml-2">Info</span>
-                  </span>
-              </li> : null }
-              <li className={"flex items-center" + (checkResetPass ? " text-blue-600": '')} >
-                    {checkResetPass ? 
-                      <svg aria-hidden="true" className="w-4 h-4 mr-2 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-                      : <span className="mr-2">{radioRole == "provider" && showVerify ? 3 : 2}</span> }
-                  Create<span className="hidden sm:inline-flex sm:ml-2">Password</span>
-              </li>
-          </ol>)
-      }
+      <ol className="flex items-center w-full text-sm font-medium text-center text-gray-500 dark:text-gray-400 sm:text-base mb-4">
+        <li className="flex md:w-full items-center text-blue-600 dark:text-blue-500 sm:after:content-[''] after:w-full after:h-1 after:border-b after:border-gray-200 after:border-1 after:hidden sm:after:inline-block after:mx-1 xl:after:mx-3 dark:after:border-gray-700">
+          <span className="flex items-center after:content-['/'] sm:after:hidden after:mx-2 after:text-gray-200 dark:after:text-gray-500">
+            {checkBasic ?
+              <svg aria-hidden="true" className="w-4 h-4 mr-2 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+              : <span className="mr-2">1</span>}
+            Account <span className="hidden sm:inline-flex sm:ml-2">Info</span>
+          </span>
+        </li>
+        {radioRole == "provider" && showVerify ?
+          <li className="flex md:w-full items-center after:content-[''] after:w-full after:h-1 after:border-b after:border-gray-200 after:border-1 after:hidden sm:after:inline-block after:mx-6 xl:after:mx-3 dark:after:border-gray-700">
+            <span className={"flex items-center after:content-['/'] sm:after:hidden after:mx-2 after:text-gray-200 dark:after:text-gray-500" + (checkVerify ? " text-blue-600" : '')} >
+              {checkVerify ?
+                <svg aria-hidden="true" className="w-4 h-4 mr-2 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                : <span className="mr-2">2</span>}
+              Verify <span className="hidden sm:inline-flex sm:ml-2">Info</span>
+            </span>
+          </li> : null}
+        <li className={"flex items-center" + (checkResetPass ? " text-blue-600" : '')} >
+          {checkResetPass ?
+            <svg aria-hidden="true" className="w-4 h-4 mr-2 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+            : <span className="mr-2">{radioRole == "provider" && showVerify ? 3 : 2}</span>}
+          Create<span className="hidden sm:inline-flex sm:ml-2">Password</span>
+        </li>
+      </ol>)
+  }
 
 
 
   const getParticipantDetails = () => {
     setSending(true)
     let payload;
-    if (applicantCode == "" || applicantCode == "1299"){
+    if (applicantCode == "" || applicantCode == "1299") {
       setApplicantError(true);
-    }else{
-
-    if (applicantCode && payor) {
-        payload = { "applicant_code": applicantCode, "verifier_code": payor.participant_code }
     } else {
-        payload = { "verification_token": _.get(queryString.parse(window.location.search),"jwt_token") }
-    }
-        post("/applicant/getinfo", JSON.stringify(payload)).then((data => {
-            let respBody = data.data;
 
-            const additionalFields = respBody.additionalVerification || [];
-            // if (additionalFields.length != 0) {
-            //     for (let i = 0; i < additionalFields.length; i++) {
-            //         setFields((fields) => [...fields, { id: fields.length + 1, name: additionalFields[i].name, label: additionalFields[i].label, pattenr: additionalFields[i].pattern }])
-            //     }
-            // }
-
-            //setDetails(_.get(respBody, 'applicant_name') || "", _.get(respBody, 'email') || "", _.get(respBody, 'mobile') || "")
-            setOrg(_.get(respBody, 'applicant_name') || "");
-            setEmail( _.get(respBody, 'email') || "");
-            setPhoneNumber(_.get(respBody, 'mobile') || "");
-            setFetchResponse(true);
-            setCheckBasic(true);
-            console.log("get info done");
-            setRadioOnboard('');
-        })).catch((err => {
-            console.error(err)
-            let errMsg = _.get(err, 'response.data.error.message')
-            if (typeof errMsg === 'string' && errMsg.includes('UnknownHostException')) {
-                //setFormErrors({ applicant_code: 'Payor system in unavailable, Please try later!' });
-            } else {
-                toast.error(errMsg || "Internal Server Error", {
-                    position: toast.POSITION.TOP_CENTER
-                });
-            }
-            setInvalidApplicantCode(true);
-            setFetchResponse(true);
-        })).finally(() => {
-            setSending(false)
-        })
+      if (applicantCode && payor) {
+        payload = { "applicant_code": applicantCode, "verifier_code": payor.participant_code }
+      } else {
+        payload = { "verification_token": _.get(queryString.parse(window.location.search), "jwt_token") }
       }
-}
+      post("/applicant/getinfo", JSON.stringify(payload)).then((data => {
+        let respBody = data.data;
 
+        const additionalFields = respBody.additionalVerification || [];
+        // if (additionalFields.length != 0) {
+        //     for (let i = 0; i < additionalFields.length; i++) {
+        //         setFields((fields) => [...fields, { id: fields.length + 1, name: additionalFields[i].name, label: additionalFields[i].label, pattenr: additionalFields[i].pattern }])
+        //     }
+        // }
 
-  
-
-
-
-const getPayor = (participantName: string) => {
-  const participant = payorList?.find(participant => participant.participant_name === participantName);
-  console.log("participant" , participant);
-  if (participant) {
-      setPayor(participant)
+        //setDetails(_.get(respBody, 'applicant_name') || "", _.get(respBody, 'email') || "", _.get(respBody, 'mobile') || "")
+        setOrg(_.get(respBody, 'applicant_name') || "");
+        setEmail(_.get(respBody, 'email') || "");
+        setPhoneNumber(_.get(respBody, 'mobile') || "");
+        setFetchResponse(true);
+        setCheckBasic(true);
+        console.log("get info done", respBody);
+        setRadioOnboard('');
+      })).catch((err => {
+        console.error(err)
+        let errMsg = _.get(err, 'response.data.error.message')
+        if (typeof errMsg === 'string' && errMsg.includes('UnknownHostException')) {
+          //setFormErrors({ applicant_code: 'Payor system in unavailable, Please try later!' });
+        } else {
+          toast.error(errMsg || "Internal Server Error", {
+            position: toast.POSITION.TOP_CENTER
+          });
+        }
+        setInvalidApplicantCode(true);
+        setFetchResponse(true);
+      })).finally(() => {
+        setSending(false)
+      })
+    }
   }
-}
+
+
+
+
+
+
+  const getPayor = (participantName: string) => {
+    const participant = payorList?.find(participant => participant.participant_name === participantName);
+    console.log("participant", participant);
+    if (participant) {
+      setPayor(participant)
+    }
+  }
   const onSubmit = () => {
     //setSending(true)
-    const jwtToken = _.get(queryString.parse(window.location.search),"jwt_token");
+    const jwtToken = _.get(queryString.parse(window.location.search), "jwt_token");
     let formData: any[];
 
     // if (fields.length != 0) {
@@ -243,70 +266,70 @@ const getPayor = (participantName: string) => {
     //         delete field.id;
     //     });
     // }
-    if(email == '' || phoneNumber == '' || org == ''){
-        if(email == '') setEmailError(true);
-        if(phoneNumber == '') setPhoneError(true);
-        if(org == '') setOrgError(true);
-    }else{
-    
+    if (email == '' || phoneNumber == '' || org == '') {
+      if (email == '') setEmailError(true);
+      if (phoneNumber == '') setPhoneError(true);
+      if (org == '') setOrgError(true);
+    } else {
 
-    if (isJWTPresent) {
+
+      if (isJWTPresent) {
         formData = [{ "type": "onboard-through-jwt", "jwt": jwtToken, additionalVerification: fields, "participant": { "participant_name": org, "primary_email": email, "primary_mobile": phoneNumber, "roles": ["provider"] } }];
-    } else if (radioRole === 'payor') {
+      } else if (radioRole === 'payor') {
         formData = [{ "participant": { "participant_name": org, "primary_email": email, "primary_mobile": phoneNumber, "roles": [radioRole] } }];
-    } else if (payor != null && !invalidApplicantCode) {
+      } else if (payor != null && !invalidApplicantCode) {
         formData = [{ "type": "onboard-through-verifier", "verifier_code": payor.participant_code, "applicant_code": applicantCode, additionalVerification: fields, "participant": { "participant_name": org, "primary_email": email, "primary_mobile": phoneNumber, "roles": ["provider"] } }];
-    }else if (radioOnboard == "mock_payor") {
-      console.log("in mock payor register");
-      formData = [{ "type": "onboard-through-verifier", "verifier_code": mockPayorCode, "applicant_code": applicantCode, additionalVerification: fields, "participant": { "participant_name": org, "primary_email": email, "primary_mobile": phoneNumber, "roles": ["provider"] } }];
-    }else{
-      console.log("i came in else");
-      formData = [];
-    }
-    if (tag) {
-        formData[0].participant['tag'] = [tag]
-    }
-    setShowLoader(true);
-    post("/participant/verify", JSON.stringify(formData))
-        .then((data => {
-            //setState({ ...formState, ...(formData[0]), ...{ "participant_code": _.get(data, 'data.result.participant_code'), "verifier_code": payor.participant_code, "identity_verification": _.get(data, 'data.result.identity_verification') } })
-            setTimeout(() => {
-                setShowPassword(true);
-                setShowLoader(false);
-                setCheckBasic(true); 
-                setCheckVerify(true);
-            }, 500);
-        })).catch(err => {
-            if (_.get(err, 'response.data.error.message') && _.get(err, 'response.data.error.message') == "Username already invited / registered for Organisation") {
-                toast.error('This email address already exists');
-                setShowLoader(false);
-            } else {
-                toast.error(_.get(err, 'response.data.error.message') || "Internal Server Error", {
-                    position: toast.POSITION.TOP_CENTER
-                });
-                setShowLoader(false);
-            }
-        }).finally(() => {
-            setTimeout(() => {
-                setSending(false)
-            }, 500);
-        })
+      } else if (radioOnboard == "mock_payor") {
+        console.log("in mock payor register");
+        formData = [{ "type": "onboard-through-verifier", "verifier_code": mockPayorCode, "applicant_code": applicantCode, additionalVerification: fields, "participant": { "participant_name": org, "primary_email": email, "primary_mobile": phoneNumber, "roles": ["provider"] } }];
+      } else {
+        console.log("i came in else");
+        formData = [];
       }
-}
+      if (tag) {
+        formData[0].participant['tag'] = [tag]
+      }
+      setShowLoader(true);
+      post("/participant/verify", JSON.stringify(formData))
+        .then((data => {
+          //setState({ ...formState, ...(formData[0]), ...{ "participant_code": _.get(data, 'data.result.participant_code'), "verifier_code": payor.participant_code, "identity_verification": _.get(data, 'data.result.identity_verification') } })
+          setTimeout(() => {
+            setShowPassword(true);
+            setShowLoader(false);
+            setCheckBasic(true);
+            setCheckVerify(true);
+          }, 500);
+        })).catch(err => {
+          if (_.get(err, 'response.data.error.message') && _.get(err, 'response.data.error.message') == "Username already invited / registered for Organisation") {
+            toast.error('This email address already exists');
+            setShowLoader(false);
+          } else {
+            toast.error(_.get(err, 'response.data.error.message') || "Internal Server Error", {
+              position: toast.POSITION.TOP_CENTER
+            });
+            setShowLoader(false);
+          }
+        }).finally(() => {
+          setTimeout(() => {
+            setSending(false)
+          }, 500);
+        })
+    }
+  }
 
   return (
     <div className="flex flex-col items-center justify-center h-screen">
-        <TermsOfUse></TermsOfUse>
-            { showLoader ? 
-      <div className="fixed inset-0 bg-gray-300 bg-opacity-50 flex items-center justify-center z-50">
-      <div role="status">
-              <svg aria-hidden="true" className="inline w-8 h-8 mr-2 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>
-                  <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
-              </svg>
-              <span className="sr-only">Loading...</span>
+      <TermsOfUse></TermsOfUse>
+      {showLoader ?
+        <div className="fixed inset-0 bg-gray-300 bg-opacity-50 flex items-center justify-center z-50">
+          <div role="status">
+            <svg aria-hidden="true" className="inline w-8 h-8 mr-2 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor" />
+              <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill" />
+            </svg>
+            <span className="sr-only">Loading...</span>
           </div>
-      </div> : null }
+        </div> : null}
       <div className="flex flex-row items-center justify-center w-full h-full">
         <div className="g-6 flex w-full h-full flex-wrap items-center justify-center text-neutral-800 dark:text-neutral-200">
           <div className="w-11/12">
@@ -329,258 +352,258 @@ const getPayor = (participantName: string) => {
                         HCX Onboarding
                       </h4>
                     </div>
-                    {showPassword == false ? 
-                    <form>
-                      <p className="mb-3">Please create your account</p>
-                      {/* Role Selection   */}
-                      <div className="flex justify-left relative mb-3" role="radiogroup">
-                        <label
-                          className="dark:text-neutral-200 dark:peer-focus:text-primary"
-                        >
-                          Select Role :&nbsp;&nbsp;
-                        </label>
-                        {/*First radio*/}
-                        <div className="mb-[0.125rem] mr-4 inline-block min-h-[1.5rem] pl-[1.5rem]">
-                          <input
-                            className="form-radio relative float-left -ml-[1.5rem] mr-1 mt-0.5 h-5 w-5 appearance-none rounded-full border-2 border-solid border-neutral-300 before:pointer-events-none before:absolute before:h-4 before:w-4 before:scale-0 before:rounded-full before:bg-transparent before:opacity-0 before:shadow-[0px_0px_0px_13px_transparent] before:content-[''] after:absolute after:z-[1] after:block after:h-4 after:w-4 after:rounded-full after:content-[''] checked:border-primary checked:before:opacity-[0.16] checked:after:absolute checked:after:left-1/2 checked:after:top-1/2 checked:after:h-[0.625rem] checked:after:w-[0.625rem] checked:after:rounded-full checked:after:border-primary checked:after:bg-white checked:after:content-[''] checked:after:[transform:translate(-50%,-50%)] hover:cursor-pointer hover:before:opacity-[0.04] hover:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:shadow-none focus:outline-none focus:ring-0 focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] checked:focus:border-primary checked:focus:before:scale-100 checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] dark:border-neutral-600 dark:checked:border-primary dark:checked:after:border-primary dark:checked:after:bg-primary dark:focus:before:shadow-[0px_0px_0px_13px_rgba(255,255,255,0.4)] dark:checked:focus:border-primary dark:checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca]"
-                            type="radio"
-                            name="role"
-                            id="inlineRadio1"
-                            defaultValue="payor"
-                            defaultChecked
-                            onClick={() => {setRadioRole('payor'); setRadioOnboard('')}}
-                          />
+                    {showPassword == false ?
+                      <form>
+                        <p className="mb-3">Please create your account</p>
+                        {/* Role Selection   */}
+                        <div className="flex justify-left relative mb-3" role="radiogroup">
                           <label
-                            className="mt-px inline-block pl-[0.15rem] hover:cursor-pointer"
-                            htmlFor="inlineRadio1"
+                            className="dark:text-neutral-200 dark:peer-focus:text-primary"
                           >
-                            Payor
+                            Select Role :&nbsp;&nbsp;
                           </label>
+                          {/*First radio*/}
+                          <div className="mb-[0.125rem] mr-4 inline-block min-h-[1.5rem] pl-[1.5rem]">
+                            <input
+                              className="form-radio relative float-left -ml-[1.5rem] mr-1 mt-0.5 h-5 w-5 appearance-none rounded-full border-2 border-solid border-neutral-300 before:pointer-events-none before:absolute before:h-4 before:w-4 before:scale-0 before:rounded-full before:bg-transparent before:opacity-0 before:shadow-[0px_0px_0px_13px_transparent] before:content-[''] after:absolute after:z-[1] after:block after:h-4 after:w-4 after:rounded-full after:content-[''] checked:border-primary checked:before:opacity-[0.16] checked:after:absolute checked:after:left-1/2 checked:after:top-1/2 checked:after:h-[0.625rem] checked:after:w-[0.625rem] checked:after:rounded-full checked:after:border-primary checked:after:bg-white checked:after:content-[''] checked:after:[transform:translate(-50%,-50%)] hover:cursor-pointer hover:before:opacity-[0.04] hover:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:shadow-none focus:outline-none focus:ring-0 focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] checked:focus:border-primary checked:focus:before:scale-100 checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] dark:border-neutral-600 dark:checked:border-primary dark:checked:after:border-primary dark:checked:after:bg-primary dark:focus:before:shadow-[0px_0px_0px_13px_rgba(255,255,255,0.4)] dark:checked:focus:border-primary dark:checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca]"
+                              type="radio"
+                              name="role"
+                              id="inlineRadio1"
+                              defaultValue="payor"
+                              defaultChecked
+                              onClick={() => { setRadioRole('payor'); setRadioOnboard('') }}
+                            />
+                            <label
+                              className="mt-px inline-block pl-[0.15rem] hover:cursor-pointer"
+                              htmlFor="inlineRadio1"
+                            >
+                              Payor
+                            </label>
+                          </div>
+                          {/*Second radio*/}
+                          <div className="mb-[0.125rem] mr-4 inline-block min-h-[1.5rem] pl-[1.5rem]">
+                            <input
+                              className="form-radio relative float-left -ml-[1.5rem] mr-1 mt-0.5 h-5 w-5 appearance-none rounded-full border-2 border-solid border-neutral-300 before:pointer-events-none before:absolute before:h-4 before:w-4 before:scale-0 before:rounded-full before:bg-transparent before:opacity-0 before:shadow-[0px_0px_0px_13px_transparent] before:content-[''] after:absolute after:z-[1] after:block after:h-4 after:w-4 after:rounded-full after:content-[''] checked:border-primary checked:before:opacity-[0.16] checked:after:absolute checked:after:left-1/2 checked:after:top-1/2 checked:after:h-[0.625rem] checked:after:w-[0.625rem] checked:after:rounded-full checked:after:border-primary checked:after:bg-white checked:after:content-[''] checked:after:[transform:translate(-50%,-50%)] hover:cursor-pointer hover:before:opacity-[0.04] hover:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:shadow-none focus:outline-none focus:ring-0 focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] checked:focus:border-primary checked:focus:before:scale-100 checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] dark:border-neutral-600 dark:checked:border-primary dark:checked:after:border-primary dark:checked:after:bg-primary dark:focus:before:shadow-[0px_0px_0px_13px_rgba(255,255,255,0.4)] dark:checked:focus:border-primary dark:checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca]"
+                              type="radio"
+                              name="role"
+                              id="inlineRadio2"
+                              defaultValue="provider"
+                              onClick={() => { setRadioRole('provider'); isEnvStaging ? setRadioOnboard("mock_payor") : setRadioOnboard("actual_payor"); isEnvStaging ? setShowVerify(false) : setShowVerify(true) }}
+                            />
+                            <label
+                              className="mt-px inline-block pl-[0.15rem] hover:cursor-pointer"
+                              htmlFor="inlineRadio2"
+                            >
+                              Provider
+                            </label>
+                          </div>
+
                         </div>
-                        {/*Second radio*/}
-                        <div className="mb-[0.125rem] mr-4 inline-block min-h-[1.5rem] pl-[1.5rem]">
-                          <input
-                            className="form-radio relative float-left -ml-[1.5rem] mr-1 mt-0.5 h-5 w-5 appearance-none rounded-full border-2 border-solid border-neutral-300 before:pointer-events-none before:absolute before:h-4 before:w-4 before:scale-0 before:rounded-full before:bg-transparent before:opacity-0 before:shadow-[0px_0px_0px_13px_transparent] before:content-[''] after:absolute after:z-[1] after:block after:h-4 after:w-4 after:rounded-full after:content-[''] checked:border-primary checked:before:opacity-[0.16] checked:after:absolute checked:after:left-1/2 checked:after:top-1/2 checked:after:h-[0.625rem] checked:after:w-[0.625rem] checked:after:rounded-full checked:after:border-primary checked:after:bg-white checked:after:content-[''] checked:after:[transform:translate(-50%,-50%)] hover:cursor-pointer hover:before:opacity-[0.04] hover:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:shadow-none focus:outline-none focus:ring-0 focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] checked:focus:border-primary checked:focus:before:scale-100 checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] dark:border-neutral-600 dark:checked:border-primary dark:checked:after:border-primary dark:checked:after:bg-primary dark:focus:before:shadow-[0px_0px_0px_13px_rgba(255,255,255,0.4)] dark:checked:focus:border-primary dark:checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca]"
-                            type="radio"
-                            name="role"
-                            id="inlineRadio2"
-                            defaultValue="provider"
-                            onClick={() => {setRadioRole('provider'); isEnvStaging ? setRadioOnboard("mock_payor") : setRadioOnboard("actual_payor"); isEnvStaging ? setShowVerify(false) : setShowVerify(true)}}
-                          />
+
+                        {/* Onboard through Selection   */}
+                        {radioRole == "provider" && isEnvStaging ? <div className="flex justify-left relative mb-3" role="radiogroup">
                           <label
-                            className="mt-px inline-block pl-[0.15rem] hover:cursor-pointer"
-                            htmlFor="inlineRadio2"
+                            className="dark:text-neutral-200 dark:peer-focus:text-primary"
                           >
-                            Provider
+                            Onboard through :&nbsp;&nbsp;
                           </label>
+                          {/*First radio*/}
+                          <div className="mb-[0.125rem] mr-4 inline-block min-h-[1.5rem] pl-[1.5rem]">
+                            <input
+                              className="form-radio relative float-left -ml-[1.5rem] mr-1 mt-0.5 h-5 w-5 appearance-none rounded-full border-2 border-solid border-neutral-300 before:pointer-events-none before:absolute before:h-4 before:w-4 before:scale-0 before:rounded-full before:bg-transparent before:opacity-0 before:shadow-[0px_0px_0px_13px_transparent] before:content-[''] after:absolute after:z-[1] after:block after:h-4 after:w-4 after:rounded-full after:content-[''] checked:border-primary checked:before:opacity-[0.16] checked:after:absolute checked:after:left-1/2 checked:after:top-1/2 checked:after:h-[0.625rem] checked:after:w-[0.625rem] checked:after:rounded-full checked:after:border-primary checked:after:bg-white checked:after:content-[''] checked:after:[transform:translate(-50%,-50%)] hover:cursor-pointer hover:before:opacity-[0.04] hover:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:shadow-none focus:outline-none focus:ring-0 focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] checked:focus:border-primary checked:focus:before:scale-100 checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] dark:border-neutral-600 dark:checked:border-primary dark:checked:after:border-primary dark:checked:after:bg-primary dark:focus:before:shadow-[0px_0px_0px_13px_rgba(255,255,255,0.4)] dark:checked:focus:border-primary dark:checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca]"
+                              type="radio"
+                              name="onboard"
+                              id="inlineRadio3"
+                              defaultValue="mock_payor"
+                              defaultChecked
+                              onClick={() => { setRadioOnboard('mock_payor'); setShowVerify(false) }}
+                            />
+                            <label
+                              className="mt-px inline-block pl-[0.15rem] hover:cursor-pointer"
+                              htmlFor="inlineRadio3"
+                            >
+                              Mock Payor
+                            </label>
+                          </div>
+                          {/*Second radio*/}
+                          <div className="mb-[0.125rem] mr-4 inline-block min-h-[1.5rem] pl-[1.5rem]">
+                            <input
+                              className="form-radio relative float-left -ml-[1.5rem] mr-1 mt-0.5 h-5 w-5 appearance-none rounded-full border-2 border-solid border-neutral-300 before:pointer-events-none before:absolute before:h-4 before:w-4 before:scale-0 before:rounded-full before:bg-transparent before:opacity-0 before:shadow-[0px_0px_0px_13px_transparent] before:content-[''] after:absolute after:z-[1] after:block after:h-4 after:w-4 after:rounded-full after:content-[''] checked:border-primary checked:before:opacity-[0.16] checked:after:absolute checked:after:left-1/2 checked:after:top-1/2 checked:after:h-[0.625rem] checked:after:w-[0.625rem] checked:after:rounded-full checked:after:border-primary checked:after:bg-white checked:after:content-[''] checked:after:[transform:translate(-50%,-50%)] hover:cursor-pointer hover:before:opacity-[0.04] hover:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:shadow-none focus:outline-none focus:ring-0 focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] checked:focus:border-primary checked:focus:before:scale-100 checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] dark:border-neutral-600 dark:checked:border-primary dark:checked:after:border-primary dark:checked:after:bg-primary dark:focus:before:shadow-[0px_0px_0px_13px_rgba(255,255,255,0.4)] dark:checked:focus:border-primary dark:checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca]"
+                              type="radio"
+                              name="onboard"
+                              id="inlineRadio4"
+                              defaultValue="actual_payor"
+                              onClick={() => { setRadioOnboard('actual_payor'); setShowVerify(true) }}
+                            />
+                            <label
+                              className="mt-px inline-block pl-[0.15rem] hover:cursor-pointer"
+                              htmlFor="inlineRadio4"
+                            >
+                              Actual Payor
+                            </label>
+                          </div>
+                        </div> : ""}
+
+                        {stepper()}
+
+                        {radioOnboard !== "actual_payor" ?
+                          <>
+                            <div className="relative">
+                              <input
+                                type="email"
+                                className={"w-full h-10 px-3 mb-4 text-base text-gray-700 placeholder-gray-600 border rounded-lg focus:shadow-outline" + (emailError ? " border-red-600" : "")}
+                                id="exampleFormControlInput1"
+                                placeholder="Email"
+                                onChange={(event) => { setEmail(event.target.value); setEmailError(false) }}
+                                value={email}
+                              />
+                            </div>
+                            <div className="relative">
+                              <input
+                                type="tel"
+                                className={"w-full h-10 px-3 mb-4 text-base text-gray-700 placeholder-gray-600 border rounded-lg focus:shadow-outline" + (phoneError ? " border-red-600" : "")}
+                                id="exampleFormControlInput11"
+                                placeholder="Phone Number"
+                                onChange={(event) => { setPhoneNumber(event.target.value); setPhoneError(false) }}
+                                value={phoneNumber}
+                              />
+                            </div>
+                            <div className="relative">
+                              <input
+                                type="text"
+                                className={"w-full h-10 px-3 mb-4 text-base text-gray-700 placeholder-gray-600 border rounded-lg focus:shadow-outline" + (orgError ? " border-red-600" : "")}
+                                id="exampleFormControlInput12"
+                                placeholder="Organization"
+                                onChange={(event) => { setOrg(event.target.value); setOrgError(false) }}
+                                value={org}
+                              />
+                            </div> </> : null}
+                        {radioRole == "provider" && (radioOnboard == "actual_payor" || isEnvStaging == false) ? <div className="relative">
+                          <select id="payordropdown"
+                            className="w-full h-10 px-3 mb-4 text-base text-gray-700 placeholder-gray-600 border rounded-lg focus:shadow-outline"
+                            onChange={(event) => getPayor(event.target.value)}>
+                            <option selected value="1">Select Payor</option>
+                            {payorList !== undefined ? payorList.map((value, index) => {
+                              return <option value={value.participant_name}>{value.participant_name}</option>
+                            }) : null}
+                          </select>
+                        </div> : null}
+                        {radioOnboard == "actual_payor" ?
+                          <>
+                            <div className="relative">
+                              <input
+                                type="text"
+                                className={"w-full h-10 px-3 mb-4 text-base text-gray-700 placeholder-gray-600 border rounded-lg focus:shadow-outline" + (applicantError ? " border-red-600" : "")}
+                                id="exampleFormControlInput12"
+                                placeholder="Applicant Code"
+                                onChange={(event) => { setApplicantCode(event.target.value); setApplicantError(false) }}
+                              />
+                            </div>
+                            <div className="mb-12 pb-1 pt-1 text-center">
+                              <button
+                                className="mb-3 inline-block w-full rounded px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white shadow-[0_4px_9px_-4px_rgba(0,0,0,0.2)] transition duration-150 ease-in-out hover:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:outline-none focus:ring-0 active:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)]"
+                                type="button"
+                                data-te-ripple-init=""
+                                data-te-ripple-color="light"
+                                style={{
+                                  background:
+                                    "linear-gradient(to right, #1C4DC3, #3632BE, #1D1991, #060347)"
+                                }}
+                                onClick={() => { getParticipantDetails(); }}
+                              >
+                                Fetch Details
+                              </button>
+                              {/*Forgot password link*/}
+                              {/* <a href="#!">Forgot password?</a> */}
+                            </div>
+                          </>
+                          : null}
+
+                        {/*Submit button*/}
+                        {radioOnboard !== "actual_payor" ?
+                          <div className="mb-12 pb-1 pt-1 text-center items-center">
+                            <div className="flex items-center justify-center mb-4">
+                              <input id="link-checkbox" type="checkbox" value="" className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                onChange={(event) => setShowTerms(event)}
+                                checked={_.get(appData, "termsAccepted")}></input>
+                              <label htmlFor="link-checkbox" className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">I agree with the <a href="#" className="text-blue-600 dark:text-blue-500 hover:underline">terms and conditions</a>.</label>
+                            </div>
+                            <button
+                              className={"mb-3 inline-block w-full rounded px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white shadow-[0_4px_9px_-4px_rgba(0,0,0,0.2)] transition duration-150 ease-in-out hover:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:outline-none focus:ring-0 active:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] " + (_.get(appData, "termsAccepted") ? "" : "disabled:opacity-75")}
+                              type="button"
+                              data-te-ripple-init=""
+                              data-te-ripple-color="light"
+                              disabled={!_.get(appData, "termsAccepted")}
+                              style={{
+                                background:
+                                  "linear-gradient(to right, #1C4DC3, #3632BE, #1D1991, #060347)"
+                              }}
+                              onClick={() => { onSubmit(); }}
+                            >
+                              Register
+                            </button>
+                            {/*Forgot password link*/}
+                            {/* <a href="#!">Forgot password?</a> */}
+                          </div> : null}
+
+                        {/*Register button*/}
+                        <div className="flex items-center justify-between pb-6">
+                          <p className="mb-0 mr-2">Already have an account?</p>
+                          <button
+                            type="button"
+                            className="inline-block rounded border-2 border-blue-500 px-6 pb-[6px] pt-2 text-xs font-medium uppercase leading-normal text-blue-500 transition duration-150 ease-in-out hover:border-blue-600 hover:bg-neutral-500 hover:bg-opacity-10 hover:text-blue-600 focus:border-blue-600 focus:text-blue-600 focus:outline-none focus:ring-0 active:border-blue-700 active:text-blue-700 dark:hover:bg-neutral-100 dark:hover:bg-opacity-10"
+                            data-te-ripple-init=""
+                            data-te-ripple-color="light"
+                            onClick={() => navigate("/onboarding/login")}
+                          >
+                            Login
+                          </button>
                         </div>
-
-                      </div>
-
-                      {/* Onboard through Selection   */}
-                      {radioRole == "provider" && isEnvStaging ? <div className="flex justify-left relative mb-3" role="radiogroup">
-                        <label
-                          className="dark:text-neutral-200 dark:peer-focus:text-primary"
-                        >
-                          Onboard through :&nbsp;&nbsp;
-                        </label>
-                        {/*First radio*/}
-                        <div className="mb-[0.125rem] mr-4 inline-block min-h-[1.5rem] pl-[1.5rem]">
+                      </form>
+                      :
+                      <form>
+                        {stepper()}
+                        <p className="mb-3">Please set your password</p>
+                        <div className="relative mb-4">
                           <input
-                            className="form-radio relative float-left -ml-[1.5rem] mr-1 mt-0.5 h-5 w-5 appearance-none rounded-full border-2 border-solid border-neutral-300 before:pointer-events-none before:absolute before:h-4 before:w-4 before:scale-0 before:rounded-full before:bg-transparent before:opacity-0 before:shadow-[0px_0px_0px_13px_transparent] before:content-[''] after:absolute after:z-[1] after:block after:h-4 after:w-4 after:rounded-full after:content-[''] checked:border-primary checked:before:opacity-[0.16] checked:after:absolute checked:after:left-1/2 checked:after:top-1/2 checked:after:h-[0.625rem] checked:after:w-[0.625rem] checked:after:rounded-full checked:after:border-primary checked:after:bg-white checked:after:content-[''] checked:after:[transform:translate(-50%,-50%)] hover:cursor-pointer hover:before:opacity-[0.04] hover:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:shadow-none focus:outline-none focus:ring-0 focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] checked:focus:border-primary checked:focus:before:scale-100 checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] dark:border-neutral-600 dark:checked:border-primary dark:checked:after:border-primary dark:checked:after:bg-primary dark:focus:before:shadow-[0px_0px_0px_13px_rgba(255,255,255,0.4)] dark:checked:focus:border-primary dark:checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca]"
-                            type="radio"
-                            name="onboard"
-                            id="inlineRadio3"
-                            defaultValue="mock_payor"
-                            defaultChecked
-                            onClick={() => {setRadioOnboard('mock_payor'); setShowVerify(false)}}
+                            type="password"
+                            className={"w-full h-10 px-3 mb-4 text-base text-gray-700 placeholder-gray-600 border rounded-lg focus:shadow-outline" + (pass1Error ? " border-red-600" : "")}
+                            id="exampleFormControlInput1"
+                            placeholder="Password"
+                            onChange={(event) => { setPass1(event.target.value); setPass1Error(false) }}
+                            required
                           />
-                          <label
-                            className="mt-px inline-block pl-[0.15rem] hover:cursor-pointer"
-                            htmlFor="inlineRadio3"
-                          >
-                            Mock Payor
-                          </label>
                         </div>
-                        {/*Second radio*/}
-                        <div className="mb-[0.125rem] mr-4 inline-block min-h-[1.5rem] pl-[1.5rem]">
+                        {/*Password input*/}
+                        <div className="relative mb-4">
                           <input
-                            className="form-radio relative float-left -ml-[1.5rem] mr-1 mt-0.5 h-5 w-5 appearance-none rounded-full border-2 border-solid border-neutral-300 before:pointer-events-none before:absolute before:h-4 before:w-4 before:scale-0 before:rounded-full before:bg-transparent before:opacity-0 before:shadow-[0px_0px_0px_13px_transparent] before:content-[''] after:absolute after:z-[1] after:block after:h-4 after:w-4 after:rounded-full after:content-[''] checked:border-primary checked:before:opacity-[0.16] checked:after:absolute checked:after:left-1/2 checked:after:top-1/2 checked:after:h-[0.625rem] checked:after:w-[0.625rem] checked:after:rounded-full checked:after:border-primary checked:after:bg-white checked:after:content-[''] checked:after:[transform:translate(-50%,-50%)] hover:cursor-pointer hover:before:opacity-[0.04] hover:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:shadow-none focus:outline-none focus:ring-0 focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] checked:focus:border-primary checked:focus:before:scale-100 checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] dark:border-neutral-600 dark:checked:border-primary dark:checked:after:border-primary dark:checked:after:bg-primary dark:focus:before:shadow-[0px_0px_0px_13px_rgba(255,255,255,0.4)] dark:checked:focus:border-primary dark:checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca]"
-                            type="radio"
-                            name="onboard"
-                            id="inlineRadio4"
-                            defaultValue="actual_payor"
-                            onClick={() => {setRadioOnboard('actual_payor'); setShowVerify(true)}}
+                            type="password"
+                            className={"w-full h-10 px-3 mb-4 text-base text-gray-700 placeholder-gray-600 border rounded-lg focus:shadow-outline" + (pass2Error ? " border-red-600" : "")}
+                            id="exampleFormControlInput11"
+                            placeholder="Password"
+                            onChange={(event) => { setPass2(event.target.value); setPass2Error(false) }}
+                            required
                           />
-                          <label
-                            className="mt-px inline-block pl-[0.15rem] hover:cursor-pointer"
-                            htmlFor="inlineRadio4"
+                        </div>
+                        {/*Submit button*/}
+                        <div className="mb-12 pb-1 pt-1 text-center">
+                          <button
+                            className="mb-3 inline-block w-full rounded px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white shadow-[0_4px_9px_-4px_rgba(0,0,0,0.2)] transition duration-150 ease-in-out hover:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:outline-none focus:ring-0 active:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)]"
+                            type="button"
+                            data-te-ripple-init=""
+                            data-te-ripple-color="light"
+                            style={{
+                              background:
+                                "linear-gradient(to right, #1C4DC3, #3632BE, #1D1991, #060347)"
+                            }}
+                            onClick={() => resetPassword()}
                           >
-                            Actual Payor
-                          </label>
+                            Set Password
+                          </button>
+                          {/*Forgot password link*/}
+                          {/* <a href="#!">Forgot password?</a> */}
                         </div>
-                      </div> : "" }
-
-                      {stepper()}
-                      
-                      {radioOnboard !== "actual_payor" ?
-                      <> 
-                      <div className="relative">
-                        <input
-                          type="email"
-                          className={"w-full h-10 px-3 mb-4 text-base text-gray-700 placeholder-gray-600 border rounded-lg focus:shadow-outline" + (emailError ? " border-red-600" : "")} 
-                          id="exampleFormControlInput1"
-                          placeholder="Email"
-                          onChange={(event) => {setEmail(event.target.value); setEmailError(false)}}
-                          value={email}
-                        />
-                      </div>
-                      <div className="relative">
-                        <input
-                          type="tel"
-                          className={"w-full h-10 px-3 mb-4 text-base text-gray-700 placeholder-gray-600 border rounded-lg focus:shadow-outline"  + (phoneError ? " border-red-600" : "")}
-                          id="exampleFormControlInput11"
-                          placeholder="Phone Number"
-                          onChange={(event) => {setPhoneNumber(event.target.value); setPhoneError(false)}}
-                          value={phoneNumber}
-                        />
-                      </div>
-                      <div className="relative">
-                        <input
-                          type="text"
-                          className={"w-full h-10 px-3 mb-4 text-base text-gray-700 placeholder-gray-600 border rounded-lg focus:shadow-outline"  + (orgError ? " border-red-600" : "")}
-                          id="exampleFormControlInput12"
-                          placeholder="Organization"
-                          onChange={(event) => {setOrg(event.target.value); setOrgError(false)}}
-                          value={org}
-                        />
-                      </div> </>: null}
-                      {radioRole == "provider" && (radioOnboard == "actual_payor" || isEnvStaging == false) ? <div className="relative">
-                      <select id="payordropdown" 
-                        className="w-full h-10 px-3 mb-4 text-base text-gray-700 placeholder-gray-600 border rounded-lg focus:shadow-outline" 
-                        onChange={(event) => getPayor(event.target.value) }>
-                        <option selected value="1">Select Payor</option>
-                        {payorList !== undefined ? payorList.map((value, index) => {
-                          return <option value={value.participant_name}>{value.participant_name}</option>
-                        }) : null }
-                      </select>
-                      </div> : null }
-                      {radioOnboard == "actual_payor" ? 
-                      <>
-                      <div className="relative">
-                      <input
-                        type="text"
-                        className={"w-full h-10 px-3 mb-4 text-base text-gray-700 placeholder-gray-600 border rounded-lg focus:shadow-outline" + (applicantError ? " border-red-600" : "")}
-                        id="exampleFormControlInput12"
-                        placeholder="Applicant Code"
-                        onChange={(event) => {setApplicantCode(event.target.value); setApplicantError(false)}}
-                      />
-                      </div>
-                      <div className="mb-12 pb-1 pt-1 text-center">
-                        <button
-                          className="mb-3 inline-block w-full rounded px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white shadow-[0_4px_9px_-4px_rgba(0,0,0,0.2)] transition duration-150 ease-in-out hover:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:outline-none focus:ring-0 active:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)]"
-                          type="button"
-                          data-te-ripple-init=""
-                          data-te-ripple-color="light"
-                          style={{
-                            background:
-                              "linear-gradient(to right, #1C4DC3, #3632BE, #1D1991, #060347)"
-                          }}
-                          onClick={() => {getParticipantDetails();}}
-                        >
-                          Fetch Details
-                        </button>
-                        {/*Forgot password link*/}
-                        {/* <a href="#!">Forgot password?</a> */}
-                      </div>
-                      </>
-                       : null}
-
-                      {/*Submit button*/}
-                      {radioOnboard !== "actual_payor" ? 
-                      <div className="mb-12 pb-1 pt-1 text-center items-center">
-                        <div className="flex items-center justify-center mb-4">
-                            <input id="link-checkbox" type="checkbox" value="" className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                             onChange={(event) => setShowTerms(event)}
-                             checked={_.get(appData,"termsAccepted")}></input>
-                            <label htmlFor="link-checkbox" className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">I agree with the <a href="#" className="text-blue-600 dark:text-blue-500 hover:underline">terms and conditions</a>.</label>
-                        </div>
-                        <button
-                          className={"mb-3 inline-block w-full rounded px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white shadow-[0_4px_9px_-4px_rgba(0,0,0,0.2)] transition duration-150 ease-in-out hover:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:outline-none focus:ring-0 active:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] " + (_.get(appData,"termsAccepted") ? "" : "disabled:opacity-75")}
-                          type="button"
-                          data-te-ripple-init=""
-                          data-te-ripple-color="light"
-                          disabled={!_.get(appData,"termsAccepted")}
-                          style={{
-                            background:
-                              "linear-gradient(to right, #1C4DC3, #3632BE, #1D1991, #060347)"
-                          }}
-                          onClick={() => {onSubmit();}}
-                        >
-                          Register
-                        </button>
-                        {/*Forgot password link*/}
-                        {/* <a href="#!">Forgot password?</a> */}
-                      </div> : null }
-
-                      {/*Register button*/}
-                      <div className="flex items-center justify-between pb-6">
-                        <p className="mb-0 mr-2">Already have an account?</p>
-                        <button
-                          type="button"
-                          className="inline-block rounded border-2 border-blue-500 px-6 pb-[6px] pt-2 text-xs font-medium uppercase leading-normal text-blue-500 transition duration-150 ease-in-out hover:border-blue-600 hover:bg-neutral-500 hover:bg-opacity-10 hover:text-blue-600 focus:border-blue-600 focus:text-blue-600 focus:outline-none focus:ring-0 active:border-blue-700 active:text-blue-700 dark:hover:bg-neutral-100 dark:hover:bg-opacity-10"
-                          data-te-ripple-init=""
-                          data-te-ripple-color="light"
-                          onClick={() => navigate("/onboarding/login")}
-                        >
-                          Login
-                        </button>
-                      </div>
-                    </form>
-                      :  
-                    <form>
-                      {stepper()}
-                      <p className="mb-3">Please set your password</p>
-                      <div className="relative mb-4">
-                    <input
-                      type="password"
-                      className={"w-full h-10 px-3 mb-4 text-base text-gray-700 placeholder-gray-600 border rounded-lg focus:shadow-outline" + (pass1Error ? " border-red-600" : "")}
-                      id="exampleFormControlInput1"
-                      placeholder="Password"
-                      onChange={(event) => {setPass1(event.target.value); setPass1Error(false)}}
-                      required
-                    />
-                  </div>
-                  {/*Password input*/}
-                  <div className="relative mb-4">
-                    <input
-                      type="password"
-                      className={"w-full h-10 px-3 mb-4 text-base text-gray-700 placeholder-gray-600 border rounded-lg focus:shadow-outline" + (pass2Error ? " border-red-600" : "")}
-                      id="exampleFormControlInput11"
-                      placeholder="Password"
-                      onChange={(event) => {setPass2(event.target.value); setPass2Error(false)}}
-                      required
-                    />
-                  </div>
-                  {/*Submit button*/}
-                  <div className="mb-12 pb-1 pt-1 text-center">
-                    <button
-                      className="mb-3 inline-block w-full rounded px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white shadow-[0_4px_9px_-4px_rgba(0,0,0,0.2)] transition duration-150 ease-in-out hover:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:outline-none focus:ring-0 active:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)]"
-                      type="button"
-                      data-te-ripple-init=""
-                      data-te-ripple-color="light"
-                      style={{
-                        background:
-                          "linear-gradient(to right, #1C4DC3, #3632BE, #1D1991, #060347)"
-                      }}
-                      onClick={() => resetPassword()}
-                    >
-                      Set Password
-                    </button>
-                    {/*Forgot password link*/}
-                    {/* <a href="#!">Forgot password?</a> */}
-                  </div>
-                    </form>
+                      </form>
                     }
                   </div>
                 </div>
@@ -598,7 +621,7 @@ const getPayor = (participantName: string) => {
                     </h4>
                     <p className="text-sm">
                       Step 1:  Select the role you prefer to onborad on the HCX
-                     </p>
+                    </p>
                     <p className="text-sm">
                       Step 2: If you are a Payor then provide the basic information to proceed. If you are a Provider then select a verfier to proceed. You can onboard through an Actual Payor or Mock Payor.
                     </p>
@@ -608,122 +631,125 @@ const getPayor = (participantName: string) => {
                   </div>
                 </div>
               </div>}
-              {showUserCreate ?   <div className="g-0 lg:flex lg:flex-wrap">
+              {showUserCreate ? <div className="g-0 lg:flex lg:flex-wrap">
                 <div className="px-4 md:px-0 lg:w-full">
-    {/* Modal content */}
-    <div className="relative bg-white rounded-lg shadow dark:bg-gray-700">
-      {/* Modal header */}
-      <div className="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600">
-        <h3 className="text-xl font-semibold text-green-500 dark:text-white">
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 inline-block mr-1 border rounded-full border-green-500" fill="none" viewBox="0 0 24 24" stroke="green">
-    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-  </svg>
-          &nbsp;Congratulations! Your onboarding process is complete.
-        </h3>
-        <button
-          type="button"
-          className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white"
-          data-modal-hide="defaultModal"
-        >
-          <svg
-            aria-hidden="true"
-            className="w-5 h-5"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              fillRule="evenodd"
-              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-              clipRule="evenodd"
-            />
-          </svg>
-          <span className="sr-only">Close modal</span>
-        </button>
-      </div>
-      {/* Modal body */}
-      <form className="w-full p-12">
-      <div className="flex flex-wrap -mx-3 mb-6 border-b-2 shadow-l shadow-bottom justify-between">
-            <label
-              className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-            >
-              Create Users
-            </label>
-          </div> 
-        {userDetials.map((value,index)=> {
-            return <>
-            
-          <div className="flex flex-wrap -mx-3 mb-6">
-          <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
-            <label
-              className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-              htmlFor="grid-first-name"
-            >
-              Email
-            </label>
-            <input
-              className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
-              id="grid-first-name"
-              type="text"
-              placeholder="Jane"
-            />
-            {/* <p className="text-red-500 text-xs italic">Please fill out this field.</p> */}
-          </div>
-          <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
-            <label
-              className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-              htmlFor="grid-last-name"
-            >
-              Role
-            </label>
-                          <select id="payordropdown" 
-                        className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" >
-                        <option selected value="1">Admin</option>
-                        <option value="2">Edit</option>
-                        <option value="2">View</option>
-                      </select>
-          </div>
-   
-        </div></>
-          })}    
-        
-      <div className="flex items-center justify-between -mx-3 mb-6 p-3">
-                    <button
-                      type="button"
-                      className="inline-block rounded border-2 border-blue-500 px-6 pb-[6px] pt-2 text-xs font-medium uppercase leading-normal text-blue-500 transition duration-150 ease-in-out hover:border-blue-600 hover:bg-neutral-500 hover:bg-opacity-10 hover:text-blue-600 focus:border-blue-600 focus:text-blue-600 focus:outline-none focus:ring-0 active:border-blue-700 active:text-blue-700 dark:hover:bg-neutral-100 dark:hover:bg-opacity-10"
-                      data-te-ripple-init=""
-                      data-te-ripple-color="light"
-                      onClick={() => addAnotherRow()}   
-                    >
-                      Add Another User
-                    </button>
-                    <button
-                      type="button"
-                      className="inline-block rounded border-2 border-blue-500 px-6 pb-[6px] pt-2 text-xs font-medium uppercase leading-normal text-blue-500 transition duration-150 ease-in-out hover:border-blue-600 hover:bg-neutral-500 hover:bg-opacity-10 hover:text-blue-600 focus:border-blue-600 focus:text-blue-600 focus:outline-none focus:ring-0 active:border-blue-700 active:text-blue-700 dark:hover:bg-neutral-100 dark:hover:bg-opacity-10"
-                      data-te-ripple-init=""
-                      data-te-ripple-color="light"
-                      onClick={() => navigate("/onboarding/dashboard")}
-                    >
-                      Invite
-                    </button>
+                  {/* Modal content */}
+                  <div className="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                    {/* Modal header */}
+                    <div className="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600">
+                      <h3 className="text-xl font-semibold text-green-500 dark:text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 inline-block mr-1 border rounded-full border-green-500" fill="none" viewBox="0 0 24 24" stroke="green">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        &nbsp;Congratulations! Your onboarding process is complete.
+                      </h3>
+                      <button
+                        type="button"
+                        className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                        data-modal-hide="defaultModal"
+                      >
+                        <svg
+                          aria-hidden="true"
+                          className="w-5 h-5"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                        <span className="sr-only">Close modal</span>
+                      </button>
+                    </div>
+                    {/* Modal body */}
+                    <form className="w-full p-12">
+                      <div className="flex flex-wrap -mx-3 mb-6 border-b-2 shadow-l shadow-bottom justify-between">
+                        <label
+                          className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                        >
+                          Create Users
+                        </label>
+                      </div>
+                      {userDetials.map((value, index) => {
+                        return <>
+
+                          <div className="flex flex-wrap -mx-3 mb-6">
+                            <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
+                              <label
+                                className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                                htmlFor="grid-first-name"
+                              >
+                                Email Address
+                              </label>
+                              <input
+                                className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
+                                id="grid-first-name"
+                                type="text"
+                                placeholder="Email Address"
+                                value={value.email}
+                                onChange={(event) => updateCreateUserData(event.target.value, index, "email")}
+                              />
+                              {/* <p className="text-red-500 text-xs italic">Please fill out this field.</p> */}
+                            </div>
+                            <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
+                              <label
+                                className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                                htmlFor="grid-last-name"
+                              >
+                                Role
+                              </label>
+                              <select id="payordropdown"
+                                onChange={(event) => { updateCreateUserData(event.target.value, index, "role") }}
+                                className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" >
+                                <option selected value="admin">Admin</option>
+                                <option value="config-manager">Config-manager</option>
+                                <option value="viewer">Viewer</option>
+                              </select>
+                            </div>
+
+                          </div></>
+                      })}
+
+                      <div className="flex items-center justify-between -mx-3 mb-6 p-3">
+                        <button
+                          type="button"
+                          className="inline-block rounded border-2 border-blue-500 px-6 pb-[6px] pt-2 text-xs font-medium uppercase leading-normal text-blue-500 transition duration-150 ease-in-out hover:border-blue-600 hover:bg-neutral-500 hover:bg-opacity-10 hover:text-blue-600 focus:border-blue-600 focus:text-blue-600 focus:outline-none focus:ring-0 active:border-blue-700 active:text-blue-700 dark:hover:bg-neutral-100 dark:hover:bg-opacity-10"
+                          data-te-ripple-init=""
+                          data-te-ripple-color="light"
+                          onClick={() => addAnotherRow()}
+                        >
+                          Add Another User
+                        </button>
+                        <button
+                          type="button"
+                          className="inline-block rounded border-2 border-blue-500 px-6 pb-[6px] pt-2 text-xs font-medium uppercase leading-normal text-blue-500 transition duration-150 ease-in-out hover:border-blue-600 hover:bg-neutral-500 hover:bg-opacity-10 hover:text-blue-600 focus:border-blue-600 focus:text-blue-600 focus:outline-none focus:ring-0 active:border-blue-700 active:text-blue-700 dark:hover:bg-neutral-100 dark:hover:bg-opacity-10"
+                          data-te-ripple-init=""
+                          data-te-ripple-color="light"
+                          onClick={() => {inviteUsers();}}
+                        >
+                          Invite
+                        </button>
+                      </div>
+                    </form>
+                    {/* Modal footer */}
+                    <div className="flex items-center p-6 justify-between space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600">
+                      <h5 className="text-l font-semibold text-gray-900 dark:text-white">
+                        You can also create users after login. Click skip to go to Profile page
+                      </h5>
+                      <button
+                        data-modal-hide="defaultModal"
+                        type="button"
+                        className="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
+                        onClick={() => navigate("/onboarding/dashboard")}
+                      >
+                        Skip
+                      </button>
+                    </div>
                   </div>
-      </form>
-      {/* Modal footer */}
-      <div className="flex items-center p-6 justify-between space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600">
-      <h5 className="text-l font-semibold text-gray-900 dark:text-white">
-          You can also create users after login. Click skip to go to Profile page
-        </h5>
-        <button
-          data-modal-hide="defaultModal"
-          type="button"
-          className="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
-          onClick={() => navigate("/onboarding/dashboard")}
-        >
-          Skip
-        </button>
-      </div>
-    </div>
-  </div></div> : null}
+                </div></div> : null}
             </div>
           </div>
         </div>

@@ -47,9 +47,9 @@ const addAnotherRow = () => {
             </label>
                           <select id="payordropdown" 
                         className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" >
-                        <option selected value="1">Admim</option>
-                        <option value="2">Edit</option>
-                        <option value="2">View</option>
+                        <option selected value="admin">Admin</option>
+                        <option value="config-manager">Config Manager</option>
+                        <option value="view">Viewer</option>
                       </select>
           </div>
    

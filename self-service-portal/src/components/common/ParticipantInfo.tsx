@@ -72,7 +72,7 @@ const ParticipantInfo =() =>{
     }else{
     const formData = { "jwt_token": authToken, participant: { "participant_code": _.get(participantDetails,"participant_code"), "participant_name": _.get(participantDetails,"participant_name"), "endpoint_url": endpointUrl, "encryption_cert": encryptionCert 
                         ,"address" : address} };
-    post("/participant/onboard/update", formData).then((response => {
+    post("/participant/onboard/update", formData, {}, authToken).then((response => {
         const result = _.get(response, 'data.result') || {}
         console.log('result ', result)
         toast.success("Particpant Information updated successfully");

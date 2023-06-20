@@ -1,4 +1,5 @@
 import { get, post, put } from '../utils/HttpUtil';
+import qs from 'qs';
 
 const hcxUrl = process.env.REACT_APP_HCX_PATH;
 const adminRealm = process.env.REACT_APP_KEYCLOAK_ADMIN_REALM;
@@ -88,22 +89,19 @@ async function generateKeycloakAdminToken(){
 
 
 
-export async function generateTokenUser(realm, clietId, username, password){
+export async function generateTokenUser(username, password){
     
     const headers = {
         'Content-Type': 'application/x-www-form-urlencoded'
     };
-
     const body = {
-        'client_id': clietId,
         'username': username, 
         'password': password, 
-        'grant_type': 'password'
     }
-
     return new Promise((resolve, reject) => {
-        post(`${hcxUrl}/${apiVersion}/user/generate/token`, body, headers)
+        post(`${hcxUrl}/api/${apiVersion}/user/auth/token/generate`, qs.stringify(body), headers)
         .then(function (response) {
+            console.log("response", response);
             const accessToken = response.data.access_token;
             resolve(accessToken);
           })
