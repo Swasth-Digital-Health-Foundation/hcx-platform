@@ -216,6 +216,7 @@ public class OnboardService extends BaseController {
         participant.put(PARTICIPANT_CODE, participantCode);
         User user = new User((String) participant.get(PARTICIPANT_NAME) + " Admin", (String) participant.get(PRIMARY_EMAIL), (String) participant.get(PRIMARY_MOBILE), participantCode);
         user.addTenantRole(participantCode, ADMIN);
+        user.addTenantRole(participantCode, CONFIG_MANAGER);
         String userId = createUser(headers, user);
         String query = String.format("INSERT INTO %s (participant_code,primary_email,primary_mobile,createdOn," +
                         "updatedOn,expiry,phone_verified,email_verified,status,attempt_count) VALUES ('%s','%s','%s',%d,%d,%d,%b,%b,'%s',%d)", onboardVerificationTable, participantCode,
@@ -423,17 +424,14 @@ public class OnboardService extends BaseController {
         String identityStatus = REJECTED;
         Map<String, Object> mockProviderDetails = new HashMap<>();
         Map<String, Object> mockPayorDetails = new HashMap<>();
-        String jwtToken = (String) requestBody.get(JWT_TOKEN);
-        Map<String, Object> payload = JSONUtils.decodeBase64String(jwtToken.split("\\.")[1], Map.class);
-        String email = (String) payload.get("email");
         Map<String, Object> participant = (Map<String, Object>) requestBody.get(PARTICIPANT);
+        Map<String,Object> participantDetails = getParticipant(PARTICIPANT_CODE, (String) participant.get(PARTICIPANT_CODE));
+        String email = (String) participantDetails.get(PRIMARY_EMAIL);
         OnboardValidations validations = new OnboardValidations(getConfig((String) participant.get(PARTICIPANT_CODE), PARTICIPANT_VALIDATION_PROPERTIES));
         boolean emailEnabled = validations.isEmailEnabled();
         boolean phoneEnabled = validations.isPhoneEnabled();
-        Map<String, String> headersMap = new HashMap<>();
-        headersMap.put(AUTHORIZATION, "Bearer " + jwtToken);
-        List<String> roles = (List<String>) ((Map<String, Object>) payload.get("realm_access")).get(ROLES);
-        setOnboardValidations(participant, roles);
+        Token token = new Token(Objects.requireNonNull(headers.get(AUTHORIZATION)).get(0));
+        setOnboardValidations(participant, token.getRoles());
         String otpQuery = String.format("SELECT * FROM %s WHERE primary_email ILIKE '%s'", onboardVerificationTable, email);
         ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(otpQuery);
         if (resultSet.next()) {
@@ -457,8 +455,7 @@ public class OnboardService extends BaseController {
         if (participant.containsKey(ONBOARD_VALIDATION_PROPERTIES)) {
             participant.remove(ONBOARD_VALIDATION_PROPERTIES);
         }
-        Map<String, Object> participantDetails = getParticipant(PARTICIPANT_CODE, (String) participant.get(PARTICIPANT_CODE));
-        HttpResponse<String> httpResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_UPDATE, JSONUtils.serialize(participant), headersMap);
+        HttpResponse<String> httpResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_UPDATE, JSONUtils.serialize(participant), getHeadersMap(headers));
 
         if (httpResponse.getStatus() == 200) {
             logger.info("Participant details are updated successfully :: participant code : " + participant.get(PARTICIPANT_CODE));

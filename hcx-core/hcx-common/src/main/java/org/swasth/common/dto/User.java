@@ -62,10 +62,12 @@ public class User {
     }
 
     public void addTenantRole(String participantCode, String role){
-        tenantRoles = new ArrayList<>();
+        if (tenantRoles == null) { 
+            tenantRoles = new ArrayList<>();
+        }
         Map<String,Object> tenantRole = new HashMap<>();
         tenantRole.put(PARTICIPANT_CODE, participantCode);
-        tenantRole.put(ROLE, ADMIN);
+        tenantRole.put(ROLE, role);
         tenantRoles.add(tenantRole);
     }
 
