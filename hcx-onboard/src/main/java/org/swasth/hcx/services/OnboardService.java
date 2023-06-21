@@ -624,6 +624,7 @@ public class OnboardService extends BaseController {
         emailService.sendMail(email, userInviteSub, userInviteTemplate((String) participant.getOrDefault(PARTICIPANT_NAME, ""), role, url));
         String query = String.format("INSERT INTO %s (participant_code,user_email,invited_by,invite_status,created_on) VALUES ('%s','%s','%s','pending',%d)", onboardUserInviteTable, code, email, invitedBy, System.currentTimeMillis());
         postgreSQLClient.execute(query);
+        auditIndexer.createDocument(eventGenerator.getOnboardUserInvite(requestBody,(String) participant.getOrDefault(PARTICIPANT_NAME, "")));
         logger.info("User invitation sent");
         return getSuccessResponse();
     }
@@ -666,6 +667,7 @@ public class OnboardService extends BaseController {
         } else {
             emailService.sendMail(user.getEmail(), Arrays.asList(token.getInvitedBy()), userInviteAcceptSub, userInviteAcceptTemplate(user.getUserId(), (String) participantDetails.get(PARTICIPANT_NAME), user.getUsername()));
         }
+        auditIndexer.createDocument(eventGenerator.getOnboardUserInviteAccepted(user,participantDetails));
         return getSuccessResponse();
     }
 
@@ -717,7 +719,7 @@ public class OnboardService extends BaseController {
         postgreSQLClient.execute(query);
     }
 
-    public Response userInviteReject(Map<String, Object> body) throws ClientException, Exception {
+    public Response userInviteReject(Map<String, Object> body) throws Exception {
         logger.info("User invite rejected: " + body);
         Token token = new Token((String) body.getOrDefault(JWT_TOKEN, ""));
         Map<String, Object> participantDetails = getParticipant(PARTICIPANT_CODE, hcxCode);
@@ -727,6 +729,7 @@ public class OnboardService extends BaseController {
         User user = JSONUtils.deserialize(body.get("user"), User.class);
         updateInviteStatus(user.getEmail(), "rejected");
         emailService.sendMail(user.getEmail(), Collections.singletonList(token.getInvitedBy()), userInviteRejectSub, userInviteRejectTemplate(user.getEmail(), (String) participantDetails.get(PARTICIPANT_NAME)));
+        auditIndexer.createDocument(eventGenerator.getOnboardUserInviteRejected(user, (String) participantDetails.getOrDefault(PARTICIPANT_NAME,"")));
         return getSuccessResponse();
     }
 
@@ -775,7 +778,7 @@ public class OnboardService extends BaseController {
         Map<String, Object> model = new HashMap<>();
         model.put("EMAIL", email);
         model.put("PARTICIPANT_NAME", participantName);
-        return freemarkerService.renderTemplate("user-create-reject.ftl", model);
+        return freemarkerService.renderTemplate("user-invite-reject.ftl", model);
     }
 
     private String userInviteAcceptTemplate(String userId, String participantName, String username) throws Exception {

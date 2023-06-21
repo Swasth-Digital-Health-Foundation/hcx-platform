@@ -1,8 +1,8 @@
 package org.swasth.hcx.helpers;
 
-import kong.unirest.HttpResponse;
 import org.swasth.common.dto.OnboardRequest;
 import org.swasth.common.dto.ResponseError;
+import org.swasth.common.dto.User;
 import org.swasth.common.utils.UUIDUtils;
 
 import java.time.LocalDate;
@@ -137,4 +137,45 @@ public class EventGenerator {
         return event;
     }
 
+    public Map<String, Object> getOnboardUserInvite(Map<String,Object> requestBody,String invitedOrgName) {
+        Map<String,Object> event = new HashMap<>();
+        event.put(EID, ONBOARD);
+        event.put(MID, UUIDUtils.getUUID());
+        event.put(ETS, System.currentTimeMillis());
+        event.put(ACTION, ONBOARD_USER_INVITE);
+        event.put(PARTICIPANT_NAME,invitedOrgName);
+        event.put(INVITED_BY,requestBody.getOrDefault(INVITED_BY, ""));
+        event.put(EMAIL,requestBody.getOrDefault(EMAIL, ""));
+        event.put(ROLE,requestBody.getOrDefault(ROLE, ""));
+        event.put(INVITE_STATUS,PENDING);
+        return event;
+    }
+
+    public Map<String, Object> getOnboardUserInviteAccepted(User user,Map<String,Object> participantDetails) {
+        Map<String,Object> event = new HashMap<>();
+        event.put(EID, ONBOARD);
+        event.put(MID, UUIDUtils.getUUID());
+        event.put(ETS, System.currentTimeMillis());
+        event.put(ACTION, ONBOARD_USER_INVITE_ACCEPT);
+        event.put(PARTICIPANT_NAME,participantDetails.get(PARTICIPANT_NAME));
+        event.put(USER_NAME,user.getUsername());
+        event.put(USER_ID,user.getUserId());
+        event.put(INVITED_BY,user.getCreatedBy());
+        event.put(EMAIL,user.getEmail());
+        event.put(TENANT_ROLES,user.getTenantRoles());
+        event.put(INVITE_STATUS,ACCEPTED);
+        return event;
+    }
+
+    public Map<String,Object> getOnboardUserInviteRejected(User user,String participantName){
+        Map<String,Object> event = new HashMap<>();
+        event.put(EID, ONBOARD);
+        event.put(MID, UUIDUtils.getUUID());
+        event.put(ETS, System.currentTimeMillis());
+        event.put(ACTION, ONBOARD_USER_INVITE_REJECT);
+        event.put(PARTICIPANT_NAME,participantName);
+        event.put(EMAIL,user.getEmail());
+        event.put(INVITE_STATUS,REJECTED);
+        return  event;
+    }
 }

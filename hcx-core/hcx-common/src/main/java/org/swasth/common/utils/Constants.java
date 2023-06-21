@@ -202,6 +202,7 @@ public class Constants {
     public static final String SCHEME_CODE = "scheme_code";
     public static final String PARTICIPANT_CODE = "participant_code";
     public static final String INVITED_BY = "invited_by";
+    public static final String  INVITE_STATUS = "invite_status";
     public static final String TERMS_AND_CONDITIONS = "terms_and_conditions";
     public static final String PARTICIPANT_NAME = "participant_name";
     public static final String PARTICIPANT_ROLE = "participant_role";
