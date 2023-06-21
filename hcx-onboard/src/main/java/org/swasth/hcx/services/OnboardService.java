@@ -146,6 +146,9 @@ public class OnboardService extends BaseController {
     private String emailConfig;
     @Value("${onboard.phone}")
     private String phoneConfig;
+    @Value("${onboard.terms-and-conditions-url}")
+    private String termsAndConditionsUrl;
+
     @Autowired
     private SMSService smsService;
 
@@ -809,6 +812,7 @@ public class OnboardService extends BaseController {
         model.put("role", role.get(0));
         model.put("DAY", day);
         model.put("USER_ID", userId);
+        model.put("TERMS_AND_CONDITIONS_URL", termsAndConditionsUrl);
         return freemarkerService.renderTemplate("send-link.ftl", model);
     }
 
