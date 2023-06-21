@@ -252,6 +252,7 @@ rbac:
       - /v0.8/participant/search
       - /v0.8/participant/update
       - /v0.8/onboard/applicant/password/generate
+      - /v0.8/participant/onboard/update
     regexPaths:
       - /v0.8/user/**
       - /v0.8/participant/user/**
