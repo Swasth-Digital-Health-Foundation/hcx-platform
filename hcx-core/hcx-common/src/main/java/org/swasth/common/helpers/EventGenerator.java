@@ -294,27 +294,4 @@ public class EventGenerator {
             event.put(TAGS, tags);
         }
     }
-
-    public Map<String, Object> generateAddAudit(Map<String,Object> registryDetails , String action){
-        Map<String, Object> event = new HashMap<>();
-        event.put(EID, AUDIT);
-        event.put(MID, UUID.randomUUID().toString());
-        event.put(ETS, System.currentTimeMillis());
-        event.put(ACTION, action);
-        event.put(CREATED_BY,registryDetails.get(CREATED_BY));
-        event.put("created_for",registryDetails.get(USER_ID));
-        return event;
-    }
-
-    public Map<String, Object> generateRemoveAudit(Map<String,Object> registryDetails , String action){
-        Map<String, Object> event = new HashMap<>();
-        event.put(EID, AUDIT);
-        event.put(MID, UUID.randomUUID().toString());
-        event.put(ETS, System.currentTimeMillis());
-        event.put(ACTION, action);
-        event.put(CREATED_BY,registryDetails.get(CREATED_BY));
-        event.put("removed_user",registryDetails.get(USER_ID));
-        return event;
-    }
-
 }
