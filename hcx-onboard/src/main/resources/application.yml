@@ -34,7 +34,7 @@ onboard:
 email:
   id: ${email_id:}
   pwd: ${email_pwd:}
-  linkSub: ${link_sub:HCX - Onboarding Started}
+  linkSub: ${link_sub:HCX - Onboarding Details}
   success-identity-sub: ${success_identity_sub:HCX - Identity Verified}
   failed-identity-sub: ${failed_identity_sub:HCX - Identity Verification Failed}
   onboarding-success-sub: ${onboarding_success_sub:HCX - Onboarding Successful}
