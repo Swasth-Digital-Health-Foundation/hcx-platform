@@ -189,7 +189,7 @@ public class ParticipantService extends BaseRegistryService {
         } else if (StringUtils.equals(token.getEntityType(), "User")) {
             boolean result = false;
             for(Map<String, String> roleMap: token.getTenantRoles()){
-                if(StringUtils.equals(roleMap.get(PARTICIPANT_CODE), participantCode) && StringUtils.equals((String) roleMap.get(ROLE), CONFIG_MANAGER)) {
+                if(StringUtils.equals(roleMap.get(PARTICIPANT_CODE), participantCode) && (StringUtils.equals((String) roleMap.get(ROLE), ADMIN) || StringUtils.equals((String) roleMap.get(ROLE), CONFIG_MANAGER))) {
                     result = true;
                 }
             }
