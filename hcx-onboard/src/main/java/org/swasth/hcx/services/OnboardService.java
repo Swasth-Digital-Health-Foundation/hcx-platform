@@ -313,8 +313,7 @@ public class OnboardService extends BaseController {
             String jwtToken = (String) requestBody.get(JWT_TOKEN);
             Map<String, Object> jwtPayload = JSONUtils.decodeBase64String(jwtToken.split("\\.")[1], Map.class);
             participantCode = (String) jwtPayload.get(PARTICIPANT_CODE);
-            Map<String,Object> test = getConfig(participantCode, PARTICIPANT_VALIDATION_PROPERTIES);
-            OnboardValidations validations = new OnboardValidations(test);
+            OnboardValidations validations = new OnboardValidations(getConfig(participantCode, PARTICIPANT_VALIDATION_PROPERTIES));
             boolean emailEnabled = validations.isEmailEnabled();
             boolean phoneEnabled = validations.isPhoneEnabled();
             name = (String) jwtPayload.get(PARTICIPANT_NAME);
@@ -888,8 +887,18 @@ public class OnboardService extends BaseController {
             if (!onboardValidations.isEmpty()) {
                 validationsMap.put(resultSet.getString(PARTICIPANT_CODE), onboardValidations);
             }
+            addDefaultConfig(participantsList, onboardValidations, validationsMap, resultSet.getString(PARTICIPANT_CODE));
         }
         filterDetails(validationsMap, participantsList, ONBOARD_VALIDATION_PROPERTIES);
+    }
+
+    private void addDefaultConfig(ArrayList<Map<String,Object>> participantList, Map<String, Object> onboardValidations, Map<String,Object> validationMap, String code) {
+        for (Map<String, Object> roleMap : participantList) {
+            List<String> roles = (List<String>) roleMap.get(ROLES);
+            if (roles.contains(PAYOR) && onboardValidations.isEmpty()) {
+                validationMap.put(code,getSystemConfig());
+            }
+        }
     }
 
     private String getParticipantWithQuote(String participantList) {
