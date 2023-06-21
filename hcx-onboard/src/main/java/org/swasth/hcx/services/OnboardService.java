@@ -606,7 +606,7 @@ public class OnboardService extends BaseController {
         return new ResponseEntity<>(new RegistryResponse(participantList, ORGANISATION), HttpStatus.OK);
     }
 
-    public void userInvite(Map<String, Object> requestBody) throws Exception {
+    public Response userInvite(Map<String, Object> requestBody) throws Exception {
         logger.info("User invite: " + requestBody);
         String email = (String) requestBody.getOrDefault(EMAIL, "");
         String role = (String) requestBody.getOrDefault(ROLE, "");
@@ -622,6 +622,7 @@ public class OnboardService extends BaseController {
         String query = String.format("INSERT INTO %s (participant_code,user_email,invited_by,invite_status,created_on) VALUES ('%s','%s','%s','pending',%d)", onboardUserInviteTable, code, email, invitedBy, System.currentTimeMillis());
         postgreSQLClient.execute(query);
         logger.info("User invitation sent");
+        return getSuccessResponse();
     }
 
     private String generateInviteToken(String code, String userEmail, String userRole, String invitedBy) throws NoSuchAlgorithmException, InvalidKeySpecException {
@@ -642,7 +643,7 @@ public class OnboardService extends BaseController {
         return jwtUtils.generateJWS(headers, payload, privatekey);
     }
 
-    public void userInviteAccept(HttpHeaders headers, Map<String, Object> body) throws ClientException, Exception {
+    public Response userInviteAccept(HttpHeaders headers, Map<String, Object> body) throws ClientException, Exception {
         logger.info("User invite accepted: " + body);
         Token token = new Token((String) body.getOrDefault(JWT_TOKEN, ""));
         Map<String, Object> participantDetails = getParticipant(PARTICIPANT_CODE, hcxCode);
@@ -662,6 +663,7 @@ public class OnboardService extends BaseController {
         } else {
             emailService.sendMail(user.getEmail(), Arrays.asList(token.getInvitedBy()), userInviteAcceptSub, userInviteAcceptTemplate(user.getUserId(), (String) participantDetails.get(PARTICIPANT_NAME), user.getUsername()));
         }
+        return getSuccessResponse();
     }
 
     private void addUser(HttpHeaders headers, String requestBody) throws Exception {
@@ -712,7 +714,7 @@ public class OnboardService extends BaseController {
         postgreSQLClient.execute(query);
     }
 
-    public void userInviteReject(Map<String, Object> body) throws ClientException, Exception {
+    public Response userInviteReject(Map<String, Object> body) throws ClientException, Exception {
         logger.info("User invite rejected: " + body);
         Token token = new Token((String) body.getOrDefault(JWT_TOKEN, ""));
         Map<String, Object> participantDetails = getParticipant(PARTICIPANT_CODE, hcxCode);
@@ -721,7 +723,8 @@ public class OnboardService extends BaseController {
         }
         User user = JSONUtils.deserialize(body.get("user"), User.class);
         updateInviteStatus(user.getEmail(), "rejected");
-        emailService.sendMail(user.getEmail(), Arrays.asList(token.getInvitedBy()), userInviteRejectSub, userInviteRejectTemplate(user.getEmail(), (String) participantDetails.get(PARTICIPANT_NAME)));
+        emailService.sendMail(user.getEmail(), Collections.singletonList(token.getInvitedBy()), userInviteRejectSub, userInviteRejectTemplate(user.getEmail(), (String) participantDetails.get(PARTICIPANT_NAME)));
+        return getSuccessResponse();
     }
 
 
@@ -1057,14 +1060,12 @@ public class OnboardService extends BaseController {
         return RandomStringUtils.random(length, characters);
     }
 
-    public ResponseEntity<Object> generateAndSetPassword(String participantCode) throws Exception {
+    public Response generateAndSetPassword(String participantCode) throws Exception {
         String password = generateRandomPassword(24);
         Map<String, Object> registryDetails = getParticipant(PARTICIPANT_CODE, participantCode);
         setKeycloakPassword(participantCode, password, registryDetails);
         emailService.sendMail((String) registryDetails.get(PRIMARY_EMAIL), passwordGenerateSub, passwordGenerate((String) registryDetails.get(PARTICIPANT_NAME),password,(String) registryDetails.get(PRIMARY_EMAIL)));
-        Response response = new Response();
-        response.setStatus(SUCCESSFUL);
-        return getSuccessResponse(response);
+        return getSuccessResponse();
     }
 
     public void validateAdminRole(HttpHeaders headers, String participantCode) throws Exception {
@@ -1080,6 +1081,11 @@ public class OnboardService extends BaseController {
                 throw new ClientException("Only user with admin role and part of the Organisation are able to generate the password");
             }
         }
+    }
+    private Response getSuccessResponse() {
+        Response response = new Response();
+        response.setStatus(SUCCESSFUL);
+        return response;
     }
 
 }

@@ -3,7 +3,6 @@ package org.swasth.hcx.controllers.v1;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.swasth.common.dto.Response;
@@ -51,9 +50,9 @@ public class OnboardController extends BaseController {
     }
 
     @PostMapping(PARTICIPANT_ONBOARD_UPDATE)
-    public ResponseEntity<Object> onboardUpdate(@RequestHeader HttpHeaders header,@RequestBody Map<String, Object> requestBody) throws Exception {
+    public ResponseEntity<Object> onboardUpdate(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) throws Exception {
         try {
-            return service.onboardUpdate(header,requestBody);
+            return service.onboardUpdate(header, requestBody);
         } catch (Exception e) {
             return exceptionHandler(service.getEmail(requestBody.getOrDefault(JWT_TOKEN, "").toString()), PARTICIPANT_ONBOARD_UPDATE, new Response(), e);
         }
@@ -65,7 +64,7 @@ public class OnboardController extends BaseController {
         try {
             return service.manualIdentityVerify(requestBody);
         } catch (Exception e) {
-            emailService.sendMail(applicantEmail,failedIdentitySub,service.commonTemplate("identity-fail.ftl"));
+            emailService.sendMail(applicantEmail, failedIdentitySub, service.commonTemplate("identity-fail.ftl"));
             return exceptionHandler(applicantEmail, PARTICIPANT_VERIFY_IDENTITY, new Response(), e);
 
         }
@@ -79,6 +78,7 @@ public class OnboardController extends BaseController {
             return exceptionHandler("", APPLICANT_VERIFY, new Response(), e);
         }
     }
+
     @PostMapping(APPLICANT_GET_INFO)
     public ResponseEntity<Object> getinfo(@RequestBody Map<String, Object> requestBody) throws Exception {
         try {
@@ -89,50 +89,47 @@ public class OnboardController extends BaseController {
     }
 
     @PostMapping(APPLICANT_SEARCH)
-    public ResponseEntity<Object> applicantSearch(@RequestHeader HttpHeaders header,@RequestParam(required = false) String fields,@RequestBody Map<String,Object> requestBody) throws Exception{
-        try{
-            return service.applicantSearch(requestBody,fields,header);
-        } catch (Exception e){
-            return exceptionHandler("",APPLICANT_SEARCH,new Response(),e);
+    public ResponseEntity<Object> applicantSearch(@RequestHeader HttpHeaders header, @RequestParam(required = false) String fields, @RequestBody Map<String, Object> requestBody) throws Exception {
+        try {
+            return service.applicantSearch(requestBody, fields, header);
+        } catch (Exception e) {
+            return exceptionHandler("", APPLICANT_SEARCH, new Response(), e);
         }
     }
 
     @PostMapping(ONBOARD_USER_INVITE)
-    public ResponseEntity<Object> userInvite(@RequestBody Map<String,Object> requestBody) throws Exception{
-        try{
-            service.userInvite(requestBody);
-            return new ResponseEntity<>(new Response(), HttpStatus.OK);
-        } catch (Exception e){
-            return exceptionHandler("",ONBOARD_USER_INVITE,new Response(),e);
+    public ResponseEntity<Object> userInvite(@RequestBody Map<String, Object> requestBody) throws Exception {
+        try {
+            return getSuccessResponse(service.userInvite(requestBody));
+        } catch (Exception e) {
+            return exceptionHandler("", ONBOARD_USER_INVITE, new Response(), e);
         }
     }
 
     @PostMapping(ONBOARD_USER_INVITE_ACCEPT)
-    public ResponseEntity<Object> userInviteAccept(@RequestHeader HttpHeaders headers,@RequestBody Map<String,Object> requestBody) throws Exception{
-        try{
-            service.userInviteAccept(headers,requestBody);
-            return new ResponseEntity<>(new Response(), HttpStatus.OK);
-        } catch (Exception e){
-            return exceptionHandler("",ONBOARD_USER_INVITE_ACCEPT,new Response(),e);
+    public ResponseEntity<Object> userInviteAccept(@RequestHeader HttpHeaders headers, @RequestBody Map<String, Object> requestBody) throws Exception {
+        try {
+            return getSuccessResponse(service.userInviteAccept(headers, requestBody));
+        } catch (Exception e) {
+            return exceptionHandler("", ONBOARD_USER_INVITE_ACCEPT, new Response(), e);
         }
     }
 
     @PostMapping(ONBOARD_USER_INVITE_REJECT)
-    public ResponseEntity<Object> userInviteReject(@RequestBody Map<String,Object> requestBody) throws Exception{
-        try{
-            service.userInviteReject(requestBody);
-            return new ResponseEntity<>(new Response(), HttpStatus.OK);
-        } catch (Exception e){
-            return exceptionHandler("",ONBOARD_USER_INVITE_REJECT,new Response(),e);
+    public ResponseEntity<Object> userInviteReject(@RequestBody Map<String, Object> requestBody) throws Exception {
+        try {
+            return getSuccessResponse(service.userInviteReject(requestBody));
+        } catch (Exception e) {
+            return exceptionHandler("", ONBOARD_USER_INVITE_REJECT, new Response(), e);
         }
     }
 
     @PostMapping(ONBOARD_APPLICANT_PASSWORD_GENERATE)
-    public ResponseEntity<Object> generatePassword(@RequestBody Map<String, Object> requestBody,@RequestHeader HttpHeaders headers) throws Exception {
+    public ResponseEntity<Object> generatePassword(@RequestBody Map<String, Object> requestBody, @RequestHeader HttpHeaders headers) throws Exception {
         try {
             String participantCode = (String) requestBody.get(PARTICIPANT_CODE);
-            service.validateAdminRole(headers,participantCode);
-            return service.generateAndSetPassword(participantCode);
+            service.validateAdminRole(headers, participantCode);
+            return getSuccessResponse(service.generateAndSetPassword(participantCode));
         } catch (Exception e) {
             return exceptionHandler("", ONBOARD_APPLICANT_PASSWORD_GENERATE, new Response(), e);
         }
