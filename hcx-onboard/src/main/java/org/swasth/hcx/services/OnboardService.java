@@ -401,23 +401,21 @@ public class OnboardService extends BaseController {
         Map<String,Object> participantDetails = getParticipant(PARTICIPANT_CODE, participantCode);
         String identityStatus = "";
         String onboardingQuery = String.format("SELECT * FROM %s WHERE applicant_email ILIKE '%s'", onboardingVerifierTable, participantDetails.get(PRIMARY_EMAIL));
-        logger.info("query " + onboardingQuery);
         ResultSet resultSet1 = (ResultSet) postgreSQLClient.executeQuery(onboardingQuery);
         if (resultSet1.next()) {
             identityStatus = resultSet1.getString("status");
         }
-        logger.info("data " + identityStatus + communicationStatus);
-        Map<String,Object> requestBody = new HashMap();
         if (communicationStatus.equals(SUCCESSFUL) && identityStatus.equals(ACCEPTED)) {
+            Map<String,Object> requestBody = new HashMap();
             requestBody.put(REGISTRY_STATUS, ACTIVE);
             requestBody.put(PARTICIPANT_CODE, participantDetails.get(PARTICIPANT_CODE));
-        }
-        HttpResponse<String> httpResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_UPDATE, JSONUtils.serialize(requestBody), getHeadersMap(headers));
-        if (httpResponse.getStatus() != 200) {
-            throw new ClientException(ErrorCodes.INTERNAL_SERVER_ERROR, "Error while updating participant details: " + httpResponse.getBody());
-        }
-        if (!StringUtils.equals((String) participantDetails.getOrDefault(REGISTRY_STATUS, ""), ACTIVE) && StringUtils.equals((String) requestBody.getOrDefault(REGISTRY_STATUS, ""), ACTIVE)){
-            generateAndSetPassword((String) participantDetails.get(PARTICIPANT_CODE));
+            HttpResponse<String> httpResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_UPDATE, JSONUtils.serialize(requestBody), getHeadersMap(headers));
+            if (httpResponse.getStatus() != 200) {
+                throw new ClientException(ErrorCodes.INTERNAL_SERVER_ERROR, "Error while updating participant details: " + httpResponse.getBody());
+            }
+            if (!StringUtils.equals((String) participantDetails.getOrDefault(REGISTRY_STATUS, ""), ACTIVE) && StringUtils.equals((String) requestBody.getOrDefault(REGISTRY_STATUS, ""), ACTIVE)) {
+                generateAndSetPassword((String) participantDetails.get(PARTICIPANT_CODE));
+            }
         }
     }
 
@@ -576,17 +574,19 @@ public class OnboardService extends BaseController {
         if (resultSet1.next()) {
             communicationStatus = resultSet1.getString("status");
         }
-        Map<String,Object> requestBody = new HashMap();
+
         if (communicationStatus.equals(SUCCESSFUL) && identityStatus.equals(ACCEPTED)) {
+            Map<String,Object> requestBody = new HashMap();
             requestBody.put(REGISTRY_STATUS, ACTIVE);
             requestBody.put(PARTICIPANT_CODE, (String) participantDetails.get(PARTICIPANT_CODE));
-        }
-        HttpResponse<String> httpResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_UPDATE, JSONUtils.serialize(requestBody), getHeadersMap(headers));
-        if (httpResponse.getStatus() != 200) {
-            throw new ClientException(ErrorCodes.INTERNAL_SERVER_ERROR, "Error while updating participant details: " + httpResponse.getBody());
-        }
-        if (!StringUtils.equals((String) participantDetails.get(REGISTRY_STATUS), ACTIVE) && StringUtils.equals((String) requestBody.getOrDefault(REGISTRY_STATUS, ""), ACTIVE)){
-            generateAndSetPassword((String) participantDetails.get(PARTICIPANT_CODE));
+
+            HttpResponse<String> httpResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_UPDATE, JSONUtils.serialize(requestBody), getHeadersMap(headers));
+            if (httpResponse.getStatus() != 200) {
+                throw new ClientException(ErrorCodes.INTERNAL_SERVER_ERROR, "Error while updating participant details: " + httpResponse.getBody());
+            }
+            if (!StringUtils.equals((String) participantDetails.get(REGISTRY_STATUS), ACTIVE) && StringUtils.equals((String) requestBody.getOrDefault(REGISTRY_STATUS, ""), ACTIVE)) {
+                generateAndSetPassword((String) participantDetails.get(PARTICIPANT_CODE));
+            }
         }
     }
 

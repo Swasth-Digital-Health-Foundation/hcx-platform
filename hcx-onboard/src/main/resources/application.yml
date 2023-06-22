@@ -42,7 +42,7 @@ email:
   user-invite-sub: ${user_invite_sub:HCX - User Invitation}
   user-invite-accept-sub: ${user_invite_accept_sub:HCX - User Details}
   user-invite-reject-sub: ${user_invite_reject_sub:HCX - User Rejected Invitation}
-  password-generate-sub: ${password_generate_sub:HCX - Password Generate}
+  password-generate-sub: ${password_generate_sub:HCX - Participant Client Secret}
 
 phone:
   send-link-msg : ${send_link_msg:HCX mobile verification link is :}
