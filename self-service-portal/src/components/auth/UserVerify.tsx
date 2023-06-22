@@ -70,7 +70,18 @@ export default function UserVerify() {
     userInviteAccept(_.get(queryString.parse(window.location.search),"jwt_token"), user).then((res :any) => {
       setSubmitted(true);
       toast.success("You have successfully accepted the invite. Please login to continue");
-      setShowPass(true)
+      serachUser(email).then((res: any) => {
+        console.log("Res",res);
+        let osOwner = _.get(res, "data.users[0].osOwner");
+        console.log("osoner", osOwner);
+        if (osOwner !== undefined){
+          console.log('i am redirecting to login');
+          navigate("/onboarding/login");
+        }else{
+          setShowPass(true);
+        } 
+      })
+      
     }).catch(err => {
       showError(_.get(err, 'response.data.error.message') || "Internal Server Error");
       setSubmitted(false);
@@ -89,13 +100,14 @@ export default function UserVerify() {
       if (pass1 === pass2) {
         let osOwner;
         serachUser(email).then((res: any) => {
+          console.log("user search in verify", res);
           osOwner = res["data"]["users"][0]["osOwner"];
           setUserPassword(osOwner[0], pass1).then((async function () {
             generateTokenUser(email, pass1).then((res: any) => {
               dispatch(addParticipantToken(res["access_token"]));
             })
-            //navigate("/onboarding/dashboard");
-            setShowUserCreate(true);
+            navigate("/onboarding/login");
+            toast.success("User password created successfully. Please login to continue");
           })).catch(err => {
             toast.error(_.get(err, 'response.data.error.message') || "Internal Server Error", {
               position: toast.POSITION.TOP_CENTER
@@ -104,12 +116,6 @@ export default function UserVerify() {
             setSending(false);
           })
         });
-
-        getParticipant(email).then((res: any) => {
-          console.log("we are in inside get par", res);
-          osOwner = res["data"]["participants"][0]["osOwner"];
-          dispatch(addParticipantDetails(res["data"]["participants"][0]));
-        })
       } else {
         toast.error("Incorrect password", {
           position: toast.POSITION.TOP_CENTER

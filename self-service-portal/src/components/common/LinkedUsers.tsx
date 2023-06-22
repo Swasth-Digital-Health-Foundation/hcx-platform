@@ -58,7 +58,7 @@ return (
         </button>
       </div>
       {/* Modal body */}
-      <div className="p-6 space-y-6">
+      <div className="p-10 space-y-6">
       <table className="w-1/2 text-sm text-left text-gray-500 dark:text-gray-400">
     <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
       <tr>
@@ -67,9 +67,6 @@ return (
         </th>
         <th scope="col" className="px-6 py-3">
           User Code
-        </th>
-        <th scope="col" className="px-6 py-3">
-          Mobile
         </th>
         <th scope="col" className="px-6 py-3">
           Created By
@@ -93,12 +90,6 @@ return (
           </div>
         </th>
         <td className="px-6 py-4">user1-hcx@staging-swasth</td>
-        <td className="px-6 py-4">
-          <div className="flex items-center">
-            {/* <div className="h-2.5 w-2.5 rounded-full bg-green-500 mr-2" />{" "} */}
-            9999999999
-          </div>
-        </td>
          <td className="px-6 py-4">admin-hcx@staging-swasth</td>
 
         <td className="px-6 py-4 space-x-3">
@@ -110,40 +101,6 @@ return (
             data-modal-show="editUserModal"
             className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
             //onClick={() => setShowDetails(true)}
-          >
-            Remove 
-          </a>
-        </td>
-      </tr>
-      <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-        <th
-          scope="row"
-          className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white"
-        >
-          <div className="pl-3">
-            <div className="text-base font-semibold">User 1</div>
-            <div className="font-normal text-gray-500">
-              User3@Org3.com
-            </div>
-          </div>
-        </th>
-        <td className="px-6 py-4">user3-hcx@staging-swasth</td>
-        <td className="px-6 py-4">
-          <div className="flex items-center">
-            {/* <div className="h-2.5 w-2.5 rounded-full bg-green-500 mr-2" />{" "} */}
-            9999999999
-          </div>
-        </td>
-         <td className="px-6 py-4">admin3-hcx@staging-swasth</td>
-
-        <td className="px-6 py-4 space-x-3">
-          {/* Modal toggle */}
-          <a
-            href="#"
-            type="button"
-            data-modal-target="editUserModal"
-            data-modal-show="editUserModal"
-            className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
           >
             Remove 
           </a>

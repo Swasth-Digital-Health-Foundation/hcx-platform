@@ -1,9 +1,56 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import 'flowbite';
+import { getAllUser, serachUser, userInvite } from "../../api/UserService";
+import _ from "lodash";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../store";
+import { toast } from "react-toastify";
 
 const Users =() => {
+  const dispatch = useDispatch();
+  const participantToken = useSelector((state: RootState) => state.tokenReducer.participantToken);
+  const appData: Object = useSelector((state: RootState) => state.appDataReducer.appData);
 
+    const [participantList, setParticipantList] = useState([]);
+    const [userData, setUserData] = useState([]);
+    const [participantSelected,setParticipantSelected] = useState('');
+    const [roleSelected, setRoleSelected] = useState('admin');
+    useEffect(()=> {
+      getAllUser().then((res:any) =>{
+        let user = res["data"]["users"];
+        console.log("user data", user);
+        setUserData(user.map((value:any, index:any) => { return value }));
+        
+      })
+      serachUser(_.get(appData,"username")).then((res: any) => {
+        let participant = res["data"]["users"][0]["tenant_roles"];
+        setParticipantList(participant);
+      })
+      participantList.map((value:any,index:any) => {
+        if(value.role == "admin"){
+          setParticipantSelected(value.participant_code);
+      }
+    });
+    },[])
     const [showDetails, setShowDetails] = useState(false);
+    const [userDetails, setUserDetails] = useState({"name":"","user_code":"","email":""})
+
+
+
+    const inviteUsers = () => {
+        console.log("participant selected", participantSelected);
+        userInvite({ "email": userDetails.email, "participant_code": participantSelected, "role": roleSelected, "invited_by": _.get(appData,"username") }).then(res => {
+          toast.success(`${userDetails.email} has been successfully invited`);              
+        }).catch(err => {
+          toast.error(`${userDetails.email} could not be invited. ` + _.get(err, 'response.data.error.message') || "Internal Server Error",);
+        })
+      toast.success("Users have been successfully invited");
+    }
+
+
+    const userDetailsShow = (value:any) => {
+      setUserDetails({"name":_.get(value,"user_name"),"user_code":_.get(value,"user_id"),"email":_.get(value,"email")})
+    }
     return(
 
         <div className="p-4 sm:ml-64">
@@ -62,9 +109,6 @@ const Users =() => {
           User Code
         </th>
         <th scope="col" className="px-6 py-3">
-          Mobile
-        </th>
-        <th scope="col" className="px-6 py-3">
           Created By
         </th>
         <th scope="col" className="px-6 py-3">
@@ -73,26 +117,21 @@ const Users =() => {
       </tr>
     </thead>
     <tbody>
-      <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+    { userData.map((value:any,index:any) => {
+        return <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
         <th
           scope="row"
           className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white"
         >
           <div className="pl-3">
-            <div className="text-base font-semibold">User 1</div>
+            <div className="text-base font-semibold">{_.get(value,"user_name")}</div>
             <div className="font-normal text-gray-500">
-              User1@Org1.com
+              {_.get(value,"email")}
             </div>
           </div>
         </th>
-        <td className="px-6 py-4">user1-hcx@staging-swasth</td>
-        <td className="px-6 py-4">
-          <div className="flex items-center">
-            {/* <div className="h-2.5 w-2.5 rounded-full bg-green-500 mr-2" />{" "} */}
-            9999999999
-          </div>
-        </td>
-         <td className="px-6 py-4">admin-hcx@staging-swasth</td>
+        <td className="px-6 py-4">{_.get(value,"user_id")}</td>
+         <td className="px-6 py-4">{_.get(value,"created_by")}</td>
 
         <td className="px-6 py-4 space-x-3">
           {/* Modal toggle */}
@@ -102,57 +141,14 @@ const Users =() => {
             data-modal-target="editUserModal"
             data-modal-show="editUserModal"
             className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-            onClick={() => setShowDetails(true)}
-          >
-            Add 
-          </a>
-          <a
-            href="#"
-            type="button"
-            data-modal-target="editUserModal"
-            data-modal-show="editUserModal"
-            className="font-medium text-red-600 dark:text-blue-500 hover:underline"
-            onClick={() => setShowDetails(true)}
-          >
-            Delete
-          </a>
-        </td>
-      </tr>
-      <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-        <th
-          scope="row"
-          className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white"
-        >
-          <div className="pl-3">
-            <div className="text-base font-semibold">User 1</div>
-            <div className="font-normal text-gray-500">
-              User3@Org3.com
-            </div>
-          </div>
-        </th>
-        <td className="px-6 py-4">user3-hcx@staging-swasth</td>
-        <td className="px-6 py-4">
-          <div className="flex items-center">
-            {/* <div className="h-2.5 w-2.5 rounded-full bg-green-500 mr-2" />{" "} */}
-            9999999999
-          </div>
-        </td>
-         <td className="px-6 py-4">admin3-hcx@staging-swasth</td>
-
-        <td className="px-6 py-4 space-x-3">
-          {/* Modal toggle */}
-          <a
-            href="#"
-            type="button"
-            data-modal-target="editUserModal"
-            data-modal-show="editUserModal"
-            className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-            onClick={() => setShowDetails(true)}
+            onClick={() => {setShowDetails(true); userDetailsShow(value)}}
           >
             Add 
           </a>
         </td>
       </tr>
+      })
+      }     
     </tbody>
   </table>
   {/* Edit user modal */}
@@ -177,6 +173,7 @@ const Users =() => {
             type="button"
             className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white"
             data-modal-hide="editUserModal"
+            onClick={(event) => {setShowDetails(false)}}
           >
             <svg
               aria-hidden="true"
@@ -208,7 +205,10 @@ const Users =() => {
                 name="first-name"
                 id="first-name"
                 className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                placeholder="Bonnie"
+                placeholder="Name"
+                disabled
+                value={userDetails.name}
+
               />
             </div>
             <div className="col-span-6 sm:col-span-3">
@@ -223,7 +223,9 @@ const Users =() => {
                 name="last-name"
                 id="last-name"
                 className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                placeholder="Green"
+                placeholder="User Code"
+                value={userDetails.user_code}
+                disabled
               />
             </div>
             <div className="col-span-6 sm:col-span-3">
@@ -239,21 +241,8 @@ const Users =() => {
                 id="email"
                 className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                 placeholder="example@company.com"
-              />
-            </div>
-            <div className="col-span-6 sm:col-span-3">
-              <label
-                htmlFor="phone-number"
-                className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-              >
-                Phone Number
-              </label>
-              <input
-                type="number"
-                name="phone-number"
-                id="phone-number"
-                className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                placeholder="e.g. +(12)3456 789"
+                value={userDetails.email}
+                disabled
               />
             </div>
             <div className="col-span-6 sm:col-span-3">
@@ -264,9 +253,15 @@ const Users =() => {
                 Participant
               </label>
                   <select id="payordropdown" 
-                        className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" >
-                        <option selected value="1">Particpant 1</option>
-                        <option selected value="2">Particpant 2</option>
+                        className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                        onChange={(event) => setParticipantSelected(event.target.value)}>    
+                        {participantList !== undefined ? participantList.map((value:any,index:any) => {
+                          if(value.role == "admin"){
+                          return <option selected value={value.participant_code}>{value.participant_code}</option>  
+                          }else{
+                            return null
+                          }
+                        }) : null}
                       </select>
             </div>
             <div className="col-span-6 sm:col-span-3">
@@ -277,10 +272,11 @@ const Users =() => {
                 Role
               </label>
               <select id="payordropdown" 
-                        className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" >
-                        <option selected value="1">Admim</option>
-                        <option selected value="2">Edit</option>
-                        <option selected value="2">View</option>
+                        className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                        onChange={(event) => setRoleSelected(event.target.value)}>    
+                        <option selected value="admin">Admin</option>
+                        <option value="config-manager">Config Manager</option>
+                        <option value="viewer">Viewer</option>
                       </select>
 
             </div>
@@ -291,7 +287,7 @@ const Users =() => {
           <button
             type="submit"
             className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-            onClick={(event) => {event.preventDefault(); setShowDetails(false)}}
+            onClick={(event) => {event.preventDefault(); inviteUsers(); setShowDetails(false)}}
           >
             Add User
           </button>

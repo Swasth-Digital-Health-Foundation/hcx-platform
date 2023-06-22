@@ -67,14 +67,14 @@ export default function Register() {
   const [showUserCreate, setShowUserCreate] = useState(false);
 
   const appData: Object = useSelector((state: RootState) => state.appDataReducer.appData);
-  const participantDetails : Object = useSelector((state: RootState) => state.participantDetailsReducer.participantDetails);
+  const participantDetails: Object = useSelector((state: RootState) => state.participantDetailsReducer.participantDetails);
   console.log("appData", appData, participantDetails);
 
 
   useEffect(() => {
     const jwtToken = _.get(queryString.parse(window.location.search), "jwt_token");
     console.log("env ", env);
-    if (env !== "staging") {
+    if (env !== "staging" && env !== "dev") {
       setIsEnvStaging(false);
     }
     setIsJWTPresent(jwtToken ? true : false);
@@ -105,7 +105,6 @@ export default function Register() {
   }
 
   const updateCreateUserData = (value: string, index: number, field: string) => {
-    const newUser = userDetials;
     _.update(userDetials[index], field, function (n) { return value });
     setUserDetails(userDetials.map((value, index) => { return value }));
     console.log("user details", userDetials);
@@ -114,14 +113,23 @@ export default function Register() {
   const setShowTerms = (event: ChangeEvent<HTMLInputElement>) => {
     console.log("event.target.value", event.target.checked);
     dispatch(addAppData({ "showTerms": event.target.checked }));
+    dispatch(addAppData({ "termsAccepted": event.target.checked }));
   }
 
   const inviteUsers = () => {
-      userDetials.map((value,index) => {
-        console.log("values", value);
-        userInvite({"email":value.email,"participant_code":_.get(participantDetails,"participant_code"),"role":value.role, "invited_by":email})
-      });
-      toast.success("Users have been successfully invited");    
+    userDetials.map((value, index) => {
+      console.log("values", value);
+      if(value.email !== ""){
+      userInvite({ "email": value.email, "participant_code": _.get(participantDetails, "participant_code"), "role": value.role, "invited_by": email }).then(res => {
+        toast.success(`${value.email} has been successfully invited`);              
+      }).catch(err => {
+        toast.error(`${value.email} could not be invited. ` + _.get(err, 'response.data.error.message') || "Internal Server Error",);
+      })
+      }
+    });
+    toast.success("Users have been successfully invited");
+    setUserDetails([{ "email": "", "role": "admin" }]);
+    navigate("/onboarding/dashboard");
   }
   const resetPassword = () => {
     console.log("we are here to set the password");
@@ -137,7 +145,7 @@ export default function Register() {
           osOwner = res["data"]["users"][0]["osOwner"];
           setUserPassword(osOwner[0], pass1).then((async function () {
             generateTokenUser(email, pass1).then((res: any) => {
-              dispatch(addParticipantToken(res["access_token"]));
+              dispatch(addParticipantToken(res));
             })
             //navigate("/onboarding/dashboard");
             setShowUserCreate(true);
@@ -294,6 +302,7 @@ export default function Register() {
         .then((data => {
           //setState({ ...formState, ...(formData[0]), ...{ "participant_code": _.get(data, 'data.result.participant_code'), "verifier_code": payor.participant_code, "identity_verification": _.get(data, 'data.result.identity_verification') } })
           setTimeout(() => {
+            dispatch(addAppData({ username: email }));
             setShowPassword(true);
             setShowLoader(false);
             setCheckBasic(true);
@@ -336,9 +345,113 @@ export default function Register() {
 
             <div className="block rounded-lg bg-white shadow-lg dark:bg-neutral-800">
 
-              {showUserCreate ? null : <div className="g-0 lg:flex lg:flex-wrap">
-
+               
+              <div className="g-0 lg:flex lg:flex-wrap">
+                
                 {/* Left column container*/}
+                {showUserCreate ?
+               <div className="px-4 md:px-0 lg:w-6/12">
+                 {/*Logo*/}
+                 <div className="text-center">
+                      <img
+                        className="mx-auto w-48"
+                        src={logo}
+                        alt="logo"
+                      />
+                      <h4 className="mb-12 mt-1 pb-1 text-xl font-semibold">
+                        HCX Onboarding
+                      </h4>
+                    </div>
+                 <div>
+                   {/* Modal header */}
+                   <div className="flex items-start justify-between px-4">
+                     <h3 className="text-l font-semibold text-grey-700 dark:text-white">
+                       <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 inline-block mr-1 border rounded-full border-green-500" fill="none" viewBox="0 0 24 24" stroke="green">
+                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                       </svg>
+                       &nbsp;Congrats! Your onboarding is complete. You can invite users to the manage participant
+                     </h3>
+                   </div>
+                   {/* Modal body */}
+                   <form className="w-full p-12">
+                     {userDetials.map((value, index) => {
+                       return <>
+
+                         <div className="flex flex-wrap -mx-3 mb-6">
+                           <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
+                             <label
+                               className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                               htmlFor="grid-first-name"
+                             >
+                               Email Address
+                             </label>
+                             <input
+                               className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
+                               id="grid-first-name"
+                               type="text"
+                               placeholder="Email Address"
+                               value={value.email}
+                               onChange={(event) => updateCreateUserData(event.target.value, index, "email")}
+                             />
+                             {/* <p className="text-red-500 text-xs italic">Please fill out this field.</p> */}
+                           </div>
+                           <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
+                             <label
+                               className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                               htmlFor="grid-last-name"
+                             >
+                               Role
+                             </label>
+                             <select id="payordropdown"
+                               onChange={(event) => { updateCreateUserData(event.target.value, index, "role") }}
+                               className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" >
+                               <option selected value="admin">Admin</option>
+                               <option value="config-manager">Config-manager</option>
+                               <option value="viewer">Viewer</option>
+                             </select>
+                           </div>
+
+                         </div></>
+                     })}
+
+                     <div className="flex items-center justify-between -mx-3 mb-6 p-3">
+                       <button
+                         type="button"
+                         className="inline-block rounded border-2 border-blue-500 px-6 pb-[6px] pt-2 text-xs font-medium uppercase leading-normal text-blue-500 transition duration-150 ease-in-out hover:border-blue-600 hover:bg-neutral-500 hover:bg-opacity-10 hover:text-blue-600 focus:border-blue-600 focus:text-blue-600 focus:outline-none focus:ring-0 active:border-blue-700 active:text-blue-700 dark:hover:bg-neutral-100 dark:hover:bg-opacity-10"
+                         data-te-ripple-init=""
+                         data-te-ripple-color="light"
+                         onClick={() => addAnotherRow()}
+                       >
+                         Add Another User
+                       </button>
+                       <button
+                         type="button"
+                         className="inline-block rounded border-2 border-blue-500 px-6 pb-[6px] pt-2 text-xs font-medium uppercase leading-normal text-blue-500 transition duration-150 ease-in-out hover:border-blue-600 hover:bg-neutral-500 hover:bg-opacity-10 hover:text-blue-600 focus:border-blue-600 focus:text-blue-600 focus:outline-none focus:ring-0 active:border-blue-700 active:text-blue-700 dark:hover:bg-neutral-100 dark:hover:bg-opacity-10"
+                         data-te-ripple-init=""
+                         data-te-ripple-color="light"
+                         onClick={() => { inviteUsers(); }}
+                       >
+                         Invite
+                       </button>
+                     </div>
+                   </form>
+                   {/* Modal footer */}
+                   <div className="flex items-center p-6 justify-between space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600">
+                     <h5 className="text-l font-semibold text-gray-900 dark:text-white">
+                       You can also create users after login. Click skip to go to Profile page
+                     </h5>
+                     <button
+                       data-modal-hide="defaultModal"
+                       type="button"
+                       className="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
+                       onClick={() => navigate("/onboarding/dashboard")}
+                     >
+                       Skip
+                     </button>
+                   </div>
+                 </div>
+               </div>
+              :
                 <div className="px-4 md:px-0 lg:w-6/12">
                   <div className="md:mx-6 md:p-12">
                     {/*Logo*/}
@@ -606,7 +719,7 @@ export default function Register() {
                       </form>
                     }
                   </div>
-                </div>
+                </div> }
                 {/* Right column container with background and description*/}
                 <div
                   className="flex items-center rounded-b-lg lg:w-6/12 lg:rounded-r-lg lg:rounded-bl-none"
@@ -630,126 +743,7 @@ export default function Register() {
                     </p>
                   </div>
                 </div>
-              </div>}
-              {showUserCreate ? <div className="g-0 lg:flex lg:flex-wrap">
-                <div className="px-4 md:px-0 lg:w-full">
-                  {/* Modal content */}
-                  <div className="relative bg-white rounded-lg shadow dark:bg-gray-700">
-                    {/* Modal header */}
-                    <div className="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600">
-                      <h3 className="text-xl font-semibold text-green-500 dark:text-white">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 inline-block mr-1 border rounded-full border-green-500" fill="none" viewBox="0 0 24 24" stroke="green">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                        </svg>
-                        &nbsp;Congratulations! Your onboarding process is complete.
-                      </h3>
-                      <button
-                        type="button"
-                        className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white"
-                        data-modal-hide="defaultModal"
-                      >
-                        <svg
-                          aria-hidden="true"
-                          className="w-5 h-5"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                        <span className="sr-only">Close modal</span>
-                      </button>
-                    </div>
-                    {/* Modal body */}
-                    <form className="w-full p-12">
-                      <div className="flex flex-wrap -mx-3 mb-6 border-b-2 shadow-l shadow-bottom justify-between">
-                        <label
-                          className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-                        >
-                          Create Users
-                        </label>
-                      </div>
-                      {userDetials.map((value, index) => {
-                        return <>
-
-                          <div className="flex flex-wrap -mx-3 mb-6">
-                            <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
-                              <label
-                                className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-                                htmlFor="grid-first-name"
-                              >
-                                Email Address
-                              </label>
-                              <input
-                                className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
-                                id="grid-first-name"
-                                type="text"
-                                placeholder="Email Address"
-                                value={value.email}
-                                onChange={(event) => updateCreateUserData(event.target.value, index, "email")}
-                              />
-                              {/* <p className="text-red-500 text-xs italic">Please fill out this field.</p> */}
-                            </div>
-                            <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
-                              <label
-                                className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-                                htmlFor="grid-last-name"
-                              >
-                                Role
-                              </label>
-                              <select id="payordropdown"
-                                onChange={(event) => { updateCreateUserData(event.target.value, index, "role") }}
-                                className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" >
-                                <option selected value="admin">Admin</option>
-                                <option value="config-manager">Config-manager</option>
-                                <option value="viewer">Viewer</option>
-                              </select>
-                            </div>
-
-                          </div></>
-                      })}
-
-                      <div className="flex items-center justify-between -mx-3 mb-6 p-3">
-                        <button
-                          type="button"
-                          className="inline-block rounded border-2 border-blue-500 px-6 pb-[6px] pt-2 text-xs font-medium uppercase leading-normal text-blue-500 transition duration-150 ease-in-out hover:border-blue-600 hover:bg-neutral-500 hover:bg-opacity-10 hover:text-blue-600 focus:border-blue-600 focus:text-blue-600 focus:outline-none focus:ring-0 active:border-blue-700 active:text-blue-700 dark:hover:bg-neutral-100 dark:hover:bg-opacity-10"
-                          data-te-ripple-init=""
-                          data-te-ripple-color="light"
-                          onClick={() => addAnotherRow()}
-                        >
-                          Add Another User
-                        </button>
-                        <button
-                          type="button"
-                          className="inline-block rounded border-2 border-blue-500 px-6 pb-[6px] pt-2 text-xs font-medium uppercase leading-normal text-blue-500 transition duration-150 ease-in-out hover:border-blue-600 hover:bg-neutral-500 hover:bg-opacity-10 hover:text-blue-600 focus:border-blue-600 focus:text-blue-600 focus:outline-none focus:ring-0 active:border-blue-700 active:text-blue-700 dark:hover:bg-neutral-100 dark:hover:bg-opacity-10"
-                          data-te-ripple-init=""
-                          data-te-ripple-color="light"
-                          onClick={() => {inviteUsers();}}
-                        >
-                          Invite
-                        </button>
-                      </div>
-                    </form>
-                    {/* Modal footer */}
-                    <div className="flex items-center p-6 justify-between space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600">
-                      <h5 className="text-l font-semibold text-gray-900 dark:text-white">
-                        You can also create users after login. Click skip to go to Profile page
-                      </h5>
-                      <button
-                        data-modal-hide="defaultModal"
-                        type="button"
-                        className="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
-                        onClick={() => navigate("/onboarding/dashboard")}
-                      >
-                        Skip
-                      </button>
-                    </div>
-                  </div>
-                </div></div> : null}
+              </div>
             </div>
           </div>
         </div>

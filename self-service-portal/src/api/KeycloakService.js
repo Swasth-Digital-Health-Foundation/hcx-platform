@@ -136,3 +136,28 @@ export async function setUserPassword(userId, password) {
           });
       });
 }
+
+
+export async function resetPassword(userId, password) {
+    const accessToken = await generateKeycloakAdminToken();
+    const headers = {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+    };
+    const body =["UPDATE_PASSWORD"]
+
+    return new Promise((resolve, reject) => {
+        put(`${hcxUrl}/auth/admin/realms/${hcxRealmUser}/users/${userId}/execute-actions-email`, body, headers)
+        .then(function (response) {
+            let isSuccessResp = false;
+            if (response.status === 204) {
+                isSuccessResp = true;
+            } 
+            resolve(isSuccessResp);
+          })
+          .catch(function (error) {
+            console.error(error);
+            reject(error);
+          });
+      });
+}

@@ -11,11 +11,12 @@ import { getParticipant } from "../../api/RegistryService";
 import { addParticipantDetails } from "../../reducers/participant_details_reducer";
 import { toast } from "react-toastify";
 import _ from "lodash";
-import { generateTokenUser } from "../../api/KeycloakService";
+import { generateTokenUser, resetPassword } from "../../api/KeycloakService";
+import { serachUser } from "../../api/UserService";
+import { addAppData } from "../../reducers/app_data";
 
 export default function Login() {
   const dispatch = useDispatch()
-  const participantToken = useSelector((state: RootState) => state.tokenReducer.participantToken);
 
   
   const [userName, setUserName] = useState('');
@@ -24,9 +25,9 @@ export default function Login() {
   const [userError, setUserError ] = useState(false);
   const [passError, setPassError ] = useState(false);
 
-  useEffect(() => {
-    console.log("participantToken ", participantToken);
-  },[participantToken])
+  // useEffect(() => {
+  //   console.log("participantToken ", participantToken);
+  // },[participantToken])
 
   const Signin = (username: string, password: string) => {
     if (username == "" || password == ""){
@@ -35,9 +36,10 @@ export default function Login() {
       
     }else{
       console.log("i am here")
+      dispatch(addAppData({"username":username}));
       generateTokenUser(username,password).then((res) => {
         console.log("res", res);
-        dispatch(addParticipantToken(res["access_token"]));
+        dispatch(addParticipantToken(res));
         getParticipant(userName).then((res :any) => {
           console.log("we are in inside get par", res);
            dispatch(addParticipantDetails(res["data"]["participants"][0]));
@@ -50,6 +52,27 @@ export default function Login() {
     })}
   }
 
+
+  const forgotPassword = () => {
+    console.log("forgot password");
+    if(userName == ""){
+      toast.error("Please enter the Email Address", {
+        position: toast.POSITION.TOP_CENTER
+      });
+    }
+    serachUser(userName).then((res: any) => {
+      let osOwner = res["data"]["users"][0]["osOwner"];
+      resetPassword(osOwner[0]).then((async function () {
+        toast.success("Passwors reset link has been successfully sent to the email address", {
+          position: toast.POSITION.TOP_LEFT
+        });
+      })).catch(err => {
+        toast.error(_.get(err, 'response.data.error.message') || "Internal Server Error", {
+          position: toast.POSITION.TOP_CENTER
+        });
+      })
+    });
+  }
 
 
   return (
@@ -126,7 +149,7 @@ export default function Login() {
                       Log in
                     </button>
                     {/*Forgot password link*/}
-                    <a href="#!">Forgot password?</a>
+                    <a href="#" onClick={(e) => {e.preventDefault(); forgotPassword()}}>Forgot password?</a>
                   </div>
                   {/*Register button*/}
                   <div className="flex items-center justify-between pb-6">

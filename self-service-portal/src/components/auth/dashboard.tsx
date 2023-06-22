@@ -24,28 +24,22 @@ export default function Dashboard() {
   const dispatch = useDispatch()
   const participantDetails : Object = useSelector((state: RootState) => state.participantDetailsReducer.participantDetails);
   const authToken = useSelector((state: RootState) => state.tokenReducer.participantToken);  
+  const appData: Object = useSelector((state: RootState) => state.appDataReducer.appData);
+  
   const [selectedSideTab, setSelectedSideTab] = useState('Profile');
   console.log("dashboard reloaded")
   
-  // useEffect(()=> {
-  // },[setSelectedSideTab])
-  
-  const handleChildData = (data: string) => {
-    console.log("Side Bar clicked", data);
-    console.log("selected side tab ", selectedSideTab);
-    setSelectedSideTab(data);
-  };
 
-  const showComponent = (tabSelected:String) => {
+  const showComponent = (tabSelected:any) => {
       console.log("tabSelected", tabSelected);
       if(tabSelected == "Profile"){
         console.log("selectedSideTab", selectedSideTab);
          return (<ParticipantInfo></ParticipantInfo>) 
-      }else if(tabSelected == "Participants"){
+      }else if(tabSelected == "Manage Participants"){
         return (<LinkedParticipant></LinkedParticipant>)
-      }else if(tabSelected == "Create User"){
+      }else if(tabSelected == "Invite User"){
         return (<CreateUser></CreateUser>)
-      }else if(tabSelected == "Users"){
+      }else if(tabSelected == "Manage Users"){
         return(<Users></Users>)
       }
   }
@@ -108,8 +102,8 @@ export default function Dashboard() {
       </div>
     </div>
   </nav>
-  <Sidebar onDataUpdate={handleChildData}></Sidebar>
-  {showComponent(selectedSideTab)}
+  <Sidebar></Sidebar>
+  {showComponent( _.get(appData,"sidebar") )}
 </>
   );
 }

@@ -1,16 +1,18 @@
 import React from "react";
+import { addAppData } from "../../reducers/app_data";
+import { useDispatch } from "react-redux";
 
-interface ChildProps {
-    onDataUpdate: (data: string) => void
-  }
 
-const SideBar: React.FC<ChildProps> = ({ onDataUpdate }) => {
+const SideBar = () => {
+
+    const dispatch = useDispatch();
     const handleChange = (value:string) => {
-      const data = value
-      onDataUpdate(data);
+      dispatch(addAppData({"sidebar":value}));
     };
 
-    const sideBarNames = ["Profile", "Create User","Participants", "Users"];
+
+
+    const sideBarNames = ["Profile", "Invite User","Manage Participants", "Manage Users"];
     return(
     <aside
     id="logo-sidebar"

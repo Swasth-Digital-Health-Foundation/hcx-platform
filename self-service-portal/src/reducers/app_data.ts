@@ -9,7 +9,9 @@ const initialState: AppDataInterface = {
     appData: {
       termsAccepted:false,
       showTerms:false,
-      showLinkedUsers:false
+      showLinkedUsers:false,
+      username:'',
+      sidebar:"Profile"
     },
 }
 

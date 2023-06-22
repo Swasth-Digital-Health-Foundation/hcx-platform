@@ -28,6 +28,12 @@ export const serachUser = async (email) => {
     return post("/user/search", payload);
 }
 
+export const getAllUser = async () => {
+    var payload = { "filters": {} };
+    return post("/user/search", payload);
+}
+
+
 export const userUpdate = async (request) => {
     var payload = request
     return post("/user/update", payload);
@@ -51,6 +57,10 @@ export const userRemove = async (participant_code, users) => {
 }
 
 
+export const reverifyLink = async (primary_email, primary_mobile, participant_code, participant_name) => {
+    var payload = {primary_email, primary_mobile, participant_code, participant_name}
+    return post("/participant/verification/link/send", payload);
+}
 
 
 

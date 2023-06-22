@@ -1,13 +1,50 @@
 import { navigate } from "raviger";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { addAppData } from "../../reducers/app_data";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import LinkedUsers from "./LinkedUsers";
+import { RootState } from "../../store";
+import { serachUser } from "../../api/UserService";
+import _ from "lodash";
+import { getParticipant, getParticipantByCode } from "../../api/RegistryService";
+import { addParticipantDetails } from "../../reducers/participant_details_reducer";
 
 
 const LinkedParticipant = () => {
 
-  const dispatch = useDispatch();  
+  const dispatch = useDispatch();
+  const participantToken = useSelector((state: RootState) => state.tokenReducer.participantToken);
+  const appData: Object = useSelector((state: RootState) => state.appDataReducer.appData);
+  const [data, setData] = useState([{"participantcode":"","email":"","role":"","status":"","organization":""}]);
+  useEffect(() => {
+    serachUser(_.get(appData,"username")).then((res: any) => {
+      console.log("search user res", res);
+      let osOwner = res["data"]["users"][0]["osOwner"];
+      let participant = res["data"]["users"][0]["tenant_roles"];
+      participant.map((value: any,index: any) => {
+        console.log("index aa", index);
+        getParticipantByCode(value.participant_code).then(res => {
+          console.log("participant info", res);
+          data.push({"participantcode":value.participant_code,"email":res["data"]["participants"][0]["primary_email"],"role":value.role,"status":res["data"]["participants"][0]["status"],"organization":res["data"]["participants"][0]["participant_name"]})
+          setData(_.uniqBy(data, function(elem) { return [elem.email, elem.role].join(); }).map((value, index) => { return value }));
+        })
+      })
+     console.log("participant data updated", data); 
+    });
+
+  },[]);
+
+
+  const viewParticipant =(value:any) =>{
+    getParticipant(value.email).then((res :any) => {
+      console.log("we are in inside get par", res);
+       dispatch(addParticipantDetails(res["data"]["participants"][0]));
+       dispatch(addAppData({"sidebar":"Profile"}));
+    })
+  }
+  
+  
+  
   
     return(
       <>
@@ -38,10 +75,10 @@ const LinkedParticipant = () => {
           Email ID
         </th>
         <th scope="col" className="px-6 py-3">
-          Phone
+          Status
         </th>
         <th scope="col" className="px-6 py-3">
-          Status
+          Role
         </th>
         <th scope="col" className="px-6 py-3">
           Action
@@ -49,26 +86,30 @@ const LinkedParticipant = () => {
       </tr>
     </thead>
     <tbody>
-      <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+      {data.map((value,index) => {
+        if(index == 0){
+          return null
+        }else{
+        return <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
         <th
           scope="row"
           className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
         >
-          Swasth_mock_payer+swasth@hcx-staging
+          {value.participantcode}
         </th>
-        <td className="px-6 py-4">Swasth Mock Payer</td>
-        <td className="px-6 py-4">Swasth_mock_payer@swasthalliance.org</td>
-        <td className="px-6 py-4">9999999999</td>
+        <td className="px-6 py-4">{value.organization}</td>
+        <td className="px-6 py-4">{value.email}</td>
         <td className="px-6 py-4">
         <div className="flex items-center">
-          <div className="h-2.5 w-2.5 rounded-full bg-green-500 mr-2" />{" "} Active
+          <div className="h-2.5 w-2.5 rounded-full bg-green-500 mr-2" />{" "} {value.status}
           </div>
           </td>
+          <td className="px-6 py-4">{value.role}</td>
         <td className="flex items-center px-6 py-4 space-x-3">
           <a
             href="#"
             className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-            onClick={(event) => {event.preventDefault(); console.log("clicked "); navigate("/onboarding/dashboard")}}
+            onClick={(event) => {event.preventDefault(); viewParticipant(value)}}
           >
             View
           </a>
@@ -81,6 +122,9 @@ const LinkedParticipant = () => {
           </a>
         </td>
       </tr>
+        }
+      })}
+
     </tbody>
   </table>
 </div>
