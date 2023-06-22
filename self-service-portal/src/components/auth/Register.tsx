@@ -72,6 +72,7 @@ export default function Register() {
 
 
   useEffect(() => {
+    dispatch(addAppData({"sidebar":"Profile"}));
     const jwtToken = _.get(queryString.parse(window.location.search), "jwt_token");
     console.log("env ", env);
     if (env !== "staging" && env !== "dev") {
@@ -369,7 +370,7 @@ export default function Register() {
                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 inline-block mr-1 border rounded-full border-green-500" fill="none" viewBox="0 0 24 24" stroke="green">
                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                        </svg>
-                       &nbsp;Congrats! Your onboarding is complete. You can invite users to the manage participant
+                       &nbsp;Congrats! Your onboarding is initiated. You can invite users to manage organisations
                      </h3>
                    </div>
                    {/* Modal body */}
@@ -634,7 +635,7 @@ export default function Register() {
 
                         {/*Submit button*/}
                         {radioOnboard !== "actual_payor" ?
-                          <div className="mb-12 pb-1 pt-1 text-center items-center">
+                          <div className="mb-2 pb-1 pt-1 text-center items-center">
                             <div className="flex items-center justify-center mb-4">
                               <input id="link-checkbox" type="checkbox" value="" className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                                 onChange={(event) => setShowTerms(event)}
@@ -660,9 +661,9 @@ export default function Register() {
                           </div> : null}
 
                         {/*Register button*/}
-                        <div className="flex items-center justify-between pb-6">
-                          <p className="mb-0 mr-2">Already have an account?</p>
-                          <button
+                        <div className="flex items-center place-content-end pb-6">
+                        <a href="#" onClick={(e) => {e.preventDefault(); navigate("/onboarding/login")}}><p className="underline">Already have an account?</p></a>
+                          {/* <button
                             type="button"
                             className="inline-block rounded border-2 border-blue-500 px-6 pb-[6px] pt-2 text-xs font-medium uppercase leading-normal text-blue-500 transition duration-150 ease-in-out hover:border-blue-600 hover:bg-neutral-500 hover:bg-opacity-10 hover:text-blue-600 focus:border-blue-600 focus:text-blue-600 focus:outline-none focus:ring-0 active:border-blue-700 active:text-blue-700 dark:hover:bg-neutral-100 dark:hover:bg-opacity-10"
                             data-te-ripple-init=""
@@ -670,14 +671,14 @@ export default function Register() {
                             onClick={() => navigate("/onboarding/login")}
                           >
                             Login
-                          </button>
+                          </button> */}
                         </div>
                       </form>
                       :
                       <form>
                         {stepper()}
-                        <p className="mb-3">Please set your password</p>
-                        <div className="relative">
+                        <p className="mb-3">Please create your password</p>
+                        <div className="relative mb-4">
                           <input
                             type="password"
                             className={"w-full h-10 px-3 text-base text-gray-700 placeholder-gray-600 border rounded-lg focus:shadow-outline" + (pass1Error ? " border-red-600" : "")}
@@ -687,18 +688,19 @@ export default function Register() {
                             required
                           />
                         </div>
-                        <p className="text-grey-900 text-xs italic mb-4">*Password should have min 8 characters with atleasr one smallcase, uppercase, number and special character</p>
                         {/*Password input*/}
-                        <div className="relative mb-4">
+                        <div className="relative">
                           <input
                             type="password"
                             className={"w-full h-10 px-3 mb-4 text-base text-gray-700 placeholder-gray-600 border rounded-lg focus:shadow-outline" + (pass2Error ? " border-red-600" : "")}
                             id="exampleFormControlInput11"
-                            placeholder="Password"
+                            placeholder="Re-enter Password"
                             onChange={(event) => { setPass2(event.target.value); setPass2Error(false) }}
                             required
                           />
                         </div>
+                        <p className="text-grey-900 text-xs italic mb-4">*Password should have min 8 characters with atleast one smallcase, uppercase, number and special character</p>
+    
                         {/*Submit button*/}
                         <div className="mb-12 pb-1 pt-1 text-center">
                           <button
@@ -712,7 +714,7 @@ export default function Register() {
                             }}
                             onClick={() => resetPassword()}
                           >
-                            Set Password
+                            Create Password
                           </button>
                           {/*Forgot password link*/}
                           {/* <a href="#!">Forgot password?</a> */}

@@ -7,7 +7,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { addParticipantToken } from '../../reducers/token_reducer';
 import { RootState } from "../../store";
 import { navigate } from 'raviger';
-import { getParticipant } from "../../api/RegistryService";
+import { getParticipant, getParticipantByCode } from "../../api/RegistryService";
 import { addParticipantDetails } from "../../reducers/participant_details_reducer";
 import { toast } from "react-toastify";
 import _ from "lodash";
@@ -17,7 +17,6 @@ import { addAppData } from "../../reducers/app_data";
 
 export default function Login() {
   const dispatch = useDispatch()
-
   
   const [userName, setUserName] = useState('');
   const [password, setPassword] = useState('');
@@ -25,9 +24,9 @@ export default function Login() {
   const [userError, setUserError ] = useState(false);
   const [passError, setPassError ] = useState(false);
 
-  // useEffect(() => {
-  //   console.log("participantToken ", participantToken);
-  // },[participantToken])
+   useEffect(() => {
+     dispatch(addAppData({"sidebar":"Profile"}));
+   },[])
 
   const Signin = (username: string, password: string) => {
     if (username == "" || password == ""){
@@ -41,8 +40,29 @@ export default function Login() {
         console.log("res", res);
         dispatch(addParticipantToken(res));
         getParticipant(userName).then((res :any) => {
-          console.log("we are in inside get par", res);
+          console.log("we are in inside get par", res, res["data"]["participants"].length);
+          if( res["data"]["participants"].length !== 0){
+            console.log("came in if")
            dispatch(addParticipantDetails(res["data"]["participants"][0]));
+          }else{
+            console.log("came in else");
+            serachUser(username).then((res: any) => {
+              console.log("search user res", res);
+              let osOwner = res["data"]["users"][0]["osOwner"];
+              let participant = res["data"]["users"][0]["tenant_roles"];
+              participant.map((value: any,index: any) => {
+                getParticipantByCode(value.participant_code).then(res => {
+                  console.log("participant info", res);
+                  dispatch(addParticipantDetails(res["data"]["participants"][0]));
+                })
+                if(index == 0){
+                  dispatch(addAppData({"sidebar":"Profile"}))
+                }else{
+                  dispatch(addAppData({"sidebar":"Manage Participants"}))
+                }
+              })
+            });
+          }
         })
         navigate("/onboarding/dashboard");
     }).catch((error) => {
@@ -134,7 +154,7 @@ export default function Login() {
                     />
                   </div>
                   {/*Submit button*/}
-                  <div className="mb-12 pb-1 pt-1 text-center">
+                  <div className="mb-1 pb-1 pt-1 text-center">
                     <button
                       className="mb-3 inline-block w-full rounded px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white shadow-[0_4px_9px_-4px_rgba(0,0,0,0.2)] transition duration-150 ease-in-out hover:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:outline-none focus:ring-0 active:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)]"
                       type="button"
@@ -149,11 +169,12 @@ export default function Login() {
                       Log in
                     </button>
                     {/*Forgot password link*/}
-                    <a href="#" onClick={(e) => {e.preventDefault(); forgotPassword()}}>Forgot password?</a>
                   </div>
                   {/*Register button*/}
                   <div className="flex items-center justify-between pb-6">
-                    <p className="mb-0 mr-2">Don't have an account?</p>
+                  <a href="#" onClick={(e) => {e.preventDefault(); forgotPassword()}}><p className="underline">Forgot password?</p></a>
+                  <a href="#" onClick={(e) => {e.preventDefault(); navigate("/onboarding/register")}}><p className="underline">Don't have an account? Register</p></a>
+                    {/* <p className="mb-0 mr-2">Don't have an account?</p>
                     <button
                       type="button"
                       className="inline-block rounded border-2 border-blue-500 px-6 pb-[6px] pt-2 text-xs font-medium uppercase leading-normal text-blue-500 transition duration-150 ease-in-out hover:border-blue-600 hover:bg-neutral-500 hover:bg-opacity-10 hover:text-blue-600 focus:border-blue-600 focus:text-blue-600 focus:outline-none focus:ring-0 active:border-blue-700 active:text-blue-700 dark:hover:bg-neutral-100 dark:hover:bg-opacity-10"
@@ -162,7 +183,7 @@ export default function Login() {
                       onClick={() => navigate("/onboarding/register")}
                     >
                       Register
-                    </button>
+                    </button> */}
                   </div>
                 </form>
               </div>

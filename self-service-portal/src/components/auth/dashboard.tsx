@@ -88,13 +88,14 @@ export default function Dashboard() {
           </a>
         </div>
         <div className="flex items-center">
+          <p className="text-white">{`Welcome ${_.get(appData,"username")}`} </p>
           <div className="flex items-center ml-3">
           <button className="flex items-center gap-2 px-4 py-2 text-white rounded-md focus:outline-none"
           onClick={() => navigate("/onboarding/login")}>
-  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-    <path fill-rule="evenodd" d="M10 0a10 10 0 1 0 10 10A10 10 0 0 0 10 0zM7.707 5.293a1 1 0 1 1 1.414-1.414l4 4a1 1 0 0 1 0 1.414l-4 4a1 1 0 1 1-1.414-1.414L10.586 11H3a1 1 0 1 1 0-2h7.586l-2.879-2.879z" clip-rule="evenodd" />
-  </svg>
-  Logout
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="w-6 h-6">
+  <circle cx="12" cy="12" r="11" className="text-white stroke-current" fill="transparent" />
+  <path d="M14 5l7 7m0 0l-7 7m7-7H3" className="text-white" />
+</svg>
 </button>
 
           </div>

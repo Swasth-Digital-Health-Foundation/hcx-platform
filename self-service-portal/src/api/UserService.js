@@ -14,7 +14,7 @@ export const userInviteAccept = async (jwt_token,user) => {
 
 export const userInviteReject = async (jwt_token, user) => {
     var payload = {jwt_token, user}
-    return post("/onboard/user/invite/accept", payload);
+    return post("/onboard/user/invite/reject", payload);
 }
 
 
@@ -57,8 +57,7 @@ export const userRemove = async (participant_code, users) => {
 }
 
 
-export const reverifyLink = async (primary_email, primary_mobile, participant_code, participant_name) => {
-    var payload = {primary_email, primary_mobile, participant_code, participant_name}
+export const reverifyLink = async (payload) => {
     return post("/participant/verification/link/send", payload);
 }
 

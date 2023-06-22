@@ -61,19 +61,8 @@ return (
         </button>
       </div>
       {/* Modal body */}
-      <div className="p-6 space-y-6">
-        <p className="text-base leading-relaxed text-gray-500 dark:text-gray-400">
-          With less than a month to go before the European Union enacts new
-          consumer privacy laws for its citizens, companies around the world are
-          updating their terms of service agreements to comply.
-        </p>
-        <p className="text-base leading-relaxed text-gray-500 dark:text-gray-400">
-          The European Union’s General Data Protection Regulation (G.D.P.R.)
-          goes into effect on May 25 and is meant to ensure a common set of data
-          rights in the European Union. It requires organizations to notify
-          users as soon as possible of high-risk data breaches that could
-          personally affect them.
-        </p>
+      <div className="w-full h-[32rem] p-4">
+      <embed src="https://dev-hcx.s3.ap-south-1.amazonaws.com/terms-and-conditions/1.0.pdf" className="w-full h-full" type="application/pdf"></embed>
       </div>
       {/* Modal footer */}
       <div className="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600">

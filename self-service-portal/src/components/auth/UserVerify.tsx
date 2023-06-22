@@ -11,7 +11,7 @@ import { getParticipant } from "../../api/RegistryService";
 import { addParticipantDetails } from "../../reducers/participant_details_reducer";
 import { toast } from "react-toastify";
 import _ from "lodash";
-import { serachUser, userInviteAccept } from "../../api/UserService";
+import { serachUser, userInviteAccept, userInviteReject } from "../../api/UserService";
 import { generateTokenUser, setUserPassword } from "../../api/KeycloakService";
 import queryString from "query-string";
 import { showError } from "../../utils/Error";
@@ -35,13 +35,27 @@ export default function UserVerify() {
   const [sending, setSending] = useState(false);
   const [setpass, setShowPass] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [fullname, setName] = useState('');
+  const [existingOwner, setExistingOwner] = useState(false);
   
   useEffect(() => {
+    setShowPass(false);
     const jwtToken = _.get(queryString.parse(window.location.search),"jwt_token");
     setEmail(getPayload(jwtToken) != null ? getPayload(jwtToken).email : "");
     setInvitedBy(getPayload(jwtToken) != null ? getPayload(jwtToken).invited_by : "");
     setParticipantCode(getPayload(jwtToken) != null ? getPayload(jwtToken).participant_code : "");
     setRole(getPayload(jwtToken) != null ? getPayload(jwtToken).role : "");
+    serachUser(email).then((res: any) => {
+      let osOwner = _.get(res, "data.users[0].osOwner");
+      console.log("oswoner", osOwner);
+      if (osOwner !== undefined){
+        console.log("user is created")
+        setExistingOwner(true);
+      }else{
+        setShowPass(true);
+        console.log("user is not created")
+      } 
+    })
   },[])
 
   const getPayload = (token: any) => {
@@ -58,7 +72,7 @@ export default function UserVerify() {
 
   const Verify = () => {
     const user = {
-      "user_name" : "abcd",
+      "user_name" : fullname,
       "email" : email,
       "mobile" : phone ? phone : '9999999999',
       "tenant_roles" : [
@@ -70,18 +84,29 @@ export default function UserVerify() {
     userInviteAccept(_.get(queryString.parse(window.location.search),"jwt_token"), user).then((res :any) => {
       setSubmitted(true);
       toast.success("You have successfully accepted the invite. Please login to continue");
-      serachUser(email).then((res: any) => {
-        console.log("Res",res);
-        let osOwner = _.get(res, "data.users[0].osOwner");
-        console.log("osoner", osOwner);
-        if (osOwner !== undefined){
-          console.log('i am redirecting to login');
+      if(existingOwner){
           navigate("/onboarding/login");
         }else{
           setShowPass(true);
         } 
-      })
-      
+      }).catch(err => {
+      showError(_.get(err, 'response.data.error.message') || "Internal Server Error");
+      setSubmitted(false);
+      toast.error("Sorry! We could not process the request. Please try again or contact HCX team", {
+        position: toast.POSITION.TOP_CENTER
+    });
+    })
+  }
+
+
+  const Reject = () => {
+    const user = {
+      "email" : email,
+    };
+    userInviteReject(_.get(queryString.parse(window.location.search),"jwt_token"), user).then((res :any) => {
+      setSubmitted(true);
+      toast.success("You have declined the invite");
+      navigate("/onboarding/login");
     }).catch(err => {
       showError(_.get(err, 'response.data.error.message') || "Internal Server Error");
       setSubmitted(false);
@@ -166,41 +191,42 @@ export default function UserVerify() {
                   <>
                   <p className="mb-6 font-semibold">Please acknowledge your user invite</p>
                   {/*Username input*/}
-                  <div className="relative mb-4 flex flex-wrap">
-                    <p className="py-2 mb-4 w-1/6 font-semibold">Email :</p>
-                    <input
+                  <div className="relative mb-2 flex flex-wrap">
+                    <p className="py-2 w-2/6 font-semibold">Email :</p>
+                    <p className="py-2 w-4/6 font-semibold">{email}</p>
+                    {/* <input
                       type="email"
                       className={"w-5/6 h-10 px-3 mb-4 text-base text-gray-700 placeholder-gray-600 border rounded-lg focus:shadow-outline disabled:opacity-75"}
                       id="exampleFormControlInput1"
                       placeholder="Email Address"
                       value={email}
                       disabled
-                    />
+                    /> */}
                   </div>
-                  <div className="relative mb-4 flex flex-wrap">
-                  <p className="py-2 mb-4 w-1/6 font-semibold">Invited By :</p>
-                    <input
-                      type="text"
-                      className={"w-5/6 h-10 px-3 mb-4 text-base text-gray-700 placeholder-gray-600 border rounded-lg focus:shadow-outline disabled:opacity-75"}
-                      id="exampleFormControlInput11"
-                      placeholder="Invited By"
-                      value={invitedBy}
-                      disabled
-                    />
+                  <div className="relative mb-2 flex flex-wrap">
+                  <p className="py-2 w-2/6 font-semibold">Invited By :</p>
+                  <p className="py-2 w-4/6 font-semibold">{invitedBy}</p>
                   </div>
                   {/*Password input*/}
+                  <div className="relative mb-2 flex flex-wrap">
+                  <p className="py-2 w-2/6 font-semibold">Role :</p>
+                  <p className="py-2 w-4/6 font-semibold">{role}</p>
+                  </div>
+                  <div className="relative mb-2 flex flex-wrap">
+                  <p className="py-2 w-2/6 font-semibold">Participant code :</p>
+                  <p className="py-2 w-4/6 font-semibold">{participantCode}</p>
+                  </div>
+                  {!existingOwner ? <>
                   <div className="relative mb-4 flex flex-wrap">
-                  <p className="py-2 mb-4 w-1/6 font-semibold">Role :</p>
+                  <p className="py-2 mb-4 w-1/6 font-semibold">Full Name :</p>
                     <input
-                      type="text"
-                      className={"w-5/6 h-10 px-3 mb-4 text-base text-gray-700 placeholder-gray-600 border rounded-lg focus:shadow-outline disabled:opacity-75"}
+                      type="tel"
+                      className="w-5/6 h-10 px-3 mb-4 text-base text-gray-700 placeholder-gray-600 border rounded-lg focus:shadow-outline"
                       id="exampleFormControlInput12"
-                      placeholder="Role"
-                      value={role}
-                      disabled
+                      placeholder="Name"
+                      onChange={(event) => {setName(event.target.value)}}
                     />
                   </div>
-                  
                   <div className="relative mb-4 flex flex-wrap">
                   <p className="py-2 mb-4 w-1/6 font-semibold">Phone :</p>
                     <input
@@ -210,33 +236,29 @@ export default function UserVerify() {
                       placeholder="Phone Number"
                       onChange={(event) => {setPhone(event.target.value)}}
                     />
-                  </div>
+                  </div></> : null}
                   {/*Submit button*/}
-                  <div className="mb-12 pb-1 pt-1 text-center">
-                  {submitted ? 
-                                        <button
-                                        className="mb-3 inline-block w-full rounded px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white shadow-[0_4px_9px_-4px_rgba(0,0,0,0.2)] transition duration-150 ease-in-out hover:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:outline-none focus:ring-0 active:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] disabled:opacity-75"
-                                        type="button"
-                                        disabled
-                                        style={{
-                                          background:"#2da852"
-                                        }}
-                                      >
-                                          Accepted
-                                      </button> :
-                  
-                    <button
-                      className="mb-3 inline-block w-full rounded px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white shadow-[0_4px_9px_-4px_rgba(0,0,0,0.2)] transition duration-150 ease-in-out hover:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:outline-none focus:ring-0 active:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)]"
-                      type="button"
-                      style={{
-                        background:
-                          "linear-gradient(to right, #1C4DC3, #3632BE, #1D1991, #060347)"
-                      }}
-                      onClick={() => Verify()}
-                    >
-                        Accept
-                    </button>}
-                  </div>
+
+                  <div className="flex flex-wrap -mx-3 my-6 px-3 justify-between">
+            <button
+              className="mb-3 bg-blue-700 inline-block w-1/4 rounded px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white shadow-[0_4px_9px_-4px_rgba(0,0,0,0.2)] transition duration-150 ease-in-out hover:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:outline-none focus:ring-0 active:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)]"
+              type="button"
+              data-te-ripple-init=""
+              data-te-ripple-color="light"
+              onClick={() => Verify()}
+            >
+              Accept
+            </button>
+            <button
+              className="mb-3 inline-block w-1/5 bg-grey-200 rounded px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-grey-900 shadow-[0_4px_9px_-4px_rgba(0,0,0,0.2)] transition duration-150 ease-in-out hover:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:outline-none focus:ring-0 active:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] border-2"
+              type="button"
+              data-te-ripple-init=""
+              data-te-ripple-color="light"
+              onClick={() => Reject()}>
+                Decline
+            </button>
+
+          </div>
                   </>  :
                   <>
                   <p className="mb-3">Please create your password</p>
@@ -251,16 +273,17 @@ export default function UserVerify() {
                     />
                   </div>
                   {/*Password input*/}
-                  <div className="relative mb-4">
+                  <div className="relative mb-1">
                     <input
                       type="password"
-                      className={"w-full h-10 px-3 mb-4 text-base text-gray-700 placeholder-gray-600 border rounded-lg focus:shadow-outline" + (pass2Error ? " border-red-600" : "")}
+                      className={"w-full h-10 px-3 mb-1 text-base text-gray-700 placeholder-gray-600 border rounded-lg focus:shadow-outline" + (pass2Error ? " border-red-600" : "")}
                       id="exampleFormControlInput11"
                       placeholder="Password"
                       onChange={(event) => {setPass2(event.target.value); setPass2Error(false)}}
                       required
                     />
                   </div>
+                  <p className="text-grey-900 text-xs italic mb-4">*Password should have min 8 characters with atleast one smallcase, uppercase, number and special character</p>
                   {/*Submit button*/}
                   <div className="mb-12 pb-1 pt-1 text-center">
                     <button
@@ -309,8 +332,5 @@ export default function UserVerify() {
   </div>
 </div>
   );
-}
-function setShowUserCreate(arg0: boolean) {
-  throw new Error("Function not implemented.");
 }
 

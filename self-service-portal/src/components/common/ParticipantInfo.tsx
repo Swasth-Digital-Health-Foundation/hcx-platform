@@ -5,7 +5,7 @@ import { RootState } from "../../store";
 import { useAuthActions } from "../../recoil/actions/auth.actions";
 import _ from "lodash";
 import { toast } from "react-toastify";
-import { getParticipant } from "../../api/RegistryService";
+import { getParticipant, getParticipantByCode } from "../../api/RegistryService";
 import { addParticipantDetails } from "../../reducers/participant_details_reducer";
 import { post } from "../../api/APIService";
 import { reverifyLink } from "../../api/UserService";
@@ -28,20 +28,26 @@ const ParticipantInfo = () => {
   const [certError, setCertError] = useState(false);
   const [endpointError, setEndPointError] = useState(false);
   const [actEmail, setActEmail] = useState(_.get(participantDetails, "onboard_validation_properties.email") || 'activation');
-  const [actPhone, setActPhone] = useState(_.get(participantDetails, "onboard_validation_properties.phone") || 'activation');
+  const [actPhone, setActPhone] = useState(_.get(participantDetails, "onboard_validation_properties.phone") || 'verification');
   const [actMessage, setActMessage] = useState("Email and Phone verification is required to activate the HCX account")
 
   useEffect(() => {
     setAddress(_.get(participantDetails, "address") || {});
     setEncryptionCert(_.get(participantDetails, "encryption_cert") || '');
     setEndpointUrl(_.get(participantDetails, "endpoint_url") || '');
-    if (actEmail == "activation" && actPhone == "verification") {
-      setActMessage("Email verification is required to activate the HCX account");
-    } else if (actEmail == "verification" && actPhone == "activation") {
-      setActMessage("Phone verification is required to activate the HCX account");
-    } else if (actEmail == "verification" && actPhone == "verification") {
-      setActMessage("Email and Phone verification is not required to activate the HCX account. But we suggest you do it");
-    }
+    if(_.get(participantDetails,"roles[0]") == "provider"){
+    getParticipantByCode(_.get(participantDetails, "sponsors[0].verifierCode")).then(res => { 
+        let emailV = res["data"]["participants"][0]["onboard_validation_properties"]["email"];
+        let phoneV = res["data"]["participants"][0]["onboard_validation_properties"]["phone"];
+        if (emailV == "activation" && phoneV == "verification") {
+          setActMessage("Email verification is required to activate the HCX account");
+        } else if (emailV == "verification" && phoneV == "activation") {
+          setActMessage("Phone verification is required to activate the HCX account");
+        } else if (emailV == "verification" && phoneV == "verification") {
+          setActMessage("Email and Phone verification is not required to activate the HCX account. But we suggest you do it");
+        }
+    })
+  }
   }, [participantDetails]);
 
 
@@ -72,9 +78,12 @@ const ParticipantInfo = () => {
 
   const onSubmit = () => {
     //setSending(true)
-    if (endpointUrl == "" || encryptionCert == "") {
+    if (endpointUrl == "" || encryptionCert == "" || actEmail == actPhone) {
       if (endpointUrl == "") setEndPointError(true);
       if (encryptionCert == "") setCertError(true);
+      if(actEmail == actPhone){
+        toast.error("Atleast one of the Provider onboarding configuration needs to be Activation")
+      }
     } else {
       const formData = {
         participant: {
@@ -111,9 +120,20 @@ const ParticipantInfo = () => {
     })
   }
 
-  const verifyResend = () => {
-    reverifyLink(_.get(participantDetails, "primary_email"), _.get(participantDetails, "primary_mobile"), _.get(participantDetails, "participant_code"), _.get(participantDetails, "participant_name")).then((res: any) => {
-      toast.success("Re-verification link successfully sent to Email and Phone", {
+  const verifyResend = (type:any) => {
+    let payload = {};
+    if(type == "email")
+    {
+      payload = {"primary_email":_.get(participantDetails, "primary_email"), 
+                "participant_code": _.get(participantDetails, "participant_code"), 
+                "participant_name": _.get(participantDetails, "participant_name")}
+    }else{
+      payload = {"primary_mobile":_.get(participantDetails, "primary_mobile"),
+                "participant_code": _.get(participantDetails, "participant_code"), 
+                "participant_name": _.get(participantDetails, "participant_name")}
+    }
+    reverifyLink(payload).then((res: any) => {
+      toast.success(`Re-verification link successfully sent to ${type}`, {
         position: toast.POSITION.TOP_CENTER
       });
     }).catch(err => {
@@ -130,7 +150,7 @@ const ParticipantInfo = () => {
         <form className="w-full p-12">
           <div className="flex flex-wrap -mx-3 justify-between">
             <label
-              className="block uppercase tracking-wide text-gray-700 text-s font-bold mb-2"
+              className="block  uppercase tracking-wide text-gray-700 text-s font-bold mb-2"
             >
               Participant Information
             </label>
@@ -144,7 +164,7 @@ const ParticipantInfo = () => {
                   <path d="M12 8v4M12 16h.01" />
                 </svg>}
               <label
-                className="block uppercase tracking-wide text-grey-700 text-xs font-bold m-1"
+                className="block  tracking-wide text-grey-700 text-sm font-bold m-1"
                 htmlFor="grid-first-name"
               >
                 {_.get(participantDetails, "status")  == "Active" ? "Active" : "Inactive"}
@@ -153,34 +173,34 @@ const ParticipantInfo = () => {
 
           </div>
           <div className="flex flex-wrap -mx-3 mb-6 border-b-2 shadow-l shadow-bottom place-content-end">
-            <p className="text-gray-600 text-xs italic">
+            <p className="text-gray-600 text-sm italic">
               {actMessage}
             </p>
           </div>
           <div className="flex flex-wrap w-full px-3 mb-2">
             <label
-              className="w-1/6 block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+              className="w-1/6 block  tracking-wide text-gray-700 text-sm font-bold mb-2"
               htmlFor="grid-first-name"
             >
               Participant Name :
             </label>
             <label
-              className="w-5/6 block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+              className="w-5/6 block  tracking-wide text-gray-700 text-sm font-bold mb-2"
               htmlFor="grid-first-name"
             >
-              {_.get(participantDetails, "participant_name") ? _.get(participantDetails, "participant_name") : "Swasth Hospital"}
+              {_.get(participantDetails, "participant_name") ? _.get(participantDetails, "participant_name") : ""}
             </label>
-            {/* <p className="text-red-500 text-xs italic">Please fill out this field.</p> */}
+            {/* <p className="text-red-500 text-sm italic">Please fill out this field.</p> */}
           </div>
           <div className="flex flex-wrap w-full px-3 mb-2">
             <label
-              className="w-1/6 block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+              className="w-1/6 block  tracking-wide text-gray-700 text-sm font-bold mb-2"
               htmlFor="grid-last-name"
             >
               Participant Code :
             </label>
             <label
-              className="w-5/6 block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+              className="w-5/6 block  tracking-wide text-gray-700 text-sm font-bold mb-2"
               htmlFor="grid-first-name"
             >
               {_.get(participantDetails, "participant_code")}
@@ -188,17 +208,18 @@ const ParticipantInfo = () => {
           </div>
           <div className="flex flex-wrap w-full px-3 mb-2">
             <label
-              className="w-1/6 block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+              className="w-1/6 block  tracking-wide text-gray-700 text-sm font-bold mb-2"
               htmlFor="grid-first-name"
             >
               Email Address :
             </label>
 
             <label
-              className="w-5/6 block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+              className="w-5/6 block  tracking-wide text-gray-700 text-sm font-bold mb-2"
               htmlFor="grid-first-name"
             >
-              {_.get(participantDetails, "communication.emailVerified") ? `${_.get(participantDetails, "primary_email")} (Verified)` : `${_.get(participantDetails, "primary_email")} (Verification pending)`}
+              {_.get(participantDetails, "communication.emailVerified") ? `${_.get(participantDetails, "primary_email")} (Verified)` : `${_.get(participantDetails, "primary_email")} (Verification pending) `}
+              &nbsp;&nbsp;&nbsp;&nbsp;
               {_.get(participantDetails, "communication.emailVerified") ?
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 inline-block mr-1 border rounded-full border-green-500" fill="none" viewBox="0 0 24 24" stroke="green">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
@@ -207,25 +228,26 @@ const ParticipantInfo = () => {
                   <circle cx="12" cy="12" r="10" />
                   <path d="M12 8v4M12 16h.01" />
                 </svg>}
-            <a href="#" className="text-blue-700 text-xs mx-2 font-medium"
-              onClick={(event) => { event.preventDefault(); verifyResend() }}
+            <a href="#" className="text-blue-700 text-sm mx-2 font-medium"
+              onClick={(event) => { event.preventDefault(); verifyResend("email") }}
             >Resend Verification link</a>
             </label>    
           </div>
 
           <div className="flex flex-wrap w-full px-3 mb-10">
             <label
-              className="w-1/6 block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+              className="w-1/6 block  tracking-wide text-gray-700 text-sm font-bold mb-2"
               htmlFor="grid-first-name"
             >
               Phone Number :
             </label>
 
             <label
-              className="w-5/6 block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+              className="w-5/6 block  tracking-wide text-gray-700 text-sm font-bold mb-2"
               htmlFor="grid-first-name"
             >
               {_.get(participantDetails, "communication.phoneVerified") ? `${_.get(participantDetails, "primary_mobile")} (Verified)` : `${_.get(participantDetails, "primary_mobile")} (Verification pending)`}
+              &nbsp;&nbsp;&nbsp;&nbsp;
               {_.get(participantDetails, "communication.phoneVerified") ?
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 inline-block mr-1 border rounded-full border-green-500" fill="none" viewBox="0 0 24 24" stroke="green">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
@@ -234,8 +256,8 @@ const ParticipantInfo = () => {
                   <circle cx="12" cy="12" r="10" />
                   <path d="M12 8v4M12 16h.01" />
                 </svg>}
-            <a href="#" className="text-blue-700 text-xs mx-2 font-medium"
-              onClick={(event) => { event.preventDefault(); verifyResend() }}
+            <a href="#" className="text-blue-700 text-sm mx-2 font-medium"
+              onClick={(event) => { event.preventDefault(); verifyResend("phone number")}}
             >Resend Verification link</a>
             </label>    
           </div>
@@ -247,14 +269,14 @@ const ParticipantInfo = () => {
             </label>
           </div>
           <div className="flex flex-wrap -mx-3 mb-6 border-b-2 shadow-l shadow-bottom">
-            <p className="text-gray-600 text-xs italic">
+            <p className="text-gray-600 text-sm italic">
                 Kindly provide Encryption certificates path or certificate and Endpoint url of your service
             </p>
           </div>
           <div className="flex flex-wrap -mx-3 mb-6">
             <div className="w-full px-3">
               <label
-                className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                className="block  tracking-wide text-gray-700 text-sm font-bold mb-2"
                 htmlFor="grid-password"
               >
                 Encryption Certificate
@@ -293,7 +315,7 @@ const ParticipantInfo = () => {
           <div className="flex flex-wrap -mx-3 mb-10">
             <div className="w-full px-3">
               <label
-                className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                className="block  tracking-wide text-gray-700 text-sm font-bold mb-2"
                 htmlFor="grid-password"
               >
                 Endpoint URL
@@ -318,14 +340,14 @@ const ParticipantInfo = () => {
             </label>
           </div>
           <div className="flex flex-wrap -mx-3 mb-6 border-b-2 shadow-l shadow-bottom">
-            <p className="text-gray-600 text-xs italic">
+            <p className="text-gray-600 text-sm italic">
                 Kindly provide the level of provider onboarding configuration to activate the provider's participant when they onboard through you
             </p>
           </div>
           <div className="flex flex-wrap -mx-3 mb-2">
             <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
               <label
-                className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                className="block  tracking-wide text-gray-700 text-sm font-bold mb-2"
                 htmlFor="grid-last-name"
               >
                 Email
@@ -340,7 +362,7 @@ const ParticipantInfo = () => {
             </div>
             <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
               <label
-                className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                className="block  tracking-wide text-gray-700 text-sm font-bold mb-2"
                 htmlFor="grid-last-name"
               >
                 Phone
@@ -363,14 +385,14 @@ const ParticipantInfo = () => {
             </label>
           </div>
           <div className="flex flex-wrap -mx-3 mb-10 border-b-2 shadow-l shadow-bottom">
-            <p className="text-gray-700 text-xs italic">
+            <p className="text-gray-700 text-sm italic">
                 Primary address of the participant organization.
             </p>
           </div>
           <div className="flex flex-wrap -mx-3 mb-2">
             <div className="w-full md:w-1/3 px-3 mb-6 md:mb-0">
               <label
-                className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                className="block  tracking-wide text-gray-700 text-sm font-bold mb-2"
                 htmlFor="grid-city"
               >
                 Plot
@@ -386,7 +408,7 @@ const ParticipantInfo = () => {
             </div>
             <div className="w-full md:w-1/3 px-3 mb-6 md:mb-0">
               <label
-                className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                className="block  tracking-wide text-gray-700 text-sm font-bold mb-2"
                 htmlFor="grid-city"
               >
                 Street
@@ -403,7 +425,7 @@ const ParticipantInfo = () => {
             </div>
             <div className="w-full md:w-1/3 px-3 mb-6 md:mb-0">
               <label
-                className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                className="block  tracking-wide text-gray-700 text-sm font-bold mb-2"
                 htmlFor="grid-zip"
               >
                 Landmark
@@ -421,7 +443,7 @@ const ParticipantInfo = () => {
           <div className="flex flex-wrap -mx-3 mb-8">
             <div className="w-full md:w-1/3 px-3 mb-6 md:mb-0">
               <label
-                className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                className="block  tracking-wide text-gray-700 text-sm font-bold mb-2"
                 htmlFor="grid-city"
               >
                 District
@@ -437,7 +459,7 @@ const ParticipantInfo = () => {
             </div>
             <div className="w-full md:w-1/3 px-3 mb-6 md:mb-0">
               <label
-                className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                className="block  tracking-wide text-gray-700 text-sm font-bold mb-2"
                 htmlFor="grid-city"
               >
                 State
@@ -454,7 +476,7 @@ const ParticipantInfo = () => {
             </div>
             <div className="w-full md:w-1/3 px-3 mb-6 md:mb-0">
               <label
-                className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                className="block  tracking-wide text-gray-700 text-sm font-bold mb-2"
                 htmlFor="grid-zip"
               >
                 Pincode
@@ -472,7 +494,7 @@ const ParticipantInfo = () => {
 
           <div className="flex flex-wrap -mx-3 mb-6 justify-between">
             <button
-              className="mb-3 inline-block w-1/4 rounded px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white shadow-[0_4px_9px_-4px_rgba(0,0,0,0.2)] transition duration-150 ease-in-out hover:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:outline-none focus:ring-0 active:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)]"
+              className="mb-3 inline-block w-1/4 rounded px-6 pb-2 pt-2.5 text-sm font-medium  leading-normal text-white shadow-[0_4px_9px_-4px_rgba(0,0,0,0.2)] transition duration-150 ease-in-out hover:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:outline-none focus:ring-0 active:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)]"
               type="button"
               data-te-ripple-init=""
               data-te-ripple-color="light"
@@ -485,7 +507,7 @@ const ParticipantInfo = () => {
               Update
             </button>
             <button
-              className="mb-3 inline-block w-1/5 rounded px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white shadow-[0_4px_9px_-4px_rgba(0,0,0,0.2)] transition duration-150 ease-in-out hover:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:outline-none focus:ring-0 active:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)]"
+              className="mb-3 inline-block w-1/5 rounded px-6 pb-2 pt-2.5 text-sm font-medium  leading-normal text-white shadow-[0_4px_9px_-4px_rgba(0,0,0,0.2)] transition duration-150 ease-in-out hover:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:outline-none focus:ring-0 active:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)]"
               type="button"
               data-te-ripple-init=""
               data-te-ripple-color="light"
