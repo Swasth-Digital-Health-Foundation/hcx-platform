@@ -25,7 +25,7 @@ aws:
   region: ${aws_region:}
 
 onboard:
-  terms-and-conditions-url: ${onboarding_terms_and_conditions_url:https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/hcx-platform/main/docs/terms-and-conditions/1.0.pdf}
+  terms-and-conditions-url: ${onboarding_terms_and_conditions_url:https://${env}-hcx.s3.ap-south-1.amazonaws.com/terms-and-conditions/1.0.pdf}
   success-url: ${onboarding_success_url:${hcx-url}/onboarding/success}
   email: ${email_validation:activation}
   phone: ${phone_validation:activation}
