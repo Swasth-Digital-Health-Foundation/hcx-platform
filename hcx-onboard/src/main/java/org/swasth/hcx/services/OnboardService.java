@@ -432,8 +432,8 @@ public class OnboardService extends BaseController {
         OnboardValidations validations = new OnboardValidations(getConfig((String) participant.get(PARTICIPANT_CODE), PARTICIPANT_VALIDATION_PROPERTIES));
         boolean emailEnabled = validations.isEmailEnabled();
         boolean phoneEnabled = validations.isPhoneEnabled();
-        Token token = new Token(Objects.requireNonNull(headers.get(AUTHORIZATION)).get(0));
-        setOnboardValidations(participant, token.getRoles());
+        List<String> roles = (List<String>) participantDetails.get(ROLES);
+        setOnboardValidations(participant, roles);
         String otpQuery = String.format("SELECT * FROM %s WHERE primary_email ILIKE '%s'", onboardVerificationTable, email);
         ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(otpQuery);
         if (resultSet.next()) {
