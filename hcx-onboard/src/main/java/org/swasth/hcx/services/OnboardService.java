@@ -389,6 +389,7 @@ public class OnboardService extends BaseController {
             }
             return communicationStatus;
         } catch (Exception e) {
+            e.printStackTrace();
             updateOtpStatus(emailVerified, phoneVerified, attemptCount, FAILED, participantCode, (String) requestBody.getOrDefault(COMMENTS, ""));
             throw new VerificationException(e.getMessage());
         } finally {
@@ -398,7 +399,7 @@ public class OnboardService extends BaseController {
 
     private void updateParticipant(HttpHeaders headers, Map<String,Object> participantDetails, String communicationStatus) throws Exception{
         String identityStatus = null;
-        String onboardingQuery = String.format("SELECT * FROM %s WHERE applicant_email ILIKE '%s'", onboardingVerifierTable, (String) participantDetails.get(PRIMARY_EMAIL));
+        String onboardingQuery = String.format("SELECT * FROM %s WHERE applicant_email ILIKE '%s%'", onboardingVerifierTable, participantDetails.get(PRIMARY_EMAIL));
         ResultSet resultSet1 = (ResultSet) postgreSQLClient.executeQuery(onboardingQuery);
         if (resultSet1.next()) {
             identityStatus = resultSet1.getString("status");
@@ -406,7 +407,7 @@ public class OnboardService extends BaseController {
         Map<String,Object> requestBody = new HashMap();
         if (communicationStatus.equals(SUCCESSFUL) && identityStatus.equals(ACCEPTED)) {
             requestBody.put(REGISTRY_STATUS, ACTIVE);
-            requestBody.put(PARTICIPANT_CODE, (String) participantDetails.get(PARTICIPANT_CODE));
+            requestBody.put(PARTICIPANT_CODE, participantDetails.get(PARTICIPANT_CODE));
         }
         HttpResponse<String> httpResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_UPDATE, JSONUtils.serialize(requestBody), getHeadersMap(headers));
         if (httpResponse.getStatus() != 200) {
