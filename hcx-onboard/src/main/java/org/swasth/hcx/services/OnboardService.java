@@ -178,7 +178,7 @@ public class OnboardService extends BaseController {
         OnboardRequest request = new OnboardRequest(body);
         Map<String, Object> output = new HashMap<>();
         updateIdentityStatus(request.getPrimaryEmail(), request.getApplicantCode(), request.getVerifierCode(), PENDING);
-        processOnboard(header, request, output);
+        onboardProcess(header, request, output);
         return getSuccessResponse(new Response(output));
     }
 
@@ -193,7 +193,7 @@ public class OnboardService extends BaseController {
         postgreSQLClient.execute(query);
     }
 
-    private void processOnboard(HttpHeaders headers, OnboardRequest request, Map<String, Object> output) throws Exception {
+    private void onboardProcess(HttpHeaders headers, OnboardRequest request, Map<String, Object> output) throws Exception {
         Map<String, Object> participant = request.getParticipant();
         participant.put(ENDPOINT_URL, "http://testurl/v0.7");
         participant.put(ENCRYPTION_CERT, "https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/hcx-platform/main/hcx-apis/src/test/resources/examples/test-keys/public-key.pem");
@@ -302,7 +302,7 @@ public class OnboardService extends BaseController {
         return getSuccessResponse(new Response());
     }
 
-    public String communicationVerify(Map<String, Object> requestBody) throws Exception {
+    public String communicationVerify(HttpHeaders headers, Map<String, Object> requestBody) throws Exception {
         boolean emailVerified = false;
         boolean phoneVerified = false;
         int attemptCount = 0;
@@ -361,6 +361,7 @@ public class OnboardService extends BaseController {
                                     emailVerified = true;
                                 }
                             }
+                        updateParticipant(headers, participantDetails, communicationStatus);    
                         } else if (StringUtils.equals((String) requestBody.get("status"), FAILED)) {
                             communicationStatus = FAILED;
                         }
@@ -392,6 +393,24 @@ public class OnboardService extends BaseController {
             throw new VerificationException(e.getMessage());
         } finally {
             if (resultSet != null) resultSet.close();
+        }
+    }
+
+    private void updateParticipant(HttpHeaders headers, Map<String,Object> participantDetails, String communicationStatus) throws Exception{
+        String identityStatus = null;
+        String onboardingQuery = String.format("SELECT * FROM %s WHERE applicant_email ILIKE '%s'", onboardingVerifierTable, (String) participantDetails.get(PRIMARY_EMAIL));
+        ResultSet resultSet1 = (ResultSet) postgreSQLClient.executeQuery(onboardingQuery);
+        if (resultSet1.next()) {
+            identityStatus = resultSet1.getString("status");
+        }
+        Map<String,Object> requestBody = new HashMap();
+        if (communicationStatus.equals(SUCCESSFUL) && identityStatus.equals(ACCEPTED)) {
+            requestBody.put(REGISTRY_STATUS, ACTIVE);
+            requestBody.put(PARTICIPANT_CODE, (String) participantDetails.get(PARTICIPANT_CODE));
+        }
+        HttpResponse<String> httpResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_UPDATE, JSONUtils.serialize(requestBody), getHeadersMap(headers));
+        if (httpResponse.getStatus() != 200) {
+            throw new ClientException(ErrorCodes.INTERNAL_SERVER_ERROR, "Error while updating participant details: " + httpResponse.getBody());
         }
     }
 
@@ -524,7 +543,7 @@ public class OnboardService extends BaseController {
         postgreSQLClient.execute(updateQuery);
     }
 
-    public ResponseEntity<Object> manualIdentityVerify(Map<String, Object> requestBody) throws Exception {
+    public ResponseEntity<Object> manualIdentityVerify(HttpHeaders headers, Map<String, Object> requestBody) throws Exception {
         String applicantEmail = (String) requestBody.get(PRIMARY_EMAIL);
         String status = (String) requestBody.get(REGISTRY_STATUS);
         if (!ALLOWED_ONBOARD_STATUS.contains(status))
@@ -534,11 +553,32 @@ public class OnboardService extends BaseController {
         postgreSQLClient.execute(query);
         auditIndexer.createDocument(eventGenerator.getManualIdentityVerifyEvent(applicantEmail, status));
         if (status.equals(ACCEPTED)) {
+            updateParticipant(headers, applicantEmail, status);
             emailService.sendMail(applicantEmail, successIdentitySub, commonTemplate("identity-success.ftl"));
             return getSuccessResponse(new Response());
         } else {
             throw new ClientException(ErrorCodes.ERR_INVALID_IDENTITY, "Identity verification has failed");
         }
+    }
+
+    private void updateParticipant(HttpHeaders headers, String email, String identityStatus) throws Exception{
+        Map<String,Object> participantDetails = getParticipant(PRIMARY_EMAIL, email);
+        String onboardingQuery = String.format("SELECT * FROM %s WHERE participant_code = 's'", onboardVerificationTable, (String) participantDetails.get(PARTICIPANT_CODE));
+        ResultSet resultSet1 = (ResultSet) postgreSQLClient.executeQuery(onboardingQuery);
+        String communicationStatus = null;
+        if (resultSet1.next()) {
+            communicationStatus = resultSet1.getString("status");
+        }
+        Map<String,Object> requestBody = new HashMap();
+        if (communicationStatus.equals(SUCCESSFUL) && identityStatus.equals(ACCEPTED)) {
+            requestBody.put(REGISTRY_STATUS, ACTIVE);
+            requestBody.put(PARTICIPANT_CODE, (String) participantDetails.get(PARTICIPANT_CODE));
+        }
+        HttpResponse<String> httpResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_UPDATE, JSONUtils.serialize(requestBody), getHeadersMap(headers));
+        if (httpResponse.getStatus() != 200) {
+            throw new ClientException(ErrorCodes.INTERNAL_SERVER_ERROR, "Error while updating participant details: " + httpResponse.getBody());
+        }
+
     }
 
     public ResponseEntity<Object> getInfo(Map<String, Object> requestBody) throws Exception {
@@ -563,11 +603,11 @@ public class OnboardService extends BaseController {
         return new ResponseEntity<>(response.getBody(), HttpStatus.valueOf(response.getStatus()));
     }
 
-    public ResponseEntity<Object> applicantVerify(Map<String, Object> requestBody) throws Exception {
+    public ResponseEntity<Object> applicantVerify(HttpHeaders headers, Map<String, Object> requestBody) throws Exception {
         OnboardResponse response = new OnboardResponse((String) requestBody.get(PARTICIPANT_CODE), (String) requestBody.get(VERIFIER_CODE));
         String result;
         if (requestBody.containsKey(JWT_TOKEN)) {
-            result = communicationVerify(requestBody);
+            result = communicationVerify(headers,requestBody);
         } else {
             result = identityVerify(requestBody);
         }

@@ -59,10 +59,10 @@ public class OnboardController extends BaseController {
     }
 
     @PostMapping(PARTICIPANT_VERIFY_IDENTITY)
-    public ResponseEntity<Object> identityVerify(@RequestBody Map<String, Object> requestBody) throws Exception {
+    public ResponseEntity<Object> identityVerify(@RequestHeader HttpHeaders headers, @RequestBody Map<String, Object> requestBody) throws Exception {
         String applicantEmail = requestBody.getOrDefault(PRIMARY_EMAIL, "").toString();
         try {
-            return service.manualIdentityVerify(requestBody);
+            return service.manualIdentityVerify(headers, requestBody);
         } catch (Exception e) {
             emailService.sendMail(applicantEmail, failedIdentitySub, service.commonTemplate("identity-fail.ftl"));
             return exceptionHandler(applicantEmail, PARTICIPANT_VERIFY_IDENTITY, new Response(), e);
@@ -71,9 +71,9 @@ public class OnboardController extends BaseController {
     }
 
     @PostMapping(APPLICANT_VERIFY)
-    public ResponseEntity<Object> applicantVerify(@RequestBody Map<String, Object> requestBody) throws Exception {
+    public ResponseEntity<Object> applicantVerify(@RequestHeader HttpHeaders headers, @RequestBody Map<String, Object> requestBody) throws Exception {
         try {
-            return service.applicantVerify(requestBody);
+            return service.applicantVerify(headers, requestBody);
         } catch (Exception e) {
             return exceptionHandler("", APPLICANT_VERIFY, new Response(), e);
         }

@@ -183,7 +183,9 @@ public class ParticipantService extends BaseRegistryService {
 
     public void authorizeEntity(String authToken, String participantCode, String email) throws Exception {
         Token token = new Token(authToken);
-        if(validateRoles(token.getRoles())){
+        if (token.getRoles().contains(ADMIN_ROLE)) {
+            return;
+        } else if (validateRoles(token.getRoles())){
             if(!StringUtils.equalsIgnoreCase(token.getUsername(), email))
                 throw new ClientException(ErrorCodes.ERR_ACCESS_DENIED, "Invalid authorization token");
         } else if (StringUtils.equals(token.getEntityType(), "User")) {
