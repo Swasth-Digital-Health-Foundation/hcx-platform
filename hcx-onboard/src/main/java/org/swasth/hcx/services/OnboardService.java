@@ -570,7 +570,7 @@ public class OnboardService extends BaseController {
         Map<String,Object> participantDetails = getParticipant(PRIMARY_EMAIL, email);
         String onboardingQuery = String.format("SELECT * FROM %s WHERE participant_code = 's'", onboardVerificationTable, (String) participantDetails.get(PARTICIPANT_CODE));
         ResultSet resultSet1 = (ResultSet) postgreSQLClient.executeQuery(onboardingQuery);
-        String communicationStatus = null;
+        String communicationStatus = "";
         if (resultSet1.next()) {
             communicationStatus = resultSet1.getString("status");
         }
