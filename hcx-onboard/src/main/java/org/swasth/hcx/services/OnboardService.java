@@ -286,12 +286,12 @@ public class OnboardService extends BaseController {
         }
         String shortUrl = null;
         String longUrl = null;
-        if (!phoneVerified) {
+        if (!phoneVerified && requestBody.containsKey(PRIMARY_MOBILE)) {
             shortUrl = hcxURL + "/api/url/" + generateRandomPassword(10);
             longUrl = generateURL(requestBody, PHONE, (String) requestBody.get(PRIMARY_MOBILE)).toString();
             smsService.sendLink((String) requestBody.get(PRIMARY_MOBILE), phoneSub + "\r\n" + shortUrl);
         }
-        if (!emailVerified) {
+        if (!emailVerified && requestBody.containsKey(PRIMARY_EMAIL)) {
             emailService.sendMail(primaryEmail, linkSub, linkTemplate((String) requestBody.get(PARTICIPANT_NAME), (String) requestBody.get(PARTICIPANT_CODE), generateURL(requestBody, EMAIL, primaryEmail), linkExpiry / 86400000, (ArrayList<String>) requestBody.get(ROLES), (String) requestBody.getOrDefault("user_id", "")));
         }
         regenerateCount++;
