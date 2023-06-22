@@ -412,6 +412,9 @@ public class OnboardService extends BaseController {
         if (httpResponse.getStatus() != 200) {
             throw new ClientException(ErrorCodes.INTERNAL_SERVER_ERROR, "Error while updating participant details: " + httpResponse.getBody());
         }
+        if (!StringUtils.equals((String) participantDetails.getOrDefault(REGISTRY_STATUS, ""), ACTIVE) && StringUtils.equals((String) requestBody.getOrDefault(REGISTRY_STATUS, ""), ACTIVE)){
+            generateAndSetPassword((String) participantDetails.get(PARTICIPANT_CODE));
+        }
     }
 
     private void updateOtpStatus(boolean emailVerified, boolean phoneVerified, int attemptCount, String status, String code, String comments) throws Exception {
@@ -578,7 +581,9 @@ public class OnboardService extends BaseController {
         if (httpResponse.getStatus() != 200) {
             throw new ClientException(ErrorCodes.INTERNAL_SERVER_ERROR, "Error while updating participant details: " + httpResponse.getBody());
         }
-
+        if (!StringUtils.equals((String) participantDetails.get(REGISTRY_STATUS), ACTIVE) && StringUtils.equals((String) requestBody.getOrDefault(REGISTRY_STATUS, ""), ACTIVE)){
+            generateAndSetPassword((String) participantDetails.get(PARTICIPANT_CODE));
+        }
     }
 
     public ResponseEntity<Object> getInfo(Map<String, Object> requestBody) throws Exception {
