@@ -361,7 +361,7 @@ public class OnboardService extends BaseController {
                                     emailVerified = true;
                                 }
                             }
-                        updateParticipant(headers, participantDetails, communicationStatus);    
+                        updateParticipant(participantCode, headers, communicationStatus);
                         } else if (StringUtils.equals((String) requestBody.get("status"), FAILED)) {
                             communicationStatus = FAILED;
                         }
@@ -397,15 +397,15 @@ public class OnboardService extends BaseController {
         }
     }
 
-    private void updateParticipant(HttpHeaders headers, Map<String,Object> participantDetails, String communicationStatus) throws Exception{
-        String identityStatus = null;
+    private void updateParticipant(String participantCode, HttpHeaders headers, String communicationStatus) throws Exception{
+        Map<String,Object> participantDetails = getParticipant(PARTICIPANT_CODE, participantCode);
+        String identityStatus = "";
         String onboardingQuery = String.format("SELECT * FROM %s WHERE applicant_email ILIKE '%s'", onboardingVerifierTable, participantDetails.get(PRIMARY_EMAIL));
         logger.info("query " + onboardingQuery);
         ResultSet resultSet1 = (ResultSet) postgreSQLClient.executeQuery(onboardingQuery);
         if (resultSet1.next()) {
             identityStatus = resultSet1.getString("status");
         }
-
         logger.info("data " + identityStatus + communicationStatus);
         Map<String,Object> requestBody = new HashMap();
         if (communicationStatus.equals(SUCCESSFUL) && identityStatus.equals(ACCEPTED)) {
