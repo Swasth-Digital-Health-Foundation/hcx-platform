@@ -399,7 +399,7 @@ public class OnboardService extends BaseController {
 
     private void updateParticipant(HttpHeaders headers, Map<String,Object> participantDetails, String communicationStatus) throws Exception{
         String identityStatus = null;
-        String onboardingQuery = String.format("SELECT * FROM %s WHERE applicant_email ILIKE '%s%'", onboardingVerifierTable, participantDetails.get(PRIMARY_EMAIL));
+        String onboardingQuery = String.format("SELECT * FROM %s WHERE applicant_email ILIKE '%s'", onboardingVerifierTable, participantDetails.get(PRIMARY_EMAIL));
         ResultSet resultSet1 = (ResultSet) postgreSQLClient.executeQuery(onboardingQuery);
         if (resultSet1.next()) {
             identityStatus = resultSet1.getString("status");
