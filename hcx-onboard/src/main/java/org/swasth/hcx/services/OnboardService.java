@@ -476,7 +476,9 @@ public class OnboardService extends BaseController {
                     emailService.sendMail(email, onboardingSuccessSub, pocSuccessTemplate((String) participant.get(PARTICIPANT_NAME)));
                 }
             }
-            generateAndSetPassword((String) participant.get(PARTICIPANT_CODE));
+            if (!StringUtils.equals((String) participantDetails.get(REGISTRY_STATUS), ACTIVE) && StringUtils.equals((String) participant.getOrDefault(REGISTRY_STATUS, ""), ACTIVE)){
+                generateAndSetPassword((String) participant.get(PARTICIPANT_CODE));
+            }
             Response response = new Response(PARTICIPANT_CODE, participant.get(PARTICIPANT_CODE));
             response.put(IDENTITY_VERIFICATION, identityStatus);
             response.put(COMMUNICATION_VERIFICATION, commStatus);
