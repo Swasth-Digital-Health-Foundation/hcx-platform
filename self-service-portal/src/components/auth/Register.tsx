@@ -677,16 +677,17 @@ export default function Register() {
                       <form>
                         {stepper()}
                         <p className="mb-3">Please set your password</p>
-                        <div className="relative mb-4">
+                        <div className="relative">
                           <input
                             type="password"
-                            className={"w-full h-10 px-3 mb-4 text-base text-gray-700 placeholder-gray-600 border rounded-lg focus:shadow-outline" + (pass1Error ? " border-red-600" : "")}
+                            className={"w-full h-10 px-3 text-base text-gray-700 placeholder-gray-600 border rounded-lg focus:shadow-outline" + (pass1Error ? " border-red-600" : "")}
                             id="exampleFormControlInput1"
                             placeholder="Password"
                             onChange={(event) => { setPass1(event.target.value); setPass1Error(false) }}
                             required
                           />
                         </div>
+                        <p className="text-grey-900 text-xs italic mb-4">*Password should have min 8 characters with atleasr one smallcase, uppercase, number and special character</p>
                         {/*Password input*/}
                         <div className="relative mb-4">
                           <input
