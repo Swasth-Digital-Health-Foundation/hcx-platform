@@ -51,7 +51,7 @@ jwt:
   enabled: ${JWT_ENABLED:true}
   issuer: ${JWT_ISSUER:}
   audience: ${JWT_AUDIENCE:}
-  jwkUrl: ${JWT_JWK_URL:https://dev-hcx.swasth.app/auth/realms/realm-name/protocol/openid-connect/certs}
+  jwkUrl: ${JWT_JWK_URL:https://staging-hcx.swasth.app/auth/realms/realm-name/protocol/openid-connect/certs}
   claimsNamespacePath: ${JWT_NS_PATH:$.realm_access.roles}
   entityRealm: ${JWT_ENTITY_REALM:Organisation@swasth-hcx-participants,User@swasth-hcx-users}
 
