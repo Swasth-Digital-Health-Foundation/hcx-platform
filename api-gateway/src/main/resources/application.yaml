@@ -60,7 +60,7 @@ jwt:
   audience: ${JWT_AUDIENCE:}
   jwkUrl: ${JWT_JWK_URL:https://dev-hcx.swasth.app/auth/realms/realm-name/protocol/openid-connect/certs}
   claimsNamespacePath: ${JWT_NS_PATH:$.realm_access.roles}
-  entityRealm: ${JWT_ENTITY_REALM:Organisation@swasth-health-claim-exchange,User@swasth-health-claim-exchange-user}
+  entityRealm: ${JWT_ENTITY_REALM:Organisation@swasth-hcx-participants,User@swasth-hcx-users}
 redis:
   host: ${REDIS_HOST:localhost}
   port: ${REDIS_PORT:6379}
@@ -192,3 +192,14 @@ spring:
                 redis-rate-limiter.burstCapacity: 20
           predicates:
             - Path=/payer/**,/${version.external08}/user/create
+
+        - id: hcx-keycloak-route
+          uri: ${hcx-api.basePath}
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
+            - RewritePath=/auth/realms/swasth-health-claim-exchange-user/protocol/openid-connect/certs, /${version.internal}/participant/auth/token/generate
+          predicates:
+            - Path=/auth/realms/swasth-health-claim-exchange-user/protocol/openid-connect/certs
