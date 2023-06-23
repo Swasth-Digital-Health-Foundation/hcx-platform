@@ -700,8 +700,8 @@ public class OnboardService extends BaseController {
     public Response userInviteAccept(HttpHeaders headers, Map<String, Object> body) throws ClientException, Exception {
         logger.info("User invite accepted: " + body);
         Token token = new Token((String) body.getOrDefault(JWT_TOKEN, ""));
-        Map<String, Object> participantDetails = getParticipant(PARTICIPANT_CODE, hcxCode);
-        if (!jwtUtils.isValidSignature(token.getToken(), (String) participantDetails.get(ENCRYPTION_CERT))) {
+        Map<String, Object> hcxDetails = getParticipant(PARTICIPANT_CODE, hcxCode);
+        if (!jwtUtils.isValidSignature(token.getToken(), (String) hcxDetails.get(ENCRYPTION_CERT))) {
             throw new ClientException(ErrorCodes.ERR_INVALID_JWT, "Invalid JWT token signature");
         }
         User user = JSONUtils.deserialize(body.get("user"), User.class);
@@ -712,6 +712,7 @@ public class OnboardService extends BaseController {
             user.setUserId(createUser(headers, user));
         }
         updateInviteStatus(user.getEmail(), "accepted");
+        Map<String,Object> participantDetails = getParticipant(PARTICIPANT_CODE, token.getParticipantCode());
         if (isUserExists) {
             emailService.sendMail(user.getEmail(), Arrays.asList(token.getInvitedBy()), userInviteAcceptSub, existingUserInviteAcceptTemplate((String) participantDetails.get(PARTICIPANT_NAME), user.getUsername()));
         } else {
@@ -772,14 +773,15 @@ public class OnboardService extends BaseController {
     public Response userInviteReject(Map<String, Object> body) throws Exception {
         logger.info("User invite rejected: " + body);
         Token token = new Token((String) body.getOrDefault(JWT_TOKEN, ""));
-        Map<String, Object> participantDetails = getParticipant(PARTICIPANT_CODE, hcxCode);
-        if (!jwtUtils.isValidSignature(token.getToken(), (String) participantDetails.get(ENCRYPTION_CERT))) {
+        Map<String, Object> hcxDetails = getParticipant(PARTICIPANT_CODE, hcxCode);
+        if (!jwtUtils.isValidSignature(token.getToken(), (String) hcxDetails.get(ENCRYPTION_CERT))) {
             throw new ClientException(ErrorCodes.ERR_INVALID_JWT, "Invalid JWT token signature");
         }
         User user = JSONUtils.deserialize(body.get("user"), User.class);
         updateInviteStatus(user.getEmail(), "rejected");
+        Map<String,Object> participantDetails = getParticipant(PARTICIPANT_CODE, token.getParticipantCode());
         emailService.sendMail(user.getEmail(), Collections.singletonList(token.getInvitedBy()), userInviteRejectSub, userInviteRejectTemplate(user.getEmail(), (String) participantDetails.get(PARTICIPANT_NAME)));
-        auditIndexer.createDocument(eventGenerator.getOnboardUserInviteRejected(user, (String) participantDetails.getOrDefault(PARTICIPANT_NAME,"")));
+        auditIndexer.createDocument(eventGenerator.getOnboardUserInviteRejected(user, (String) hcxDetails.getOrDefault(PARTICIPANT_NAME,"")));
         return getSuccessResponse();
     }
 
