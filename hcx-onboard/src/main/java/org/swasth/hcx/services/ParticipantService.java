@@ -513,7 +513,7 @@ public class ParticipantService extends BaseController {
 
     private Map<String,String> headers(String verifierCode) throws NoSuchAlgorithmException, InvalidKeySpecException {
         Map<String,String> headers = new HashMap<>();
-        headers.put(AUTHORIZATION,"Bearer "+ jwtUtils.generateAuthToken(privatekey,verifierCode,hcxCode,expiryTime));
+        headers.put(AUTHORIZATION,"Bearer "+ jwtUtils.generateAuthToken(privatekey,hcxCode,expiryTime));
         return headers;
     }
 
