@@ -820,7 +820,6 @@ public class OnboardService extends BaseController {
         payload.put(PARTICIPANT_CODE, code);
         payload.put(SUB, sub);
         payload.put(IAT, date);
-        payload.put(EXP, new Date(date + expiryTime).getTime());
         return jwtUtils.generateJWS(headers, payload, privatekey);
     }
 
