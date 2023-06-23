@@ -11,7 +11,9 @@ const initialState: AppDataInterface = {
       showTerms:false,
       showLinkedUsers:false,
       username:'',
-      sidebar:"Profile"
+      sidebar:"Profile",
+      linkeduser: "",
+      counter : false
     },
 }
 

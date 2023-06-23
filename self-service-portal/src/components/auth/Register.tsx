@@ -111,6 +111,17 @@ export default function Register() {
     console.log("user details", userDetials);
   }
 
+
+  const removeRow = (index:any) => {
+    if(userDetials.length > 1){
+    const val = userDetials.indexOf(index);
+        if (index > -1) { // only splice array when item is found
+          userDetials.splice(index, 1); // 2nd parameter means remove one item only
+        }
+        setUserDetails(userDetials.map((value, index) => { return value }));    
+    }
+  }
+
   const setShowTerms = (event: ChangeEvent<HTMLInputElement>) => {
     console.log("event.target.value", event.target.checked);
     dispatch(addAppData({ "showTerms": event.target.checked }));
@@ -365,12 +376,13 @@ export default function Register() {
                     </div>
                  <div>
                    {/* Modal header */}
-                   <div className="flex items-start justify-between px-4">
-                     <h3 className="text-l font-semibold text-grey-700 dark:text-white">
-                       <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 inline-block mr-1 border rounded-full border-green-500" fill="none" viewBox="0 0 24 24" stroke="green">
+                   <div className="flex items-start p-6">
+                   {/* <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 inline-block mr-1 border rounded-full border-green-500" fill="none" viewBox="0 0 24 24" stroke="green">
                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                       </svg>
-                       &nbsp;Congrats! Your onboarding is initiated. You can invite users to manage organisations
+                       </svg> */}
+                     <h3 className="text-l font-semibold text-grey-700 dark:text-white">
+                       
+                       Congratulations! Your onboarding process is initiated. You can invite users to manage your organization
                      </h3>
                    </div>
                    {/* Modal body */}
@@ -394,7 +406,6 @@ export default function Register() {
                                value={value.email}
                                onChange={(event) => updateCreateUserData(event.target.value, index, "email")}
                              />
-                             {/* <p className="text-red-500 text-xs italic">Please fill out this field.</p> */}
                            </div>
                            <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
                              <label
@@ -404,12 +415,18 @@ export default function Register() {
                                Role
                              </label>
                              <select id="payordropdown"
+                               value={value.role} 
                                onChange={(event) => { updateCreateUserData(event.target.value, index, "role") }}
                                className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" >
-                               <option selected value="admin">Admin</option>
+                               <option value="admin">Admin</option>
                                <option value="config-manager">Config-manager</option>
                                <option value="viewer">Viewer</option>
                              </select>
+                             {index !== 0 ?
+                             <div className="flex items-center place-content-end">
+                             <a href="#" className="text-blue-700 text-xs underline" onClick={(event) => {event.preventDefault(); removeRow(index)}}>Remove</a>
+                             </div> : null }
+                             
                            </div>
 
                          </div></>
@@ -439,7 +456,7 @@ export default function Register() {
                    {/* Modal footer */}
                    <div className="flex items-center p-6 justify-between space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600">
                      <h5 className="text-l font-semibold text-gray-900 dark:text-white">
-                       You can also create users after login. Click skip to go to Profile page
+                     You may also invite users after onboarding completion. Click on 'Skip' button to go to participant profile.
                      </h5>
                      <button
                        data-modal-hide="defaultModal"

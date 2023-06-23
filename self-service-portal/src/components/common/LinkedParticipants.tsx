@@ -4,7 +4,7 @@ import { addAppData } from "../../reducers/app_data";
 import { useDispatch, useSelector } from "react-redux";
 import LinkedUsers from "./LinkedUsers";
 import { RootState } from "../../store";
-import { serachUser } from "../../api/UserService";
+import { getLinkedUsers, serachUser } from "../../api/UserService";
 import _ from "lodash";
 import { getParticipant, getParticipantByCode } from "../../api/RegistryService";
 import { addParticipantDetails } from "../../reducers/participant_details_reducer";
@@ -16,6 +16,7 @@ const LinkedParticipant = () => {
   const participantToken = useSelector((state: RootState) => state.tokenReducer.participantToken);
   const appData: Object = useSelector((state: RootState) => state.appDataReducer.appData);
   const [data, setData] = useState([{"participantcode":"","email":"","role":"","status":"","organization":""}]);
+
   useEffect(() => {
     serachUser(_.get(appData,"username")).then((res: any) => {
       console.log("search user res", res);
@@ -43,7 +44,7 @@ const LinkedParticipant = () => {
     })
   }
   
-  
+
   
   
     return(
@@ -116,7 +117,7 @@ const LinkedParticipant = () => {
           <a
             href="#"
             className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-            onClick={(event) => {event.preventDefault(); console.log("app data updatated");dispatch(addAppData({"showLinkedUsers":true}))}}
+            onClick={(event) => {event.preventDefault();  dispatch(addAppData({"linkeduser":value.participantcode})); ;dispatch(addAppData({"showLinkedUsers":true}))}}
           >
             Linked Users
           </a>

@@ -33,6 +33,19 @@ export const getAllUser = async () => {
     return post("/user/search", payload);
 }
 
+export const getLinkedUsers = async (code) => {
+    var payload = {
+        "filters": {
+          "tenant_roles":{
+              "participant_code": {
+                  "eq":code
+                  }
+          }
+        }
+    }
+    return post("/user/search", payload);
+}
+
 
 export const userUpdate = async (request) => {
     var payload = request
@@ -53,7 +66,7 @@ export const userAdd = async (participant_code, users) => {
 
 export const userRemove = async (participant_code, users) => {
     var payload = {participant_code, users}
-    return post("participant/user/remove", payload);
+    return post("/participant/user/remove", payload);
 }
 
 

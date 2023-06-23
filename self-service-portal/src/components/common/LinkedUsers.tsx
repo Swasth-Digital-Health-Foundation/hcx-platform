@@ -3,15 +3,34 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store";
 import _ from "lodash";
 import { addAppData } from "../../reducers/app_data";
+import { getLinkedUsers, userRemove } from "../../api/UserService";
+import { toast } from "react-toastify";
 
 
 const LinkedUsers = () => {
 
 const dispatch = useDispatch();    
 const appData:Object =useSelector((state: RootState) => state.appDataReducer.appData);
+const [linkedUsersData, setLinkedUsersData] = useState([]);
+const [roles, setRoles] =useState([]);
 
 useEffect(() => {
     console.log("reloaded app data", appData);
+    setRoles([]);
+    let roleT:any = [];
+    getLinkedUsers(_.get(appData,"linkeduser")).then(res =>{
+      let tenantrole =  res["data"]["users"];
+      tenantrole.map((value:any,index:any) => {
+        let tenant:any = _.filter(value.tenant_roles, {"participant_code":_.get(appData,"linkeduser")});
+        roleT.push(tenant[0]["role"]);
+    })
+      //extracting role
+      setRoles(roleT);
+      setLinkedUsersData(res["data"]["users"]);
+    }).catch(err => {
+      toast.error("Something went wrong. Please try again")
+    })
+
 },[appData])    
 
 const onClose = () => {
@@ -19,6 +38,13 @@ const onClose = () => {
 }
 
 
+const removeUser = (value:any, role:any) => {
+  userRemove(_.get(appData,"linkeduser"),{"user_id":value.email,"role":role}).then(res => {
+    console.log("user removed");
+  }).catch((err:any) => {
+    console.log("error", err); 
+  })
+}
 
 return (
     <>
@@ -28,7 +54,7 @@ return (
   className={"fixed top-0 left-0 right-0 z-50 w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full justify-center items-center flex " + (_.get(appData, "showLinkedUsers") ? "" : "hidden")}
   role="dialog"
 >
-  <div className="relative w-full max-w-2xl max-h-full">
+  <div className="relative w-fit max-h-full">
     {/* Modal content */}
     <div className="relative bg-white rounded-lg shadow dark:bg-gray-700">
       {/* Modal header */}
@@ -40,6 +66,7 @@ return (
           type="button"
           className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white"
           data-modal-hide="defaultModal"
+          onClick={()=> onClose()}
         >
           <svg
             aria-hidden="true"
@@ -58,18 +85,21 @@ return (
         </button>
       </div>
       {/* Modal body */}
-      <div className="p-10 space-y-6">
-      <table className="w-1/2 text-sm text-left text-gray-500 dark:text-gray-400">
+      <div className="w-full h-full">
+      <table className="text-sm text-left text-gray-500 dark:text-gray-400 p-2">
     <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
       <tr>
         <th scope="col" className="px-6 py-3">
-          User Name
+          Name
         </th>
         <th scope="col" className="px-6 py-3">
-          User Code
+          Email
         </th>
         <th scope="col" className="px-6 py-3">
           Created By
+        </th>
+        <th scope="col" className="px-6 py-3">
+          Role Assigned
         </th>
         <th scope="col" className="px-6 py-3">
           Action
@@ -77,35 +107,30 @@ return (
       </tr>
     </thead>
     <tbody>
-      <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-        <th
-          scope="row"
-          className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white"
-        >
-          <div className="pl-3">
-            <div className="text-base font-semibold">User 1</div>
-            <div className="font-normal text-gray-500">
-              User1@Org1.com
-            </div>
-          </div>
-        </th>
-        <td className="px-6 py-4">user1-hcx@staging-swasth</td>
-         <td className="px-6 py-4">admin-hcx@staging-swasth</td>
+      {linkedUsersData.map((value:any,index:any) => {
+          return       <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+          <td className="px-6 py-4">{value.user_name}</td>  
+          <td className="px-6 py-4">{value.email}</td>
+           <td className="px-6 py-4">{value.created_by}</td>  
+           <td className="px-6 py-4">{roles[index]}</td>
+           
+          <td className="px-6 py-4 space-x-3">
+            {/* Modal toggle */}
+            {roles[index] == "admin" ?
+            <a
+              href="#"
+              type="button"
+              data-modal-target="editUserModal"
+              data-modal-show="editUserModal"
+              className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+              onClick={() => removeUser(value, roles[index])}
+            >
+              Remove 
+            </a> : "--" }
+          </td>
+        </tr>
+      })}
 
-        <td className="px-6 py-4 space-x-3">
-          {/* Modal toggle */}
-          <a
-            href="#"
-            type="button"
-            data-modal-target="editUserModal"
-            data-modal-show="editUserModal"
-            className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-            //onClick={() => setShowDetails(true)}
-          >
-            Remove 
-          </a>
-        </td>
-      </tr>
     </tbody>
   </table>
       </div>

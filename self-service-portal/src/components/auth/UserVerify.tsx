@@ -39,23 +39,24 @@ export default function UserVerify() {
   const [existingOwner, setExistingOwner] = useState(false);
   
   useEffect(() => {
+
     setShowPass(false);
     const jwtToken = _.get(queryString.parse(window.location.search),"jwt_token");
     setEmail(getPayload(jwtToken) != null ? getPayload(jwtToken).email : "");
     setInvitedBy(getPayload(jwtToken) != null ? getPayload(jwtToken).invited_by : "");
     setParticipantCode(getPayload(jwtToken) != null ? getPayload(jwtToken).participant_code : "");
     setRole(getPayload(jwtToken) != null ? getPayload(jwtToken).role : "");
-    serachUser(email).then((res: any) => {
+    serachUser(getPayload(jwtToken).email).then((res: any) => {
       let osOwner = _.get(res, "data.users[0].osOwner");
       console.log("oswoner", osOwner);
       if (osOwner !== undefined){
         console.log("user is created")
         setExistingOwner(true);
       }else{
-        setShowPass(true);
-        console.log("user is not created")
+        setExistingOwner(false);
       } 
     })
+    console.log("Set show pass",setpass, existingOwner);
   },[])
 
   const getPayload = (token: any) => {
@@ -87,6 +88,7 @@ export default function UserVerify() {
       if(existingOwner){
           navigate("/onboarding/login");
         }else{
+          toast.success("Thank you for accepting the invite");
           setShowPass(true);
         } 
       }).catch(err => {
@@ -192,7 +194,7 @@ export default function UserVerify() {
                   <p className="mb-6 font-semibold">Please acknowledge your user invite</p>
                   {/*Username input*/}
                   <div className="relative mb-2 flex flex-wrap">
-                    <p className="py-2 w-2/6 font-semibold">Email :</p>
+                    <p className="py-2 w-2/6 font-semibold">Recipient Email Id :</p>
                     <p className="py-2 w-4/6 font-semibold">{email}</p>
                     {/* <input
                       type="email"
@@ -204,34 +206,34 @@ export default function UserVerify() {
                     /> */}
                   </div>
                   <div className="relative mb-2 flex flex-wrap">
-                  <p className="py-2 w-2/6 font-semibold">Invited By :</p>
+                  <p className="py-2 w-2/6 font-semibold">Inviter Email Id :</p>
                   <p className="py-2 w-4/6 font-semibold">{invitedBy}</p>
                   </div>
                   {/*Password input*/}
                   <div className="relative mb-2 flex flex-wrap">
-                  <p className="py-2 w-2/6 font-semibold">Role :</p>
+                  <p className="py-2 w-2/6 font-semibold">Role Assigned:</p>
                   <p className="py-2 w-4/6 font-semibold">{role}</p>
                   </div>
                   <div className="relative mb-2 flex flex-wrap">
-                  <p className="py-2 w-2/6 font-semibold">Participant code :</p>
+                  <p className="py-2 w-2/6 font-semibold">Inviter Participant Code :</p>
                   <p className="py-2 w-4/6 font-semibold">{participantCode}</p>
                   </div>
                   {!existingOwner ? <>
-                  <div className="relative mb-4 flex flex-wrap">
-                  <p className="py-2 mb-4 w-1/6 font-semibold">Full Name :</p>
+                  <div className="relative mb-2 flex flex-wrap">
+                  <p className="py-2 mb-4 w-2/6 font-semibold">User Name :</p>
                     <input
                       type="tel"
-                      className="w-5/6 h-10 px-3 mb-4 text-base text-gray-700 placeholder-gray-600 border rounded-lg focus:shadow-outline"
+                      className="w-4/6 h-10 px-3 mb-2 text-base text-gray-700 placeholder-gray-600 border rounded-lg focus:shadow-outline"
                       id="exampleFormControlInput12"
                       placeholder="Name"
                       onChange={(event) => {setName(event.target.value)}}
                     />
                   </div>
                   <div className="relative mb-4 flex flex-wrap">
-                  <p className="py-2 mb-4 w-1/6 font-semibold">Phone :</p>
+                  <p className="py-2 mb-4 w-2/6 font-semibold">Phone Number:</p>
                     <input
                       type="tel"
-                      className="w-5/6 h-10 px-3 mb-4 text-base text-gray-700 placeholder-gray-600 border rounded-lg focus:shadow-outline"
+                      className="w-4/6 h-10 px-3 mb-4 text-base text-gray-700 placeholder-gray-600 border rounded-lg focus:shadow-outline"
                       id="exampleFormControlInput12"
                       placeholder="Phone Number"
                       onChange={(event) => {setPhone(event.target.value)}}
