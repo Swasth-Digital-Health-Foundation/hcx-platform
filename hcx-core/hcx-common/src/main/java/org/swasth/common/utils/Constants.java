@@ -204,6 +204,8 @@ public class Constants {
     public static final String INVITED_BY = "invited_by";
     public static final String  INVITE_STATUS = "invite_status";
     public static final String TERMS_AND_CONDITIONS = "terms_and_conditions";
+
+    public static final String TERMS_AND_CONDITIONS_VERSION = "terms_and_conditions_version";
     public static final String PARTICIPANT_NAME = "participant_name";
     public static final String PARTICIPANT_ROLE = "participant_role";
     public static final String PRIMARY_EMAIL = "primary_email";

@@ -182,42 +182,13 @@ public class OnboardService extends BaseController {
         return getSuccessResponse(new Response(output));
     }
 
-    private void updateStatus(String email, String status) throws Exception {
-        String query = String.format("UPDATE %s SET status='%s',updatedOn=%d WHERE applicant_email='%s'", onboardingVerifierTable, status, System.currentTimeMillis(), email);
-        postgreSQLClient.execute(query);
-    }
-
-    private void updateIdentityStatus(String email, String applicantCode, String verifierCode, String status) throws Exception {
-        String query = String.format("INSERT INTO %s (applicant_email,applicant_code,verifier_code,status,createdOn,updatedOn) VALUES ('%s','%s','%s','%s',%d,%d) ON CONFLICT (applicant_email) DO NOTHING;",
-                onboardingVerifierTable, email, applicantCode, verifierCode, status, System.currentTimeMillis(), System.currentTimeMillis());
-        postgreSQLClient.execute(query);
-    }
-
     private void onboardProcess(HttpHeaders headers, OnboardRequest request, Map<String, Object> output) throws Exception {
         Map<String, Object> participant = request.getParticipant();
-        participant.put(ENDPOINT_URL, "http://testurl/v0.7");
-        participant.put(ENCRYPTION_CERT, "https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/hcx-platform/main/hcx-apis/src/test/resources/examples/test-keys/public-key.pem");
-        participant.put(REGISTRY_STATUS, CREATED);
-        if (((ArrayList<String>) participant.get(ROLES)).contains(PAYOR))
-            participant.put(SCHEME_CODE, "default");
-        String identityVerified = PENDING;
-        if (ONBOARD_FOR_PROVIDER.contains(request.getType())) {
-            String query = String.format("SELECT * FROM %s WHERE applicant_email ILIKE '%s' AND status IN ('%s', '%s')", onboardingVerifierTable, request.getPrimaryEmail(), PENDING, REJECTED);
-            ResultSet result = (ResultSet) postgreSQLClient.executeQuery(query);
-            if (result.next()) {
-                identityVerified = identityVerify(getApplicantBody(request));
-                if (StringUtils.equalsIgnoreCase(identityVerified, REJECTED))
-                    throw new ClientException("Identity verification is rejected by the payer, Please reach out to them.");
-            }
-        }
-        HttpResponse<String> createResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_CREATE, JSONUtils.serialize(participant), getHeadersMap(headers));
-        RegistryResponse pcptResponse = JSONUtils.deserialize(createResponse.getBody(), RegistryResponse.class);
-        if (createResponse.getStatus() != 200) {
-            throw new ClientException(pcptResponse.getError().getCode() == null ? ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS : pcptResponse.getError().getCode(), pcptResponse.getError().getMessage());
-        }
-        String participantCode = (String) JSONUtils.deserialize(createResponse.getBody(), Map.class).get(PARTICIPANT_CODE);
+        String identityVerified = verifyParticipantIdentity(request);
+        addParticipantDetails(participant);
+        String participantCode = createEntity(PARTICIPANT_CREATE, JSONUtils.serialize(participant), getHeadersMap(headers), ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, PARTICIPANT_CODE);
         participant.put(PARTICIPANT_CODE, participantCode);
-        User user = new User((String) participant.get(PARTICIPANT_NAME) + " Admin", (String) participant.get(PRIMARY_EMAIL), (String) participant.get(PRIMARY_MOBILE), participantCode);
+        User user = new User(participant.get(PARTICIPANT_NAME) + " Admin", (String) participant.get(PRIMARY_EMAIL), (String) participant.get(PRIMARY_MOBILE), participantCode);
         user.addTenantRole(participantCode, ADMIN);
         user.addTenantRole(participantCode, CONFIG_MANAGER);
         String userId = createUser(headers, user);
@@ -231,23 +202,53 @@ public class OnboardService extends BaseController {
         }
         participant.put(USER_ID, userId);
         sendVerificationLink(participant);
-        output.put(PARTICIPANT_CODE, participantCode);
-        output.put(IDENTITY_VERIFICATION, identityVerified);
-        output.put(USER_ID, userId);
+        updateResponse(output, identityVerified, participantCode, userId);
         auditIndexer.createDocument(eventGenerator.getOnboardVerifyEvent(request, participantCode));
         logger.info("Verification link  has been sent successfully :: participant code : " + participantCode + " :: primary email : " + participant.get(PRIMARY_EMAIL));
     }
 
+    private String verifyParticipantIdentity(OnboardRequest request) throws Exception {
+        String identityVerified = PENDING;
+        if (ONBOARD_FOR_PROVIDER.contains(request.getType())) {
+            String query = String.format("SELECT * FROM %s WHERE applicant_email ILIKE '%s' AND status IN ('%s', '%s')", onboardingVerifierTable, request.getPrimaryEmail(), PENDING, REJECTED);
+            ResultSet result = (ResultSet) postgreSQLClient.executeQuery(query);
+            if (result.next()) {
+                identityVerified = identityVerify(getApplicantBody(request));
+                if (StringUtils.equalsIgnoreCase(identityVerified, REJECTED))
+                    throw new ClientException("Identity verification is rejected by the payer, Please reach out to them.");
+            }
+        }
+        return identityVerified;
+    }
+
+    private String createEntity(String api, String participant, Map<String, String> headers, ErrorCodes errCode, String id) throws Exception {
+        HttpResponse<String> createResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + api, participant, headers);
+        RegistryResponse response = JSONUtils.deserialize(createResponse.getBody(), RegistryResponse.class);
+        if (createResponse.getStatus() != 200) {
+            throw new ClientException(response.getError().getCode() == null ? errCode : response.getError().getCode(), response.getError().getMessage());
+        }
+        return (String) JSONUtils.deserialize(createResponse.getBody(), Map.class).get(id);
+    }
+
+    private void addParticipantDetails(Map<String,Object> participant) {
+        participant.put(ENDPOINT_URL, "http://testurl/v0.7");
+        participant.put(ENCRYPTION_CERT, "https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/hcx-platform/main/hcx-apis/src/test/resources/examples/test-keys/public-key.pem");
+        participant.put(REGISTRY_STATUS, CREATED);
+        if (((ArrayList<String>) participant.get(ROLES)).contains(PAYOR))
+            participant.put(SCHEME_CODE, "default");
+    }
+
     private String createUser(HttpHeaders headers, User user) throws Exception {
         logger.info("User Request Body: " + JSONUtils.serialize(user));
-        HttpResponse<String> createUser = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + USER_CREATE, JSONUtils.serialize(user), getHeadersMap(headers));
-        RegistryResponse userResponse = JSONUtils.deserialize(createUser.getBody(), RegistryResponse.class);
-        if (createUser.getStatus() != 200) {
-            throw new ClientException(userResponse.getError().getCode() == null ? ErrorCodes.ERR_INVALID_USER_DETAILS : userResponse.getError().getCode(), userResponse.getError().getMessage());
-        }
-        String userId = (String) JSONUtils.deserialize(createUser.getBody(), Map.class).get(USER_ID);
+        String userId = createEntity(USER_CREATE, JSONUtils.serialize(user), getHeadersMap(headers), ErrorCodes.ERR_INVALID_USER_DETAILS, USER_ID);
         logger.info("Create user: " + userId);
         return userId;
+    }
+
+    private static void updateResponse(Map<String, Object> output, String identityVerified, String participantCode, String userId) {
+        output.put(PARTICIPANT_CODE, participantCode);
+        output.put(IDENTITY_VERIFICATION, identityVerified);
+        output.put(USER_ID, userId);
     }
 
     // TODO: change request body to pojo
@@ -267,8 +268,7 @@ public class OnboardService extends BaseController {
         if (!requestBody.containsKey(ROLES)) {
             requestBody = getParticipant(PARTICIPANT_CODE, (String) requestBody.get(PARTICIPANT_CODE));
         }
-        String primaryEmail = (String) requestBody.get(PRIMARY_EMAIL);
-        String query = String.format("SELECT regenerate_count, last_regenerate_date, email_verified, phone_verified FROM %s WHERE primary_email='%s'", onboardVerificationTable, primaryEmail);
+        String query = String.format("SELECT regenerate_count, last_regenerate_date, email_verified, phone_verified FROM %s WHERE primary_email='%s'", onboardVerificationTable, (String) requestBody.get(PRIMARY_EMAIL));
         ResultSet result = (ResultSet) postgreSQLClient.executeQuery(query);
         if (!result.next()) {
             throw new ClientException(ErrorCodes.ERR_INVALID_REQUEST, INVALID_EMAIL);
@@ -292,11 +292,11 @@ public class OnboardService extends BaseController {
             smsService.sendLink((String) requestBody.get(PRIMARY_MOBILE), phoneSub + "\r\n" + shortUrl);
         }
         if (!emailVerified && requestBody.containsKey(PRIMARY_EMAIL)) {
-            emailService.sendMail(primaryEmail, linkSub, linkTemplate((String) requestBody.get(PARTICIPANT_NAME), (String) requestBody.get(PARTICIPANT_CODE), generateURL(requestBody, EMAIL, primaryEmail), linkExpiry / 86400000, (ArrayList<String>) requestBody.get(ROLES), (String) requestBody.getOrDefault("user_id", "")));
+            emailService.sendMail((String) requestBody.get(PRIMARY_EMAIL), linkSub, linkTemplate((String) requestBody.get(PARTICIPANT_NAME), (String) requestBody.get(PARTICIPANT_CODE), generateURL(requestBody, EMAIL, (String) requestBody.get(PRIMARY_EMAIL)), linkExpiry / 86400000, (ArrayList<String>) requestBody.get(ROLES), (String) requestBody.getOrDefault("user_id", "")));
         }
         regenerateCount++;
         String updateQuery = String.format("UPDATE %s SET updatedOn=%d, expiry=%d, regenerate_count=%d, last_regenerate_date='%s', phone_short_url='%s', phone_long_url='%s' WHERE primary_email='%s'",
-                onboardVerificationTable, System.currentTimeMillis(), System.currentTimeMillis() + linkExpiry, regenerateCount, currentDate, shortUrl, longUrl, primaryEmail);
+                onboardVerificationTable, System.currentTimeMillis(), System.currentTimeMillis() + linkExpiry, regenerateCount, currentDate, shortUrl, longUrl, (String) requestBody.get(PRIMARY_EMAIL));
         postgreSQLClient.execute(updateQuery);
         auditIndexer.createDocument(eventGenerator.getSendLinkEvent(requestBody, regenerateCount, currentDate));
         return getSuccessResponse(new Response());
@@ -982,17 +982,10 @@ public class OnboardService extends BaseController {
     private Map<String, Object> createMockParticipant(HttpHeaders headers, String role, Map<String, Object> participantDetails) throws Exception {
         String parentParticipantCode = (String) participantDetails.getOrDefault(PARTICIPANT_CODE, "");
         logger.info("creating Mock participant for :: parent participant code : " + parentParticipantCode + " :: Role: " + role);
-        Map<String, String> headersMap = new HashMap<>();
-        headersMap.put(AUTHORIZATION, Objects.requireNonNull(headers.get(AUTHORIZATION)).get(0));
         Map<String, Object> mockParticipant = getMockParticipantBody(participantDetails, role, parentParticipantCode);
         String privateKey = (String) mockParticipant.getOrDefault(PRIVATE_KEY, "");
         mockParticipant.remove(PRIVATE_KEY);
-        HttpResponse<String> createResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_CREATE, JSONUtils.serialize(mockParticipant), headersMap);
-        RegistryResponse pcptResponse = JSONUtils.deserialize(createResponse.getBody(), RegistryResponse.class);
-        if (createResponse.getStatus() != 200) {
-            throw new ClientException(pcptResponse.getError().getCode() == null ? ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS : pcptResponse.getError().getCode(), pcptResponse.getError().getMessage());
-        }
-        String childParticipantCode = (String) JSONUtils.deserialize(createResponse.getBody(), Map.class).get(PARTICIPANT_CODE);
+        String childParticipantCode = createEntity(PARTICIPANT_CREATE, JSONUtils.serialize(mockParticipant), getHeadersMap(headers), ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, PARTICIPANT_CODE);
         return updateMockDetails(mockParticipant, parentParticipantCode, childParticipantCode, privateKey);
     }
 
@@ -1154,6 +1147,17 @@ public class OnboardService extends BaseController {
         Response response = new Response();
         response.setStatus(SUCCESSFUL);
         return response;
+    }
+
+    private void updateStatus(String email, String status) throws Exception {
+        String query = String.format("UPDATE %s SET status='%s',updatedOn=%d WHERE applicant_email='%s'", onboardingVerifierTable, status, System.currentTimeMillis(), email);
+        postgreSQLClient.execute(query);
+    }
+
+    private void updateIdentityStatus(String email, String applicantCode, String verifierCode, String status) throws Exception {
+        String query = String.format("INSERT INTO %s (applicant_email,applicant_code,verifier_code,status,createdOn,updatedOn) VALUES ('%s','%s','%s','%s',%d,%d) ON CONFLICT (applicant_email) DO NOTHING;",
+                onboardingVerifierTable, email, applicantCode, verifierCode, status, System.currentTimeMillis(), System.currentTimeMillis());
+        postgreSQLClient.execute(query);
     }
 
 }

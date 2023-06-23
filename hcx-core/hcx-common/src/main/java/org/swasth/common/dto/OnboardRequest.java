@@ -56,4 +56,8 @@ public class OnboardRequest {
 
     public List<Object> getAdditionalVerification() { return (List<Object>) requestBody.get(ADDITIONALVERIFICATION); }
 
+    public String getTermsAndConditionsVersion() {
+        return (String) requestBody.getOrDefault(TERMS_AND_CONDITIONS_VERSION, "");
+    }
+
 }
