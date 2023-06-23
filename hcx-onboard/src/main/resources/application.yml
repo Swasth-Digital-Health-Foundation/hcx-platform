@@ -90,7 +90,7 @@ keycloak:
   admin-password: ${keycloak_admin_password:test-password}
   master-realm: ${keycloak_master_realm:master}
   client-id: ${keycloack_client_id:admin-cli}
-  users-realm: ${keycloack_users_realm:swasth-health-claim-exchange}
+  participant-realm: ${keycloack_users_realm:swasth-hcx-participants}
 
 endpoint:
   user-invite: ${user_invite_endpoint:/onboarding/user/invite}

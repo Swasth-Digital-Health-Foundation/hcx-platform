@@ -80,6 +80,9 @@ hcx-onboard:
 hcx-mock-service:
   basePath: ${HCX_MOCK_SERVICE_BASEPATH:http://localhost:8083}
 
+hcx-keycloak:
+  basePath: ${HCX_KEYCLOAK_BASEPATH:http://localhost:8081}
+
 #elasticsearch config
 es:
   host: ${es_host:localhost}
@@ -166,8 +169,9 @@ spring:
             - RewritePath=/${version.external08}/audit/user/search, /${version.internal}/audit/user/search
             - RewritePath=/${version.external08}/participant/auth/token/generate, /${version.internal}/participant/auth/token/generate
             - RewritePath=/${version.external08}/user/auth/token/generate, /${version.internal}/user/auth/token/generate
+            - RewritePath=/auth/realms/swasth-health-claim-exchange/protocol/openid-connect/token, /${version.internal}/participant/auth/token/generate
           predicates:
-            - Path=/${version.external07}/participant/create, /${version.external07}/participant/update, /${version.external07}/participant/search, /${version.external07}/participant/delete, /${version.external08}/participant/create, /${version.external08}/participant/update, /${version.external08}/participant/search, /${version.external08}/participant/delete, /health, /service/health, /${version.external08}/notification/topic/list,  /${version.external08}/request/retry/**, /${version.external08}/audit/onboard/search, /${version.external08}/user/create,/${version.external08}/user/update,/${version.external08}/user/search,/${version.external08}/user/delete,/${version.external08}/participant/user/add,/${version.external08}/participant/user/remove,/${version.external08}/audit/participant/search,/${version.external08}/audit/user/search, /${version.external08}/user/auth/token/generate, /${version.external08}/participant/auth/token/generate
+            - Path=/${version.external07}/participant/create, /${version.external07}/participant/update, /${version.external07}/participant/search, /${version.external07}/participant/delete, /${version.external08}/participant/create, /${version.external08}/participant/update, /${version.external08}/participant/search, /${version.external08}/participant/delete, /health, /service/health, /${version.external08}/notification/topic/list,  /${version.external08}/request/retry/**, /${version.external08}/audit/onboard/search, /${version.external08}/user/create,/${version.external08}/user/update,/${version.external08}/user/search,/${version.external08}/user/delete,/${version.external08}/participant/user/add,/${version.external08}/participant/user/remove,/${version.external08}/audit/participant/search,/${version.external08}/audit/user/search, /${version.external08}/user/auth/token/generate, /${version.external08}/participant/auth/token/generate, /auth/realms/swasth-health-claim-exchange/protocol/openid-connect/token
 
         - id: hcx-onboard-api-route
           uri: ${hcx-onboard.basePath}
@@ -194,12 +198,11 @@ spring:
             - Path=/payer/**,/${version.external08}/user/create
 
         - id: hcx-keycloak-route
-          uri: ${hcx-api.basePath}
+          uri: ${hcx-keycloak.basePath}
           filters:
             - name: RequestRateLimiter
               args:
                 redis-rate-limiter.replenishRate: 10
                 redis-rate-limiter.burstCapacity: 20
-            - RewritePath=/auth/realms/swasth-health-claim-exchange-user/protocol/openid-connect/certs, /${version.internal}/participant/auth/token/generate
           predicates:
-            - Path=/auth/realms/swasth-health-claim-exchange-user/protocol/openid-connect/certs
+            - Path=/auth/admin/realms/*

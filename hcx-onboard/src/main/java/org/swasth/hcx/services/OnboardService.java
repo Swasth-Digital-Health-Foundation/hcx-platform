@@ -127,8 +127,8 @@ public class OnboardService extends BaseController {
     private String keycloakAdminUserName;
     @Value("${keycloak.master-realm}")
     private String keycloakMasterRealm;
-    @Value("${keycloak.users-realm}")
-    private String keycloackUserRealm;
+    @Value("${keycloak.participant-realm}")
+    private String keycloackParticipantRealm;
     @Value("${keycloak.client-id}")
     private String keycloackClientId;
 
@@ -1037,7 +1037,7 @@ public class OnboardService extends BaseController {
         try {
             ArrayList<String> osOwner = (ArrayList<String>) registryDetails.get(OS_OWNER);
             Keycloak keycloak = Keycloak.getInstance(keycloakURL, keycloakMasterRealm, keycloakAdminUserName, keycloakAdminPassword, keycloackClientId);
-            RealmResource realmResource = keycloak.realm(keycloackUserRealm);
+            RealmResource realmResource = keycloak.realm(keycloackParticipantRealm);
             UserResource userResource = realmResource.users().get(osOwner.get(0));
             CredentialRepresentation passwordCred = new CredentialRepresentation();
             passwordCred.setTemporary(false);
