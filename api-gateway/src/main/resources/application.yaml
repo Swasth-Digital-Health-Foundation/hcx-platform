@@ -81,7 +81,7 @@ hcx-mock-service:
   basePath: ${HCX_MOCK_SERVICE_BASEPATH:http://localhost:8083}
 
 hcx-keycloak:
-  basePath: ${HCX_KEYCLOAK_BASEPATH:http://localhost:8081}
+  basePath: ${HCX_KEYCLOAK_BASEPATH:https://dev-hcx.swasth.app}
 
 #elasticsearch config
 es:
