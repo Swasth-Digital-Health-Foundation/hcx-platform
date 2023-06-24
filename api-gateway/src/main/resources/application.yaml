@@ -207,4 +207,4 @@ spring:
                 redis-rate-limiter.replenishRate: 10
                 redis-rate-limiter.burstCapacity: 20
           predicates:
-            - Path=/auth/admin/realms/*, /auth/realms/swasth-hcx-participants/protocol/openid-connect/certs
+            - Path=/auth/admin/realms/*, /auth/realms/swasth-hcx-participants/protocol/openid-connect/certs, /auth/realms/master/protocol/openid-connect/token
