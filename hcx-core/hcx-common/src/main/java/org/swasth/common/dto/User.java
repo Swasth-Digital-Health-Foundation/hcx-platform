@@ -10,7 +10,7 @@ import static org.swasth.common.utils.Constants.*;
 
 public class User {
 
-
+    @JsonProperty("user_name")
     private String userName;
 
     @JsonProperty("user_id")
