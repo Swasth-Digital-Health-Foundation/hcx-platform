@@ -17,10 +17,8 @@ import org.springframework.web.client.RestTemplate;
 import org.swasth.common.dto.RegistryResponse;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
-import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.security.KeyFactory;
 import java.security.interfaces.RSAPrivateKey;
@@ -35,7 +33,7 @@ import static org.swasth.common.utils.Constants.*;
 
 
 @Service
-public class TokenService extends BaseRegistryService {
+public class JWTTokenService extends BaseRegistryService {
 
     @Value("${keycloak.client-id}")
     private String clientId;
