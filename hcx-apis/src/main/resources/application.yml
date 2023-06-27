@@ -129,3 +129,5 @@ keycloak:
   client-secret: ${client_secret:c4f23c80-96d1-4f39-9784-8a7cb1f61e7a}
   user-realm-url: ${user_realm_url:http://dev-hcx.swasth.app/auth/realms/swasth-hcx-users/protocol/openid-connect/token}
   participant-realm-url: ${participant_realm_url:http://dev-hcx.swasth.app/auth/realms/swasth-hcx-participants/protocol/openid-connect/token}
+  user-realm-private-key-path: ${keycloak_user_realm_private_key_path:} 
+  participant-realm-private-key-path: ${keycloak_participant_realm_private_key_path:} 

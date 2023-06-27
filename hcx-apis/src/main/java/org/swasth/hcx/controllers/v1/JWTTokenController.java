@@ -26,13 +26,19 @@ public class JWTTokenController extends BaseController {
     @Value("${keycloak.participant-realm-url}")
     private String participantRealmUrl;
 
+    @Value("${keycloak.participant-realm-private-key-path:classpath:participant_realm.der}")
+    private String participantRealmKeyPath;
+
+    @Value("${keycloak.user-realm-private-key-path:classpath:user_realm.der}")
+    private String userRealmKeyPath;
+
     @Autowired
     private JWTTokenService JWTTokenService;
 
     @PostMapping(PARTICIPANT_GENERATE_TOKEN)
     public ResponseEntity<Object> participantToken(@RequestBody MultiValueMap<String, String> requestBody){
         try{
-             Map<String,Object> response = JWTTokenService.getToken(requestBody,"src/main/resources/participant_realm.der",participantRealmUrl);
+             Map<String,Object> response = JWTTokenService.getToken(requestBody, participantRealmKeyPath, participantRealmUrl);
              return JWTTokenService.getSuccessResponse(response);
         } catch (Exception e){
              return exceptionHandler(new Response(),e);
@@ -42,7 +48,7 @@ public class JWTTokenController extends BaseController {
     @PostMapping(USER_GENERATE_TOKEN)
     public ResponseEntity<Object> userToken(@RequestBody MultiValueMap<String, String> requestBody){
         try{
-            Map<String,Object> response = JWTTokenService.getToken(requestBody,"src/main/resources/user_realm.der",userRealmUrl);
+            Map<String,Object> response = JWTTokenService.getToken(requestBody, userRealmKeyPath, userRealmUrl);
             return JWTTokenService.getSuccessResponse(response);
         } catch (Exception e){
             return exceptionHandler(new Response(),e);
