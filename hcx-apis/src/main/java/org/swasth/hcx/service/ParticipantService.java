@@ -69,7 +69,7 @@ public class ParticipantService extends BaseRegistryService {
     }
 
     public RegistryResponse update(Map<String, Object> requestBody, Map<String, Object> registryDetails, HttpHeaders header, String code) throws Exception {
-        HttpResponse<String> response = registryUpdate(requestBody, registryDetails, header, registryOrgnisationPath);
+        HttpResponse<String> response = registryUpdate(requestBody, registryDetails, registryOrgnisationPath);
         if (response.getStatus() == 200) {
             deleteCache(code);
             String status = (String) registryDetails.get(REGISTRY_STATUS);
@@ -95,7 +95,7 @@ public class ParticipantService extends BaseRegistryService {
     }
 
     public RegistryResponse delete(Map<String, Object> registryDetails, HttpHeaders header, String code) throws Exception {
-        HttpResponse<String> response = registryDelete(registryDetails, header, registryOrgnisationPath);
+        HttpResponse<String> response = registryDelete(registryDetails, registryOrgnisationPath);
         if (response.getStatus() == 200) {
             deleteCache(code);
             generateUpdateAudit(code, PARTICIPANT_DELETE, Collections.emptyMap(), (String) registryDetails.get(REGISTRY_STATUS), INACTIVE, Collections.emptyList(), getUserFromToken(header));

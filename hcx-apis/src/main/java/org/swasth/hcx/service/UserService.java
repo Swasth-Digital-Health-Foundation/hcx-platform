@@ -47,7 +47,7 @@ public class UserService extends BaseRegistryService {
     }
 
     public RegistryResponse update(Map<String, Object> requestBody, Map<String, Object> registryDetails, HttpHeaders headers, String code) throws Exception {
-        HttpResponse<String> response = registryUpdate(requestBody, registryDetails, headers, registryUserPath);
+        HttpResponse<String> response = registryUpdate(requestBody, registryDetails, registryUserPath);
         if (response.getStatus() == 200) {
             generateUserAudit(code,USER_UPDATE,requestBody,getUserFromToken(headers));
             logger.info("Updated user :: user id: {}", code);
@@ -56,7 +56,7 @@ public class UserService extends BaseRegistryService {
     }
 
     public RegistryResponse delete(Map<String, Object> registryDetails, HttpHeaders headers, String code) throws Exception {
-        HttpResponse<String> response = registryDelete(registryDetails, headers, registryUserPath);
+        HttpResponse<String> response = registryDelete(registryDetails, registryUserPath);
         if (response.getStatus() == 200) {
             generateUserAudit(code,USER_DELETE,registryDetails,getUserFromToken(headers));
             logger.info("User deleted :: userId: {}", code);
@@ -83,7 +83,7 @@ public class UserService extends BaseRegistryService {
         requestBody.put(TENANT_ROLES, tenantRolesList);
         userBody.remove(USER_ID);
         tenantRolesList.add(userBody);
-        response = registryUpdate(requestBody, registryDetails, headers, registryUserPath);
+        response = registryUpdate(requestBody, registryDetails, registryUserPath);
         generateAddRemoveUserAudit((String) registryDetails.get(USER_ID), PARTICIPANT_USER_ADD, userBody, getUserFromToken(headers));
         logger.info("added role for the user_id : " + registryDetails.get(USER_ID));
         return responseHandler(response, (String) registryDetails.get(USER_ID), USER);
@@ -109,7 +109,7 @@ public class UserService extends BaseRegistryService {
         }
         Map<String, Object> request = new HashMap<>();
         request.put(TENANT_ROLES, filteredTenantRoles);
-        response = registryUpdate(request, registryDetails, headers, registryUserPath);
+        response = registryUpdate(request, registryDetails, registryUserPath);
         generateAddRemoveUserAudit(userId, PARTICIPANT_USER_REMOVE, requestBody, getUserFromToken(headers));
         logger.info("removed role for the user_id : " + registryDetails.get(USER_ID));
         return responseHandler(response, userId, USER);
