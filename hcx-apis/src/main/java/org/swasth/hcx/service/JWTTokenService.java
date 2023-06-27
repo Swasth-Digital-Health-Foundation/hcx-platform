@@ -47,9 +47,6 @@ public class JWTTokenService extends BaseRegistryService {
     @Value("${keycloak.participant-realm-url}")
     private String participantRealmUrl;
 
-    @Value("${registry.basePath}")
-    private String registryURL;
-
     @Value("${registry.user-api-path}")
     private String registryUserPath;
     @Autowired
@@ -72,13 +69,13 @@ public class JWTTokenService extends BaseRegistryService {
         SignedJWT parsedToken = SignedJWT.parse(originalToken);
         JWTClaimsSet originalPayload = parsedToken.getJWTClaimsSet();
         JWTClaimsSet.Builder modifiedPayloadBuilder = new JWTClaimsSet.Builder(originalPayload);
-        if (keyFilePath.contains("user_realm.der")) {
+        if (keyFilePath.contains("user_realm")) {
             Map<String, Object> userDetails = getUser(email);
             Map<String, Object> realmAccess = (Map<String, Object>) modifiedPayloadBuilder.getClaims().get("realm_access");
             realmAccess.put(TENANT_ROLES, userDetails.getOrDefault(TENANT_ROLES,new ArrayList<>()));
             modifiedPayloadBuilder.claim("realm_access", realmAccess);
             modifiedPayloadBuilder.claim(USER_ID, userDetails.get(USER_ID));
-        } else if (keyFilePath.contains("participant_realm.der")) {
+        } else if (keyFilePath.contains("participant_realm")) {
             modifiedPayloadBuilder.claim(PARTICIPANT_CODE, getParticipantCode((String) modifiedPayloadBuilder.getClaims().get(EMAIL)));
         }
         JWTClaimsSet modifiedPayload = modifiedPayloadBuilder.build();

@@ -26,10 +26,10 @@ public class JWTTokenController extends BaseController {
     @Value("${keycloak.participant-realm-url}")
     private String participantRealmUrl;
 
-    @Value("${keycloak.participant-realm-private-key-path:classpath:participant_realm.der}")
+    @Value("${keycloak.participant-realm-private-key-path:classpath:participant_realm_private_key.der}")
     private String participantRealmKeyPath;
 
-    @Value("${keycloak.user-realm-private-key-path:classpath:user_realm.der}")
+    @Value("${keycloak.user-realm-private-key-path:classpath:user_realm_private_key.der}")
     private String userRealmKeyPath;
 
     @Autowired
