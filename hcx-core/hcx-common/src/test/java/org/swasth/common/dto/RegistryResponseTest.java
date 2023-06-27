@@ -5,8 +5,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class RegistryResponseTest {
 
@@ -56,5 +55,11 @@ public class RegistryResponseTest {
         String status = "SUCCESS";
         RegistryResponse response = new RegistryResponse(timestamp,status);
         assertEquals(status,response.getStatus());
+    }
+
+    @Test
+    public void testTimestap(){
+        RegistryResponse response = new RegistryResponse();
+        assertNotNull(response.getTimestamp());
     }
 }

@@ -1,6 +1,7 @@
 package org.swasth.hcx.service;
 
 import kong.unirest.HttpResponse;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,17 +13,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.swasth.ICloudService;
 import org.swasth.common.dto.RegistryResponse;
+import org.swasth.common.dto.Token;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
+import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.utils.JWTUtils;
 import org.swasth.postgresql.IDatabaseService;
 import org.swasth.redis.cache.RedisCache;
-
-import org.apache.commons.collections.ListUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.swasth.common.dto.Token;
-import org.swasth.common.utils.Constants;
 
 import java.io.IOException;
 import java.security.cert.CertificateException;
@@ -191,7 +189,7 @@ public class ParticipantService extends BaseRegistryService {
         } else if (StringUtils.equals(token.getEntityType(), "User")) {
             boolean result = false;
             for(Map<String, String> roleMap: token.getTenantRoles()){
-                if(StringUtils.equals(roleMap.get(PARTICIPANT_CODE), participantCode) && (StringUtils.equals((String) roleMap.get(ROLE), ADMIN) || StringUtils.equals((String) roleMap.get(ROLE), CONFIG_MANAGER))) {
+                if(StringUtils.equals(roleMap.get(PARTICIPANT_CODE), participantCode) && (StringUtils.equals(roleMap.get(ROLE), ADMIN) || StringUtils.equals(roleMap.get(ROLE), CONFIG_MANAGER))) {
                     result = true;
                 }
             }
