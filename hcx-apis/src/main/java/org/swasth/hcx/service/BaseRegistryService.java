@@ -50,12 +50,12 @@ public class BaseRegistryService {
         return responseHandler(response,null,entity);
     }
 
-    public HttpResponse<String> registryUpdate(Map<String, Object> requestBody, Map<String, Object> registryDetails, HttpHeaders header, String apiPath) throws JsonProcessingException {
+    public HttpResponse<String> registryUpdate(Map<String, Object> requestBody, Map<String, Object> registryDetails, String apiPath) throws JsonProcessingException {
         String url = registryURL + apiPath + "/" + registryDetails.get(OSID);
         return HttpUtils.put(url, JSONUtils.serialize(requestBody), new HashMap<>());
     }
 
-    public HttpResponse<String> registryDelete(Map<String, Object> registryDetails, HttpHeaders header, String apiPath){
+    public HttpResponse<String> registryDelete(Map<String, Object> registryDetails, String apiPath){
         String url = registryURL + apiPath + "/" + registryDetails.get(OSID);
         return HttpUtils.delete(url, new HashMap<>());
     }

@@ -1,11 +1,13 @@
 import { configureStore } from '@reduxjs/toolkit'
 import tokenReducer from './reducers/token_reducer';
 import participantDetailsReducer from './reducers/participant_details_reducer';
+import appDataReducer from './reducers/app_data';
 export const store = configureStore({
   reducer: {
     
     tokenReducer:tokenReducer,
-    participantDetailsReducer:participantDetailsReducer
+    participantDetailsReducer:participantDetailsReducer,
+    appDataReducer:appDataReducer
   },
 })
 

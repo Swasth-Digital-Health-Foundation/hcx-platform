@@ -33,13 +33,13 @@ public class JWTTokenController extends BaseController {
     private String userRealmKeyPath;
 
     @Autowired
-    private JWTTokenService JWTTokenService;
+    private JWTTokenService jwtTokenService;
 
     @PostMapping(PARTICIPANT_GENERATE_TOKEN)
     public ResponseEntity<Object> participantToken(@RequestBody MultiValueMap<String, String> requestBody){
         try{
-             Map<String,Object> response = JWTTokenService.getToken(requestBody, participantRealmKeyPath, participantRealmUrl);
-             return JWTTokenService.getSuccessResponse(response);
+             Map<String,Object> response = jwtTokenService.getToken(requestBody, participantRealmKeyPath, participantRealmUrl);
+             return jwtTokenService.getSuccessResponse(response);
         } catch (Exception e){
              return exceptionHandler(new Response(),e);
         }
@@ -48,8 +48,8 @@ public class JWTTokenController extends BaseController {
     @PostMapping(USER_GENERATE_TOKEN)
     public ResponseEntity<Object> userToken(@RequestBody MultiValueMap<String, String> requestBody){
         try{
-            Map<String,Object> response = JWTTokenService.getToken(requestBody, userRealmKeyPath, userRealmUrl);
-            return JWTTokenService.getSuccessResponse(response);
+            Map<String,Object> response = jwtTokenService.getToken(requestBody, userRealmKeyPath, userRealmUrl);
+            return jwtTokenService.getSuccessResponse(response);
         } catch (Exception e){
             return exceptionHandler(new Response(),e);
         }

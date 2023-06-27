@@ -31,10 +31,6 @@ public class RegistryResponse {
         this.error = error;
     }
 
-    public RegistryResponse(String participantCode) {
-        this.participantCode = participantCode;
-    }
-
     public RegistryResponse(String value, String entity) {
         if (StringUtils.equals(entity, ORGANISATION)) {
             this.participantCode = value;

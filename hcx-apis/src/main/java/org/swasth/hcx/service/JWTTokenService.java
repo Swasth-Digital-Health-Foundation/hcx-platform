@@ -48,7 +48,7 @@ public class JWTTokenService extends BaseRegistryService {
     private String participantRealmUrl;
 
     @Value("${registry.basePath}")
-    private String registryUrl;
+    private String registryURL;
 
     @Value("${registry.user-api-path}")
     private String registryUserPath;
