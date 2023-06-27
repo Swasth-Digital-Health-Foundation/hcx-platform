@@ -496,6 +496,14 @@ public class BaseSpec {
         obj.put("linked_user_id", "1234");
         return JSONUtils.serialize(obj);
     }
+    public String getInvalidUserId() throws JsonProcessingException {
+        Map<String, Object> obj = new HashMap<>();
+        obj.put("user_name", "user-01");
+        obj.put("created_by", "pcpt@hcx");
+        obj.put("pin", "1234");
+        obj.put("linked_user_id", "1234");
+        return JSONUtils.serialize(obj);
+    }
     public String getParticipantAddBody() throws JsonProcessingException{
         Map<String,Object> obj = new HashMap<>();
         obj.put("participant_code","test-123.yopmail@swasth-hcx");

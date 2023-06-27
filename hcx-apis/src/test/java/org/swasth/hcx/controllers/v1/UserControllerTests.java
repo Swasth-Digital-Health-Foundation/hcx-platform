@@ -189,7 +189,7 @@ class UserControllerTests extends BaseSpec {
                  .setResponseCode(200)
                  .setBody("[]")
                  .addHeader("Content-Type", "application/json"));
-         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.USER_UPDATE).content(getUserUpdateBody()).header(HttpHeaders.AUTHORIZATION,getUserToken()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.USER_UPDATE).content(getInvalidUserId()).header(HttpHeaders.AUTHORIZATION,getUserToken()).contentType(MediaType.APPLICATION_JSON)).andReturn();
          MockHttpServletResponse response = mvcResult.getResponse();
          int status = response.getStatus();
          Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
