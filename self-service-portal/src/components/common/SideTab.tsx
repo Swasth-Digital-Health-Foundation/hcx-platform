@@ -1,16 +1,18 @@
 import React from "react";
+import { addAppData } from "../../reducers/app_data";
+import { useDispatch } from "react-redux";
 
-interface ChildProps {
-    onDataUpdate: (data: string) => void
-  }
 
-const SideBar: React.FC<ChildProps> = ({ onDataUpdate }) => {
+const SideBar = () => {
+
+    const dispatch = useDispatch();
     const handleChange = (value:string) => {
-      const data = value
-      onDataUpdate(data);
+      dispatch(addAppData({"sidebar":value}));
     };
 
-    const sideBarNames = ["Profile", "Create User"];
+
+
+    const sideBarNames = ["Profile", "Invite User","Manage Participants", "Manage Users"];
     return(
     <aside
     id="logo-sidebar"
@@ -37,7 +39,8 @@ const SideBar: React.FC<ChildProps> = ({ onDataUpdate }) => {
                     <path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z" />
                     <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z" />
                     </svg>
-                    <span className="ml-3">{value}</span>
+                    {value == "Profile" ?  <span className="ml-3">Participant Profile</span> :  <span className="ml-3">{value}</span>}
+                   
                 </a>
                 </li>
             );
