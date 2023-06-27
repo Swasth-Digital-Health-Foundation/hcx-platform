@@ -1,8 +1,10 @@
 package org.swasth.common.dto;
 
 import org.junit.Test;
+import org.swasth.common.exception.ErrorCodes;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.*;
@@ -62,4 +64,14 @@ public class RegistryResponseTest {
         RegistryResponse response = new RegistryResponse();
         assertNotNull(response.getTimestamp());
     }
+
+    @Test
+    public void testResponseError(){
+        RegistryResponse response = new RegistryResponse(new ResponseError());
+        response.setError(response.getError());
+        assertNull(response.getError().getMessage());
+        assertNull(response.getError().getCode());
+        assertNull(response.getError().getTrace());
+    }
+
 }

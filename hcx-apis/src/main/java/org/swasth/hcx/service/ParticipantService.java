@@ -83,16 +83,16 @@ public class ParticipantService extends BaseRegistryService {
         return registrySearch(requestBody, registryOrgnisationPath,ORGANISATION);
     }
 
-    public Map<String, Object> read(String code) throws Exception {
-        ResponseEntity<Object> searchResponse = getSuccessResponse(search(JSONUtils.deserialize(getRequestBody(code), Map.class)));
-        RegistryResponse searchResp = (RegistryResponse) searchResponse.getBody();
-        logger.info("Read participant is completed");
-        if (searchResp != null && !searchResp.getParticipants().isEmpty())
-            return (Map<String, Object>) searchResp.getParticipants().get(0);
-        else
-            throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_CODE, "Please provide valid participant code");
-
-    }
+//    public Map<String, Object> read(String code) throws Exception {
+//        ResponseEntity<Object> searchResponse = getSuccessResponse(search(JSONUtils.deserialize(getRequestBody(code), Map.class)));
+//        RegistryResponse searchResp = (RegistryResponse) searchResponse.getBody();
+//        logger.info("Read participant is completed");
+//        if (searchResp != null && !searchResp.getParticipants().isEmpty())
+//            return (Map<String, Object>) searchResp.getParticipants().get(0);
+//        else
+//            throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_CODE, "Please provide valid participant code");
+//
+//    }
 
     public RegistryResponse delete(Map<String, Object> registryDetails, HttpHeaders header, String code) throws Exception {
         HttpResponse<String> response = registryDelete(registryDetails, registryOrgnisationPath);
