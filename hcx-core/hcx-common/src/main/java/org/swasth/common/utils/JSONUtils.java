@@ -28,11 +28,11 @@ public class JSONUtils {
         return mapper.writeValueAsString(obj);
     }
 
-    public static <T> T deserialize(String value, Class<T> clazz) throws Exception {
+    public static <T> T deserialize(String value, Class<T> clazz) throws JsonProcessingException {
         return mapper.readValue(value, clazz);
     }
 
-    public static <T> T deserialize(Object value, Class<T> clazz) throws Exception {
+    public static <T> T deserialize(Object value, Class<T> clazz) throws JsonProcessingException {
         return mapper.convertValue(value, clazz);
     }
 

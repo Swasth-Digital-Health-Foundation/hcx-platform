@@ -84,6 +84,26 @@ class UserControllerTests extends BaseSpec {
           assertEquals(200, status);
       }
 
+    @Test
+    void user_create_with_admin_token_success_scenario() throws Exception {
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("[{\"user_name\":\"test user\",\"tenant_roles\": [ {\"participant_code\":\"testprovider1.apollo@swasth-hcx-dev\",\"role\":\"admin\"}]}]")
+                .addHeader("Content-Type", "application/json"));
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("[]")
+                .addHeader("Content-Type", "application/json"));
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{ \"id\": \"open-saber.registry.invite\", \"ver\": \"1.0\", \"ets\": 1637227738534, \"params\": { \"resmsgid\": \"\", \"msgid\": \"bb355e26-cc12-4aeb-8295-03347c428c62\", \"err\": \"\", \"status\": \"SUCCESSFUL\", \"errmsg\": \"\" }, \"responseCode\": \"OK\", \"result\": { \"User\": { \"osid\": \"1-17f02101-b560-4bc1-b3ab-2dac04668fd2\" } } }")
+                .addHeader("Content-Type", "application/json"));
+        doReturn(getUserCreateAuditLog()).when(mockEventGenerator).createAuditLog(anyString(), anyString(), anyMap(), anyMap());
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.USER_CREATE).content(getUserCreateBody()).header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        assertEquals(200, status);
+    }
 
       @Test
       void user_create_internal_server_scenario() throws Exception {
@@ -169,7 +189,7 @@ class UserControllerTests extends BaseSpec {
                  .setResponseCode(200)
                  .setBody("[]")
                  .addHeader("Content-Type", "application/json"));
-         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.USER_UPDATE).content(getUserUpdateBody()).header(HttpHeaders.AUTHORIZATION,getUserToken()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.USER_UPDATE).content(getInvalidUserId()).header(HttpHeaders.AUTHORIZATION,getUserToken()).contentType(MediaType.APPLICATION_JSON)).andReturn();
          MockHttpServletResponse response = mvcResult.getResponse();
          int status = response.getStatus();
          Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
@@ -237,6 +257,24 @@ class UserControllerTests extends BaseSpec {
          int status = response.getStatus();
          assertEquals(200, status);
      }
+
+    @Test
+    void participant_add_user_role_exist_scenario() throws Exception {
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("[{ \"user_name\": \"test-abhiAdmin\",\"created_by\":\"test-123.yopmail@swasth-hcx\", \"mobile\": \"9620499129\", \"email\": \"test-123@yopmail.com\", \"tenant_roles\": [ {\"participant_code\":\"test-123.yopmail@swasth-hcx\",\"role\":\"admin\"}], \"osOwner\": [ \"1f6ec973-5a01-4889-93ac-a22d004081ac\" ], \"user_id\": \"test-123@yopmail.com\",\"osid\":\"35e76122-84e4-4740-94cd-f875e32f2c34\" }]")
+                .addHeader("Content-Type", "application/json"));
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{ \"message\": \"success\" }")
+                .addHeader("Content-Type", "application/json"));
+        Mockito.when(redisCache.isExists(any())).thenReturn(true);
+        doReturn(getUserUpdateAuditLog()).when(mockEventGenerator).createAuditLog(anyString(), anyString(), anyMap(), anyMap());
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_USER_ADD).content(getParticipantAddBodyRoleExist()).header(HttpHeaders.AUTHORIZATION, getAddUserToken()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        assertEquals(400, status);
+    }
 
      @Test
      void participant_add_user_invalid_scenario() throws Exception {

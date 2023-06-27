@@ -55,14 +55,14 @@ public class UserController extends BaseController {
     }
 
 
-    public ResponseEntity<Object> read(@PathVariable("userId") String userId) {
-        try {
-            logger.info("Reading user :: user id: {}", userId);
-            return getSuccessResponse(userService.getUser(userId));
-        } catch (Exception e) {
-            return exceptionHandler(new Response(), e);
-        }
-    }
+//    public ResponseEntity<Object> read(@PathVariable("userId") String userId) {
+//        try {
+//            logger.info("Reading user :: user id: {}", userId);
+//            return getSuccessResponse(userService.getUser(userId));
+//        } catch (Exception e) {
+//            return exceptionHandler(new Response(), e);
+//        }
+//    }
 
     @PostMapping(USER_UPDATE)
     public ResponseEntity<Object> update(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
