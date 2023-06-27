@@ -8,8 +8,9 @@ const adminUsername = process.env.REACT_APP_HCX_ADMIN_USERNAME;
 const adminPassword = process.env.REACT_APP_HCX_ADMIN_PASSWORD;
 const hcxRealm = process.env.REACT_APP_KEYCLOAK_HCX_REALM;
 
-export const post = async (path, body, headers = {}) => {
-  const token = await getAdminToken()
+export const post = async (path, body, headers = {}, token="") => {
+  console.log("token used", token);
+  if(token == "") token = await getAdminToken();
   return axios({
     method: 'post',
     url: `${baseUrl}/api/${apiVersion}${path}`,
