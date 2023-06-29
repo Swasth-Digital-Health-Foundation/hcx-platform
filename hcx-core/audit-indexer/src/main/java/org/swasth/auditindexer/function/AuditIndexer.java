@@ -29,7 +29,7 @@ public class AuditIndexer {
         createDocument(event, auditIndex, auditAlias);
     }
 
-    private String getIndexName(long ets, String indexName){
+    public String getIndexName(long ets, String indexName){
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("IST"));
         cal.setTime(new Date(ets));
         return indexName + "_" + cal.get(Calendar.YEAR) + "_" + cal.get(Calendar.WEEK_OF_YEAR);

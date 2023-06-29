@@ -18,7 +18,7 @@ public class JSONUtils {
         return  Base64.getEncoder().encodeToString(input.getBytes());
     }
 
-    public static <T> T decodeBase64String(String encodedString, Class<T> clazz) throws Exception {
+    public static <T> T decodeBase64String(String encodedString, Class<T> clazz) throws JsonProcessingException {
         byte[] decodedBytes = Base64.getDecoder().decode(encodedString);
         String decodedString = new String(decodedBytes);
         return deserialize(decodedString, clazz);

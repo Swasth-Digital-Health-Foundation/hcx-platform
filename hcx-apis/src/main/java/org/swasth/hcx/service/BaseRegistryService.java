@@ -60,7 +60,7 @@ public class BaseRegistryService {
         return HttpUtils.delete(url, new HashMap<>());
     }
 
-    private String getErrorMessage(HttpResponse<String> response) throws Exception {
+    private String getErrorMessage(HttpResponse<String> response) throws JsonProcessingException {
         Map<String, Object> result = JSONUtils.deserialize(response.getBody(), HashMap.class);
         return (String) ((Map<String, Object>) result.get("params")).get("errmsg");
     }
