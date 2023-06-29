@@ -11,21 +11,21 @@ public class Token {
 
     private Map<String,Object> headers;
     private Map<String,Object> payload;
-    private String token;
+    private String jwtToken;
 
     public Token(String rawtoken) throws Exception {
         if(rawtoken.contains("Bearer")){
-            this.token = rawtoken.replace("Bearer ", "");
+            this.jwtToken = rawtoken.replace("Bearer ", "");
         } else {
-            this.token = rawtoken;
+            this.jwtToken = rawtoken;
         }
-        String tokenValues[] = token.split("\\.");
+        String[] tokenValues = jwtToken.split("\\.");
         headers = JSONUtils.decodeBase64String(tokenValues[0], Map.class);
         payload = JSONUtils.decodeBase64String(tokenValues[1], Map.class);
     }
     
     public String getToken(){
-        return token;
+        return jwtToken;
     }
 
     public Map<String,Object> getHeaders() {
@@ -36,7 +36,7 @@ public class Token {
         return payload;
     }
 
-    public ArrayList<String> getRoles() {
+    public List<String> getRoles() {
         return (ArrayList<String>) ((Map<String,Object>) payload.get("realm_access")).getOrDefault("roles", new ArrayList<>());
     }
 
@@ -59,7 +59,7 @@ public class Token {
         return (String) payload.getOrDefault("user_id", "");
     }
 
-    public ArrayList<Map<String,String>> getTenantRoles() {
+    public List<Map<String,String>> getTenantRoles() {
         return (ArrayList<Map<String,String>>) ((Map<String,Object>) payload.get("realm_access")).getOrDefault("tenant_roles", new ArrayList<>());
     }
 

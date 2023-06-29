@@ -15,7 +15,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import java.io.IOException;
 import java.net.InetAddress;
 
-public class JWTTokenControllerTests extends BaseSpec {
+class JWTTokenControllerTests extends BaseSpec {
 
 
     private MockWebServer keycloakServer = new MockWebServer();

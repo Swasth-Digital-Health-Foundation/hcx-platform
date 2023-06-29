@@ -32,7 +32,7 @@ public class JSONUtils {
         return mapper.readValue(value, clazz);
     }
 
-    public static <T> T deserialize(Object value, Class<T> clazz) throws JsonProcessingException {
+    public static <T> T deserialize(Object value, Class<T> clazz) {
         return mapper.convertValue(value, clazz);
     }
 

@@ -361,7 +361,7 @@ public class Constants {
    public static final String OTP_REGENERATE_COUNT = "otp_regenerate_count";
    public static final String LAST_REGENERATE_DATE = "last_regenerate_date";
    public static final String RESPONSE_OBJ = "response_obj";
-   public static final List<String> PARTICIPANT_ROLES = Arrays.asList(PROVIDER,PAYOR,AGENCY_TPA,"agency.regulator", "research",MEMBER_ISNP, "agency.sponsor", "HIE/HIO.HCX");
+   public static final List<String> PARTICIPANT_ROLES = Arrays.asList(PROVIDER,PAYOR,AGENCY_TPA,"agency.regulator", "research",MEMBER_ISNP, "agency.sponsor",ADMIN_ROLE);
    public static final String USER_NAME = "user_name";
    public static final String CREATED_BY = "created_by";
    public static final List<String> ALLOWED_DELEGATED_TOPICS = Arrays.asList("notif-workflow-update");
