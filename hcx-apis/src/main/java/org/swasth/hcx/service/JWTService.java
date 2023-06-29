@@ -125,7 +125,7 @@ public class JWTService extends BaseRegistryService {
     }
 
     private Map<String, Object> getUser(String emailId) throws Exception {
-        RegistryResponse registryResponse = registrySearch(JSONUtils.deserialize(getRequestBody(EMAIL, emailId), Map.class), registryUserPath, USER);
+        RegistryResponse registryResponse = search(JSONUtils.deserialize(getRequestBody(EMAIL, emailId), Map.class), registryUserPath, USER);
         Map<String, Object> userDetails = (Map<String, Object>) registryResponse.getUsers().get(0);
         List<Map<String, Object>> tenantRolesList = (List<Map<String, Object>>) userDetails.getOrDefault(TENANT_ROLES, new ArrayList<>());
         List<Map<String, Object>> outputList = tenantRolesList.stream().map(tenant -> {
