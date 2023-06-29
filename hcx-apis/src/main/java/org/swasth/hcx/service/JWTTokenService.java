@@ -54,14 +54,18 @@ public class JWTTokenService extends BaseRegistryService {
 
     public Map<String, Object> getToken(MultiValueMap<String, String> requestBody, String filename, String realm) throws Exception {
         AccessTokenResponse accessTokenResponse = generateToken(requestBody, realm);
+        if (accessTokenResponse == null || accessTokenResponse.getToken() == null) {
+            throw new ClientException("Access token response or token is null.");
+        }
         String modifiedAccessToken = modifyToken(accessTokenResponse.getToken(), requestBody.getFirst("username"), filename);
         return getResponse(accessTokenResponse, modifiedAccessToken);
     }
 
     private String modifyToken(String originalToken, String email, String keyFilePath) throws Exception {
-        FileInputStream keyFile = new FileInputStream(keyFilePath);
-        byte[] privateKeyBytes = new byte[keyFile.available()];
-        keyFile.read(privateKeyBytes);
+        byte[] privateKeyBytes;
+        try (FileInputStream keyFile = new FileInputStream(keyFilePath)) {
+            privateKeyBytes = keyFile.readAllBytes();
+        }
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
         PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(privateKeyBytes);
         RSAPrivateKey privateKey = (RSAPrivateKey) keyFactory.generatePrivate(keySpec);
@@ -113,7 +117,7 @@ public class JWTTokenService extends BaseRegistryService {
     private String getParticipantCode(String emailId) throws Exception {
         ResponseEntity<Object> searchResponse = getSuccessResponse(participantService.search(JSONUtils.deserialize(getRequestBody(PRIMARY_EMAIL, emailId), Map.class)));
         RegistryResponse searchResp = (RegistryResponse) searchResponse.getBody();
-        if (searchResp.getParticipants().isEmpty()) {
+        if (searchResp == null || searchResp.getParticipants() == null || searchResp.getParticipants().isEmpty()  ) {
             throw new ClientException(ErrorCodes.ERR_ACCESS_DENIED, "Invalid credentials");
         }
         Map<String, Object> userDetails = (Map<String, Object>) searchResp.getParticipants().get(0);
@@ -138,10 +142,6 @@ public class JWTTokenService extends BaseRegistryService {
 
     private String getRequestBody(String key, String value) {
         return "{ \"filters\": { \"" + key + "\": { \"eq\": \"" + value + "\" } } }";
-    }
-
-    public ResponseEntity<Object> getSuccessResponse(Object response) {
-        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
 }

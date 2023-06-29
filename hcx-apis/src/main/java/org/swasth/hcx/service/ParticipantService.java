@@ -60,7 +60,7 @@ public class ParticipantService extends BaseRegistryService {
 
 
     public RegistryResponse create(Map<String, Object> requestBody, HttpHeaders header, String code) throws Exception {
-        HttpResponse<String> response = registryInvite(requestBody, header, registryOrgnisationPath);
+        HttpResponse<String> response = registryInvite(requestBody, registryOrgnisationPath);
         if (response.getStatus() == 200) {
             generateCreateAudit(code, PARTICIPANT_CREATE, requestBody, CREATED, getUserFromToken(header));
             logger.info("Created participant :: participant code: {}", requestBody.get(PARTICIPANT_CODE));

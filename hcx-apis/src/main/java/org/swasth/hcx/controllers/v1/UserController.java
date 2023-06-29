@@ -38,7 +38,7 @@ public class UserController extends BaseController {
             userService.authorizeToken(header, (String) ((List<Map<String,Object>>) requestBody.get(TENANT_ROLES)).get(0).get(PARTICIPANT_CODE));
             String userId = userService.createUserId(requestBody);
             requestBody.put(USER_ID, userId);
-            return getSuccessResponse(userService.create(requestBody, header, userId));
+            return getSuccessResponse(userService.create(requestBody, userId));
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }
@@ -103,6 +103,9 @@ public class UserController extends BaseController {
                 Map<String, Object> userRequest = userService.constructRequestBody(requestBody,user);
                 response = userService.addUser(userRequest, headers);
             }
+            if(response == null){
+                throw new ClientException("Unable to add the user because response is null");
+            }
             response.setStatus(SUCCESS);
             return getSuccessResponse(userService.addRemoveResponse(response));
         } catch (Exception e) {
@@ -121,6 +124,9 @@ public class UserController extends BaseController {
             for(Map<String,Object> user : users){
                 Map<String, Object> userRequest = userService.constructRequestBody(requestBody,user);
                 response = userService.removeUser(userRequest,headers);
+            }
+            if(response == null){
+                throw new ClientException("Unable to add the user because response is null");
             }
             response.setStatus(SUCCESS);
             return getSuccessResponse(userService.addRemoveResponse(response));

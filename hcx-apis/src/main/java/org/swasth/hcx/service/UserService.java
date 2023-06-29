@@ -33,8 +33,8 @@ public class UserService extends BaseRegistryService {
     @Autowired
     protected AuditIndexer auditIndexer;
 
-    public RegistryResponse create(Map<String, Object> requestBody, HttpHeaders headers, String code) throws Exception {
-        HttpResponse<String> response = registryInvite(requestBody, headers, registryUserPath);
+    public RegistryResponse create(Map<String, Object> requestBody, String code) throws Exception {
+        HttpResponse<String> response = registryInvite(requestBody, registryUserPath);
         if (response.getStatus() == 200) {
             generateUserAudit(code,USER_CREATE,requestBody,(String) requestBody.get(CREATED_BY));
             logger.info("Created user :: user id: {}", code);
@@ -85,7 +85,7 @@ public class UserService extends BaseRegistryService {
         tenantRolesList.add(userBody);
         response = registryUpdate(requestBody, registryDetails, registryUserPath);
         generateAddRemoveUserAudit((String) registryDetails.get(USER_ID), PARTICIPANT_USER_ADD, userBody, getUserFromToken(headers));
-        logger.info("added role for the user_id : " + registryDetails.get(USER_ID));
+        logger.info("added role for the userId: {}", registryDetails.get(USER_ID));
         return responseHandler(response, (String) registryDetails.get(USER_ID), USER);
     }
 
@@ -111,7 +111,7 @@ public class UserService extends BaseRegistryService {
         request.put(TENANT_ROLES, filteredTenantRoles);
         response = registryUpdate(request, registryDetails, registryUserPath);
         generateAddRemoveUserAudit(userId, PARTICIPANT_USER_REMOVE, requestBody, getUserFromToken(headers));
-        logger.info("removed role for the user_id : " + registryDetails.get(USER_ID));
+        logger.info("removed role for the :: user_id: {}", registryDetails.get(USER_ID));
         return responseHandler(response, userId, USER);
     }
 
