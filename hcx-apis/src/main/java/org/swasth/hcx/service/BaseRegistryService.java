@@ -94,7 +94,7 @@ public class BaseRegistryService {
         }
     }
 
-    protected ResponseEntity<Object> getSuccessResponse(Object response) {
+    public ResponseEntity<Object> getSuccessResponse(Object response) {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
