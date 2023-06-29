@@ -160,9 +160,11 @@ public class UserService extends BaseRegistryService {
 
     public void updateAllowedFields(Map<String, Object> requestBody) throws ClientException {
         List<String> requestFields = new ArrayList<>(requestBody.keySet());
-        if (ALLOWED_FIELDS_FOR_UPDATE.containsAll(requestFields)) {
-            requestFields.remove(USER_ID);
-            throw new ClientException(ErrorCodes.ERR_INVALID_USER_DETAILS, "Fields not allowed for update: " + requestFields);
+        for (String fields : requestFields) {
+            if (NOT_ALLOWED_FIELDS_FOR_UPDATE.contains(fields)) {
+                requestFields.remove(USER_ID);
+                throw new ClientException(ErrorCodes.ERR_INVALID_USER_DETAILS, "Fields not allowed for update: " + requestFields);
+            }
         }
     }
 

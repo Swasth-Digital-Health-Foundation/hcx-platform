@@ -409,6 +409,13 @@ public class BaseSpec {
         return "Bearer eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiIxZjZlYzk3My01YTAxLTQ4ODktOTNhYy1hMjJkMDA0MDgxYWMiLCJyZXNvdXJjZV9hY2Nlc3MiOnsiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHA6XC9cL2tleWNsb2FrLmtleWNsb2FrLnN2Yy5jbHVzdGVyLmxvY2FsOjgwODBcL2F1dGhcL3JlYWxtc1wvc3dhc3RoLWhjeC11c2VycyIsInR5cCI6IkJlYXJlciIsInByZWZlcnJlZF91c2VybmFtZSI6InRlc3QtMTIzQHlvcG1haWwuY29tIiwiYXVkIjoiYWNjb3VudCIsImFjciI6IjEiLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsiZGVmYXVsdC1yb2xlcy1zd2FzdGgtaGVhbHRoLWNsYWltLWV4Y2hhbmdlLXVzZXIiLCJvZmZsaW5lX2FjY2VzcyIsInVtYV9hdXRob3JpemF0aW9uIl0sInRlbmFudF9yb2xlcyI6W3sicm9sZSI6ImFkbWluIiwicGFydGljaXBhbnRfY29kZSI6InRlc3QtMTIzLnlvcG1haWxAc3dhc3RoLWhjeCJ9XX0sInVzZXJfaWQiOiJ0ZXN0LTEyM0B5b3BtYWlsLmNvbSIsImF6cCI6InJlZ2lzdHJ5LWZyb250ZW5kIiwic2NvcGUiOiJlbWFpbCBwcm9maWxlIiwiZXhwIjoxNjg3ODg3MDA2LCJzZXNzaW9uX3N0YXRlIjoiYWQ1ZmJmZmMtMTZlOC00MzMwLTk3NGItZDk1M2Q2NWQwZTdiIiwiaWF0IjoxNjg3ODUxMDA2LCJqdGkiOiI3MGQwY2YyYy0yMjc3LTRjOWEtOGZmOC0wNWM3OGM0MjhjNWMiLCJlbWFpbCI6InRlc3QtMTIzQHlvcG1haWwuY29tIiwiZW50aXR5IjpbIlVzZXIiXX0.w2maJFc4VzfsxWrcOs5isLbbN3FnSV5KdkCqvrAqkxM50pxUD_vO7MNpsriIx8o5tMGMi0VC2S2EK8nEadDSRMC10PRYQlfL0z0qvgWKaxBxpawBMrOab4dlBXpA81ukoMpJ9A8okvta0GfO3XfTWEySbH0Hgx0tWMyPl6iUxa7NVLU4U3-3CV9IUumlCeTmNIYaOPZhioygo3FsZvOeathZqTz5GLrBU2WvP7cS0KigoTMra9uBfPTVT8qNc1qPLBeZge4cyIUMWaBxuuTY2MbGDDefRiSckqJiXdZW5acFLTPxaRwCt0v8_n_zXCWYVm50fYRROJLs49r2PpfJVA";
     }
 
+    public String getAdminToken(){
+        return "Bearer eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI1OWQ0M2Y5Yi00MmU3LTQ0ODAtOWVjMi1hYTZiZDk1Y2NiNWYiLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsImlzcyI6Imh0dHA6XC9cL2tleWNsb2FrLmtleWNsb2FrLnN2Yy5jbHVzdGVyLmxvY2FsOjgwODBcL2F1dGhcL3JlYWxtc1wvc3dhc3RoLWhjeC1wYXJ0aWNpcGFudHMiLCJ0eXAiOiJCZWFyZXIiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJoY3hnYXRld2F5QHN3YXN0aC5vcmciLCJhY3IiOiIxIiwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbIkhJRVwvSElPLkhDWCIsImRlZmF1bHQtcm9sZXMtbmRlYXIiXX0sImF6cCI6InJlZ2lzdHJ5LWZyb250ZW5kIiwicGFydGljaXBhbnRfY29kZSI6ImhjeGdhdGV3YXkuc3dhc3RoQHN3YXN0aC1oY3gtZGV2Iiwic2NvcGUiOiJwcm9maWxlIGVtYWlsIiwiZXhwIjoxNjg5NzQ1NzgzLCJzZXNzaW9uX3N0YXRlIjoiNWE2OTY3OTUtN2FiNS00ODVjLTk1ZjEtMjdhNTA2NjY0NGFjIiwiaWF0IjoxNjg4MDE3NzgzLCJqdGkiOiJmNmY0OTkyYS02YTAxLTRmMzYtYjlkNy1lOGZkY2Q0NmY4YjEiLCJlbnRpdHkiOlsiT3JnYW5pc2F0aW9uIl0sImVtYWlsIjoiaGN4Z2F0ZXdheUBzd2FzdGgub3JnIn0.CqDX5gCtjhOCC00BWdUCTcL4Fp4QTymozFcNtpUvEKwPaahAIYhGY8pHsTE1R0i15MXKmmQCkNH4eVYoLBwpUkMGFGdbq0MbI-T_pt3ZxAgteKwRp9klTecZzLMlYQ1ucu-EhZ4Bmf7BR-kxZcZbOLl36R7HZzcF9upVWsSZCyGil-lbTfdTugqdq3uGA0J12sSAzDa-MXRUOttDuljKgk1zWcUqolOy-Up4jQ-C1jlzmVAS909n8oHsf4Y3n1LRL0rQpJuVZhTV_eSwgsReuZiEsAonK9232faQePBxNxh29wUN1myDENoqYCLobbv7fKZ_4MKJVzm0aoToFvAomQ";
+    }
+
+    public String getNewParticipantToken(){
+        return "Bearer eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI4NTI3ODUzYy1iNDQyLTQ0ZGItYWVkYS1kYmJkY2Y0NzJkOWIiLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsImlzcyI6Imh0dHA6XC9cL2tleWNsb2FrLmtleWNsb2FrLnN2Yy5jbHVzdGVyLmxvY2FsOjgwODBcL2F1dGhcL3JlYWxtc1wvc3dhc3RoLWhjeC1wYXJ0aWNpcGFudHMiLCJ0eXAiOiJCZWFyZXIiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJ0ZXN0cHJvdmlkZXIxQGFwb2xsby5jb20iLCJhY3IiOiIxIiwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbInByb3ZpZGVyIiwiZGVmYXVsdC1yb2xlcy1uZGVhciJdfSwiYXpwIjoicmVnaXN0cnktZnJvbnRlbmQiLCJwYXJ0aWNpcGFudF9jb2RlIjoidGVzdHByb3ZpZGVyMS5hcG9sbG9Ac3dhc3RoLWhjeC1kZXYiLCJzY29wZSI6InByb2ZpbGUgZW1haWwiLCJleHAiOjE2ODk3NDc2MDgsInNlc3Npb25fc3RhdGUiOiJkNWJlOTNhMy01ZTdkLTRjZTctYTM2YS1jODM2NTk1ZWQwY2QiLCJpYXQiOjE2ODgwMTk2MDgsImp0aSI6IjgzY2QwY2Y5LTU5YWMtNGEyMy1iMjUzLTVkYWRjNGQ2YTAxYyIsImVudGl0eSI6WyJPcmdhbmlzYXRpb24iXSwiZW1haWwiOiJ0ZXN0cHJvdmlkZXIxQGFwb2xsby5jb20ifQ.P3PLAin-U0bU6h697uOSZuwbjZsGCFeJWsoqWEnVOzPsskVCOiFENQho53fjGaq_tqsixAACJxmtXzlhRCqzKwPTfxc4A4icVJG_clbHyu3pQadaEumUvbJtfr0U1nHomxOxvCzpfm-YiuKIl1MY4uMeh7iAB9C51fZIX0b6tTbjPu1GghlQ4qQ1_sNtsoxZ1Hd_imZ4zeumGTVIIOmv2RRJokRGzyrjnRVCs4jPX5bIf0cVAG0mpkaTuagkFSp1VHXDeSg0lME8OcdaC2028FdrmpKE2RrZFQ0YtcSF3Yf7p4_-sigJCeO3PrrjVCfQ_4rWO-_F18fhuuWHbVXBGg";
+    }
     public Map<String, Object> getHIUParticipant() throws JsonProcessingException {
         Map<String, Object> obj = new HashMap<>();
         obj.put("participant_name", "New Teja Hospital888");
@@ -459,6 +466,17 @@ public class BaseSpec {
         return JSONUtils.serialize(obj);
     }
 
+    public String getUserCreateInvalidMobilePhone() throws JsonProcessingException {
+        Map<String, Object> obj = new HashMap<>();
+        obj.put("user_name", "user-01");
+        obj.put("created_by", "pcpt@hcx");
+        obj.put("pin", "1234");
+        obj.put("linked_user_id", "1234");
+        obj.put("tenant_roles",List.of(Map.of("participant_code","testprovider1.apollo@swasth-hcx-dev","role","admin")));
+        return JSONUtils.serialize(obj);
+    }
+
+
     public Map<String, Object> getUserCreateAuditLog() throws Exception {
         return JSONUtils.deserialize("{\"eid\":\"AUDIT\",\"edata\":{\"prevStatus\":\"\",\"status\":\"Created\"},\"ets\":1659434908868,\"mid\":\"5ee2b9e1-ded6-4b56-afa8-3380107632e0\",\"object\":{\"id\":\"097e0185-eeb1-48f1-b2b0-b68774d02c6d\",\"type\":\"User\"},\"cdata\":{\"action\":\"/user/create\"}}", Map.class);
     }
@@ -497,6 +515,15 @@ public class BaseSpec {
         obj.put("created_by", "pcpt@hcx");
         obj.put("pin", "1234");
         obj.put("linked_user_id", "1234");
+        return JSONUtils.serialize(obj);
+    }
+
+    public String getUserUpdateNotAllowedBody() throws JsonProcessingException {
+        Map<String, Object> obj = new HashMap<>();
+        obj.put("user_id","test-user-89.gmail@swasth-hcx");
+        obj.put("email", "testuser@gmail.com");
+        obj.put("mobile","9620499129");
+        obj.put("tenant_roles",List.of(Map.of("participant_code","test-hcx@swasth","role","admin")));
         return JSONUtils.serialize(obj);
     }
     public String getInvalidUserId() throws JsonProcessingException {

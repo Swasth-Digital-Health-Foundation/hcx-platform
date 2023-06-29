@@ -90,7 +90,7 @@ public class Constants {
     public static final String USER_ID = "user_id";
     public static final String EMAIL = "email";
     public static final String MOBILE = "mobile";
-    public static final List<String> ALLOWED_FIELDS_FOR_UPDATE = Arrays.asList(TENANT_ROLES,EMAIL,MOBILE);
+    public static final List<String>NOT_ALLOWED_FIELDS_FOR_UPDATE = Arrays.asList(TENANT_ROLES,EMAIL,MOBILE);
     public static final String SPONSORS = "sponsors";
     public static final String ADMIN = "admin";
     public static final String COMMUNICATION = "communication";
