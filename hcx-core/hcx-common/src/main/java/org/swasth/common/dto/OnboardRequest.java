@@ -1,5 +1,6 @@
 package org.swasth.common.dto;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.swasth.common.utils.JSONUtils;
 
 import java.util.ArrayList;
@@ -20,7 +21,7 @@ public class OnboardRequest {
     private String verifierCode = "";
 
 
-    public OnboardRequest(List<Map<String,Object>> body) throws Exception {
+    public OnboardRequest(List<Map<String,Object>> body) throws JsonProcessingException {
         requestBody.putAll(body.get(0));
         if (getType().equals(ONBOARD_THROUGH_JWT)) {
             jwtPayload.putAll(JSONUtils.decodeBase64String(getJWT().split("\\.")[1], Map.class));

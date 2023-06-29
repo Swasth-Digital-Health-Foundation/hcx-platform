@@ -60,7 +60,7 @@ public class ParticipantService extends BaseRegistryService {
 
 
     public RegistryResponse create(Map<String, Object> requestBody, HttpHeaders header, String code) throws Exception {
-        HttpResponse<String> response = registryInvite(requestBody, registryOrgnisationPath);
+        HttpResponse<String> response = invite(requestBody, registryOrgnisationPath);
         if (response.getStatus() == 200) {
             generateCreateAudit(code, PARTICIPANT_CREATE, requestBody, CREATED, getUserFromToken(header));
             logger.info("Created participant :: participant code: {}", requestBody.get(PARTICIPANT_CODE));
@@ -69,7 +69,7 @@ public class ParticipantService extends BaseRegistryService {
     }
 
     public RegistryResponse update(Map<String, Object> requestBody, Map<String, Object> registryDetails, HttpHeaders header, String code) throws Exception {
-        HttpResponse<String> response = registryUpdate(requestBody, registryDetails, registryOrgnisationPath);
+        HttpResponse<String> response = update(requestBody, registryDetails, registryOrgnisationPath);
         if (response.getStatus() == 200) {
             deleteCache(code);
             String status = (String) registryDetails.get(REGISTRY_STATUS);
@@ -80,7 +80,7 @@ public class ParticipantService extends BaseRegistryService {
     }
 
     public RegistryResponse search(Map<String, Object> requestBody) throws Exception {
-        return registrySearch(requestBody, registryOrgnisationPath,ORGANISATION);
+        return search(requestBody, registryOrgnisationPath,ORGANISATION);
     }
 
 //    public Map<String, Object> read(String code) throws Exception {
@@ -95,7 +95,7 @@ public class ParticipantService extends BaseRegistryService {
 //    }
 
     public RegistryResponse delete(Map<String, Object> registryDetails, HttpHeaders header, String code) throws Exception {
-        HttpResponse<String> response = registryDelete(registryDetails, registryOrgnisationPath);
+        HttpResponse<String> response = delete(registryDetails, registryOrgnisationPath);
         if (response.getStatus() == 200) {
             deleteCache(code);
             generateUpdateAudit(code, PARTICIPANT_DELETE, Collections.emptyMap(), (String) registryDetails.get(REGISTRY_STATUS), INACTIVE, Collections.emptyList(), getUserFromToken(header));

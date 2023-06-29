@@ -36,12 +36,12 @@ public class BaseRegistryService {
 
     @Autowired
     protected EventHandler eventHandler;
-    public HttpResponse<String> registryInvite(Map<String, Object> requestBody, String apiPath) throws JsonProcessingException {
+    public HttpResponse<String> invite(Map<String, Object> requestBody, String apiPath) throws JsonProcessingException {
         String url = registryURL + apiPath + "/" + INVITE;
         return HttpUtils.post(url, JSONUtils.serialize(requestBody), new HashMap<>());
     }
 
-    public RegistryResponse registrySearch(Map<String,Object> requestBody,String apiPath, String entity) throws Exception {
+    public RegistryResponse search(Map<String,Object> requestBody,String apiPath, String entity) throws Exception {
         String url = registryURL + apiPath + "/" + SEARCH;
         HttpResponse<String> response = HttpUtils.post(url, JSONUtils.serialize(requestBody), new HashMap<>());
         if (response.getStatus() == 200) {
@@ -50,12 +50,12 @@ public class BaseRegistryService {
         return responseHandler(response,null,entity);
     }
 
-    public HttpResponse<String> registryUpdate(Map<String, Object> requestBody, Map<String, Object> registryDetails, String apiPath) throws JsonProcessingException {
+    public HttpResponse<String> update(Map<String, Object> requestBody, Map<String, Object> registryDetails, String apiPath) throws JsonProcessingException {
         String url = registryURL + apiPath + "/" + registryDetails.get(OSID);
         return HttpUtils.put(url, JSONUtils.serialize(requestBody), new HashMap<>());
     }
 
-    public HttpResponse<String> registryDelete(Map<String, Object> registryDetails, String apiPath){
+    public HttpResponse<String> delete(Map<String, Object> registryDetails, String apiPath){
         String url = registryURL + apiPath + "/" + registryDetails.get(OSID);
         return HttpUtils.delete(url, new HashMap<>());
     }

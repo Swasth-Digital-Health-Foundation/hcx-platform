@@ -33,7 +33,7 @@ import static org.swasth.common.utils.Constants.*;
 
 
 @Service
-public class JWTTokenService extends BaseRegistryService {
+public class JWTService extends BaseRegistryService {
 
     @Value("${keycloak.client-id}")
     private String clientId;

@@ -1,5 +1,6 @@
 package org.swasth.common.dto;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
 
@@ -13,7 +14,7 @@ public class Token {
     private Map<String,Object> payload;
     private String jwtToken;
 
-    public Token(String rawtoken) throws Exception {
+    public Token(String rawtoken) throws JsonProcessingException {
         if(rawtoken.contains("Bearer")){
             this.jwtToken = rawtoken.replace("Bearer ", "");
         } else {

@@ -34,32 +34,32 @@ public class UserService extends BaseRegistryService {
     protected AuditIndexer auditIndexer;
 
     public RegistryResponse create(Map<String, Object> requestBody, String code) throws Exception {
-        HttpResponse<String> response = registryInvite(requestBody, registryUserPath);
+        HttpResponse<String> response = invite(requestBody, registryUserPath);
         if (response.getStatus() == 200) {
             generateUserAudit(code,USER_CREATE,requestBody,(String) requestBody.get(CREATED_BY));
-            logger.info("Created user :: user id: {}", code);
+            logger.debug("Created user :: user id: {}", code);
         }
         return responseHandler(response, code, USER);
     }
 
     public RegistryResponse search(Map<String, Object> requestBody) throws Exception {
-        return registrySearch(requestBody, registryUserPath, USER);
+        return search(requestBody, registryUserPath, USER);
     }
 
     public RegistryResponse update(Map<String, Object> requestBody, Map<String, Object> registryDetails, HttpHeaders headers, String code) throws Exception {
-        HttpResponse<String> response = registryUpdate(requestBody, registryDetails, registryUserPath);
+        HttpResponse<String> response = update(requestBody, registryDetails, registryUserPath);
         if (response.getStatus() == 200) {
             generateUserAudit(code,USER_UPDATE,requestBody,getUserFromToken(headers));
-            logger.info("Updated user :: user id: {}", code);
+            logger.debug("Updated user :: user id: {}", code);
         }
         return responseHandler(response, code, USER);
     }
 
     public RegistryResponse delete(Map<String, Object> registryDetails, HttpHeaders headers, String code) throws Exception {
-        HttpResponse<String> response = registryDelete(registryDetails, registryUserPath);
+        HttpResponse<String> response = delete(registryDetails, registryUserPath);
         if (response.getStatus() == 200) {
             generateUserAudit(code,USER_DELETE,registryDetails,getUserFromToken(headers));
-            logger.info("User deleted :: userId: {}", code);
+            logger.debug("User deleted :: userId: {}", code);
             RegistryResponse registryResponse = new RegistryResponse(code, USER);
             registryResponse.setStatus(INACTIVE);
             return registryResponse;
@@ -83,9 +83,9 @@ public class UserService extends BaseRegistryService {
         requestBody.put(TENANT_ROLES, tenantRolesList);
         userBody.remove(USER_ID);
         tenantRolesList.add(userBody);
-        response = registryUpdate(requestBody, registryDetails, registryUserPath);
+        response = update(requestBody, registryDetails, registryUserPath);
         generateAddRemoveUserAudit((String) registryDetails.get(USER_ID), PARTICIPANT_USER_ADD, userBody, getUserFromToken(headers));
-        logger.info("added role for the userId: {}", registryDetails.get(USER_ID));
+        logger.debug("added role for the userId: {}", registryDetails.get(USER_ID));
         return responseHandler(response, (String) registryDetails.get(USER_ID), USER);
     }
 
@@ -109,15 +109,15 @@ public class UserService extends BaseRegistryService {
         }
         Map<String, Object> request = new HashMap<>();
         request.put(TENANT_ROLES, filteredTenantRoles);
-        response = registryUpdate(request, registryDetails, registryUserPath);
+        response = update(request, registryDetails, registryUserPath);
         generateAddRemoveUserAudit(userId, PARTICIPANT_USER_REMOVE, requestBody, getUserFromToken(headers));
-        logger.info("removed role for the :: user_id: {}", registryDetails.get(USER_ID));
+        logger.debug("removed role for the :: user_id: {}", registryDetails.get(USER_ID));
         return responseHandler(response, userId, USER);
     }
 
 
     public Map<String, Object> getUser(String userId) throws Exception {
-        logger.info("searching for :: user id : {}", userId);
+        logger.debug("searching for :: user id : {}", userId);
         ResponseEntity<Object> searchResponse = getSuccessResponse(search(JSONUtils.deserialize(getUserRequest(userId), Map.class)));
         RegistryResponse registryResponse = (RegistryResponse) Objects.requireNonNull(searchResponse.getBody());
         if (registryResponse.getUsers().isEmpty())

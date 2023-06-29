@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.swasth.common.dto.Response;
 import org.swasth.hcx.controllers.BaseController;
-import org.swasth.hcx.service.JWTTokenService;
+import org.swasth.hcx.service.JWTService;
 
 import java.util.Map;
 
@@ -18,7 +18,7 @@ import static org.swasth.common.utils.Constants.*;
 
 @RestController()
 @RequestMapping(VERSION_PREFIX)
-public class JWTTokenController extends BaseController {
+public class JWTController extends BaseController {
 
     @Value("${keycloak.user-realm-url}")
     private String userRealmUrl;
@@ -33,13 +33,13 @@ public class JWTTokenController extends BaseController {
     private String userRealmKeyPath;
 
     @Autowired
-    private JWTTokenService jwtTokenService;
+    private JWTService jwtService;
 
     @PostMapping(PARTICIPANT_GENERATE_TOKEN)
     public ResponseEntity<Object> participantToken(@RequestBody MultiValueMap<String, String> requestBody){
         try{
-             Map<String,Object> response = jwtTokenService.getToken(requestBody, participantRealmKeyPath, participantRealmUrl);
-             return jwtTokenService.getSuccessResponse(response);
+             Map<String,Object> response = jwtService.getToken(requestBody, participantRealmKeyPath, participantRealmUrl);
+             return jwtService.getSuccessResponse(response);
         } catch (Exception e){
              return exceptionHandler(new Response(),e);
         }
@@ -48,8 +48,8 @@ public class JWTTokenController extends BaseController {
     @PostMapping(USER_GENERATE_TOKEN)
     public ResponseEntity<Object> userToken(@RequestBody MultiValueMap<String, String> requestBody){
         try{
-            Map<String,Object> response = jwtTokenService.getToken(requestBody, userRealmKeyPath, userRealmUrl);
-            return jwtTokenService.getSuccessResponse(response);
+            Map<String,Object> response = jwtService.getToken(requestBody, userRealmKeyPath, userRealmUrl);
+            return jwtService.getSuccessResponse(response);
         } catch (Exception e){
             return exceptionHandler(new Response(),e);
         }
