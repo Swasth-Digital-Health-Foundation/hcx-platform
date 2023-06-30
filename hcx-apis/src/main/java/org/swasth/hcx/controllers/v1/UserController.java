@@ -35,7 +35,10 @@ public class UserController extends BaseController {
             if(requestBody.containsKey(EMAIL)) {
                 requestBody.put(EMAIL,requestBody.get(EMAIL).toString().toLowerCase());
             }
-            userService.authorizeToken(header, (String) ((List<Map<String,Object>>) requestBody.get(TENANT_ROLES)).get(0).get(PARTICIPANT_CODE));
+            List<Map<String,Object>> tenantRoleList = (List<Map<String, Object>>) requestBody.getOrDefault(TENANT_ROLES,"");
+            for(Map<String,Object> tenant : tenantRoleList){
+                userService.authorizeToken(header,(String) tenant.getOrDefault(PARTICIPANT_CODE,""));
+            }
             String userId = userService.createUserId(requestBody);
             requestBody.put(USER_ID, userId);
             return getSuccessResponse(userService.create(requestBody, userId));
@@ -54,15 +57,15 @@ public class UserController extends BaseController {
         }
     }
 
-
-//    public ResponseEntity<Object> read(@PathVariable("userId") String userId) {
-//        try {
-//            logger.info("Reading user :: user id: {}", userId);
-//            return getSuccessResponse(userService.getUser(userId));
-//        } catch (Exception e) {
-//            return exceptionHandler(new Response(), e);
-//        }
-//    }
+    @GetMapping(USER_READ)
+    public ResponseEntity<Object> read(@PathVariable("userId") String userId) {
+        try {
+            logger.info("Reading user :: user id: {}", userId);
+            return getSuccessResponse(userService.getUser(userId));
+        } catch (Exception e) {
+            return exceptionHandler(new Response(), e);
+        }
+    }
 
     @PostMapping(USER_UPDATE)
     public ResponseEntity<Object> update(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {

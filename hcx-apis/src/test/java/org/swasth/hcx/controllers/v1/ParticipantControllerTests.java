@@ -352,30 +352,30 @@ class ParticipantControllerTests extends BaseSpec{
     }
 
 
-//     @Test
-//     void participant_read_success_scenario() throws Exception {
-//         registryServer.enqueue(new MockResponse()
-//                 .setResponseCode(200)
-//                 .setBody("[{ \"participant_name\": \"HCX Gateway\", \"primary_mobile\": \"\", \"primary_email\": \"testuser3@gmail.com\", \"roles\": [ \"HIE/HIO.HCX\" ], \"status\": \"Created\", \"endpoint_url\": \"http://a54c5bc648f1a41b8871b77ac01060ed-1840123973.ap-south-1.elb.amazonaws.com:8080\", \"encryption_cert\": \"urn:isbn:0-4234\", \"osOwner\": [ \"f698b521-7409-432d-a5db-d13e51f029a9\" ], \"participant_code\": \"d2d56996-1b77-4abb-b9e9-0e6e7343c72e\" }]")
-//                 .addHeader("Content-Type", "application/json"));
-//         MvcResult mvcResult = mockMvc.perform(get(Constants.VERSION_PREFIX + "/participant/read/d2d56996-1b77-4abb-b9e9-0e6e7343c72e").header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
-//         MockHttpServletResponse response = mvcResult.getResponse();
-//         int status = response.getStatus();
-//         assertEquals(200, status);
-//     }
+     @Test
+     void participant_read_success_scenario() throws Exception {
+         registryServer.enqueue(new MockResponse()
+                 .setResponseCode(200)
+                 .setBody("[{ \"participant_name\": \"HCX Gateway\", \"primary_mobile\": \"\", \"primary_email\": \"testuser3@gmail.com\", \"roles\": [ \"HIE/HIO.HCX\" ], \"status\": \"Created\", \"endpoint_url\": \"http://a54c5bc648f1a41b8871b77ac01060ed-1840123973.ap-south-1.elb.amazonaws.com:8080\", \"encryption_cert\": \"urn:isbn:0-4234\", \"osOwner\": [ \"f698b521-7409-432d-a5db-d13e51f029a9\" ], \"participant_code\": \"d2d56996-1b77-4abb-b9e9-0e6e7343c72e\" }]")
+                 .addHeader("Content-Type", "application/json"));
+         MvcResult mvcResult = mockMvc.perform(get(Constants.VERSION_PREFIX + "/participant/read/d2d56996-1b77-4abb-b9e9-0e6e7343c72e").header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+         MockHttpServletResponse response = mvcResult.getResponse();
+         int status = response.getStatus();
+         assertEquals(200, status);
+     }
 
-    // @Test
-    // void participant_read_invalid_scenario() throws Exception {
-    //     registryServer.enqueue(new MockResponse()
-    //             .setResponseCode(200)
-    //             .setBody("[]")
-    //             .addHeader("Content-Type", "application/json"));
-    //     MvcResult mvcResult = mockMvc.perform(get(Constants.VERSION_PREFIX + "/participant/read/d2d56996-1b77-4abb-b9e9-0e6e7343c72e").content(getSearchFilter()).header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
-    //     MockHttpServletResponse response = mvcResult.getResponse();
-    //     int status = response.getStatus();
-    //     Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
-    //     assertEquals(400, status);
-    //     assertEquals(ErrorCodes.ERR_INVALID_PARTICIPANT_CODE, resObj.getError().getCode());
-    //     assertEquals("Please provide valid participant code", resObj.getError().getMessage());
-    // }
+     @Test
+     void participant_read_invalid_scenario() throws Exception {
+         registryServer.enqueue(new MockResponse()
+                 .setResponseCode(200)
+                 .setBody("[]")
+                 .addHeader("Content-Type", "application/json"));
+         MvcResult mvcResult = mockMvc.perform(get(Constants.VERSION_PREFIX + "/participant/read/d2d56996-1b77-4abb-b9e9-0e6e7343c72e").content(getSearchFilter()).header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+         MockHttpServletResponse response = mvcResult.getResponse();
+         int status = response.getStatus();
+         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
+         assertEquals(400, status);
+         assertEquals(ErrorCodes.ERR_INVALID_PARTICIPANT_CODE, resObj.getError().getCode());
+         assertEquals("Please provide valid participant code", resObj.getError().getMessage());
+     }
 }

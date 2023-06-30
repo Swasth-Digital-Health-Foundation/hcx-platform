@@ -89,14 +89,15 @@ public class ParticipantController extends BaseController {
         }
     }
 
-//    public ResponseEntity<Object> read(@PathVariable("participantCode") String code) {
-//        try {
-//            logger.info("Reading participant :: participant code: {}", code);
-//            return getSuccessResponse(service.read(code));
-//        } catch (Exception e) {
-//            return exceptionHandler(new Response(), e);
-//        }
-//    }
+    @GetMapping(PARTICIPANT_READ)
+    public ResponseEntity<Object> read(@PathVariable("participantCode") String code) {
+        try {
+            logger.info("Reading participant :: participant code: {}", code);
+            return getSuccessResponse(service.read(code));
+        } catch (Exception e) {
+            return exceptionHandler(new Response(), e);
+        }
+    }
 
     @PostMapping(PARTICIPANT_DELETE)
     public ResponseEntity<Object> delete(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {

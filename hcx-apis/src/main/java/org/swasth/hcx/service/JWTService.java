@@ -6,22 +6,30 @@ import com.nimbusds.jose.JWSSigner;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import org.apache.commons.lang3.StringUtils;
 import org.keycloak.representations.AccessTokenResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.swasth.common.dto.RegistryResponse;
+import org.swasth.common.dto.Token;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
 import org.swasth.common.utils.JSONUtils;
 
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPrivateKey;
+import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -52,34 +60,30 @@ public class JWTService extends BaseRegistryService {
     @Autowired
     private ParticipantService participantService;
 
+    Map<String,Object> jwtSignerExist = new HashMap<>();
+
     public Map<String, Object> getToken(MultiValueMap<String, String> requestBody, String filename, String realm) throws Exception {
         AccessTokenResponse accessTokenResponse = generateToken(requestBody, realm);
         if (accessTokenResponse == null || accessTokenResponse.getToken() == null) {
-            throw new ClientException("Access token response or token is null.");
+            throw new ClientException("Access token response or Access token is null.");
         }
         String modifiedAccessToken = modifyToken(accessTokenResponse.getToken(), requestBody.getFirst("username"), filename);
         return getResponse(accessTokenResponse, modifiedAccessToken);
     }
 
     private String modifyToken(String originalToken, String email, String keyFilePath) throws Exception {
-        byte[] privateKeyBytes;
-        try (FileInputStream keyFile = new FileInputStream(keyFilePath)) {
-            privateKeyBytes = keyFile.readAllBytes();
-        }
-        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(privateKeyBytes);
-        RSAPrivateKey privateKey = (RSAPrivateKey) keyFactory.generatePrivate(keySpec);
-        JWSSigner signer = new RSASSASigner(privateKey);
+        Token jwtToken = new Token(originalToken);
+        JWSSigner signer = getSigner(jwtToken.getEntityType(),keyFilePath);
         SignedJWT parsedToken = SignedJWT.parse(originalToken);
         JWTClaimsSet originalPayload = parsedToken.getJWTClaimsSet();
         JWTClaimsSet.Builder modifiedPayloadBuilder = new JWTClaimsSet.Builder(originalPayload);
-        if (keyFilePath.contains("user_realm")) {
+        if (StringUtils.equals(jwtToken.getEntityType(),USER)) {
             Map<String, Object> userDetails = getUser(email);
             Map<String, Object> realmAccess = (Map<String, Object>) modifiedPayloadBuilder.getClaims().get("realm_access");
             realmAccess.put(TENANT_ROLES, userDetails.getOrDefault(TENANT_ROLES,new ArrayList<>()));
             modifiedPayloadBuilder.claim("realm_access", realmAccess);
             modifiedPayloadBuilder.claim(USER_ID, userDetails.get(USER_ID));
-        } else if (keyFilePath.contains("participant_realm")) {
+        } else if (StringUtils.equals(jwtToken.getEntityType(),ORGANISATION)) {
             modifiedPayloadBuilder.claim(PARTICIPANT_CODE, getParticipantCode((String) modifiedPayloadBuilder.getClaims().get(EMAIL)));
         }
         JWTClaimsSet modifiedPayload = modifiedPayloadBuilder.build();
@@ -142,6 +146,24 @@ public class JWTService extends BaseRegistryService {
 
     private String getRequestBody(String key, String value) {
         return "{ \"filters\": { \"" + key + "\": { \"eq\": \"" + value + "\" } } }";
+    }
+
+    private JWSSigner getSigner(String entitType, String keyFilePath) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+        byte[] privateKeyBytes;
+        JWSSigner signer;
+        if (jwtSignerExist.containsKey(entitType)) {
+            signer = (JWSSigner) jwtSignerExist.get(entitType);
+        } else {
+            try (FileInputStream keyFile = new FileInputStream(keyFilePath)) {
+                privateKeyBytes = keyFile.readAllBytes();
+            }
+            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+            PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(privateKeyBytes);
+            RSAPrivateKey privateKey = (RSAPrivateKey) keyFactory.generatePrivate(keySpec);
+            signer = new RSASSASigner(privateKey);
+            jwtSignerExist.put(entitType, signer);
+        }
+        return signer;
     }
 
 }
