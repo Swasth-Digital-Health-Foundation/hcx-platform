@@ -57,6 +57,7 @@ public class JWTService extends BaseRegistryService {
 
     @Value("${registry.user-api-path}")
     private String registryUserPath;
+    
     @Autowired
     private ParticipantService participantService;
 
