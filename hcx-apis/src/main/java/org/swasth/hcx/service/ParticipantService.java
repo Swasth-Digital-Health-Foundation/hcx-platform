@@ -1,5 +1,6 @@
 package org.swasth.hcx.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import kong.unirest.HttpResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
@@ -179,7 +180,7 @@ public class ParticipantService extends BaseRegistryService {
         eventHandler.createParticipantAudit(event);      
     }
 
-    public void authorizeEntity(String authToken, String participantCode, String email) throws Exception {
+    public void authorizeEntity(String authToken, String participantCode, String email) throws ClientException, JsonProcessingException {
         Token token = new Token(authToken);
         if (token.getRoles().contains(ADMIN_ROLE)) {
             return;

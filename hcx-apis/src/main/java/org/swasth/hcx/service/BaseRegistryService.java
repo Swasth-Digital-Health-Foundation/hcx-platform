@@ -72,7 +72,7 @@ public class BaseRegistryService {
         return cdata;
     }
 
-    public RegistryResponse responseHandler(HttpResponse<String> response, String code, String entity) throws Exception {
+    public RegistryResponse responseHandler(HttpResponse<String> response, String code, String entity) throws JsonProcessingException, ClientException, AuthorizationException, ResourceNotFoundException, ServerException {
         switch (response.getStatus()) {
             case 200:
                 if (response.getBody().isEmpty()) {
@@ -102,7 +102,7 @@ public class BaseRegistryService {
             return new RegistryResponse(System.currentTimeMillis(), registryResponse.getStatus());
         }
 
-    public String getUserFromToken(HttpHeaders headers) throws Exception {
+    public String getUserFromToken(HttpHeaders headers) throws JsonProcessingException {
         Token token = new Token(Objects.requireNonNull(headers.get(AUTHORIZATION)).get(0));
         if (StringUtils.equals(token.getEntityType(), ORGANISATION)){
             return token.getParticipantCode();
