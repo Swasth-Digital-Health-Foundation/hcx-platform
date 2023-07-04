@@ -7,16 +7,19 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.swasth.common.dto.RegistryResponse;
 import org.swasth.common.dto.Response;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
 import org.swasth.common.utils.Constants;
 import org.swasth.hcx.controllers.BaseController;
+import org.swasth.hcx.service.AsyncService;
 import org.swasth.hcx.service.UserService;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 import static org.swasth.common.response.ResponseMessage.INVALID_USER_ID;
 import static org.swasth.common.utils.Constants.*;
@@ -27,6 +30,9 @@ public class UserController extends BaseController {
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private AsyncService asyncService;
 
     @PostMapping(USER_CREATE)
     public ResponseEntity<Object> create(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
@@ -98,41 +104,52 @@ public class UserController extends BaseController {
     @PostMapping(PARTICIPANT_USER_ADD)
     public ResponseEntity<Object> addUser(@RequestHeader HttpHeaders headers, @RequestBody Map<String, Object> requestBody) {
         try {
-            logger.info("Adding users : {}", requestBody);
-            RegistryResponse response = null;
+            logger.info("Adding users: {}", requestBody);
+            List<CompletableFuture<Map<String,Object>>> futures = new ArrayList<>();
+            CompletableFuture<Map<String,Object>> future;
             userService.authorizeToken(headers, (String) requestBody.get(PARTICIPANT_CODE));
             List<Map<String, Object>> users = (List<Map<String, Object>>) requestBody.get(USERS);
             for (Map<String, Object> user : users) {
-                Map<String, Object> userRequest = userService.constructRequestBody(requestBody,user);
-                response = userService.addUser(userRequest, headers);
+                future = asyncService.performAsyncTask(user, requestBody, headers, PARTICIPANT_USER_ADD);
+                futures.add(future);
             }
-            if(response == null){
-                throw new ClientException("Unable to add the user because response is null");
+            List<Map<String,Object>> responses = new ArrayList<>();
+            for (CompletableFuture<Map<String,Object>> future1 : futures) {
+                responses.add(future1.get());
             }
-            response.setStatus(SUCCESS);
-            return getSuccessResponse(userService.addRemoveResponse(response));
+            Map<String,Object> resultMap = new HashMap<>();
+            resultMap.put(RESULT,responses);
+            resultMap.put(TIME_STAMP,System.currentTimeMillis());
+            resultMap.put("overallStatus",userService.overallStatus(responses));
+            return getSuccessResponse(resultMap);
         } catch (Exception e) {
-            return exceptionHandler(new Response(),e);
+            return exceptionHandler(new Response(), e);
         }
     }
+
 
 
     @PostMapping(PARTICIPANT_USER_REMOVE)
     public ResponseEntity<Object> userRemove(@RequestHeader HttpHeaders headers, @RequestBody Map<String, Object> requestBody) {
         try {
             logger.info("Removing users : {}", requestBody);
-            RegistryResponse response = null;
             userService.authorizeToken(headers, (String) requestBody.get(PARTICIPANT_CODE));
+            List<CompletableFuture<Map<String,Object>>> futures = new ArrayList<>();
+            CompletableFuture<Map<String,Object>> future;
             List<Map<String, Object>> users = (List<Map<String, Object>>) requestBody.get(USERS);
-            for(Map<String,Object> user : users){
-                Map<String, Object> userRequest = userService.constructRequestBody(requestBody,user);
-                response = userService.removeUser(userRequest,headers);
+            for (Map<String, Object> user : users) {
+                future = asyncService.performAsyncTask(user, requestBody, headers, PARTICIPANT_USER_REMOVE);
+                futures.add(future);
             }
-            if(response == null){
-                throw new ClientException("Unable to add the user because response is null");
+            List<Map<String,Object>> responses = new ArrayList<>();
+            for (CompletableFuture<Map<String,Object>> future1 : futures) {
+                responses.add(future1.get());
             }
-            response.setStatus(SUCCESS);
-            return getSuccessResponse(userService.addRemoveResponse(response));
+            Map<String,Object> resultMap = new HashMap<>();
+            resultMap.put(RESULT,responses);
+            resultMap.put(TIME_STAMP,System.currentTimeMillis());
+            resultMap.put("overallStatus",userService.overallStatus(responses));
+            return getSuccessResponse(resultMap);
         } catch (Exception e) {
             return exceptionHandler(new Response(),e);
         }

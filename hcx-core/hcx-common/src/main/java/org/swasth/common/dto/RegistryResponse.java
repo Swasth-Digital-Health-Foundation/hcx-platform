@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static org.swasth.common.utils.Constants.ORGANISATION;
 
@@ -21,6 +22,7 @@ public class RegistryResponse {
     private String status;
     private ArrayList<Object> participants;
     private ArrayList<Object> users;
+    private List<RegistryResponse> result;
 
     public RegistryResponse() {
         this.timestamp = System.currentTimeMillis();
@@ -48,10 +50,15 @@ public class RegistryResponse {
             this.users = (ArrayList<Object>) response;
         }
     }
-    public RegistryResponse(long timestamp,String status){
-        this.timestamp = timestamp;
-        this.status = status;
+
+    public RegistryResponse(List<RegistryResponse> result){
+        this.timestamp = System.currentTimeMillis();
+        this.result = result;
     }
+//    public RegistryResponse(long timestamp,String status){
+//        this.timestamp = timestamp;
+//        this.status = status;
+//    }
     public Long getTimestamp() {
         return timestamp;
     }
@@ -94,5 +101,10 @@ public class RegistryResponse {
 
     public String getUserId() {
         return userId;
+    }
+    public void setUserId(String userId){this.userId = userId;}
+
+    public void setResult(List<RegistryResponse> result) {
+        this.result = result;
     }
 }

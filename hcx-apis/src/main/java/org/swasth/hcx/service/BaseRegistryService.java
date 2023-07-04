@@ -60,7 +60,7 @@ public class BaseRegistryService {
         return HttpUtils.delete(url, new HashMap<>());
     }
 
-    private String getErrorMessage(HttpResponse<String> response) throws JsonProcessingException {
+    protected String getErrorMessage(HttpResponse<String> response) throws JsonProcessingException {
         Map<String, Object> result = JSONUtils.deserialize(response.getBody(), HashMap.class);
         return (String) ((Map<String, Object>) result.get("params")).get("errmsg");
     }
@@ -98,9 +98,6 @@ public class BaseRegistryService {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    public RegistryResponse addRemoveResponse(RegistryResponse registryResponse){
-            return new RegistryResponse(System.currentTimeMillis(), registryResponse.getStatus());
-        }
 
     public String getUserFromToken(HttpHeaders headers) throws JsonProcessingException {
         Token token = new Token(Objects.requireNonNull(headers.get(AUTHORIZATION)).get(0));
