@@ -180,7 +180,6 @@ public class OnboardService extends BaseController {
     public void init(){
         keycloak = Keycloak.getInstance(keycloakURL, keycloakMasterRealm, keycloakAdminUserName, keycloakAdminPassword, keycloackClientId);
     }
-
     public ResponseEntity<Object> verify(HttpHeaders header, ArrayList<Map<String, Object>> body) throws Exception {
         logger.info("Participant verification :: " + body);
         OnboardRequest request = new OnboardRequest(body);
