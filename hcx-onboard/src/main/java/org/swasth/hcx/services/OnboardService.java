@@ -35,6 +35,7 @@ import org.swasth.hcx.utils.CertificateUtil;
 import org.swasth.hcx.utils.SlugUtils;
 import org.swasth.postgresql.IDatabaseService;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.net.URL;
@@ -173,6 +174,13 @@ public class OnboardService extends BaseController {
     @Autowired
     private FreemarkerService freemarkerService;
 
+    private Keycloak keycloak;
+
+    @PostConstruct()
+    public void init(){
+        keycloak = Keycloak.getInstance(keycloakURL, keycloakMasterRealm, keycloakAdminUserName, keycloakAdminPassword, keycloackClientId);
+    }
+
     public ResponseEntity<Object> verify(HttpHeaders header, ArrayList<Map<String, Object>> body) throws Exception {
         logger.info("Participant verification :: " + body);
         OnboardRequest request = new OnboardRequest(body);
@@ -224,6 +232,7 @@ public class OnboardService extends BaseController {
     private String createEntity(String api, String participant, Map<String, String> headers, ErrorCodes errCode, String id) throws Exception {
         HttpResponse<String> createResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + api, participant, headers);
         RegistryResponse response = JSONUtils.deserialize(createResponse.getBody(), RegistryResponse.class);
+        logger.debug("Registry response :: status: " + createResponse.getStatus() + " :: body: " + createResponse.getBody());
         if (createResponse.getStatus() != 200) {
             throw new ClientException(response.getError().getCode() == null ? errCode : response.getError().getCode(), response.getError().getMessage());
         }
@@ -1036,7 +1045,6 @@ public class OnboardService extends BaseController {
     private void setKeycloakPassword(String participantCode, String password , Map<String,Object> registryDetails) throws ClientException {
         try {
             ArrayList<String> osOwner = (ArrayList<String>) registryDetails.get(OS_OWNER);
-            Keycloak keycloak = Keycloak.getInstance(keycloakURL, keycloakMasterRealm, keycloakAdminUserName, keycloakAdminPassword, keycloackClientId);
             RealmResource realmResource = keycloak.realm(keycloackParticipantRealm);
             UserResource userResource = realmResource.users().get(osOwner.get(0));
             CredentialRepresentation passwordCred = new CredentialRepresentation();
