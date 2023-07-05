@@ -18,6 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
 
 import static org.swasth.common.response.ResponseMessage.INVALID_USER_ID;
 import static org.swasth.common.utils.Constants.*;
@@ -117,39 +119,41 @@ public class UserController extends BaseController {
             String overAllstatus = userService.overallStatus(responses);
             resultMap.put(OVER_ALL_STATUS, overAllstatus);
             return userService.getHttpStatus(overAllstatus,resultMap);
-        } catch (Exception e) {
+        } catch (InterruptedException e) {
             future.completeExceptionally(e);
+            return exceptionHandler(new Response(), e);
+        } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }
     }
 
-
-
     @PostMapping(PARTICIPANT_USER_REMOVE)
     public ResponseEntity<Object> userRemove(@RequestHeader HttpHeaders headers, @RequestBody Map<String, Object> requestBody) {
-        CompletableFuture<Map<String,Object>> future = new CompletableFuture<>();
+        CompletableFuture<Map<String, Object>> future = new CompletableFuture<>();
         try {
-            logger.info("Removing users : {}", requestBody);
+            logger.info("Removing users: {}", requestBody);
             userService.authorizeToken(headers, (String) requestBody.get(PARTICIPANT_CODE));
-            List<CompletableFuture<Map<String,Object>>> futures = new ArrayList<>();
+            List<CompletableFuture<Map<String, Object>>> futures = new ArrayList<>();
 
             List<Map<String, Object>> users = (List<Map<String, Object>>) requestBody.get(USERS);
             for (Map<String, Object> user : users) {
-                Map<String, Object> userRequest = userService.constructRequestBody(requestBody,user);
-                future = userService.processUser(userRequest,headers,PARTICIPANT_USER_REMOVE);
+                Map<String, Object> userRequest = userService.constructRequestBody(requestBody, user);
+                future = userService.processUser(userRequest, headers, PARTICIPANT_USER_REMOVE);
                 futures.add(future);
             }
-            List<Map<String,Object>> responses = new ArrayList<>();
-            for (CompletableFuture<Map<String,Object>> future1 : futures) {
+            List<Map<String, Object>> responses = new ArrayList<>();
+            for (CompletableFuture<Map<String, Object>> future1 : futures) {
                 responses.add(future1.get());
             }
-            Map<String,Object> resultMap = userService.createResultMap(responses);
+            Map<String, Object> resultMap = userService.createResultMap(responses);
             String overAllstatus = userService.overallStatus(responses);
             resultMap.put(OVER_ALL_STATUS, overAllstatus);
-            return userService.getHttpStatus(overAllstatus,resultMap);
-        } catch (Exception e) {
+            return userService.getHttpStatus(overAllstatus, resultMap);
+        } catch (InterruptedException e) {
             future.completeExceptionally(e);
-            return exceptionHandler(new Response(),e);
+            return exceptionHandler(new Response(), e);
+        } catch (Exception e) {
+            return exceptionHandler(new Response(), e);
         }
     }
 
