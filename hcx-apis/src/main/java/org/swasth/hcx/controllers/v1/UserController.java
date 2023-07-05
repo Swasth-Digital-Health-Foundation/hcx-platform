@@ -18,8 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
-import java.util.concurrent.ExecutionException;
 
 import static org.swasth.common.response.ResponseMessage.INVALID_USER_ID;
 import static org.swasth.common.utils.Constants.*;
@@ -119,11 +117,11 @@ public class UserController extends BaseController {
             String overAllstatus = userService.overallStatus(responses);
             resultMap.put(OVER_ALL_STATUS, overAllstatus);
             return userService.getHttpStatus(overAllstatus,resultMap);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            future.completeExceptionally(e);
-            return exceptionHandler(new Response(), e);
         } catch (Exception e) {
+            if(e instanceof InterruptedException){
+                Thread.currentThread().interrupt();
+                future.completeExceptionally(e);
+            }
             return exceptionHandler(new Response(), e);
         }
     }
@@ -150,11 +148,11 @@ public class UserController extends BaseController {
             String overAllstatus = userService.overallStatus(responses);
             resultMap.put(OVER_ALL_STATUS, overAllstatus);
             return userService.getHttpStatus(overAllstatus, resultMap);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            future.completeExceptionally(e);
-            return exceptionHandler(new Response(), e);
         } catch (Exception e) {
+            if(e instanceof InterruptedException){
+                Thread.currentThread().interrupt();
+                future.completeExceptionally(e);
+            }
             return exceptionHandler(new Response(), e);
         }
     }
