@@ -36,7 +36,6 @@ public class UserService extends BaseRegistryService {
 
     @Autowired
     protected AuditIndexer auditIndexer;
-
     public RegistryResponse create(Map<String, Object> requestBody, String code) throws Exception {
         HttpResponse<String> response = invite(requestBody, registryUserPath);
         if (response.getStatus() == 200) {
