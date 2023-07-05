@@ -1,7 +1,5 @@
 package org.swasth.hcx.controllers.v1;
 
-import kong.unirest.HttpResponse;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +15,6 @@ import org.swasth.hcx.controllers.BaseController;
 import org.swasth.hcx.service.UserService;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -101,10 +98,10 @@ public class UserController extends BaseController {
 
     @PostMapping(PARTICIPANT_USER_ADD)
     public ResponseEntity<Object> addUser(@RequestHeader HttpHeaders headers, @RequestBody Map<String, Object> requestBody) {
+        CompletableFuture<Map<String, Object>> future = new CompletableFuture<>();
         try {
             logger.info("Adding users: {}", requestBody);
             List<CompletableFuture<Map<String, Object>>> futures = new ArrayList<>();
-            CompletableFuture<Map<String, Object>> future;
             userService.authorizeToken(headers, (String) requestBody.get(PARTICIPANT_CODE));
             List<Map<String, Object>> users = (List<Map<String, Object>>) requestBody.get(USERS);
             for (Map<String, Object> user : users) {
@@ -121,6 +118,7 @@ public class UserController extends BaseController {
             resultMap.put(overAllStatus, overAllstatus);
             return userService.getHttpStatus(overAllstatus,resultMap);
         } catch (Exception e) {
+            future.completeExceptionally(e);
             return exceptionHandler(new Response(), e);
         }
     }
@@ -129,11 +127,12 @@ public class UserController extends BaseController {
 
     @PostMapping(PARTICIPANT_USER_REMOVE)
     public ResponseEntity<Object> userRemove(@RequestHeader HttpHeaders headers, @RequestBody Map<String, Object> requestBody) {
+        CompletableFuture<Map<String,Object>> future = new CompletableFuture<>();
         try {
             logger.info("Removing users : {}", requestBody);
             userService.authorizeToken(headers, (String) requestBody.get(PARTICIPANT_CODE));
             List<CompletableFuture<Map<String,Object>>> futures = new ArrayList<>();
-            CompletableFuture<Map<String,Object>> future;
+
             List<Map<String, Object>> users = (List<Map<String, Object>>) requestBody.get(USERS);
             for (Map<String, Object> user : users) {
                 Map<String, Object> userRequest = userService.constructRequestBody(requestBody,user);
@@ -149,6 +148,7 @@ public class UserController extends BaseController {
             resultMap.put(overAllStatus, overAllstatus);
             return userService.getHttpStatus(overAllstatus,resultMap);
         } catch (Exception e) {
+            future.completeExceptionally(e);
             return exceptionHandler(new Response(),e);
         }
     }

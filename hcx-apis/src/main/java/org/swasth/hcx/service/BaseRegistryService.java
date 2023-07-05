@@ -41,7 +41,7 @@ public class BaseRegistryService {
         return HttpUtils.post(url, JSONUtils.serialize(requestBody), new HashMap<>());
     }
 
-    public RegistryResponse search(Map<String,Object> requestBody,String apiPath, String entity) throws Exception {
+    public RegistryResponse search(Map<String,Object> requestBody,String apiPath, String entity) throws JsonProcessingException, ServerException, AuthorizationException, ClientException, ResourceNotFoundException {
         String url = registryURL + apiPath + "/" + SEARCH;
         HttpResponse<String> response = HttpUtils.post(url, JSONUtils.serialize(requestBody), new HashMap<>());
         if (response.getStatus() == 200) {
