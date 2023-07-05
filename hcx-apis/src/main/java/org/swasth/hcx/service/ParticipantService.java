@@ -15,8 +15,7 @@ import org.springframework.stereotype.Service;
 import org.swasth.ICloudService;
 import org.swasth.common.dto.RegistryResponse;
 import org.swasth.common.dto.Token;
-import org.swasth.common.exception.ClientException;
-import org.swasth.common.exception.ErrorCodes;
+import org.swasth.common.exception.*;
 import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.utils.JWTUtils;
@@ -80,7 +79,7 @@ public class ParticipantService extends BaseRegistryService {
         return responseHandler(response, code, ORGANISATION);
     }
 
-    public RegistryResponse search(Map<String, Object> requestBody) throws Exception {
+    public RegistryResponse search(Map<String, Object> requestBody) throws ServerException, AuthorizationException, ClientException, ResourceNotFoundException, JsonProcessingException {
         return search(requestBody, registryOrgnisationPath,ORGANISATION);
     }
 

@@ -139,7 +139,7 @@ public class UserService extends BaseRegistryService {
         return responseMap;
     }
 
-    public Map<String, Object> getUser(String userId) throws Exception {
+    public Map<String, Object> getUser(String userId) throws JsonProcessingException, ServerException, AuthorizationException, ClientException, ResourceNotFoundException {
         logger.debug("searching for :: user id : {}", userId);
         ResponseEntity<Object> searchResponse = getSuccessResponse(search(JSONUtils.deserialize(getUserRequest(userId), Map.class)));
         RegistryResponse registryResponse = (RegistryResponse) Objects.requireNonNull(searchResponse.getBody());
