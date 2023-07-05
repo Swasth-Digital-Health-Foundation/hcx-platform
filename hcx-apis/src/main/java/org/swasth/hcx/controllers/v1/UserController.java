@@ -119,8 +119,11 @@ public class UserController extends BaseController {
             String overAllstatus = userService.overallStatus(responses);
             resultMap.put(OVER_ALL_STATUS, overAllstatus);
             return userService.getHttpStatus(overAllstatus,resultMap);
-        } catch (Exception e) {
+        } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+            future.completeExceptionally(e);
+            return exceptionHandler(new Response(), e);
+        } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }
     }
@@ -147,8 +150,11 @@ public class UserController extends BaseController {
             String overAllstatus = userService.overallStatus(responses);
             resultMap.put(OVER_ALL_STATUS, overAllstatus);
             return userService.getHttpStatus(overAllstatus, resultMap);
-        } catch (Exception e) {
+        } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+            future.completeExceptionally(e);
+            return exceptionHandler(new Response(), e);
+        } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }
     }
