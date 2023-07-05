@@ -320,6 +320,28 @@ class UserControllerTests extends BaseSpec {
      }
 
     @Test
+    void participant_add_user_partial_status_scenario() throws Exception {
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("[{ \"user_name\": \"test-abhiAdmin\",\"created_by\":\"test-123.yopmail@swasth-hcx\", \"mobile\": \"9620499129\", \"email\": \"test-123@yopmail.com\", \"tenant_roles\": [ {\"participant_code\":\"test-123.yopmail@swasth-hcx\",\"role\":\"admin\"}], \"osOwner\": [ \"1f6ec973-5a01-4889-93ac-a22d004081ac\" ], \"user_id\": \"test-123@yopmail.com\",\"osid\":\"35e76122-84e4-4740-94cd-f875e32f2c34\" }]")
+                .addHeader("Content-Type", "application/json"));
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("[{ \"user_name\": \"test-abhiAdmin\",\"created_by\":\"test-123.yopmail@swasth-hcx\", \"mobile\": \"9620499129\", \"email\": \"test-456@yopmail.com\", \"tenant_roles\": [ {\"participant_code\":\"test-123.yopmail@swasth-hcx\",\"role\":\"admin\"}], \"osOwner\": [ \"1f6ec973-5a01-4889-93ac-a22d004081ac\" ], \"user_id\": \"test-456@yopmail.com\",\"osid\":\"35e76122-84e4-4740-94cd-f875e32f2c34\" }]")
+                .addHeader("Content-Type", "application/json"));
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{ \"message\": \"success\" }")
+                .addHeader("Content-Type", "application/json"));
+        Mockito.when(redisCache.isExists(any())).thenReturn(true);
+        doReturn(getUserUpdateAuditLog()).when(mockEventGenerator).createAuditLog(anyString(), anyString(), anyMap(), anyMap());
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_USER_ADD).content(getParticipantAddBodyPartilStatus()).header(HttpHeaders.AUTHORIZATION, getAddUserToken()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        assertEquals(206, status);
+    }
+
+    @Test
     void participant_add_user_role_exist_scenario() throws Exception {
         registryServer.enqueue(new MockResponse()
                 .setResponseCode(200)
