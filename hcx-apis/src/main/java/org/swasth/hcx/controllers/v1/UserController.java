@@ -119,10 +119,8 @@ public class UserController extends BaseController {
             String overAllstatus = userService.overallStatus(responses);
             resultMap.put(OVER_ALL_STATUS, overAllstatus);
             return userService.getHttpStatus(overAllstatus,resultMap);
-        } catch (InterruptedException e) {
-            future.completeExceptionally(e);
-            return exceptionHandler(new Response(), e);
         } catch (Exception e) {
+            Thread.currentThread().interrupt();
             return exceptionHandler(new Response(), e);
         }
     }
@@ -149,10 +147,8 @@ public class UserController extends BaseController {
             String overAllstatus = userService.overallStatus(responses);
             resultMap.put(OVER_ALL_STATUS, overAllstatus);
             return userService.getHttpStatus(overAllstatus, resultMap);
-        } catch (InterruptedException e) {
-            future.completeExceptionally(e);
-            return exceptionHandler(new Response(), e);
         } catch (Exception e) {
+            Thread.currentThread().interrupt();
             return exceptionHandler(new Response(), e);
         }
     }
