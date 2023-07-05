@@ -6,13 +6,12 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MvcResult;
 import org.swasth.common.utils.Constants;
-import org.swasth.hcx.controllers.BaseController;
 import org.swasth.hcx.controllers.BaseSpec;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
-public class RegistryControllerTests extends BaseSpec {
+class RegistryControllerTests extends BaseSpec {
 
 
     @Test

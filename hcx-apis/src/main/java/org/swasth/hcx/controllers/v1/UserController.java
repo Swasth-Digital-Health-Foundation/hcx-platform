@@ -106,7 +106,7 @@ public class UserController extends BaseController {
             List<Map<String, Object>> users = (List<Map<String, Object>>) requestBody.get(USERS);
             for (Map<String, Object> user : users) {
                 Map<String, Object> userRequest = userService.constructRequestBody(requestBody, user);
-                future = userService.processUser(userRequest,headers,PARTICIPANT_USER_ADD);
+                future = userService.processUser(userRequest, headers, PARTICIPANT_USER_ADD);
                 futures.add(future);
             }
             List<Map<String, Object>> responses = new ArrayList<>();
@@ -116,12 +116,12 @@ public class UserController extends BaseController {
             Map<String, Object> resultMap = userService.createResultMap(responses);
             String overAllstatus = userService.overallStatus(responses);
             resultMap.put(OVER_ALL_STATUS, overAllstatus);
-            return userService.getHttpStatus(overAllstatus,resultMap);
+            return userService.getHttpStatus(overAllstatus, resultMap);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            future.completeExceptionally(e);
+            return exceptionHandler(new Response(), e);
         } catch (Exception e) {
-            if(e instanceof InterruptedException){
-                Thread.currentThread().interrupt();
-                future.completeExceptionally(e);
-            }
             return exceptionHandler(new Response(), e);
         }
     }
@@ -148,11 +148,11 @@ public class UserController extends BaseController {
             String overAllstatus = userService.overallStatus(responses);
             resultMap.put(OVER_ALL_STATUS, overAllstatus);
             return userService.getHttpStatus(overAllstatus, resultMap);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            future.completeExceptionally(e);
+            return exceptionHandler(new Response(), e);
         } catch (Exception e) {
-            if(e instanceof InterruptedException){
-                Thread.currentThread().interrupt();
-                future.completeExceptionally(e);
-            }
             return exceptionHandler(new Response(), e);
         }
     }

@@ -18,8 +18,7 @@ import org.swasth.auditindexer.function.AuditIndexer;
 import org.swasth.common.dto.RegistryResponse;
 import org.swasth.common.dto.ResponseError;
 import org.swasth.common.dto.Token;
-import org.swasth.common.exception.ClientException;
-import org.swasth.common.exception.ErrorCodes;
+import org.swasth.common.exception.*;
 import org.swasth.common.utils.JSONUtils;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -46,7 +45,7 @@ public class UserService extends BaseRegistryService {
         return responseHandler(response, code, USER);
     }
 
-    public RegistryResponse search(Map<String, Object> requestBody) throws Exception {
+    public RegistryResponse search(Map<String, Object> requestBody) throws ServerException, AuthorizationException, ClientException, ResourceNotFoundException, JsonProcessingException {
         return search(requestBody, registryUserPath, USER);
     }
 
