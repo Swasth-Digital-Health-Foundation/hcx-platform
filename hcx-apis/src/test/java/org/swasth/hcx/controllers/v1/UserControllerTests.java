@@ -370,7 +370,7 @@ class UserControllerTests extends BaseSpec {
                  .addHeader("Content-Type", "application/json"));
          Mockito.when(redisCache.isExists(any())).thenReturn(true);
          doReturn(getUserUpdateAuditLog()).when(mockEventGenerator).createAuditLog(anyString(), anyString(), anyMap(), anyMap());
-         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_USER_ADD).content(getUserToken()).header(HttpHeaders.AUTHORIZATION, getAddUserToken()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_USER_ADD).content(getParticipantAddBody()).header(HttpHeaders.AUTHORIZATION, getUserToken()).contentType(MediaType.APPLICATION_JSON)).andReturn();
          MockHttpServletResponse response = mvcResult.getResponse();
          int status = response.getStatus();
          assertEquals(400, status);
