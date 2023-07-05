@@ -1,5 +1,6 @@
 package org.swasth.hcx.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.JWSSigner;
@@ -20,8 +21,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.swasth.common.dto.RegistryResponse;
 import org.swasth.common.dto.Token;
-import org.swasth.common.exception.ClientException;
-import org.swasth.common.exception.ErrorCodes;
+import org.swasth.common.exception.*;
 import org.swasth.common.utils.JSONUtils;
 
 import java.io.FileInputStream;
@@ -128,7 +128,7 @@ public class JWTService extends BaseRegistryService {
         return (String) userDetails.get(PARTICIPANT_CODE);
     }
 
-    private Map<String, Object> getUser(String emailId) throws Exception {
+    private Map<String, Object> getUser(String emailId) throws JsonProcessingException, ServerException, AuthorizationException, ClientException, ResourceNotFoundException {
         RegistryResponse registryResponse = search(JSONUtils.deserialize(getRequestBody(EMAIL, emailId), Map.class), registryUserPath, USER);
         Map<String, Object> userDetails = (Map<String, Object>) registryResponse.getUsers().get(0);
         List<Map<String, Object>> tenantRolesList = (List<Map<String, Object>>) userDetails.getOrDefault(TENANT_ROLES, new ArrayList<>());

@@ -115,7 +115,7 @@ public class UserController extends BaseController {
             }
             Map<String, Object> resultMap = userService.createResultMap(responses);
             String overAllstatus = userService.overallStatus(responses);
-            resultMap.put(overAllStatus, overAllstatus);
+            resultMap.put(OVER_ALL_STATUS, overAllstatus);
             return userService.getHttpStatus(overAllstatus,resultMap);
         } catch (Exception e) {
             future.completeExceptionally(e);
@@ -145,7 +145,7 @@ public class UserController extends BaseController {
             }
             Map<String,Object> resultMap = userService.createResultMap(responses);
             String overAllstatus = userService.overallStatus(responses);
-            resultMap.put(overAllStatus, overAllstatus);
+            resultMap.put(OVER_ALL_STATUS, overAllstatus);
             return userService.getHttpStatus(overAllstatus,resultMap);
         } catch (Exception e) {
             future.completeExceptionally(e);

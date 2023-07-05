@@ -5,7 +5,7 @@ import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class AsyncConfigTest {
+class AsyncConfigTest {
 
     ApplicationContextRunner context = new ApplicationContextRunner()
             .withUserConfiguration(AsyncConfig.class);

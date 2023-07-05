@@ -332,7 +332,7 @@ public class Constants {
     public static final String EMAIL_VERIFIED = "email_verified";
     public static final String PHONE_VERIFIED = "phone_verified";
     public static final String SUCCESSFUL = "successful";
-    public static final String overAllStatus = "overallStatus";
+    public static final String OVER_ALL_STATUS = "overallStatus";
     public static final String PARTIAL = "partial";
     public static final String FAILED = "failed";
     public static final String ATTEMPT_COUNT = "attempt_count";
