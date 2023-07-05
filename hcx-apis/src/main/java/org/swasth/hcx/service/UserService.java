@@ -9,17 +9,19 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.swasth.auditindexer.function.AuditIndexer;
 import org.swasth.common.dto.RegistryResponse;
 import org.swasth.common.dto.ResponseError;
 import org.swasth.common.dto.Token;
-import org.swasth.common.dto.User;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
 import org.swasth.common.utils.JSONUtils;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import static org.swasth.common.response.ResponseMessage.INVALID_USER_DETAILS;
 import static org.swasth.common.response.ResponseMessage.INVALID_USER_ID;
 import static org.swasth.common.utils.Constants.*;
@@ -69,89 +71,73 @@ public class UserService extends BaseRegistryService {
         return responseHandler(response, code, USER);
     }
 
-    public Map<String, Object> addUser(Map<String, Object> userBody, HttpHeaders headers) throws Exception {
+    @Async
+    public CompletableFuture<Map<String, Object>> processUser(Map<String, Object> requestBody, HttpHeaders headers, String action) {
         Map<String, Object> registryDetails = new HashMap<>();
         Map<String, Object> responseMap = new HashMap<>();
-        try {
-            HttpResponse<String> response;
-            registryDetails = getUser((String) userBody.get(USER_ID));
-            ArrayList<Map<String, Object>> tenantRolesList = new ArrayList<>();
-            Map<String, Object> requestBody = new HashMap<>();
-            if (registryDetails.containsKey(TENANT_ROLES)) {
-                tenantRolesList = JSONUtils.convert(registryDetails.getOrDefault(TENANT_ROLES, new ArrayList<>()), ArrayList.class);
-                for (Map<String, Object> userExist : tenantRolesList) {
-                    if (userExist.get(ROLE).equals(userBody.get(ROLE)) && userExist.get(PARTICIPANT_CODE).equals(userBody.get(PARTICIPANT_CODE))) {
-                        throw new ClientException("User with the role : " + userBody.get(ROLE) + " and participant code : " + userBody.get(PARTICIPANT_CODE) + " is already exist for the user_id : " + userBody.get(USER_ID));
-                    }
-                }
-            }
-            requestBody.put(TENANT_ROLES, tenantRolesList);
-            userBody.remove(USER_ID);
-            tenantRolesList.add(userBody);
-            response = update(requestBody, registryDetails, registryUserPath);
-            generateAddRemoveUserAudit((String) registryDetails.get(USER_ID), PARTICIPANT_USER_ADD, userBody, getUserFromToken(headers));
-            logger.debug("added role for the userId: {}", registryDetails.get(USER_ID));
-            if (response.getStatus() == 200) {
-                responseMap = getResponse((String) registryDetails.get(USER_ID), SUCCESSFUL);
-            }
-            return responseMap;
-        } catch (Exception e) {
-            responseMap = getResponse((String) registryDetails.get(USER_ID), FAILED);
-            responseMap.put(ERROR, new ResponseError(null, e.getMessage(), e.getCause()));
-            return responseMap;
-        }
-    }
-
-    public Map<String, Object> removeUser(Map<String, Object> requestBody, HttpHeaders headers) throws Exception {
-        Map<String, Object> registryDetails = new HashMap<>();
-        Map<String, Object> responseMap = new HashMap<>();
+        CompletableFuture<Map<String, Object>> future = new CompletableFuture<>();
         try {
             HttpResponse<String> response;
             String userId = (String) requestBody.get(USER_ID);
             registryDetails = getUser(userId);
-            ArrayList<Map<String, Object>> filteredTenantRoles = new ArrayList<>();
+            Map<String, Object> finalRequest = new HashMap<>();
             if (registryDetails.containsKey(TENANT_ROLES)) {
                 ArrayList<Map<String, Object>> tenantRolesList = JSONUtils.convert(registryDetails.get(TENANT_ROLES), ArrayList.class);
-                if (tenantRolesList.isEmpty()) {
-                    throw new ClientException("User does not have any role to remove");
+                if (StringUtils.equals(action, PARTICIPANT_USER_ADD)) {
+                    userAdd(requestBody, finalRequest, tenantRolesList);
+                } else if (StringUtils.equals(action, PARTICIPANT_USER_REMOVE)) {
+                    ArrayList<Map<String, Object>> filteredTenantRoles = new ArrayList<>();
+                    userRemove(requestBody, finalRequest, tenantRolesList, filteredTenantRoles);
                 }
-                for (Map<String, Object> tenantRole : tenantRolesList) {
-                    String role = (String) tenantRole.get(ROLE);
-                    String participantCode = (String) tenantRole.get(PARTICIPANT_CODE);
-                    if (!requestBody.get(ROLE).equals(role) && participantCode.equals(requestBody.get(PARTICIPANT_CODE))) {
-                        filteredTenantRoles.add(tenantRole);
-                    }
+                response = update(finalRequest, registryDetails, registryUserPath);
+                generateAddRemoveUserAudit(userId, action, requestBody, getUserFromToken(headers));
+                if (response.getStatus() == 200) {
+                    responseMap = getResponse((String) registryDetails.get(USER_ID), SUCCESSFUL);
                 }
             }
-            Map<String, Object> request = new HashMap<>();
-            request.put(TENANT_ROLES, filteredTenantRoles);
-            response = update(request, registryDetails, registryUserPath);
-            generateAddRemoveUserAudit(userId, PARTICIPANT_USER_REMOVE, requestBody, getUserFromToken(headers));
-            logger.debug("removed role for the :: user_id: {}", registryDetails.get(USER_ID));
-            if (response != null && response.getStatus() == 200) {
-                responseMap = getResponse((String) registryDetails.get(USER_ID), SUCCESSFUL);
-            }
-            return responseMap;
+            future.complete(responseMap);
+            return future;
         } catch (Exception e) {
             responseMap = getResponse((String) registryDetails.get(USER_ID), FAILED);
-            responseMap.put(ERROR, new ResponseError(null, e.getMessage(), e.fillInStackTrace()));
-            return responseMap;
+            responseMap.put(ERROR, new ResponseError(null, e.getMessage(), null));
+            future.complete(responseMap);
+            return future;
         }
     }
+
+    @Async
+    private void userRemove(Map<String, Object> requestBody, Map<String, Object> finalRequest, ArrayList<Map<String, Object>> tenantRolesList, ArrayList<Map<String, Object>> filteredTenantRoles) throws ClientException {
+        if (tenantRolesList.isEmpty()) {
+            throw new ClientException("User does not have any role to remove");
+        }
+        for (Map<String, Object> tenantRole : tenantRolesList) {
+            String role = (String) tenantRole.get(ROLE);
+            String participantCode = (String) tenantRole.get(PARTICIPANT_CODE);
+            if (!requestBody.get(ROLE).equals(role) && participantCode.equals(requestBody.get(PARTICIPANT_CODE))) {
+                filteredTenantRoles.add(tenantRole);
+            }
+        }
+        finalRequest.put(TENANT_ROLES, filteredTenantRoles);
+    }
+
+    @Async
+    private void userAdd(Map<String, Object> requestBody, Map<String, Object> finalRequest, ArrayList<Map<String, Object>> tenantRolesList) throws ClientException {
+        for (Map<String, Object> userExist : tenantRolesList) {
+            if (userExist.get(ROLE).equals(requestBody.get(ROLE)) && userExist.get(PARTICIPANT_CODE).equals(requestBody.get(PARTICIPANT_CODE))) {
+                throw new ClientException("User with the role : " + requestBody.get(ROLE) + " and participant code : " + requestBody.get(PARTICIPANT_CODE) + " is already exist for the user_id : " + requestBody.get(USER_ID));
+            }
+        }
+        finalRequest.put(TENANT_ROLES, tenantRolesList);
+        requestBody.remove(USER_ID);
+        tenantRolesList.add(requestBody);
+    }
+
 
     private Map<String, Object> getResponse(String userId, String status) {
         Map<String, Object> responseMap = new HashMap<>();
         responseMap.put(USER_ID, userId);
         responseMap.put("status", status);
         return responseMap;
-    }
-
-    private Map<String, Object> getErrorMessage(Exception e) {
-        Map<String, Object> errorMap = new HashMap<>();
-        errorMap.put("code", "");
-        errorMap.put(MESSAGE, e.getMessage());
-        errorMap.put("trace", e.getStackTrace());
-        return errorMap;
     }
 
     public Map<String, Object> getUser(String userId) throws Exception {
@@ -247,15 +233,39 @@ public class UserService extends BaseRegistryService {
                 failed = true;
             }
         }
-        String overallStatus = FAILED;
+        return getStatus(successful,failed);
+    }
+
+    private String getStatus(boolean successful , boolean failed){
+        String overallStatus = "";
         if (failed && successful) {
-            overallStatus = "partial";
+            overallStatus = PARTIAL;
         } else if (successful) {
             overallStatus = SUCCESSFUL;
         } else if (failed) {
             overallStatus = FAILED;
         }
-
         return overallStatus;
     }
+
+    public Map<String, Object> createResultMap(List<Map<String, Object>> responses) {
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put(RESULT, responses);
+        resultMap.put(TIME_STAMP, System.currentTimeMillis());
+        return resultMap;
+    }
+
+    public ResponseEntity<Object> getHttpStatus(String overAllStatus, Object response) {
+        switch (overAllStatus) {
+            case SUCCESSFUL:
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            case FAILED:
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            case PARTIAL:
+                return new ResponseEntity<>(response, HttpStatus.PARTIAL_CONTENT);
+            default:
+                return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }

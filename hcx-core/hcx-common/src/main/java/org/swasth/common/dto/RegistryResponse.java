@@ -22,7 +22,7 @@ public class RegistryResponse {
     private String status;
     private ArrayList<Object> participants;
     private ArrayList<Object> users;
-    private List<RegistryResponse> result;
+
 
     public RegistryResponse() {
         this.timestamp = System.currentTimeMillis();
@@ -51,14 +51,6 @@ public class RegistryResponse {
         }
     }
 
-    public RegistryResponse(List<RegistryResponse> result){
-        this.timestamp = System.currentTimeMillis();
-        this.result = result;
-    }
-//    public RegistryResponse(long timestamp,String status){
-//        this.timestamp = timestamp;
-//        this.status = status;
-//    }
     public Long getTimestamp() {
         return timestamp;
     }
@@ -102,9 +94,5 @@ public class RegistryResponse {
     public String getUserId() {
         return userId;
     }
-    public void setUserId(String userId){this.userId = userId;}
 
-    public void setResult(List<RegistryResponse> result) {
-        this.result = result;
-    }
 }

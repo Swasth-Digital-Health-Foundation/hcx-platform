@@ -1,5 +1,7 @@
 package org.swasth.hcx.controllers.v1;
 
+import kong.unirest.HttpResponse;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +14,6 @@ import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
 import org.swasth.common.utils.Constants;
 import org.swasth.hcx.controllers.BaseController;
-import org.swasth.hcx.service.AsyncService;
 import org.swasth.hcx.service.UserService;
 
 import java.util.ArrayList;
@@ -30,9 +31,6 @@ public class UserController extends BaseController {
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
     @Autowired
     private UserService userService;
-
-    @Autowired
-    private AsyncService asyncService;
 
     @PostMapping(USER_CREATE)
     public ResponseEntity<Object> create(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
@@ -105,23 +103,23 @@ public class UserController extends BaseController {
     public ResponseEntity<Object> addUser(@RequestHeader HttpHeaders headers, @RequestBody Map<String, Object> requestBody) {
         try {
             logger.info("Adding users: {}", requestBody);
-            List<CompletableFuture<Map<String,Object>>> futures = new ArrayList<>();
-            CompletableFuture<Map<String,Object>> future;
+            List<CompletableFuture<Map<String, Object>>> futures = new ArrayList<>();
+            CompletableFuture<Map<String, Object>> future;
             userService.authorizeToken(headers, (String) requestBody.get(PARTICIPANT_CODE));
             List<Map<String, Object>> users = (List<Map<String, Object>>) requestBody.get(USERS);
             for (Map<String, Object> user : users) {
-                future = asyncService.performAsyncTask(user, requestBody, headers, PARTICIPANT_USER_ADD);
+                Map<String, Object> userRequest = userService.constructRequestBody(requestBody, user);
+                future = userService.processUser(userRequest,headers,PARTICIPANT_USER_ADD);
                 futures.add(future);
             }
-            List<Map<String,Object>> responses = new ArrayList<>();
-            for (CompletableFuture<Map<String,Object>> future1 : futures) {
-                responses.add(future1.get());
+            List<Map<String, Object>> responses = new ArrayList<>();
+            for (CompletableFuture<Map<String, Object>> futureResponse : futures) {
+                responses.add(futureResponse.get());
             }
-            Map<String,Object> resultMap = new HashMap<>();
-            resultMap.put(RESULT,responses);
-            resultMap.put(TIME_STAMP,System.currentTimeMillis());
-            resultMap.put("overallStatus",userService.overallStatus(responses));
-            return getSuccessResponse(resultMap);
+            Map<String, Object> resultMap = userService.createResultMap(responses);
+            String overAllstatus = userService.overallStatus(responses);
+            resultMap.put(overAllStatus, overAllstatus);
+            return userService.getHttpStatus(overAllstatus,resultMap);
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }
@@ -138,18 +136,18 @@ public class UserController extends BaseController {
             CompletableFuture<Map<String,Object>> future;
             List<Map<String, Object>> users = (List<Map<String, Object>>) requestBody.get(USERS);
             for (Map<String, Object> user : users) {
-                future = asyncService.performAsyncTask(user, requestBody, headers, PARTICIPANT_USER_REMOVE);
+                Map<String, Object> userRequest = userService.constructRequestBody(requestBody,user);
+                future = userService.processUser(userRequest,headers,PARTICIPANT_USER_REMOVE);
                 futures.add(future);
             }
             List<Map<String,Object>> responses = new ArrayList<>();
             for (CompletableFuture<Map<String,Object>> future1 : futures) {
                 responses.add(future1.get());
             }
-            Map<String,Object> resultMap = new HashMap<>();
-            resultMap.put(RESULT,responses);
-            resultMap.put(TIME_STAMP,System.currentTimeMillis());
-            resultMap.put("overallStatus",userService.overallStatus(responses));
-            return getSuccessResponse(resultMap);
+            Map<String,Object> resultMap = userService.createResultMap(responses);
+            String overAllstatus = userService.overallStatus(responses);
+            resultMap.put(overAllStatus, overAllstatus);
+            return userService.getHttpStatus(overAllstatus,resultMap);
         } catch (Exception e) {
             return exceptionHandler(new Response(),e);
         }
