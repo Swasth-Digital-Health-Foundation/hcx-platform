@@ -78,7 +78,6 @@ public class Constants {
     public static final String  USER_GENERATE_TOKEN = "/user/auth/token/generate";
     public static final String USERS = "users";
     public static final String ONBOARD_VALIDATION_PROPERTIES = "onboard_validation_properties";
-    public static final String ONBOARDVALIDATIONS = "onboardvalidations";
     public static final String PARTICIPANT_VALIDATION_PROPERTIES= "participant_validation_properties";
     public static final String PARTICIPANT_USER_ADD = "/participant/user/add";
     public static final String USERNAME = "username";
@@ -333,7 +332,8 @@ public class Constants {
     public static final String EMAIL_VERIFIED = "email_verified";
     public static final String PHONE_VERIFIED = "phone_verified";
     public static final String SUCCESSFUL = "successful";
-    public static final String SUCCESS = "SUCCESS";
+    public static final String overAllStatus = "overallStatus";
+    public static final String PARTIAL = "partial";
     public static final String FAILED = "failed";
     public static final String ATTEMPT_COUNT = "attempt_count";
     public static final String REJECTED = "rejected";

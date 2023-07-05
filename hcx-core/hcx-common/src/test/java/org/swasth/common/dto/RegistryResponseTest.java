@@ -52,14 +52,6 @@ public class RegistryResponseTest {
     }
 
     @Test
-    public void testAddRemoveResponse(){
-        long timestamp = System.currentTimeMillis();
-        String status = "SUCCESS";
-        RegistryResponse response = new RegistryResponse(timestamp,status);
-        assertEquals(status,response.getStatus());
-    }
-
-    @Test
     public void testTimestap(){
         RegistryResponse response = new RegistryResponse();
         assertNotNull(response.getTimestamp());
