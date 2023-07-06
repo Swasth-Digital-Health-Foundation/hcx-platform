@@ -21,7 +21,8 @@
     "trigger": "Event",
     "priority": 0,
     "template": "{\"message\": \"${participant_name} status changed to ${status}\",\n\"participant_code\": \"${participant_code}\", \"endpoint_url\": \"${endpoint_url}\"}",
-    "status": "active"
+    "status": "active",
+    "is_delegate": false
   },
   {
     "topic_code": "be0e578d-b391-42f9-96f7-1e6bacd91c20",
@@ -40,7 +41,8 @@
     "trigger": "Explicit",
     "priority": 1,
     "template": "{\"message\": \"${participant_name} system will not be available from ${startTime} for a duration of ${duration} on ${date}\",\n\"participant_code\": \"${participant_code}\", \"endpoint_url\": \"${endpoint_url}\"}",
-    "status": "active"
+    "status": "active",
+    "is_delegate": false
   },
   {
     "topic_code": "ab0e578d-b391-42f9-96f7-1e6bacd91c20",
@@ -59,7 +61,8 @@
     "trigger": "Explicit",
     "priority": 1,
     "template": "{\"message\": \"${participant_name} system will not be available from ${startTime} for a duration of ${duration} on ${date}\",\n\"participant_code\": \"${participant_code}\", \"endpoint_url\": \"${endpoint_url}\"}",
-    "status": "Inactive"
+    "status": "Inactive",
+    "is_delegate": false
   },
   {
     "topic_code": "de0e578d-b391-42f9-96f7-1e6bacd91c20",
@@ -78,6 +81,7 @@
     "trigger": "Explicit",
     "priority": 1,
     "template": "{\"message\": \"${participant_name} system will not be available from ${startTime} for a duration of ${duration} on ${date}\"}",
-    "status": "active"
+    "status": "active",
+    "is_delegate": false
   }
 ]
