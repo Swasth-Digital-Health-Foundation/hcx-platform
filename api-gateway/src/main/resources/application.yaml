@@ -1,6 +1,6 @@
 logging:
   level:
-    root: ${LOGGING_LEVEL_ROOT:TRACE}
+    root: ${LOGGING_LEVEL_ROOT:INFO}
 
 server:
   port: ${SERVER_PORT:8095}

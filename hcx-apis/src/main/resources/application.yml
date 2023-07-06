@@ -1,6 +1,6 @@
 logging:
   level:
-    root: ${LOGGING_LEVEL_ROOT:TRACE}
+    org.swasth.hcx: DEBUG
 
 #kafka config
 bootstrap-servers: ${bootstrap_servers:localhost:9092}
