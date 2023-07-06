@@ -32,7 +32,7 @@ public class UserController extends BaseController {
     @PostMapping(USER_CREATE)
     public ResponseEntity<Object> create(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
         try {
-            logger.info("Creating user: {}", requestBody);
+            logger.debug("Creating user: {}", requestBody);
             if(requestBody.containsKey(EMAIL)) {
                 requestBody.put(EMAIL,requestBody.get(EMAIL).toString().toLowerCase());
             }
@@ -51,7 +51,7 @@ public class UserController extends BaseController {
     @PostMapping(USER_SEARCH)
     public ResponseEntity<Object> search(@RequestBody Map<String, Object> requestBody) {
         try {
-            logger.info("Searching participant: {}", requestBody);
+            logger.debug("Searching participant: {}", requestBody);
             return getSuccessResponse(userService.search(requestBody));
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
@@ -61,7 +61,7 @@ public class UserController extends BaseController {
     @GetMapping(USER_READ)
     public ResponseEntity<Object> read(@PathVariable("userId") String userId) {
         try {
-            logger.info("Reading user :: user id: {}", userId);
+            logger.debug("Reading user :: user id: {}", userId);
             return getSuccessResponse(userService.getUser(userId));
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
@@ -71,7 +71,7 @@ public class UserController extends BaseController {
     @PostMapping(USER_UPDATE)
     public ResponseEntity<Object> update(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
         try {
-            logger.info("Updating user: {}", requestBody);
+            logger.debug("Updating user: {}", requestBody);
             if (!requestBody.containsKey(USER_ID))
                 throw new ClientException(ErrorCodes.ERR_INVALID_USER_ID, INVALID_USER_ID);
             userService.updateAllowedFields(requestBody);
@@ -86,7 +86,7 @@ public class UserController extends BaseController {
     @PostMapping(USER_DELETE)
     public ResponseEntity<Object> delete(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
         try {
-            logger.info("Deleting user: {}", requestBody);
+            logger.debug("Deleting user: {}", requestBody);
             if (!requestBody.containsKey(USER_ID))
                 throw new ClientException(ErrorCodes.ERR_INVALID_USER_ID, INVALID_USER_ID);
             Map<String, Object> details = userService.getUser((String) requestBody.get(USER_ID));
@@ -100,7 +100,7 @@ public class UserController extends BaseController {
     public ResponseEntity<Object> addUser(@RequestHeader HttpHeaders headers, @RequestBody Map<String, Object> requestBody) {
         CompletableFuture<Map<String, Object>> future = new CompletableFuture<>();
         try {
-            logger.info("Adding users: {}", requestBody);
+            logger.debug("Adding users: {}", requestBody);
             List<CompletableFuture<Map<String, Object>>> futures = new ArrayList<>();
             userService.authorizeToken(headers, (String) requestBody.get(PARTICIPANT_CODE));
             List<Map<String, Object>> users = (List<Map<String, Object>>) requestBody.get(USERS);
@@ -130,7 +130,7 @@ public class UserController extends BaseController {
     public ResponseEntity<Object> userRemove(@RequestHeader HttpHeaders headers, @RequestBody Map<String, Object> requestBody) {
         CompletableFuture<Map<String, Object>> future = new CompletableFuture<>();
         try {
-            logger.info("Removing users: {}", requestBody);
+            logger.debug("Removing users: {}", requestBody);
             userService.authorizeToken(headers, (String) requestBody.get(PARTICIPANT_CODE));
             List<CompletableFuture<Map<String, Object>>> futures = new ArrayList<>();
 

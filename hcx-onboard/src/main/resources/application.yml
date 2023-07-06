@@ -3,7 +3,7 @@ server:
 
 logging:
   level:
-    root: ${LOGGING_LEVEL_ROOT:INFO}
+    root: ${LOGGING_LEVEL_ROOT:TRACE}
 
 env: ${ENV:local}
 
