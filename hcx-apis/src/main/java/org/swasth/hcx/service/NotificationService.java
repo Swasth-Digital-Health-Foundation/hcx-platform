@@ -208,7 +208,7 @@ public class NotificationService {
             throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, SUBSCRIPTION_STATUS_VALUE_IS_INVALID);
         else if (request.getPayload().containsKey(IS_DELEGATED) && !(request.getPayload().get(IS_DELEGATED) instanceof Boolean))
             throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, IS_DELEGATED_VALUE_IS_INVALID);
-        else if (request.getIsDelegated() && !NotificationUtils.getNotification(request.getTopicCode()).get("is_delegate").equals(true)){
+        else if (request.getIsDelegated() && !NotificationUtils.getNotification(request.getTopicCode()).getOrDefault("is_delegate",false).equals(true)){
             throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "This notification cannot be delegated.");
         }
         StringBuilder updateProps = new StringBuilder();
