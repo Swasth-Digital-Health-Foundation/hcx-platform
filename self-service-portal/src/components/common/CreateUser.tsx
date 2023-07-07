@@ -84,7 +84,7 @@ const CreateUser = () => {
           <div className="flex flex-wrap -mx-3 mb-6 px-3">
             <p className="py-2 mb-4 w-3/6 font-semibold">Select the Participant for which you would like to invite the users:</p>
             <select id="dropdownlist"
-              className="flex w-3/6 appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
+              className="w-3/6 appearance-none block bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
               onChange={(event) => setParticipantSelected(event.target.value)}>
               {participantList !== undefined ? participantList.map((value: any, index: any) => {
                 if (value.role == "admin") {
@@ -94,7 +94,7 @@ const CreateUser = () => {
                 }
               }) : null}
             </select>
-          </div>  :
+          </div>
           {/* <div className="flex flex-wrap -mx-3 px-3">
               <p className="py-2 mb-4">{`You have admin access to only one user. Participant code "${participantSelected}" will be used to invite users`} </p>
           </div>  */}
