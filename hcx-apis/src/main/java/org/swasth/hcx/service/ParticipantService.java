@@ -63,7 +63,6 @@ public class ParticipantService extends BaseRegistryService {
         HttpResponse<String> response = invite(requestBody, registryOrgnisationPath);
         if (response.getStatus() == 200) {
             generateCreateAudit(code, PARTICIPANT_CREATE, requestBody, CREATED, getUserFromToken(header));
-            logger.debug("Created participant :: participant code: {}", requestBody.get(PARTICIPANT_CODE));
         }
         return responseHandler(response, code, ORGANISATION);
     }
@@ -74,7 +73,6 @@ public class ParticipantService extends BaseRegistryService {
             deleteCache(code);
             String status = (String) registryDetails.get(REGISTRY_STATUS);
             generateUpdateAudit(code, PARTICIPANT_UPDATE, requestBody, status, (String) requestBody.getOrDefault(REGISTRY_STATUS, status), getUpdatedProps(requestBody, registryDetails), getUserFromToken(header));
-            logger.debug("Updated participant :: participant code: {}", requestBody.get(PARTICIPANT_CODE));
         }
         return responseHandler(response, code, ORGANISATION);
     }
@@ -99,7 +97,6 @@ public class ParticipantService extends BaseRegistryService {
         if (response.getStatus() == 200) {
             deleteCache(code);
             generateUpdateAudit(code, PARTICIPANT_DELETE, Collections.emptyMap(), (String) registryDetails.get(REGISTRY_STATUS), INACTIVE, Collections.emptyList(), getUserFromToken(header));
-            logger.debug("Participant deleted :: participant code: {}", code);
         }
         return responseHandler(response, code, ORGANISATION);
     }
