@@ -525,7 +525,6 @@ class NotificationControllerTest extends BaseSpec {
 
     @Test
     void testSubscriptionUpdateIsDelegateFailure() throws Exception {
-        doReturn(getSubscriptionUpdateResultSet()).when(postgreSQLClient).executeQuery(anyString());
         doReturn(getSubscriptionUpdateAuditLog()).when(mockEventGenerator).createAuditLog(anyString(), anyString(), anyMap(), anyMap());
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIPTION_UPDATE)
                 .content(getSubscriptionUpdateRequest("notif-participant-onboarded", ACTIVE, true)).contentType(MediaType.APPLICATION_JSON)).andReturn();
@@ -533,7 +532,7 @@ class NotificationControllerTest extends BaseSpec {
         int status = response.getStatus();
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
         assertEquals(400, status);
-        assertEquals(ACTIVE, resObj.getSubscriptionStatus());
+        assertNull(resObj.getSubscriptionStatus());
     }
 
     private String getSubscriptionUpdateRequest(String topicCode, String subscriptionStatus , Object isDelegated) throws JsonProcessingException {
