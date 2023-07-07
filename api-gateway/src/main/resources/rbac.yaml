@@ -48,6 +48,7 @@ rbac:
       - /v0.8/eob/fetch
     regexPaths:
       - /v0.7/applicant/search**
+      - /v0.8/applicant/search**
 
   - role: payor
     paths:
@@ -96,6 +97,7 @@ rbac:
       - /v0.8/eob/on_fetch
     regexPaths:
       - /v0.7/applicant/search**
+      - /v0.8/applicant/search**
       - /payer/**
 
   - role: agency.tpa
@@ -138,6 +140,7 @@ rbac:
       - /v0.8/eob/on_fetch
     regexPaths:
       - /v0.7/applicant/search**
+      - /v0.8/applicant/search**
 
   - role: agency.regulator
     paths:
@@ -158,6 +161,7 @@ rbac:
       - /v0.8/participant/user/remove
     regexPaths:
       - /v0.7/applicant/search**
+      - /v0.8/applicant/search**
 
   - role: research
     paths:
@@ -182,6 +186,7 @@ rbac:
       - /v0.8/participant/user/remove
     regexPaths:
       - /v0.7/applicant/search**
+      - /v0.8/applicant/search**
 
   - role: member.isnp
     paths:
@@ -208,6 +213,7 @@ rbac:
       - /v0.8/participant/user/remove
     regexPaths:
       - /v0.7/applicant/search**
+      - /v0.8/applicant/search**
 
   - role: agency.sponsor
     paths:
@@ -240,6 +246,7 @@ rbac:
       - /v0.8/participant/user/remove
     regexPaths:
       - /v0.7/applicant/search**
+      - /v0.8/applicant/search**
 
   - role: HIE/HIO.HCX
     paths:
