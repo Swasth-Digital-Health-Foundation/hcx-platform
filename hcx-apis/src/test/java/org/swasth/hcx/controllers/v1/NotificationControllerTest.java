@@ -637,6 +637,7 @@ class NotificationControllerTest extends BaseSpec {
         assertTrue(resObj.getError().getMessage().contains("Is delegated value is invalid"));
     }
 
+
     @Test
     void testSubscriptionUpdateWithInvalidSubscriptionDetails() throws Exception {
         doReturn(getSubscriptionUpdateEmptyResultSet()).when(postgreSQLClient).executeQuery(anyString());

@@ -47,6 +47,7 @@ public class OnboardingRequestTest {
         participant.put(APPLICANT_CODE, "applicant_code");
         participant.put(VERIFIER_CODE, "verifier_code");
         participant.put(ROLES, Arrays.asList("provider"));
+        participant.put(TERMS_AND_CONDITIONS_VERSION,"1");
         body.add(participant);
         OnboardRequest onboardRequest = new OnboardRequest(body);
         assertEquals(participant.get(PARTICIPANT_NAME), onboardRequest.getParticipantName());
@@ -54,5 +55,6 @@ public class OnboardingRequestTest {
         assertEquals(participant.get(PARTICIPANT), onboardRequest.getParticipant());
         assertEquals(participant.get(PRIMARY_EMAIL), onboardRequest.getPrimaryEmail());
         assertEquals(participant.get(ROLES), onboardRequest.getRoles());
+        assertEquals(participant.get(TERMS_AND_CONDITIONS_VERSION),onboardRequest.getTermsAndConditionsVersion());
     }
 }

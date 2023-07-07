@@ -18,11 +18,11 @@ import org.swasth.auditindexer.function.AuditIndexer;
 import org.swasth.common.service.RegistryService;
 import org.swasth.common.utils.JWTUtils;
 import org.swasth.hcx.config.GenericConfiguration;
-import org.swasth.hcx.controllers.v1.ParticipantController;
+import org.swasth.hcx.controllers.v1.OnboardController;
 import org.swasth.hcx.helpers.EventGenerator;
 
 
-@WebMvcTest({ ParticipantController.class, EventGenerator.class})
+@WebMvcTest({ OnboardController.class, EventGenerator.class})
 @ExtendWith(MockitoExtension.class)
 @ActiveProfiles("test")
 @Import(GenericConfiguration.class)

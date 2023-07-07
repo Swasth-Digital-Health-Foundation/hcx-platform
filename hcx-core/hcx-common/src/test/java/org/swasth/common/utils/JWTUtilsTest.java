@@ -2,6 +2,12 @@ package org.swasth.common.utils;
 
 import org.junit.Test;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -32,4 +38,5 @@ public class JWTUtilsTest {
         String token = jwtUtils.generateAuthToken(privateKey,iss,expiryTime);
         assertTrue(jwtUtils.isValidSignature(token,"https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/hcx-platform/main/hcx-apis/src/test/resources/examples/test-keys/public-key.pem"));
     }
+    
 }

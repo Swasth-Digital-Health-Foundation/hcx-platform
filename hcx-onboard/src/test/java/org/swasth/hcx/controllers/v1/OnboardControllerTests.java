@@ -8,7 +8,7 @@ import org.swasth.hcx.controllers.BaseSpec;
 import java.io.IOException;
 import java.net.InetAddress;
 
-class ParticipantControllerTests extends BaseSpec{
+class OnboardControllerTests extends BaseSpec{
 
     private final MockWebServer registryServer =  new MockWebServer();
 

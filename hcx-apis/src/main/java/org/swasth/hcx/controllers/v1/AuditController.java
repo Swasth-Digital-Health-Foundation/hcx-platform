@@ -27,6 +27,12 @@ public class AuditController {
 	@Value("${audit.onboardIndex}")
 	public String onboardIndex;
 
+	@Value("${audit.participantIndex}")
+	public String participantIndex;
+
+	@Value("${audit.userIndex}")
+	public String userIndex;
+
     @PostMapping(Constants.AUDIT_SEARCH)
     public List<Map<String, Object>> hcxAuditSearch(@RequestBody AuditSearchRequest request) {
         return service.search(request, Constants.AUDIT_SEARCH, hcxIndex);
@@ -40,6 +46,16 @@ public class AuditController {
 	@PostMapping(Constants.AUDIT_ONBOARD_SEARCH)
 	public List<Map<String, Object>> onboardAuditSearch(@RequestBody AuditSearchRequest request) {
 		return service.search(request, Constants.AUDIT_ONBOARD_SEARCH, onboardIndex);
+	}
+
+	@PostMapping(Constants.AUDIT_PARTICIPANT_SEARCH)
+	public List<Map<String, Object>> participantAuditSearch(@RequestBody AuditSearchRequest request) {
+		return service.search(request, Constants.AUDIT_PARTICIPANT_SEARCH, participantIndex);
+	}
+
+	@PostMapping(Constants.AUDIT_USER_SEARCH)
+	public List<Map<String, Object>> userAuditSearch(@RequestBody AuditSearchRequest request) {
+		return service.search(request, Constants.AUDIT_USER_SEARCH, userIndex);
 	}
 
 }
