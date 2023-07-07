@@ -187,7 +187,7 @@ class ParticipantControllerTests extends BaseSpec{
     void participant_update_success_scenario() throws Exception {
         registryServer.enqueue(new MockResponse()
                 .setResponseCode(200)
-                .setBody("[{\"primary_email\":\"hcx-admin\", \"osid\":\"1-68c5deca-8299-4feb-b441-923bb649a9a3\"}]")
+                .setBody("[{\"osid\":\"1-68c5deca-8299-4feb-b441-923bb649a9a3\"}]")
                 .addHeader("Content-Type", "application/json"));
         registryServer.enqueue(new MockResponse()
                 .setResponseCode(200)
@@ -225,7 +225,7 @@ class ParticipantControllerTests extends BaseSpec{
     void participant_update_not_found_scenario() throws Exception {
         registryServer.enqueue(new MockResponse()
                 .setResponseCode(200)
-                .setBody("[{\"primary_email\":\"hcx-admin\", \"osid\":\"1-68c5deca-8299-4feb-b441-923bb649a9a3\"}]")
+                .setBody("[{\"osid\":\"1-68c5deca-8299-4feb-b441-923bb649a9a3\"}]")
                 .addHeader("Content-Type", "application/json"));
         registryServer.enqueue(new MockResponse()
                 .setResponseCode(404)
