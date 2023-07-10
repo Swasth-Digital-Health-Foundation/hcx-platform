@@ -62,8 +62,8 @@
   category: Network
   priority: 1
   template: >-
-    {"message": "${hcx_name} now supports $(feature_code) on its platform. All
-    participants can now initiate transactions relating to $(feature_code)."}
+    {"message": "${hcx_name} now supports ${feature_code} on its platform. All
+    participants can now initiate transactions relating to ${feature_code}."}
   status: Active
   is_delegate: false
 - topic_code: notif-network-feature-removed
@@ -86,7 +86,7 @@
   category: Network
   priority: 1
   template: >-
-    {"message": "${hcx_name} now does not support $(feature_code) on its
+    {"message": "${hcx_name} now does not support ${feature_code} on its
     platform."}
   status: Active
   is_delegate: false
@@ -110,9 +110,9 @@
   category: Network
   priority: 1
   template: >-
-    {"message": "${hcx_name} now does not support $(version_code) on its
-    platform. All participants are requested to upgrade to $(version_code) or
-    above to transact on $(hcx_name)."}
+    {"message": "${hcx_name} now does not support ${version_code} on its
+    platform. All participants are requested to upgrade to ${version_code} or
+    above to transact on ${hcx_name}."}
   status: Active
   is_delegate: false
 - topic_code: notif-gateway-downtime
@@ -158,7 +158,7 @@
   category: Network
   priority: 1
   template: >-
-    {"message": "${hcx_name} is changing the SLA policy for the $(Usecase_code)
+    {"message": "${hcx_name} is changing the SLA policy for the ${Usecase_code}
     going forward. Please plan your operations accordingly."}
   status: Active
   is_delegate: false
