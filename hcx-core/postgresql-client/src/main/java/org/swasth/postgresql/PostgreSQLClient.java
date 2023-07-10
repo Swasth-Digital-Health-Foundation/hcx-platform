@@ -12,7 +12,7 @@ public class PostgreSQLClient implements IDatabaseService {
     private Connection connection;
     private Statement statement;
 
-    public PostgreSQLClient(String url, String user, String password) throws ClientException, SQLException {
+    public PostgreSQLClient(String url, String user, String password) throws ClientException {
         this.url = url;
         this.user = user;
         this.password = password;
@@ -52,9 +52,7 @@ public class PostgreSQLClient implements IDatabaseService {
         try {
             Connection conn = getConnection();
             Statement stmt = conn.createStatement();
-            boolean result = stmt.execute(query);
-            stmt.close();
-            return result;
+            return stmt.execute(query);
         } catch (SQLException e) {
             throw new ClientException("Error while performing database operation: " + e.getMessage());
         }
@@ -64,10 +62,9 @@ public class PostgreSQLClient implements IDatabaseService {
         try {
             Connection conn = getConnection();
             Statement stmt = conn.createStatement();
-            ResultSet resultSet = stmt.executeQuery(query);
-            stmt.close();
-            return resultSet;
+            return stmt.executeQuery(query);
         } catch (SQLException e) {
+            e.printStackTrace();
             throw new ClientException("Error while performing database operation: " + e.getMessage());
         }
     }
@@ -77,7 +74,6 @@ public class PostgreSQLClient implements IDatabaseService {
             Connection conn = getConnection();
             Statement stmt = conn.createStatement();
             stmt.addBatch(query);
-            stmt.close();
         } catch (SQLException e) {
             throw new ClientException("Error while performing database operation: " + e.getMessage());
         }
@@ -87,9 +83,7 @@ public class PostgreSQLClient implements IDatabaseService {
         try {
             Connection conn = getConnection();
             Statement stmt = conn.createStatement();
-            int[] result = stmt.executeBatch();
-            stmt.close();
-            return result;
+            return stmt.executeBatch();
         } catch (SQLException e) {
             throw new ClientException("Error while performing database operation: " + e.getMessage());
         }
