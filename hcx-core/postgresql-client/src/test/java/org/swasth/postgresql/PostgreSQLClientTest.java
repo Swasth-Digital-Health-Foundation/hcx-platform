@@ -38,5 +38,13 @@ public class PostgreSQLClientTest {
             assertEquals("eyJlbmMiOiJBMjU2R", rs.getString("data"));
         }
     }
+
+    @Test
+    public void testBatchQuery() throws ClientException, SQLException {
+        StringBuilder str = new StringBuilder();
+        str.append("INSERT INTO payload(mid,data)  VALUES('12346','eyJlbmMiOiJBMjU2R')");
+        str.append("INSERT INTO payload(mid,data)  VALUES('12347','eyJlbmMiOiJBMjU2R')");
+        postgreSQLClient.addBatch(str.toString());
+    }
 }
 
