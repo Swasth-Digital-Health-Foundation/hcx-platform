@@ -11,7 +11,7 @@ public class PostgreSQLClient implements IDatabaseService {
     private final String password;
     private Connection connection;
 
-    public PostgreSQLClient(String url, String user, String password) throws ClientException {
+    public PostgreSQLClient(String url, String user, String password) throws ClientException, SQLException {
         this.url = url;
         this.user = user;
         this.password = password;
@@ -44,9 +44,8 @@ public class PostgreSQLClient implements IDatabaseService {
     }
 
     public boolean execute(String query) throws ClientException {
-        try {
-            Connection conn = getConnection();
-            Statement statement = conn.createStatement();
+        Connection conn = getConnection();
+        try (Statement statement = conn.createStatement()) {
             return statement.execute(query);
         } catch (SQLException e) {
             throw new ClientException("Error while performing database operation: " + e.getMessage());
@@ -59,7 +58,6 @@ public class PostgreSQLClient implements IDatabaseService {
             Statement statement = conn.createStatement();
             return statement.executeQuery(query);
         } catch (SQLException e) {
-            e.printStackTrace();
             throw new ClientException("Error while performing database operation: " + e.getMessage());
         }
     }
