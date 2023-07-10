@@ -21,8 +21,26 @@ const Users =() => {
     const [searchUser] = useDebounce(searchText, 1000);
     const [createdBy, setCreatedBy] = useState('');
     const [dropdownValue, setDropDown] = useState('all');
+    const [start, setStart] = useState(1);
+    const [end, setEnd] = useState(10);
 
     
+   const clickNext = () => {
+    console.log("i came in next", start);
+    if(start < userData.length){
+    setStart(start+10)
+    setEnd(end+10)
+    }
+   }
+   
+   const clickPrev = () => {
+    if(start > 1){
+    setStart(start-10)
+    setEnd(end-10)
+   }
+  }
+
+
     useEffect(() => {
       console.log("dropdown to search ", createdBy, dropdownValue);
       if(searchUser !== ""){
@@ -37,7 +55,7 @@ const Users =() => {
       })}else{
         getAllUser().then((res:any) =>{
           let user = res["data"]["users"];
-          console.log("user data all", user);
+          console.log("user data all", user.length);
           if(dropdownValue == "all"){
             setUserData(user.map((value:any, index:any) => { return value }));  
           }else{
@@ -173,6 +191,7 @@ const Users =() => {
     </thead>
     <tbody>
     { userData.map((value:any,index:any) => {
+        if(index >= start-1 && index < end ){
         return <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
         <th
           scope="row"
@@ -201,72 +220,33 @@ const Users =() => {
             Add 
           </a>
         </td>
-      </tr>
+      </tr>}
       })
       }     
     </tbody>
   </table>
-  <nav aria-label="Page navigation example" className="flex items-center place-content-center m-2 p-2">
-  <ul className="inline-flex -space-x-px">
-    <li>
-      <a
-        href="#"
-        className="px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-      >
-        Previous
-      </a>
-    </li>
-    <li>
-      <a
-        href="#"
-        className="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-      >
-        1
-      </a>
-    </li>
-    <li>
-      <a
-        href="#"
-        className="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-      >
-        2
-      </a>
-    </li>
-    <li>
-      <a
-        href="#"
-        aria-current="page"
-        className="px-3 py-2 text-blue-600 border border-gray-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white"
-      >
-        3
-      </a>
-    </li>
-    <li>
-      <a
-        href="#"
-        className="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-      >
-        4
-      </a>
-    </li>
-    <li>
-      <a
-        href="#"
-        className="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-      >
-        5
-      </a>
-    </li>
-    <li>
-      <a
-        href="#"
-        className="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-      >
-        Next
-      </a>
-    </li>
-  </ul>
-</nav>
+  <div className="flex flex-col items-center m-2 p-2">
+  {/* Help text */}
+  <span className="text-sm text-gray-700 dark:text-gray-400">
+    Showing{" "}
+    <span className="font-semibold text-gray-900 dark:text-white">1</span> to{" "}
+    <span className="font-semibold text-gray-900 dark:text-white">10</span> of{" "}
+    <span className="font-semibold text-gray-900 dark:text-white">{userData.length}</span>{" "}
+    Entries
+  </span>
+  {/* Buttons */}
+  <div className="inline-flex mt-2 xs:mt-0">
+    <button className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+      onClick={()=>clickPrev()}>
+      Prev
+    </button>
+    <button className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+      onClick={()=>clickNext()}>
+      Next
+    </button>
+  </div>
+</div>
+
 
 
   {/* Edit user modal */}
