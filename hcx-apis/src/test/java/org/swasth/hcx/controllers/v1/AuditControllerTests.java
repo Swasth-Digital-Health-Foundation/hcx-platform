@@ -83,6 +83,24 @@ class AuditControllerTests {
         assertEquals(200, status);
     }
 
+    @Test
+    void audit_user_audit_search_success_scenario() throws Exception {
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.AUDIT_USER_SEARCH)
+                .content(JSONUtils.serialize(getRequest(new HashMap<>()))).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        assertEquals(200, status);
+    }
+
+    @Test
+    void audit_participant_audit_success_scenario() throws Exception {
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.AUDIT_PARTICIPANT_SEARCH)
+                .content(JSONUtils.serialize(getRequest(new HashMap<>()))).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        assertEquals(200, status);
+    }
+
     private AuditSearchRequest getRequest(Map<String,String> filters){
         AuditSearchRequest request = new AuditSearchRequest();
         request.setFilters(filters);

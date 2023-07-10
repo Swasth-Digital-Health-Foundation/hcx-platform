@@ -25,19 +25,24 @@ aws:
   region: ${aws_region:}
 
 onboard:
+  terms-and-conditions-url: ${onboarding_terms_and_conditions_url:https://${env}-hcx.s3.ap-south-1.amazonaws.com/terms-and-conditions/1.0.pdf}
   success-url: ${onboarding_success_url:${hcx-url}/onboarding/success}
-  verification:
-    email: ${onboard_email_verification:true}
-    phone: ${onboard_phone_verification:true}
+  email: ${email_validation:activation}
+  phone: ${phone_validation:activation}
+
 
 email:
   id: ${email_id:}
   pwd: ${email_pwd:}
-  linkSub: ${link_sub:HCX - Onboarding Started}
+  linkSub: ${link_sub:HCX - Onboarding Details}
   success-identity-sub: ${success_identity_sub:HCX - Identity Verified}
   failed-identity-sub: ${failed_identity_sub:HCX - Identity Verification Failed}
   onboarding-success-sub: ${onboarding_success_sub:HCX - Onboarding Successful}
   verification-sub: ${verification_success:HCX - Verification Status}
+  user-invite-sub: ${user_invite_sub:HCX - User Invitation}
+  user-invite-accept-sub: ${user_invite_accept_sub:HCX - User Details}
+  user-invite-reject-sub: ${user_invite_reject_sub:HCX - User Rejected Invitation}
+  password-generate-sub: ${password_generate_sub:HCX - Participant Client Secret}
 
 phone:
   send-link-msg : ${send_link_msg:HCX mobile verification link is :}
@@ -51,7 +56,7 @@ mock-service:
       endpoint-url: ${mock_service_endpoint_url_provider:http://test-mock-payor-url}
     provider:
       endpoint-url: ${mock_service_endpoint_url_payor:http://test-mock-provider-url}
-    allowed-env: ${mock_service_allowed_env:staging,dev}
+    allowed-env: ${mock_service_allowed_env:}
 
 #postgres config
 postgres:
@@ -59,8 +64,9 @@ postgres:
   user: ${postgres_user:postgres}
   password: ${postgres_password:postgres}
   table:
-     onboard-verification: ${onboarding_verification_table:onboard_verification}
-     onboard-verifier: ${onboarding_verifier_table:onboard_verifier}
+     onboard-verification: ${onboard_verification_table:onboard_verification}
+     onboard-verifier: ${onboard_verifier_table:onboard_verifier}
+     onboard-user-invite: ${onboard_user_invite_table:onboard_user_invite_details}
   mock-service:
     url: ${mock_service_db_url:jdbc:postgresql://localhost:5432/mock_service}
     table:
@@ -72,10 +78,10 @@ verification-link:
   max-regenerate: ${link_max_regenerate:10}
 
 registry:
-  hcx-code: ${registry_hcx_code:hcx.gateway@swasth-hcx-dev}
+  hcx-code: ${registry_hcx_code:hcxgateway.swasth@swasth-hcx-dev}
 
 jwt-token:
-  private-key : ${hcx_private_key:test-private-key}
+  private-key : ${hcx_private_key:}
   expiry-time : ${expiry_time:86400000}
 
 keycloak:
@@ -84,4 +90,7 @@ keycloak:
   admin-password: ${keycloak_admin_password:test-password}
   master-realm: ${keycloak_master_realm:master}
   client-id: ${keycloack_client_id:admin-cli}
-  users-realm: ${keycloack_users_realm:swasth-health-claim-exchange}
+  participant-realm: ${keycloack_users_realm:swasth-hcx-participants}
+
+endpoint:
+  user-invite: ${user_invite_endpoint:/onboarding/user/invite}

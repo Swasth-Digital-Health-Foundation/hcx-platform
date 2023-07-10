@@ -152,6 +152,15 @@
     },
     "identity_verification": {
       "type": "keyword"
+    },
+    "user_id": {
+      "type": "keyword"
+    },
+    "invite_status": {
+      "type": "keyword"
+    },
+    "invited_by": {
+      "type": "keyword"
     }
   }
 }

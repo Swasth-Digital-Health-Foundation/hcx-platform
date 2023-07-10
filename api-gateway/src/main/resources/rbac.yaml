@@ -3,8 +3,11 @@ rbac:
     paths:
       - /health
       - /service/health
+      - /v0.8/participant/auth/token/generate
+      - /v0.8/user/auth/token/generate
     regexPaths:
       - /url/**
+      - /auth/**
   - role: AUTHENTICATED
   - role: provider
     paths:
@@ -30,7 +33,6 @@ rbac:
       - /v0.8/audit/notification/search
       - /v0.8/participant/search
       - /v0.8/participant/update
-      - /v0.8/participant/read/**
       - /v0.8/notification/subscribe
       - /v0.8/notification/unsubscribe
       - /v0.8/notification/subscription/list
@@ -38,9 +40,15 @@ rbac:
       - /v0.8/notification/notify
       - /v0.8/notification/subscription/update
       - /v0.8/notification/on_subscribe
+      - /v0.8/user/create
+      - /v0.8/user/search
+      - /v0.8/user/delete
+      - /v0.8/participant/user/add
+      - /v0.8/participant/user/remove
       - /v0.8/eob/fetch
     regexPaths:
       - /v0.7/applicant/search**
+      - /v0.8/applicant/search**
 
   - role: payor
     paths:
@@ -74,7 +82,6 @@ rbac:
       - /v0.8/audit/notification/search
       - /v0.8/participant/search
       - /v0.8/participant/update
-      - /v0.8/participant/read/**
       - /v0.8/notification/subscribe
       - /v0.8/notification/unsubscribe
       - /v0.8/notification/subscription/list
@@ -82,9 +89,15 @@ rbac:
       - /v0.8/notification/notify
       - /v0.8/notification/subscription/update
       - /v0.8/notification/on_subscribe
+      - /v0.8/user/create
+      - /v0.8/user/search
+      - /v0.8/user/delete
+      - /v0.8/participant/user/add
+      - /v0.8/participant/user/remove
       - /v0.8/eob/on_fetch
     regexPaths:
       - /v0.7/applicant/search**
+      - /v0.8/applicant/search**
       - /payer/**
 
   - role: agency.tpa
@@ -119,10 +132,15 @@ rbac:
       - /v0.8/audit/notification/search
       - /v0.8/participant/search
       - /v0.8/participant/update
-      - /v0.8/participant/read/**
+      - /v0.8/user/create
+      - /v0.8/user/search
+      - /v0.8/user/delete
+      - /v0.8/participant/user/add
+      - /v0.8/participant/user/remove 
       - /v0.8/eob/on_fetch
     regexPaths:
       - /v0.7/applicant/search**
+      - /v0.8/applicant/search**
 
   - role: agency.regulator
     paths:
@@ -136,9 +154,14 @@ rbac:
       - /v0.8/audit/notification/search
       - /v0.8/participant/search
       - /v0.8/participant/update
-      - /v0.8/participant/read/**
+      - /v0.8/user/create
+      - /v0.8/user/search
+      - /v0.8/user/delete
+      - /v0.8/participant/user/add
+      - /v0.8/participant/user/remove
     regexPaths:
       - /v0.7/applicant/search**
+      - /v0.8/applicant/search**
 
   - role: research
     paths:
@@ -156,9 +179,14 @@ rbac:
       - /v0.8/audit/notification/search
       - /v0.8/participant/search
       - /v0.8/participant/update
-      - /v0.8/participant/read/**
+      - /v0.8/user/create
+      - /v0.8/user/search
+      - /v0.8/user/delete
+      - /v0.8/participant/user/add
+      - /v0.8/participant/user/remove
     regexPaths:
       - /v0.7/applicant/search**
+      - /v0.8/applicant/search**
 
   - role: member.isnp
     paths:
@@ -178,9 +206,14 @@ rbac:
       - /v0.8/audit/notification/search
       - /v0.8/participant/search
       - /v0.8/participant/update
-      - /v0.8/participant/read/**
+      - /v0.8/user/create
+      - /v0.8/user/search
+      - /v0.8/user/delete
+      - /v0.8/participant/user/add
+      - /v0.8/participant/user/remove
     regexPaths:
       - /v0.7/applicant/search**
+      - /v0.8/applicant/search**
 
   - role: agency.sponsor
     paths:
@@ -206,9 +239,14 @@ rbac:
       - /v0.8/audit/notification/search
       - /v0.8/participant/search
       - /v0.8/participant/update
-      - /v0.8/participant/read/**
+      - /v0.8/user/create
+      - /v0.8/user/search
+      - /v0.8/user/delete
+      - /v0.8/participant/user/add
+      - /v0.8/participant/user/remove
     regexPaths:
       - /v0.7/applicant/search**
+      - /v0.8/applicant/search**
 
   - role: HIE/HIO.HCX
     paths:
@@ -216,6 +254,13 @@ rbac:
       - /v0.7/**
       - /v0.8/**
   - role: user
+    paths:
+      - /v0.8/audit/participant/search
+      - /v0.8/audit/user/search
+      - /v0.8/participant/search
+      - /v0.8/participant/update
+      - /v0.8/onboard/applicant/password/generate
+      - /v0.8/participant/onboard/update
     regexPaths:
       - /v0.8/user/**
       - /v0.8/participant/user/**

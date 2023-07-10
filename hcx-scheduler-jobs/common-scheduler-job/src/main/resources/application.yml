@@ -55,7 +55,6 @@ notification:
   headers:
     mandatory: ${notification_mandatory_headers:alg, x-hcx-notification_headers, sender_code, timestamp, recipient_type, recipients}
     optional: ${notification_optional_headers:x-hcx-correlation_id, expiry}
-  masterListPath: ${notification_masterListPath:notifications.yaml}
   expiry: ${notification_expiry:86400000}
 
 certificate:
