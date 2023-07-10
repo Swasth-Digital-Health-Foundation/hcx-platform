@@ -10,7 +10,6 @@ public class PostgreSQLClient implements IDatabaseService {
     private final String user;
     private final String password;
     private Connection connection;
-    private Statement statement;
 
     public PostgreSQLClient(String url, String user, String password) throws ClientException {
         this.url = url;
@@ -22,7 +21,6 @@ public class PostgreSQLClient implements IDatabaseService {
     private void initializeConnection() throws ClientException {
         try {
             connection = DriverManager.getConnection(url, user, password);
-            statement = connection.createStatement();
         } catch (SQLException e) {
             throw new ClientException("Error connecting to the PostgreSQL server: " + e.getMessage());
         }
@@ -40,9 +38,6 @@ public class PostgreSQLClient implements IDatabaseService {
     }
 
     public void close() throws SQLException {
-        if (statement != null) {
-            statement.close();
-        }
         if (connection != null) {
             connection.close();
         }
@@ -51,8 +46,8 @@ public class PostgreSQLClient implements IDatabaseService {
     public boolean execute(String query) throws ClientException {
         try {
             Connection conn = getConnection();
-            Statement stmt = conn.createStatement();
-            return stmt.execute(query);
+            Statement statement = conn.createStatement();
+            return statement.execute(query);
         } catch (SQLException e) {
             throw new ClientException("Error while performing database operation: " + e.getMessage());
         }
@@ -61,8 +56,8 @@ public class PostgreSQLClient implements IDatabaseService {
     public ResultSet executeQuery(String query) throws ClientException {
         try {
             Connection conn = getConnection();
-            Statement stmt = conn.createStatement();
-            return stmt.executeQuery(query);
+            Statement statement = conn.createStatement();
+            return statement.executeQuery(query);
         } catch (SQLException e) {
             e.printStackTrace();
             throw new ClientException("Error while performing database operation: " + e.getMessage());
@@ -72,8 +67,8 @@ public class PostgreSQLClient implements IDatabaseService {
     public void addBatch(String query) throws ClientException {
         try {
             Connection conn = getConnection();
-            Statement stmt = conn.createStatement();
-            stmt.addBatch(query);
+            Statement statement = conn.createStatement();
+            statement.addBatch(query);
         } catch (SQLException e) {
             throw new ClientException("Error while performing database operation: " + e.getMessage());
         }
@@ -82,8 +77,8 @@ public class PostgreSQLClient implements IDatabaseService {
     public int[] executeBatch() throws ClientException {
         try {
             Connection conn = getConnection();
-            Statement stmt = conn.createStatement();
-            return stmt.executeBatch();
+            Statement statement = conn.createStatement();
+            return statement.executeBatch();
         } catch (SQLException e) {
             throw new ClientException("Error while performing database operation: " + e.getMessage());
         }
