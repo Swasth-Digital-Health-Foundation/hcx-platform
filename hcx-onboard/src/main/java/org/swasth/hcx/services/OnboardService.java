@@ -35,7 +35,6 @@ import org.swasth.hcx.utils.CertificateUtil;
 import org.swasth.hcx.utils.SlugUtils;
 import org.swasth.postgresql.IDatabaseService;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.net.URL;
@@ -173,13 +172,7 @@ public class OnboardService extends BaseController {
     protected EventGenerator eventGenerator;
     @Autowired
     private FreemarkerService freemarkerService;
-
-    private Keycloak keycloak;
-
-    @PostConstruct()
-    public void init(){
-        keycloak = Keycloak.getInstance(keycloakURL, keycloakMasterRealm, keycloakAdminUserName, keycloakAdminPassword, keycloackClientId);
-    }
+    
     public ResponseEntity<Object> verify(HttpHeaders header, ArrayList<Map<String, Object>> body) throws Exception {
         logger.info("Participant verification :: " + body);
         OnboardRequest request = new OnboardRequest(body);
@@ -1044,6 +1037,8 @@ public class OnboardService extends BaseController {
     private void setKeycloakPassword(String participantCode, String password , Map<String,Object> registryDetails) throws ClientException {
         try {
             ArrayList<String> osOwner = (ArrayList<String>) registryDetails.get(OS_OWNER);
+            System.out.println("keycloakURL " + keycloakURL + "keycloakMasterRealm" + keycloakMasterRealm + "keycloakAdminUserName" + keycloakAdminUserName + "keycloackClientId" + keycloackClientId);
+            Keycloak keycloak = Keycloak.getInstance(keycloakURL, keycloakMasterRealm, keycloakAdminUserName, keycloakAdminPassword, keycloackClientId);
             RealmResource realmResource = keycloak.realm(keycloackParticipantRealm);
             UserResource userResource = realmResource.users().get(osOwner.get(0));
             CredentialRepresentation passwordCred = new CredentialRepresentation();
