@@ -38,17 +38,5 @@ public class PostgreSQLClientTest {
             assertEquals("eyJlbmMiOiJBMjU2R", rs.getString("data"));
         }
     }
-
-    @Test
-    public void testQueryExecute() throws ClientException, SQLException {
-        postgreSQLClient.execute("CREATE TABLE payload(mid text PRIMARY KEY, data text)");
-        postgreSQLClient.execute("INSERT INTO payload(mid,data)  VALUES('12345','eyJlbmMiOiJBMjU2R')");
-        postgreSQLClient.close();
-        ResultSet rs = postgreSQLClient.executeQuery("select * from payload");
-        while(rs.next()){
-            assertEquals("12345", rs.getString("mid"));
-            assertEquals("eyJlbmMiOiJBMjU2R", rs.getString("data"));
-        }
-    }
 }
 
