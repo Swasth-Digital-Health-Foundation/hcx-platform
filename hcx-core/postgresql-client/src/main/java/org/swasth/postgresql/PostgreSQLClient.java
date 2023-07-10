@@ -21,7 +21,7 @@ public class PostgreSQLClient implements IDatabaseService {
     private void initializeConnection() throws ClientException {
         try {
             connection = DriverManager.getConnection(url, user, password);
-        } catch (SQLException e) {
+        } catch (Exception e) {
             throw new ClientException("Error connecting to the PostgreSQL server: " + e.getMessage());
         }
     }
@@ -31,7 +31,7 @@ public class PostgreSQLClient implements IDatabaseService {
             if (connection == null || connection.isClosed()) {
                 initializeConnection();
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             throw new ClientException("Error connecting to the PostgreSQL server: " + e.getMessage());
         }
         return connection;
@@ -48,7 +48,7 @@ public class PostgreSQLClient implements IDatabaseService {
             Connection conn = getConnection();
             Statement statement = conn.createStatement();
             return statement.execute(query);
-        } catch (SQLException e) {
+        } catch (Exception e) {
             throw new ClientException("Error while performing database operation: " + e.getMessage());
         }
     }
@@ -58,7 +58,7 @@ public class PostgreSQLClient implements IDatabaseService {
             Connection conn = getConnection();
             Statement statement = conn.createStatement();
             return statement.executeQuery(query);
-        } catch (SQLException e) {
+        } catch (Exception e) {
             throw new ClientException("Error while performing database operation: " + e.getMessage());
         }
     }
