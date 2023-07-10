@@ -183,7 +183,7 @@ public class BaseRequest {
         validateCondition(!callAuditData.isEmpty(), ErrorCodes.ERR_INVALID_API_CALL_ID, API_CALL_SAME_MSG);
         //validate correlation id belongs to same cycle or not
         if(!correlationAuditData.isEmpty() && !correlationAuditData.get(0).get(ACTION).toString().contains(getEntity(apiAction))){
-            throw new ClientException(ErrorCodes.ERR_INVALID_CORRELATION_ID, "Correlation id of one cycle cannot be used in another cycle");
+            throw new ClientException(ErrorCodes.ERR_INVALID_CORRELATION_ID, INVALID_CORRELATION_ID_CYCLE);
         }
 
         // validate request cycle is not closed
