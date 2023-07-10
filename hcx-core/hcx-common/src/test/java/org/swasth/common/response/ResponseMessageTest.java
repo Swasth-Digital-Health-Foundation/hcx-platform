@@ -690,7 +690,7 @@ public class ResponseMessageTest {
     @Test
     public void testInvalidCorrelationIdCycleMessage(){
         String msg = ResponseMessage.INVALID_CORRELATION_ID_CYCLE;
-        assertTrue(msg.contains("cycle"));
+        assertTrue(msg.equals("Correlation id of one cycle cannot be used in another cycle"));
     }
 
 }
