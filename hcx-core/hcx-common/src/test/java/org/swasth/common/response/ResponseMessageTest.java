@@ -687,4 +687,10 @@ public class ResponseMessageTest {
         assertTrue(invalidTopicCode.contains("participant"));
     }
 
+    @Test
+    public void testInvalidCorrelationIdCycleMessage(){
+        String msg = ResponseMessage.INVALID_CORRELATION_ID_CYCLE;
+        assertTrue(msg.contains("cycle"));
+    }
+
 }
