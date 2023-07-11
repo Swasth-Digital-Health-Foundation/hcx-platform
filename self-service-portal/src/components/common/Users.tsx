@@ -229,8 +229,8 @@ const Users =() => {
   {/* Help text */}
   <span className="text-sm text-gray-700 dark:text-gray-400">
     Showing{" "}
-    <span className="font-semibold text-gray-900 dark:text-white">1</span> to{" "}
-    <span className="font-semibold text-gray-900 dark:text-white">10</span> of{" "}
+    <span className="font-semibold text-gray-900 dark:text-white">{start}</span> to{" "}
+    <span className="font-semibold text-gray-900 dark:text-white">{end}</span> of{" "}
     <span className="font-semibold text-gray-900 dark:text-white">{userData.length}</span>{" "}
     Entries
   </span>
