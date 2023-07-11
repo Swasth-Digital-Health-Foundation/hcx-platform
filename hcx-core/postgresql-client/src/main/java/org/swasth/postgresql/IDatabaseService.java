@@ -8,5 +8,4 @@ public interface IDatabaseService {
     Object getConnection() throws Exception;
     void close() throws Exception;
     void addBatch(String query) throws Exception;
-    int[] executeBatch() throws Exception;
 }
