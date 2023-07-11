@@ -8,7 +8,10 @@ import { toast } from "react-toastify";
 import { getParticipant, getParticipantByCode } from "../../api/RegistryService";
 import { addParticipantDetails } from "../../reducers/participant_details_reducer";
 import { post } from "../../api/APIService";
-import { reverifyLink } from "../../api/UserService";
+import { reverifyLink, serachUser } from "../../api/UserService";
+import { navigate } from "raviger";
+import { addAppData } from "../../reducers/app_data";
+import { addParticipantToken } from "../../reducers/token_reducer";
 
 const ParticipantInfo = () => {
 
@@ -17,7 +20,43 @@ const ParticipantInfo = () => {
   const authToken = useSelector((state: RootState) => state.tokenReducer.participantToken);
   console.log("part details in dash", participantDetails, authToken);
 
-  const { login } = useAuthActions();
+  if(authToken == "abcd"){
+    let sessionToken = sessionStorage.getItem("hcx_user_token");
+    let userName = sessionStorage.getItem("hcx_user_name");
+    if(sessionToken == null){
+      navigate("/onboarding/login");
+    }else{
+      try{
+        dispatch(addParticipantToken(sessionToken));
+        dispatch(addAppData({"username":userName}));
+        getParticipant(userName).then((res :any) => {
+          console.log("we are in inside get par", res, res["data"]["participants"].length);
+          if( res["data"]["participants"].length !== 0){
+            console.log("came in if")
+           dispatch(addParticipantDetails(res["data"]["participants"][0]));
+          }else{
+            console.log("came in else");
+            serachUser(userName).then((res: any) => {
+              console.log("search user res", res);
+              let osOwner = res["data"]["users"][0]["osOwner"];
+              let participant = res["data"]["users"][0]["tenant_roles"];
+              participant.map((value: any,index: any) => {
+                getParticipantByCode(value.participant_code).then(res => {
+                  console.log("participant info", res);
+                  dispatch(addParticipantDetails(res["data"]["participants"][0]));
+                })
+                  dispatch(addAppData({"sidebar":"Profile"}))
+              })
+            });
+          }
+        })
+      }catch{
+        navigate("/onboarding/login");
+      }
+    }
+  }
+
+  //const { login } = useAuthActions();
 
   const [userName, setUserName] = useState('');
   const [password, setPassword] = useState('');
@@ -29,7 +68,8 @@ const ParticipantInfo = () => {
   const [endpointError, setEndPointError] = useState(false);
   const [actEmail, setActEmail] = useState(_.get(participantDetails, "onboard_validation_properties.email") || 'activation');
   const [actPhone, setActPhone] = useState(_.get(participantDetails, "onboard_validation_properties.phone") || 'verification');
-  const [actMessage, setActMessage] = useState("Email and Phone verification is required to activate the HCX account")
+  const [actMessage, setActMessage] = useState("Email and Phone verification is required to activate the HCX account");
+
 
   useEffect(() => {
     setAddress(_.get(participantDetails, "address") || {});
@@ -37,8 +77,10 @@ const ParticipantInfo = () => {
     setEndpointUrl(_.get(participantDetails, "endpoint_url") || '');
     if(_.get(participantDetails,"roles[0]") == "provider"){
     getParticipantByCode(_.get(participantDetails, "sponsors[0].verifierCode")).then(res => { 
-        let emailV = res["data"]["participants"][0]["onboard_validation_properties"]["email"];
-        let phoneV = res["data"]["participants"][0]["onboard_validation_properties"]["phone"];
+        console.log("verifier details",res);
+
+        let emailV = res["data"]["participants"][0]["onboard_validation_properties"]["email"] != undefined ? res["data"]["participants"][0]["onboard_validation_properties"]["email"] : "Activation";
+        let phoneV = res["data"]["participants"][0]["onboard_validation_properties"]["phone"] != undefined ? res["data"]["participants"][0]["onboard_validation_properties"]["phone"] : "Activation";
         if (emailV == "activation" && phoneV == "verification") {
           setActMessage("Email verification is required to activate the HCX account");
         } else if (emailV == "verification" && phoneV == "activation") {
@@ -78,10 +120,10 @@ const ParticipantInfo = () => {
 
   const onSubmit = () => {
     //setSending(true)
-    if (endpointUrl == "" || encryptionCert == "" || actEmail == actPhone) {
+    if (endpointUrl == "" || encryptionCert == "") {
       if (endpointUrl == "") setEndPointError(true);
       if (encryptionCert == "") setCertError(true);
-      if(actEmail == actPhone){
+      if(actEmail == "Verification" && actPhone == "Verification" ){
         toast.error("Atleast one of the Provider onboarding configuration needs to be Activation")
       }
     } else {
@@ -228,9 +270,10 @@ const ParticipantInfo = () => {
                   <circle cx="12" cy="12" r="10" />
                   <path d="M12 8v4M12 16h.01" />
                 </svg>}
+            {_.get(participantDetails, "communication.emailVerified") != true?    
             <a href="#" className="text-blue-700 text-sm mx-2 font-medium"
               onClick={(event) => { event.preventDefault(); verifyResend("email") }}
-            >Resend Verification link</a>
+            >Resend Verification link</a> : null }
             </label>    
           </div>
 
@@ -256,9 +299,10 @@ const ParticipantInfo = () => {
                   <circle cx="12" cy="12" r="10" />
                   <path d="M12 8v4M12 16h.01" />
                 </svg>}
+                {_.get(participantDetails, "communication.phoneVerified") != true?    
             <a href="#" className="text-blue-700 text-sm mx-2 font-medium"
               onClick={(event) => { event.preventDefault(); verifyResend("phone number")}}
-            >Resend Verification link</a>
+            >Resend Verification link</a>: null}
             </label>    
           </div>
           <div className="flex flex-wrap -mx-3 mb-2">

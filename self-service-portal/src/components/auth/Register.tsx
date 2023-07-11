@@ -591,7 +591,8 @@ export default function Register() {
                             </div>
                             <div className="relative">
                               <input
-                                type="tel"
+                                type="number"
+                                pattern="[0-9]*"
                                 className={"w-full h-10 px-3 mb-4 text-base text-gray-700 placeholder-gray-600 border rounded-lg focus:shadow-outline" + (phoneError ? " border-red-600" : "")}
                                 id="exampleFormControlInput11"
                                 placeholder="Phone Number"
@@ -657,7 +658,7 @@ export default function Register() {
                               <input id="link-checkbox" type="checkbox" value="" className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                                 onChange={(event) => setShowTerms(event)}
                                 checked={_.get(appData, "termsAccepted")}></input>
-                              <label htmlFor="link-checkbox" className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">I agree with the <a href="#" className="text-blue-600 dark:text-blue-500 hover:underline">terms and conditions</a>.</label>
+                              <label htmlFor="link-checkbox" className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">I agree with the <a href="#" onClick={() => dispatch(addAppData({ "showTerms": true }))}className="text-blue-600 dark:text-blue-500 hover:underline">terms and conditions</a>.</label>
                             </div>
                             <button
                               className={"mb-3 inline-block w-full rounded px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white shadow-[0_4px_9px_-4px_rgba(0,0,0,0.2)] transition duration-150 ease-in-out hover:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:outline-none focus:ring-0 active:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] " + (_.get(appData, "termsAccepted") ? "" : "disabled:opacity-75")}

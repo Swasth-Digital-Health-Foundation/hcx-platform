@@ -19,6 +19,7 @@ useEffect(() => {
     setRoles([]);
     let roleT:any = [];
     getLinkedUsers(_.get(appData,"linkeduser")).then(res =>{
+      console.log("linked user data", res);
       let tenantrole =  res["data"]["users"];
       tenantrole.map((value:any,index:any) => {
         let tenant:any = _.filter(value.tenant_roles, {"participant_code":_.get(appData,"linkeduser")});
@@ -39,8 +40,24 @@ const onClose = () => {
 
 
 const removeUser = (value:any, role:any) => {
-  userRemove(_.get(appData,"linkeduser"),{"user_id":value.email,"role":role}).then(res => {
+  userRemove(_.get(appData,"linkeduser"),[{"user_id":value.email,"role":role}]).then(res => {
     console.log("user removed");
+    setRoles([]);
+    let roleT:any = [];
+    getLinkedUsers(_.get(appData,"linkeduser")).then(res =>{
+      console.log("linked user data", res);
+      let tenantrole =  res["data"]["users"];
+      tenantrole.map((value:any,index:any) => {
+        let tenant:any = _.filter(value.tenant_roles, {"participant_code":_.get(appData,"linkeduser")});
+        roleT.push(tenant[0]["role"]);
+    })
+      //extracting role
+      setRoles(roleT);
+      setLinkedUsersData(res["data"]["users"]);
+      toast.success("User successfully removed.")
+    }).catch(err => {
+      toast.error("Something went wrong. Please try again")
+    })
   }).catch((err:any) => {
     console.log("error", err); 
   })
@@ -116,7 +133,7 @@ return (
            
           <td className="px-6 py-4 space-x-3">
             {/* Modal toggle */}
-            {roles[index] == "admin" ?
+            {roles[index] == "admin" && _.get(appData,"username") != value.email?
             <a
               href="#"
               type="button"
