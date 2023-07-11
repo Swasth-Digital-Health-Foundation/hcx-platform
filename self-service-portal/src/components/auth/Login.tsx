@@ -38,6 +38,8 @@ export default function Login() {
       dispatch(addAppData({"username":username}));
       generateTokenUser(username,password).then((res) => {
         console.log("res", res);
+        sessionStorage.setItem('hcx_user_token', res);
+        sessionStorage.setItem('hcx_user_name', username);
         dispatch(addParticipantToken(res));
         getParticipant(userName).then((res :any) => {
           console.log("we are in inside get par", res, res["data"]["participants"].length);
