@@ -12,7 +12,7 @@ const SideBar = () => {
 
 
 
-    const sideBarNames = ["Profile", "Invite User","Manage Participants", "Manage Users"];
+    const sideBarNames = ["Profile", "Invite User","Manage Participants", "Manage Users","Launch Payor App"];
     return(
     <aside
     id="logo-sidebar"

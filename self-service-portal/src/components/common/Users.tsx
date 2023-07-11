@@ -5,6 +5,8 @@ import _ from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store";
 import { toast } from "react-toastify";
+import { useDebounce } from "use-debounce";
+import { eventManager } from "react-toastify/dist/core";
 
 const Users =() => {
   const dispatch = useDispatch();
@@ -15,6 +17,72 @@ const Users =() => {
     const [userData, setUserData] = useState([]);
     const [participantSelected,setParticipantSelected] = useState('');
     const [roleSelected, setRoleSelected] = useState('admin');
+    const [searchText, setSearchText] = useState('');
+    const [searchUser] = useDebounce(searchText, 1000);
+    const [createdBy, setCreatedBy] = useState('');
+    const [dropdownValue, setDropDown] = useState('all');
+    const [start, setStart] = useState(1);
+    const [end, setEnd] = useState(10);
+
+    
+   const clickNext = () => {
+    console.log("i came in next", start);
+    if(start < userData.length){
+    setStart(start+10)
+    setEnd(end+10)
+    }
+   }
+   
+   const clickPrev = () => {
+    if(start > 1){
+    setStart(start-10)
+    setEnd(end-10)
+   }
+  }
+
+
+    useEffect(() => {
+      console.log("dropdown to search ", createdBy, dropdownValue);
+      if(searchUser !== ""){
+      serachUser(searchUser).then((res:any) => {
+        let user = res["data"]["users"];
+        console.log("user data", user);
+        if(dropdownValue == "all"){
+          setUserData(user.map((value:any, index:any) => { return value }));  
+        }else{
+          setUserData(user.filter((user1: { created_by: string; }) => user1.created_by == createdBy).map((value:any, index:any) => { return value}));  
+        }
+      })}else{
+        getAllUser().then((res:any) =>{
+          let user = res["data"]["users"];
+          console.log("user data all", user.length);
+          if(dropdownValue == "all"){
+            setUserData(user.map((value:any, index:any) => { return value }));  
+          }else{
+            setUserData(user.filter((user1: { created_by: string; }) => user1.created_by == createdBy).map((value:any, index:any) => { return value}));  
+          }
+        })    
+      }
+  },[dropdownValue])
+
+
+    useEffect(() => {
+        console.log("username to search ", searchUser);
+        if(searchUser !== ""){
+        serachUser(searchUser).then((res:any) => {
+          let user = res["data"]["users"];
+          console.log("user data", user);
+          setUserData(user.map((value:any, index:any) => { return value }));  
+        })}else{
+          getAllUser().then((res:any) =>{
+            let user = res["data"]["users"];
+            console.log("user data", user);
+            setUserData(user.map((value:any, index:any) => { return value }));
+            
+          })    
+        }
+    },[searchUser])
+
     useEffect(()=> {
       getAllUser().then((res:any) =>{
         let user = res["data"]["users"];
@@ -24,13 +92,15 @@ const Users =() => {
       })
       serachUser(_.get(appData,"username")).then((res: any) => {
         let participant = res["data"]["users"][0]["tenant_roles"];
+        setCreatedBy(res["data"]["users"][0]["created_by"]);
         setParticipantList(participant);
+        participant.map((value:any,index:any) => {
+          if(value.role == "admin"){
+            console.log("participant selected in use", value.participant_code);
+            setParticipantSelected(value.participant_code);
+        }
+      });
       })
-      participantList.map((value:any,index:any) => {
-        if(value.role == "admin"){
-          setParticipantSelected(value.participant_code);
-      }
-    });
     },[])
     const [showDetails, setShowDetails] = useState(false);
     const [userDetails, setUserDetails] = useState({"name":"","user_code":"","email":""})
@@ -66,10 +136,12 @@ const Users =() => {
         <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
   <div className="flex items-center justify-between py-4 bg-white dark:bg-gray-800">
     <div>
-    <select id="payordropdown" 
+    <select id="payordropdown"
+                        onChange={(event) => setDropDown(event.target.value)}
                         className="inline-flex items-center text-gray-500 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-3 py-1.5 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700" >
-                        <option selected value="1">All</option>
-                        <option value="2">Created by User</option>
+                        <option selected value="all">All</option>
+                        <option value="invitedby">Invited by User</option>
+
                       </select>
      </div>                 
     <label htmlFor="table-search" className="sr-only">
@@ -96,6 +168,7 @@ const Users =() => {
         id="table-search-users"
         className="block p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
         placeholder="Search for users"
+        onChange={(event) => setSearchText(event.target.value)}
       />
     </div>
   </div>
@@ -118,6 +191,7 @@ const Users =() => {
     </thead>
     <tbody>
     { userData.map((value:any,index:any) => {
+        if(index >= start-1 && index < end ){
         return <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
         <th
           scope="row"
@@ -146,11 +220,35 @@ const Users =() => {
             Add 
           </a>
         </td>
-      </tr>
+      </tr>}
       })
       }     
     </tbody>
   </table>
+  <div className="flex flex-col items-center m-2 p-2">
+  {/* Help text */}
+  <span className="text-sm text-gray-700 dark:text-gray-400">
+    Showing{" "}
+    <span className="font-semibold text-gray-900 dark:text-white">{start}</span> to{" "}
+    <span className="font-semibold text-gray-900 dark:text-white">{end}</span> of{" "}
+    <span className="font-semibold text-gray-900 dark:text-white">{userData.length}</span>{" "}
+    Entries
+  </span>
+  {/* Buttons */}
+  <div className="inline-flex mt-2 xs:mt-0">
+    <button className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+      onClick={()=>clickPrev()}>
+      Prev
+    </button>
+    <button className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+      onClick={()=>clickNext()}>
+      Next
+    </button>
+  </div>
+</div>
+
+
+
   {/* Edit user modal */}
   <div className={"fixed inset-0 bg-black bg-opacity-30 z-40 "  + (showDetails ? "" : "hidden")} ></div>
   <div

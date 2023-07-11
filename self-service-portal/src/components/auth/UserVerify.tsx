@@ -232,7 +232,8 @@ export default function UserVerify() {
                   <div className="relative mb-4 flex flex-wrap">
                   <p className="py-2 mb-4 w-2/6 font-semibold">Phone Number:</p>
                     <input
-                      type="tel"
+                      type="number"
+                      pattern="[0-9]*"
                       className="w-4/6 h-10 px-3 mb-4 text-base text-gray-700 placeholder-gray-600 border rounded-lg focus:shadow-outline"
                       id="exampleFormControlInput12"
                       placeholder="Phone Number"

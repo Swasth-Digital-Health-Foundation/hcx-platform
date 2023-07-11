@@ -18,6 +18,7 @@ import { constSelector } from "recoil";
 import CreateUser from "../common/CreateUser";
 import TermsOfUse from "../common/TermsOfUse";
 import Users from "../common/Users";
+import LaunchPayorApp from "../common/LaunchPayorApp";
 
 export default function Dashboard() {
 
@@ -41,6 +42,8 @@ export default function Dashboard() {
         return (<CreateUser></CreateUser>)
       }else if(tabSelected == "Manage Users"){
         return(<Users></Users>)
+      }else if(tabSelected == "Launch Payor App"){
+        return(<LaunchPayorApp></LaunchPayorApp>)
       }
   }
 
