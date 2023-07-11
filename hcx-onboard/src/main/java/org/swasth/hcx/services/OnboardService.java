@@ -1037,7 +1037,7 @@ public class OnboardService extends BaseController {
     private void setKeycloakPassword(String participantCode, String password , Map<String,Object> registryDetails) throws ClientException {
         try {
             ArrayList<String> osOwner = (ArrayList<String>) registryDetails.get(OS_OWNER);
-            System.out.println("keycloakURL " + keycloakURL + "keycloakMasterRealm" + keycloakMasterRealm + "keycloakAdminUserName" + keycloakAdminUserName + "keycloackClientId" + keycloackClientId);
+            System.out.println("keycloakURL: " + keycloakURL + " keycloakMasterRealm: " + keycloakMasterRealm + " keycloakAdminUserName: " + keycloakAdminUserName + " keycloakAdminPassword: " + keycloakAdminPassword + " keycloackClientId: " + keycloackClientId);
             Keycloak keycloak = Keycloak.getInstance(keycloakURL, keycloakMasterRealm, keycloakAdminUserName, keycloakAdminPassword, keycloackClientId);
             RealmResource realmResource = keycloak.realm(keycloackParticipantRealm);
             UserResource userResource = realmResource.users().get(osOwner.get(0));
