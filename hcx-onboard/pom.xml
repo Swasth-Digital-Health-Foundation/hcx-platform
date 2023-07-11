@@ -73,6 +73,7 @@
 			<version>3.14.9</version>
 			<scope>test</scope>
 		</dependency>
+
 		<!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk -->
 		<dependency>
 			<groupId>com.amazonaws</groupId>
@@ -107,6 +108,7 @@
 			<artifactId>keycloak-admin-client</artifactId>
 			<version>21.0.1</version>
 		</dependency>
+
 	</dependencies>
 
 	<build>

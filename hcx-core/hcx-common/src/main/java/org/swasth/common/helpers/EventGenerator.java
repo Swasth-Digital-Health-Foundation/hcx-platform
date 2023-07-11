@@ -294,6 +294,4 @@ public class EventGenerator {
             event.put(TAGS, tags);
         }
     }
-
-
 }

@@ -208,6 +208,9 @@ public class NotificationService {
             throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, SUBSCRIPTION_STATUS_VALUE_IS_INVALID);
         else if (request.getPayload().containsKey(IS_DELEGATED) && !(request.getPayload().get(IS_DELEGATED) instanceof Boolean))
             throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, IS_DELEGATED_VALUE_IS_INVALID);
+        else if (request.getIsDelegated() && !NotificationUtils.getNotification(request.getTopicCode()).getOrDefault("is_delegate",false).equals(true)){
+            throw new ClientException(ErrorCodes.ERR_INVALID_NOTIFICATION_REQ, "This notification cannot be delegated.");
+        }
         StringBuilder updateProps = new StringBuilder();
         String selectQuery = String.format("SELECT %s FROM %s WHERE %s = '%s' AND %s = '%s' AND %s = '%s'",
                 SUBSCRIPTION_STATUS, postgresSubscription, SENDER_CODE, request.getSenderCode(), RECIPIENT_CODE,
@@ -229,7 +232,7 @@ public class NotificationService {
             SUBSCRIPTION_UPDATE_PROPS.forEach(prop -> {
                 if (request.getPayload().containsKey(prop)) updatedProps.put(prop, request.getPayload().get(prop));
             });
-            eventHandler.createAudit(eventGenerator.createAuditLog(response.getSubscriptionId(), NOTIFICATION, getCData(request),
+            eventHandler.pushAuditToKafka(eventGenerator.createAuditLog(response.getSubscriptionId(), NOTIFICATION, getCData(request),
                     getEData(response.getSubscriptionStatus(), prevStatus, updatedProps)));
             auditIndexer.createDocument(eventGenerator.generateSubscriptionUpdateAuditEvent(request, response));
             logger.info("Subscription is updated successfully :: subscription id: {}", response.getSubscriptionId());

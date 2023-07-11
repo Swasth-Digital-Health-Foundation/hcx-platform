@@ -515,12 +515,24 @@ class NotificationControllerTest extends BaseSpec {
         doReturn(getSubscriptionUpdateResultSet()).when(postgreSQLClient).executeQuery(anyString());
         doReturn(getSubscriptionUpdateAuditLog()).when(mockEventGenerator).createAuditLog(anyString(), anyString(), anyMap(), anyMap());
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIPTION_UPDATE)
-                .content(getSubscriptionUpdateRequest("notif-participant-onboarded", ACTIVE, true)).contentType(MediaType.APPLICATION_JSON)).andReturn();
+                .content(getSubscriptionUpdateRequest("notif-workflow-update", ACTIVE, true)).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
         assertEquals(200, status);
         assertEquals(ACTIVE, resObj.getSubscriptionStatus());
+    }
+
+    @Test
+    void testSubscriptionUpdateIsDelegateFailure() throws Exception {
+        doReturn(getSubscriptionUpdateAuditLog()).when(mockEventGenerator).createAuditLog(anyString(), anyString(), anyMap(), anyMap());
+        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIPTION_UPDATE)
+                .content(getSubscriptionUpdateRequest("notif-participant-onboarded", ACTIVE, true)).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
+        assertEquals(400, status);
+        assertNull(resObj.getSubscriptionStatus());
     }
 
     private String getSubscriptionUpdateRequest(String topicCode, String subscriptionStatus , Object isDelegated) throws JsonProcessingException {
@@ -625,11 +637,12 @@ class NotificationControllerTest extends BaseSpec {
         assertTrue(resObj.getError().getMessage().contains("Is delegated value is invalid"));
     }
 
+
     @Test
     void testSubscriptionUpdateWithInvalidSubscriptionDetails() throws Exception {
         doReturn(getSubscriptionUpdateEmptyResultSet()).when(postgreSQLClient).executeQuery(anyString());
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIPTION_UPDATE)
-                .content(getSubscriptionUpdateRequest("notif-participant-onboarded", ACTIVE, true)).contentType(MediaType.APPLICATION_JSON)).andReturn();
+                .content(getSubscriptionUpdateRequest("notif-workflow-update", ACTIVE, true)).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
