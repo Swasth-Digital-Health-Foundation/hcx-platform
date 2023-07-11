@@ -120,10 +120,10 @@ const ParticipantInfo = () => {
 
   const onSubmit = () => {
     //setSending(true)
-    if (endpointUrl == "" || encryptionCert == "" || actEmail == actPhone) {
+    if (endpointUrl == "" || encryptionCert == "") {
       if (endpointUrl == "") setEndPointError(true);
       if (encryptionCert == "") setCertError(true);
-      if(actEmail == actPhone){
+      if(actEmail == "Verification" && actPhone == "Verification" ){
         toast.error("Atleast one of the Provider onboarding configuration needs to be Activation")
       }
     } else {
