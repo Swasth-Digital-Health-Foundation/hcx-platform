@@ -19,6 +19,7 @@
   template: >-
     {"message": "${participant_name} has updated a ${entity_type} request with correlation id: ${correlation_id} status to ${status}."}
   status: Active
+  is_delegate: true
 - topic_code: notif-admission-case
   title: Admission case - For a particular disease
   description: Notification about patient admission for a particular disease
@@ -39,6 +40,7 @@
     {"message": "${participant_name} has initiated a insurance claim workflow on
     admission for ${Disease_code}."}
   status: Active
+  is_delegate: false
 - topic_code: notif-claim-particular-disease
   title: Claim initiation for a particular disease
   description: >-
@@ -62,6 +64,7 @@
     {"message": "${participant_name} has initiated a insurance claim workflow on
     admission for ${Disease_code}."}
   status: Active
+  is_delegate: false
 - topic_code: notif-claim-status-update
   title: Notifications about status change of claims of a patient
   description: Notification about workflow updates on a identified policy.
@@ -83,6 +86,7 @@
     {"message": "${participant_name} has updated the status for ${policy_ID} to
     ${Status}."}
   status: Active
+  is_delegate: false
 - topic_code: notif-coverage-eligibility-change
   title: Notifications about change in coverage eligibility of a patient
   description: Notification about change in coverage eligibility on a identified policy.
@@ -104,6 +108,7 @@
     {"message": "${participant_name} has updated the coverage eligibility for
     ${policy_ID}."}
   status: Active
+  is_delegate: false
 - topic_code: notif-claim-reimbursement
   title: Notifications about reimbursements of claim for a patient
   description: Notification about claim reimbursement..
@@ -125,6 +130,7 @@
     {"message": "${participant_name} has approved the reimbursement payment for
     ${policy_ID}."}
   status: Active
+  is_delegate: false
 - topic_code: notif-claim-reimbursement-inactive
   title: Notifications about reimbursements of claim for a patient
   description: Notification about claim reimbursement..
@@ -147,3 +153,4 @@
     {"message": "${participant_name} has approved the reimbursement payment for
     ${policy_ID}."}
   status: Inactive
+  is_delegate: false

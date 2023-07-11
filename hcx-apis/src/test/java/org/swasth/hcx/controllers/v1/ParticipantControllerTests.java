@@ -194,6 +194,7 @@ class ParticipantControllerTests extends BaseSpec{
                 .setBody("{ \"message\": \"success\" }")
                 .addHeader("Content-Type", "application/json"));
         Mockito.when(redisCache.isExists(any())).thenReturn(true);
+        doReturn(getParticipantCreateAuditLog()).when(mockEventGenerator).createAuditLog(anyString(), anyString(), anyMap(), anyMap());
         doNothing().when(cloudStorageClient).putObject(anyString(), anyString(), anyString());
         doNothing().when(cloudStorageClient).putObject(anyString(), anyString());
         doReturn(getUrl()).when(cloudStorageClient).getUrl(anyString(), anyString());
@@ -241,19 +242,62 @@ class ParticipantControllerTests extends BaseSpec{
     void participant_update_un_authorize_scenario() throws Exception {
         registryServer.enqueue(new MockResponse()
                 .setResponseCode(200)
-                .setBody("[{\"osid\":\"1-68c5deca-8299-4feb-b441-923bb649a9a3\"}]")
+                .setBody("[{\"primary_email\":\"provider01@gmail.com\", \"osid\":\"1-68c5deca-8299-4feb-b441-923bb649a9a3\"}]")
                 .addHeader("Content-Type", "application/json"));
         registryServer.enqueue(new MockResponse()
-                .setResponseCode(401)
-                .setBody("{ \"params\": { \"msgid\": \"bb355e26-cc12-4aeb-8295-03347c428c62\",\"errmsg\": \"UN AUTHORIZED\" } } }")
+                .setResponseCode(200)
+                .setBody("{ \"message\": \"success\" }")
                 .addHeader("Content-Type", "application/json"));
-        doReturn(getUrl()).when(cloudStorageClient).getUrl(anyString(), anyString());
+        Mockito.when(redisCache.isExists(any())).thenReturn(true);
         doNothing().when(cloudStorageClient).putObject(anyString(), anyString(), anyString());
         doNothing().when(cloudStorageClient).putObject(anyString(), anyString());
-        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_UPDATE).content(getParticipantUpdateBody()).header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        doReturn(getUrl()).when(cloudStorageClient).getUrl(anyString(), anyString());
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_UPDATE).content(getParticipantUpdateBody()).header(HttpHeaders.AUTHORIZATION, getUserToken()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
-        assertEquals(401, status);
+        assertEquals(400, status);
+    }
+
+    @Test
+    void participant_update_user_token_scenario() throws Exception {
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("[{\"primary_email\":\"testprovider1@apollo.com\", \"osid\":\"testprovider1.apollo@swasth-hcx-dev\"}]")
+                .addHeader("Content-Type", "application/json"));
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{ \"message\": \"success\" }")
+                .addHeader("Content-Type", "application/json"));
+        Mockito.when(redisCache.isExists(any())).thenReturn(true);
+        doReturn(getParticipantCreateAuditLog()).when(mockEventGenerator).createAuditLog(anyString(), anyString(), anyMap(), anyMap());
+        doNothing().when(cloudStorageClient).putObject(anyString(), anyString(), anyString());
+        doNothing().when(cloudStorageClient).putObject(anyString(), anyString());
+        doReturn(getUrl()).when(cloudStorageClient).getUrl(anyString(), anyString());
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_UPDATE).content(getParticipantUpdateUserTokenBody()).header(HttpHeaders.AUTHORIZATION, getUserUpdatedToken()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        assertEquals(200, status);
+    }
+
+    @Test
+    void participant_update_user_token_invalid_scenario() throws Exception {
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("[{\"primary_email\":\"provider01@gmail.com\", \"osid\":\"1-68c5deca-8299-4feb-b441-923bb649a9a3\"}]")
+                .addHeader("Content-Type", "application/json"));
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{ \"message\": \"success\" }")
+                .addHeader("Content-Type", "application/json"));
+        Mockito.when(redisCache.isExists(any())).thenReturn(true);
+        doReturn(getParticipantCreateAuditLog()).when(mockEventGenerator).createAuditLog(anyString(), anyString(), anyMap(), anyMap());
+        doNothing().when(cloudStorageClient).putObject(anyString(), anyString(), anyString());
+        doNothing().when(cloudStorageClient).putObject(anyString(), anyString());
+        doReturn(getUrl()).when(cloudStorageClient).getUrl(anyString(), anyString());
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_UPDATE).content(getParticipantUpdateBody()).header(HttpHeaders.AUTHORIZATION, getNewParticipantToken()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        assertEquals(400, status);
     }
 
     @Test
@@ -308,31 +352,30 @@ class ParticipantControllerTests extends BaseSpec{
     }
 
 
-    @Test
-    void participant_read_success_scenario() throws Exception {
-        registryServer.enqueue(new MockResponse()
-                .setResponseCode(200)
-                .setBody("[{ \"participant_name\": \"HCX Gateway\", \"primary_mobile\": \"\", \"primary_email\": \"testuser3@gmail.com\", \"roles\": [ \"HIE/HIO.HCX\" ], \"status\": \"Created\", \"endpoint_url\": \"http://a54c5bc648f1a41b8871b77ac01060ed-1840123973.ap-south-1.elb.amazonaws.com:8080\", \"encryption_cert\": \"urn:isbn:0-4234\", \"osOwner\": [ \"f698b521-7409-432d-a5db-d13e51f029a9\" ], \"participant_code\": \"d2d56996-1b77-4abb-b9e9-0e6e7343c72e\" }]")
-                .addHeader("Content-Type", "application/json"));
-        MvcResult mvcResult = mockMvc.perform(get(Constants.VERSION_PREFIX + "/participant/read/d2d56996-1b77-4abb-b9e9-0e6e7343c72e").content(getSearchFilter()).header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
-        MockHttpServletResponse response = mvcResult.getResponse();
-        int status = response.getStatus();
-        assertEquals(200, status);
-    }
+     @Test
+     void participant_read_success_scenario() throws Exception {
+         registryServer.enqueue(new MockResponse()
+                 .setResponseCode(200)
+                 .setBody("[{ \"participant_name\": \"HCX Gateway\", \"primary_mobile\": \"\", \"primary_email\": \"testuser3@gmail.com\", \"roles\": [ \"HIE/HIO.HCX\" ], \"status\": \"Created\", \"endpoint_url\": \"http://a54c5bc648f1a41b8871b77ac01060ed-1840123973.ap-south-1.elb.amazonaws.com:8080\", \"encryption_cert\": \"urn:isbn:0-4234\", \"osOwner\": [ \"f698b521-7409-432d-a5db-d13e51f029a9\" ], \"participant_code\": \"d2d56996-1b77-4abb-b9e9-0e6e7343c72e\" }]")
+                 .addHeader("Content-Type", "application/json"));
+         MvcResult mvcResult = mockMvc.perform(get(Constants.VERSION_PREFIX + "/participant/read/d2d56996-1b77-4abb-b9e9-0e6e7343c72e").header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+         MockHttpServletResponse response = mvcResult.getResponse();
+         int status = response.getStatus();
+         assertEquals(200, status);
+     }
 
-    @Test
-    void participant_read_invalid_scenario() throws Exception {
-        registryServer.enqueue(new MockResponse()
-                .setResponseCode(200)
-                .setBody("[]")
-                .addHeader("Content-Type", "application/json"));
-        MvcResult mvcResult = mockMvc.perform(get(Constants.VERSION_PREFIX + "/participant/read/d2d56996-1b77-4abb-b9e9-0e6e7343c72e").content(getSearchFilter()).header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
-        MockHttpServletResponse response = mvcResult.getResponse();
-        int status = response.getStatus();
-        Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
-        assertEquals(400, status);
-        assertEquals(ErrorCodes.ERR_INVALID_PARTICIPANT_CODE, resObj.getError().getCode());
-        assertEquals("Please provide valid participant code", resObj.getError().getMessage());
-    }
-
+     @Test
+     void participant_read_invalid_scenario() throws Exception {
+         registryServer.enqueue(new MockResponse()
+                 .setResponseCode(200)
+                 .setBody("[]")
+                 .addHeader("Content-Type", "application/json"));
+         MvcResult mvcResult = mockMvc.perform(get(Constants.VERSION_PREFIX + "/participant/read/d2d56996-1b77-4abb-b9e9-0e6e7343c72e").content(getSearchFilter()).header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+         MockHttpServletResponse response = mvcResult.getResponse();
+         int status = response.getStatus();
+         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
+         assertEquals(400, status);
+         assertEquals(ErrorCodes.ERR_INVALID_PARTICIPANT_CODE, resObj.getError().getCode());
+         assertEquals("Please provide valid participant code", resObj.getError().getMessage());
+     }
 }

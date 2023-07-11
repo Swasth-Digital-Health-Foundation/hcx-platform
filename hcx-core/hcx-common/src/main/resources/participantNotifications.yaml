@@ -27,6 +27,7 @@
     ${DDMMYYYY} due to planned maintenance. Sorry for inconvenience and please
     plan your operations accordingly."}
   status: Active
+  is_delegate: false
 - topic_code: notif-participant-new-protocol-version-support
   title: Support for new version of protocol
   description: >-
@@ -54,10 +55,11 @@
   category: Participant
   priority: 1
   template: >-
-    {"message": "${participant_name} now supports $(version_code) on its
-    platform. All participants are requested to upgrade to $(version_code) or
+    {"message": "${participant_name} now supports ${version_code} on its
+    platform. All participants are requested to upgrade to ${version_code} or
     above to transact with ${participant_name}."}
   status: Active
+  is_delegate: false
 - topic_code: notif-participant-terminology-version-support
   title: Support for prescribed terminologies
   description: >-
@@ -85,10 +87,11 @@
   category: Participant
   priority: 1
   template: >-
-    {"message": "${participant_name} now supports $(Master_list_version) on its
+    {"message": "${participant_name} now supports ${Master_list_version} on its
     platform. All participants are requested to upgrade to
-    $(Master_list_version) or above to transact with ${participant_name}."}
+    ${Master_list_version} or above to transact with ${participant_name}."}
   status: Active
+  is_delegate: false
 - topic_code: notif-participant-remove-protocol-feature
   title: End of life for an existing capability
   description: >-
@@ -116,9 +119,10 @@
   category: Participant
   priority: 1
   template: >-
-    {"message": "${participant_name} now does not support $(feature_code) on its
+    {"message": "${participant_name} now does not support ${feature_code} on its
     platform."}
   status: Active
+  is_delegate: false
 - topic_code: notif-product-change-support
   title: 'New insurance plans/products, end of support for existing products/plans'
   description: >-
@@ -138,10 +142,11 @@
   category: Participant
   priority: 1
   template: >-
-    {"message": "${participant_name} now supports $(feature_code) on its
-    platform. All participants can now initiate transactions relationg to
-    $(feature_code)."}
+    {"message": "${participant_name} now supports ${feature_code} on its
+    platform. All participants can now initiate transactions relation to
+    ${feature_code}."}
   status: Active
+  is_delegate: false
 - topic_code: notif-participant-policy-update
   title: Policy Compliance changes  - terms of services
   description: Notification about participant system changing terms of the services.
@@ -168,9 +173,10 @@
   priority: 1
   template: >-
     {"message": "${participant_name} is changing the service terms for policy
-    for the $(Usecase_code) going forward. Please plan your operations
+    for the ${Usecase_code} going forward. Please plan your operations
     accordingly."}
   status: Active
+  is_delegate: false
 - topic_code: notif-participant-policy-sla-update
   title: Policy Compliance changes  - SLAs
   description: Notification about participant system SLA of the services.
@@ -197,5 +203,6 @@
   priority: 1
   template: >-
     {"message": "${participant_name} is changing the SLA policy for the
-    $(Usecase_code) going forward. Please plan your operations accordingly."}
+    ${Usecase_code} going forward. Please plan your operations accordingly."}
   status: Active
+  is_delegate: false

@@ -58,6 +58,8 @@ public class Constants {
     public static final String AUDIT_SEARCH = "/audit/search";
     public static final String AUDIT_NOTIFICATION_SEARCH = "/audit/notification/search";
     public static final String AUDIT_ONBOARD_SEARCH = "/audit/onboard/search";
+    public static final String AUDIT_PARTICIPANT_SEARCH = "/audit/participant/search";
+    public static final String AUDIT_USER_SEARCH = "/audit/user/search";
 
     // Supportability APIs
     public static final String REQUEST_RETRY = "/request/retry/{mid}";
@@ -67,7 +69,29 @@ public class Constants {
     public static final String PARTICIPANT_SEARCH = "/participant/search";
     public static final String PARTICIPANT_READ = "/participant/read/{participantCode}";
     public static final String PARTICIPANT_UPDATE = "/participant/update";
+    public static final String USER_CREATE = "/user/create";
+    public static final String USER_READ  = "/user/read/{userId}";
+    public static final String USER_SEARCH = "/user/search";
+    public static final String USER_UPDATE = "/user/update";
+    public static final String USER_DELETE = "/user/delete";
+    public static final String PARTICIPANT_GENERATE_TOKEN = "/participant/auth/token/generate";
+    public static final String  USER_GENERATE_TOKEN = "/user/auth/token/generate";
+    public static final String USERS = "users";
+    public static final String ONBOARD_VALIDATION_PROPERTIES = "onboard_validation_properties";
+    public static final String PARTICIPANT_VALIDATION_PROPERTIES= "participant_validation_properties";
+    public static final String PARTICIPANT_USER_ADD = "/participant/user/add";
+    public static final String USERNAME = "username";
+    public static final String PARTICIPANT_USER_REMOVE = "/participant/user/remove";
+    public static final String VIEWER = "viewer";
+    public static final String CONFIG_MANAGER = "config-manager";
+    public static final List<String> ALLOWED_REMOVE_ROLES = Arrays.asList(VIEWER,CONFIG_MANAGER);
+    public static final String TENANT_ROLES = "tenant_roles";
+    public static final String USER_ID = "user_id";
+    public static final String EMAIL = "email";
+    public static final String MOBILE = "mobile";
+    public static final List<String>NOT_ALLOWED_FIELDS_FOR_UPDATE = Arrays.asList(TENANT_ROLES,EMAIL,MOBILE);
     public static final String SPONSORS = "sponsors";
+    public static final String ADMIN = "admin";
     public static final String COMMUNICATION = "communication";
     public static final String MOCK_PARTICIPANT = "mockparticipant";
     public static final String FORMSTATUS = "status";
@@ -75,11 +99,17 @@ public class Constants {
     public static final String PARTICIPANT_VERIFY = "/participant/verify";
     public static final String APPLICANT_GET_INFO = "/applicant/getinfo";
     public static final String APPLICANT_SEARCH = "/applicant/search";
+    public static final String ONBOARD_USER_INVITE = "/onboard/user/invite";
+    public static final String ONBOARD_USER_INVITE_ACCEPT = "/onboard/user/invite/accept";
+    public static final String ONBOARD_USER_INVITE_REJECT = "/onboard/user/invite/reject";
     public static final String PARTICIPANT_VERIFICATION_LINK_SEND = "/participant/verification/link/send";
+    public static final String  ONBOARD_APPLICANT_PASSWORD_GENERATE = "/onboard/applicant/password/generate";
     public static final String PARTICIPANT_ONBOARD_UPDATE = "/participant/onboard/update";
     public static final String PARTICIPANT_VERIFY_IDENTITY = "/participant/verify/identity";
     public static final String APPLICANT_VERIFY = "/applicant/verify";
     public static final String PARTICIPANT = "participant";
+    public static final String ORGANISATION = "Organisation";
+    public static final String USER = "User";
     public static final String VERIFIER_CODE = "verifier_code";
     public static final String RESULT = "result";
     public static final String ONBOARD_THROUGH_JWT = "onboard-through-jwt";
@@ -87,7 +117,6 @@ public class Constants {
     public static final List<String> ONBOARD_FOR_PROVIDER = Arrays.asList(ONBOARD_THROUGH_JWT, ONBOARD_THROUGH_VERIFIER);
     public static final String ROLE = "role";
     public static final String LINK_VERIFICATION = "linkVerification";
-    public static final String EMAIL = "email";
     public static final String PHONE = "phone";
     public static final String HEALTHY = "healthy";
     public static final String NAME = "name";
@@ -124,6 +153,7 @@ public class Constants {
     public static final String TYP = "typ";
     public static  final String AUDIT_STATUS = "status";
     public static  final String PREV_STATUS = "prevStatus";
+    public static  final String UPDATED_BY = "updatedBy";
     public static  final String PROPS = "props";
     public static  final String CREATED = "Created";
 
@@ -170,7 +200,11 @@ public class Constants {
     public static final String ROLES = "roles";
     public static final String SCHEME_CODE = "scheme_code";
     public static final String PARTICIPANT_CODE = "participant_code";
+    public static final String INVITED_BY = "invited_by";
+    public static final String  INVITE_STATUS = "invite_status";
     public static final String TERMS_AND_CONDITIONS = "terms_and_conditions";
+
+    public static final String TERMS_AND_CONDITIONS_VERSION = "terms_and_conditions_version";
     public static final String PARTICIPANT_NAME = "participant_name";
     public static final String PARTICIPANT_ROLE = "participant_role";
     public static final String PRIMARY_EMAIL = "primary_email";
@@ -287,7 +321,6 @@ public class Constants {
     public static final String JWT_TOKEN = "jwt_token";
     public static final String VERIFICATION_TOKEN = "verification_token";
     public static final String JWT = "jwt";
-    public static final String MOBILE = "mobile";
     public static final String SUB = "sub";
     public static final String ISS = "iss";
     public static final String SPONSOR_CODE = "sponsor_code";
@@ -299,12 +332,14 @@ public class Constants {
     public static final String EMAIL_VERIFIED = "email_verified";
     public static final String PHONE_VERIFIED = "phone_verified";
     public static final String SUCCESSFUL = "successful";
+    public static final String OVER_ALL_STATUS = "overallStatus";
+    public static final String PARTIAL = "partial";
     public static final String FAILED = "failed";
     public static final String ATTEMPT_COUNT = "attempt_count";
     public static final String REJECTED = "rejected";
     public static final String ACCEPTED = "accepted";
     public static final String IDENTITY_VERIFICATION = "identity_verification";
-
+    public static final String  GENERATE_TOKEN = "/generate/token";
     public static final String COMMUNICATION_VERIFICATION = "communication_verification";
     public static final String COMMENTS = "comments";
     public static final List<String> ALLOWED_ONBOARD_STATUS = Arrays.asList(REJECTED, ACCEPTED);
@@ -326,4 +361,9 @@ public class Constants {
    public static final String OTP_REGENERATE_COUNT = "otp_regenerate_count";
    public static final String LAST_REGENERATE_DATE = "last_regenerate_date";
    public static final String RESPONSE_OBJ = "response_obj";
+   public static final List<String> PARTICIPANT_ROLES = Arrays.asList(PROVIDER,PAYOR,AGENCY_TPA,"agency.regulator", "research",MEMBER_ISNP, "agency.sponsor",ADMIN_ROLE);
+   public static final String USER_NAME = "user_name";
+   public static final String CREATED_BY = "created_by";
+   public static final List<String> ALLOWED_DELEGATED_TOPICS = Arrays.asList("notif-workflow-update");
+
 }

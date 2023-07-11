@@ -53,6 +53,7 @@ jwt:
   audience: ${JWT_AUDIENCE:}
   jwkUrl: ${JWT_JWK_URL:https://dev-hcx.swasth.app/auth/realms/swasth-hcx-participants/protocol/openid-connect/certs}
   claimsNamespacePath: ${JWT_NS_PATH:$.realm_access.roles}
+  entityRealm: ${JWT_ENTITY_REALM:Organisation@swasth-hcx-participants,User@swasth-hcx-users}
 
 redis:
   host: ${REDIS_HOST:localhost}

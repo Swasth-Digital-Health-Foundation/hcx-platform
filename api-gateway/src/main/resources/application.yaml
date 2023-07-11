@@ -60,7 +60,7 @@ jwt:
   audience: ${JWT_AUDIENCE:}
   jwkUrl: ${JWT_JWK_URL:https://dev-hcx.swasth.app/auth/realms/realm-name/protocol/openid-connect/certs}
   claimsNamespacePath: ${JWT_NS_PATH:$.realm_access.roles}
-  entityRealm: ${JWT_ENTITY_REALM:Organisation@swasth-health-claim-exchange,User@swasth-health-claim-exchange-user}
+  entityRealm: ${JWT_ENTITY_REALM:Organisation@swasth-hcx-participants,User@swasth-hcx-users}
 redis:
   host: ${REDIS_HOST:localhost}
   port: ${REDIS_PORT:6379}
@@ -79,6 +79,9 @@ hcx-onboard:
 
 hcx-mock-service:
   basePath: ${HCX_MOCK_SERVICE_BASEPATH:http://localhost:8083}
+
+hcx-keycloak:
+  basePath: ${HCX_KEYCLOAK_BASEPATH:https://dev-hcx.swasth.app}
 
 #elasticsearch config
 es:
@@ -160,8 +163,17 @@ spring:
             - RewritePath=/${version.external08}/notification/topic/list, /${version.internal}/notification/topic/list
             - RewritePath=/${version.external08}/request/retry/(?<segment>/?.*), /${version.internal}/request/retry/$\{segment}
             - RewritePath=/${version.external08}/audit/onboard/search, /${version.internal}/audit/onboard/search
+            - RewritePath=/${version.external08}/user/(?<segment>/?.*), /${version.internal}/user/$\{segment}
+            - RewritePath=/${version.external08}/participant/user/(?<segment>/?.*)}, /${version.internal}/participant/user/$\{segment}
+            - RewritePath=/${version.external08}/audit/participant/search, /${version.internal}/audit/participant/search
+            - RewritePath=/${version.external08}/audit/user/search, /${version.internal}/audit/user/search
+            - RewritePath=/${version.external08}/participant/auth/token/generate, /${version.internal}/participant/auth/token/generate
+            - RewritePath=/${version.external08}/user/auth/token/generate, /${version.internal}/user/auth/token/generate
+            - RewritePath=/auth/realms/swasth-health-claim-exchange/protocol/openid-connect/token, /${version.internal}/participant/auth/token/generate
+            - RewritePath=/auth/realms/swasth-hcx-participants/protocol/openid-connect/token, /${version.internal}/participant/auth/token/generate
+            - RewritePath=/auth/realms/swasth-hcx-users/protocol/openid-connect/token, /${version.internal}/user/auth/token/generate
           predicates:
-            - Path=/${version.external07}/participant/create, /${version.external07}/participant/update, /${version.external07}/participant/search, /${version.external07}/participant/delete, /${version.external08}/participant/create, /${version.external08}/participant/update, /${version.external08}/participant/search , /${version.external08}/participant/read/*, /${version.external08}/participant/delete, /health, /service/health, /${version.external08}/notification/topic/list,  /${version.external08}/request/retry/**, /${version.external08}/audit/onboard/search
+            - Path=/${version.external07}/participant/create, /${version.external07}/participant/update, /${version.external07}/participant/search, /${version.external07}/participant/delete, /${version.external08}/participant/create, /${version.external08}/participant/update, /${version.external08}/participant/search, /${version.external08}/participant/delete, /health, /service/health, /${version.external08}/notification/topic/list,  /${version.external08}/request/retry/**, /${version.external08}/audit/onboard/search, /${version.external08}/user/create,/${version.external08}/user/update,/${version.external08}/user/search,/${version.external08}/user/delete,/${version.external08}/participant/user/add,/${version.external08}/participant/user/remove,/${version.external08}/audit/participant/search,/${version.external08}/audit/user/search, /${version.external08}/user/auth/token/generate, /${version.external08}/participant/auth/token/generate, /auth/realms/swasth-health-claim-exchange/protocol/openid-connect/token, /auth/realms/swasth-hcx-participants/protocol/openid-connect/token, /auth/realms/swasth-hcx-users/protocol/openid-connect/token
 
         - id: hcx-onboard-api-route
           uri: ${hcx-onboard.basePath}
@@ -170,10 +182,13 @@ spring:
               args:
                 redis-rate-limiter.replenishRate: 10
                 redis-rate-limiter.burstCapacity: 20
-            - RewritePath=/${version.external07}/participant/(?<segment>/?.*), /${version.internal}/participant/$\{segment}
+            - RewritePath=/${version.external08}/participant/(?<segment>/?.*), /${version.internal}/participant/$\{segment}
             - RewritePath=/${version.external07}/applicant/(?<segment>/?.*), /${version.internal}/applicant/$\{segment}
+            - RewritePath=/${version.external08}/applicant/(?<segment>/?.*), /${version.internal}/applicant/$\{segment}
+            - RewritePath=/${version.external08}/onboard/user/(?<segment>/?.*), /${version.internal}/onboard/user/$\{segment}
+            - RewritePath=/${version.external08}/onboard/applicant/(?<segment>/?.*), /${version.internal}/onboard/applicant/$\{segment}
           predicates:
-            - Path=/${version.external07}/participant/verify, /${version.external07}/participant/verify/identity, /${version.external07}/participant/verification/link/send, /${version.external07}/participant/onboard/update, /${version.external07}/applicant/getinfo, /${version.external07}/applicant/verify,/${version.external07}/applicant/search*,/url/*
+            - Path=/${version.external08}/participant/verify, /${version.external08}/participant/verify/identity, /${version.external08}/participant/verification/link/send, /${version.external08}/participant/onboard/update, /${version.external08}/applicant/getinfo, /${version.external08}/applicant/verify,/${version.external07}/applicant/search*,/${version.external08}/applicant/search*,/url/*, /${version.external08}/onboard/user/invite, /${version.external08}/onboard/user/invite/accept, /${version.external08}/onboard/user/invite/reject, /${version.external08}/onboard/applicant/password/generate
 
         - id: hcx-mock-service-route
           uri: ${hcx-mock-service.basePath}
@@ -184,3 +199,13 @@ spring:
                 redis-rate-limiter.burstCapacity: 20
           predicates:
             - Path=/payer/**,/${version.external08}/user/create
+
+        - id: hcx-keycloak-route
+          uri: ${hcx-keycloak.basePath}
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
+          predicates:
+            - Path=/auth/admin/realms/*, /auth/realms/swasth-hcx-participants/protocol/openid-connect/certs, /auth/realms/master/protocol/openid-connect/token
