@@ -15,7 +15,9 @@ import { addParticipantToken } from "../../reducers/token_reducer";
 
 const LaunchPayorApp = () => {
 
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
+  const appLink = process.env.REACT_APP_PAYOR_APP;
+  console.log("process env react app", appLink, process.env.REACT_PAYOR_APP);
   const participantDetails: Object = useSelector((state: RootState) => state.participantDetailsReducer.participantDetails);
   const authToken = useSelector((state: RootState) => state.tokenReducer.participantToken);
   const appData: Object = useSelector((state: RootState) => state.appDataReducer.appData);
@@ -30,8 +32,8 @@ const LaunchPayorApp = () => {
         console.log("verifier details",res);
         const partData = res["data"]["participants"][0];
         console.log("part data in launch", partData, btoa(_.get(partData,"mock_payor.primary_email")));
-        setEmail(_.get(partData,"mock_payor.primary_email") ? btoa(_.get(partData,"mock_payor.primary_email")) : '');
-        setPass(_.get(partData,"mock_payor.password") ? btoa(_.get(partData,"mock_payor.password")) : '');
+        setEmail(_.get(partData,"mock_payor.primary_email") ? _.get(partData,"mock_payor.primary_email") : '');
+        setPass(_.get(partData,"mock_payor.password") ? _.get(partData,"mock_payor.password") : '');
         setCode(_.get(partData,"mock_payor.participant_code") ? _.get(partData,"mock_payor.participant_code") : '');
   })
   }, []);
@@ -41,7 +43,7 @@ const LaunchPayorApp = () => {
     if(email == "" && pass == ""){
       toast.error("You dont have a participant account to launch the app.")
     }else{
-    window.open(`http://localhost:3001?user_token=${authToken}&email=${email}&password=${pass}`)
+    window.open(`${appLink}?user_token=${authToken}&email=${btoa(email)}&password=${btoa(pass)}`);
     }
   }
 
