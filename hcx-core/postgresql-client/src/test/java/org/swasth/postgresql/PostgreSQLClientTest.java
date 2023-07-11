@@ -15,9 +15,13 @@ public class PostgreSQLClientTest {
 
     private PostgreSQLClient postgreSQLClient;
 
+    private PostgreSQLClient invalidPostgreSQLClient;
+
+    private EmbeddedPostgres embeddedPostgres;
+
     @Before()
     public void setup() throws Exception {
-        EmbeddedPostgres.builder().setPort(5432).start();
+        embeddedPostgres = EmbeddedPostgres.builder().setPort(5432).start();
         postgreSQLClient = new PostgreSQLClient("jdbc:postgresql://localhost:5432/postgres", "postgres", "postgres");
     }
 
@@ -41,10 +45,25 @@ public class PostgreSQLClientTest {
 
     @Test
     public void testBatchQuery() throws ClientException, SQLException {
-        StringBuilder str = new StringBuilder();
-        str.append("INSERT INTO payload(mid,data)  VALUES('12346','eyJlbmMiOiJBMjU2R')");
-        str.append("INSERT INTO payload(mid,data)  VALUES('12347','eyJlbmMiOiJBMjU2R')");
-        postgreSQLClient.addBatch(str.toString());
+        String str = "INSERT INTO payload(mid,data)  VALUES('12346','eyJlbmMiOiJBMjU2R')" +
+                "INSERT INTO payload(mid,data)  VALUES('12347','eyJlbmMiOiJBMjU2R')";
+        postgreSQLClient.addBatch(str);
     }
+
+    @Test(expected = Exception.class)
+    public void testConnectionException() throws ClientException {
+        invalidPostgreSQLClient = new PostgreSQLClient("jdbc:postgresql://localhost:5400/postgres", "postgres", "postgres");
+    }
+
+    @Test(expected = Exception.class)
+    public void testExecuteException() throws ClientException {
+        postgreSQLClient.execute("CREATE TABLE payload");
+    }
+
+    @Test(expected = Exception.class)
+    public void testExecuteQueryException() throws ClientException, SQLException {
+        postgreSQLClient.executeQuery("select * from");
+    }
+
 }
 

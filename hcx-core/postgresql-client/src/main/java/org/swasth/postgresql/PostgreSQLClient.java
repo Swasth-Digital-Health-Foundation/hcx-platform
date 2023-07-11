@@ -26,13 +26,9 @@ public class PostgreSQLClient implements IDatabaseService {
         }
     }
 
-    public Connection getConnection() throws ClientException {
-        try {
-            if (connection == null || connection.isClosed()) {
-                initializeConnection();
-            }
-        } catch (Exception e) {
-            throw new ClientException("Error connecting to the PostgreSQL server: " + e.getMessage());
+    public Connection getConnection() throws ClientException, SQLException {
+        if (connection == null || connection.isClosed()) {
+            initializeConnection();
         }
         return connection;
     }
@@ -63,11 +59,11 @@ public class PostgreSQLClient implements IDatabaseService {
         }
     }
 
-    public void addBatch(String query) throws ClientException {
+    public void addBatch(String query) throws ClientException, SQLException {
         Connection conn = getConnection();
         try (Statement statement = conn.createStatement()) {
             statement.addBatch(query);
-        } catch (SQLException e) {
+        } catch (Exception e) {
             throw new ClientException("Error while performing database operation: " + e.getMessage());
         }
     }
