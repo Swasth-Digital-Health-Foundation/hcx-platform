@@ -11,8 +11,6 @@ on:
         description: Custom build branch to be used
         default: sprint-
         required: true
-#    tags:
-#      - *
 
 jobs:
   build:
