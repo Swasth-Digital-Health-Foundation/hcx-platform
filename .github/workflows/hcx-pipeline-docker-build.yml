@@ -1,6 +1,16 @@
 name: HCX Pipeline Jobs - Build
 
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+    inputs:
+      repo:
+        description: Custom build repository to be used
+        default: Swasth-Digital-Health-Foundation/hcx-platform
+        required: false
+      branch:
+        description: Custom build branch to be used
+        default: sprint-
+        required: true
 
 #    tags:
 #      - *
