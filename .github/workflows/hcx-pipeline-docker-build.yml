@@ -12,6 +12,9 @@ on:
         default: sprint-
         required: true
 
+#    tags:
+#      - *
+
 jobs:
   build:
     name: Build and Push Docker Image
