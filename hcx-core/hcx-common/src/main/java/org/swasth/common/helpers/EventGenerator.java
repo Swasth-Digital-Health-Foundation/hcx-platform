@@ -89,6 +89,7 @@ public class EventGenerator {
         event.put(PAYLOAD_SIZE,request.getPayloadSize().length);
         getTag(request,event);
         System.out.println("------------------------------------------------------------------");
+        System.out.println("the size will be  "  + request.getPayloadSize().length);
         System.out.println("The audit created will be in " + event);
         return event;
     }

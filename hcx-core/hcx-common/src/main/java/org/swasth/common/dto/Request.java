@@ -190,9 +190,9 @@ public class Request {
     public List<String> getSenderTag() { return (List<String>) senderDetails().getOrDefault(TAGS,new ArrayList<>());}
 
     public List<String> getRecipientTag() { return (List<String>) recipientDetails().getOrDefault(TAGS,new ArrayList<>());}
+
     public byte[] getPayloadSize() {
-        System.out.println("payload size will be --------------------" + Arrays.toString(payload.get(PAYLOAD).toString().getBytes()));
-        return payload.getOrDefault(PAYLOAD,"").toString().getBytes();
+        return payload.getOrDefault(PAYLOAD, "").toString().getBytes();
     }
 
 }
