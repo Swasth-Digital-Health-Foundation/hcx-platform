@@ -151,16 +151,28 @@ class UserControllerTests extends BaseSpec {
       }
 
      @Test
-     void user_search_success_scenario() throws Exception {
+     void user_search_success_scenario_with_admin_token() throws Exception {
          registryServer.enqueue(new MockResponse()
                  .setResponseCode(200)
                  .setBody("[{ \"user_name\": \"test-user-89\",\"created_by\":\"test-participant-code-4@swasth\", \"mobile\": \"9620499129\", \"email\": \"test-user-89@gmail.com\", \"tenant_roles\": [ {\"participant_code\":\"test-participant-code-4@swasth\",\"roles\":[\"admin\"]}], \"osOwner\": [ \"d3a64f93-7c0e-4b10-8f32-eb26ee65400f\" ], \"user_id\": \"test-user-89.gmail@swasth-hcx\",\"osid\":\"916d667b-6e39-4750-95eb-f3dc5061ab63\" }]")
                  .addHeader("Content-Type", "application/json"));
-         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.USER_SEARCH).content(getUserSearchFilter()).header(HttpHeaders.AUTHORIZATION,getUserToken()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.USER_SEARCH).content(getUserSearchFilter()).header(HttpHeaders.AUTHORIZATION,getAdminToken()).contentType(MediaType.APPLICATION_JSON)).andReturn();
          MockHttpServletResponse response = mvcResult.getResponse();
          int status = response.getStatus();
          assertEquals(200, status);
      }
+
+    @Test
+    void user_search_success_scenario_with_user_token() throws Exception {
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("[{ \"user_name\": \"test-user-89\",\"created_by\":\"test-participant-code-4@swasth\", \"mobile\": \"9620499129\", \"email\": \"test-user-89@gmail.com\", \"tenant_roles\": [ {\"participant_code\":\"test-participant-code-4@swasth\",\"roles\":[\"admin\"]}], \"osOwner\": [ \"d3a64f93-7c0e-4b10-8f32-eb26ee65400f\" ], \"user_id\": \"test-user-89.gmail@swasth-hcx\",\"osid\":\"916d667b-6e39-4750-95eb-f3dc5061ab63\" }]")
+                .addHeader("Content-Type", "application/json"));
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.USER_SEARCH).content(getUserSearchFilter()).header(HttpHeaders.AUTHORIZATION,getAddUserToken()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        assertEquals(200, status);
+    }
 
      @Test
      void user_search_invalid_scenario() throws Exception {
@@ -171,7 +183,7 @@ class UserControllerTests extends BaseSpec {
          MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.USER_SEARCH).content(getUserSearchNotfoundFilter()).header(HttpHeaders.AUTHORIZATION,getUserToken()).contentType(MediaType.APPLICATION_JSON)).andReturn();
          MockHttpServletResponse response = mvcResult.getResponse();
          int status = response.getStatus();
-         assertEquals(500, status);
+         assertEquals(400, status);
      }
 
       @Test
