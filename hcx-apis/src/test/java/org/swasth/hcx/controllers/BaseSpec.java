@@ -515,14 +515,14 @@ public class BaseSpec {
     public String getUserSearchFilter() throws JsonProcessingException {
         Map<String, Object> obj = new HashMap<>();
         obj.put("filters", new HashMap<>() {{
-            put("tenant_roles.participant_code", new HashMap<>() {{
-                put("eq", "test-123.yopmail@swasth-hcx");
+            put("user_id", new HashMap<>() {{
+                put("eq", "test-user-89.gmail@swasth-hcx");
             }});
         }});
         return JSONUtils.serialize(obj);
     }
 
-    public String getUserSearchOrFilter() throws JsonProcessingException {
+    public String getUserInvalidSearchFilter() throws JsonProcessingException {
         Map<String, Object> obj = new HashMap<>();
         obj.put("filters", new HashMap<>() {{
             put("tenant_roles.participant_code", new HashMap<>() {{

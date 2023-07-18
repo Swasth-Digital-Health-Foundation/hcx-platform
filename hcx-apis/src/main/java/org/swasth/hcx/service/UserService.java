@@ -277,32 +277,15 @@ public class UserService extends BaseRegistryService {
     }
 
     public String getOrganisationUsers(Token token, Map<String, Object> requestBody) throws ClientException, JsonProcessingException {
-        Set<String> organisations = token.getTenantRoles().stream().map(tenantMap -> "\"" + tenantMap.get(PARTICIPANT_CODE) + "\"").collect(Collectors.toSet());
+        Set<String> organisations = token.getTenantRoles().stream()
+                .map(tenantMap -> tenantMap.get(PARTICIPANT_CODE))
+                .collect(Collectors.toSet());
         Map<String, Object> filters = (Map<String, Object>) requestBody.getOrDefault(FILTERS, "");
         if (filters.containsKey("tenant_roles.participant_code")) {
-            Map<String, Object> operatorMap = JSONUtils.deserialize(filters.get("tenant_roles.participant_code"), Map.class);
-            if (operatorMap.containsKey(EQUAL_OPERATION)) {
-                String participantCode = (String) operatorMap.get(EQUAL_OPERATION);
-                if (!organisations.contains("\"" + participantCode + "\"")) {
-                    throw new ClientException("Invalid usage of search filters");
-                }
-            } else if (operatorMap.containsKey(OR_OPERATION)) {
-                validateParticipantList(operatorMap, organisations);
-            }
+            throw new ClientException("This field is not allowed in filters : tenant_roles.participant_code");
         }
-        String serializedFilters = JSONUtils.serialize(filters);
-        serializedFilters = !filters.isEmpty() ? "," + serializedFilters.substring(1, serializedFilters.length() - 1) : "";
-        return "{ \"filters\": { " + "\"tenant_roles.participant_code\": { \"or\": " + organisations + " }" + serializedFilters + "} }";
-    }
-
-    public void validateParticipantList(Map<String, Object> operatorMap, Set<String> organisations) throws ClientException {
-        List<String> participantCodes;
-        participantCodes = (List<String>) operatorMap.get(OR_OPERATION);
-        for (String code : participantCodes) {
-            if (!organisations.contains("\"" + code + "\"")) {
-                throw new ClientException("Invalid usage of search filters");
-            }
-        }
+        filters.put("tenant_roles.participant_code", Map.of("or",organisations));
+        return JSONUtils.serialize(requestBody);
     }
 }
 
