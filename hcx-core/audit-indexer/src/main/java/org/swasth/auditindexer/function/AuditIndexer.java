@@ -46,6 +46,8 @@ public class AuditIndexer {
             String mid = (String) event.get("mid");
             esUtil.addIndex(settings, mappings, index, indexAlias);
             esUtil.addDocumentWithIndex(JSONUtils.serialize(event), index, mid);
+            logger.info("----------------------------------------------------------");
+            logger.info("create document audit in to elasticsearch -----------"  + JSONUtils.serialize(event));
             logger.info("Audit document created for mid: " + mid);
         } catch (Exception e) {
             throw new Exception("Error while processing event :: " + event + " :: " + e.getMessage());
