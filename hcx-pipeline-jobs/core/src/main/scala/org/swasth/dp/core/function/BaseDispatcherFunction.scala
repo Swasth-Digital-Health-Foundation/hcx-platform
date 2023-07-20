@@ -240,8 +240,6 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
     audit.put(Constants.PAYLOAD, removeSensitiveData(payload))
     audit.put(Constants.PAYLOAD_SIZE,getPayloadSize)
     getTag(event,audit)
-    Console.println("the payload audit event will be -----------------" + audit)
-    Console.println("the payload size will be -------------------------- " + getPayloadSize)
     Console.println("Audit event: " + audit)
     audit
   }
