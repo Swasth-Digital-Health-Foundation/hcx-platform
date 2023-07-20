@@ -53,7 +53,7 @@ const Users =() => {
           setUserData(user.filter((user1: { created_by: string; }) => user1.created_by == createdBy).map((value:any, index:any) => { return value}));  
         }
       })}else{
-        getAllUser().then((res:any) =>{
+        getAllUser(participantToken).then((res:any) =>{
           let user = res["data"]["users"];
           console.log("user data all", user.length);
           if(dropdownValue == "all"){
@@ -74,7 +74,7 @@ const Users =() => {
           console.log("user data", user);
           setUserData(user.map((value:any, index:any) => { return value }));  
         })}else{
-          getAllUser().then((res:any) =>{
+          getAllUser(participantToken).then((res:any) =>{
             let user = res["data"]["users"];
             console.log("user data", user);
             setUserData(user.map((value:any, index:any) => { return value }));
@@ -84,7 +84,8 @@ const Users =() => {
     },[searchUser])
 
     useEffect(()=> {
-      getAllUser().then((res:any) =>{
+      console.log("user token in user search", participantToken);
+      getAllUser(participantToken).then((res:any) =>{
         let user = res["data"]["users"];
         console.log("user data", user);
         setUserData(user.map((value:any, index:any) => { return value }));

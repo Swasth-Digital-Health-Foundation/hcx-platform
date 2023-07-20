@@ -20,7 +20,9 @@ const ParticipantInfo = () => {
   const authToken = useSelector((state: RootState) => state.tokenReducer.participantToken);
   console.log("part details in dash", participantDetails, authToken);
 
+  useEffect(()=> {
   if(authToken == "abcd"){
+    console.log("came in abcd",)
     let sessionToken = sessionStorage.getItem("hcx_user_token");
     let userName = sessionStorage.getItem("hcx_user_name");
     if(sessionToken == null){
@@ -55,6 +57,7 @@ const ParticipantInfo = () => {
       }
     }
   }
+},[]);
 
   //const { login } = useAuthActions();
 
