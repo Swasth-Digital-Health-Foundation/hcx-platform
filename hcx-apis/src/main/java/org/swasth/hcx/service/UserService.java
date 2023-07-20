@@ -2,7 +2,6 @@ package org.swasth.hcx.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import kong.unirest.HttpResponse;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.slf4j.Logger;
@@ -22,6 +21,7 @@ import org.swasth.common.exception.*;
 import org.swasth.common.utils.JSONUtils;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 import static org.swasth.common.response.ResponseMessage.INVALID_USER_DETAILS;
 import static org.swasth.common.response.ResponseMessage.INVALID_USER_ID;
 import static org.swasth.common.utils.Constants.*;
@@ -36,6 +36,7 @@ public class UserService extends BaseRegistryService {
 
     @Autowired
     protected AuditIndexer auditIndexer;
+
     public RegistryResponse create(Map<String, Object> requestBody, String code) throws Exception {
         HttpResponse<String> response = invite(requestBody, registryUserPath);
         if (response.getStatus() == 200) {
@@ -44,8 +45,8 @@ public class UserService extends BaseRegistryService {
         return responseHandler(response, code, USER);
     }
 
-    public RegistryResponse search(Map<String, Object> requestBody) throws ServerException, AuthorizationException, ClientException, ResourceNotFoundException, JsonProcessingException {
-        return search(requestBody, registryUserPath, USER);
+    public RegistryResponse search(HttpHeaders headers, Map<String, Object> requestBody) throws ServerException, AuthorizationException, ClientException, ResourceNotFoundException, JsonProcessingException {
+        return authorizeSearch(headers, requestBody);
     }
 
     public RegistryResponse update(Map<String, Object> requestBody, Map<String, Object> registryDetails, HttpHeaders headers, String code) throws Exception {
@@ -138,7 +139,7 @@ public class UserService extends BaseRegistryService {
 
     public Map<String, Object> getUser(String userId) throws JsonProcessingException, ServerException, AuthorizationException, ClientException, ResourceNotFoundException {
         logger.debug("searching for :: user id : {}", userId);
-        ResponseEntity<Object> searchResponse = getSuccessResponse(search(JSONUtils.deserialize(getUserRequest(userId), Map.class)));
+        ResponseEntity<Object> searchResponse = getSuccessResponse(search(JSONUtils.deserialize(getUserRequest(userId), Map.class), registryUserPath, USER));
         RegistryResponse registryResponse = (RegistryResponse) Objects.requireNonNull(searchResponse.getBody());
         if (registryResponse.getUsers().isEmpty())
             throw new ClientException(ErrorCodes.ERR_INVALID_USER_ID, INVALID_USER_ID);
@@ -229,10 +230,10 @@ public class UserService extends BaseRegistryService {
                 failed = true;
             }
         }
-        return getStatus(successful,failed);
+        return getStatus(successful, failed);
     }
 
-    private String getStatus(boolean successful , boolean failed){
+    private String getStatus(boolean successful, boolean failed) {
         String overallStatus = "";
         if (failed && successful) {
             overallStatus = PARTIAL;
@@ -264,4 +265,27 @@ public class UserService extends BaseRegistryService {
         }
     }
 
+    public RegistryResponse authorizeSearch(HttpHeaders headers, Map<String, Object> requestBody) throws JsonProcessingException, ServerException, AuthorizationException, ClientException, ResourceNotFoundException {
+        Token token = new Token(Objects.requireNonNull(headers.get(AUTHORIZATION)).get(0));
+        if (token.getRoles().contains(ADMIN_ROLE)) {
+            return search(requestBody, registryUserPath, USER);
+        } else if (StringUtils.equals(token.getEntityType(), USER) && !token.getTenantRoles().isEmpty()) {
+            return search(JSONUtils.deserialize(getOrganisationUsers(token, requestBody), Map.class), registryUserPath, USER);
+        } else {
+            throw new ClientException(ErrorCodes.ERR_INVALID_JWT, "User is not allowed to perform this operation");
+        }
+    }
+
+    public String getOrganisationUsers(Token token, Map<String, Object> requestBody) throws ClientException, JsonProcessingException {
+        Set<String> organisations = token.getTenantRoles().stream()
+                .map(tenantMap -> tenantMap.get(PARTICIPANT_CODE))
+                .collect(Collectors.toSet());
+        Map<String, Object> filters = (Map<String, Object>) requestBody.getOrDefault(FILTERS, "");
+        if (filters.containsKey("tenant_roles.participant_code")) {
+            throw new ClientException("This field is not allowed in filters : tenant_roles.participant_code");
+        }
+        filters.put("tenant_roles.participant_code", Map.of("or",organisations));
+        return JSONUtils.serialize(requestBody);
+    }
 }
+
