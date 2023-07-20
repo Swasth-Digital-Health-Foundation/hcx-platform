@@ -9,59 +9,60 @@ public class PostgreSQLClient implements IDatabaseService {
     private final String url;
     private final String user;
     private final String password;
-    private final Connection connection;
-    private final Statement statement;
+    private Connection connection;
 
-    public PostgreSQLClient(String url, String user, String password) throws ClientException, SQLException {
+    public PostgreSQLClient(String url, String user, String password) throws ClientException {
         this.url = url;
         this.user = user;
         this.password = password;
-        this.connection = getConnection();
-        this.statement = this.connection.createStatement();
+        initializeConnection();
     }
 
-    public Connection getConnection() throws ClientException {
-        Connection conn;
+    private void initializeConnection() throws ClientException {
         try {
-            conn = DriverManager.getConnection(url, user, password);
+            connection = DriverManager.getConnection(url, user, password);
         } catch (Exception e) {
             throw new ClientException("Error connecting to the PostgreSQL server: " + e.getMessage());
         }
-        return conn;
+    }
+
+    public Connection getConnection() throws ClientException, SQLException {
+        if (connection == null || connection.isClosed()) {
+            initializeConnection();
+        }
+        return connection;
     }
 
     public void close() throws SQLException {
-        statement.close();
-        connection.close();
+        if (connection != null) {
+            connection.close();
+        }
     }
 
     public boolean execute(String query) throws ClientException {
         try {
+            Connection conn = getConnection();
+            Statement statement = conn.createStatement();
             return statement.execute(query);
         } catch (Exception e) {
             throw new ClientException("Error while performing database operation: " + e.getMessage());
         }
     }
 
-    public ResultSet executeQuery(String query) throws ClientException {
+    public ResultSet executeQuery(String query) throws ClientException, SQLException {
         try {
+            Connection conn = getConnection();
+            Statement statement = conn.createStatement();
             return statement.executeQuery(query);
         } catch (Exception e) {
             throw new ClientException("Error while performing database operation: " + e.getMessage());
         }
     }
 
-    public void addBatch(String query) throws ClientException {
-        try {
-             statement.addBatch(query);
-        } catch (Exception e) {
-            throw new ClientException("Error while performing database operation: " + e.getMessage());
-        }
-    }
-
-    public int[] executeBatch() throws ClientException {
-        try {
-            return statement.executeBatch();
+    public void addBatch(String query) throws ClientException, SQLException {
+        Connection conn = getConnection();
+        try (Statement statement = conn.createStatement()) {
+            statement.addBatch(query);
         } catch (Exception e) {
             throw new ClientException("Error while performing database operation: " + e.getMessage());
         }

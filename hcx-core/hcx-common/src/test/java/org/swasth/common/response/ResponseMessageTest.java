@@ -2,6 +2,7 @@ package org.swasth.common.response;
 
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class ResponseMessageTest {
@@ -685,6 +686,12 @@ public class ResponseMessageTest {
     public void testNotificationSubscribeMessage(){
         String invalidTopicCode = ResponseMessage.NOTIFICATION_SUBSCRIBE_ERR_MSG;
         assertTrue(invalidTopicCode.contains("participant"));
+    }
+
+    @Test
+    public void testInvalidCorrelationIdCycleMessage(){
+        String msg = ResponseMessage.INVALID_CORRELATION_ID_CYCLE;
+        assertEquals("Correlation id of one cycle cannot be used in another cycle", msg);
     }
 
 }
