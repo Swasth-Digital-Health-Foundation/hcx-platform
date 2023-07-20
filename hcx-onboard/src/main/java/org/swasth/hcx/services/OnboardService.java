@@ -45,6 +45,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -456,8 +457,8 @@ public class OnboardService extends BaseController {
         boolean phoneVerified = false;
         String commStatus = PENDING;
         String identityStatus = REJECTED;
-        Map<String, Object> mockProviderDetails = new HashMap<>();
-        Map<String, Object> mockPayorDetails = new HashMap<>();
+        CompletableFuture<Map<String, Object>> mockProviderDetails = new CompletableFuture<>();;
+        CompletableFuture<Map<String, Object>> mockPayorDetails = new CompletableFuture<>();;
         Map<String, Object> participant = (Map<String, Object>) requestBody.get(PARTICIPANT);
         Map<String,Object> participantDetails = getParticipant(PARTICIPANT_CODE, (String) participant.get(PARTICIPANT_CODE));
         String email = (String) participantDetails.get(PRIMARY_EMAIL);
@@ -498,11 +499,10 @@ public class OnboardService extends BaseController {
                     String searchQuery = String.format("SELECT * FROM %s WHERE parent_participant_code = '%s'", mockParticipantsTable, participant.get(PARTICIPANT_CODE));
                     ResultSet result = (ResultSet) postgresClientMockService.executeQuery(searchQuery);
                     if (!result.next()) {
-                        mockProviderDetails = createMockParticipant(headers, PROVIDER, participantDetails);
-                        mockPayorDetails = createMockParticipant(headers, PAYOR, participantDetails);
-                    }
-                    if (participantDetails.getOrDefault("status", "").equals(CREATED)) {
-                        emailService.sendMail(email, onboardingSuccessSub, successTemplate((String) participant.get(PARTICIPANT_NAME), mockProviderDetails, mockPayorDetails));
+                        mockProviderDetails = asyncMockParticipant(headers, PROVIDER, mockProviderDetails, participantDetails);
+                        mockPayorDetails = asyncMockParticipant(headers, PAYOR, mockProviderDetails, participantDetails);
+                        emailService.sendMail(email, onboardingSuccessSub, successTemplate((String) participant.get(PARTICIPANT_NAME), mockProviderDetails.get(), mockPayorDetails.get()));
+
                     }
                 } else if (participantDetails.getOrDefault("status", "").equals(CREATED)) {
                     emailService.sendMail(email, onboardingSuccessSub, pocSuccessTemplate((String) participant.get(PARTICIPANT_NAME)));
@@ -1165,6 +1165,18 @@ public class OnboardService extends BaseController {
         String query = String.format("INSERT INTO %s (applicant_email,applicant_code,verifier_code,status,createdOn,updatedOn) VALUES ('%s','%s','%s','%s',%d,%d) ON CONFLICT (applicant_email) DO NOTHING;",
                 onboardingVerifierTable, email, applicantCode, verifierCode, status, System.currentTimeMillis(), System.currentTimeMillis());
         postgreSQLClient.execute(query);
+    }
+
+    @Async
+    public CompletableFuture<Map<String, Object>> asyncMockParticipant(HttpHeaders headers, String action, CompletableFuture<Map<String, Object>> mockDetails, Map<String, Object> participantDetails) {
+        mockDetails = CompletableFuture.supplyAsync(() -> {
+            try {
+                return createMockParticipant(headers, action, participantDetails);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+        return mockDetails;
     }
 
 }
