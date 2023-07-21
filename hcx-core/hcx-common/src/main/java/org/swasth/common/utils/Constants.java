@@ -223,6 +223,7 @@ public class Constants {
     public static final String MOCK_PROVIDER = "mock_provider";
     public static final String MOCK_PAYOR = "mock_payor";
     public static final String EQUAL_OPERATION = "eq";
+    public static final String OR_OPERATION = "or";
     public static final String OSID = "osid";
     public static final String AUTHORIZATION = "Authorization";
     public static final String FILTERS = "filters";
