@@ -163,7 +163,7 @@
       "type": "keyword"
     },
     "payload_size": {
-      "type": "keyword"
+      "type": "integer"
     }
   }
 }
