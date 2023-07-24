@@ -499,8 +499,8 @@ public class OnboardService extends BaseController {
                     String searchQuery = String.format("SELECT * FROM %s WHERE parent_participant_code = '%s'", mockParticipantsTable, participant.get(PARTICIPANT_CODE));
                     ResultSet result = (ResultSet) postgresClientMockService.executeQuery(searchQuery);
                     if (!result.next()) {
-                        mockProviderDetails = asyncMockParticipant(headers, PROVIDER, mockProviderDetails, participantDetails);
-                        mockPayorDetails = asyncMockParticipant(headers, PAYOR, mockProviderDetails, participantDetails);
+                        mockProviderDetails = createMockParticipant(headers, PROVIDER, participantDetails,mockProviderDetails);
+                        mockPayorDetails = createMockParticipant(headers, PAYOR, participantDetails,mockPayorDetails);
                         emailService.sendMail(email, onboardingSuccessSub, successTemplate((String) participant.get(PARTICIPANT_NAME), mockProviderDetails.get(), mockPayorDetails.get()));
 
                     }
@@ -987,14 +987,21 @@ public class OnboardService extends BaseController {
     }
 
     @Async
-    private Map<String, Object> createMockParticipant(HttpHeaders headers, String role, Map<String, Object> participantDetails) throws Exception {
-        String parentParticipantCode = (String) participantDetails.getOrDefault(PARTICIPANT_CODE, "");
-        logger.info("creating Mock participant for :: parent participant code : " + parentParticipantCode + " :: Role: " + role);
-        Map<String, Object> mockParticipant = getMockParticipantBody(participantDetails, role, parentParticipantCode);
-        String privateKey = (String) mockParticipant.getOrDefault(PRIVATE_KEY, "");
-        mockParticipant.remove(PRIVATE_KEY);
-        String childParticipantCode = createEntity(PARTICIPANT_CREATE, JSONUtils.serialize(mockParticipant), getHeadersMap(headers), ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, PARTICIPANT_CODE);
-        return updateMockDetails(mockParticipant, parentParticipantCode, childParticipantCode, privateKey);
+    private CompletableFuture<Map<String, Object>> createMockParticipant(HttpHeaders headers, String role, Map<String, Object> participantDetails,CompletableFuture<Map<String,Object>> mockDetails) throws Exception {
+        mockDetails = CompletableFuture.supplyAsync(() -> {
+            try{
+                String parentParticipantCode = (String) participantDetails.getOrDefault(PARTICIPANT_CODE, "");
+                logger.info("creating Mock participant for :: parent participant code : " + parentParticipantCode + " :: Role: " + role);
+                Map<String, Object> mockParticipant = getMockParticipantBody(participantDetails, role, parentParticipantCode);
+                String privateKey = (String) mockParticipant.getOrDefault(PRIVATE_KEY, "");
+                mockParticipant.remove(PRIVATE_KEY);
+                String childParticipantCode = createEntity(PARTICIPANT_CREATE, JSONUtils.serialize(mockParticipant), getHeadersMap(headers), ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, PARTICIPANT_CODE);
+                return updateMockDetails(mockParticipant, parentParticipantCode, childParticipantCode, privateKey);
+            } catch (Exception e){
+                throw new RuntimeException();
+            }
+        });
+        return mockDetails;
     }
 
     private void getEmailAndName(String role, Map<String, Object> mockParticipant, Map<String, Object> participantDetails, String name) {
@@ -1170,17 +1177,4 @@ public class OnboardService extends BaseController {
                 onboardingVerifierTable, email, applicantCode, verifierCode, status, System.currentTimeMillis(), System.currentTimeMillis());
         postgreSQLClient.execute(query);
     }
-
-    @Async
-    public CompletableFuture<Map<String, Object>> asyncMockParticipant(HttpHeaders headers, String action, CompletableFuture<Map<String, Object>> mockDetails, Map<String, Object> participantDetails) {
-        mockDetails = CompletableFuture.supplyAsync(() -> {
-            try {
-                return createMockParticipant(headers, action, participantDetails);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        });
-        return mockDetails;
-    }
-
 }
