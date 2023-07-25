@@ -442,8 +442,11 @@ public class OnboardService extends BaseController {
         return (Map<String, Object>) registryResponse.getParticipants().get(0);
     }
 
-    private Map<String, Object> userSearch(String requestBody) throws Exception {
-        HttpResponse<String> searchResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + USER_SEARCH, requestBody, new HashMap<>());
+    private Map<String, Object> userSearch(String requestBody,HttpHeaders headers) throws Exception {
+        Map<String,String> headersMap = new HashMap<>();
+        Token token = new Token(Objects.requireNonNull(headers.get(AUTHORIZATION)).get(0));
+        headersMap.put(AUTHORIZATION,"Bearer " + token.getToken());
+        HttpResponse<String> searchResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + USER_SEARCH, requestBody,headersMap);
         RegistryResponse registryResponse = JSONUtils.deserialize(searchResponse.getBody(), RegistryResponse.class);
         if (registryResponse.getUsers().isEmpty())
             return new HashMap<>();
@@ -667,13 +670,13 @@ public class OnboardService extends BaseController {
         return new ResponseEntity<>(new RegistryResponse(participantList, ORGANISATION), HttpStatus.OK);
     }
 
-    public Response userInvite(Map<String, Object> requestBody) throws Exception {
+    public Response userInvite(Map<String, Object> requestBody,HttpHeaders headers) throws Exception {
         logger.info("User invite: " + requestBody);
         String email = (String) requestBody.getOrDefault(EMAIL, "");
         String role = (String) requestBody.getOrDefault(ROLE, "");
         String code = (String) requestBody.getOrDefault(PARTICIPANT_CODE, "");
         String invitedBy = (String) requestBody.getOrDefault(INVITED_BY, "");
-        if (isUserExistsInOrg(email, role, code)) {
+        if (isUserExistsInOrg(email, role, code,headers)) {
             throw new ClientException("User with " + role + " is already exist in organisation");
         }
         String token = generateInviteToken(code, email, role, invitedBy);
@@ -713,7 +716,7 @@ public class OnboardService extends BaseController {
             throw new ClientException(ErrorCodes.ERR_INVALID_JWT, "Invalid JWT token signature");
         }
         User user = JSONUtils.deserialize(body.get("user"), User.class);
-        boolean isUserExists = isUserExists(user);
+        boolean isUserExists = isUserExists(user,headers);
         if (isUserExists){
             addUser(headers, getAddUserRequestBody(user.getUserId(), token.getParticipantCode(), token.getRole()));
         } else {
@@ -757,14 +760,15 @@ public class OnboardService extends BaseController {
         return JSONUtils.serialize(body);
     }
 
-    private boolean isUserExistsInOrg(String userEmail, String userRole, String participantCode) throws Exception {
+    private boolean isUserExistsInOrg(String userEmail, String userRole, String participantCode,HttpHeaders headers) throws Exception {
+        System.out.println("is user exist -----" + userEmail + ": user role -------" + userRole  + ": participant code -----" + participantCode);
         String body = "{ \"filters\": { \"email\": { \"eq\": \"" + userEmail + "\" }, \"tenant_roles.participant_code\": { \"eq\": \"" + participantCode + "\" }, \"tenant_roles.role\": { \"eq\": \"" + userRole + "\" } } }";
-        return !userSearch(body).isEmpty();
+        return !userSearch(body,headers).isEmpty();
     }
 
-    private boolean isUserExists(User user) throws Exception {
+    private boolean isUserExists(User user,HttpHeaders headers) throws Exception {
         String body = "{ \"filters\": { \"email\": { \"eq\": \"" + user.getEmail() + "\" } } }";
-        Map<String, Object> userDetails = userSearch(body);
+        Map<String, Object> userDetails = userSearch(body,headers);
         if (userDetails.isEmpty()) {
             return false;
         } else {
