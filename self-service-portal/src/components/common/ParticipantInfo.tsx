@@ -82,8 +82,19 @@ const ParticipantInfo = () => {
     getParticipantByCode(_.get(participantDetails, "sponsors[0].verifierCode")).then(res => { 
         console.log("verifier details",res);
 
-        let emailV = res["data"]["participants"][0]["onboard_validation_properties"]["email"] != undefined ? res["data"]["participants"][0]["onboard_validation_properties"]["email"] : "Activation";
-        let phoneV = res["data"]["participants"][0]["onboard_validation_properties"]["phone"] != undefined ? res["data"]["participants"][0]["onboard_validation_properties"]["phone"] : "Activation";
+
+        let emailV = "";
+        try {
+        emailV = res["data"]["participants"][0]["onboard_validation_properties"]["email"] != undefined ? res["data"]["participants"][0]["onboard_validation_properties"]["email"] : "Activation";
+        }catch{
+          emailV = "Activation";
+        }
+        let phoneV = "";
+        try{
+        phoneV = res["data"]["participants"][0]["onboard_validation_properties"]["phone"] != undefined ? res["data"]["participants"][0]["onboard_validation_properties"]["phone"] : "Activation";
+        }catch{
+          phoneV = "Activation";
+        }
         if (emailV == "activation" && phoneV == "verification") {
           setActMessage("Email verification is required to activate the HCX account");
         } else if (emailV == "verification" && phoneV == "activation") {
@@ -403,8 +414,8 @@ const ParticipantInfo = () => {
                 value={actEmail}
                 onChange={(event) => { setActEmail(event.target.value) }}
                 className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" >
-                <option value="activation">Activation</option>
-                <option value="verification">Verification</option>
+                <option value="activation">Activation & communication</option>
+                <option value="verification">Communication</option>
               </select>
             </div>
             <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
@@ -418,8 +429,8 @@ const ParticipantInfo = () => {
                 value={actPhone}
                 onChange={(event) => { setActPhone(event.target.value) }}
                 className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" >
-                <option value="activation">Activation</option>
-                <option value="verification">Verification</option>
+                <option value="activation">Activation & communication</option>
+                <option value="verification">Communication</option>
               </select>
             </div>
           </div>

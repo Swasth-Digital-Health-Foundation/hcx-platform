@@ -1,18 +1,21 @@
 import React from "react";
 import { addAppData } from "../../reducers/app_data";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../store";
+import _ from "lodash";
 
 
 const SideBar = () => {
 
     const dispatch = useDispatch();
+    const appData: Object = useSelector((state: RootState) => state.appDataReducer.appData);
     const handleChange = (value:string) => {
       dispatch(addAppData({"sidebar":value}));
     };
 
 
 
-    const sideBarNames = ["Profile", "Invite User","Manage Participants", "Manage Users","Launch Payor App"];
+    const sideBarNames = ["Profile","Manage Participants", "Manage Users","Launch Payor App"];
     return(
     <aside
     id="logo-sidebar"
@@ -26,7 +29,7 @@ const SideBar = () => {
                 <li>
                     <a
                     href="#"
-                    className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 ml-4"
+                    className={"flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 ml-4" + (_.get(appData,"sidebar") == value ? " bg-gray-100" : "")}
                     onClick={(event)=> handleChange(value)}
                 >
                     <svg
