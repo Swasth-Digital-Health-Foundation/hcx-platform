@@ -761,7 +761,6 @@ public class OnboardService extends BaseController {
     }
 
     private boolean isUserExistsInOrg(String userEmail, String userRole, String participantCode,HttpHeaders headers) throws Exception {
-        System.out.println("is user exist -----" + userEmail + ": user role -------" + userRole  + ": participant code -----" + participantCode);
         String body = "{ \"filters\": { \"email\": { \"eq\": \"" + userEmail + "\" }, \"tenant_roles.participant_code\": { \"eq\": \"" + participantCode + "\" }, \"tenant_roles.role\": { \"eq\": \"" + userRole + "\" } } }";
         return !userSearch(body,headers).isEmpty();
     }
