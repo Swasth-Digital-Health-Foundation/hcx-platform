@@ -1140,17 +1140,16 @@ public class OnboardService extends BaseController {
         boolean result = false;
         String jwtToken = Objects.requireNonNull(headers.get(AUTHORIZATION)).get(0);
         Token token = new Token(jwtToken);
-        if (token.getRoles().contains(ADMIN_ROLE)) {
-            result = true;
-        } else if (StringUtils.equals(token.getEntityType(), "User")) {
-            for (Map<String, String> roleMap : token.getTenantRoles()) {
-                if (StringUtils.equals(roleMap.get(PARTICIPANT_CODE), participantCode) && (StringUtils.equals(roleMap.get(ROLE), ADMIN))) {
-                    result = true;
-                }
+        if (token.getTenantRoles().isEmpty()) {
+            throw new ClientException("Token is not proper to generate password, provide a valid admin token");
+        }
+        for (Map<String, String> roleMap : token.getTenantRoles()) {
+            if (StringUtils.equals(roleMap.get(PARTICIPANT_CODE), participantCode) && StringUtils.equals(roleMap.get(ROLE), ADMIN)) {
+                result = true;
             }
         }
         if (!result) {
-            throw new ClientException(ErrorCodes.ERR_INVALID_JWT, "Only users with an admin role assigned to the %s are authorized to generate the password." + participantCode);
+            throw new ClientException(ErrorCodes.ERR_INVALID_JWT, "Only users with an admin role assigned to the " + participantCode  + " are authorized to generate the password.");
         }
     }
 
