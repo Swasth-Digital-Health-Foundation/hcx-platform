@@ -36,6 +36,7 @@ public class SMSDispatcher extends ProcessFunction<Map<String,Object>, Map<Strin
                 for (String recipient : recipients) {
                     String msgId = sendSMS(recipient, event.get("message").toString());
                     logger.info("SMS is successfully sent :: Mid: {} Message Id: {}", event.get("mid"), msgId);
+                    // TODO: add auditing
                 }
             }
         } catch (Exception e) {

@@ -22,6 +22,8 @@ public class MessageServiceConfig extends BaseJobConfig {
     public String awsAccessKey;
     public String awsAccessSecret;
     public String awsRegion;
+    public String emailId;
+    public String emailPwd;
 
     public OutputTag<Map<String,Object>> emailOutputTag = new OutputTag<>("email-events") {
     };
@@ -43,5 +45,7 @@ public class MessageServiceConfig extends BaseJobConfig {
         awsAccessKey = config.getString("aws.access-key");
         awsAccessSecret = config.getString("aws.access-secret");
         awsRegion = config.getString("aws.region");
+        emailId = config.getString("email.id");
+        emailPwd = config.getString("email.pwd");
     }
 }
