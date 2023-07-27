@@ -1,5 +1,6 @@
 package org.swasth.hcx.services;
 
+import com.amazonaws.services.dynamodbv2.xspec.S;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.Gson;
 import freemarker.template.TemplateException;
@@ -56,8 +57,10 @@ public class OnboardService extends BaseController {
 
     private static final Logger logger = LoggerFactory.getLogger(BaseController.class);
 
-    @Value("${email.linkSub}")
+    @Value("${email.send-link-sub}")
     private String linkSub;
+    @Value("${email.regenerate-link-sub}")
+    private String regenerateLinkSub;
     @Value("${email.verification-sub}")
     private String verificationSub;
     @Value("${phone.send-link-msg}")
@@ -297,10 +300,15 @@ public class OnboardService extends BaseController {
         if (!phoneVerified && requestBody.containsKey(PRIMARY_MOBILE)) {
             shortUrl = hcxURL + "/api/url/" + generateRandomPassword(10);
             longUrl = generateURL(requestBody, PHONE, (String) requestBody.get(PRIMARY_MOBILE)).toString();
-            smsService.sendLink((String) requestBody.get(PRIMARY_MOBILE), phoneSub + "\r\n" + shortUrl);
+            String phoneMessage = phoneSub.replace("USERNAME",(String) requestBody.get(PARTICIPANT_NAME)).replace("LINK",shortUrl);
+            smsService.sendLink((String) requestBody.get(PRIMARY_MOBILE), phoneMessage);
         }
         if (!emailVerified && requestBody.containsKey(PRIMARY_EMAIL)) {
-            emailService.sendMail((String) requestBody.get(PRIMARY_EMAIL), linkSub, linkTemplate((String) requestBody.get(PARTICIPANT_NAME), (String) requestBody.get(PARTICIPANT_CODE), generateURL(requestBody, EMAIL, (String) requestBody.get(PRIMARY_EMAIL)), linkExpiry / 86400000, (ArrayList<String>) requestBody.get(ROLES), (String) requestBody.getOrDefault("user_id", "")));
+            if (regenerateCount > 0) {
+                emailService.sendMail((String) requestBody.get(PRIMARY_EMAIL), regenerateLinkSub, regenerateLinkTemplate((String) requestBody.get(PARTICIPANT_NAME), generateURL(requestBody, EMAIL, (String) requestBody.get(PRIMARY_EMAIL)), linkExpiry / 86400000));
+            } else {
+                emailService.sendMail((String) requestBody.get(PRIMARY_EMAIL), linkSub, linkTemplate((String) requestBody.get(PARTICIPANT_NAME), (String) requestBody.get(PARTICIPANT_CODE), generateURL(requestBody, EMAIL, (String) requestBody.get(PRIMARY_EMAIL)), linkExpiry / 86400000, (ArrayList<String>) requestBody.get(ROLES), (String) requestBody.getOrDefault("user_id", "")));
+            }
         }
         regenerateCount++;
         String updateQuery = String.format("UPDATE %s SET updatedOn=%d, expiry=%d, regenerate_count=%d, last_regenerate_date='%s', phone_short_url='%s', phone_long_url='%s' WHERE primary_email='%s'",
@@ -679,7 +687,10 @@ public class OnboardService extends BaseController {
         String token = generateInviteToken(code, email, role, invitedBy);
         URL url = new URL(String.format("%s%s?jwt_token=%s", hcxURL, userInviteEndpoint, token));
         Map<String, Object> participant = getParticipant(PARTICIPANT_CODE, code);
-        emailService.sendMail(email, userInviteSub, userInviteTemplate((String) participant.getOrDefault(PARTICIPANT_NAME, ""), role, url));
+        // for user
+        emailService.sendMail(email, userInviteSub, userInviteUserTemplate(email,(String) participant.getOrDefault(PARTICIPANT_NAME, ""), role, url));
+        // for participant
+        emailService.sendMail((String) participant.get(PRIMARY_EMAIL), userInviteSub, userInviteParticipantTemplate((String) participant.getOrDefault(PARTICIPANT_NAME, ""), role,email));
         String query = String.format("INSERT INTO %s (participant_code,user_email,invited_by,invite_status,created_on) VALUES ('%s','%s','%s','pending',%d)", onboardUserInviteTable, code, email, invitedBy, System.currentTimeMillis());
         postgreSQLClient.execute(query);
         auditIndexer.createDocument(eventGenerator.getOnboardUserInvite(requestBody,(String) participant.getOrDefault(PARTICIPANT_NAME, "")));
@@ -705,7 +716,7 @@ public class OnboardService extends BaseController {
         return jwtUtils.generateJWS(headers, payload, privatekey);
     }
 
-    public Response userInviteAccept(HttpHeaders headers, Map<String, Object> body) throws ClientException, Exception {
+    public Response userInviteAccept(HttpHeaders headers, Map<String, Object> body) throws Exception {
         logger.info("User invite accepted: " + body);
         Token token = new Token((String) body.getOrDefault(JWT_TOKEN, ""));
         Map<String, Object> hcxDetails = getParticipant(PARTICIPANT_CODE, hcxCode);
@@ -721,11 +732,10 @@ public class OnboardService extends BaseController {
         }
         updateInviteStatus(user.getEmail(), "accepted");
         Map<String,Object> participantDetails = getParticipant(PARTICIPANT_CODE, token.getParticipantCode());
-        if (isUserExists) {
-            emailService.sendMail(user.getEmail(), Arrays.asList(token.getInvitedBy()), userInviteAcceptSub, existingUserInviteAcceptTemplate((String) participantDetails.get(PARTICIPANT_NAME), user.getUsername()));
-        } else {
-            emailService.sendMail(user.getEmail(), Arrays.asList(token.getInvitedBy()), userInviteAcceptSub, userInviteAcceptTemplate(user.getUserId(), (String) participantDetails.get(PARTICIPANT_NAME), user.getUsername()));
-        }
+        // user
+        emailService.sendMail(user.getEmail(), Collections.singletonList(token.getInvitedBy()), userInviteAcceptSub, userInviteAcceptTemplate(user.getUserId(), (String) participantDetails.get(PARTICIPANT_NAME), user.getUsername(),user.getRole()));
+        // participant
+        emailService.sendMail((String) participantDetails.get(PRIMARY_EMAIL),Collections.singletonList(token.getInvitedBy()),userInviteAcceptSub,userInviteAcceptParticipantTemplate((String) participantDetails.get(PARTICIPANT_NAME),user.getUsername(),user.getRole()));
         auditIndexer.createDocument(eventGenerator.getOnboardUserInviteAccepted(user,participantDetails));
         return getSuccessResponse();
     }
@@ -837,31 +847,45 @@ public class OnboardService extends BaseController {
         Map<String, Object> model = new HashMap<>();
         model.put("EMAIL", email);
         model.put("PARTICIPANT_NAME", participantName);
-        return freemarkerService.renderTemplate("user-invite-reject.ftl", model);
+        return freemarkerService.renderTemplate("user-invite-reject-participant.ftl", model);
     }
 
-    private String userInviteAcceptTemplate(String userId, String participantName, String username) throws Exception {
+    private String userInviteAcceptTemplate(String userId, String participantName, String username, String role) throws Exception {
         Map<String, Object> model = new HashMap<>();
         model.put("USER_NAME", username);
         model.put("USER_ID", userId);
         model.put("PARTICIPANT_NAME", participantName);
-        return freemarkerService.renderTemplate("user-invite-accept.ftl", model);
+        model.put("ENV", env);
+        model.put("ROLE", role);
+        return freemarkerService.renderTemplate("user-invite-accepted-user.ftl", model);
     }
 
-    private String existingUserInviteAcceptTemplate(String participantName, String username) throws Exception {
+    private String userInviteAcceptParticipantTemplate(String participantName, String username, String role) throws Exception {
         Map<String, Object> model = new HashMap<>();
         model.put("USER_NAME", username);
         model.put("PARTICIPANT_NAME", participantName);
-        return freemarkerService.renderTemplate("existing-user-invite-accept.ftl", model);
+        model.put("ROLE", role);
+        return freemarkerService.renderTemplate("user-invite-accepted-participant.ftl", model);
     }
 
-    private String userInviteTemplate(String name, String role, URL signedURL) throws Exception {
+
+    private String userInviteUserTemplate(String email, String name, String role, URL signedURL) throws Exception {
         Map<String, Object> model = new HashMap<>();
+        model.put("USER_EMAIL", email);
         model.put("PARTICIPANT_NAME", name);
         model.put("USER_ROLE", role);
         model.put("USER_INVITE_URL", signedURL);
-        return freemarkerService.renderTemplate("user-invite.ftl", model);
+        return freemarkerService.renderTemplate("user-invite-request-user.ftl", model);
     }
+
+    private String userInviteParticipantTemplate(String name, String role, String userEmail) throws Exception {
+        Map<String, Object> model = new HashMap<>();
+        model.put("PARTICIPANT_NAME", name);
+        model.put("USER_ROLE", role);
+        model.put("EMAIL", userEmail);
+        return freemarkerService.renderTemplate("user-invite-request-participant.ftl", model);
+    }
+
 
     private String linkTemplate(String name, String code, URL signedURL, int day, ArrayList<String> role, String userId) throws Exception {
         Map<String, Object> model = new HashMap<>();
@@ -871,10 +895,15 @@ public class OnboardService extends BaseController {
         model.put("role", role.get(0));
         model.put("DAY", day);
         model.put("USER_ID", userId);
-        model.put("TERMS_AND_CONDITIONS_URL", termsAndConditionsUrl);
-        return freemarkerService.renderTemplate("send-link.ftl", model);
+        return freemarkerService.renderTemplate("send-email-verification-link.ftl", model);
     }
-
+    private String regenerateLinkTemplate(String name, URL signedURL, int day) throws TemplateException, IOException {
+        Map<String, Object> model = new HashMap<>();
+        model.put("USER_NAME", name);
+        model.put("URL", signedURL);
+        model.put("DAY", day);
+        return freemarkerService.renderTemplate("regenerate-send-email-verification-link.ftl", model);
+    }
     private String successTemplate(String participantName, Map<String, Object> mockProviderDetails, Map<String, Object> mockPayorDetails) throws Exception {
         Map<String, Object> model = new HashMap<>();
         model.put("USER_NAME", participantName);
