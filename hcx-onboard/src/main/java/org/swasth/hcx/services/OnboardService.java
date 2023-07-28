@@ -138,10 +138,8 @@ public class OnboardService extends BaseController {
 
     @Value("${endpoint.user-invite}")
     private String userInviteEndpoint;
-
     @Value("${email.user-invite-sub}")
     private String userInviteSub;
-
     @Value("${email.user-invite-accept-sub}")
     private String userInviteAcceptSub;
     @Value("${email.user-invite-reject-sub}")
@@ -150,8 +148,6 @@ public class OnboardService extends BaseController {
     private String emailConfig;
     @Value("${onboard.phone}")
     private String phoneConfig;
-    @Value("${onboard.terms-and-conditions-url}")
-    private String termsAndConditionsUrl;
 
     @Autowired
     private SMSService smsService;
@@ -798,7 +794,7 @@ public class OnboardService extends BaseController {
         User user = JSONUtils.deserialize(body.get("user"), User.class);
         updateInviteStatus(user.getEmail(), "rejected");
         Map<String,Object> participantDetails = getParticipant(PARTICIPANT_CODE, token.getParticipantCode());
-        emailService.sendMail(user.getEmail(), Collections.singletonList(token.getInvitedBy()), userInviteRejectSub, userInviteRejectTemplate(user.getEmail(), (String) participantDetails.get(PARTICIPANT_NAME)));
+        emailService.sendMail(user.getEmail(), Collections.singletonList(token.getInvitedBy()), userInviteRejectSub, userInviteRejectTemplate(user.getEmail(), (String) participantDetails.get(PARTICIPANT_NAME),user.getRole()));
         auditIndexer.createDocument(eventGenerator.getOnboardUserInviteRejected(user, (String) hcxDetails.getOrDefault(PARTICIPANT_NAME,"")));
         return getSuccessResponse();
     }
@@ -843,10 +839,11 @@ public class OnboardService extends BaseController {
         return jwtUtils.generateJWS(headers, payload, privatekey);
     }
 
-    private String userInviteRejectTemplate(String email, String participantName) throws Exception {
+    private String userInviteRejectTemplate(String email, String participantName, String role) throws Exception {
         Map<String, Object> model = new HashMap<>();
-        model.put("EMAIL", email);
         model.put("PARTICIPANT_NAME", participantName);
+        model.put("EMAIL", email);
+        model.put("ROLE", role);
         return freemarkerService.renderTemplate("user-invite-reject-participant.ftl", model);
     }
 
@@ -897,6 +894,7 @@ public class OnboardService extends BaseController {
         model.put("USER_ID", userId);
         return freemarkerService.renderTemplate("send-email-verification-link.ftl", model);
     }
+
     private String regenerateLinkTemplate(String name, URL signedURL, int day) throws TemplateException, IOException {
         Map<String, Object> model = new HashMap<>();
         model.put("USER_NAME", name);
@@ -904,6 +902,7 @@ public class OnboardService extends BaseController {
         model.put("DAY", day);
         return freemarkerService.renderTemplate("regenerate-send-email-verification-link.ftl", model);
     }
+
     private String successTemplate(String participantName, Map<String, Object> mockProviderDetails, Map<String, Object> mockPayorDetails) throws Exception {
         Map<String, Object> model = new HashMap<>();
         model.put("USER_NAME", participantName);
@@ -934,11 +933,11 @@ public class OnboardService extends BaseController {
         return freemarkerService.renderTemplate("verification-status.ftl", model);
     }
 
-    private String passwordGenerate(String participantName,String password,String email) throws Exception {
+    private String passwordGenerate(String participantName, String password, String email) throws Exception {
         Map<String, Object> model = new HashMap<>();
         model.put("PARTICIPANT_NAME", participantName);
-        model.put("USERNAME",email);
-        model.put("PASSWORD",password);
+        model.put("USERNAME", email);
+        model.put("PASSWORD", password);
         return freemarkerService.renderTemplate("password-generate.ftl", model);
     }
 
