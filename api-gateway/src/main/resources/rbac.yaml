@@ -264,3 +264,5 @@ rbac:
     regexPaths:
       - /v0.8/user/**
       - /v0.8/participant/user/**
+      - /v0.7/applicant/search**
+      - /v0.8/applicant/search**
