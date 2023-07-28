@@ -19,8 +19,6 @@ public class User {
     private String email;
 
     private String mobile;
-
-    private String role;
     @JsonProperty("tenant_roles")
     private List<Map<String,Object>> tenantRoles;
     
