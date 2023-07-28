@@ -191,9 +191,5 @@ public class Request {
 
     public List<String> getRecipientTag() { return (List<String>) recipientDetails().getOrDefault(TAGS,new ArrayList<>());}
 
-    public byte[] getPayloadSize() {
-        return payload.getOrDefault(PAYLOAD, "").toString().getBytes();
-    }
-
 }
 

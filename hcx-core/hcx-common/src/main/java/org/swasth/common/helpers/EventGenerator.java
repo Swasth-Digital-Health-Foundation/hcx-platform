@@ -86,7 +86,6 @@ public class EventGenerator {
         event.put(RECIPIENT_NAME, request.getRecipientName());
         event.put(SENDER_PRIMARY_EMAIL, request.getSenderPrimaryEmail());
         event.put(RECIPIENT_PRIMARY_EMAIL, request.getRecipientPrimaryEmail());
-        event.put(PAYLOAD_SIZE,request.getPayloadSize().length);
         getTag(request,event);
         return event;
     }
