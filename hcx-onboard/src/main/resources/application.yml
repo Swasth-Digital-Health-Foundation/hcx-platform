@@ -46,7 +46,6 @@ email:
   password-generate-sub: ${password_generate_sub:HCX - Participant Client Secret}
 
 phone:
-  send-link-msg : ${send_link_msg:Dear USERNAME,"\r\n" To verify you mobile no. as part of HCX onboarding process, click on LINK and proceed as directed."\r\n" Link validity:7 days}
   verification-msg: ${phone_verification_msg:Your phone verification is STATUS.}
 
 hcx-api:

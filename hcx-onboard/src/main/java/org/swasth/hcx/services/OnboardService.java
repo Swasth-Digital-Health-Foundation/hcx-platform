@@ -62,8 +62,6 @@ public class OnboardService extends BaseController {
     private String regenerateLinkSub;
     @Value("${email.verification-sub}")
     private String verificationSub;
-    @Value("${phone.send-link-msg}")
-    private String phoneSub;
     @Value("${phone.verification-msg}")
     private String phoneStatus;
     @Value("${email.password-generate-sub}")
@@ -295,7 +293,7 @@ public class OnboardService extends BaseController {
         if (!phoneVerified && requestBody.containsKey(PRIMARY_MOBILE)) {
             shortUrl = hcxURL + "/api/url/" + generateRandomPassword(10);
             longUrl = generateURL(requestBody, PHONE, (String) requestBody.get(PRIMARY_MOBILE)).toString();
-            String phoneMessage = String.format("Dear %s,\n\nTo verify your mobile number as part of the HCX onboarding process," + "click on %s and proceed as directed.\n\nLink validity: 7 days.", requestBody.getOrDefault(PARTICIPANT_NAME,"user"), shortUrl);
+            String phoneMessage = String.format("Dear %s,\n\nTo verify your mobile number as part of the HCX onboarding process, " + "click on %s and proceed as directed.\n\nLink validity: 7 days.", requestBody.getOrDefault(PARTICIPANT_NAME,"user"), shortUrl);
             smsService.sendLink((String) requestBody.get(PRIMARY_MOBILE), phoneMessage);
         }
         if (!emailVerified && requestBody.containsKey(PRIMARY_EMAIL)) {
