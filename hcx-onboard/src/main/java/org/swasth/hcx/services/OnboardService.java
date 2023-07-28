@@ -296,7 +296,7 @@ public class OnboardService extends BaseController {
         if (!phoneVerified && requestBody.containsKey(PRIMARY_MOBILE)) {
             shortUrl = hcxURL + "/api/url/" + generateRandomPassword(10);
             longUrl = generateURL(requestBody, PHONE, (String) requestBody.get(PRIMARY_MOBILE)).toString();
-            String phoneMessage = phoneSub.replace("USERNAME",(String) requestBody.get(PARTICIPANT_NAME)).replace("LINK",shortUrl);
+            String phoneMessage = String.format("Dear %s,\n\nTo verify your mobile number as part of the HCX onboarding process," + "click on %s and proceed as directed.\n\nLink validity: 7 days.", requestBody.getOrDefault(PARTICIPANT_NAME,"user"), shortUrl);
             smsService.sendLink((String) requestBody.get(PRIMARY_MOBILE), phoneMessage);
         }
         if (!emailVerified && requestBody.containsKey(PRIMARY_EMAIL)) {
@@ -794,7 +794,7 @@ public class OnboardService extends BaseController {
         User user = JSONUtils.deserialize(body.get("user"), User.class);
         updateInviteStatus(user.getEmail(), "rejected");
         Map<String,Object> participantDetails = getParticipant(PARTICIPANT_CODE, token.getParticipantCode());
-        emailService.sendMail(user.getEmail(), Collections.singletonList(token.getInvitedBy()), userInviteRejectSub, userInviteRejectTemplate(user.getEmail(), (String) participantDetails.get(PARTICIPANT_NAME),user.getRole()));
+        emailService.sendMail((String) participantDetails.get(PRIMARY_EMAIL), Collections.singletonList(token.getInvitedBy()), userInviteRejectSub, userInviteRejectTemplate(user.getEmail(), (String) participantDetails.get(PARTICIPANT_NAME)));
         auditIndexer.createDocument(eventGenerator.getOnboardUserInviteRejected(user, (String) hcxDetails.getOrDefault(PARTICIPANT_NAME,"")));
         return getSuccessResponse();
     }
@@ -839,11 +839,10 @@ public class OnboardService extends BaseController {
         return jwtUtils.generateJWS(headers, payload, privatekey);
     }
 
-    private String userInviteRejectTemplate(String email, String participantName, String role) throws Exception {
+    private String userInviteRejectTemplate(String email, String participantName) throws Exception {
         Map<String, Object> model = new HashMap<>();
         model.put("PARTICIPANT_NAME", participantName);
         model.put("EMAIL", email);
-        model.put("ROLE", role);
         return freemarkerService.renderTemplate("user-invite-reject-participant.ftl", model);
     }
 
@@ -859,8 +858,8 @@ public class OnboardService extends BaseController {
 
     private String userInviteAcceptParticipantTemplate(String participantName, String username, String role) throws Exception {
         Map<String, Object> model = new HashMap<>();
-        model.put("USER_NAME", username);
         model.put("PARTICIPANT_NAME", participantName);
+        model.put("USER_NAME", username);
         model.put("ROLE", role);
         return freemarkerService.renderTemplate("user-invite-accepted-participant.ftl", model);
     }
@@ -900,7 +899,7 @@ public class OnboardService extends BaseController {
         model.put("USER_NAME", name);
         model.put("URL", signedURL);
         model.put("DAY", day);
-        return freemarkerService.renderTemplate("regenerate-send-email-verification-link.ftl", model);
+        return freemarkerService.renderTemplate("regenerate-send-link.ftl", model);
     }
 
     private String successTemplate(String participantName, Map<String, Object> mockProviderDetails, Map<String, Object> mockPayorDetails) throws Exception {
