@@ -4,6 +4,7 @@ rbac:
       - /health
       - /service/health
       - /v0.8/participant/auth/token/generate
+      - /v0.7/participant/auth/token/generate
       - /v0.8/user/auth/token/generate
     regexPaths:
       - /url/**
