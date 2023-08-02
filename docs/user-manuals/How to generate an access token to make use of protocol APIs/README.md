@@ -1,7 +1,7 @@
 # How to generate an access token to make use of protocol APIs?
 
-### For every request you are sending to HCX,needs access token.
-### To generate the access token, utilize the below curl command :
+For every request you are sending to HCX,needs access token.
+To generate the access token, utilize the below curl command :
 
 ```postman
 curl --location 'http://${env}-hcx.swasth.app/api/v0.8/participant/auth/token/generate' \
