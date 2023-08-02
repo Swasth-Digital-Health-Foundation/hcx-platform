@@ -4,15 +4,15 @@
 ### To generate the access token, utilize the below curl command :
 
 ```postman
-curl --location 'http://${ENV}-hcx.swasth.app/api/v0.8/participant/auth/token/generate' \
+curl --location 'http://${env}-hcx.swasth.app/api/v0.8/participant/auth/token/generate' \
 --header 'content-type: application/x-www-form-urlencoded' \
---data-urlencode 'username=${USER_ID}' \
---data-urlencode 'participant_code=${PARTICIPANT_CODE}' \
---data-urlencode 'password=${PASSWORD}'
+--data-urlencode 'username=${user_id}' \
+--data-urlencode 'participant_code=${participant_code}' \
+--data-urlencode 'password=${password}'
 ```
 |**Variable Name**|**Details**|**example values**|
 | :-: | :-: | :-: |
-|ENV|Change the environment which user using|[dev,staging]|
-|USER_ID|Add your user id |testuser@gmail.com|
-|PARTICIPANT_CODE|organisation code|test-user@swasth-hcx|
-|PASSWORD|password sent via email|Opensaber@123
+|env|Modify the environment your using with HCX|[dev,staging]|
+|user_id|user id given to the user|testuser@gmail.com|
+|participant_code|organisation code|test-user@swasth-hcx|
+|password|password sent via email|Opensaber@123
