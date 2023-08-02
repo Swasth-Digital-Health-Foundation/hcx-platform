@@ -1,10 +1,10 @@
 # How to generate an access token to make use of protocol APIs?
 
-For every request you are sending to HCX,needs access token.
-To generate the access token, utilize the below curl command :
+For every request you are sending to HCX, needs access token.
+To generate the access token utilize the below curl command :
 
 ```postman
-curl --location 'http://${env}-hcx.swasth.app/api/v0.8/participant/auth/token/generate' \
+curl --location 'http://${env}-hcx.swasth.app/api/${api-version}/participant/auth/token/generate' \
 --header 'content-type: application/x-www-form-urlencoded' \
 --data-urlencode 'username=${user_id}' \
 --data-urlencode 'participant_code=${participant_code}' \
@@ -13,11 +13,13 @@ curl --location 'http://${env}-hcx.swasth.app/api/v0.8/participant/auth/token/ge
 |**Variable Name**|**Details**|**example values**|
 | :-: | :-: | :-: |
 |env|Modify the environment your using with HCX|[dev,staging]|
-|user_id|user id given to the user|testuser@gmail.com|
-|participant_code|organisation code|test-user@swasth-hcx|
-|password|password sent via email|Opensaber@123
+|api-version|Use latest version (v0.8)|v0.8
+|user_id|User id given to the user|testuser@gmail.com|
+|participant_code|Organisation code|test-user@swasth-hcx|
+|password|Password sent via email|Opensaber@123
 
-### HCX instance would respond with the API token upon successful validation of the username and password values:
+
+HCX instance would respond with the API token upon successful validation of the username and password values:
 ```java
 HTTP/1.1 200 OK
 Content-Type: application/json
