@@ -72,7 +72,7 @@ public class JWTService extends BaseRegistryService {
             modifiedPayloadBuilder.claim(USER_ID, userDetails.get(USER_ID));
         } else if (StringUtils.equals(jwtToken.getEntityType(),ORGANISATION)) {
             modifiedPayloadBuilder.claim(PARTICIPANT_CODE, getParticipantDetails(PRIMARY_EMAIL, (String) modifiedPayloadBuilder.getClaims().get(EMAIL)).get(PARTICIPANT_CODE));
-        } else if (jwtToken.getIssuer().contains("protocol-api-access")){
+        } else if (jwtToken.getIssuer().contains(API_ACCESS)){
             Map<String,Object> participantDetails = getParticipantDetails(PARTICIPANT_CODE, requestBody.getFirst(PARTICIPANT_CODE));
             Map<String, Object> userDetails = getUser(getUserSearchRequest(requestBody.getFirst(PARTICIPANT_CODE), requestBody.getFirst(USER_ID)));
             modifiedPayloadBuilder.claim(PARTICIPANT_CODE, requestBody.getFirst(PARTICIPANT_CODE));
