@@ -81,7 +81,7 @@ public class JWTService extends BaseRegistryService {
             realmAccess.put("participant_roles", participantDetails.get(ROLES));
             realmAccess.put("user_roles", getUserRoles(userDetails));
             modifiedPayloadBuilder.claim(REALM_ACCESS, realmAccess);
-            modifiedPayloadBuilder.claim(SUB, participantDetails.get(OS_OWNER));
+            modifiedPayloadBuilder.claim(SUB, ((List<String>) participantDetails.get(OS_OWNER)).get(0));
         }
         JWTClaimsSet modifiedPayload = modifiedPayloadBuilder.build();
         SignedJWT newToken = new SignedJWT(new JWSHeader.Builder(JWSAlgorithm.RS256).build(), modifiedPayload);
