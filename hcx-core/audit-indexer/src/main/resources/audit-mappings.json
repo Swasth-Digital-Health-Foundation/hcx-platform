@@ -161,6 +161,9 @@
     },
     "invited_by": {
       "type": "keyword"
+    },
+    "payload_size": {
+      "type": "integer"
     }
   }
 }

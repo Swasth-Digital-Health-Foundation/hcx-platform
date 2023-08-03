@@ -1,5 +1,6 @@
 package org.swasth.dp.core.function
 
+import com.fasterxml.jackson.core.JsonProcessingException
 import org.apache.commons.collections.MapUtils
 import org.apache.commons.lang3.StringUtils
 import org.apache.flink.configuration.Configuration
@@ -237,6 +238,7 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
     audit.put(Constants.SENDER_PRIMARY_EMAIL, getCDataStringValue(event, Constants.SENDER, Constants.PRIMARY_EMAIL))
     audit.put(Constants.RECIPIENT_PRIMARY_EMAIL, getCDataStringValue(event, Constants.RECIPIENT, Constants.PRIMARY_EMAIL))
     audit.put(Constants.PAYLOAD, removeSensitiveData(payload))
+    audit.put(Constants.PAYLOAD_SIZE,getPayloadSize)
     getTag(event,audit)
     Console.println("Audit event: " + audit)
     audit
@@ -313,4 +315,6 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
       audit.put(Constants.TAGS, tag)
     }
   }
+  @throws[JsonProcessingException]
+  def getPayloadSize: Integer = payload.get(Constants.PAYLOAD).asInstanceOf[String].getBytes.length
 }
