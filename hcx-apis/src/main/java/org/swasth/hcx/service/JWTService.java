@@ -31,10 +31,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.swasth.common.utils.Constants.*;
@@ -43,18 +40,8 @@ import static org.swasth.common.utils.Constants.*;
 @Service
 public class JWTService extends BaseRegistryService {
 
-    @Value("${keycloak.client-id}")
-    private String clientId;
-
     @Value("${keycloak.grant-type}")
     private String grantType;
-
-    @Value("${keycloak.user-realm-url}")
-    private String userRealmUrl;
-
-    @Value("${keycloak.participant-realm-url}")
-    private String participantRealmUrl;
-
     @Value("${registry.user-api-path}")
     private String registryUserPath;
     @Autowired
@@ -62,29 +49,39 @@ public class JWTService extends BaseRegistryService {
 
     Map<String,Object> jwtSignerExist = new HashMap<>();
 
-    public Map<String, Object> getToken(MultiValueMap<String, String> requestBody, String filename, String realm) throws Exception {
-        AccessTokenResponse accessTokenResponse = generateToken(requestBody, realm);
+    public Map<String, Object> getToken(MultiValueMap<String, String> requestBody, String filename, String realm, String clientId) throws Exception {
+        AccessTokenResponse accessTokenResponse = generateToken(requestBody, realm, clientId);
         if (accessTokenResponse == null || accessTokenResponse.getToken() == null) {
             throw new ClientException("Access token response or Access token is null.");
         }
-        String modifiedAccessToken = modifyToken(accessTokenResponse.getToken(), requestBody.getFirst("username"), filename);
+        String modifiedAccessToken = modifyToken(accessTokenResponse.getToken(), requestBody.getFirst("username"), filename, requestBody);
         return getResponse(accessTokenResponse, modifiedAccessToken);
     }
 
-    private String modifyToken(String originalToken, String email, String keyFilePath) throws Exception {
+    private String modifyToken(String originalToken, String email, String keyFilePath, MultiValueMap<String, String> requestBody) throws Exception {
         Token jwtToken = new Token(originalToken);
         JWSSigner signer = getSigner(jwtToken.getEntityType(),keyFilePath);
         SignedJWT parsedToken = SignedJWT.parse(originalToken);
         JWTClaimsSet originalPayload = parsedToken.getJWTClaimsSet();
         JWTClaimsSet.Builder modifiedPayloadBuilder = new JWTClaimsSet.Builder(originalPayload);
         if (StringUtils.equals(jwtToken.getEntityType(),USER)) {
-            Map<String, Object> userDetails = getUser(email);
-            Map<String, Object> realmAccess = (Map<String, Object>) modifiedPayloadBuilder.getClaims().get("realm_access");
+            Map<String, Object> userDetails = getUser(getRequestBody(USER_ID, email));
+            Map<String, Object> realmAccess = (Map<String, Object>) modifiedPayloadBuilder.getClaims().get(REALM_ACCESS);
             realmAccess.put(TENANT_ROLES, userDetails.getOrDefault(TENANT_ROLES,new ArrayList<>()));
-            modifiedPayloadBuilder.claim("realm_access", realmAccess);
+            modifiedPayloadBuilder.claim(REALM_ACCESS, realmAccess);
             modifiedPayloadBuilder.claim(USER_ID, userDetails.get(USER_ID));
         } else if (StringUtils.equals(jwtToken.getEntityType(),ORGANISATION)) {
-            modifiedPayloadBuilder.claim(PARTICIPANT_CODE, getParticipantCode((String) modifiedPayloadBuilder.getClaims().get(EMAIL)));
+            modifiedPayloadBuilder.claim(PARTICIPANT_CODE, getParticipantDetails(PRIMARY_EMAIL, (String) modifiedPayloadBuilder.getClaims().get(EMAIL)).get(PARTICIPANT_CODE));
+        } else if (jwtToken.getIssuer().contains("protocol-api-access")){
+            Map<String,Object> participantDetails = getParticipantDetails(PARTICIPANT_CODE, requestBody.getFirst(PARTICIPANT_CODE));
+            Map<String, Object> userDetails = getUser(getUserSearchRequest(requestBody.getFirst(PARTICIPANT_CODE), requestBody.getFirst(USER_ID)));
+            modifiedPayloadBuilder.claim(PARTICIPANT_CODE, requestBody.getFirst(PARTICIPANT_CODE));
+            modifiedPayloadBuilder.claim(USER_ID, requestBody.getFirst(USER_ID));
+            Map<String, Object> realmAccess = new HashMap<>();
+            realmAccess.put("participant_roles", participantDetails.get(ROLES));
+            realmAccess.put("user_roles", getUserRoles(userDetails));
+            modifiedPayloadBuilder.claim(REALM_ACCESS, realmAccess);
+            modifiedPayloadBuilder.claim(SUB, participantDetails.get(OS_OWNER));
         }
         JWTClaimsSet modifiedPayload = modifiedPayloadBuilder.build();
         SignedJWT newToken = new SignedJWT(new JWSHeader.Builder(JWSAlgorithm.RS256).build(), modifiedPayload);
@@ -92,7 +89,7 @@ public class JWTService extends BaseRegistryService {
         return newToken.serialize();
     }
 
-    private AccessTokenResponse generateToken(MultiValueMap<String, String> requestBody, String realm) {
+    private AccessTokenResponse generateToken(MultiValueMap<String, String> requestBody, String realm, String clientId) {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -118,18 +115,20 @@ public class JWTService extends BaseRegistryService {
         return keycloakMap;
     }
 
-    private String getParticipantCode(String emailId) throws Exception {
-        ResponseEntity<Object> searchResponse = getSuccessResponse(participantService.search(JSONUtils.deserialize(getRequestBody(PRIMARY_EMAIL, emailId), Map.class)));
+    private Map<String,Object> getParticipantDetails(String key, String value) throws Exception {
+        ResponseEntity<Object> searchResponse = getSuccessResponse(participantService.search(JSONUtils.deserialize(getRequestBody(key, value), Map.class)));
         RegistryResponse searchResp = (RegistryResponse) searchResponse.getBody();
         if (searchResp == null || searchResp.getParticipants() == null || searchResp.getParticipants().isEmpty()  ) {
             throw new ClientException(ErrorCodes.ERR_ACCESS_DENIED, "Invalid credentials");
         }
-        Map<String, Object> userDetails = (Map<String, Object>) searchResp.getParticipants().get(0);
-        return (String) userDetails.get(PARTICIPANT_CODE);
+        return (Map<String, Object>) searchResp.getParticipants().get(0);
     }
 
-    private Map<String, Object> getUser(String emailId) throws JsonProcessingException, ServerException, AuthorizationException, ClientException, ResourceNotFoundException {
-        RegistryResponse registryResponse = search(JSONUtils.deserialize(getRequestBody(EMAIL, emailId), Map.class), registryUserPath, USER);
+    private Map<String, Object> getUser(String requestBody) throws JsonProcessingException, ServerException, AuthorizationException, ClientException, ResourceNotFoundException {
+        RegistryResponse registryResponse = search(JSONUtils.deserialize(requestBody, Map.class), registryUserPath, USER);
+        if (registryResponse.getUsers().isEmpty()) {
+            throw new ClientException(ErrorCodes.ERR_INVALID_USER_DETAILS, "Invalid user details");
+        }
         Map<String, Object> userDetails = (Map<String, Object>) registryResponse.getUsers().get(0);
         List<Map<String, Object>> tenantRolesList = (List<Map<String, Object>>) userDetails.getOrDefault(TENANT_ROLES, new ArrayList<>());
         List<Map<String, Object>> outputList = tenantRolesList.stream().map(tenant -> {
@@ -164,6 +163,26 @@ public class JWTService extends BaseRegistryService {
             jwtSignerExist.put(entitType, signer);
         }
         return signer;
+    }
+
+    private String getUserSearchRequest(String participantCode, String userId) {
+        return "{ \"filters\": { \"tenant_roles.participant_code\": { \"eq\": \"" + participantCode + "\" }, \"user_id\": { \"eq\": \"" + userId + "\" } } }";
+    }
+
+    private Set<String> getUserRoles(Map<String,Object> userDetails) {
+        Set<String> roles = new HashSet<>();
+        for(Map<String,Object> tenantRoles: (List<Map<String,Object>>) userDetails.get(TENANT_ROLES)){
+            roles.add((String) tenantRoles.get(ROLE));
+        }
+        return roles;
+    }
+
+    public void validate(MultiValueMap<String, String> requestBody) throws ClientException {
+        if(!requestBody.containsKey(PARTICIPANT_CODE)) {
+            throw new ClientException("Invalid request, participant_code is mandatory");
+        } else if (!requestBody.containsKey(USERNAME)){
+            throw new ClientException("Invalid request, user_id is mandatory");
+        }
     }
 
 }
