@@ -28,14 +28,9 @@ export const serachUser = async (email) => {
     return post("/user/search", payload);
 }
 
-export const getAllUser = async (token="") => {
+export const getAllUser = async () => {
     var payload = { "filters": {} };
-    if(token != ""){
-        console.log("not blank ", token);
-        return post("/user/search", payload,  {} ,token);
-    }else{
-        return post("/user/search", payload);
-    }
+    return post("/user/search", payload);
 }
 
 export const getLinkedUsers = async (code) => {

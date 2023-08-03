@@ -114,6 +114,13 @@ const LinkedParticipant = () => {
           >
             View
           </a>
+          <a
+            href="#"
+            className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+            onClick={(event) => {event.preventDefault();  dispatch(addAppData({"linkeduser":value.participantcode})); ;dispatch(addAppData({"showLinkedUsers":true}))}}
+          >
+            Linked Users
+          </a>
         </td>
       </tr>
         }

@@ -66,6 +66,7 @@ const CreateUser = () => {
         })
       }
     });
+    toast.success("Users have been successfully invited");
     setUserDetails([{ "email": "", "role": "admin" }]);
   }
 
@@ -79,15 +80,6 @@ const CreateUser = () => {
             >
               Invite Users
             </label>
-            <button
-              type="button"
-              className="inline-block mb-2 rounded border-2 border-blue-500 px-6 pb-[6px] pt-2 text-xs font-medium uppercase leading-normal text-blue-500 transition duration-150 ease-in-out hover:border-blue-600 hover:bg-neutral-500 hover:bg-opacity-10 hover:text-blue-600 focus:border-blue-600 focus:text-blue-600 focus:outline-none focus:ring-0 active:border-blue-700 active:text-blue-700 dark:hover:bg-neutral-100 dark:hover:bg-opacity-10"
-              data-te-ripple-init=""
-              data-te-ripple-color="light"
-              onClick={() => { dispatch(addAppData({"sidebar":"Manage Users"}))}}
-            >
-              Back
-            </button>
           </div>
           <div className="flex flex-wrap -mx-3 mb-6 px-3">
             <p className="py-2 mb-4 w-3/6 font-semibold">Select the Participant for which you would like to invite the users:</p>
