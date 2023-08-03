@@ -1053,7 +1053,7 @@ public class OnboardService extends BaseController {
             userResource.resetPassword(passwordCred);
             logger.info("The Keycloak password for the os_owner :" + osOwner.get(0) + " has been successfully updated");
         } catch (Exception e) {
-            throw new ClientException("Unable to set keycloack password : " + e.getMessage());
+            throw new ClientException("Unable to set keycloak password : " + e.getMessage());
         }
     }
 
@@ -1137,19 +1137,19 @@ public class OnboardService extends BaseController {
     }
 
     public void validateAdminRole(HttpHeaders headers, String participantCode) throws Exception {
+        boolean result = false;
         String jwtToken = Objects.requireNonNull(headers.get(AUTHORIZATION)).get(0);
-        Map<String, Object> token = JSONUtils.decodeBase64String(jwtToken.split("\\.")[1], Map.class);
-        Map<String,Object> realmAccess = (Map<String, Object>) token.get("realm_access");
-        if(!realmAccess.containsKey(TENANT_ROLES)){
-            throw new ClientException("Token is not proper to generate password,provide a valid admin token");
-        }
-        List<Map<String, Object>> tenantRolesList = JSONUtils.convert(realmAccess.getOrDefault(TENANT_ROLES, new ArrayList<>()), ArrayList.class);
-        for (Map<String, Object> tenant : tenantRolesList) {
-            if (!tenant.get(ROLE).equals(ADMIN) || !tenant.get(PARTICIPANT_CODE).equals(participantCode)) {
-                throw new ClientException("Only user with admin role and part of the Organisation are able to generate the password");
+        Token token = new Token(jwtToken);
+        for (Map<String, String> roleMap : token.getTenantRoles()) {
+            if (StringUtils.equals(roleMap.get(PARTICIPANT_CODE), participantCode) && StringUtils.equals(roleMap.get(ROLE), ADMIN)) {
+                result = true;
             }
         }
+        if (!result) {
+            throw new ClientException(ErrorCodes.ERR_INVALID_JWT, "Only users with an admin role assigned to the " + participantCode  + " are authorized to generate the password.");
+        }
     }
+
     private Response getSuccessResponse() {
         Response response = new Response();
         response.setStatus(SUCCESSFUL);
