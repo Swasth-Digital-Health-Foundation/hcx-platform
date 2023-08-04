@@ -350,7 +350,6 @@ public class UserService extends BaseRegistryService {
     private UserRepresentation createUserRequest(String userName, String email, String name, String password) {
         UserRepresentation user = new UserRepresentation();
         user.setUsername(userName);
-        user.setEmail(email);
         user.setFirstName(name);
         user.setEnabled(true);
         Map<String, List<String>> attributes = new HashMap<>();
