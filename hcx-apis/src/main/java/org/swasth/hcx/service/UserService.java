@@ -370,7 +370,7 @@ public class UserService extends BaseRegistryService {
 
     public void removeUserWithParticipant(String email, String participantCode) throws ClientException {
         try {
-            String userName = String.format("%s:%s", email, participantCode);
+            String userName = String.format("%s:%s", participantCode, email);
             RealmResource realmResource = keycloak.realm(keycloackProtocolAccessRealm);
             UsersResource usersResource = realmResource.users();
             List<UserRepresentation> existingUsers = usersResource.search(userName);
