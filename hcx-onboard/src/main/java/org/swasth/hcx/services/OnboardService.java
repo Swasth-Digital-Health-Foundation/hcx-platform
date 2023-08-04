@@ -45,6 +45,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -441,8 +442,11 @@ public class OnboardService extends BaseController {
         return (Map<String, Object>) registryResponse.getParticipants().get(0);
     }
 
-    private Map<String, Object> userSearch(String requestBody) throws Exception {
-        HttpResponse<String> searchResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + USER_SEARCH, requestBody, new HashMap<>());
+    private Map<String, Object> userSearch(String requestBody,HttpHeaders headers) throws Exception {
+        Map<String,String> headersMap = new HashMap<>();
+        Token token = new Token(Objects.requireNonNull(headers.get(AUTHORIZATION)).get(0));
+        headersMap.put(AUTHORIZATION,"Bearer " + token.getToken());
+        HttpResponse<String> searchResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + USER_SEARCH, requestBody,headersMap);
         RegistryResponse registryResponse = JSONUtils.deserialize(searchResponse.getBody(), RegistryResponse.class);
         if (registryResponse.getUsers().isEmpty())
             return new HashMap<>();
@@ -456,8 +460,8 @@ public class OnboardService extends BaseController {
         boolean phoneVerified = false;
         String commStatus = PENDING;
         String identityStatus = REJECTED;
-        Map<String, Object> mockProviderDetails = new HashMap<>();
-        Map<String, Object> mockPayorDetails = new HashMap<>();
+        CompletableFuture<Map<String, Object>> mockProviderDetails = new CompletableFuture<>();
+        CompletableFuture<Map<String, Object>> mockPayorDetails = new CompletableFuture<>();
         Map<String, Object> participant = (Map<String, Object>) requestBody.get(PARTICIPANT);
         Map<String,Object> participantDetails = getParticipant(PARTICIPANT_CODE, (String) participant.get(PARTICIPANT_CODE));
         String email = (String) participantDetails.get(PRIMARY_EMAIL);
@@ -498,11 +502,10 @@ public class OnboardService extends BaseController {
                     String searchQuery = String.format("SELECT * FROM %s WHERE parent_participant_code = '%s'", mockParticipantsTable, participant.get(PARTICIPANT_CODE));
                     ResultSet result = (ResultSet) postgresClientMockService.executeQuery(searchQuery);
                     if (!result.next()) {
-                        mockProviderDetails = createMockParticipant(headers, PROVIDER, participantDetails);
-                        mockPayorDetails = createMockParticipant(headers, PAYOR, participantDetails);
-                    }
-                    if (participantDetails.getOrDefault("status", "").equals(CREATED)) {
-                        emailService.sendMail(email, onboardingSuccessSub, successTemplate((String) participant.get(PARTICIPANT_NAME), mockProviderDetails, mockPayorDetails));
+                        mockProviderDetails = createMockParticipant(headers, PROVIDER, participantDetails,mockProviderDetails);
+                        mockPayorDetails = createMockParticipant(headers, PAYOR, participantDetails,mockPayorDetails);
+                        emailService.sendMail(email, onboardingSuccessSub, successTemplate((String) participant.get(PARTICIPANT_NAME), mockProviderDetails.get(), mockPayorDetails.get()));
+
                     }
                 } else if (participantDetails.getOrDefault("status", "").equals(CREATED)) {
                     emailService.sendMail(email, onboardingSuccessSub, pocSuccessTemplate((String) participant.get(PARTICIPANT_NAME)));
@@ -667,13 +670,13 @@ public class OnboardService extends BaseController {
         return new ResponseEntity<>(new RegistryResponse(participantList, ORGANISATION), HttpStatus.OK);
     }
 
-    public Response userInvite(Map<String, Object> requestBody) throws Exception {
+    public Response userInvite(Map<String, Object> requestBody,HttpHeaders headers) throws Exception {
         logger.info("User invite: " + requestBody);
         String email = (String) requestBody.getOrDefault(EMAIL, "");
         String role = (String) requestBody.getOrDefault(ROLE, "");
         String code = (String) requestBody.getOrDefault(PARTICIPANT_CODE, "");
         String invitedBy = (String) requestBody.getOrDefault(INVITED_BY, "");
-        if (isUserExistsInOrg(email, role, code)) {
+        if (isUserExistsInOrg(email, role, code,headers)) {
             throw new ClientException("User with " + role + " is already exist in organisation");
         }
         String token = generateInviteToken(code, email, role, invitedBy);
@@ -713,7 +716,7 @@ public class OnboardService extends BaseController {
             throw new ClientException(ErrorCodes.ERR_INVALID_JWT, "Invalid JWT token signature");
         }
         User user = JSONUtils.deserialize(body.get("user"), User.class);
-        boolean isUserExists = isUserExists(user);
+        boolean isUserExists = isUserExists(user,headers);
         if (isUserExists){
             addUser(headers, getAddUserRequestBody(user.getUserId(), token.getParticipantCode(), token.getRole()));
         } else {
@@ -757,14 +760,14 @@ public class OnboardService extends BaseController {
         return JSONUtils.serialize(body);
     }
 
-    private boolean isUserExistsInOrg(String userEmail, String userRole, String participantCode) throws Exception {
+    private boolean isUserExistsInOrg(String userEmail, String userRole, String participantCode,HttpHeaders headers) throws Exception {
         String body = "{ \"filters\": { \"email\": { \"eq\": \"" + userEmail + "\" }, \"tenant_roles.participant_code\": { \"eq\": \"" + participantCode + "\" }, \"tenant_roles.role\": { \"eq\": \"" + userRole + "\" } } }";
-        return !userSearch(body).isEmpty();
+        return !userSearch(body,headers).isEmpty();
     }
 
-    private boolean isUserExists(User user) throws Exception {
+    private boolean isUserExists(User user,HttpHeaders headers) throws Exception {
         String body = "{ \"filters\": { \"email\": { \"eq\": \"" + user.getEmail() + "\" } } }";
-        Map<String, Object> userDetails = userSearch(body);
+        Map<String, Object> userDetails = userSearch(body,headers);
         if (userDetails.isEmpty()) {
             return false;
         } else {
@@ -987,14 +990,21 @@ public class OnboardService extends BaseController {
     }
 
     @Async
-    private Map<String, Object> createMockParticipant(HttpHeaders headers, String role, Map<String, Object> participantDetails) throws Exception {
-        String parentParticipantCode = (String) participantDetails.getOrDefault(PARTICIPANT_CODE, "");
-        logger.info("creating Mock participant for :: parent participant code : " + parentParticipantCode + " :: Role: " + role);
-        Map<String, Object> mockParticipant = getMockParticipantBody(participantDetails, role, parentParticipantCode);
-        String privateKey = (String) mockParticipant.getOrDefault(PRIVATE_KEY, "");
-        mockParticipant.remove(PRIVATE_KEY);
-        String childParticipantCode = createEntity(PARTICIPANT_CREATE, JSONUtils.serialize(mockParticipant), getHeadersMap(headers), ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, PARTICIPANT_CODE);
-        return updateMockDetails(mockParticipant, parentParticipantCode, childParticipantCode, privateKey);
+    private CompletableFuture<Map<String, Object>> createMockParticipant(HttpHeaders headers, String role, Map<String, Object> participantDetails,CompletableFuture<Map<String,Object>> mockDetails) throws Exception {
+        mockDetails = CompletableFuture.supplyAsync(() -> {
+            try{
+                String parentParticipantCode = (String) participantDetails.getOrDefault(PARTICIPANT_CODE, "");
+                logger.info("creating Mock participant for :: parent participant code : " + parentParticipantCode + " :: Role: " + role);
+                Map<String, Object> mockParticipant = getMockParticipantBody(participantDetails, role, parentParticipantCode);
+                String privateKey = (String) mockParticipant.getOrDefault(PRIVATE_KEY, "");
+                mockParticipant.remove(PRIVATE_KEY);
+                String childParticipantCode = createEntity(PARTICIPANT_CREATE, JSONUtils.serialize(mockParticipant), getHeadersMap(headers), ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, PARTICIPANT_CODE);
+                return updateMockDetails(mockParticipant, parentParticipantCode, childParticipantCode, privateKey);
+            } catch (Exception e){
+                throw new RuntimeException();
+            }
+        });
+        return mockDetails;
     }
 
     private void getEmailAndName(String role, Map<String, Object> mockParticipant, Map<String, Object> participantDetails, String name) {
@@ -1166,7 +1176,7 @@ public class OnboardService extends BaseController {
                 onboardingVerifierTable, email, applicantCode, verifierCode, status, System.currentTimeMillis(), System.currentTimeMillis());
         postgreSQLClient.execute(query);
     }
-
+  
     public String createTenantRequest(String userId, String participantCode) throws JsonProcessingException {
         Map<String, Object> request = new HashMap<>();
         request.put(PARTICIPANT_CODE, participantCode);
@@ -1182,4 +1192,4 @@ public class OnboardService extends BaseController {
         user.put(ROLE, role);
         return user;
     }
-}
+   }
