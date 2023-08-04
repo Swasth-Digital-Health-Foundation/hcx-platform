@@ -84,14 +84,14 @@ public class Constants {
     public static final String PARTICIPANT_USER_REMOVE = "/participant/user/remove";
     public static final String VIEWER = "viewer";
     public static final String CONFIG_MANAGER = "config-manager";
-    public static final List<String> ALLOWED_REMOVE_ROLES = Arrays.asList(VIEWER,CONFIG_MANAGER);
+    public static final String ADMIN = "admin";
+    public static final List<String> ALLOWED_ROLES = Arrays.asList(CONFIG_MANAGER,VIEWER);
     public static final String TENANT_ROLES = "tenant_roles";
     public static final String USER_ID = "user_id";
     public static final String EMAIL = "email";
     public static final String MOBILE = "mobile";
     public static final List<String>NOT_ALLOWED_FIELDS_FOR_UPDATE = Arrays.asList(TENANT_ROLES,EMAIL,MOBILE);
     public static final String SPONSORS = "sponsors";
-    public static final String ADMIN = "admin";
     public static final String COMMUNICATION = "communication";
     public static final String MOCK_PARTICIPANT = "mockparticipant";
     public static final String FORMSTATUS = "status";

@@ -196,8 +196,7 @@ public class OnboardService extends BaseController {
         String participantCode = createEntity(PARTICIPANT_CREATE, JSONUtils.serialize(participant), getHeadersMap(headers), ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, PARTICIPANT_CODE);
         participant.put(PARTICIPANT_CODE, participantCode);
         User user = new User(participant.get(PARTICIPANT_NAME) + " Admin", (String) participant.get(PRIMARY_EMAIL), (String) participant.get(PRIMARY_MOBILE), participantCode);
-        user.addTenantRole(participantCode, ADMIN);
-        user.addTenantRole(participantCode, CONFIG_MANAGER);
+        user.setTenantRoles(new ArrayList<>());
         String userId = createUser(headers, user);
         String query = String.format("INSERT INTO %s (participant_code,primary_email,primary_mobile,createdOn," +
                         "updatedOn,expiry,phone_verified,email_verified,status,attempt_count) VALUES ('%s','%s','%s',%d,%d,%d,%b,%b,'%s',%d)", onboardVerificationTable, participantCode,
@@ -209,6 +208,7 @@ public class OnboardService extends BaseController {
         }
         participant.put(USER_ID, userId);
         sendVerificationLink(participant);
+        addUser(headers, createTenantRequest(userId, participantCode)); //adding record to keycloak
         updateResponse(output, identityVerified, participantCode, userId);
         auditIndexer.createDocument(eventGenerator.getOnboardVerifyEvent(request, participantCode));
         logger.info("Verification link  has been sent successfully :: participant code : " + participantCode + " :: primary email : " + participant.get(PRIMARY_EMAIL));
@@ -1167,4 +1167,19 @@ public class OnboardService extends BaseController {
         postgreSQLClient.execute(query);
     }
 
+    public String createTenantRequest(String userId, String participantCode) throws JsonProcessingException {
+        Map<String, Object> request = new HashMap<>();
+        request.put(PARTICIPANT_CODE, participantCode);
+        List<Map<String, Object>> tenantList = new ArrayList<>();
+        tenantList.add(createTenantList(userId,ADMIN));
+        tenantList.add(createTenantList(userId, CONFIG_MANAGER));
+        request.put(USERS, tenantList);
+        return JSONUtils.serialize(request);
+    }
+    private Map<String, Object> createTenantList(String userId, String role) {
+        Map<String, Object> user = new HashMap<>();
+        user.put(USER_ID, userId);
+        user.put(ROLE, role);
+        return user;
+    }
 }

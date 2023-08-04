@@ -72,3 +72,4 @@ notification:
 keycloak:
   user-realm-private-key-path: ${keycloak_user_realm_private_key_path:${user.dir}/src/test/resources/user_realm_private_key.der}
   participant-realm-private-key-path: ${keycloak_participant_realm_private_key_path:${user.dir}/src/test/resources/participant_realm_private_key.der}
+  base-url: ${keycloak_base_url:https://dev-hcx.swasth.app/auth}
