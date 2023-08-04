@@ -137,7 +137,7 @@ class JWTControllerTests extends BaseSpec {
         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_GENERATE_TOKEN)
                         .header("Content-Type", "application/x-www-form-urlencoded")
                         .param("username","hcxtest6034@yopmail.com")
-                        .param("password","Test@12345")
+                        .param("secret","Test@12345")
                         .param("participant_code", "hcxtest6034.yopmail@swasth-hcx-dev"))
                 .andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -147,10 +147,10 @@ class JWTControllerTests extends BaseSpec {
 
 
     @Test
-    void api_access_token_generate_without_participant_code() throws Exception {
+    void api_access_token_generate_without_username() throws Exception {
         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_GENERATE_TOKEN)
                         .header("Content-Type", "application/x-www-form-urlencoded")
-                        .param("password","Test@12345")
+                        .param("secret","Test@12345")
                         .param("participant_code","hcxtest6034.yopmail@swasth-hcx-dev"))
                 .andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -158,6 +158,20 @@ class JWTControllerTests extends BaseSpec {
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
         assertEquals(400, status);
         assertEquals("Invalid request, user_id is mandatory", resObj.getError().getMessage());
+    }
+
+    @Test
+    void api_access_token_generate_without_participant_code() throws Exception {
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_GENERATE_TOKEN)
+                        .header("Content-Type", "application/x-www-form-urlencoded")
+                        .param("secret","Test@12345")
+                        .param("username","hcxtest6034@yopmail.com"))
+                .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
+        assertEquals(400, status);
+        assertEquals("Invalid request, participant_code is mandatory", resObj.getError().getMessage());
     }
 
 }

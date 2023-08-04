@@ -180,6 +180,8 @@ public class JWTService extends BaseRegistryService {
     public void validate(MultiValueMap<String, String> requestBody) throws ClientException {
         if (!requestBody.containsKey(USERNAME)){
             throw new ClientException("Invalid request, user_id is mandatory");
+        } else if (!requestBody.containsKey(PARTICIPANT_CODE)){
+            throw new ClientException("Invalid request, participant_code is mandatory");
         }
     }
 

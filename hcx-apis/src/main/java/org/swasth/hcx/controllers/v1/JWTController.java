@@ -55,8 +55,9 @@ public class JWTController extends BaseController {
     public ResponseEntity<Object> participantToken(@RequestBody MultiValueMap<String, String> requestBody){
         try {
             Map<String, Object> response;
-            if (requestBody.containsKey(PARTICIPANT_CODE)) {
+            if (requestBody.containsKey(SECRET)) {
                 jwtService.validate(requestBody);
+                requestBody.put(PASSWORD, Collections.singletonList(requestBody.getFirst(SECRET)));
                 requestBody.put(USER_ID, Collections.singletonList(requestBody.getFirst(USERNAME)));
                 requestBody.put(USERNAME, Collections.singletonList(requestBody.getFirst(PARTICIPANT_CODE) + ":" + requestBody.getFirst(USERNAME)));
                 response = jwtService.getToken(requestBody, protocolApiAccessRealmKeyPath, protocolApiAccessRealmUrl, protocolApiAccessClientId);
