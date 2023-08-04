@@ -64,7 +64,7 @@ class HCXRequestTest extends BaseSpec {
                 .exchange()
                 .expectBody(Map.class)
                 .consumeWith(result -> {
-                    assertEquals(HttpStatus.UNAUTHORIZED, result.getStatus());
+                    assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
                     assertEquals(ErrorCodes.ERR_ACCESS_DENIED.name(), getResponseErrorCode(result));
                     assertEquals(CALLER_MISMATCH_MSG, getResponseErrorMessage(result));
                 });
