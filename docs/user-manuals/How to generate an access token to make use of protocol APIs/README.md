@@ -16,7 +16,7 @@ curl --location 'http://${env}-hcx.swasth.app/api/${api-version}/participant/aut
 |api-version|Use latest version (v0.8)|v0.8
 |user_id|User id given to the user|testuser@gmail.com|
 |participant_code|Organisation code|test-user@swasth-hcx|
-|password|Password sent via email|Opensaber@123
+|secret|secret sent via email|Opensaber@123
 
 
 HCX instance would respond with the API token upon successful validation of the username and password values:
