@@ -36,7 +36,7 @@ public class JWTController extends BaseController {
     @Value("${keycloak.user-realm-private-key-path:classpath:user_realm_private_key.der}")
     private String userRealmKeyPath;
 
-    @Value("${keycloak.protocol-api-access-private-key-path:classpath:protocol_api_access_realm_private_key.der}")
+    @Value("${keycloak.protocol-api-access-private-key-path:classpath:api_access_realm_private_key.der}")
     private String protocolApiAccessRealmKeyPath;
 
     @Value("${keycloak.user-client-id}")
