@@ -128,13 +128,17 @@ certificates:
   bucketName : ${certificates_bucketName:}
 
 keycloak:
-  client-id: ${client_id:registry-frontend}
   grant-type: ${grant_type:password}
   client-secret: ${client_secret:c4f23c80-96d1-4f39-9784-8a7cb1f61e7a}
   user-realm-url: ${user_realm_url:http://dev-hcx.swasth.app/auth/realms/swasth-hcx-users/protocol/openid-connect/token}
+  user-client-id: ${user_client_id:registry-frontend}
   participant-realm-url: ${participant_realm_url:http://dev-hcx.swasth.app/auth/realms/swasth-hcx-participants/protocol/openid-connect/token}
+  participant-client-id: ${participant_client_id:registry-frontend}
+  protocol-api-access-realm-url: ${protocol_api_access_realm_url:http://dev-hcx.swasth.app/auth/realms/api-access/protocol/openid-connect/token}
+  protocol-api-access-client-id: ${protocol_api_access_client_id:registry}
   user-realm-private-key-path: ${keycloak_user_realm_private_key_path:} 
   participant-realm-private-key-path: ${keycloak_participant_realm_private_key_path:}
+  protocol-api-access-private-key-path: ${keycloak_protocol_api_access_realm_private_key_path:}
   admin-client-id: ${admin_cli_client_id:admin-cli}
   base-url: ${keycloak_base_url:https://dev-hcx.swasth.app/auth}
   admin-user: ${keycloack_admin_user_name:admin}
