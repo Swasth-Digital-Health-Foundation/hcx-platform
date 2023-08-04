@@ -267,3 +267,44 @@ rbac:
       - /v0.8/participant/user/**
       - /v0.7/applicant/search**
       - /v0.8/applicant/search**
+  
+  - role: admin
+    paths:
+      - /v0.7/coverageeligibility/check
+      - /v0.7/preauth/submit
+      - /v0.7/claim/submit
+      - /v0.7/predetermination/submit
+      - /v0.7/coverageeligibility/on_check
+      - /v0.7/predetermination/on_submit
+      - /v0.7/preauth/on_submit
+      - /v0.7/claim/on_submit
+      - /v0.7/paymentnotice/request
+      - /v0.7/communication/request
+      - /v0.7/hcx/on_status
+      - /v0.7/audit/search
+      - /v0.7/audit/notification/search
+      - /v0.7/participant/search
+      - /v0.7/participant/update
+      - /v0.8/coverageeligibility/check
+      - /v0.8/preauth/submit
+      - /v0.8/claim/submit
+      - /v0.8/predetermination/submit
+      - /v0.8/coverageeligibility/on_check
+      - /v0.8/predetermination/on_submit
+      - /v0.8/preauth/on_submit
+      - /v0.8/claim/on_submit
+      - /v0.8/paymentnotice/request
+      - /v0.8/communication/request
+      - /v0.8/hcx/on_status
+      - /v0.8/audit/search
+      - /v0.8/audit/notification/search
+      - /v0.8/participant/search
+      - /v0.8/participant/update
+      - /v0.8/notification/subscribe
+      - /v0.8/notification/unsubscribe
+      - /v0.8/notification/subscription/list
+      - /v0.8/notification/topic/list
+      - /v0.8/notification/notify
+      - /v0.8/notification/subscription/update
+      - /v0.8/notification/on_subscribe
+      - /v0.8/eob/on_fetch
