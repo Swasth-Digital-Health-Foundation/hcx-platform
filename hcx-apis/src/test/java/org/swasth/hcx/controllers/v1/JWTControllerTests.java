@@ -9,11 +9,12 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MvcResult;
 import org.swasth.common.utils.Constants;
 import org.swasth.hcx.controllers.BaseSpec;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 import java.io.IOException;
 import java.net.InetAddress;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 class JWTControllerTests extends BaseSpec {
 
@@ -117,4 +118,29 @@ class JWTControllerTests extends BaseSpec {
         assertEquals(500, status);
 
     }
+
+    @Test
+    void api_access_token_generate_success() throws Exception {
+        keycloakServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{ \"access_token\": \"eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI0YzY0YTEwNC02NmE4LTQ2M2YtYWFhNC0wNzg3Y2I0MTQ1ZTkiLCJyZXNvdXJjZV9hY2Nlc3MiOnsiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwiZW1haWxfdmVyaWZpZWQiOmZhbHNlLCJpc3MiOiJodHRwOlwvXC9kZXYtaGN4LnN3YXN0aC5hcHBcL2F1dGhcL3JlYWxtc1wvYXBpLWFjY2VzcyIsInR5cCI6IkJlYXJlciIsInByZWZlcnJlZF91c2VybmFtZSI6ImhjeHRlc3Q2MDM0LnlvcG1haWxAc3dhc3RoLWhjeC1kZXY6aGN4dGVzdDYwMzRAeW9wbWFpbC5jb20iLCJhdWQiOiJhY2NvdW50IiwiYWNyIjoiMSIsInJlYWxtX2FjY2VzcyI6eyJwYXJ0aWNpcGFudF9yb2xlcyI6WyJwYXlvciJdLCJ1c2VyX3JvbGVzIjpbImFkbWluIiwiY29uZmlnLW1hbmFnZXIiXX0sInVzZXJfaWQiOiJoY3h0ZXN0NjAzNEB5b3BtYWlsLmNvbSIsImF6cCI6InJlZ2lzdHJ5IiwicGFydGljaXBhbnRfY29kZSI6ImhjeHRlc3Q2MDM0LnlvcG1haWxAc3dhc3RoLWhjeC1kZXYiLCJzY29wZSI6ImVtYWlsIHByb2ZpbGUiLCJleHAiOjIxMjMxNDQxNjYsInNlc3Npb25fc3RhdGUiOiI1MGVkZTA2YS03YTE5LTQ5YTctYmRkYS03MjJlOGQ0Mzk4OGQiLCJpYXQiOjE2OTExNDQxNjYsImp0aSI6ImQyZGZhMDM2LTE1ZmQtNDAyNi1hNjEwLWYwZjc5ZDMwZDU2NSIsImVudGl0eSI6WyJhcGktYWNjZXNzIl19.OsTURI6-V8zggwxsT69zaX0xqrfNUsegZQzDgncHvcuix-kNURKK_csqoX0QyzPKL5P-7QUbIUxqh_MIKR1ASqinmfDDpw2SXbaslNWqiGeUHGjVrrsH6e9XWo_OahD8D_-LmRYXQjhPq4HTpGa19iFET0M3YhiwSns8KvrEqVQOuWRs8iAdLno1trLE0JZRL1wT09jOJVcX_mnLP374DtyZ7r7pW_mLxwV_YUFX--u3BwyCf3xzJ6zooOUsDqqWD_VyqiRlSTpcmSytCJmOSXhLv62zbDp7nIHaPj79Hd19tt668_QfEs-CjmRPXimp9IHe92FWo2OpPDvF33IM8g\", \"refresh_expires_in\": \"600\", \"not-before-policy\": \"1607576887\" , \"scope\": \"profile email\", \"token_type\": \"Bearer\", \"session_state\": \"0c66ca80-5c98-4b62-aa6b-436605e73e81\", \"expires_in\":  \"2592000\" }"));
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("[{ \"participant_name\": \"test hcx\", \"primary_email\": \"hcxtest6034@yopmail.com\", \"primary_mobile\": \"8522875773\", \"roles\": [ \"payor\" ], \"endpoint_url\": \"http://testurl/v0.7\", \"encryption_cert\": \"https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/hcx-platform/main/hcx-apis/src/test/resources/examples/test-keys/public-key.pem\", \"status\": \"Created\", \"scheme_code\": \"default\", \"participant_code\": \"hcxtest6034.yopmail@swasth-hcx-dev\", \"encryption_cert_expiry\": 1840270798000, \"osOwner\": [ \"4c64a104-66a8-463f-aaa4-0787cb4145e9\" ], \"osCreatedAt\": \"2023-06-24T04:27:28.427Z\", \"osUpdatedAt\": \"2023-06-24T04:27:28.427Z\", \"osid\": \"8fe5197e-cbc3-44f0-9b5d-b8c19a1cc436\" }]")
+                .addHeader("Content-Type", "application/json"));
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("[{ \"email\": \"hcxtest6034@yopmail.com\", \"mobile\": \"8522875773\", \"user_id\": \"hcxtest6034@yopmail.com\", \"tenant_roles\": [ { \"role\": \"admin\", \"participant_code\": \"hcxtest6034.yopmail@swasth-hcx-dev\", \"osCreatedAt\": \"2023-06-24T04:27:30.636Z\", \"osUpdatedAt\": \"2023-06-24T04:27:30.636Z\", \"osid\": \"96229f1b-4e82-477a-9fc0-fede4214b47c\" }, { \"role\": \"config-manager\", \"participant_code\": \"hcxtest6034.yopmail@swasth-hcx-dev\", \"osCreatedAt\": \"2023-06-24T04:27:30.636Z\", \"osUpdatedAt\": \"2023-06-24T04:27:30.636Z\", \"osid\": \"e1cbe8f9-07eb-4b09-b4d7-44bf4ff8d3ae\" } ], \"created_by\": \"hcxtest6034.yopmail@swasth-hcx-dev\", \"user_name\": \"test hcx Admin\", \"osOwner\": [ \"58ab5fe0-ccf8-46a1-9808-f6e58e6fc5da\" ], \"osCreatedAt\": \"2023-06-24T04:27:30.636Z\", \"osUpdatedAt\": \"2023-06-24T04:27:30.636Z\", \"osid\": \"48b21f40-f916-4b24-b6bd-d0e8890d2a0f\" }]")
+                .addHeader("Content-Type", "application/json"));
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_GENERATE_TOKEN)
+                        .header("Content-Type", "application/x-www-form-urlencoded")
+                        .param("username","hcxtest6034@yopmail.com")
+                        .param("password","Test@12345")
+                        .param("participant_code", "hcxtest6034.yopmail@swasth-hcx-dev"))
+                .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        assertEquals(200, status);
+    }
+    
 }
