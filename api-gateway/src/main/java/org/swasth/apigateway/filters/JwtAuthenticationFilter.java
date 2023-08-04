@@ -116,7 +116,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         }
     }
 
-    private JWTVerifier getJWTVerifier(String entityType) throws InvalidKeySpecException, NoSuchAlgorithmException, JwkException, IOException, ClientException{
+    private JWTVerifier getJWTVerifier(String entityType) throws InvalidKeySpecException, NoSuchAlgorithmException, JwkException, IOException {
         if (verifierCache.containsKey(entityType)) {
             return verifierCache.get(entityType);
         } else {
