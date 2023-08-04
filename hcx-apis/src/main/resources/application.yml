@@ -145,5 +145,5 @@ keycloak:
 email:
   id: ${email_id:}
   pwd: ${email_pwd:}
-  user-token-subject: ${token_generate_subject:Token Generation credentials}
+  user-token-subject: ${token_generate_subject:Protocol APIs Access Token Generation credentials}
   user-token-message: ${user_token_message:Hi <b>Name</b>,<br/><br/> Along with participant username and password, api access token can be generated using the following credentials. <br/> <ul><li> user_name -  USER_ID </li> <li> secret - PASSWORD</li><li> participant_code - PARTICIPANT_CODE</li></ul> This API Access token can be used to make protocol API requests.  Please refer to the instructions provided in the <a href = "https://github.com/Swasth-Digital-Health-Foundation/hcx-platform/blob/main/docs/user-manuals/How%20to%20generate%20an%20access%20token%20to%20make%20use%20of%20protocol%20APIs/README.md">link</a> to generate access token. <br/><br/> If you have any queries, Please reach out HCX team.  <br/><br/> Thanks and Regards <br/> HCX onboarding team.}

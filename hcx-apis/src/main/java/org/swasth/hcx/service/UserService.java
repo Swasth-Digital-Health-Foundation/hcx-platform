@@ -53,6 +53,8 @@ public class UserService extends BaseRegistryService {
     private String keycloackClientId;
     @Value("${email.user-token-message}")
     private String userEmailMessage;
+    @Value("${email.user-token-subject}")
+    private String emailSub;
     @Autowired
     private ParticipantService participantService;
     @Autowired
@@ -335,7 +337,7 @@ public class UserService extends BaseRegistryService {
             Response response = usersResource.create(user);
             if (response.getStatus() == 201) {
                 userEmailMessage = userEmailMessage.replace("NAME", name).replace("USER_ID", email).replace("PASSWORD", password).replace("PARTICIPANT_CODE", participantCode);
-                emailService.sendMail(email, "Token Generate Details", userEmailMessage);
+                emailService.sendMail(email, emailSub, userEmailMessage);
                 logger.info("user Id : {} is added to the keycloak record", email);
             }
         } catch (Exception e) {
