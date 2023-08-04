@@ -329,7 +329,6 @@ public class UserService extends BaseRegistryService {
             if (!existingUsers.isEmpty()) {
                 logger.info("User Id  : {} is already exists",email);
                 return;
-//                throw new ClientException("User with userName :" + userName + " already exists");
             }
             String password = generateRandomPassword();
             UserRepresentation user = createUserRequest(userName, email, name, password);
@@ -341,6 +340,8 @@ public class UserService extends BaseRegistryService {
             }
         } catch (Exception e) {
             throw new ClientException("Unable to add user and participant record to the keycloak : " + e.getMessage());
+        } finally {
+            keycloak.close();
         }
     }
 
