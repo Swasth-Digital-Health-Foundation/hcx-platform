@@ -7,7 +7,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MvcResult;
+import org.swasth.common.dto.Response;
 import org.swasth.common.utils.Constants;
+import org.swasth.common.utils.JSONUtils;
 import org.swasth.hcx.controllers.BaseSpec;
 
 import java.io.IOException;
@@ -142,5 +144,20 @@ class JWTControllerTests extends BaseSpec {
         int status = response.getStatus();
         assertEquals(200, status);
     }
-    
+
+
+    @Test
+    void api_access_token_generate_without_participant_code() throws Exception {
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_GENERATE_TOKEN)
+                        .header("Content-Type", "application/x-www-form-urlencoded")
+                        .param("password","Test@12345")
+                        .param("participant_code","hcxtest6034.yopmail@swasth-hcx-dev"))
+                .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
+        assertEquals(400, status);
+        assertEquals("Invalid request, user_id is mandatory", resObj.getError().getMessage());
+    }
+
 }
