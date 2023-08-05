@@ -112,7 +112,7 @@ public class UserService extends BaseRegistryService {
                 ArrayList<Map<String, Object>> tenantRolesList = JSONUtils.convert(registryDetails.get(TENANT_ROLES), ArrayList.class);
                 if (StringUtils.equals(action, PARTICIPANT_USER_ADD)) {
                     userAdd(requestBody, finalRequest, tenantRolesList);
-                    addUserWithParticipant(userId, (String) requestBody.get(PARTICIPANT_CODE), (String) registryDetails.get(USER_NAME));
+                    addUserWithParticipant(userId, (String) registryDetails.get(PARTICIPANT_CODE), (String) registryDetails.get(USER_NAME));
                 } else if (StringUtils.equals(action, PARTICIPANT_USER_REMOVE)) {
                     ArrayList<Map<String, Object>> filteredTenantRoles = new ArrayList<>();
                     userRemove(requestBody, finalRequest, tenantRolesList, filteredTenantRoles);
@@ -326,19 +326,19 @@ public class UserService extends BaseRegistryService {
         try {
             RealmResource realmResource = keycloak.realm(keycloackProtocolAccessRealm);
             UsersResource usersResource = realmResource.users();
-            String userName = String.format("%s:%s", email, participantCode);
+            String userName = String.format("%s:%s", participantCode, email);
             List<UserRepresentation> existingUsers = usersResource.search(userName);
             if (!existingUsers.isEmpty()) {
                 logger.info("User Id  : {} is already exists",email);
-                return;
-            }
-            String password = generateRandomPassword();
-            UserRepresentation user = createUserRequest(userName, email, name, password);
-            Response response = usersResource.create(user);
-            if (response.getStatus() == 201) {
-                userEmailMessage = userEmailMessage.replace("NAME", name).replace("USER_ID", email).replace("PASSWORD", password).replace("PARTICIPANT_CODE", participantCode);
-                emailService.sendMail(email, emailSub, userEmailMessage);
-                logger.info("user Id : {} is added to the keycloak record", email);
+            } else {
+                String password = generateRandomPassword();
+                UserRepresentation user = createUserRequest(userName, name, password);
+                Response response = usersResource.create(user);
+                if (response.getStatus() == 201) {
+                    userEmailMessage = userEmailMessage.replace("NAME", name).replace("USER_ID", email).replace("PASSWORD", password).replace("PARTICIPANT_CODE", participantCode);
+                    emailService.sendMail(email, emailSub, userEmailMessage);
+                    logger.info("user Id : {} is added to the keycloak record", email);
+                }
             }
         } catch (Exception e) {
             throw new ClientException("Unable to add user and participant record to the keycloak : " + e.getMessage());
@@ -347,7 +347,7 @@ public class UserService extends BaseRegistryService {
         }
     }
 
-    private UserRepresentation createUserRequest(String userName, String email, String name, String password) {
+    private UserRepresentation createUserRequest(String userName, String name, String password) {
         UserRepresentation user = new UserRepresentation();
         user.setUsername(userName);
         user.setFirstName(name);
