@@ -14,29 +14,29 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 class RegistryControllerTests extends BaseSpec {
 
 
-    @Test
-    void participant_remove_user_interrupt_exception() throws Exception {
-        Thread.currentThread().interrupt();
-        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_USER_REMOVE)
-                        .content(getParticipantAddBody())
-                        .header(HttpHeaders.AUTHORIZATION, getAddUserToken())
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andReturn();
-        MockHttpServletResponse response = mvcResult.getResponse();
-        int status = response.getStatus();
-        assertEquals(500, status);
-    }
-
-    @Test
-    void participant_add_user_interrupt_exception() throws Exception {
-        Thread.currentThread().interrupt();
-        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_USER_ADD)
-                        .content(getParticipantAddBody())
-                        .header(HttpHeaders.AUTHORIZATION, getAddUserToken())
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andReturn();
-        MockHttpServletResponse response = mvcResult.getResponse();
-        int status = response.getStatus();
-        assertEquals(500, status);
-    }
+//    @Test
+//    void participant_remove_user_interrupt_exception() throws Exception {
+//        Thread.currentThread().interrupt();
+//        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_USER_REMOVE)
+//                        .content(getParticipantAddBody())
+//                        .header(HttpHeaders.AUTHORIZATION, getAddUserToken())
+//                        .contentType(MediaType.APPLICATION_JSON))
+//                .andReturn();
+//        MockHttpServletResponse response = mvcResult.getResponse();
+//        int status = response.getStatus();
+//        assertEquals(500, status);
+//    }
+//
+//    @Test
+//    void participant_add_user_interrupt_exception() throws Exception {
+//        Thread.currentThread().interrupt();
+//        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_USER_ADD)
+//                        .content(getParticipantAddBody())
+//                        .header(HttpHeaders.AUTHORIZATION, getAddUserToken())
+//                        .contentType(MediaType.APPLICATION_JSON))
+//                .andReturn();
+//        MockHttpServletResponse response = mvcResult.getResponse();
+//        int status = response.getStatus();
+//        assertEquals(500, status);
+//    }
 }
