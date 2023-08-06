@@ -6,6 +6,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.keycloak.admin.client.Keycloak;
+import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
@@ -63,10 +64,7 @@ public class UserService extends BaseRegistryService {
     @Autowired
     protected AuditIndexer auditIndexer;
     private Keycloak keycloak;
-    @PostConstruct()
-    public void init(){
-        keycloak = Keycloak.getInstance(keycloakURL, keycloakMasterRealm, keycloakAdminUserName, keycloakAdminPassword, keycloackClientId);
-    }
+
     public RegistryResponse create(Map<String, Object> requestBody, String code) throws Exception {
         HttpResponse<String> response = invite(requestBody, registryUserPath);
         if (response.getStatus() == 200) {
@@ -98,13 +96,13 @@ public class UserService extends BaseRegistryService {
         return responseHandler(response, code, USER);
     }
 
-    @Async
     public CompletableFuture<Map<String, Object>> processUser(Map<String, Object> requestBody, HttpHeaders headers, String action) {
         Map<String, Object> registryDetails = new HashMap<>();
         Map<String, Object> responseMap = new HashMap<>();
         CompletableFuture<Map<String, Object>> future = new CompletableFuture<>();
         try {
             HttpResponse<String> response;
+            Thread.sleep(1000);
             String userId = (String) requestBody.get(USER_ID);
             registryDetails = getUser(userId);
             Map<String, Object> finalRequest = new HashMap<>();
@@ -112,7 +110,7 @@ public class UserService extends BaseRegistryService {
                 ArrayList<Map<String, Object>> tenantRolesList = JSONUtils.convert(registryDetails.get(TENANT_ROLES), ArrayList.class);
                 if (StringUtils.equals(action, PARTICIPANT_USER_ADD)) {
                     userAdd(requestBody, finalRequest, tenantRolesList);
-                    addUserWithParticipant(userId, (String) registryDetails.get(PARTICIPANT_CODE), (String) registryDetails.get(USER_NAME));
+                    addUserWithParticipant(userId,(String) requestBody.get(PARTICIPANT_CODE),(String) registryDetails.get(USER_NAME));
                 } else if (StringUtils.equals(action, PARTICIPANT_USER_REMOVE)) {
                     ArrayList<Map<String, Object>> filteredTenantRoles = new ArrayList<>();
                     userRemove(requestBody, finalRequest, tenantRolesList, filteredTenantRoles);
@@ -151,7 +149,6 @@ public class UserService extends BaseRegistryService {
         finalRequest.put(TENANT_ROLES, filteredTenantRoles);
     }
 
-    @Async
     private void userAdd(Map<String, Object> requestBody, Map<String, Object> finalRequest, ArrayList<Map<String, Object>> tenantRolesList) throws ClientException {
         for (Map<String, Object> userExist : tenantRolesList) {
             if (userExist.get(ROLE).equals(requestBody.get(ROLE)) && userExist.get(PARTICIPANT_CODE).equals(requestBody.get(PARTICIPANT_CODE))) {
@@ -323,7 +320,7 @@ public class UserService extends BaseRegistryService {
     }
 
     public void addUserWithParticipant(String email, String participantCode, String name) throws ClientException {
-        try {
+        try (Keycloak keycloak = Keycloak.getInstance(keycloakURL, keycloakMasterRealm, keycloakAdminUserName, keycloakAdminPassword, keycloackClientId)) {
             RealmResource realmResource = keycloak.realm(keycloackProtocolAccessRealm);
             UsersResource usersResource = realmResource.users();
             String userName = String.format("%s:%s", participantCode, email);
@@ -341,9 +338,7 @@ public class UserService extends BaseRegistryService {
                 }
             }
         } catch (Exception e) {
-            throw new ClientException("Unable to add user and participant record to the keycloak : " + e.getMessage());
-        } finally {
-            keycloak.close();
+            throw new ClientException("Unable to add user and participant record to Keycloak: " + e.getMessage());
         }
     }
 

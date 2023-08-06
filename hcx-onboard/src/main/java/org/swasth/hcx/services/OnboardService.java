@@ -736,7 +736,7 @@ public class OnboardService extends BaseController {
     private void addUser(HttpHeaders headers, String requestBody) throws Exception {
         HttpResponse<String> response = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_USER_ADD, requestBody, getHeadersMap(headers));
         if (response.getStatus() != 200) {
-            Response resp = JSONUtils.deserialize(response.getBody(), Response.class);
+            Response resp = new Response(JSONUtils.deserialize(response.getBody(), Map.class));
             throw new ClientException(resp.getError().getCode(), resp.getError().getMessage());
         }
     }
