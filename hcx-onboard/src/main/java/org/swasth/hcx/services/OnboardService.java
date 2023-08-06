@@ -722,7 +722,7 @@ public class OnboardService extends BaseController {
         } else {
             user.setUserId(createUser(headers, user));
             Thread.sleep(2000);
-            addUser(headers,createTenantExistUser(token.getParticipantCode(),user.getUserId(),token.getRole()));
+            addUser(headers,createTenantExistUser(token.getParticipantCode(),user.getEmail(),token.getRole()));
         }
         updateInviteStatus(user.getEmail(), "accepted");
         Map<String,Object> participantDetails = getParticipant(PARTICIPANT_CODE, token.getParticipantCode());
