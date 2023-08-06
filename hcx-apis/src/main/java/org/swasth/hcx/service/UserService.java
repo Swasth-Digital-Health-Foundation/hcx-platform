@@ -348,7 +348,7 @@ public class UserService extends BaseRegistryService {
         user.setFirstName(name);
         user.setEnabled(true);
         Map<String, List<String>> attributes = new HashMap<>();
-        attributes.put("entity_name", List.of("api-access"));
+        attributes.put("entity", List.of("api-access"));
         user.setAttributes(attributes);
         CredentialRepresentation credential = new CredentialRepresentation();
         credential.setType(CredentialRepresentation.PASSWORD);
