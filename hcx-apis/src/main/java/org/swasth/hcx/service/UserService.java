@@ -95,6 +95,7 @@ public class UserService extends BaseRegistryService {
     }
 
     public CompletableFuture<Map<String, Object>> processUser(Map<String, Object> requestBody, HttpHeaders headers, String action) {
+        System.out.println("the request body in the process usr ------" + requestBody);
         Map<String, Object> registryDetails = new HashMap<>();
         Map<String, Object> responseMap = new HashMap<>();
         CompletableFuture<Map<String, Object>> future = new CompletableFuture<>();
