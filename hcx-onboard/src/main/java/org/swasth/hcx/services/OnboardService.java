@@ -721,6 +721,8 @@ public class OnboardService extends BaseController {
             addUser(headers, getAddUserRequestBody(user.getUserId(), token.getParticipantCode(), token.getRole()));
         } else {
             user.setUserId(createUser(headers, user));
+            Thread.sleep(2000);
+            addUser(headers,createTenantExistUser(token.getParticipantCode(),user.getUserId(),token.getRole()));
         }
         updateInviteStatus(user.getEmail(), "accepted");
         Map<String,Object> participantDetails = getParticipant(PARTICIPANT_CODE, token.getParticipantCode());
@@ -1192,4 +1194,13 @@ public class OnboardService extends BaseController {
         user.put(ROLE, role);
         return user;
     }
-   }
+
+    private String createTenantExistUser(String participantCode, String userId, String role) throws JsonProcessingException {
+        Map<String, Object> request = new HashMap<>();
+        request.put(PARTICIPANT_CODE, participantCode);
+        List<Map<String, Object>> tenantList = new ArrayList<>();
+        tenantList.add(createTenantList(userId, role));
+        request.put(USERS, tenantList);
+        return JSONUtils.serialize(request);
+    }
+}

@@ -6,7 +6,6 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.keycloak.admin.client.Keycloak;
-import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
@@ -26,7 +25,6 @@ import org.swasth.common.dto.ResponseError;
 import org.swasth.common.dto.Token;
 import org.swasth.common.exception.*;
 import org.swasth.common.utils.JSONUtils;
-import javax.annotation.PostConstruct;
 import javax.ws.rs.core.Response;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -332,8 +330,9 @@ public class UserService extends BaseRegistryService {
                 UserRepresentation user = createUserRequest(userName, name, password);
                 Response response = usersResource.create(user);
                 if (response.getStatus() == 201) {
-                    userEmailMessage = userEmailMessage.replace("NAME", name).replace("USER_ID", email).replace("PASSWORD", password).replace("PARTICIPANT_CODE", participantCode);
-                    emailService.sendMail(email, emailSub, userEmailMessage);
+                    String message = userEmailMessage;
+                    message = message.replace("NAME", name).replace("USER_ID", email).replace("PASSWORD", password).replace("PARTICIPANT_CODE", participantCode);
+                    emailService.sendMail(email, emailSub, message);
                     logger.info("user Id : {} is added to the keycloak record", email);
                 }
             }
