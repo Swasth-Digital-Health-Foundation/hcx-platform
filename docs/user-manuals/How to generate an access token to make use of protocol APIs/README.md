@@ -8,7 +8,7 @@ curl --location 'http://${env}-hcx.swasth.app/api/${api-version}/participant/aut
 --header 'content-type: application/x-www-form-urlencoded' \
 --data-urlencode 'username=${user_id}' \
 --data-urlencode 'participant_code=${participant_code}' \
---data-urlencode 'password=${password}'
+--data-urlencode 'secret=${secret}'
 ```
 |**Variable Name**|**Details**|**example values**|
 | :-: | :-: | :-: |
