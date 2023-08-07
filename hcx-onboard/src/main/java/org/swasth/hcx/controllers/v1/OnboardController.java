@@ -129,7 +129,7 @@ public class OnboardController extends BaseController {
         try {
             String participantCode = (String) requestBody.get(PARTICIPANT_CODE);
             service.validateAdminRole(headers, participantCode);
-            return getSuccessResponse(service.generateAndSetPassword(participantCode));
+            return getSuccessResponse(service.generateAndSetPassword(headers, participantCode));
         } catch (Exception e) {
             return exceptionHandler("", ONBOARD_APPLICANT_PASSWORD_GENERATE, new Response(), e);
         }
