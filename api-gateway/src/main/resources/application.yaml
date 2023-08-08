@@ -67,7 +67,7 @@ redis:
   expires: ${REDIS_EXPIRES:3600}
 
 registry:
-  basePath: ${REGISTRY_BASE_PATH:http://a0b2bab079318431d8ca99f1efb1c25c-874274596.ap-south-1.elb.amazonaws.com:8081}
+  basePath: ${REGISTRY_BASE_PATH:http://aa5c04ed467c04ea89789cead03e4275-320353178.ap-south-1.elb.amazonaws.com:8081}
   hcxCode: ${REGISTRY_HCX_CODE:1-d2d56996-1b77-4abb-b9e9-0e6e7343c72e}
   hcxRoles: ${REGISTRY_HCX_ROLE:HIE/HIO.HCX}
 
@@ -90,6 +90,10 @@ es:
 
 tag:
    name : ${tag_name:}
+
+incoming-request:
+   expiry-days: ${request_incoming_expiry_date:90}
+   correlation-id-close-days: ${correlation_id_expiry_date:30}
 
 #audit config
 audit:

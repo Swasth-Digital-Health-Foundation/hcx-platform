@@ -11,10 +11,10 @@ import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.utils.PayloadUtils;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static org.swasth.common.response.ResponseMessage.*;
@@ -179,18 +179,27 @@ public class BaseRequest {
         return errors;
     }
 
-    public void validateUsingAuditData(List<String> allowedEntitiesForForward, List<String> allowedRolesForForward, Map<String, Object> senderDetails, Map<String, Object> recipientDetails, List<Map<String, Object>> correlationAuditData, List<Map<String, Object>> callAuditData, List<Map<String, Object>> participantCtxAuditData, String path) throws Exception {
+    public void validateUsingAuditData(List<String> allowedEntitiesForForward, List<String> allowedRolesForForward, Map<String, Object> senderDetails, Map<String, Object> recipientDetails, List<Map<String, Object>> correlationAuditData, List<Map<String, Object>> callAuditData, List<Map<String, Object>> participantCtxAuditData, String path, JWERequest jweRequest, int correlationDataCloseDays, List<Map<String, Object>> correlationFilteredData) throws Exception {
         validateCondition(!callAuditData.isEmpty(), ErrorCodes.ERR_INVALID_API_CALL_ID, API_CALL_SAME_MSG);
         //validate correlation id belongs to same cycle or not
-        if(!correlationAuditData.isEmpty() && !correlationAuditData.get(0).get(ACTION).toString().contains(getEntity(apiAction))){
-            throw new ClientException(ErrorCodes.ERR_INVALID_CORRELATION_ID, INVALID_CORRELATION_ID_CYCLE);
+        if (!correlationAuditData.isEmpty()) {
+            if (!correlationAuditData.get(0).get(ACTION).toString().contains(getEntity(apiAction))) {
+                throw new ClientException(ErrorCodes.ERR_INVALID_CORRELATION_ID, INVALID_CORRELATION_ID_CYCLE);
+            }
         }
 
         // validate request cycle is not closed
         for (Map<String, Object> audit : correlationAuditData) {
             String action = (String) audit.get(ACTION);
             String entity = getEntity(action);
-            validateCondition(!OPERATIONAL_ENTITIES.contains(entity) && action.contains("on_") && ((List<String>) audit.get(RECIPIENT_ROLE)).contains(PROVIDER) && audit.get(STATUS).equals(COMPLETE_STATUS), ErrorCodes.ERR_INVALID_CORRELATION_ID, CLOSED_CYCLE_MSG);
+            validateCondition(!OPERATIONAL_ENTITIES.contains(entity) && action.contains("on_") && ((List<String>) audit.get(RECIPIENT_ROLE)).contains(PROVIDER) && audit.get(STATUS).equals(COMPLETE_STATUS) && !isWithinLastDays((String) audit.get(TIMESTAMP), correlationDataCloseDays), ErrorCodes.ERR_INVALID_CORRELATION_ID, CLOSED_CYCLE_MSG);
+        }
+
+        List<Map<String, Object>> filteredList = filteredList(correlationFilteredData, correlationDataCloseDays);
+        if (filteredList.isEmpty()) {
+            if (correlationAuditData.get(0).get(HCX_SENDER_CODE).toString().equals(jweRequest.getHcxSenderCode()) && correlationAuditData.get(0).get(CORRELATION_ID).toString().contains(jweRequest.getCorrelationId())) {
+                throw new ClientException(ErrorCodes.ERR_INVALID_CORRELATION_ID, CORRELATION_ID_DUPLICATE);
+            }
         }
         if (apiAction.contains("on_")) {
             validateCondition(participantCtxAuditData.isEmpty(), ErrorCodes.ERR_INVALID_CORRELATION_ID, INVALID_ON_ACTION);
@@ -353,5 +362,26 @@ public class BaseRequest {
             String[] str = path.split("/");
             return str[str.length - 2];
         }
+    }
+
+    private List<Map<String, Object>> filteredList(List<Map<String, Object>> correlationAuditData, int days) {
+        return correlationAuditData.stream()
+                .filter(map -> COMPLETE_STATUS.equals(map.get(STATUS)))
+                .filter(map -> {
+                    try {
+                        return isWithinLastDays((String) map.get(TIMESTAMP), days);
+                    } catch (ParseException e) {
+                        throw new RuntimeException(e);
+                    }
+                }).collect(Collectors.toList());
+    }
+
+    private boolean isWithinLastDays(String timestamp,int days) throws ParseException {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        Date currentDate = new Date();
+        Date date = sdf.parse(timestamp);
+        long differenceInMillis = currentDate.getTime() - date.getTime();
+        long daysDifference = TimeUnit.DAYS.convert(differenceInMillis, TimeUnit.MILLISECONDS);
+        return daysDifference > days;
     }
 }
