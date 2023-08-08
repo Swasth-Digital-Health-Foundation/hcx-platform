@@ -9,7 +9,7 @@ Please find below the details of your invitation:
 </ul>
 To accept or reject the invitation, please click on the following link : <a href= ${USER_INVITE_URL}>Invitation link</a> .<br/><br/>
 This link will remain active for the next 7 days from the date of this email. <br/><br/>
-Our support team is available at <a href="mailto:Operations_admin@swasthalliance.org">Operations_admin@swasthalliance.org</a> to address any queries or if you require any further information. <br/><br/>
+If you have any questions or need assistance, please sign up at <a href="https://swasth.zohodesk.in/portal/en/signin">swasth-zohodesk</a> and raise a ticket to contact our support team.
 Thank you<br/><br/>
 Best regards, <br/>
 HCX onboarding team
