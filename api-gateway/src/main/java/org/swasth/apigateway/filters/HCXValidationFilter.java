@@ -121,7 +121,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                     requestObj.getPayload().put(RECIPIENTDETAILS, recipientDetails);
                     List<Map<String, Object>> participantCtxAuditDetails = getParticipantCtxAuditData(jweRequest.getHcxSenderCode(), jweRequest.getHcxRecipientCode(), jweRequest.getCorrelationId());
                     jweRequest.validate(getMandatoryHeaders(), subject, timestampRange, senderDetails, recipientDetails, allowedParticipantStatus);
-                    jweRequest.validateUsingAuditData(allowedEntitiesForForward, allowedRolesForForward, senderDetails, recipientDetails, getCorrelationAuditData(jweRequest.getCorrelationId()), getCallAuditData(jweRequest.getApiCallId()), participantCtxAuditDetails, path);
+                    jweRequest.validateUsingAuditData(allowedEntitiesForForward, allowedRolesForForward, senderDetails, recipientDetails, getCorrelationAuditData(jweRequest.getCorrelationId()), getCallAuditData(jweRequest.getApiCallId(),jweRequest.getHcxSenderCode()), participantCtxAuditDetails, path);
                     validateParticipantCtxDetails(participantCtxAuditDetails, path);
                 } else if (path.contains(NOTIFICATION_SUBSCRIBE) || path.contains(NOTIFICATION_UNSUBSCRIBE)) { //for validating /notification/subscribe, /notification/unsubscribe
                     JSONRequest jsonRequest = new JSONRequest(requestBody, true, path, hcxCode, hcxRoles);
@@ -152,8 +152,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                     jsonRequest.validateSubscriptionRequests(jsonRequest.getTopicCode(), senderListDetails, recipientDetails, getSubscriptionMandatoryHeaders(), notification, allowedParticipantStatus);
                     requestObj.getPayload().put(RECIPIENT_CODE, recipientDetails.get(PARTICIPANT_CODE));
                 } else if (path.contains(NOTIFICATION_SUBSCRIPTION_LIST)) { //for validating /notification/subscription/list
-                    JSONRequest jsonRequest = new JSONRequest(requestBody, true, path, hcxCode, hcxRoles);
-                    requestObj = jsonRequest;
+                    requestObj = new JSONRequest(requestBody, true, path, hcxCode, hcxRoles);
                     Map<String, Object> recipientDetails = registryService.fetchDetails(OS_OWNER, subject);
                     requestObj.getPayload().put(RECIPIENT_CODE, recipientDetails.get(PARTICIPANT_CODE));
                 } else if (path.contains(NOTIFICATION_SUBSCRIPTION_UPDATE) || path.contains(NOTIFICATION_ON_SUBSCRIBE)) {
@@ -180,7 +179,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                         jsonRequest.validate(getRedirectMandatoryHeaders(), subject, timestampRange, senderDetails, recipientDetails, allowedParticipantStatus);
                         if (getApisForRedirect().contains(path)) {
                             if (REDIRECT_STATUS.equalsIgnoreCase(jsonRequest.getStatus()))
-                                jsonRequest.validateRedirect(getRolesForRedirect(), getDetails(jsonRequest.getRedirectTo()), getCallAuditData(jsonRequest.getApiCallId()), getCorrelationAuditData(jsonRequest.getCorrelationId()), allowedParticipantStatus);
+                                jsonRequest.validateRedirect(getRolesForRedirect(), getDetails(jsonRequest.getRedirectTo()), getCallAuditData(jsonRequest.getApiCallId(), jsonRequest.getHcxSenderCode()), getCorrelationAuditData(jsonRequest.getCorrelationId()), allowedParticipantStatus);
                             else
                                 throw new ClientException(ErrorCodes.ERR_INVALID_REDIRECT_TO, MessageFormat.format(INVALID_STATUS_REDIRECT, jsonRequest.getStatus(), REDIRECT_STATUS));
                         } else
@@ -208,8 +207,11 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
         return searchRequest;
     }
 
-    private List<Map<String, Object>> getCallAuditData(String apiCallId) throws Exception {
-        return getAuditData(Collections.singletonMap(API_CALL_ID, apiCallId));
+    private List<Map<String, Object>> getCallAuditData(String apiCallId,String senderCode) throws Exception {
+        Map<String, String> filters = new HashMap<>();
+        filters.put(API_CALL_ID, apiCallId);
+        filters.put(HCX_SENDER_CODE, senderCode);
+        return getAuditData(filters);
     }
 
     private List<Map<String, Object>> getCorrelationAuditData(String correlationId) throws Exception {
