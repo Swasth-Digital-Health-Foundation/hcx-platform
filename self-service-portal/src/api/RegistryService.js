@@ -17,7 +17,7 @@ export const getParticipantByCode = async (code) => {
     return post("/applicant/search?fields=communication,sponsors,onboard_validation_properties,mockparticipants", payload);
 }
 
-export const generateClientSecret = async (code) => {
+export const generateClientSecret = async (code, token="") => {
     var payload = { "participant_code": code};
-    return post("/onboard/applicant/password/generate", payload);
+    return post("/onboard/applicant/password/generate", payload, {}, token);
 }

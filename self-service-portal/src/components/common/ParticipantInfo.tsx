@@ -190,7 +190,7 @@ const ParticipantInfo = () => {
 
   function generateClientSecrete(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     console.log("yes its clicked ", event);
-    generateClientSecret(_.get(participantDetails, "participant_code")).then((res) =>{
+    generateClientSecret(_.get(participantDetails, "participant_code"), authToken).then((res) =>{
       toast.success(`Client Secret has been sent to your primary email`, {
         position: toast.POSITION.TOP_CENTER
       })
