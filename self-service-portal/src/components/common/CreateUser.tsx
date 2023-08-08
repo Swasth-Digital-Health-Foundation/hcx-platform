@@ -81,7 +81,7 @@ const CreateUser = () => {
             </label>
             <button
               type="button"
-              className="inline-block mb-2 rounded border-2 border-blue-500 px-6 pb-[6px] pt-2 text-xs font-medium uppercase leading-normal text-blue-500 transition duration-150 ease-in-out hover:border-blue-600 hover:bg-neutral-500 hover:bg-opacity-10 hover:text-blue-600 focus:border-blue-600 focus:text-blue-600 focus:outline-none focus:ring-0 active:border-blue-700 active:text-blue-700 dark:hover:bg-neutral-100 dark:hover:bg-opacity-10"
+              className="button-secondary"
               data-te-ripple-init=""
               data-te-ripple-color="light"
               onClick={() => { dispatch(addAppData({"sidebar":"Manage Users"}))}}
@@ -126,7 +126,7 @@ const CreateUser = () => {
                     Email Address
                   </label>
                   <input
-                    className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
+                    className="input-primary"
                     id="grid-first-name"
                     type="text"
                     placeholder="Email"
@@ -143,7 +143,7 @@ const CreateUser = () => {
                     Role
                   </label>
                   <select id="payordropdown"
-                    className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                    className="input-primary"
                     onChange={(event) => { updateCreateUserData(event.target.value, index, "role") }}
                     value={value.role}>
                     <option value="admin">Admin</option>
@@ -164,7 +164,7 @@ const CreateUser = () => {
           <div className="flex items-center justify-between -mx-3 mb-6 p-3">
             <button
               type="button"
-              className="inline-block rounded border-2 border-blue-500 px-6 pb-[6px] pt-2 text-xs font-medium uppercase leading-normal text-blue-500 transition duration-150 ease-in-out hover:border-blue-600 hover:bg-neutral-500 hover:bg-opacity-10 hover:text-blue-600 focus:border-blue-600 focus:text-blue-600 focus:outline-none focus:ring-0 active:border-blue-700 active:text-blue-700 dark:hover:bg-neutral-100 dark:hover:bg-opacity-10"
+              className="button-secondary"
               data-te-ripple-init=""
               data-te-ripple-color="light"
               onClick={() => addAnotherRow()}
@@ -173,7 +173,7 @@ const CreateUser = () => {
             </button>
             <button
               type="button"
-              className="inline-block rounded border-2 border-blue-500 px-6 pb-[6px] pt-2 text-xs font-medium uppercase leading-normal text-blue-500 transition duration-150 ease-in-out hover:border-blue-600 hover:bg-neutral-500 hover:bg-opacity-10 hover:text-blue-600 focus:border-blue-600 focus:text-blue-600 focus:outline-none focus:ring-0 active:border-blue-700 active:text-blue-700 dark:hover:bg-neutral-100 dark:hover:bg-opacity-10"
+              className="button-secondary"
               data-te-ripple-init=""
               data-te-ripple-color="light"
               onClick={() => { inviteUsers(); }}

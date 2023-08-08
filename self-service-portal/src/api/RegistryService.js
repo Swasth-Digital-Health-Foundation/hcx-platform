@@ -16,3 +16,8 @@ export const getParticipantByCode = async (code) => {
     var payload = { "filters": { "participant_code": { "eq":  code} } };
     return post("/applicant/search?fields=communication,sponsors,onboard_validation_properties,mockparticipants", payload);
 }
+
+export const generateClientSecret = async (code) => {
+    var payload = { "participant_code": code};
+    return post("/onboard/applicant/password/generate", payload);
+}

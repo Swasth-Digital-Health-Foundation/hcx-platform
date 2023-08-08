@@ -5,13 +5,14 @@ import { RootState } from "../../store";
 import { useAuthActions } from "../../recoil/actions/auth.actions";
 import _ from "lodash";
 import { toast } from "react-toastify";
-import { getParticipant, getParticipantByCode } from "../../api/RegistryService";
+import { generateClientSecret, getParticipant, getParticipantByCode } from "../../api/RegistryService";
 import { addParticipantDetails } from "../../reducers/participant_details_reducer";
 import { post } from "../../api/APIService";
 import { reverifyLink, serachUser } from "../../api/UserService";
 import { navigate } from "raviger";
 import { addAppData } from "../../reducers/app_data";
 import { addParticipantToken } from "../../reducers/token_reducer";
+import ModalYesNo from "./ModalYesNo";
 
 const ParticipantInfo = () => {
 
@@ -19,6 +20,27 @@ const ParticipantInfo = () => {
   const participantDetails: Object = useSelector((state: RootState) => state.participantDetailsReducer.participantDetails);
   const authToken = useSelector((state: RootState) => state.tokenReducer.participantToken);
   console.log("part details in dash", participantDetails, authToken);
+  const [email, setEmail] = useState(_.get(participantDetails, "primary_email") || "");
+  const [phone, setPhone] = useState(_.get(participantDetails, "primary_mobile") || "1234567890");
+  const [address, setAddress] = useState(_.get(participantDetails, "address") || {});
+  const [encryptionCert, setEncryptionCert] = useState(_.get(participantDetails, "encryption_cert") || '');
+  const [endpointUrl, setEndpointUrl] = useState(_.get(participantDetails, "endpoint_url") || '');
+  const [certType, setCertType] = useState("text");
+  const [certError, setCertError] = useState(false);
+  const [endpointError, setEndPointError] = useState(false);
+  const [actEmail, setActEmail] = useState(_.get(participantDetails, "onboard_validation_properties.email") || 'activation');
+  const [actPhone, setActPhone] = useState(_.get(participantDetails, "onboard_validation_properties.phone") || 'verification');
+  const [actMessage, setActMessage] = useState("Email and Phone verification is required to activate the HCX account");
+  const [showModalYesNo,setShowModalYesNo] = useState(false);
+
+
+
+
+  useEffect(()=> {
+    setEmail(_.get(participantDetails, "primary_email") || '');
+    setPhone(_.get(participantDetails, "primary_mobile") || '1234567890');
+  },[participantDetails])
+
 
   useEffect(()=> {
   if(authToken == "abcd"){
@@ -36,6 +58,9 @@ const ParticipantInfo = () => {
           if( res["data"]["participants"].length !== 0){
             console.log("came in if")
            dispatch(addParticipantDetails(res["data"]["participants"][0]));
+           setEmail(res["data"]["participants"][0]["primary_email"]);
+           console.log("email", email, res["data"]["participants"][0]["primary_email"]);
+           setPhone(res["data"]["participants"][0]["primary_mobile"]);  
           }else{
             console.log("came in else");
             serachUser(userName).then((res: any) => {
@@ -46,6 +71,9 @@ const ParticipantInfo = () => {
                 getParticipantByCode(value.participant_code).then(res => {
                   console.log("participant info", res);
                   dispatch(addParticipantDetails(res["data"]["participants"][0]));
+                  setEmail(res["data"]["participants"][0]["primary_email"]);
+                  setPhone(res["data"]["participants"][0]["primary_mobile"]);
+          
                 })
                   dispatch(addAppData({"sidebar":"Profile"}))
               })
@@ -61,19 +89,7 @@ const ParticipantInfo = () => {
 
   //const { login } = useAuthActions();
 
-  const [userName, setUserName] = useState('');
-  const [password, setPassword] = useState('');
-  const [address, setAddress] = useState(_.get(participantDetails, "address") || {});
-  const [encryptionCert, setEncryptionCert] = useState(_.get(participantDetails, "encryption_cert") || '');
-  const [endpointUrl, setEndpointUrl] = useState(_.get(participantDetails, "endpoint_url") || '');
-  const [certType, setCertType] = useState("text");
-  const [certError, setCertError] = useState(false);
-  const [endpointError, setEndPointError] = useState(false);
-  const [actEmail, setActEmail] = useState(_.get(participantDetails, "onboard_validation_properties.email") || 'activation');
-  const [actPhone, setActPhone] = useState(_.get(participantDetails, "onboard_validation_properties.phone") || 'verification');
-  const [actMessage, setActMessage] = useState("Email and Phone verification is required to activate the HCX account");
-
-
+  
   useEffect(() => {
     setAddress(_.get(participantDetails, "address") || {});
     setEncryptionCert(_.get(participantDetails, "encryption_cert") || '');
@@ -81,8 +97,6 @@ const ParticipantInfo = () => {
     if(_.get(participantDetails,"roles[0]") == "provider"){
     getParticipantByCode(_.get(participantDetails, "sponsors[0].verifierCode")).then(res => { 
         console.log("verifier details",res);
-
-
         let emailV = "";
         try {
         emailV = res["data"]["participants"][0]["onboard_validation_properties"]["email"] != undefined ? res["data"]["participants"][0]["onboard_validation_properties"]["email"] : "Activation";
@@ -105,32 +119,6 @@ const ParticipantInfo = () => {
     })
   }
   }, [participantDetails]);
-
-
-
-  const getIdentityVerification = (type: string) => {
-    if (_.get(participantDetails, "sponsors[0].status") == "accepted") {
-      return (type == "color" ? "text-green-500" : "Successful")
-    } else if (_.get(participantDetails, "sponsors[0].status") == "rejected") {
-      return (type == "color" ? "text-green-500" : "Rejected")
-    } else {
-      return (type == "color" ? "text-yellow-500" : "Pending")
-    }
-  }
-
-
-  const getStatusVerification = (type: string) => {
-    if (_.get(participantDetails, "status") == "Active") {
-      return (type == "color" ? "text-green-500" : "Active")
-    } else if (_.get(participantDetails, "status") == "Inactive") {
-      return (type == "color" ? "text-red-500" : "Inactive")
-    } else if (_.get(participantDetails, "status") == "Blocked") {
-      return (type == "color" ? "text-red-500" : "Blocked")
-    }
-    else {
-      return (type == "color" ? "text-yellow-500" : "Created")
-    }
-  }
 
   const onSubmit = () => {
     //setSending(true)
@@ -200,13 +188,34 @@ const ParticipantInfo = () => {
   }
 
 
+  function generateClientSecrete(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
+    console.log("yes its clicked ", event);
+    generateClientSecret(_.get(participantDetails, "participant_code")).then((res) =>{
+      toast.success(`Client Secret has been sent to your primary email`, {
+        position: toast.POSITION.TOP_CENTER
+      })
+    }).catch(err => {
+        toast.error(_.get(err, 'response.data.error.message') || "Internal Server Error", {
+          position: toast.POSITION.TOP_CENTER
+        });;
+    })
+    setShowModalYesNo(false);
+  }
+
+  const cancelGenerateSecret = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    setShowModalYesNo(false);
+  }
+
   return (
     <div className="p-4 sm:ml-64">
+      {showModalYesNo ?
+      <ModalYesNo text="Are you sure you want to regenerate a new Client Secret?" onChildClickYes={(event) => {generateClientSecrete(event)}} onChildClickNo={(event) => {cancelGenerateSecret(event)}} ></ModalYesNo>
+      : null }
       <div className="p-4 border-2 border-gray-200 border rounded-lg dark:border-gray-700 mt-14">
         <form className="w-full p-12">
           <div className="flex flex-wrap -mx-3 justify-between">
             <label
-              className="block  uppercase tracking-wide text-gray-700 text-s font-bold mb-2"
+              className="lable-page-header"
             >
               Participant Information
             </label>
@@ -220,7 +229,7 @@ const ParticipantInfo = () => {
                   <path d="M12 8v4M12 16h.01" />
                 </svg>}
               <label
-                className="block  tracking-wide text-grey-700 text-sm font-bold m-1"
+                className="label-primary m-1"
                 htmlFor="grid-first-name"
               >
                 {_.get(participantDetails, "status")  == "Active" ? "Active" : "Inactive"}
@@ -235,13 +244,13 @@ const ParticipantInfo = () => {
           </div>
           <div className="flex flex-wrap w-full px-3 mb-2">
             <label
-              className="w-1/6 block  tracking-wide text-gray-700 text-sm font-bold mb-2"
+              className="w-1/6 label-primary mb-2"
               htmlFor="grid-first-name"
             >
               Participant Name :
             </label>
             <label
-              className="w-5/6 block  tracking-wide text-gray-700 text-sm font-bold mb-2"
+              className="w-5/6 label-primary mb-2"
               htmlFor="grid-first-name"
             >
               {_.get(participantDetails, "participant_name") ? _.get(participantDetails, "participant_name") : ""}
@@ -250,13 +259,13 @@ const ParticipantInfo = () => {
           </div>
           <div className="flex flex-wrap w-full px-3 mb-2">
             <label
-              className="w-1/6 block  tracking-wide text-gray-700 text-sm font-bold mb-2"
+              className="w-1/6 label-primary mb-2"
               htmlFor="grid-last-name"
             >
               Participant Code :
             </label>
             <label
-              className="w-5/6 block  tracking-wide text-gray-700 text-sm font-bold mb-2"
+              className="w-5/6 label-primary mb-2"
               htmlFor="grid-first-name"
             >
               {_.get(participantDetails, "participant_code")}
@@ -264,17 +273,17 @@ const ParticipantInfo = () => {
           </div>
           <div className="flex flex-wrap w-full px-3 mb-2">
             <label
-              className="w-1/6 block  tracking-wide text-gray-700 text-sm font-bold mb-2"
+              className="w-1/6 label-primary mb-2"
               htmlFor="grid-first-name"
             >
               Email Address :
             </label>
 
             <label
-              className="w-5/6 block  tracking-wide text-gray-700 text-sm font-bold mb-2"
+              className="w-5/6 label-primary mb-2"
               htmlFor="grid-first-name"
             >
-              {_.get(participantDetails, "communication.emailVerified") ? `${_.get(participantDetails, "primary_email")} (Verified)` : `${_.get(participantDetails, "primary_email")} (Verification pending) `}
+              {_.get(participantDetails, "communication.emailVerified") ? `${email} (Verified)` : `${email} (Verification pending) `}
               &nbsp;&nbsp;&nbsp;&nbsp;
               {_.get(participantDetails, "communication.emailVerified") ?
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 inline-block mr-1 border rounded-full border-green-500" fill="none" viewBox="0 0 24 24" stroke="green">
@@ -293,17 +302,17 @@ const ParticipantInfo = () => {
 
           <div className="flex flex-wrap w-full px-3 mb-10">
             <label
-              className="w-1/6 block  tracking-wide text-gray-700 text-sm font-bold mb-2"
+              className="w-1/6 label-primary mb-2"
               htmlFor="grid-first-name"
             >
               Phone Number :
             </label>
 
             <label
-              className="w-5/6 block  tracking-wide text-gray-700 text-sm font-bold mb-2"
+              className="w-5/6 label-primary mb-2"
               htmlFor="grid-first-name"
             >
-              {_.get(participantDetails, "communication.phoneVerified") ? `${_.get(participantDetails, "primary_mobile")} (Verified)` : `${_.get(participantDetails, "primary_mobile")} (Verification pending)`}
+              {_.get(participantDetails, "communication.phoneVerified") ? `${phone} (Verified)` : `${phone} (Verification pending)`}
               &nbsp;&nbsp;&nbsp;&nbsp;
               {_.get(participantDetails, "communication.phoneVerified") ?
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 inline-block mr-1 border rounded-full border-green-500" fill="none" viewBox="0 0 24 24" stroke="green">
@@ -321,7 +330,7 @@ const ParticipantInfo = () => {
           </div>
           <div className="flex flex-wrap -mx-3 mb-2">
             <label
-              className="block uppercase tracking-wide text-gray-700 text-s font-bold mb-1"
+              className="label-primary mb-1"
             >
               HCX Connectivity Details
             </label>
@@ -334,34 +343,34 @@ const ParticipantInfo = () => {
           <div className="flex flex-wrap -mx-3 mb-6">
             <div className="w-full px-3">
               <label
-                className="block  tracking-wide text-gray-700 text-sm font-bold mb-2"
+                className="label-primary mb-2"
                 htmlFor="grid-password"
               >
                 Encryption Certificate
               </label>
               <div className="flex mb-3">
                 <div className="flex items-center mr-4">
-                  <input id="inline-radio" type="radio" value="" name="inline-radio-group" className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500"
+                  <input id="inline-radio" type="radio" value="" name="inline-radio-group" className="radio-primary"
                     onClick={() => setCertType("text")} defaultChecked></input>
-                  <label htmlFor="inline-radio" className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">Certificate URL</label>
+                  <label htmlFor="inline-radio" className="ml-2 label-primary">Certificate URL</label>
                 </div>
                 <div className="flex items-center mr-4">
-                  <input id="inline-2-radio" type="radio" value="" name="inline-radio-group" className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500"
+                  <input id="inline-2-radio" type="radio" value="" name="inline-radio-group" className="radio-primary"
                     onClick={() => setCertType("textarea")}></input>
-                  <label htmlFor="inline-2-radio" className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">Certificate</label>
+                  <label htmlFor="inline-2-radio" className="ml-2 label-primary">Certificate</label>
                 </div>
 
               </div>
               {certType == "textarea" ?
                 <textarea
-                  className={"appearance-none block w-full bg-gray-100 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" + (certError ? " border-red-600" : "")}
+                  className={"input-primary" + (certError ? " border-red-600" : "")}
                   id="grid-password"
                   placeholder="Please provide your public certificate here"
                   //value={encryptionCert}
                   onChange={(event) => { setEncryptionCert(event.target.value); setCertError(false) }}
                 /> :
                 <input
-                  className={"appearance-none block w-full bg-gray-100 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" + (certError ? " border-red-600" : "")}
+                  className={"input-primary" + (certError ? " border-red-600" : "")}
                   id="grid-password"
                   type="text"
                   placeholder=""
@@ -373,7 +382,7 @@ const ParticipantInfo = () => {
           <div className="flex flex-wrap -mx-3 mb-10">
             <div className="w-full px-3">
               <label
-                className="block  tracking-wide text-gray-700 text-sm font-bold mb-2"
+                className="label-primary mb-2"
                 htmlFor="grid-password"
               >
                 Endpoint URL
@@ -392,7 +401,7 @@ const ParticipantInfo = () => {
           <>
             <div className="flex flex-wrap -mx-3 mb-1">
             <label
-              className="block uppercase tracking-wide text-gray-700 text-s font-bold mb-2"
+              className="label-primary mb-2"
             >
               Provider Onbaording Configuration
             </label>
@@ -405,7 +414,7 @@ const ParticipantInfo = () => {
           <div className="flex flex-wrap -mx-3 mb-2">
             <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
               <label
-                className="block  tracking-wide text-gray-700 text-sm font-bold mb-2"
+                className="label-primary mb-2"
                 htmlFor="grid-last-name"
               >
                 Email
@@ -420,7 +429,7 @@ const ParticipantInfo = () => {
             </div>
             <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
               <label
-                className="block  tracking-wide text-gray-700 text-sm font-bold mb-2"
+                className="label-primary mb-2"
                 htmlFor="grid-last-name"
               >
                 Phone
@@ -435,9 +444,32 @@ const ParticipantInfo = () => {
             </div>
           </div>
           </> : null}
+          <div className="flex flex-wrap -mx-3 mb-1">
+            <label
+              className="label-primary mb-2"
+            >
+              Client Secret Generation
+            </label>
+          </div>
+          <div className="flex flex-wrap -mx-3 mb-6 border-b-2 shadow-l shadow-bottom">
+            <p className="text-gray-600 text-sm italic">
+                Client Secret regeneration will send email to all admins associated with the participant with new Client Secret.
+            </p>
+          </div>
+          <div className="flex flex-wrap -mx-3 mb-6 justify-between">
+            <button
+              className="button-primary w-1/5"
+              type="button"
+              data-te-ripple-init=""
+              data-te-ripple-color="light"
+              onClick={() => setShowModalYesNo(true)}
+            >
+              Generate Client Secret
+            </button>
+          </div>
           <div className="flex flex-wrap -mx-3 mt-10">
             <label
-              className="block uppercase tracking-wide text-gray-700 text-s font-bold mb-2"
+              className="label-primary mb-2"
             >
               Address
             </label>
@@ -450,13 +482,13 @@ const ParticipantInfo = () => {
           <div className="flex flex-wrap -mx-3 mb-2">
             <div className="w-full md:w-1/3 px-3 mb-6 md:mb-0">
               <label
-                className="block  tracking-wide text-gray-700 text-sm font-bold mb-2"
+                className="label-primary mb-2"
                 htmlFor="grid-city"
               >
                 Plot
               </label>
               <input
-                className="appearance-none block w-full bg-gray-100 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                className="input-primary"
                 id="grid-city"
                 type="text"
                 placeholder=""
@@ -466,13 +498,13 @@ const ParticipantInfo = () => {
             </div>
             <div className="w-full md:w-1/3 px-3 mb-6 md:mb-0">
               <label
-                className="block  tracking-wide text-gray-700 text-sm font-bold mb-2"
+                className="label-primary mb-2"
                 htmlFor="grid-city"
               >
                 Street
               </label>
               <input
-                className="appearance-none block w-full bg-gray-100 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                className="input-primary"
                 id="grid-city"
                 type="text"
                 placeholder=""
@@ -483,13 +515,13 @@ const ParticipantInfo = () => {
             </div>
             <div className="w-full md:w-1/3 px-3 mb-6 md:mb-0">
               <label
-                className="block  tracking-wide text-gray-700 text-sm font-bold mb-2"
+                className="label-primary mb-2"
                 htmlFor="grid-zip"
               >
                 Landmark
               </label>
               <input
-                className="appearance-none block w-full bg-gray-100 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                className="input-primary"
                 id="grid-zip"
                 type="text"
                 placeholder=""
@@ -501,13 +533,13 @@ const ParticipantInfo = () => {
           <div className="flex flex-wrap -mx-3 mb-8">
             <div className="w-full md:w-1/3 px-3 mb-6 md:mb-0">
               <label
-                className="block  tracking-wide text-gray-700 text-sm font-bold mb-2"
+                className="label-primary mb-2"
                 htmlFor="grid-city"
               >
                 District
               </label>
               <input
-                className="appearance-none block w-full bg-gray-100 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                className="input-primary"
                 id="grid-city"
                 type="text"
                 placeholder=""
@@ -517,13 +549,13 @@ const ParticipantInfo = () => {
             </div>
             <div className="w-full md:w-1/3 px-3 mb-6 md:mb-0">
               <label
-                className="block  tracking-wide text-gray-700 text-sm font-bold mb-2"
+                className="label-primary mb-2"
                 htmlFor="grid-city"
               >
                 State
               </label>
               <input
-                className="appearance-none block w-full bg-gray-100 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                className="input-primary"
                 id="grid-city"
                 type="text"
                 placeholder=""
@@ -534,13 +566,13 @@ const ParticipantInfo = () => {
             </div>
             <div className="w-full md:w-1/3 px-3 mb-6 md:mb-0">
               <label
-                className="block  tracking-wide text-gray-700 text-sm font-bold mb-2"
+                className="label-primary mb-2"
                 htmlFor="grid-zip"
               >
                 Pincode
               </label>
               <input
-                className="appearance-none block w-full bg-gray-100 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                className="input-primary"
                 id="grid-zip"
                 type="number"
                 placeholder=""
@@ -552,27 +584,19 @@ const ParticipantInfo = () => {
 
           <div className="flex flex-wrap -mx-3 mb-6 justify-between">
             <button
-              className="mb-3 inline-block w-1/4 rounded px-6 pb-2 pt-2.5 text-sm font-medium  leading-normal text-white shadow-[0_4px_9px_-4px_rgba(0,0,0,0.2)] transition duration-150 ease-in-out hover:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:outline-none focus:ring-0 active:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)]"
+              className="button-primary w-1/5"
               type="button"
               data-te-ripple-init=""
               data-te-ripple-color="light"
-              style={{
-                background:
-                  "linear-gradient(to right, #1C4DC3, #3632BE, #1D1991, #060347)"
-              }}
               onClick={() => onSubmit()}
             >
               Update
             </button>
             <button
-              className="mb-3 inline-block w-1/5 rounded px-6 pb-2 pt-2.5 text-sm font-medium  leading-normal text-white shadow-[0_4px_9px_-4px_rgba(0,0,0,0.2)] transition duration-150 ease-in-out hover:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:outline-none focus:ring-0 active:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)]"
+              className="button-primary w-1/5"
               type="button"
               data-te-ripple-init=""
               data-te-ripple-color="light"
-              style={{
-                background:
-                  "linear-gradient(to right, #1C4DC3, #3632BE, #1D1991, #060347)"
-              }}
               onClick={() => refreshPage()}>
               Refresh Page
             </button>

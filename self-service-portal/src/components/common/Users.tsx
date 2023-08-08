@@ -127,7 +127,7 @@ const Users = () => {
         <div className="w-full p-12">
           <div className="flex flex-wrap -mx-3 mb-6 border-b-2 shadow-l shadow-bottom justify-between">
             <label
-              className="block uppercase tracking-wide text-gray-700 text-s font-bold mb-2"
+              className="lable-page-header"
             >
               View and add users to the participant
             </label>
@@ -135,7 +135,7 @@ const Users = () => {
           <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
             <div className="flex items-center justify-between py-4 bg-white dark:bg-gray-800">
             <button
-              className="inline-block m-1 rounded border-2 border-blue-500 px-6 pb-[6px] pt-2 text-xs font-medium uppercase leading-normal text-blue-500 transition duration-150 ease-in-out hover:border-blue-600 hover:bg-neutral-500 hover:bg-opacity-10 hover:text-blue-600 focus:border-blue-600 focus:text-blue-600 focus:outline-none focus:ring-0 active:border-blue-700 active:text-blue-700 dark:hover:bg-neutral-100 dark:hover:bg-opacity-10"
+              className="button-secondary"
               type="button"
               data-te-ripple-init=""
               data-te-ripple-color="light"
@@ -356,14 +356,14 @@ const Users = () => {
                   <div className="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600 justify-between">
                     <button
                       type="submit"
-                      className="text-white bg-blue-600 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                      className="button-secondary"
                       onClick={(event) => { event.preventDefault(); inviteUsers(); setShowDetails(false) }}
                     >
                       Update User
                     </button>
                     <button
                       type="submit"
-                      className="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-blue-800"
+                      className="button-secondary"
                       onClick={(event) => { event.preventDefault(); removeUser(); setShowDetails(false) }}
                     >
                       Remove Access

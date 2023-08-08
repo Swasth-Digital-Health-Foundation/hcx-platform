@@ -56,7 +56,7 @@ const LinkedParticipant = () => {
         <div className="w-full p-12">
         <div className="flex flex-wrap -mx-3 mb-6 border-b-2 shadow-l shadow-bottom justify-between">
           <label
-            className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+            className="lable-page-header"
           >
             Participants linked to the User
           </label>

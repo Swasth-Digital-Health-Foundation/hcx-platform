@@ -132,12 +132,12 @@ export default function Login() {
                   </h4>
                 </div>
                 <form>
-                  <p className="mb-4">Please login to your account</p>
+                  <p className="mb-4 text-medium">Please login to your account</p>
                   {/*Username input*/}
                   <div className="relative mb-4">
                     <input
                       type="email"
-                      className={"w-full h-10 px-3 mb-4 text-base text-gray-700 placeholder-gray-600 border rounded-lg focus:shadow-outline" + (userError ? " border-red-600" : "") }
+                      className={"input-primary" + (userError ? " border-red-600" : "") }
                       id="exampleFormControlInput1"
                       placeholder="Username"
                       onChange={(event) => {setUserName(event.target.value); setUserError(false)}}
@@ -148,7 +148,7 @@ export default function Login() {
                   <div className="relative mb-4">
                     <input
                       type="password"
-                      className={"w-full h-10 px-3 mb-4 text-base text-gray-700 placeholder-gray-600 border rounded-lg focus:shadow-outline" + (passError ? " border-red-600" : "" )}
+                      className={"input-primary" + (passError ? " border-red-600" : "" )}
                       id="exampleFormControlInput11"
                       placeholder="Password"
                       onChange={(event) => {setPassword(event.target.value); setPassError(false)}}
@@ -158,14 +158,10 @@ export default function Login() {
                   {/*Submit button*/}
                   <div className="mb-1 pb-1 pt-1 text-center">
                     <button
-                      className="mb-3 inline-block w-full rounded px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white shadow-[0_4px_9px_-4px_rgba(0,0,0,0.2)] transition duration-150 ease-in-out hover:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)] focus:outline-none focus:ring-0 active:shadow-[0_8px_9px_-4px_rgba(0,0,0,0.1),0_4px_18px_0_rgba(0,0,0,0.2)]"
+                      className="button-primary w-full"
                       type="button"
                       data-te-ripple-init=""
                       data-te-ripple-color="light"
-                      style={{
-                        background:
-                          "linear-gradient(to right, #1C4DC3, #3632BE, #1D1991, #060347)"
-                      }}
                       onClick={() => Signin(userName,password)}
                     >
                       Log in
@@ -176,27 +172,13 @@ export default function Login() {
                   <div className="flex items-center justify-between pb-6">
                   <a href="#" onClick={(e) => {e.preventDefault(); forgotPassword()}}><p className="underline">Forgot password?</p></a>
                   <a href="#" onClick={(e) => {e.preventDefault(); navigate("/onboarding/register")}}><p className="underline">Don't have an account? Register</p></a>
-                    {/* <p className="mb-0 mr-2">Don't have an account?</p>
-                    <button
-                      type="button"
-                      className="inline-block rounded border-2 border-blue-500 px-6 pb-[6px] pt-2 text-xs font-medium uppercase leading-normal text-blue-500 transition duration-150 ease-in-out hover:border-blue-600 hover:bg-neutral-500 hover:bg-opacity-10 hover:text-blue-600 focus:border-blue-600 focus:text-blue-600 focus:outline-none focus:ring-0 active:border-blue-700 active:text-blue-700 dark:hover:bg-neutral-100 dark:hover:bg-opacity-10"
-                      data-te-ripple-init=""
-                      data-te-ripple-color="light"
-                      onClick={() => navigate("/onboarding/register")}
-                    >
-                      Register
-                    </button> */}
                   </div>
                 </form>
               </div>
             </div>
             {/* Right column container with background and description*/}
             <div
-              className="flex items-center rounded-b-lg lg:w-6/12 lg:rounded-r-lg lg:rounded-bl-none"
-              style={{
-                background:
-                  "linear-gradient(to right, #1C4DC3, #3632BE, #1D1991, #060347)"
-              }}
+              className="flex items-center rounded-b-lg lg:w-6/12 lg:rounded-r-lg lg:rounded-bl-none gradient-blue-purple"
             >
               <div className="px-4 py-6 text-white md:mx-6 md:p-12">
                 <h4 className="mb-6 text-xl font-semibold">

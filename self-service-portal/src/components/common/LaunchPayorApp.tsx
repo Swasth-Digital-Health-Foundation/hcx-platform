@@ -53,7 +53,7 @@ const LaunchPayorApp = () => {
         <form className="w-full p-12">
         <div className="flex flex-wrap -mx-3 mt-2">
             <label
-              className="block uppercase tracking-wide text-gray-700 text-s font-bold mb-2"
+              className="lable-page-header"
             >
               Payor App Launch Details
             </label>
@@ -63,6 +63,18 @@ const LaunchPayorApp = () => {
                 Information below will be used to launch the Payor App. Please use the given participant code for the payor when making API calls as Provider.
             </p>
           </div>
+          {code == "" ? 
+          <div className="flex flex-wrap w-full px-3 mb-2">
+            <label
+              className="block  tracking-wide text-gray-700 text-sm font-bold mb-2"
+              htmlFor="grid-first-name"
+            >
+              Launch Payor App is only available to root user of the participant. Please contact HCX team to create your own participant account.
+            </label>
+            {/* <p className="text-red-500 text-sm italic">Please fill out this field.</p> */}
+          </div>
+          :
+          <>
           <div className="flex flex-wrap w-full px-3 mb-2">
             <label
               className="w-1/6 block  tracking-wide text-gray-700 text-sm font-bold mb-2"
@@ -78,7 +90,7 @@ const LaunchPayorApp = () => {
             </label>
             {/* <p className="text-red-500 text-sm italic">Please fill out this field.</p> */}
           </div>
-          <div className="flex flex-wrap w-full px-3 mb-2">
+          <div className="flex flex-wrap w-full px-3 mb-10">
             <label
               className="w-1/6 block  tracking-wide text-gray-700 text-sm font-bold mb-2"
               htmlFor="grid-first-name"
@@ -90,21 +102,6 @@ const LaunchPayorApp = () => {
               htmlFor="grid-first-name"
             >
               {email}
-            </label>
-            {/* <p className="text-red-500 text-sm italic">Please fill out this field.</p> */}
-          </div>
-          <div className="flex flex-wrap w-full px-3 mb-10">
-            <label
-              className="w-1/6 block  tracking-wide text-gray-700 text-sm font-bold mb-2"
-              htmlFor="grid-first-name"
-            >
-              Client Secret :
-            </label>
-            <label
-              className="w-5/6 block  tracking-wide text-gray-700 text-sm font-bold mb-2"
-              htmlFor="grid-first-name"
-            >
-              {pass}
             </label>
             {/* <p className="text-red-500 text-sm italic">Please fill out this field.</p> */}
           </div>
@@ -124,6 +121,7 @@ const LaunchPayorApp = () => {
               Launch Payer App
             </button>            
           </div>
+          </>}
         </form>
 
       </div>
