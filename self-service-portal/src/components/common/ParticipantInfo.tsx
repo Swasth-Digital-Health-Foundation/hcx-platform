@@ -411,7 +411,7 @@ const ParticipantInfo = () => {
                 Kindly provide the level of provider onboarding configuration to activate the provider's participant when they onboard through you
             </p>
           </div>
-          <div className="flex flex-wrap -mx-3 mb-2">
+          <div className="flex flex-wrap -mx-3 mb-10">
             <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
               <label
                 className="label-primary mb-2"
