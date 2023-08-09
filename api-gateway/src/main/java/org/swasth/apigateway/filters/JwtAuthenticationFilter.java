@@ -102,7 +102,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
                     JSONArray claims;
                     if(StringUtils.endsWithIgnoreCase(entityType, Constants.API_ACCESS)) {
                         List<String> userRoles = JsonPath.read(payload, jwtConfigs.getApiAccessUserClaimsNamespacePath());
-                        if(validateRoles(allowedUserRolesForProtocolApiAccess, userRoles)){
+                        if(!validateRoles(allowedUserRolesForProtocolApiAccess, userRoles)){
                             throw new JWTVerificationException(ErrorCodes.ERR_ACCESS_DENIED, MessageFormat.format(USER_ROLE_ACCESS_DENIED_MSG, allowedUserRolesForProtocolApiAccess));
                         }
                        claims = JsonPath.read(payload, jwtConfigs.getApiAccessParticipantClaimsNamespacePath());
