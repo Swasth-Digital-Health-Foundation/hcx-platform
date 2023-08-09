@@ -13,6 +13,9 @@ import org.swasth.common.utils.PayloadUtils;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -366,21 +369,13 @@ public class BaseRequest {
     private List<Map<String, Object>> filteredList(List<Map<String, Object>> correlationFilteredData, int days) {
         return correlationFilteredData.stream()
                 .filter(map -> COMPLETE_STATUS.equals(map.get(STATUS)))
-                .filter(map -> {
-                    try {
-                        return isWithinLastDays((String) map.get(TIMESTAMP), days);
-                    } catch (ParseException e) {
-                        throw new RuntimeException(e);
-                    }
-                }).collect(Collectors.toList());
+                .filter(map -> isWithinLastDays((String) map.get(TIMESTAMP), days)).collect(Collectors.toList());
     }
 
-    private boolean isWithinLastDays(String timestamp,int days) throws ParseException {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-        Date currentDate = new Date();
-        Date date = sdf.parse(timestamp);
-        long differenceInMillis = currentDate.getTime() - date.getTime();
-        long daysDifference = TimeUnit.DAYS.convert(differenceInMillis, TimeUnit.MILLISECONDS);
-        return daysDifference > days;
+    private boolean isWithinLastDays(String timestamp, int days) {
+        Instant currentInstant = Instant.now();
+        Instant timestampInstant = ZonedDateTime.parse(timestamp).toInstant();
+        long differenceInDays = ChronoUnit.DAYS.between(timestampInstant, currentInstant);
+        return differenceInDays <= days;
     }
 }
