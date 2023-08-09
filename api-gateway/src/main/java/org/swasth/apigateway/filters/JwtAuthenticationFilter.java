@@ -5,6 +5,7 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.jayway.jsonpath.JsonPath;
 import net.minidev.json.JSONArray;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +16,6 @@ import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import org.swasth.apigateway.constants.FilterOrder;
 import org.swasth.apigateway.exception.ClientException;
@@ -28,21 +28,8 @@ import org.swasth.apigateway.security.JWTVerifierFactory;
 import org.swasth.apigateway.security.JwtConfigs;
 import org.swasth.apigateway.service.AuthorizationService;
 import org.swasth.apigateway.utils.Utils;
+import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
-
-import net.minidev.json.JSONArray;
-
-import org.apache.logging.log4j.message.ReusableMessage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.cloud.gateway.filter.GatewayFilterChain;
-import org.springframework.cloud.gateway.filter.GlobalFilter;
-import org.springframework.core.Ordered;
-import org.springframework.http.server.reactive.ServerHttpRequest;
-import org.springframework.stereotype.Component;
-import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
@@ -55,7 +42,8 @@ import java.util.List;
 import java.util.Map;
 
 import static org.swasth.common.response.ResponseMessage.*;
-import static org.swasth.common.utils.Constants.*;
+import static org.swasth.common.utils.Constants.AUTH_REQUIRED;
+import static org.swasth.common.utils.Constants.X_JWT_SUB_HEADER;
 
 /**
  * Authenticates the user by extracting the token from the header and validates the JWT
@@ -113,7 +101,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
                 if (!authenticatedAllowedPaths.getPaths().contains(path) && !Utils.containsRegexPath(authenticatedAllowedPaths.getRegexPaths(), path)) {
                     String payload = new String(Base64.getDecoder().decode(decodedJWT.getPayload()));
                     JSONArray claims;
-                    if(StringUtils.equalsWithIgnoreCase(entityType, Constants.API_ACCESS)) {
+                    if(StringUtils.equalsIgnoreCase(entityType, Constants.API_ACCESS)) {
                         List<String> userRoles = JsonPath.read(payload, jwtConfigs.getApiAccessUserClaimsNamespacePath());
                         if(!validateRoles(allowedUserRolesForProtocolApiAccess, userRoles)){
                             throw new JWTVerificationException(ErrorCodes.ERR_ACCESS_DENIED, MessageFormat.format(USER_ROLE_ACCESS_DENIED_MSG, allowedUserRolesForProtocolApiAccess));
