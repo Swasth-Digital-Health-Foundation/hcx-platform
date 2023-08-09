@@ -77,7 +77,7 @@ class JWTControllerTests extends BaseSpec {
                 .andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
-        assertEquals(500, status);
+        assertEquals(400, status);
 
     }
 
@@ -117,7 +117,7 @@ class JWTControllerTests extends BaseSpec {
                 .andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
-        assertEquals(500, status);
+        assertEquals(400, status);
 
     }
 
