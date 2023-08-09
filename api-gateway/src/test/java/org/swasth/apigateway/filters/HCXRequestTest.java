@@ -71,6 +71,26 @@ class HCXRequestTest extends BaseSpec {
     }
 
     @Test
+    void check_hcx_request_access_denied_api_access_token_without_admin_role() throws Exception {
+        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
+                .thenReturn(getProviderDetails())
+                .thenReturn(getPayorDetails());
+        Mockito.when(auditService.getAuditLogs(any())).thenReturn(new ArrayList<>());
+
+        client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_CHECK)
+                .header(Constants.AUTHORIZATION, getAPIAccessTokenWithoutAdminRole())
+                .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
+                .bodyValue(getRequestBody())
+                .exchange()
+                .expectBody(Map.class)
+                .consumeWith(result -> {
+                    assertEquals(HttpStatus.UNAUTHORIZED, result.getStatus());
+                    assertEquals(ErrorCodes.ERR_ACCESS_DENIED.name(), getResponseErrorCode(result));
+                    assertTrue(getResponseErrorMessage(result).contains("User does not have access to make protocol API call"));
+                });
+    }
+
+    @Test
     void check_hcx_request_invalid_correlation_id_from_another_cycle() throws Exception {
         server.enqueue(new MockResponse()
                 .setResponseCode(202)
