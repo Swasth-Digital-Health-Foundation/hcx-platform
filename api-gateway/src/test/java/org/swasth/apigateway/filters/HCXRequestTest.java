@@ -51,6 +51,29 @@ class HCXRequestTest extends BaseSpec {
     }
 
     @Test
+    void check_hcx_request_duplicate_correlation_id_scenario() throws Exception {
+        server.enqueue(new MockResponse()
+                .setResponseCode(202)
+                .addHeader("Content-Type", "application/json"));
+
+        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
+                .thenReturn(getProviderDetails())
+                .thenReturn(getPayorDetails());
+        Mockito.when(auditService.getAuditLogs(any()))
+                .thenReturn(getAuditLogs())
+                .thenReturn(getAuditLogs())
+                .thenReturn(getAuditLogs());
+
+        client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_CHECK)
+                .header(Constants.AUTHORIZATION, getProviderToken())
+                .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
+                .bodyValue(getRequestBody())
+                .exchange()
+                .expectBody(Map.class)
+                .consumeWith(result -> assertEquals(HttpStatus.BAD_REQUEST, result.getStatus()));
+    }
+
+    @Test
     void check_hcx_request_invalid_correlation_id_from_another_cycle() throws Exception {
         server.enqueue(new MockResponse()
                 .setResponseCode(202)
