@@ -75,4 +75,8 @@ public class Token {
     public String getInvitedBy() {
         return (String) payload.getOrDefault(Constants.INVITED_BY, "");
     }
+
+    public String getIssuer() {
+        return payload.getOrDefault(Constants.ISS, "").toString();
+    }
 }
