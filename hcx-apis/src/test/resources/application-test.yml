@@ -69,6 +69,8 @@ notification:
   participantPath: ${notification_participantPath:participantNotifications.yaml}
   workflowPath: ${notification_workflowPath:workflowNotifications.yaml}
 
+
 keycloak:
   user-realm-private-key-path: ${keycloak_user_realm_private_key_path:${user.dir}/src/test/resources/user_realm_private_key.der}
   participant-realm-private-key-path: ${keycloak_participant_realm_private_key_path:${user.dir}/src/test/resources/participant_realm_private_key.der}
+  protocol-api-access-private-key-path: ${keycloak_protocol_api_access_realm_private_key_path:${user.dir}/src/test/resources/api_access_realm_private_key.der}
