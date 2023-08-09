@@ -1,9 +1,9 @@
 package org.swasth.dp.core.function
 
+import com.fasterxml.jackson.core.JsonProcessingException
 import org.apache.commons.collections.MapUtils
 import org.apache.commons.lang3.StringUtils
 import org.apache.flink.configuration.Configuration
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException
 import org.apache.flink.streaming.api.functions.ProcessFunction
 import org.slf4j.LoggerFactory
 import org.swasth.dp.core.exception.PipelineException
@@ -315,8 +315,6 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
       audit.put(Constants.TAGS, tag)
     }
   }
-
   @throws[JsonProcessingException]
   def getPayloadSize: Integer = payload.get(Constants.PAYLOAD).asInstanceOf[String].getBytes.length
-
 }
