@@ -8,6 +8,7 @@ import net.minidev.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
@@ -34,14 +35,14 @@ import reactor.core.publisher.Mono;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.text.MessageFormat;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static org.swasth.common.response.ResponseMessage.*;
-import static org.swasth.common.utils.Constants.AUTH_REQUIRED;
-import static org.swasth.common.utils.Constants.X_JWT_SUB_HEADER;
+import static org.swasth.common.utils.Constants.*;
 
 /**
  * Authenticates the user by extracting the token from the header and validates the JWT
@@ -63,6 +64,9 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
     private final AuthorizationService authorizationService;
     private final Acl authenticatedAllowedPaths;
     private Map<String,JWTVerifier> verifierCache = new HashMap<>();
+
+    @Value("${allowedUserRolesForProtocolApiAccess}")
+    private List<String> allowedUserRolesForProtocolApiAccess;
 
     @Autowired
     ExceptionHandler exceptionHandler;
@@ -97,7 +101,11 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
                     String payload = new String(Base64.getDecoder().decode(decodedJWT.getPayload()));
                     JSONArray claims;
                     if(StringUtils.endsWithIgnoreCase(entityType, Constants.API_ACCESS)) {
-                       claims = JsonPath.read(payload, jwtConfigs.getApiAccessClaimsNamespacePath());
+                        List<String> userRoles = JsonPath.read(payload, jwtConfigs.getApiAccessUserClaimsNamespacePath());
+                        if(validateRoles(allowedUserRolesForProtocolApiAccess, userRoles)){
+                            throw new JWTVerificationException(ErrorCodes.ERR_ACCESS_DENIED, MessageFormat.format(USER_ROLE_ACCESS_DENIED_MSG, allowedUserRolesForProtocolApiAccess));
+                        }
+                       claims = JsonPath.read(payload, jwtConfigs.getApiAccessParticipantClaimsNamespacePath());
                     } else {
                         claims = JsonPath.read(payload, jwtConfigs.getClaimsNamespacePath());
                     }
@@ -176,6 +184,15 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         }
 
         return components[1].trim();
+    }
+
+    private boolean validateRoles(List<String> allowedRoles, List<String> inputRoles) {
+        for (String role : inputRoles) {
+            if (allowedRoles.contains(role)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }
