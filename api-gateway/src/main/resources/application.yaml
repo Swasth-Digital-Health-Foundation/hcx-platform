@@ -65,6 +65,7 @@ jwt:
   apiAccessUserClaimsNamespacePath: ${JWT_API_ACCESS_USER_NS_PATH:$.realm_access.user_roles}
   apiAccessParticipantClaimsNamespacePath: ${JWT_API_ACCESS_PARTICIPANT_NS_PATH:$.realm_access.participant_roles}
   entityRealm: ${JWT_ENTITY_REALM:Organisation@swasth-hcx-participants,User@swasth-hcx-users,api-access@api-access}
+
 redis:
   host: ${REDIS_HOST:localhost}
   port: ${REDIS_PORT:6379}

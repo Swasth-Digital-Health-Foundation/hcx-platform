@@ -28,8 +28,21 @@ import org.swasth.apigateway.security.JWTVerifierFactory;
 import org.swasth.apigateway.security.JwtConfigs;
 import org.swasth.apigateway.service.AuthorizationService;
 import org.swasth.apigateway.utils.Utils;
-import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
+
+import net.minidev.json.JSONArray;
+
+import org.apache.logging.log4j.message.ReusableMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.cloud.gateway.filter.GatewayFilterChain;
+import org.springframework.cloud.gateway.filter.GlobalFilter;
+import org.springframework.core.Ordered;
+import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.stereotype.Component;
+import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
@@ -124,7 +137,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         }
     }
 
-    private JWTVerifier getJWTVerifier(String entityType) throws InvalidKeySpecException, NoSuchAlgorithmException, JwkException, IOException {
+    private JWTVerifier getJWTVerifier(String entityType) throws InvalidKeySpecException, NoSuchAlgorithmException, JwkException, IOException, ClientException{
         if (verifierCache.containsKey(entityType)) {
             return verifierCache.get(entityType);
         } else {
