@@ -196,7 +196,7 @@ public class BaseRequest {
         }
         if (!correlationFilteredData.isEmpty()) {
             List<Map<String, Object>> filteredList = filteredList(correlationFilteredData, correlationDataCloseDays);
-            if (filteredList.isEmpty() && correlationAuditData.get(0).get(HCX_SENDER_CODE).toString().equals(jweRequest.getHcxSenderCode()) && correlationAuditData.get(0).get(CORRELATION_ID).toString().contains(jweRequest.getCorrelationId())) {
+            if (filteredList.isEmpty() && correlationFilteredData.get(0).get(HCX_SENDER_CODE).toString().equals(jweRequest.getHcxSenderCode()) && correlationAuditData.get(0).get(CORRELATION_ID).toString().contains(jweRequest.getCorrelationId())) {
                 throw new ClientException(ErrorCodes.ERR_INVALID_CORRELATION_ID, CORRELATION_ID_DUPLICATE);
             }
         }
@@ -363,8 +363,8 @@ public class BaseRequest {
         }
     }
 
-    private List<Map<String, Object>> filteredList(List<Map<String, Object>> correlationAuditData, int days) {
-        return correlationAuditData.stream()
+    private List<Map<String, Object>> filteredList(List<Map<String, Object>> correlationFilteredData, int days) {
+        return correlationFilteredData.stream()
                 .filter(map -> COMPLETE_STATUS.equals(map.get(STATUS)))
                 .filter(map -> {
                     try {
