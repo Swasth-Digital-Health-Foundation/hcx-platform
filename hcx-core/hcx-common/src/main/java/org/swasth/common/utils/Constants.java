@@ -87,6 +87,7 @@ public class Constants {
     public static final String CONFIG_MANAGER = "config-manager";
     public static final List<String> ALLOWED_REMOVE_ROLES = Arrays.asList(VIEWER,CONFIG_MANAGER);
     public static final String TENANT_ROLES = "tenant_roles";
+    public static final String REALM_ACCESS = "realm_access";
     public static final String USER_ID = "user_id";
     public static final String EMAIL = "email";
     public static final String MOBILE = "mobile";
@@ -367,5 +368,7 @@ public class Constants {
    public static final String USER_NAME = "user_name";
    public static final String CREATED_BY = "created_by";
    public static final List<String> ALLOWED_DELEGATED_TOPICS = Arrays.asList("notif-workflow-update");
+   public static final String API_ACCESS = "api-access";
+   public static final String SECRET = "secret";
 
 }
