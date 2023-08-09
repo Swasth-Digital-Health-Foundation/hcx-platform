@@ -51,26 +51,6 @@ class HCXRequestTest extends BaseSpec {
     }
 
     @Test
-    void check_hcx_request_invalid_caller_id_and_sender_code_with_api_access_token() throws Exception {
-        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
-                .thenReturn(getProviderDetails())
-                .thenReturn(getPayorDetails());
-        Mockito.when(auditService.getAuditLogs(any())).thenReturn(new ArrayList<>());
-
-        client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_CHECK)
-                .header(Constants.AUTHORIZATION, getAPIAccessToken())
-                .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
-                .bodyValue(getRequestBody())
-                .exchange()
-                .expectBody(Map.class)
-                .consumeWith(result -> {
-                    assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
-                    assertEquals(ErrorCodes.ERR_ACCESS_DENIED.name(), getResponseErrorCode(result));
-                    assertEquals(CALLER_MISMATCH_MSG, getResponseErrorMessage(result));
-                });
-    }
-
-    @Test
     void check_hcx_request_invalid_correlation_id_from_another_cycle() throws Exception {
         server.enqueue(new MockResponse()
                 .setResponseCode(202)

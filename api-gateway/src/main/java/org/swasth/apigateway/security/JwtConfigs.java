@@ -2,11 +2,12 @@ package org.swasth.apigateway.security;
 
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.List;
+
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.List;
 
 @Configuration
 @Setter
@@ -60,6 +61,4 @@ public class JwtConfigs {
     // Map of realms used for different entities
     private List<String> entityRealm;
 
-    //A JSON path value to the claims in the JWT token
-    private String apiAccessClaimsNamespacePath;
 }
