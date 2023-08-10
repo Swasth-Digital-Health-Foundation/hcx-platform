@@ -23,6 +23,10 @@ public class HttpUtils {
         return Unirest.post(url).headers(headers).body(requestBody).asString();
     }
 
+    public static HttpResponse<String> post(String url, Map<String,Object> requestBody, Map<String,String> headers){
+        return Unirest.post(url).headers(headers).fields(requestBody).asString();
+    }
+
     public static HttpResponse<String> put(String url, String requestBody, Map<String,String> headers){
         headers.put("Content-Type","application/json");
         return Unirest.put(url).headers(headers).body(requestBody).asString();
@@ -32,5 +36,4 @@ public class HttpUtils {
         headers.put("Content-Type","application/json");
         return Unirest.delete(url).headers(headers).asString();
     }
-
 }
