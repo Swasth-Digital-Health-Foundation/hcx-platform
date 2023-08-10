@@ -50,8 +50,9 @@ class HCXRequestTest extends BaseSpec {
                 .consumeWith(result -> assertEquals(HttpStatus.ACCEPTED, result.getStatus()));
     }
 
+    // scenario : Request with correlationId is already exist in the getAuditLogs,and we are making request again, and it's failing
     @Test
-    void check_hcx_request_duplicate_correlation_id_scenario() throws Exception {
+    void check_hcx_request_same_correlation_id_scenario() throws Exception {
         server.enqueue(new MockResponse()
                 .setResponseCode(202)
                 .addHeader("Content-Type", "application/json"));
@@ -73,8 +74,9 @@ class HCXRequestTest extends BaseSpec {
                 .consumeWith(result -> assertEquals(HttpStatus.BAD_REQUEST, result.getStatus()));
     }
 
+    // Request already exist with correlationId but status is complete and timestamp is more than some days, and it is success
     @Test
-    void check_hcx_request_success_correlation_id_scenario() throws Exception {
+    void check_hcx_request_reuse_correlation_id_scenario_after_complete_status_and_timestamp() throws Exception {
         server.enqueue(new MockResponse()
                 .setResponseCode(202)
                 .addHeader("Content-Type", "application/json"));
@@ -94,9 +96,8 @@ class HCXRequestTest extends BaseSpec {
                 .expectBody(Map.class)
                 .consumeWith(result -> assertEquals(HttpStatus.ACCEPTED, result.getStatus()));
     }
-
     @Test
-    void check_hcx_request_invalid_parse_timestamp() throws Exception {
+    void check_hcx_request_parse_timestamp_exception() throws Exception {
         server.enqueue(new MockResponse()
                 .setResponseCode(202)
                 .addHeader("Content-Type", "application/json"));
@@ -115,6 +116,28 @@ class HCXRequestTest extends BaseSpec {
                 .exchange()
                 .expectBody(Map.class)
                 .consumeWith(result -> assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatus()));
+    }
+
+    @Test
+    void check_hcx_request_filter_list_empty() throws Exception {
+        server.enqueue(new MockResponse()
+                .setResponseCode(202)
+                .addHeader("Content-Type", "application/json"));
+        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
+                .thenReturn(getProviderDetails())
+                .thenReturn(getPayorDetails());
+        Mockito.when(auditService.getAuditLogs(any()))
+                .thenReturn(new ArrayList<>())
+                .thenReturn(getAuditLogs())
+                .thenReturn(new ArrayList<>())
+                .thenReturn(getAuditLogs());
+        client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_CHECK)
+                .header(Constants.AUTHORIZATION, getProviderToken())
+                .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
+                .bodyValue(getCorrelationIDRequestBody())
+                .exchange()
+                .expectBody(Map.class)
+                .consumeWith(result -> assertEquals(HttpStatus.ACCEPTED, result.getStatus()));
     }
     @Test
     void check_hcx_request_invalid_correlation_id_from_another_cycle() throws Exception {
