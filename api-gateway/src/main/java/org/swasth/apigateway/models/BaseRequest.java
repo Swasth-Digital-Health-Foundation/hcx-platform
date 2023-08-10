@@ -190,7 +190,7 @@ public class BaseRequest {
         for (Map<String, Object> audit : correlationAuditData) {
             String action = (String) audit.get(ACTION);
             String entity = getEntity(action);
-            validateCondition(!OPERATIONAL_ENTITIES.contains(entity) && action.contains("on_") && ((List<String>) audit.get(RECIPIENT_ROLE)).contains(PROVIDER), ErrorCodes.ERR_INVALID_CORRELATION_ID, CLOSED_CYCLE_MSG);
+            validateCondition(!OPERATIONAL_ENTITIES.contains(entity) && action.contains("on_") && ((List<String>) audit.get(RECIPIENT_ROLE)).contains(PROVIDER) && audit.get(STATUS).equals(COMPLETE_STATUS), ErrorCodes.ERR_INVALID_CORRELATION_ID, CLOSED_CYCLE_MSG);
         }
         if (!correlationFilteredData.isEmpty()) {
             List<Map<String, Object>> filteredList = filteredList(correlationFilteredData, correlationDataCloseDays);
