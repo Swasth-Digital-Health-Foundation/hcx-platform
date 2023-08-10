@@ -50,8 +50,9 @@ class HCXRequestTest extends BaseSpec {
                 .consumeWith(result -> assertEquals(HttpStatus.ACCEPTED, result.getStatus()));
     }
 
+    // scenario : api call id is already exist in the getAuditLogs, we are making request one more time, and it is failing.
     @Test
-    void check_hcx_request_invalid_api_call_id_scenario() throws Exception {
+    void check_hcx_request_with_same_api_call_id_scenario() throws Exception {
         server.enqueue(new MockResponse()
                 .setResponseCode(202)
                 .addHeader("Content-Type", "application/json"));
@@ -66,7 +67,11 @@ class HCXRequestTest extends BaseSpec {
                 .bodyValue(getRequestBody())
                 .exchange()
                 .expectBody(Map.class)
-                .consumeWith(result -> assertEquals(HttpStatus.BAD_REQUEST, result.getStatus()));
+                .consumeWith(result -> {
+                    assertEquals(HttpStatus.BAD_REQUEST, result.getStatus());
+                    assertEquals(ErrorCodes.ERR_INVALID_API_CALL_ID.name(), getResponseErrorCode(result));
+                    assertEquals(API_CALL_SAME_MSG, getResponseErrorMessage(result));
+                });
     }
 
     @Test
