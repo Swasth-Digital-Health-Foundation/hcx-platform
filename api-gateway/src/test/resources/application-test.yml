@@ -14,6 +14,7 @@ protocol:
 headers:
   jose: ${jose_headers:alg, enc}
 
+allowedUserRolesForProtocolApiAccess: ${allowed_user_roles_for_protocol_api_access:admin}
 
 #hcx error headers
 plainrequest:
@@ -51,9 +52,12 @@ jwt:
   enabled: ${JWT_ENABLED:true}
   issuer: ${JWT_ISSUER:}
   audience: ${JWT_AUDIENCE:}
-  jwkUrl: ${JWT_JWK_URL:https://dev-hcx.swasth.app/auth/realms/swasth-hcx-participants/protocol/openid-connect/certs}
+  jwkUrl: ${JWT_JWK_URL:https://dev-hcx.swasth.app/auth/realms/realm-name/protocol/openid-connect/certs}
   claimsNamespacePath: ${JWT_NS_PATH:$.realm_access.roles}
-  entityRealm: ${JWT_ENTITY_REALM:Organisation@swasth-hcx-participants,User@swasth-hcx-users}
+  apiAccessClaimsNamespacePath: ${JWT_API_ACCESS_NS_PATH:$.realm_access.user_roles}
+  apiAccessUserClaimsNamespacePath: ${JWT_API_ACCESS_USER_NS_PATH:$.realm_access.user_roles}
+  apiAccessParticipantClaimsNamespacePath: ${JWT_API_ACCESS_PARTICIPANT_NS_PATH:$.realm_access.participant_roles}
+  entityRealm: ${JWT_ENTITY_REALM:Organisation@swasth-hcx-participants,User@swasth-hcx-users,api-access@api-access}
 
 redis:
   host: ${REDIS_HOST:localhost}
