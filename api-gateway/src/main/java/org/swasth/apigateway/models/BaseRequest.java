@@ -179,7 +179,7 @@ public class BaseRequest {
         return errors;
     }
 
-    public void validateUsingAuditData(List<String> allowedEntitiesForForward, List<String> allowedRolesForForward, Map<String, Object> senderDetails, Map<String, Object> recipientDetails, List<Map<String, Object>> correlationAuditData, List<Map<String, Object>> callAuditData, List<Map<String, Object>> participantCtxAuditData, String path, JWERequest jweRequest, int correlationDataCloseDays, List<Map<String, Object>> correlationFilteredData) throws Exception {
+    public void validateUsingAuditData(List<String> allowedEntitiesForForward, List<String> allowedRolesForForward, Map<String, Object> senderDetails, Map<String, Object> recipientDetails, List<Map<String, Object>> correlationAuditData, List<Map<String, Object>> callAuditData, List<Map<String, Object>> participantCtxAuditData, String path, JWERequest jweRequest, int correlationDataCloseDays, List<Map<String, Object>> correlationFilteredData) throws ClientException, ParseException {
         validateCondition(!callAuditData.isEmpty(), ErrorCodes.ERR_INVALID_API_CALL_ID, API_CALL_SAME_MSG);
         //validate correlation id belongs to same cycle or not
         if (!correlationAuditData.isEmpty() && !correlationAuditData.get(0).get(ACTION).toString().contains(getEntity(apiAction))) {
@@ -190,7 +190,7 @@ public class BaseRequest {
         for (Map<String, Object> audit : correlationAuditData) {
             String action = (String) audit.get(ACTION);
             String entity = getEntity(action);
-            validateCondition(!OPERATIONAL_ENTITIES.contains(entity) && action.contains("on_") && ((List<String>) audit.get(RECIPIENT_ROLE)).contains(PROVIDER) && audit.get(STATUS).equals(COMPLETE_STATUS) && !isWithinLastDays((String) audit.get(TIMESTAMP), correlationDataCloseDays), ErrorCodes.ERR_INVALID_CORRELATION_ID, CLOSED_CYCLE_MSG);
+            validateCondition(!OPERATIONAL_ENTITIES.contains(entity) && action.contains("on_") && ((List<String>) audit.get(RECIPIENT_ROLE)).contains(PROVIDER), ErrorCodes.ERR_INVALID_CORRELATION_ID, CLOSED_CYCLE_MSG);
         }
         if (!correlationFilteredData.isEmpty()) {
             List<Map<String, Object>> filteredList = filteredList(correlationFilteredData, correlationDataCloseDays);
