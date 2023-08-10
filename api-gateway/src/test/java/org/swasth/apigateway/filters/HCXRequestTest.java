@@ -85,14 +85,36 @@ class HCXRequestTest extends BaseSpec {
                 .thenReturn(new ArrayList<>())
                 .thenReturn(getAuditLogs())
                 .thenReturn(new ArrayList<>())
-                .thenReturn(getDuplicateCorrelationIdAuditLogs());
+                .thenReturn(getCorrelationIdAuditLogs());
         client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_CHECK)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
-                .bodyValue(getDuplicateCorrelationIDRequestBody())
+                .bodyValue(getCorrelationIDRequestBody())
                 .exchange()
                 .expectBody(Map.class)
                 .consumeWith(result -> assertEquals(HttpStatus.ACCEPTED, result.getStatus()));
+    }
+
+    @Test
+    void check_hcx_request_invalid_parse_timestamp() throws Exception {
+        server.enqueue(new MockResponse()
+                .setResponseCode(202)
+                .addHeader("Content-Type", "application/json"));
+        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
+                .thenReturn(getProviderDetails())
+                .thenReturn(getPayorDetails());
+        Mockito.when(auditService.getAuditLogs(any()))
+                .thenReturn(new ArrayList<>())
+                .thenReturn(getAuditLogs())
+                .thenReturn(new ArrayList<>())
+                .thenReturn(getInvalidTimestampAuditLogs());
+        client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_CHECK)
+                .header(Constants.AUTHORIZATION, getProviderToken())
+                .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
+                .bodyValue(getCorrelationIDRequestBody())
+                .exchange()
+                .expectBody(Map.class)
+                .consumeWith(result -> assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatus()));
     }
     @Test
     void check_hcx_request_invalid_correlation_id_from_another_cycle() throws Exception {
