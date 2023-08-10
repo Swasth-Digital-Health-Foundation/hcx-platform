@@ -40,6 +40,8 @@ public class ResponseMessage {
     public static final String VALID_SEARCH_FILTERS_OBJ_MSG = "Search filters cannot be null and should be 'JSON Object'";
     public static final String INVALID_SENDER = "Sender does not exist in registry";
     public static final String ACCESS_DENIED_MSG = "Does not have access to the called API";
+
+    public static final String USER_ROLE_ACCESS_DENIED_MSG = "User does not have access to make protocol API call, allowed roles: {0}";
     public static final String AUTH_HEADER_MISSING = "Authorization header is missing";
     public static final String AUTH_HEADER_EMPTY = "Authorization header is empty";
     public static final String AUTH_MALFORMED = "Malformed Authorization content";

@@ -61,4 +61,10 @@ public class JwtConfigs {
     // Map of realms used for different entities
     private List<String> entityRealm;
 
+    //A JSON path value to the participant claims in the JWT token
+    private String apiAccessParticipantClaimsNamespacePath;
+
+    //A JSON path value to the user claims in the JWT token
+    private String apiAccessUserClaimsNamespacePath;
+
 }
