@@ -94,34 +94,30 @@ public class UserService extends BaseRegistryService {
         return responseHandler(response, code, USER);
     }
 
-    public CompletableFuture<Map<String, Object>> processUser(Map<String, Object> requestBody, HttpHeaders headers, String action) {
-        System.out.println("the request body in the process usr ------" + requestBody);
+    @Async
+    public CompletableFuture<Map<String, Object>> processUser(String userId, List<String> roles, String participantCode, HttpHeaders headers, String action) {
         Map<String, Object> registryDetails = new HashMap<>();
         Map<String, Object> responseMap = new HashMap<>();
         CompletableFuture<Map<String, Object>> future = new CompletableFuture<>();
         try {
             HttpResponse<String> response;
-            Thread.sleep(1000);
-            String userId = (String) requestBody.get(USER_ID);
             registryDetails = getUser(userId);
             Map<String, Object> finalRequest = new HashMap<>();
-            if (registryDetails.containsKey(TENANT_ROLES)) {
-                ArrayList<Map<String, Object>> tenantRolesList = JSONUtils.convert(registryDetails.get(TENANT_ROLES), ArrayList.class);
-                if (StringUtils.equals(action, PARTICIPANT_USER_ADD)) {
-                    userAdd(requestBody, finalRequest, tenantRolesList);
-                    addUserWithParticipant(userId,(String) requestBody.get(PARTICIPANT_CODE),(String) registryDetails.get(USER_NAME));
-                } else if (StringUtils.equals(action, PARTICIPANT_USER_REMOVE)) {
-                    ArrayList<Map<String, Object>> filteredTenantRoles = new ArrayList<>();
-                    userRemove(requestBody, finalRequest, tenantRolesList, filteredTenantRoles);
-                    if (ALLOWED_ROLES.contains((String) requestBody.get(ROLE))) {
-                        removeUserWithParticipant(userId, (String) requestBody.get(PARTICIPANT_CODE));
-                    }
+            ArrayList<Map<String, Object>> tenantRolesList = JSONUtils.convert(registryDetails.get(TENANT_ROLES), ArrayList.class);
+            if (StringUtils.equals(action, PARTICIPANT_USER_ADD)) {
+                userAdd(roles, participantCode, tenantRolesList, finalRequest);
+                addUserWithParticipant(userId, participantCode, (String) registryDetails.get(USER_NAME));
+            } else if (StringUtils.equals(action, PARTICIPANT_USER_REMOVE)) {
+                ArrayList<Map<String, Object>> filteredTenantRoles = new ArrayList<>();
+                userRemove(roles, participantCode, finalRequest, tenantRolesList, filteredTenantRoles);
+                if (roles.contains(ADMIN)) {
+                    removeUserWithParticipant(participantCode, userId);
                 }
-                response = update(finalRequest, registryDetails, registryUserPath);
-                generateAddRemoveUserAudit(userId, action, requestBody, getUserFromToken(headers));
-                if (response.getStatus() == 200) {
-                    responseMap = getResponse((String) registryDetails.get(USER_ID), SUCCESSFUL);
-                }
+            }
+            response = update(finalRequest, registryDetails, registryUserPath);
+            generateAddRemoveUserAudit(userId, action, tenantRolesList.get(0), getUserFromToken(headers));
+            if (response.getStatus() == 200) {
+                responseMap = getResponse((String) registryDetails.get(USER_ID), SUCCESSFUL);
             }
             future.complete(responseMap);
             return future;
@@ -134,31 +130,47 @@ public class UserService extends BaseRegistryService {
     }
 
     @Async
-    private void userRemove(Map<String, Object> requestBody, Map<String, Object> finalRequest, ArrayList<Map<String, Object>> tenantRolesList, ArrayList<Map<String, Object>> filteredTenantRoles) throws ClientException {
+    private void userAdd(List<String> roles, String participantCode, List<Map<String, Object>> tenantRolesList, Map<String, Object> finalRequest) throws ClientException {
+        for (String role : roles) {
+            for (Map<String, Object> tenantRole : tenantRolesList) {
+                if (tenantRole.get(ROLE).equals(role) && tenantRole.get(PARTICIPANT_CODE).equals(participantCode)) {
+                    throw new ClientException("Role '" + role + "' with Participant Code '" + participantCode + " already exists.");
+                }
+            }
+        }
+        for (String role : roles) {
+            tenantRolesList.add(constructRequest(role, participantCode));
+        }
+        finalRequest.put(TENANT_ROLES, tenantRolesList);
+    }
+
+    public Map<String, Object> constructRequest(String role, String participantCode) {
+        Map<String, Object> request = new HashMap<>();
+        request.put(PARTICIPANT_CODE, participantCode);
+        request.put(ROLE, role);
+        return request;
+    }
+    @Async
+    private void userRemove(List<String> roles, String participantCode, Map<String, Object> finalRequest, ArrayList<Map<String, Object>> tenantRolesList, ArrayList<Map<String, Object>> filteredTenantRoles) throws ClientException {
         if (tenantRolesList.isEmpty()) {
             throw new ClientException("User does not have any role to remove");
         }
+        boolean adminRoleExists = false;
         for (Map<String, Object> tenantRole : tenantRolesList) {
-            String role = (String) tenantRole.get(ROLE);
-            String participantCode = (String) tenantRole.get(PARTICIPANT_CODE);
-            if (!requestBody.get(ROLE).equals(role) && participantCode.equals(requestBody.get(PARTICIPANT_CODE))) {
+            if (tenantRole.get(ROLE).equals(ADMIN) && tenantRole.get(PARTICIPANT_CODE).equals(participantCode)) {
+                if (!adminRoleExists) {
+                    adminRoleExists = true;
+                    filteredTenantRoles.add(tenantRole);
+                }
+            } else if (!roles.contains((String) tenantRole.get(ROLE)) && tenantRole.get(PARTICIPANT_CODE).equals(participantCode)) {
                 filteredTenantRoles.add(tenantRole);
             }
         }
+        if (!adminRoleExists) {
+            throw new ClientException("Cannot remove admin role, at least one admin role must remain.");
+        }
         finalRequest.put(TENANT_ROLES, filteredTenantRoles);
     }
-
-    private void userAdd(Map<String, Object> requestBody, Map<String, Object> finalRequest, ArrayList<Map<String, Object>> tenantRolesList) throws ClientException {
-        for (Map<String, Object> userExist : tenantRolesList) {
-            if (userExist.get(ROLE).equals(requestBody.get(ROLE)) && userExist.get(PARTICIPANT_CODE).equals(requestBody.get(PARTICIPANT_CODE))) {
-                throw new ClientException("User with the role : " + requestBody.get(ROLE) + " and participant code : " + requestBody.get(PARTICIPANT_CODE) + " is already exist for the user_id : " + requestBody.get(USER_ID));
-            }
-        }
-        finalRequest.put(TENANT_ROLES, tenantRolesList);
-        requestBody.remove(USER_ID);
-        tenantRolesList.add(requestBody);
-    }
-
 
     private Map<String, Object> getResponse(String userId, String status) {
         Map<String, Object> responseMap = new HashMap<>();
@@ -217,14 +229,6 @@ public class UserService extends BaseRegistryService {
                 throw new ClientException(ErrorCodes.ERR_INVALID_USER_DETAILS, "Fields not allowed for update: " + requestFields);
             }
         }
-    }
-
-    public Map<String, Object> constructRequestBody(Map<String, Object> requestBody, Map<String, Object> user) {
-        Map<String, Object> userRequest = new HashMap<>();
-        userRequest.put(PARTICIPANT_CODE, requestBody.get(PARTICIPANT_CODE));
-        userRequest.put(ROLE, user.get(ROLE));
-        userRequest.put(USER_ID, user.get(USER_ID));
-        return userRequest;
     }
 
     public void authorizeToken(HttpHeaders headers, String participantCode) throws Exception {
@@ -314,7 +318,7 @@ public class UserService extends BaseRegistryService {
         if (filters.containsKey("tenant_roles.participant_code")) {
             throw new ClientException("This field is not allowed in filters : tenant_roles.participant_code");
         }
-        filters.put("tenant_roles.participant_code", Map.of("or",organisations));
+        filters.put("tenant_roles.participant_code", Map.of("or", organisations));
         return JSONUtils.serialize(requestBody);
     }
 
@@ -325,7 +329,7 @@ public class UserService extends BaseRegistryService {
             String userName = String.format("%s:%s", participantCode, email);
             List<UserRepresentation> existingUsers = usersResource.search(userName);
             if (!existingUsers.isEmpty()) {
-                logger.info("User Id  : {} is already exists",email);
+                logger.info("User name  : {} is already exists", userName);
             } else {
                 String password = generateRandomPassword();
                 UserRepresentation user = createUserRequest(userName, name, password);
@@ -334,7 +338,7 @@ public class UserService extends BaseRegistryService {
                     String message = userEmailMessage;
                     message = message.replace("NAME", name).replace("USER_ID", email).replace("PASSWORD", password).replace("PARTICIPANT_CODE", participantCode);
                     emailService.sendMail(email, emailSub, message);
-                    logger.info("user Id : {} is added to the keycloak record", email);
+                    logger.info("user name : {} is added to the keycloak record", userName);
                 }
             }
         } catch (Exception e) {
@@ -363,22 +367,35 @@ public class UserService extends BaseRegistryService {
         return RandomStringUtils.random(16, characters);
     }
 
-    public void removeUserWithParticipant(String email, String participantCode) throws ClientException {
-        try {
+    public void removeUserWithParticipant(String participantCode, String email) throws ClientException {
+        try (Keycloak keycloak = Keycloak.getInstance(keycloakURL, keycloakMasterRealm, keycloakAdminUserName, keycloakAdminPassword, keycloackClientId)) {
             String userName = String.format("%s:%s", participantCode, email);
             RealmResource realmResource = keycloak.realm(keycloackProtocolAccessRealm);
             UsersResource usersResource = realmResource.users();
             List<UserRepresentation> existingUsers = usersResource.search(userName);
             if (existingUsers.isEmpty()) {
-                logger.info("user id {} does not exist in the keycloak",email);
+                logger.info("user name {} does not exist in the keycloak", userName);
                 return;
             }
             String userId = existingUsers.get(0).getId();
             usersResource.get(userId).remove();
-            logger.info("user with user id : {} removed from the keycloak record", email);
+            logger.info("username: {} removed from the keycloak record", userName);
         } catch (Exception e) {
             throw new ClientException(e.getMessage());
         }
+    }
+
+    public Map<String, List<String>> constructRequestBody(List<Map<String, Object>> userList) {
+        Map<String, List<String>> userRolesMap = new HashMap<>();
+        for (Map<String, Object> user : userList) {
+            String userId = (String) user.get(USER_ID);
+            String role = (String) user.get(ROLE);
+            if (!userRolesMap.containsKey(userId)) {
+                userRolesMap.put(userId, new ArrayList<>());
+            }
+            userRolesMap.get(userId).add(role);
+        }
+        return userRolesMap;
     }
 }
 
