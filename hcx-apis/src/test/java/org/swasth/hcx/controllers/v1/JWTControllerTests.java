@@ -137,7 +137,7 @@ class JWTControllerTests extends BaseSpec {
         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_GENERATE_TOKEN)
                         .header("Content-Type", "application/x-www-form-urlencoded")
                         .param("username","hcxtest6034@yopmail.com")
-                        .param("secret","QvJ*222fzJGgzHZx")
+                        .param("secret","Test@123")
                         .param("participant_code", "hcxtest6034.yopmail@swasth-hcx-dev"))
                 .andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
