@@ -45,7 +45,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -57,12 +56,12 @@ public class OnboardService extends BaseController {
 
     private static final Logger logger = LoggerFactory.getLogger(BaseController.class);
 
-    @Value("${email.linkSub}")
+    @Value("${email.send-link-sub}")
     private String linkSub;
+    @Value("${email.regenerate-link-sub}")
+    private String regenerateLinkSub;
     @Value("${email.verification-sub}")
     private String verificationSub;
-    @Value("${phone.send-link-msg}")
-    private String phoneSub;
     @Value("${phone.verification-msg}")
     private String phoneStatus;
     @Value("${email.password-generate-sub}")
@@ -136,10 +135,8 @@ public class OnboardService extends BaseController {
 
     @Value("${endpoint.user-invite}")
     private String userInviteEndpoint;
-
     @Value("${email.user-invite-sub}")
     private String userInviteSub;
-
     @Value("${email.user-invite-accept-sub}")
     private String userInviteAcceptSub;
     @Value("${email.user-invite-reject-sub}")
@@ -148,8 +145,6 @@ public class OnboardService extends BaseController {
     private String emailConfig;
     @Value("${onboard.phone}")
     private String phoneConfig;
-    @Value("${onboard.terms-and-conditions-url}")
-    private String termsAndConditionsUrl;
 
     @Autowired
     private SMSService smsService;
@@ -298,10 +293,15 @@ public class OnboardService extends BaseController {
         if (!phoneVerified && requestBody.containsKey(PRIMARY_MOBILE)) {
             shortUrl = hcxURL + "/api/url/" + generateRandomPassword(10);
             longUrl = generateURL(requestBody, PHONE, (String) requestBody.get(PRIMARY_MOBILE)).toString();
-            smsService.sendLink((String) requestBody.get(PRIMARY_MOBILE), phoneSub + "\r\n" + shortUrl);
+            String phoneMessage = String.format("Dear %s,\n\nTo verify your mobile number as part of the HCX onboarding process, " + "click on %s and proceed as directed.\n\nLink validity: 7 days.", requestBody.getOrDefault(PARTICIPANT_NAME,"user"), shortUrl);
+            smsService.sendLink((String) requestBody.get(PRIMARY_MOBILE), phoneMessage);
         }
         if (!emailVerified && requestBody.containsKey(PRIMARY_EMAIL)) {
-            emailService.sendMail((String) requestBody.get(PRIMARY_EMAIL), linkSub, linkTemplate((String) requestBody.get(PARTICIPANT_NAME), (String) requestBody.get(PARTICIPANT_CODE), generateURL(requestBody, EMAIL, (String) requestBody.get(PRIMARY_EMAIL)), linkExpiry / 86400000, (ArrayList<String>) requestBody.get(ROLES), (String) requestBody.getOrDefault("user_id", "")));
+            if (regenerateCount > 0) {
+                emailService.sendMail((String) requestBody.get(PRIMARY_EMAIL), regenerateLinkSub, regenerateLinkTemplate((String) requestBody.get(PARTICIPANT_NAME), generateURL(requestBody, EMAIL, (String) requestBody.get(PRIMARY_EMAIL)), linkExpiry / 86400000));
+            } else {
+                emailService.sendMail((String) requestBody.get(PRIMARY_EMAIL), linkSub, linkTemplate((String) requestBody.get(PARTICIPANT_NAME), (String) requestBody.get(PARTICIPANT_CODE), generateURL(requestBody, EMAIL, (String) requestBody.get(PRIMARY_EMAIL)), linkExpiry / 86400000, (ArrayList<String>) requestBody.get(ROLES), (String) requestBody.getOrDefault("user_id", "")));
+            }
         }
         regenerateCount++;
         String updateQuery = String.format("UPDATE %s SET updatedOn=%d, expiry=%d, regenerate_count=%d, last_regenerate_date='%s', phone_short_url='%s', phone_long_url='%s' WHERE primary_email='%s'",
@@ -442,11 +442,11 @@ public class OnboardService extends BaseController {
         return (Map<String, Object>) registryResponse.getParticipants().get(0);
     }
 
-    private Map<String, Object> userSearch(String requestBody,HttpHeaders headers) throws Exception {
+    private Map<String, Object> userSearch(String requestBody, HttpHeaders headers) throws Exception {
         Map<String,String> headersMap = new HashMap<>();
         Token token = new Token(Objects.requireNonNull(headers.get(AUTHORIZATION)).get(0));
         headersMap.put(AUTHORIZATION,"Bearer " + token.getToken());
-        HttpResponse<String> searchResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + USER_SEARCH, requestBody,headersMap);
+        HttpResponse<String> searchResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + USER_SEARCH, requestBody, headersMap);
         RegistryResponse registryResponse = JSONUtils.deserialize(searchResponse.getBody(), RegistryResponse.class);
         if (registryResponse.getUsers().isEmpty())
             return new HashMap<>();
@@ -460,8 +460,8 @@ public class OnboardService extends BaseController {
         boolean phoneVerified = false;
         String commStatus = PENDING;
         String identityStatus = REJECTED;
-        CompletableFuture<Map<String, Object>> mockProviderDetails = new CompletableFuture<>();
-        CompletableFuture<Map<String, Object>> mockPayorDetails = new CompletableFuture<>();
+        Map<String, Object> mockProviderDetails = new HashMap<>();
+        Map<String, Object> mockPayorDetails = new HashMap<>();
         Map<String, Object> participant = (Map<String, Object>) requestBody.get(PARTICIPANT);
         Map<String,Object> participantDetails = getParticipant(PARTICIPANT_CODE, (String) participant.get(PARTICIPANT_CODE));
         String email = (String) participantDetails.get(PRIMARY_EMAIL);
@@ -502,10 +502,11 @@ public class OnboardService extends BaseController {
                     String searchQuery = String.format("SELECT * FROM %s WHERE parent_participant_code = '%s'", mockParticipantsTable, participant.get(PARTICIPANT_CODE));
                     ResultSet result = (ResultSet) postgresClientMockService.executeQuery(searchQuery);
                     if (!result.next()) {
-                        mockProviderDetails = createMockParticipant(headers, PROVIDER, participantDetails,mockProviderDetails);
-                        mockPayorDetails = createMockParticipant(headers, PAYOR, participantDetails,mockPayorDetails);
-                        emailService.sendMail(email, onboardingSuccessSub, successTemplate((String) participant.get(PARTICIPANT_NAME), mockProviderDetails.get(), mockPayorDetails.get()));
-
+                        mockProviderDetails = createMockParticipant(headers, PROVIDER, participantDetails);
+                        mockPayorDetails = createMockParticipant(headers, PAYOR, participantDetails);
+                    }
+                    if (participantDetails.getOrDefault("status", "").equals(CREATED)) {
+                        emailService.sendMail(email, onboardingSuccessSub, successTemplate((String) participant.get(PARTICIPANT_NAME), mockProviderDetails, mockPayorDetails));
                     }
                 } else if (participantDetails.getOrDefault("status", "").equals(CREATED)) {
                     emailService.sendMail(email, onboardingSuccessSub, pocSuccessTemplate((String) participant.get(PARTICIPANT_NAME)));
@@ -670,19 +671,22 @@ public class OnboardService extends BaseController {
         return new ResponseEntity<>(new RegistryResponse(participantList, ORGANISATION), HttpStatus.OK);
     }
 
-    public Response userInvite(Map<String, Object> requestBody,HttpHeaders headers) throws Exception {
+    public Response userInvite(Map<String, Object> requestBody, HttpHeaders headers) throws Exception {
         logger.info("User invite: " + requestBody);
         String email = (String) requestBody.getOrDefault(EMAIL, "");
         String role = (String) requestBody.getOrDefault(ROLE, "");
         String code = (String) requestBody.getOrDefault(PARTICIPANT_CODE, "");
         String invitedBy = (String) requestBody.getOrDefault(INVITED_BY, "");
-        if (isUserExistsInOrg(email, role, code,headers)) {
+        if (isUserExistsInOrg(email, role, code, headers)) {
             throw new ClientException("User with " + role + " is already exist in organisation");
         }
         String token = generateInviteToken(code, email, role, invitedBy);
         URL url = new URL(String.format("%s%s?jwt_token=%s", hcxURL, userInviteEndpoint, token));
         Map<String, Object> participant = getParticipant(PARTICIPANT_CODE, code);
-        emailService.sendMail(email, userInviteSub, userInviteTemplate((String) participant.getOrDefault(PARTICIPANT_NAME, ""), role, url));
+        // for user
+        emailService.sendMail(email, userInviteSub, userInviteUserTemplate(email,(String) participant.getOrDefault(PARTICIPANT_NAME, ""), role, url));
+        // for participant
+        emailService.sendMail((String) participant.get(PRIMARY_EMAIL), userInviteSub, userInviteParticipantTemplate((String) participant.getOrDefault(PARTICIPANT_NAME, ""), role,email));
         String query = String.format("INSERT INTO %s (participant_code,user_email,invited_by,invite_status,created_on) VALUES ('%s','%s','%s','pending',%d)", onboardUserInviteTable, code, email, invitedBy, System.currentTimeMillis());
         postgreSQLClient.execute(query);
         auditIndexer.createDocument(eventGenerator.getOnboardUserInvite(requestBody,(String) participant.getOrDefault(PARTICIPANT_NAME, "")));
@@ -708,7 +712,7 @@ public class OnboardService extends BaseController {
         return jwtUtils.generateJWS(headers, payload, privatekey);
     }
 
-    public Response userInviteAccept(HttpHeaders headers, Map<String, Object> body) throws ClientException, Exception {
+    public Response userInviteAccept(HttpHeaders headers, Map<String, Object> body) throws Exception {
         logger.info("User invite accepted: " + body);
         Token token = new Token((String) body.getOrDefault(JWT_TOKEN, ""));
         Map<String, Object> hcxDetails = getParticipant(PARTICIPANT_CODE, hcxCode);
@@ -716,7 +720,7 @@ public class OnboardService extends BaseController {
             throw new ClientException(ErrorCodes.ERR_INVALID_JWT, "Invalid JWT token signature");
         }
         User user = JSONUtils.deserialize(body.get("user"), User.class);
-        boolean isUserExists = isUserExists(user,headers);
+        boolean isUserExists = isUserExists(user, headers);
         if (isUserExists){
             addUser(headers, getAddUserRequestBody(user.getUserId(), token.getParticipantCode(), token.getRole()));
         } else {
@@ -724,11 +728,10 @@ public class OnboardService extends BaseController {
         }
         updateInviteStatus(user.getEmail(), "accepted");
         Map<String,Object> participantDetails = getParticipant(PARTICIPANT_CODE, token.getParticipantCode());
-        if (isUserExists) {
-            emailService.sendMail(user.getEmail(), Arrays.asList(token.getInvitedBy()), userInviteAcceptSub, existingUserInviteAcceptTemplate((String) participantDetails.get(PARTICIPANT_NAME), user.getUsername()));
-        } else {
-            emailService.sendMail(user.getEmail(), Arrays.asList(token.getInvitedBy()), userInviteAcceptSub, userInviteAcceptTemplate(user.getUserId(), (String) participantDetails.get(PARTICIPANT_NAME), user.getUsername()));
-        }
+        // user
+        emailService.sendMail(user.getEmail(), Collections.singletonList(token.getInvitedBy()), userInviteAcceptSub, userInviteAcceptTemplate(user.getUserId(), (String) participantDetails.get(PARTICIPANT_NAME), user.getUsername(),user.getRole()));
+        // participant
+        emailService.sendMail((String) participantDetails.get(PRIMARY_EMAIL),Collections.singletonList(token.getInvitedBy()),userInviteAcceptSub,userInviteAcceptParticipantTemplate((String) participantDetails.get(PARTICIPANT_NAME),user.getUsername(),user.getRole()));
         auditIndexer.createDocument(eventGenerator.getOnboardUserInviteAccepted(user,participantDetails));
         return getSuccessResponse();
     }
@@ -760,14 +763,14 @@ public class OnboardService extends BaseController {
         return JSONUtils.serialize(body);
     }
 
-    private boolean isUserExistsInOrg(String userEmail, String userRole, String participantCode,HttpHeaders headers) throws Exception {
+    private boolean isUserExistsInOrg(String userEmail, String userRole, String participantCode, HttpHeaders headers) throws Exception {
         String body = "{ \"filters\": { \"email\": { \"eq\": \"" + userEmail + "\" }, \"tenant_roles.participant_code\": { \"eq\": \"" + participantCode + "\" }, \"tenant_roles.role\": { \"eq\": \"" + userRole + "\" } } }";
-        return !userSearch(body,headers).isEmpty();
+        return !userSearch(body, headers).isEmpty();
     }
 
-    private boolean isUserExists(User user,HttpHeaders headers) throws Exception {
+    private boolean isUserExists(User user, HttpHeaders headers) throws Exception {
         String body = "{ \"filters\": { \"email\": { \"eq\": \"" + user.getEmail() + "\" } } }";
-        Map<String, Object> userDetails = userSearch(body,headers);
+        Map<String, Object> userDetails = userSearch(body, headers);
         if (userDetails.isEmpty()) {
             return false;
         } else {
@@ -791,7 +794,7 @@ public class OnboardService extends BaseController {
         User user = JSONUtils.deserialize(body.get("user"), User.class);
         updateInviteStatus(user.getEmail(), "rejected");
         Map<String,Object> participantDetails = getParticipant(PARTICIPANT_CODE, token.getParticipantCode());
-        emailService.sendMail(user.getEmail(), Collections.singletonList(token.getInvitedBy()), userInviteRejectSub, userInviteRejectTemplate(user.getEmail(), (String) participantDetails.get(PARTICIPANT_NAME)));
+        emailService.sendMail((String) participantDetails.get(PRIMARY_EMAIL), Collections.singletonList(token.getInvitedBy()), userInviteRejectSub, userInviteRejectTemplate(user.getEmail(), (String) participantDetails.get(PARTICIPANT_NAME)));
         auditIndexer.createDocument(eventGenerator.getOnboardUserInviteRejected(user, (String) hcxDetails.getOrDefault(PARTICIPANT_NAME,"")));
         return getSuccessResponse();
     }
@@ -838,33 +841,47 @@ public class OnboardService extends BaseController {
 
     private String userInviteRejectTemplate(String email, String participantName) throws Exception {
         Map<String, Object> model = new HashMap<>();
-        model.put("EMAIL", email);
         model.put("PARTICIPANT_NAME", participantName);
-        return freemarkerService.renderTemplate("user-invite-reject.ftl", model);
+        model.put("EMAIL", email);
+        return freemarkerService.renderTemplate("user-invite-reject-participant.ftl", model);
     }
 
-    private String userInviteAcceptTemplate(String userId, String participantName, String username) throws Exception {
+    private String userInviteAcceptTemplate(String userId, String participantName, String username, String role) throws Exception {
         Map<String, Object> model = new HashMap<>();
         model.put("USER_NAME", username);
         model.put("USER_ID", userId);
         model.put("PARTICIPANT_NAME", participantName);
-        return freemarkerService.renderTemplate("user-invite-accept.ftl", model);
+        model.put("ENV", env);
+        model.put("ROLE", role);
+        return freemarkerService.renderTemplate("user-invite-accepted-user.ftl", model);
     }
 
-    private String existingUserInviteAcceptTemplate(String participantName, String username) throws Exception {
+    private String userInviteAcceptParticipantTemplate(String participantName, String username, String role) throws Exception {
         Map<String, Object> model = new HashMap<>();
-        model.put("USER_NAME", username);
         model.put("PARTICIPANT_NAME", participantName);
-        return freemarkerService.renderTemplate("existing-user-invite-accept.ftl", model);
+        model.put("USER_NAME", username);
+        model.put("ROLE", role);
+        return freemarkerService.renderTemplate("user-invite-accepted-participant.ftl", model);
     }
 
-    private String userInviteTemplate(String name, String role, URL signedURL) throws Exception {
+
+    private String userInviteUserTemplate(String email, String name, String role, URL signedURL) throws Exception {
         Map<String, Object> model = new HashMap<>();
+        model.put("USER_EMAIL", email);
         model.put("PARTICIPANT_NAME", name);
         model.put("USER_ROLE", role);
         model.put("USER_INVITE_URL", signedURL);
-        return freemarkerService.renderTemplate("user-invite.ftl", model);
+        return freemarkerService.renderTemplate("user-invite-request-user.ftl", model);
     }
+
+    private String userInviteParticipantTemplate(String name, String role, String userEmail) throws Exception {
+        Map<String, Object> model = new HashMap<>();
+        model.put("PARTICIPANT_NAME", name);
+        model.put("USER_ROLE", role);
+        model.put("EMAIL", userEmail);
+        return freemarkerService.renderTemplate("user-invite-request-participant.ftl", model);
+    }
+
 
     private String linkTemplate(String name, String code, URL signedURL, int day, ArrayList<String> role, String userId) throws Exception {
         Map<String, Object> model = new HashMap<>();
@@ -874,8 +891,15 @@ public class OnboardService extends BaseController {
         model.put("role", role.get(0));
         model.put("DAY", day);
         model.put("USER_ID", userId);
-        model.put("TERMS_AND_CONDITIONS_URL", termsAndConditionsUrl);
-        return freemarkerService.renderTemplate("send-link.ftl", model);
+        return freemarkerService.renderTemplate("send-email-verification-link.ftl", model);
+    }
+
+    private String regenerateLinkTemplate(String name, URL signedURL, int day) throws TemplateException, IOException {
+        Map<String, Object> model = new HashMap<>();
+        model.put("USER_NAME", name);
+        model.put("URL", signedURL);
+        model.put("DAY", day);
+        return freemarkerService.renderTemplate("regenerate-send-link.ftl", model);
     }
 
     private String successTemplate(String participantName, Map<String, Object> mockProviderDetails, Map<String, Object> mockPayorDetails) throws Exception {
@@ -908,11 +932,11 @@ public class OnboardService extends BaseController {
         return freemarkerService.renderTemplate("verification-status.ftl", model);
     }
 
-    private String passwordGenerate(String participantName,String password,String email) throws Exception {
+    private String passwordGenerate(String participantName, String password, String email) throws Exception {
         Map<String, Object> model = new HashMap<>();
         model.put("PARTICIPANT_NAME", participantName);
-        model.put("USERNAME",email);
-        model.put("PASSWORD",password);
+        model.put("USERNAME", email);
+        model.put("PASSWORD", password);
         return freemarkerService.renderTemplate("password-generate.ftl", model);
     }
 
@@ -990,21 +1014,14 @@ public class OnboardService extends BaseController {
     }
 
     @Async
-    private CompletableFuture<Map<String, Object>> createMockParticipant(HttpHeaders headers, String role, Map<String, Object> participantDetails,CompletableFuture<Map<String,Object>> mockDetails) throws Exception {
-        mockDetails = CompletableFuture.supplyAsync(() -> {
-            try{
-                String parentParticipantCode = (String) participantDetails.getOrDefault(PARTICIPANT_CODE, "");
-                logger.info("creating Mock participant for :: parent participant code : " + parentParticipantCode + " :: Role: " + role);
-                Map<String, Object> mockParticipant = getMockParticipantBody(participantDetails, role, parentParticipantCode);
-                String privateKey = (String) mockParticipant.getOrDefault(PRIVATE_KEY, "");
-                mockParticipant.remove(PRIVATE_KEY);
-                String childParticipantCode = createEntity(PARTICIPANT_CREATE, JSONUtils.serialize(mockParticipant), getHeadersMap(headers), ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, PARTICIPANT_CODE);
-                return updateMockDetails(mockParticipant, parentParticipantCode, childParticipantCode, privateKey);
-            } catch (Exception e){
-                throw new RuntimeException();
-            }
-        });
-        return mockDetails;
+    private Map<String, Object> createMockParticipant(HttpHeaders headers, String role, Map<String, Object> participantDetails) throws Exception {
+        String parentParticipantCode = (String) participantDetails.getOrDefault(PARTICIPANT_CODE, "");
+        logger.info("creating Mock participant for :: parent participant code : " + parentParticipantCode + " :: Role: " + role);
+        Map<String, Object> mockParticipant = getMockParticipantBody(participantDetails, role, parentParticipantCode);
+        String privateKey = (String) mockParticipant.getOrDefault(PRIVATE_KEY, "");
+        mockParticipant.remove(PRIVATE_KEY);
+        String childParticipantCode = createEntity(PARTICIPANT_CREATE, JSONUtils.serialize(mockParticipant), getHeadersMap(headers), ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, PARTICIPANT_CODE);
+        return updateMockDetails(mockParticipant, parentParticipantCode, childParticipantCode, privateKey);
     }
 
     private void getEmailAndName(String role, Map<String, Object> mockParticipant, Map<String, Object> participantDetails, String name) {
@@ -1176,5 +1193,5 @@ public class OnboardService extends BaseController {
                 onboardingVerifierTable, email, applicantCode, verifierCode, status, System.currentTimeMillis(), System.currentTimeMillis());
         postgreSQLClient.execute(query);
     }
-    
+
 }

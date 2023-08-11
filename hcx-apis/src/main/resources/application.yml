@@ -31,7 +31,7 @@ kafka:
 
 
 registry:
-  basePath: ${registry_basePath:http://a0b2bab079318431d8ca99f1efb1c25c-874274596.ap-south-1.elb.amazonaws.com:8081}
+  basePath: ${registry_basePath:http://aa5c04ed467c04ea89789cead03e4275-320353178.ap-south-1.elb.amazonaws.com:8081}
   hcxcode: ${registry_hcxcode:1-d2d56996-1b77-4abb-b9e9-0e6e7343c72e}
   organisation-api-path: ${registry_api_path:/api/v1/Organisation}
   user-api-path: ${registry_user_api_path:/api/v1/User}
