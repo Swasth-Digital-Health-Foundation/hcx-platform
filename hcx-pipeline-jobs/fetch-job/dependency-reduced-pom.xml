@@ -7,7 +7,7 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.swasth</groupId>
-  <artifactId>notification-job</artifactId>
+  <artifactId>fetch-job</artifactId>
   <version>1.0.0</version>
   <build>
     <plugins>
@@ -76,7 +76,7 @@
               </filters>
               <transformers>
                 <transformer>
-                  <mainClass>org.swasth.dp.notification.task.NotificationStreamTask</mainClass>
+                  <mainClass>org.swasth.dp.claims.task.FetchStreamTask</mainClass>
                 </transformer>
               </transformers>
             </configuration>
@@ -127,13 +127,6 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.swasth</groupId>
-      <artifactId>core</artifactId>
-      <version>1.0.0</version>
-      <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.13.2</version>
@@ -142,22 +135,6 @@
         <exclusion>
           <artifactId>hamcrest-core</artifactId>
           <groupId>org.hamcrest</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-core</artifactId>
-      <version>3.9.0</version>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>byte-buddy</artifactId>
-          <groupId>net.bytebuddy</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>byte-buddy-agent</artifactId>
-          <groupId>net.bytebuddy</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -178,6 +155,41 @@
         <exclusion>
           <artifactId>curator-test</artifactId>
           <groupId>org.apache.curator</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.swasth</groupId>
+      <artifactId>core</artifactId>
+      <version>1.0.0</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.scalatest</groupId>
+      <artifactId>scalatest_2.12</artifactId>
+      <version>3.0.6</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>scalactic_2.12</artifactId>
+          <groupId>org.scalactic</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>3.9.0</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>byte-buddy</artifactId>
+          <groupId>net.bytebuddy</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>byte-buddy-agent</artifactId>
+          <groupId>net.bytebuddy</groupId>
         </exclusion>
       </exclusions>
     </dependency>

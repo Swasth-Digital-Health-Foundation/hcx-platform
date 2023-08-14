@@ -1,23 +1,29 @@
 package org.swasth.hcx.controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.swasth.auditindexer.function.AuditIndexer;
 import org.swasth.common.dto.Request;
 import org.swasth.common.dto.Response;
 import org.swasth.common.dto.ResponseError;
+import org.swasth.common.dto.Token;
 import org.swasth.common.exception.*;
 import org.swasth.common.helpers.EventGenerator;
 import org.swasth.hcx.handlers.EventHandler;
 import org.swasth.hcx.service.AuditService;
 
 import java.util.Map;
+import java.util.Objects;
 
+import static org.swasth.common.utils.Constants.AUTHORIZATION;
 import static org.swasth.common.utils.Constants.ERROR_STATUS;
 
 public class BaseController {
@@ -47,7 +53,7 @@ public class BaseController {
         return response;
     }
 
-    public ResponseEntity<Object> validateReqAndPushToKafka(Request request, String kafkaTopic) throws Exception {
+    public ResponseEntity<Object> validateReqAndPushToKafka(HttpHeaders headers, Request request, String kafkaTopic) throws Exception {
         Response response = new Response(request);
         try {
             eventHandler.processAndSendEvent(kafkaTopic, request);
@@ -57,8 +63,8 @@ public class BaseController {
         }
     }
 
-    public ResponseEntity<Object> validateReqAndPushToKafka(Map<String, Object> requestBody, String apiAction, String kafkaTopic) throws Exception {
-        Request request = new Request(requestBody, apiAction);
+    public ResponseEntity<Object> validateReqAndPushToKafka(HttpHeaders headers, Map<String, Object> requestBody, String apiAction, String kafkaTopic) throws Exception {
+        Request request = new Request(requestBody, apiAction, Objects.requireNonNull(headers.get(AUTHORIZATION)).get(0));
         Response response = new Response(request);
         try {
             logger.info("Processing request :: action: {} :: api call id: {}", apiAction, request.getApiCallId());
@@ -94,7 +100,4 @@ public class BaseController {
         }
         return new ResponseEntity<>(errorResponse(response, errorCode, e), status);
     }
-
-
-
 }

@@ -191,7 +191,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                modifiedReq = requestHandler.getUpdatedBody(exchange, chain, requestObj.getPayload());
             } catch (Exception e) {
                 logger.error(MessageFormat.format(CORRELATION_ERR_MSG, correlationId,  e.getMessage()));
-                return exceptionHandler.errorResponse(e, exchange, correlationId, apiCallId, requestObj);
+                return exceptionHandler.errorResponse(exchange.getRequest().getHeaders(), e, exchange, correlationId, apiCallId, requestObj);
             }
             return modifiedReq;
         };

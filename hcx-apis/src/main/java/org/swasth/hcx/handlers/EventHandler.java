@@ -1,13 +1,17 @@
 package org.swasth.hcx.handlers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.swasth.auditindexer.function.AuditIndexer;
 import org.swasth.common.dto.Request;
+import org.swasth.common.dto.Token;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.helpers.EventGenerator;
 import org.swasth.common.utils.Constants;
@@ -17,7 +21,9 @@ import org.swasth.kafka.client.IEventService;
 import org.swasth.postgresql.IDatabaseService;
 
 import java.sql.ResultSet;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import static org.swasth.common.utils.Constants.*;
 
@@ -97,12 +103,12 @@ public class EventHandler {
         kafkaClient.send(auditTopic , (String) ((Map<String,Object>) event.get(Constants.OBJECT)).get(Constants.TYPE) , JSONUtils.serialize(event));
     }
 
-    public void createRetryEvent(String mid) throws Exception {
+    public void createRetryEvent(String jwtToken, String mid) throws Exception {
         String query = String.format("SELECT * from %s WHERE mid ='%s'", postgresTableName, mid);
         ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(query);
         if(resultSet.next()){
             String action = resultSet.getString(Constants.ACTION);
-            Request request = new Request(JSONUtils.deserialize(resultSet.getString(Constants.DATA), Map.class), action);
+            Request request = new Request(JSONUtils.deserialize(resultSet.getString(Constants.DATA), Map.class), action,jwtToken);
             request.setMid(resultSet.getString(Constants.MID));
             request.setApiAction(action);
             String event = eventGenerator.generateMetadataEvent(request);
@@ -112,5 +118,4 @@ public class EventHandler {
             throw new ClientException("Invalid mid, request does not exist");
         }
     }
-
 }

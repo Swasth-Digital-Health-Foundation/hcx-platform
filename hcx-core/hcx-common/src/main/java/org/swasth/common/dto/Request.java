@@ -1,6 +1,7 @@
 package org.swasth.common.dto;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpHeaders;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
 import org.swasth.common.utils.Constants;
@@ -19,8 +20,9 @@ public class Request {
     private String mid = UUIDUtils.getUUID();
     private String apiAction;
     private final String payloadWithoutSensitiveData;
+    private Token token;
 
-    public Request(Map<String, Object> body, String apiAction) throws Exception {
+    public Request(Map<String, Object> body, String apiAction ,String jwtToken) throws Exception {
         this.apiAction = apiAction;
         this.payload = body;
         try {
@@ -38,6 +40,7 @@ public class Request {
                 hcxHeaders = body;
             }
             this.payloadWithoutSensitiveData = PayloadUtils.removeSensitiveData(body, apiAction);
+            token = new Token(jwtToken);
         } catch (Exception e) {
             throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, "Error while parsing the payload");
         }
@@ -193,6 +196,12 @@ public class Request {
 
     public byte[] getPayloadSize() {
         return payload.getOrDefault(PAYLOAD, "").toString().getBytes();
+    }
+    public String getUserId() {
+        if (StringUtils.equals(token.getEntityType(), "api-access")) {
+            return token.getUserId();
+        }
+        return "";
     }
 
 }
