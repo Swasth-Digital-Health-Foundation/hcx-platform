@@ -1,7 +1,5 @@
 package org.swasth.hcx.controllers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +12,6 @@ import org.swasth.auditindexer.function.AuditIndexer;
 import org.swasth.common.dto.Request;
 import org.swasth.common.dto.Response;
 import org.swasth.common.dto.ResponseError;
-import org.swasth.common.dto.Token;
 import org.swasth.common.exception.*;
 import org.swasth.common.helpers.EventGenerator;
 import org.swasth.hcx.handlers.EventHandler;
@@ -53,7 +50,7 @@ public class BaseController {
         return response;
     }
 
-    public ResponseEntity<Object> validateReqAndPushToKafka(HttpHeaders headers, Request request, String kafkaTopic) throws Exception {
+    public ResponseEntity<Object> validateReqAndPushToKafka(Request request, String kafkaTopic) throws Exception {
         Response response = new Response(request);
         try {
             eventHandler.processAndSendEvent(kafkaTopic, request);

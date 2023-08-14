@@ -1,7 +1,6 @@
 package org.swasth.common.dto;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpHeaders;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.exception.ErrorCodes;
 import org.swasth.common.utils.Constants;
@@ -9,7 +8,10 @@ import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.utils.PayloadUtils;
 import org.swasth.common.utils.UUIDUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.swasth.common.utils.Constants.*;
 

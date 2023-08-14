@@ -3,18 +3,17 @@ package org.swasth.hcx.controllers.v1;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.swasth.common.dto.Request;
-import org.swasth.common.dto.Response;
-import org.swasth.common.dto.Token;
 import org.swasth.common.service.RegistryService;
 import org.swasth.common.utils.Constants;
 import org.swasth.hcx.controllers.BaseController;
-import org.swasth.hcx.service.NotificationService;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 import static org.swasth.common.utils.Constants.*;
 
@@ -43,6 +42,6 @@ public class CoverageEligibilityController extends BaseController {
             //Create subscription audit event for on_check call for any HIU user
             auditIndexer.createDocument(eventGenerator.generateSubscriptionAuditEvent(request,QUEUED_STATUS, Arrays.asList(request.getHcxSenderCode())));
         }
-        return validateReqAndPushToKafka(headers, request, kafkaTopic);
+        return validateReqAndPushToKafka(request, kafkaTopic);
     }
 }

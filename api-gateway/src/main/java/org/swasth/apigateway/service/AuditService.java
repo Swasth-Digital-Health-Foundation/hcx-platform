@@ -1,9 +1,7 @@
 package org.swasth.apigateway.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import kong.unirest.HttpResponse;
 import kong.unirest.UnirestException;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,18 +11,17 @@ import org.springframework.stereotype.Service;
 import org.swasth.apigateway.exception.ErrorCodes;
 import org.swasth.apigateway.exception.ServerException;
 import org.swasth.apigateway.models.BaseRequest;
-import org.swasth.apigateway.utils.Utils;
 import org.swasth.auditindexer.function.AuditIndexer;
 import org.swasth.common.dto.Request;
-import org.swasth.common.dto.Token;
 import org.swasth.common.helpers.EventGenerator;
 import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.HttpUtils;
 import org.swasth.common.utils.JSONUtils;
-import org.swasth.common.utils.UUIDUtils;
 
 import java.util.*;
-import static org.swasth.common.utils.Constants.*;
+
+import static org.swasth.common.utils.Constants.AUTHORIZATION;
+import static org.swasth.common.utils.Constants.ERROR_STATUS;
 
 
 @Service
