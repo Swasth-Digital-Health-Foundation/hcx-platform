@@ -188,7 +188,7 @@ public class OnboardService extends BaseController {
     private void onboardProcess(HttpHeaders headers, OnboardRequest request, Map<String, Object> output) throws Exception {
         Map<String, Object> participant = request.getParticipant();
         String identityVerified = verifyParticipantIdentity(request);
-        addParticipantDetails(participant);
+        addParticipantDetails(participant, request);
         String participantCode = createEntity(PARTICIPANT_CREATE, JSONUtils.serialize(participant), getHeadersMap(headers), ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, PARTICIPANT_CODE);
         participant.put(PARTICIPANT_CODE, participantCode);
         User user = new User(participant.get(PARTICIPANT_NAME) + " Admin", (String) participant.get(PRIMARY_EMAIL), (String) participant.get(PRIMARY_MOBILE), participantCode);
@@ -234,12 +234,14 @@ public class OnboardService extends BaseController {
         return (String) JSONUtils.deserialize(createResponse.getBody(), Map.class).get(id);
     }
 
-    private void addParticipantDetails(Map<String,Object> participant) {
+    private void addParticipantDetails(Map<String,Object> participant, OnboardRequest request) {
         participant.put(ENDPOINT_URL, "http://testurl/v0.7");
         participant.put(ENCRYPTION_CERT, "https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/hcx-platform/main/hcx-apis/src/test/resources/examples/test-keys/public-key.pem");
         participant.put(REGISTRY_STATUS, CREATED);
         if (((ArrayList<String>) participant.get(ROLES)).contains(PAYOR))
             participant.put(SCHEME_CODE, "default");
+        if (((ArrayList<String>) participant.get(ROLES)).contains(PROVIDER))
+            participant.put(APPLICANT_CODE, request.getApplicantCode());
     }
 
     private String createUser(HttpHeaders headers, User user) throws Exception {

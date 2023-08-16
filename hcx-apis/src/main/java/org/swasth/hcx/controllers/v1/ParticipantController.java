@@ -54,7 +54,7 @@ public class ParticipantController extends BaseController {
             Participant participant = new Participant(requestBody);
             service.validate(requestBody, true);
             requestBody.put(PRIMARY_EMAIL, participant.getprimaryEmail().toLowerCase());
-            String code = participant.generateCode(participant.getprimaryEmail(), fieldSeparator, hcxInstanceName);
+            String code = participant.generateCode(participant, fieldSeparator, hcxInstanceName);
             service.getCertificatesUrl(requestBody, code);
             service.validateCertificates(requestBody);
             return getSuccessResponse(service.create(requestBody, header, code));
