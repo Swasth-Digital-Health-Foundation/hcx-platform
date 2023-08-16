@@ -33,8 +33,8 @@ public class Participant {
         return (List<String>) requestBody.get(ROLES);
     }
 
-    public String generateCode(Participant participant, String fieldSeparator, String hcxInstanceName) {
-        String nameWithoutSpaces = participant.getParticipantName().replaceAll("\\s", "");
+    public String generateCode(String fieldSeparator, String hcxInstanceName) {
+        String nameWithoutSpaces = getParticipantName().replaceAll("\\s", "");
         String code = SlugUtils.makeSlug(nameWithoutSpaces.substring(0, Math.min(6, nameWithoutSpaces.length())), getRoleAppender(), getRandomSeq(), fieldSeparator, hcxInstanceName);
         requestBody.put(PARTICIPANT_CODE, code);
         return code;
