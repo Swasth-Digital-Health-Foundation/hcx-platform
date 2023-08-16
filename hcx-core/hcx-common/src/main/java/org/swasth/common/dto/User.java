@@ -19,7 +19,6 @@ public class User {
     private String email;
 
     private String mobile;
-    
     @JsonProperty("tenant_roles")
     private List<Map<String,Object>> tenantRoles;
     
@@ -95,7 +94,8 @@ public class User {
     public void setCreatedBy(String createdBy){
         this.createdBy = createdBy;
     }
-
-
+    public String getRole() {
+        return (String) getTenantRoles().get(0).getOrDefault(ROLE, "");
+    }
     
 }

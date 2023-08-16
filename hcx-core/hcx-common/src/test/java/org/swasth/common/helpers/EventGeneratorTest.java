@@ -56,7 +56,7 @@ public class EventGeneratorTest {
 
     @Test
     public void check_generateAuditEvent() throws Exception {
-        Map<String,Object> result = eventGenerator.generateAuditEvent(getRequest());
+        Map<String, Object> result = eventGenerator.generateAuditEvent(getRequest());
         assertEquals("/test", result.get(Constants.ACTION));
     }
 
@@ -68,13 +68,13 @@ public class EventGeneratorTest {
 
     @Test
     public void check_generateAuditEventTagEmpty() throws Exception {
-        Map<String,Object> result = eventGeneratorTag.generateAuditEvent(getRequest());
+        Map<String, Object> result = eventGeneratorTag.generateAuditEvent(getRequest());
         assertEquals("/test", result.get(Constants.ACTION));
     }
 
     @Test
     public void check_generateAuditEvent_if_status_is_null() throws Exception {
-        Map<String,Object> result = eventGenerator.generateAuditEvent(getJSONRequest(null));
+        Map<String, Object> result = eventGenerator.generateAuditEvent(getJSONRequest(null));
         assertEquals("request.queued", result.get(Constants.STATUS));
     }
 
@@ -87,7 +87,7 @@ public class EventGeneratorTest {
     public Request getRequest() throws Exception {
         Map<String,Object> obj = new HashMap<>();
         obj.put("payload","eyJlbmMiOiJBMjU2R0NNIiwKImFsZyI6IlJTQS1PQUVQIiwKIngtaGN4LXNlbmRlcl9jb2RlIjoiIiwKIngtaGN4LXJlY2lwaWVudF9jb2RlIjoiMS0yNzk5YjZhNC1jZjJkLTQ1ZmUtYTVlMS01ZjFjODI5NzllMGQiLAoieC1oY3gtcmVxdWVzdF9pZCI6IjI2YjEwNjBjLTFlODMtNDYwMC05NjEyLWVhMzFlMGNhNTA5MSIsCiJ4LWhjeC1jb3JyZWxhdGlvbl9pZCI6IjVlOTM0ZjkwLTExMWQtNGYwYi1iMDE2LWMyMmQ4MjA2NzRlMSIsCiJ4LWhjeC10aW1lc3RhbXAiOiIyMDIyLTAxLTA2VDA5OjUwOjIzKzAwIiwKIngtaGN4LXN0YXR1cyI6InJlcXVlc3QuaW5pdGlhdGUiLAoieC1oY3gtd29ya2Zsb3dfaWQiOiIxZTgzLTQ2MGEtNGYwYi1iMDE2LWMyMmQ4MjA2NzRlMSIsCiJ4LWhjeC1kZWJ1Z19mbGFnIjoiSW5mbyIsCiJ4LWhjeC1lcnJvcl9kZXRhaWxzIjp7ImVycm9yLmNvZGUiOiAiYmFkLmlucHV0IiwgImVycm9yLm1lc3NhZ2UiOiAiUHJvdmlkZXIgY29kZSBub3QgZm91bmQiLCAidHJhY2UiOiAiIn0sCiJ4LWhjeC1kZWJ1Z19kZXRhaWxzIjp7ImVycm9yLmNvZGUiOiAiYmFkLmlucHV0IiwgImVycm9yLm1lc3NhZ2UiOiAiUHJvdmlkZXIgY29kZSBub3QgZm91bmQiLCJ0cmFjZSI6IiJ9LAoiandzX2hlYWRlciI6eyJ0eXAiOiJKV1QiLCAiYWxnIjoiUlMyNTYifSwKImp3ZV9oZWFkZXIiOnsiYWxnIjoiUlNBLU9BRVAiLCJlbmMiOiJBMjU2R0NNIn0KfQ==.6KB707dM9YTIgHtLvtgWQ8mKwboJW3of9locizkDTHzBC2IlrT1oOQ.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.AxY8DCtDaGlsbGljb3RoZQ.KDlTtXchhZTGufMYmOYGS4HffxPSUrfmqCHXaI9wOGY.Mz-VPPyU4RlcuYv1IwIvzw");
-        Request request1 = new Request(obj, COVERAGE_ELIGIBILITY_CHECK);
+        Request request1 = new Request(obj, COVERAGE_ELIGIBILITY_CHECK, getAuthorizationHeader());
         Map<String,Object> senderDetails = new HashMap<>();
         senderDetails.put(ROLES,List.of("payor"));
         senderDetails.put(PARTICIPANT_NAME,"new-payor-3");
@@ -98,7 +98,7 @@ public class EventGeneratorTest {
         recipentDetails.put(PRIMARY_EMAIL,"newpayor002@gmail.com");
         obj.put(SENDERDETAILS,senderDetails);
         obj.put(RECIPIENTDETAILS,recipentDetails);
-        Request request = new Request(obj, ACTION);
+        Request request = new Request(obj, ACTION, getApiAccessToken());
         request.setApiAction("/test");
         request.setErrorDetails(new HashMap<>());
         return request;
@@ -110,7 +110,7 @@ public class EventGeneratorTest {
         Map<String,Object> recipentDetails = Collections.emptyMap();
         obj.put(SENDERDETAILS,senderDetails);
         obj.put(RECIPIENTDETAILS, recipentDetails);
-        Request request = new Request(obj, ACTION);
+        Request request = new Request(obj, ACTION, getAuthorizationHeader());
         request.setApiAction("/test");
         return request;
     }
@@ -126,7 +126,7 @@ public class EventGeneratorTest {
             put("message","");
             put("trace","Recipient Invalid Encryption");
         }});
-        return new Request(obj, COVERAGE_ELIGIBILITY_ONCHECK);
+        return new Request(obj, COVERAGE_ELIGIBILITY_ONCHECK, getAuthorizationHeader());
     }
 
     public Request getRedirectJSONRequest() throws Exception {
@@ -136,13 +136,13 @@ public class EventGeneratorTest {
         obj.put("x-hcx-correlation_id","5e934f90-111d-4f0b-b016-c22d820674e4");
         obj.put("x-hcx-redirect_to","1-74f6cb29-4116-42d0-9fbb-adb65e6a64a");
         obj.put("x-hcx-status","response.redirect");
-        return new Request(obj, COVERAGE_ELIGIBILITY_CHECK);
+        return new Request(obj, COVERAGE_ELIGIBILITY_CHECK, getAuthorizationHeader());
     }
 
     public Request getJWERequestWithNoStatus() throws Exception {
         Map<String,Object> obj = new HashMap<>();
         obj.put("payload","eyJlbmMiOiJBMjU2R0NNIiwKImFsZyI6IlJTQS1PQUVQIiwKIngtaGN4LXNlbmRlcl9jb2RlIjoiIiwKIngtaGN4LXJlY2lwaWVudF9jb2RlIjoiMS0yNzk5YjZhNC1jZjJkLTQ1ZmUtYTVlMS01ZjFjODI5NzllMGQiLAoieC1oY3gtY29ycmVsYXRpb25faWQiOiI1ZTkzNGY5MC0xMTFkLTRmMGItYjAxNi1jMjJkODIwNjc0ZTEiLAoieC1oY3gtdGltZXN0YW1wIjoiMjAyMi0wMS0wNlQwOTo1MDoyMyswMCIsCiJ4LWhjeC13b3JrZmxvd19pZCI6IjFlODMtNDYwYS00ZjBiLWIwMTYtYzIyZDgyMDY3NGUxIgp9.6KB707dM9YTIgHtLvtgWQ8mKwboJW3of9locizkDTHzBC2IlrT1oOQ.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.AxY8DCtDaGlsbGljb3RoZQ.KDlTtXchhZTGufMYmOYGS4HffxPSUrfmqCHXaI9wOGY.Mz-VPPyU4RlcuYv1IwIvzw");
-        Request request = new Request(obj, COVERAGE_ELIGIBILITY_CHECK);
+        Request request = new Request(obj, COVERAGE_ELIGIBILITY_CHECK, getAuthorizationHeader());
         request.setApiAction("/test");
         return request;
     }
@@ -186,7 +186,7 @@ public class EventGeneratorTest {
         notificationHeaders.put(SUBSCRIPTIONS, List.of("hcx-notification-001:hcx-apollo-12345"));
         obj.put(NOTIFICATION_HEADERS, notificationHeaders);
         obj.put(PAYLOAD, "eyJhbGciOiJSUzI1NiJ9.eyJ0b3BpY19jb2RlIjoibm90aWYtcGFydGljaXBhbnQtb25ib2FyZGVkIiwibWVzc2FnZSI6IlBhcnRpY2lwYW50IGhhcyBzdWNjZXNzZnVsbHkgb25ib2FyZGVkIn0=.L14NMRVoQq7TMEUt0IiG36P0NgDH1Poz4Nbh5BRZ7BcFXQzUI4SBduIJKY-WFCMPdKBl_LjlSm9JpNULn-gwLiDQ8ipQ3fZhzOkdzyjg0kUfpYN_aLQVgMaZ8Nrw3WytXIHserNxmka3wJQuSLvPnz9aJoFABij2evurnTsKq3oNbR0Oac3FJrpPO2O8fKaXs0Pi5Stf81eqcJ3Xs7oncJqBzgbp_jWShX8Ljfrf_TvM1patR-_h4E0O0HoVb0zD7SQmlKYOy0hw1bli5vdCnkh0tc1dF9yYrTEgofOjRemycFz_wEJ6FjFO1RryaBETw7qQ8hdGLemD545yUxCUng");
-        return new Request(obj, NOTIFICATION_NOTIFY);
+        return new Request(obj, NOTIFICATION_NOTIFY, getAuthorizationHeader());
     }
 
     @Test
@@ -204,7 +204,7 @@ public class EventGeneratorTest {
         requestBody.put(TOPIC_CODE, "hcx-notification-001");
         requestBody.put(SENDER_LIST, new ArrayList<>(){{add("hcx-participant-67890");add("Payor1"); add("Payor2");}});
         requestBody.put(RECIPIENT_CODE, "hcx-participant-12345");
-        Request request = new Request(requestBody, NOTIFICATION_SUBSCRIBE);
+        Request request = new Request(requestBody, NOTIFICATION_SUBSCRIBE, getAuthorizationHeader());
         String result = eventGenerator.generateSubscriptionEvent(request ,new HashMap<>(){{put("icici-67890","subscription_1");put("Payor1","subscription_2");put("Payor2","subscription_3");}});
         assertNotNull(result);
         assertTrue(result.contains(QUEUED_STATUS));
@@ -234,7 +234,7 @@ public class EventGeneratorTest {
         obj.put(SENDER_LIST,new ArrayList<>(){
             { add("Payor1"); add("Payor2");}
         });
-        return new Request(obj,NOTIFICATION_SUBSCRIBE);
+        return new Request(obj, NOTIFICATION_SUBSCRIBE, getAuthorizationHeader());
     }
 
     @Test
@@ -254,7 +254,7 @@ public class EventGeneratorTest {
         requestBody.put(SUBSCRIPTION_ID, "subscription_id-001");
         requestBody.put(SUBSCRIPTION_STATUS, ACTIVE);
         requestBody.put(SENDER_CODE, "hcx-participant-67890");
-        Request request = new Request(requestBody, NOTIFICATION_ON_SUBSCRIBE);
+        Request request = new Request(requestBody, NOTIFICATION_ON_SUBSCRIBE, getAuthorizationHeader());
         Map<String,Object> resultMap = eventGenerator.generateOnSubscriptionAuditEvent(request, "hcx-participant-12345", "subscription_id-001", QUEUED_STATUS,"Active");
         assertNotNull(resultMap);
         assertEquals(AUDIT, resultMap.get(EID));
@@ -289,7 +289,7 @@ public class EventGeneratorTest {
         requestBody.put(RECIPIENT_CODE, "hcx-participant-12345");
         requestBody.put(TOPIC_CODE, "topic-001");
         requestBody.put(SUBSCRIPTION_STATUS, ACTIVE);
-        Request request = new Request(requestBody, NOTIFICATION_SUBSCRIPTION_UPDATE);
+        Request request = new Request(requestBody, NOTIFICATION_SUBSCRIPTION_UPDATE, getAuthorizationHeader());
 
         Response response = new Response();
         response.setSubscriptionId("subscription_id-001");
@@ -329,5 +329,12 @@ public class EventGeneratorTest {
         String tag = "test-tag";
         EventGenerator eventGenerator1 = new EventGenerator(tag);
         assertNotNull(eventGenerator1);
+    }
+
+    public String getAuthorizationHeader() {
+        return "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJMYU9HdVRrYVpsVEtzaERwUng1R25JaXUwV1A1S3VGUUoyb29WMEZnWGx3In0.eyJleHAiOjE2NDcwNzgwNjksImlhdCI6MTY0Njk5MTY2OSwianRpIjoiNDcyYzkwOTAtZWQ4YS00MDYxLTg5NDQtMzk4MjhmYzBjM2I4IiwiaXNzIjoiaHR0cDovL2E5ZGQ2M2RlOTFlZTk0ZDU5ODQ3YTEyMjVkYThiMTExLTI3Mzk1NDEzMC5hcC1zb3V0aC0xLmVsYi5hbWF6b25hd3MuY29tOjgwODAvYXV0aC9yZWFsbXMvc3dhc3RoLWhlYWx0aC1jbGFpbS1leGNoYW5nZSIsImF1ZCI6ImFjY291bnQiLCJzdWIiOiIwYzU3NjNkZS03MzJkLTRmZDQtODU0Ny1iMzk2MGMxMzIwZjUiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJyZWdpc3RyeS1mcm9udGVuZCIsInNlc3Npb25fc3RhdGUiOiIxMThhMTRmMS04OTAxLTQxZTMtYWE5Zi1iNWFjMjYzNjkzMzIiLCJhY3IiOiIxIiwiYWxsb3dlZC1vcmlnaW5zIjpbImh0dHBzOi8vbG9jYWxob3N0OjQyMDIiLCJodHRwOi8vbG9jYWxob3N0OjQyMDIiLCJodHRwczovL2xvY2FsaG9zdDo0MjAwIiwiaHR0cHM6Ly9uZGVhci54aXYuaW4iLCJodHRwOi8vbG9jYWxob3N0OjQyMDAiLCJodHRwOi8vbmRlYXIueGl2LmluIiwiaHR0cDovLzIwLjE5OC42NC4xMjgiXSwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbIkhJRS9ISU8uSENYIiwiZGVmYXVsdC1yb2xlcy1uZGVhciJdfSwicmVzb3VyY2VfYWNjZXNzIjp7ImFjY291bnQiOnsicm9sZXMiOlsibWFuYWdlLWFjY291bnQiLCJtYW5hZ2UtYWNjb3VudC1saW5rcyIsInZpZXctcHJvZmlsZSJdfX0sInNjb3BlIjoicHJvZmlsZSBlbWFpbCIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwibmFtZSI6ImhjeCBhZG1pbiIsInByZWZlcnJlZF91c2VybmFtZSI6ImhjeC1hZG1pbiIsImdpdmVuX25hbWUiOiJoY3ggYWRtaW4ifQ.SwDJNGkHOs7MrArqwdkArLkRDgPIU3SHwMdrppmG2JHQkpYRLqFpfmFPgIYNAyi_b_ZQnXKwuhT6ABNEV2-viJWTPLYe4z5JkeUGNurnrkSoMMObrd0s1tLYjdgu5j5kLaeUBeSeULTkdBfAM9KZX5Gn6Ri6AKs6uFq22hJOmhtw3RTyX-7kozG-SzSfIyN_-7mvJBZjBR73gaNJyEms4-aKULAnQ6pYkj4hzzlac2WCucq2zZnipeupBOJzx5z27MLdMs8lfNRTTqkQVhoUK0DhDxyj9N_TzbycPdykajhOrerKfpEnYcZpWfC-bJJSDagnP9D407OqoxoE3_niHw";
+    }
+    public String getApiAccessToken() {
+        return "Bearer eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI4NTI3ODUzYy1iNDQyLTQ0ZGItYWVkYS1kYmJkY2Y0NzJkOWIiLCJyZXNvdXJjZV9hY2Nlc3MiOnsiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwiZW1haWxfdmVyaWZpZWQiOmZhbHNlLCJpc3MiOiJodHRwOlwvXC9rZXljbG9hay5rZXljbG9hay5zdmMuY2x1c3Rlci5sb2NhbDo4MDgwXC9hdXRoXC9yZWFsbXNcL2FwaS1hY2Nlc3MiLCJ0eXAiOiJCZWFyZXIiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJ0ZXN0cHJvdmlkZXIxLmFwb2xsb0Bzd2FzdGgtaGN4LWRldjp0ZXN0cHJvdmlkZXIxQGFwb2xsby5jb20iLCJnaXZlbl9uYW1lIjoidGVzdCBwcm92aWRlciAxIGFkbWluIiwiYXVkIjoiYWNjb3VudCIsImFjciI6IjEiLCJyZWFsbV9hY2Nlc3MiOnsicGFydGljaXBhbnRfcm9sZXMiOlsicHJvdmlkZXIiXSwidXNlcl9yb2xlcyI6WyJhZG1pbiIsImNvbmZpZy1tYW5hZ2VyIl19LCJ1c2VyX2lkIjoidGVzdHByb3ZpZGVyMUBhcG9sbG8uY29tIiwiYXpwIjoicmVnaXN0cnkiLCJwYXJ0aWNpcGFudF9jb2RlIjoidGVzdHByb3ZpZGVyMS5hcG9sbG9Ac3dhc3RoLWhjeC1kZXYiLCJzY29wZSI6InByb2ZpbGUgZW1haWwiLCJuYW1lIjoidGVzdCBwcm92aWRlciAxIGFkbWluIiwiZXhwIjoxNjkyODU5Njk0LCJzZXNzaW9uX3N0YXRlIjoiMDRhY2FkMmEtNTU1ZC00MDZjLWI4ZjgtZTEyMTdjODg3NGNjIiwiaWF0IjoxNjkxOTk1Njk0LCJqdGkiOiI1MDRmOGQxNy1lNGIxLTRlYjMtOTNmNi04YjA2N2EyNTViZTAiLCJlbnRpdHkiOlsiYXBpLWFjY2VzcyJdfQ.DFPmLfU5ZuQx2S7q94TWy01_7P10ZUVS_fuEEJHaZyN4ZykIGz9Vdhpb1OHgP4U-d4Ze_AhChEYNawvFAWtAYKYrrLykgnzt8KUhTfb7GxFF6wYCpt5xvWdgIrA9DrOWUG9su7wXLVyLIWQrLsdvGnfe9aAIPmzhzIzymiQ7wXZ8oMOcR50UZxxuTewFaXANfJFWrTs8zYdzNJlz_paiGwCw93gLyRDSfL4YcvcG2uHz70dj2OfSnA4TsNrAJJYP3slbOw1jXeRrH2P8y5xpRhGgddic-EV3AV0W3I4xG1NjxD_4D992mhsSmZYejU1isvlBhNpd0N7PU_Npf0z2Hw";
     }
 }

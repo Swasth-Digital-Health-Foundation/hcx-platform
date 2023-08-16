@@ -4,12 +4,10 @@ import org.apache.commons.collections.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.swasth.common.dto.Response;
 import org.swasth.common.dto.SearchRequest;
 import org.swasth.common.exception.ClientException;
@@ -19,6 +17,7 @@ import org.swasth.hcx.controllers.BaseController;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static org.swasth.common.utils.Constants.*;
 
@@ -35,8 +34,8 @@ public class SearchController extends BaseController {
     private String responseTopic;
 
     @PostMapping(HCX_SEARCH)
-    public ResponseEntity<Object> search (@RequestBody Map<String, Object> requestBody) throws Exception {
-        SearchRequest request = new SearchRequest(requestBody, HCX_SEARCH);
+    public ResponseEntity<Object> search (@RequestHeader HttpHeaders headers, @RequestBody Map<String, Object> requestBody) throws Exception {
+        SearchRequest request = new SearchRequest(requestBody, HCX_SEARCH, Objects.requireNonNull(headers.get(AUTHORIZATION)).get(0));
         Response response = new Response(request);
         try {
             logger.info("Processing request :: action: {} :: api call id: {}", HCX_SEARCH, request.getApiCallId());
@@ -55,8 +54,8 @@ public class SearchController extends BaseController {
     }
 
     @PostMapping(HCX_ON_SEARCH)
-    public ResponseEntity<Object> onSearch (@RequestBody Map<String, Object> requestBody) throws Exception {
-        SearchRequest request = new SearchRequest(requestBody, HCX_ON_SEARCH);
+    public ResponseEntity<Object> onSearch(@RequestHeader HttpHeaders headers, @RequestBody Map<String, Object> requestBody) throws Exception {
+        SearchRequest request = new SearchRequest(requestBody, HCX_ON_SEARCH, Objects.requireNonNull(headers.get(AUTHORIZATION)).get(0));
         Response response = new Response(request);
         try {
             logger.info("Processing request :: action: {} :: api call id: {}", HCX_ON_SEARCH, request.getApiCallId());

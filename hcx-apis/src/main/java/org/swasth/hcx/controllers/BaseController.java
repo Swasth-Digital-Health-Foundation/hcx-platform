@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.swasth.auditindexer.function.AuditIndexer;
@@ -17,7 +18,9 @@ import org.swasth.hcx.handlers.EventHandler;
 import org.swasth.hcx.service.AuditService;
 
 import java.util.Map;
+import java.util.Objects;
 
+import static org.swasth.common.utils.Constants.AUTHORIZATION;
 import static org.swasth.common.utils.Constants.ERROR_STATUS;
 
 public class BaseController {
@@ -57,8 +60,8 @@ public class BaseController {
         }
     }
 
-    public ResponseEntity<Object> validateReqAndPushToKafka(Map<String, Object> requestBody, String apiAction, String kafkaTopic) throws Exception {
-        Request request = new Request(requestBody, apiAction);
+    public ResponseEntity<Object> validateReqAndPushToKafka(HttpHeaders headers, Map<String, Object> requestBody, String apiAction, String kafkaTopic) throws Exception {
+        Request request = new Request(requestBody, apiAction, Objects.requireNonNull(headers.get(AUTHORIZATION)).get(0));
         Response response = new Response(request);
         try {
             logger.info("Processing request :: action: {} :: api call id: {}", apiAction, request.getApiCallId());
@@ -94,7 +97,4 @@ public class BaseController {
         }
         return new ResponseEntity<>(errorResponse(response, errorCode, e), status);
     }
-
-
-
 }
