@@ -1,6 +1,7 @@
 package org.swasth.hcx.controllers.v1;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MvcResult;
@@ -20,7 +21,7 @@ class ClaimsTests extends BaseSpec {
   void check_claim_submit_success_scenario() throws Exception {
       doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
       String requestBody = getRequestBody();
-      MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.CLAIM_SUBMIT).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+      MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.CLAIM_SUBMIT).content(requestBody).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
       MockHttpServletResponse response = mvcResult.getResponse();
       int status = response.getStatus();
       assertEquals(202, status);
@@ -29,7 +30,7 @@ class ClaimsTests extends BaseSpec {
   @Test
   void check_claim_submit_exception_scenario() throws Exception {
       String requestBody = getExceptionRequestBody();
-      MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.CLAIM_SUBMIT).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+      MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.CLAIM_SUBMIT).content(requestBody).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
       MockHttpServletResponse response = mvcResult.getResponse();
       int status = response.getStatus();
       assertEquals(500, status);
@@ -39,7 +40,7 @@ class ClaimsTests extends BaseSpec {
   void check_claim_on_submit_success_scenario() throws Exception {
       doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
       String requestBody = getRequestBody();
-      MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.CLAIM_ONSUBMIT).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+      MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.CLAIM_ONSUBMIT).content(requestBody).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
       MockHttpServletResponse response = mvcResult.getResponse();
       int status = response.getStatus();
       assertEquals(202, status);
@@ -48,7 +49,7 @@ class ClaimsTests extends BaseSpec {
   @Test
   void check_claim_on_submit_exception_scenario() throws Exception {
       String requestBody = getExceptionRequestBody();
-      MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.CLAIM_ONSUBMIT).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+      MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.CLAIM_ONSUBMIT).content(requestBody).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
       MockHttpServletResponse response = mvcResult.getResponse();
       int status = response.getStatus();
       assertEquals(500, status);
