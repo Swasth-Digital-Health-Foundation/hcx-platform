@@ -3,12 +3,10 @@ package org.swasth.hcx.controllers.v1;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.swasth.common.dto.AuditSearchRequest;
 import org.swasth.common.dto.Request;
 import org.swasth.common.dto.Response;
@@ -22,6 +20,7 @@ import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static org.swasth.common.response.ResponseMessage.CORRELATION_ID_MISSING;
 import static org.swasth.common.response.ResponseMessage.INVALID_STATUS_SEARCH_ENTITY;
@@ -40,8 +39,8 @@ public class StatusController extends BaseController {
     private List<String> allowedEntitiesForStatusSearch;
 
     @PostMapping(HCX_STATUS)
-    public ResponseEntity<Object> status(@RequestBody Map<String, Object> requestBody) throws Exception {
-        Request request = new Request(requestBody, HCX_STATUS);
+    public ResponseEntity<Object> status(@RequestHeader HttpHeaders headers, @RequestBody Map<String, Object> requestBody) throws Exception {
+        Request request = new Request(requestBody, HCX_STATUS, Objects.requireNonNull(headers.get(AUTHORIZATION)).get(0));
         Response response = new Response(request);
         try {
             logger.info("Processing request :: action: {} :: api call id: {}", HCX_STATUS, request.getApiCallId());
@@ -72,8 +71,8 @@ public class StatusController extends BaseController {
     }
 
     @PostMapping(HCX_ONSTATUS)
-    public ResponseEntity<Object> onStatus(@RequestBody Map<String, Object> requestBody) throws Exception {
-        Request request = new Request(requestBody, HCX_ONSTATUS);
+    public ResponseEntity<Object> onStatus(@RequestHeader HttpHeaders headers, @RequestBody Map<String, Object> requestBody) throws Exception {
+        Request request = new Request(requestBody, HCX_ONSTATUS, Objects.requireNonNull(headers.get(AUTHORIZATION)).get(0));
         Response response = new Response(request);
         try {
             logger.info("Processing request :: action: {} :: api call id: {}", HCX_ONSTATUS, request.getApiCallId());

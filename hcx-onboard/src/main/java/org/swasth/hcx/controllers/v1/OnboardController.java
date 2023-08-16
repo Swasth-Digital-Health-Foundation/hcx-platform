@@ -100,7 +100,7 @@ public class OnboardController extends BaseController {
     @PostMapping(ONBOARD_USER_INVITE)
     public ResponseEntity<Object> userInvite(@RequestHeader HttpHeaders headers, @RequestBody Map<String, Object> requestBody) throws Exception {
         try {
-            return getSuccessResponse(service.userInvite(requestBody,headers));
+            return getSuccessResponse(service.userInvite(requestBody, headers));
         } catch (Exception e) {
             return exceptionHandler("", ONBOARD_USER_INVITE, new Response(), e);
         }

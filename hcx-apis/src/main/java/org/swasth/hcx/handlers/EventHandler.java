@@ -97,12 +97,12 @@ public class EventHandler {
         kafkaClient.send(auditTopic , (String) ((Map<String,Object>) event.get(Constants.OBJECT)).get(Constants.TYPE) , JSONUtils.serialize(event));
     }
 
-    public void createRetryEvent(String mid) throws Exception {
+    public void createRetryEvent(String jwtToken, String mid) throws Exception {
         String query = String.format("SELECT * from %s WHERE mid ='%s'", postgresTableName, mid);
         ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(query);
         if(resultSet.next()){
             String action = resultSet.getString(Constants.ACTION);
-            Request request = new Request(JSONUtils.deserialize(resultSet.getString(Constants.DATA), Map.class), action);
+            Request request = new Request(JSONUtils.deserialize(resultSet.getString(Constants.DATA), Map.class), action,jwtToken);
             request.setMid(resultSet.getString(Constants.MID));
             request.setApiAction(action);
             String event = eventGenerator.generateMetadataEvent(request);
@@ -112,5 +112,4 @@ public class EventHandler {
             throw new ClientException("Invalid mid, request does not exist");
         }
     }
-
 }
