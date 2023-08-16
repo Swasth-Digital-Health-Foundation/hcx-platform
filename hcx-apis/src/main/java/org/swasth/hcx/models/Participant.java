@@ -3,9 +3,9 @@ package org.swasth.hcx.models;
 import org.apache.commons.lang3.StringUtils;
 import org.swasth.common.utils.SlugUtils;
 
+import java.security.SecureRandom;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import static org.swasth.common.utils.Constants.*;
 
@@ -55,7 +55,7 @@ public class Participant {
             return getApplicantCode();
         } else {
             // generate random 6 digit number
-            int random = new Random().nextInt(999999 - 100000 + 1) + 100000;
+            int random = new SecureRandom().nextInt(999999 - 100000 + 1) + 100000;
             return String.valueOf(random);
         }
     }
