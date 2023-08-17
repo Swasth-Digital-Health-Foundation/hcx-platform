@@ -203,7 +203,6 @@ public class OnboardService extends BaseController {
         }
         participant.put(USER_ID, userId);
         sendVerificationLink(participant);
-        addUser(headers, createTenantRequest(userId, participantCode)); //adding record to keycloak
         updateResponse(output, identityVerified, participantCode, userId, isUserExists);
         auditIndexer.createDocument(eventGenerator.getOnboardVerifyEvent(request, participantCode));
         logger.info("Verification link  has been sent successfully :: participant code : " + participantCode + " :: primary email : " + participant.get(PRIMARY_EMAIL));
@@ -252,15 +251,29 @@ public class OnboardService extends BaseController {
         String userId = user.getEmail();
         if(isUserExists(user, headers)){
             addUser(headers, getAddUserRequestBody(userId, participantCode, roles));
-            logger.info("User is already existing, adding to the organisation: {}", participantCode);
+            logger.info("User is already exist, adding to the organisation: {}", participantCode);
         } else {
-            for(String role: roles){
-                user.addTenantRole(participantCode, role);
-            }
+            user.setTenantRoles(new ArrayList<>());
             userId = createEntity(USER_CREATE, JSONUtils.serialize(user), getHeadersMap(headers), ErrorCodes.ERR_INVALID_USER_DETAILS, USER_ID);
             logger.info("Created user: " + userId);
+            Thread.sleep(3000);
+            if (roles.isEmpty()) {
+                addUser(headers, createTenantRequest(userId, participantCode)); //adding record to keycloak
+            } else addUser(headers,addRoles(roles,participantCode,userId));
+
         }
         return userId;
+    }
+
+    public String addRoles(List<String> roles, String participantCode, String userId) throws JsonProcessingException {
+        List<Map<String, Object>> tenantList = new ArrayList<>();
+        Map<String, Object> request = new HashMap<>();
+        request.put(PARTICIPANT_CODE, participantCode);
+        for (String role : roles) {
+            tenantList.add(createTenantList(userId, role));
+        }
+        request.put(USERS, tenantList);
+        return JSONUtils.serialize(request);
     }
 
     private static void updateResponse(Map<String, Object> output, String identityVerified, String participantCode, String userId, boolean isUserExists) {
@@ -744,6 +757,7 @@ public class OnboardService extends BaseController {
         // participant
         emailService.sendMail((String) participantDetails.get(PRIMARY_EMAIL),Collections.singletonList(token.getInvitedBy()),userInviteAcceptSub,userInviteAcceptParticipantTemplate((String) participantDetails.get(PARTICIPANT_NAME),user.getUsername(),(String) user.getTenantRoles().get(0).getOrDefault(ROLE, "")));
         auditIndexer.createDocument(eventGenerator.getOnboardUserInviteAccepted(user,participantDetails));
+        Thread.sleep(2000);
         return getSuccessResponse();
     }
 
@@ -1206,7 +1220,6 @@ public class OnboardService extends BaseController {
                 onboardingVerifierTable, email, applicantCode, verifierCode, status, System.currentTimeMillis(), System.currentTimeMillis());
         postgreSQLClient.execute(query);
     }
-  
     public String createTenantRequest(String userId, String participantCode) throws JsonProcessingException {
         Map<String, Object> request = new HashMap<>();
         request.put(PARTICIPANT_CODE, participantCode);
@@ -1221,14 +1234,5 @@ public class OnboardService extends BaseController {
         user.put(USER_ID, userId);
         user.put(ROLE, role);
         return user;
-    }
-
-    private String createTenantExistUser(String participantCode, String userId, String role) throws JsonProcessingException {
-        Map<String, Object> request = new HashMap<>();
-        request.put(PARTICIPANT_CODE, participantCode);
-        List<Map<String, Object>> tenantList = new ArrayList<>();
-        tenantList.add(createTenantList(userId, role));
-        request.put(USERS, tenantList);
-        return JSONUtils.serialize(request);
     }
 }
