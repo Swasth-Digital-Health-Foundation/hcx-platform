@@ -736,9 +736,9 @@ public class OnboardService extends BaseController {
         updateInviteStatus(user.getEmail(), "accepted");
         Map<String,Object> participantDetails = getParticipant(PARTICIPANT_CODE, token.getParticipantCode());
         // user
-        emailService.sendMail(user.getEmail(), Collections.singletonList(token.getInvitedBy()), userInviteAcceptSub, userInviteAcceptTemplate(user.getUserId(), (String) participantDetails.get(PARTICIPANT_NAME), user.getUsername(),user.getRole()));
+        emailService.sendMail(user.getEmail(), Collections.singletonList(token.getInvitedBy()), userInviteAcceptSub, userInviteAcceptTemplate(user.getUserId(), (String) participantDetails.get(PARTICIPANT_NAME), user.getUsername(),(String) user.getTenantRoles().get(0).getOrDefault(ROLE, "")));
         // participant
-        emailService.sendMail((String) participantDetails.get(PRIMARY_EMAIL),Collections.singletonList(token.getInvitedBy()),userInviteAcceptSub,userInviteAcceptParticipantTemplate((String) participantDetails.get(PARTICIPANT_NAME),user.getUsername(),user.getRole()));
+        emailService.sendMail((String) participantDetails.get(PRIMARY_EMAIL),Collections.singletonList(token.getInvitedBy()),userInviteAcceptSub,userInviteAcceptParticipantTemplate((String) participantDetails.get(PARTICIPANT_NAME),user.getUsername(),(String) user.getTenantRoles().get(0).getOrDefault(ROLE, "")));
         auditIndexer.createDocument(eventGenerator.getOnboardUserInviteAccepted(user,participantDetails));
         return getSuccessResponse();
     }
