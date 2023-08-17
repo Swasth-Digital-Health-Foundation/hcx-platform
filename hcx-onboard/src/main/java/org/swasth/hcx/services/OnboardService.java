@@ -203,6 +203,7 @@ public class OnboardService extends BaseController {
         }
         participant.put(USER_ID, userId);
         sendVerificationLink(participant);
+        addUser(headers, createTenantRequest(userId, participantCode)); //adding record to keycloak
         updateResponse(output, identityVerified, participantCode, userId, isUserExists);
         auditIndexer.createDocument(eventGenerator.getOnboardVerifyEvent(request, participantCode));
         logger.info("Verification link  has been sent successfully :: participant code : " + participantCode + " :: primary email : " + participant.get(PRIMARY_EMAIL));
@@ -749,7 +750,7 @@ public class OnboardService extends BaseController {
     private void addUser(HttpHeaders headers, String requestBody) throws Exception {
         HttpResponse<String> response = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_USER_ADD, requestBody, getHeadersMap(headers));
         if (response.getStatus() != 200) {
-            Response resp = JSONUtils.deserialize(response.getBody(), Response.class);
+            Response resp = new Response(JSONUtils.deserialize(response.getBody(), Map.class));
             throw new ClientException(resp.getError().getCode(), resp.getError().getMessage());
         }
     }
@@ -1195,4 +1196,39 @@ public class OnboardService extends BaseController {
         return response;
     }
 
+    private void updateStatus(String email, String status) throws Exception {
+        String query = String.format("UPDATE %s SET status='%s',updatedOn=%d WHERE applicant_email='%s'", onboardingVerifierTable, status, System.currentTimeMillis(), email);
+        postgreSQLClient.execute(query);
+    }
+
+    private void updateIdentityStatus(String email, String applicantCode, String verifierCode, String status) throws Exception {
+        String query = String.format("INSERT INTO %s (applicant_email,applicant_code,verifier_code,status,createdOn,updatedOn) VALUES ('%s','%s','%s','%s',%d,%d) ON CONFLICT (applicant_email) DO NOTHING;",
+                onboardingVerifierTable, email, applicantCode, verifierCode, status, System.currentTimeMillis(), System.currentTimeMillis());
+        postgreSQLClient.execute(query);
+    }
+  
+    public String createTenantRequest(String userId, String participantCode) throws JsonProcessingException {
+        Map<String, Object> request = new HashMap<>();
+        request.put(PARTICIPANT_CODE, participantCode);
+        List<Map<String, Object>> tenantList = new ArrayList<>();
+        tenantList.add(createTenantList(userId,ADMIN));
+        tenantList.add(createTenantList(userId, CONFIG_MANAGER));
+        request.put(USERS, tenantList);
+        return JSONUtils.serialize(request);
+    }
+    private Map<String, Object> createTenantList(String userId, String role) {
+        Map<String, Object> user = new HashMap<>();
+        user.put(USER_ID, userId);
+        user.put(ROLE, role);
+        return user;
+    }
+
+    private String createTenantExistUser(String participantCode, String userId, String role) throws JsonProcessingException {
+        Map<String, Object> request = new HashMap<>();
+        request.put(PARTICIPANT_CODE, participantCode);
+        List<Map<String, Object>> tenantList = new ArrayList<>();
+        tenantList.add(createTenantList(userId, role));
+        request.put(USERS, tenantList);
+        return JSONUtils.serialize(request);
+    }
 }

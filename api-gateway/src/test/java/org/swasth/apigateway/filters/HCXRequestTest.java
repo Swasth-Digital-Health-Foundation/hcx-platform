@@ -110,6 +110,7 @@ class HCXRequestTest extends BaseSpec {
                 });
     }
 
+
     @Test
     void check_hcx_request_access_denied_api_access_token_without_admin_role() throws Exception {
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))

@@ -139,3 +139,15 @@ keycloak:
   user-realm-private-key-path: ${keycloak_user_realm_private_key_path:} 
   participant-realm-private-key-path: ${keycloak_participant_realm_private_key_path:}
   protocol-api-access-private-key-path: ${keycloak_protocol_api_access_realm_private_key_path:}
+  admin-client-id: ${admin_cli_client_id:admin-cli}
+  base-url: ${keycloak_base_url:https://dev-hcx.swasth.app/auth}
+  admin-user: ${keycloack_admin_user_name:admin}
+  admin-password: ${keycloak_admin_password:}
+  protocol-access-realm: ${protocol_access_realm:api-access}
+  master-realm: ${keycloak_master_realm:master}
+
+email:
+  id: ${email_id:}
+  pwd: ${email_pwd:}
+  user-token-subject: ${token_generate_subject:HCX - Protocol APIs Access Token Generation credentials}
+  user-token-message: ${user_token_message:Hi <b>NAME</b>,<br/><br/> Along with participant username and password, api access token can be generated using the following credentials. <br/> <ul><li> user_name -  USER_ID </li> <li> secret - PASSWORD</li><li> participant_code - PARTICIPANT_CODE</li></ul> This API Access token can be used to make protocol API requests.  Please refer to the instructions provided in the <a href = "https://github.com/Swasth-Digital-Health-Foundation/hcx-platform/blob/main/docs/user-manuals/How%20to%20generate%20an%20access%20token%20to%20make%20use%20of%20protocol%20APIs/README.md">link</a> to generate access token. <br/><br/> If you have any queries, Please reach out HCX team.  <br/><br/> Thanks and Regards <br/> HCX Team.}

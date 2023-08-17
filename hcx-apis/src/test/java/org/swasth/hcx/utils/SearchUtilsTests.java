@@ -13,7 +13,7 @@ import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@ContextConfiguration(classes={SearchUtil.class,NotificationService.class, EventHandler.class, ParticipantService.class , UserService.class, BaseRegistryService.class, JWTService.class})
+@ContextConfiguration(classes={SearchUtil.class,NotificationService.class, EventHandler.class, ParticipantService.class , UserService.class, BaseRegistryService.class, JWTService.class, EmailService.class})
 class SearchUtilsTests extends BaseSpec {
 
     @Test
