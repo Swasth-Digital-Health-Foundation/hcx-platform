@@ -17,7 +17,6 @@ object Constants {
   val PAYMENT_NOTICE_ONREQUEST = "/paymentnotice/on_request"
   val COMMUNICATION_REQUEST = "/communication/request"
   val COMMUNICATION_ONREQUEST = "/communication/on_request"
-  //Predetermination APIs
   val PREDETERMINATION_SUBMIT = "/predetermination/submit"
   val PREDETERMINATION_ONSUBMIT = "/predetermination/on_submit"
   val EOB_FETCH = "/eob/fetch"

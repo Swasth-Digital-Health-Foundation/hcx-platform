@@ -12,7 +12,7 @@ import java.util.Map;
 
 public class FetchProcessFunction extends BaseDispatcherFunction {
 
-    private Logger logger = LoggerFactory.getLogger(ClaimsProcessFunction.class);
+    private final Logger logger = LoggerFactory.getLogger(ClaimsProcessFunction.class);
     private ProtocolRequestProcessorConfig config;
 
     public FetchProcessFunction(ProtocolRequestProcessorConfig config) {

@@ -32,6 +32,7 @@
         <module>notification-job</module>
         <module>notification-trigger-job</module>
         <module>fetch-job</module>
+        <module>protocol-request-processor</module>
     </modules>
     <properties>
         <!-- maven specific properties -->
