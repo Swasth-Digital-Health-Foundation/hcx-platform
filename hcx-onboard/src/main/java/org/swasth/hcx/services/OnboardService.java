@@ -248,9 +248,9 @@ public class OnboardService extends BaseController {
     }
 
     private String createOrAddUser(HttpHeaders headers, User user, String participantCode, List<String> roles) throws Exception {
-        String userId = user.getUserId();
+        String userId = user.getEmail();
         if(isUserExists(user, headers)){
-            addUser(headers, getAddUserRequestBody(user.getUserId(), participantCode, roles));
+            addUser(headers, getAddUserRequestBody(userId, participantCode, roles));
             logger.info("User is already existing, adding to the organisation: {}", participantCode);
         } else {
             user.addTenantRole(participantCode, ADMIN);
