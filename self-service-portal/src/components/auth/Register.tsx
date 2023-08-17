@@ -286,7 +286,13 @@ export default function Register() {
           //setState({ ...formState, ...(formData[0]), ...{ "participant_code": _.get(data, 'data.result.participant_code'), "verifier_code": payor.participant_code, "identity_verification": _.get(data, 'data.result.identity_verification') } })
           setTimeout(() => {
             dispatch(addAppData({ username: email }));
-            setShowPassword(true);
+            console.log("data in register", data);
+              if(data["data"]["result"]["is_user_exists"]){
+                navigate("/onboarding/dashboard")
+              }else{
+                setShowPassword(true);
+              }
+            
             setShowLoader(false);
             setCheckBasic(true);
             setCheckVerify(true);
@@ -489,12 +495,12 @@ export default function Register() {
                             {/*First radio*/}
                             <div className="flex mb-3">
                               <div className="flex items-center mr-4">
-                                <input id="inline-radio-2" type="radio" defaultValue="mock_payor" name="inline-radio-group" className="radio-primary"
+                                <input id="inline-radio-2" type="radio" defaultValue="mock_payor" name="inline-radio-group1" className="radio-primary"
                                   onClick={() => { setRadioOnboard('mock_payor'); setShowVerify(false) }} defaultChecked></input>
                                 <label htmlFor="inline-radio-2" className="ml-2 label-primary">Mock Payor</label>
                               </div>
                               <div className="flex items-center mr-4">
-                                <input id="inline-2-radio-2" type="radio" defaultValue="actual_payor" name="inline-radio-group" className="radio-primary"
+                                <input id="inline-2-radio-2" type="radio" defaultValue="actual_payor" name="inline-radio-group1" className="radio-primary"
                                   onClick={() => { setRadioOnboard('actual_payor'); setShowVerify(true) }} ></input>
                                 <label htmlFor="inline-2-radio-2" className="ml-2 label-primary">Actual Payor</label>
                               </div>
