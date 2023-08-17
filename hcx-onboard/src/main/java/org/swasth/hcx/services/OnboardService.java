@@ -146,10 +146,8 @@ public class OnboardService extends BaseController {
     private String emailConfig;
     @Value("${onboard.phone}")
     private String phoneConfig;
-
     @Autowired
     private SMSService smsService;
-
     @Autowired
     private EmailService emailService;
 
@@ -193,9 +191,8 @@ public class OnboardService extends BaseController {
         String participantCode = createEntity(PARTICIPANT_CREATE, JSONUtils.serialize(participant), getHeadersMap(headers), ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, PARTICIPANT_CODE);
         participant.put(PARTICIPANT_CODE, participantCode);
         User user = new User(participant.get(PARTICIPANT_NAME) + " Admin", (String) participant.get(PRIMARY_EMAIL), (String) participant.get(PRIMARY_MOBILE), participantCode);
-        user.addTenantRole(participantCode, ADMIN);
-        user.addTenantRole(participantCode, CONFIG_MANAGER);
-        String userId = createUser(headers, user);
+        boolean isUserExists = isUserExists(user, headers);
+        String userId = createOrAddUser(headers, user, participantCode, Arrays.asList(ADMIN, CONFIG_MANAGER));
         String query = String.format("INSERT INTO %s (participant_code,primary_email,primary_mobile,createdOn," +
                         "updatedOn,expiry,phone_verified,email_verified,status,attempt_count) VALUES ('%s','%s','%s',%d,%d,%d,%b,%b,'%s',%d)", onboardVerificationTable, participantCode,
                 participant.get(PRIMARY_EMAIL), participant.get(PRIMARY_MOBILE), System.currentTimeMillis(), System.currentTimeMillis(), System.currentTimeMillis(), false, false, PENDING, 0);
@@ -206,7 +203,7 @@ public class OnboardService extends BaseController {
         }
         participant.put(USER_ID, userId);
         sendVerificationLink(participant);
-        updateResponse(output, identityVerified, participantCode, userId);
+        updateResponse(output, identityVerified, participantCode, userId, isUserExists);
         auditIndexer.createDocument(eventGenerator.getOnboardVerifyEvent(request, participantCode));
         logger.info("Verification link  has been sent successfully :: participant code : " + participantCode + " :: primary email : " + participant.get(PRIMARY_EMAIL));
     }
@@ -245,17 +242,24 @@ public class OnboardService extends BaseController {
             participant.put(APPLICANT_CODE, request.getApplicantCode());
     }
 
-    private String createUser(HttpHeaders headers, User user) throws Exception {
+    private String createOrAddUser(HttpHeaders headers, User user, String participantCode, List<String> roles) throws Exception {
         logger.info("User Request Body: " + JSONUtils.serialize(user));
-        String userId = createEntity(USER_CREATE, JSONUtils.serialize(user), getHeadersMap(headers), ErrorCodes.ERR_INVALID_USER_DETAILS, USER_ID);
-        logger.info("Create user: " + userId);
+        String userId = user.getUserId();
+        if(isUserExists(user, headers)){
+            addUser(headers, getAddUserRequestBody(user.getUserId(), participantCode, roles));
+            logger.info("User is already existing, adding to the organisation: {}", participantCode);
+        } else {
+            userId = createEntity(USER_CREATE, JSONUtils.serialize(user), getHeadersMap(headers), ErrorCodes.ERR_INVALID_USER_DETAILS, USER_ID);
+            logger.info("Created user: " + userId);
+        }
         return userId;
     }
 
-    private static void updateResponse(Map<String, Object> output, String identityVerified, String participantCode, String userId) {
+    private static void updateResponse(Map<String, Object> output, String identityVerified, String participantCode, String userId, boolean isUserExists) {
         output.put(PARTICIPANT_CODE, participantCode);
         output.put(IDENTITY_VERIFICATION, identityVerified);
         output.put(USER_ID, userId);
+        output.put(IS_USER_EXISTS, isUserExists);
     }
 
     // TODO: change request body to pojo
@@ -723,12 +727,7 @@ public class OnboardService extends BaseController {
             throw new ClientException(ErrorCodes.ERR_INVALID_JWT, "Invalid JWT token signature");
         }
         User user = JSONUtils.deserialize(body.get("user"), User.class);
-        boolean isUserExists = isUserExists(user, headers);
-        if (isUserExists){
-            addUser(headers, getAddUserRequestBody(user.getUserId(), token.getParticipantCode(), token.getRole()));
-        } else {
-            user.setUserId(createUser(headers, user));
-        }
+        user.setUserId(createOrAddUser(headers, user, token.getParticipantCode(), Collections.singletonList(token.getRole())));
         updateInviteStatus(user.getEmail(), "accepted");
         Map<String,Object> participantDetails = getParticipant(PARTICIPANT_CODE, token.getParticipantCode());
         // user
@@ -754,14 +753,16 @@ public class OnboardService extends BaseController {
         return headersMap;
     }
 
-    private String getAddUserRequestBody(String userId, String participantCode, String userRole) throws JsonProcessingException {
+    private String getAddUserRequestBody(String userId, String participantCode, List<String> userRoles) throws JsonProcessingException {
         Map<String, Object> body = new HashMap<>();
         body.put(PARTICIPANT_CODE, participantCode);
-        Map<String, Object> user = new HashMap<>();
-        user.put(USER_ID, userId);
-        user.put(ROLE, userRole);
         List<Map<String, Object>> users = new ArrayList<>();
-        users.add(user);
+        for(String userRole: userRoles){
+            Map<String, Object> user = new HashMap<>();
+            user.put(USER_ID, userId);
+            user.put(ROLE, userRole);
+            users.add(user);
+        }
         body.put(USERS, users);
         return JSONUtils.serialize(body);
     }
