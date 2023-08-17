@@ -18,20 +18,11 @@
     <url>https://swasth.org/</url>
     <modules>
         <module>core</module>
-        <module>coverage-eligibility-job</module>
-        <module>preauth-job</module>
-        <module>claims-job</module>
-        <module>payments-job</module>
-        <module>status-job</module>
         <module>composite-search-job</module>
         <module>search-response-job</module>
         <module>jobs-distribution</module>
-        <module>communication-job</module>
-        <module>predetermination-job</module>
-        <module>retry-job</module>
         <module>notification-job</module>
         <module>notification-trigger-job</module>
-        <module>fetch-job</module>
         <module>protocol-request-processor</module>
     </modules>
     <properties>

@@ -98,6 +98,11 @@
             <version>1.0.0</version>
             <type>jar</type>
         </dependency>
+        <dependency>
+            <groupId>org.swasth</groupId>
+            <artifactId>protocol-request-processor</artifactId>
+            <version>1.0.0</version>
+        </dependency>
     </dependencies>
 
     <build>
