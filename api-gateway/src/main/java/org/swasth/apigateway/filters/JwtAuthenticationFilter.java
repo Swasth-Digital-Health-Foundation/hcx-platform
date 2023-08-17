@@ -118,7 +118,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
                 return chain.filter(exchange.mutate().request(request).build());
 
             } catch (Exception e) {
-                return exceptionHandler.errorResponse(e, exchange, null, null, new BaseRequest());
+                return exceptionHandler.errorResponse(exchange.getRequest().getHeaders(), e, exchange, null, null, new BaseRequest());
             }
         } else {
             return chain.filter(exchange);

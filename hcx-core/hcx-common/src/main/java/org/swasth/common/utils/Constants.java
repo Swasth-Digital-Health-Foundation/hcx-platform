@@ -90,6 +90,7 @@ public class Constants {
     public static final String TENANT_ROLES = "tenant_roles";
     public static final String REALM_ACCESS = "realm_access";
     public static final String USER_ID = "user_id";
+    public static final String IS_USER_EXISTS = "is_user_exists";
     public static final String EMAIL = "email";
     public static final String MOBILE = "mobile";
     public static final List<String>NOT_ALLOWED_FIELDS_FOR_UPDATE = Arrays.asList(TENANT_ROLES,EMAIL,MOBILE);
