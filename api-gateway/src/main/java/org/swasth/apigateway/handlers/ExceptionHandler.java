@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.buffer.DataBufferFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
@@ -35,7 +36,7 @@ public class ExceptionHandler {
     @Autowired
     private AuditService auditService;
 
-    public Mono<Void> errorResponse(Exception e, ServerWebExchange exchange, String correlationId, String apiCallId, BaseRequest request) {
+    public Mono<Void> errorResponse(HttpHeaders headers , Exception e, ServerWebExchange exchange, String correlationId, String apiCallId, BaseRequest request) {
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         ErrorCodes errorCode = ErrorCodes.INTERNAL_SERVER_ERROR;
         Exception ex = e;
@@ -54,7 +55,7 @@ public class ExceptionHandler {
         try {
             if (request.getApiAction() != null && Constants.ALLOWED_ENTITIES_ERROR_AUDIT_CREATION.contains(request.getEntity(request.getApiAction()))) {
                 request.setErrorDetails(JSONUtils.deserialize(JSONUtils.serialize(new ResponseError(errorCode, e.getMessage(), e.getCause())), Map.class));
-                auditService.createAuditLog(request);
+                auditService.createAuditLog(headers, request);
             }
         } catch (Exception exception) {
             logger.error(MessageFormat.format(AUDIT_LOG_MSG, exception.getMessage()));

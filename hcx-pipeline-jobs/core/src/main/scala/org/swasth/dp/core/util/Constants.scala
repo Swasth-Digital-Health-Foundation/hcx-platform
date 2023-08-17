@@ -186,4 +186,5 @@ object Constants {
   val SENDER_LIST = "sender_list"
   val SUBSCRIPTION_MAP = "subscription_map"
   val PAYLOAD_SIZE = "payload_size"
+  val USER_ID = "user_id"
 }
