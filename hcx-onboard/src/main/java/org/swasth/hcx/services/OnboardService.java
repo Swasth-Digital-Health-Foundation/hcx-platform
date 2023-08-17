@@ -212,7 +212,7 @@ public class OnboardService extends BaseController {
             int random = new SecureRandom().nextInt(999999 - 100000 + 1) + 100000;
             request.setApplicantCode(String.valueOf(random));
         }
-        String query = String.format("INSERT INTO %s (applicant_email,applicant_code,verifier_code,status,createdOn,updatedOn,participant_code) VALUES ('%s','%s','%s','%s',%d,%d,%s);",
+        String query = String.format("INSERT INTO %s (applicant_email,applicant_code,verifier_code,status,createdOn,updatedOn,participant_code) VALUES ('%s','%s','%s','%s',%d,%d,'%s');",
                 onboardingVerifierTable, request.getPrimaryEmail(), request.getApplicantCode(), request.getVerifierCode(), status, System.currentTimeMillis(), System.currentTimeMillis(), participantCode);
         postgreSQLClient.execute(query);
     }
