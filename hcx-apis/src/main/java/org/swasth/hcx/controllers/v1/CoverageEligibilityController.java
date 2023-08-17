@@ -2,20 +2,18 @@ package org.swasth.hcx.controllers.v1;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.swasth.common.dto.Request;
-import org.swasth.common.dto.Response;
 import org.swasth.common.service.RegistryService;
 import org.swasth.common.utils.Constants;
 import org.swasth.hcx.controllers.BaseController;
-import org.swasth.hcx.service.NotificationService;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 import static org.swasth.common.utils.Constants.*;
 
@@ -30,13 +28,13 @@ public class CoverageEligibilityController extends BaseController {
     private RegistryService registryService;
 
     @PostMapping(Constants.COVERAGE_ELIGIBILITY_CHECK)
-    public ResponseEntity<Object> checkCoverageEligibility(@RequestBody Map<String, Object> requestBody) throws Exception {
-        return validateReqAndPushToKafka(requestBody, Constants.COVERAGE_ELIGIBILITY_CHECK, kafkaTopic);
+    public ResponseEntity<Object> checkCoverageEligibility(@RequestHeader HttpHeaders headers, @RequestBody Map<String, Object> requestBody) throws Exception {
+        return validateReqAndPushToKafka(headers, requestBody, Constants.COVERAGE_ELIGIBILITY_CHECK, kafkaTopic);
     }
 
     @PostMapping(Constants.COVERAGE_ELIGIBILITY_ONCHECK)
-    public ResponseEntity<Object> onCheckCoverageEligibility(@RequestBody Map<String, Object> requestBody) throws Exception {
-        Request request = new Request(requestBody, Constants.COVERAGE_ELIGIBILITY_ONCHECK);
+    public ResponseEntity<Object> onCheckCoverageEligibility(@RequestHeader HttpHeaders headers, @RequestBody Map<String, Object> requestBody) throws Exception {
+        Request request = new Request(requestBody, Constants.COVERAGE_ELIGIBILITY_ONCHECK, Objects.requireNonNull(headers.get(AUTHORIZATION)).get(0));
         // fetch the recipient roles,create request body with filters for registry search
         List<Map<String,Object>> participantResponse = registryService.getDetails("{ \"filters\": { \"participant_code\": { \"eq\": \" " + request.getHcxRecipientCode() + "\" } } }");
         List<String> roles = (List) (participantResponse.get(0)).get(ROLES);
