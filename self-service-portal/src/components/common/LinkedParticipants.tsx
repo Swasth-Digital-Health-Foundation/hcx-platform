@@ -27,7 +27,7 @@ const LinkedParticipant = () => {
         getParticipantByCode(value.participant_code).then(res => {
           console.log("participant info", res);
           data.push({"participantcode":value.participant_code,"email":res["data"]["participants"][0]["primary_email"],"role":value.role,"status":res["data"]["participants"][0]["status"],"organization":res["data"]["participants"][0]["participant_name"]})
-          setData(_.uniqBy(data, function(elem) { return [elem.email, elem.role].join(); }).map((value, index) => { return value }));
+          setData(_.uniqBy(data, function(elem) { return [elem.email, elem.participantcode, elem.role].join(); }).map((value, index) => { return value }));
         })
       })
      console.log("participant data updated", data); 
