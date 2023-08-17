@@ -40,6 +40,7 @@ import javax.annotation.Resource;
 import java.io.IOException;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -180,7 +181,7 @@ public class OnboardService extends BaseController {
         logger.info("Participant verification :: " + body);
         OnboardRequest request = new OnboardRequest(body);
         Map<String, Object> output = new HashMap<>();
-        updateIdentityStatus(request.getPrimaryEmail(), request.getApplicantCode(), request.getVerifierCode(), PENDING);
+        updateIdentityStatus(request);
         onboardProcess(header, request, output);
         return getSuccessResponse(new Response(output));
     }
@@ -1190,9 +1191,13 @@ public class OnboardService extends BaseController {
         postgreSQLClient.execute(query);
     }
 
-    private void updateIdentityStatus(String email, String applicantCode, String verifierCode, String status) throws Exception {
+    private void updateIdentityStatus(OnboardRequest request) throws Exception {
+        if (request.getRoles().contains(PAYOR)){
+            int random = new SecureRandom().nextInt(999999 - 100000 + 1) + 100000;
+            request.setApplicantCode(String.valueOf(random));
+        }
         String query = String.format("INSERT INTO %s (applicant_email,applicant_code,verifier_code,status,createdOn,updatedOn) VALUES ('%s','%s','%s','%s',%d,%d);",
-                onboardingVerifierTable, email, applicantCode, verifierCode, status, System.currentTimeMillis(), System.currentTimeMillis());
+                onboardingVerifierTable, request.getPrimaryEmail(), request.getApplicantCode(), request.getVerifierCode(), org.swasth.common.utils.Constants.PENDING, System.currentTimeMillis(), System.currentTimeMillis());
         postgreSQLClient.execute(query);
     }
 
