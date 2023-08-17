@@ -248,7 +248,6 @@ public class OnboardService extends BaseController {
     }
 
     private String createOrAddUser(HttpHeaders headers, User user, String participantCode, List<String> roles) throws Exception {
-        logger.info("User Request Body: " + JSONUtils.serialize(user));
         String userId = user.getUserId();
         if(isUserExists(user, headers)){
             addUser(headers, getAddUserRequestBody(user.getUserId(), participantCode, roles));
