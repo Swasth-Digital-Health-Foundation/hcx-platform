@@ -253,6 +253,8 @@ public class OnboardService extends BaseController {
             addUser(headers, getAddUserRequestBody(user.getUserId(), participantCode, roles));
             logger.info("User is already existing, adding to the organisation: {}", participantCode);
         } else {
+            user.addTenantRole(participantCode, ADMIN);
+            user.addTenantRole(participantCode, CONFIG_MANAGER);
             userId = createEntity(USER_CREATE, JSONUtils.serialize(user), getHeadersMap(headers), ErrorCodes.ERR_INVALID_USER_DETAILS, USER_ID);
             logger.info("Created user: " + userId);
         }
