@@ -179,7 +179,6 @@ public class OnboardService extends BaseController {
         logger.info("Participant verification :: " + body);
         OnboardRequest request = new OnboardRequest(body);
         Map<String, Object> output = new HashMap<>();
-        updateIdentityStatus(request);
         onboardProcess(header, request, output);
         return getSuccessResponse(new Response(output));
     }
@@ -189,6 +188,7 @@ public class OnboardService extends BaseController {
         String identityVerified = verifyParticipantIdentity(request);
         addParticipantDetails(participant, request);
         String participantCode = createEntity(PARTICIPANT_CREATE, JSONUtils.serialize(participant), getHeadersMap(headers), ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, PARTICIPANT_CODE);
+        updateIdentityDetails(participantCode, request, identityVerified);
         participant.put(PARTICIPANT_CODE, participantCode);
         User user = new User(participant.get(PARTICIPANT_NAME) + " Admin", (String) participant.get(PRIMARY_EMAIL), (String) participant.get(PRIMARY_MOBILE), participantCode);
         boolean isUserExists = isUserExists(user, headers);
@@ -207,17 +207,22 @@ public class OnboardService extends BaseController {
         auditIndexer.createDocument(eventGenerator.getOnboardVerifyEvent(request, participantCode));
         logger.info("Verification link  has been sent successfully :: participant code : " + participantCode + " :: primary email : " + participant.get(PRIMARY_EMAIL));
     }
+    private void updateIdentityDetails(String participantCode, OnboardRequest request, String status) throws Exception {
+        if (request.getRoles().contains(PAYOR)){
+            int random = new SecureRandom().nextInt(999999 - 100000 + 1) + 100000;
+            request.setApplicantCode(String.valueOf(random));
+        }
+        String query = String.format("INSERT INTO %s (applicant_email,applicant_code,verifier_code,status,createdOn,updatedOn,participant_code) VALUES ('%s','%s','%s','%s',%d,%d,%s);",
+                onboardingVerifierTable, request.getPrimaryEmail(), request.getApplicantCode(), request.getVerifierCode(), status, System.currentTimeMillis(), System.currentTimeMillis(), participantCode);
+        postgreSQLClient.execute(query);
+    }
 
     private String verifyParticipantIdentity(OnboardRequest request) throws Exception {
         String identityVerified = PENDING;
         if (ONBOARD_FOR_PROVIDER.contains(request.getType())) {
-            String query = String.format("SELECT * FROM %s WHERE applicant_email ILIKE '%s' AND status IN ('%s', '%s')", onboardingVerifierTable, request.getPrimaryEmail(), PENDING, REJECTED);
-            ResultSet result = (ResultSet) postgreSQLClient.executeQuery(query);
-            if (result.next()) {
-                identityVerified = identityVerify(getApplicantBody(request));
-                if (StringUtils.equalsIgnoreCase(identityVerified, REJECTED))
-                    throw new ClientException("Identity verification is rejected by the payer, Please reach out to them.");
-            }
+            identityVerified = identityVerify(getApplicantBody(request));
+            if (StringUtils.equalsIgnoreCase(identityVerified, REJECTED))
+                throw new ClientException("Identity verification is rejected by the payer, Please reach out to them.");
         }
         return identityVerified;
     }
@@ -279,7 +284,7 @@ public class OnboardService extends BaseController {
         if (!requestBody.containsKey(ROLES)) {
             requestBody = getParticipant(PARTICIPANT_CODE, (String) requestBody.get(PARTICIPANT_CODE));
         }
-        String query = String.format("SELECT regenerate_count, last_regenerate_date, email_verified, phone_verified FROM %s WHERE primary_email='%s'", onboardVerificationTable, (String) requestBody.get(PRIMARY_EMAIL));
+        String query = String.format("SELECT regenerate_count, last_regenerate_date, email_verified, phone_verified FROM %s WHERE participant_code='%s'", onboardVerificationTable, requestBody.get(PARTICIPANT_CODE));
         ResultSet result = (ResultSet) postgreSQLClient.executeQuery(query);
         if (!result.next()) {
             throw new ClientException(ErrorCodes.ERR_INVALID_REQUEST, INVALID_EMAIL);
@@ -311,8 +316,8 @@ public class OnboardService extends BaseController {
             }
         }
         regenerateCount++;
-        String updateQuery = String.format("UPDATE %s SET updatedOn=%d, expiry=%d, regenerate_count=%d, last_regenerate_date='%s', phone_short_url='%s', phone_long_url='%s' WHERE primary_email='%s'",
-                onboardVerificationTable, System.currentTimeMillis(), System.currentTimeMillis() + linkExpiry, regenerateCount, currentDate, shortUrl, longUrl, (String) requestBody.get(PRIMARY_EMAIL));
+        String updateQuery = String.format("UPDATE %s SET updatedOn=%d, expiry=%d, regenerate_count=%d, last_regenerate_date='%s', phone_short_url='%s', phone_long_url='%s' WHERE participant_code='%s'",
+                onboardVerificationTable, System.currentTimeMillis(), System.currentTimeMillis() + linkExpiry, regenerateCount, currentDate, shortUrl, longUrl, (String) requestBody.get(PARTICIPANT_CODE));
         postgreSQLClient.execute(updateQuery);
         auditIndexer.createDocument(eventGenerator.getSendLinkEvent(requestBody, regenerateCount, currentDate));
         return getSuccessResponse(new Response());
@@ -416,7 +421,7 @@ public class OnboardService extends BaseController {
     private void updateParticipant(String participantCode, HttpHeaders headers, String communicationStatus) throws Exception{
         Map<String,Object> participantDetails = getParticipant(PARTICIPANT_CODE, participantCode);
         String identityStatus = "";
-        String onboardingQuery = String.format("SELECT * FROM %s WHERE applicant_email ILIKE '%s'", onboardingVerifierTable, participantDetails.get(PRIMARY_EMAIL));
+        String onboardingQuery = String.format("SELECT * FROM %s WHERE participant_code = '%s'", onboardingVerifierTable, participantCode);
         ResultSet resultSet1 = (ResultSet) postgreSQLClient.executeQuery(onboardingQuery);
         if (resultSet1.next()) {
             identityStatus = resultSet1.getString("status");
@@ -477,7 +482,7 @@ public class OnboardService extends BaseController {
         boolean phoneEnabled = validations.isPhoneEnabled();
         List<String> roles = (List<String>) participantDetails.get(ROLES);
         setOnboardValidations(participant, roles);
-        String otpQuery = String.format("SELECT * FROM %s WHERE primary_email ILIKE '%s'", onboardVerificationTable, email);
+        String otpQuery = String.format("SELECT * FROM %s WHERE participant_code = '%s'", onboardVerificationTable, participant.get(PARTICIPANT_CODE));
         ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(otpQuery);
         if (resultSet.next()) {
             emailVerified = resultSet.getBoolean(EMAIL_VERIFIED);
@@ -485,7 +490,7 @@ public class OnboardService extends BaseController {
             commStatus = resultSet.getString("status");
         }
 
-        String onboardingQuery = String.format("SELECT * FROM %s WHERE applicant_email ILIKE '%s'", onboardingVerifierTable, email);
+        String onboardingQuery = String.format("SELECT * FROM %s WHERE participant_code = '%s'", onboardingVerifierTable, participant.get(PARTICIPANT_CODE));
         ResultSet resultSet1 = (ResultSet) postgreSQLClient.executeQuery(onboardingQuery);
         if (resultSet1.next()) {
             identityStatus = resultSet1.getString("status");
@@ -568,26 +573,26 @@ public class OnboardService extends BaseController {
     }
 
     public ResponseEntity<Object> manualIdentityVerify(HttpHeaders headers, Map<String, Object> requestBody) throws Exception {
-        String applicantEmail = (String) requestBody.get(PRIMARY_EMAIL);
+        String participantCode = (String) requestBody.get(PARTICIPANT_CODE);
         String status = (String) requestBody.get(REGISTRY_STATUS);
         if (!ALLOWED_ONBOARD_STATUS.contains(status))
             throw new ClientException(ErrorCodes.ERR_INVALID_ONBOARD_STATUS, "Invalid onboard status, allowed values are: " + ALLOWED_ONBOARD_STATUS);
-        String query = String.format("UPDATE %s SET status='%s',updatedOn=%d WHERE applicant_email='%s'",
-                onboardingVerifierTable, status, System.currentTimeMillis(), applicantEmail);
+        String query = String.format("UPDATE %s SET status='%s',updatedOn=%d WHERE participant_code='%s'",
+                onboardingVerifierTable, status, System.currentTimeMillis(), participantCode);
         postgreSQLClient.execute(query);
-        auditIndexer.createDocument(eventGenerator.getManualIdentityVerifyEvent(applicantEmail, status));
+        auditIndexer.createDocument(eventGenerator.getManualIdentityVerifyEvent(participantCode, status));
         if (status.equals(ACCEPTED)) {
-            updateParticipant(headers, applicantEmail, status);
-            emailService.sendMail(applicantEmail, successIdentitySub, commonTemplate("identity-success.ftl"));
+            updateParticipant(headers, participantCode, status);
+
             return getSuccessResponse(new Response());
         } else {
             throw new ClientException(ErrorCodes.ERR_INVALID_IDENTITY, "Identity verification has failed");
         }
     }
 
-    private void updateParticipant(HttpHeaders headers, String email, String identityStatus) throws Exception{
-        Map<String,Object> participantDetails = getParticipant(PRIMARY_EMAIL, email);
-        String onboardingQuery = String.format("SELECT * FROM %s WHERE participant_code='%s'", onboardVerificationTable, participantDetails.get(PARTICIPANT_CODE));
+    private void updateParticipant(HttpHeaders headers, String code, String identityStatus) throws Exception{
+        Map<String,Object> participantDetails = getParticipant(PARTICIPANT_CODE, code);
+        String onboardingQuery = String.format("SELECT * FROM %s WHERE participant_code='%s'", onboardVerificationTable, code);
         ResultSet resultSet1 = (ResultSet) postgreSQLClient.executeQuery(onboardingQuery);
         String communicationStatus = "";
         if (resultSet1.next()) {
@@ -597,7 +602,7 @@ public class OnboardService extends BaseController {
         if (communicationStatus.equals(SUCCESSFUL) && identityStatus.equals(ACCEPTED)) {
             Map<String,Object> requestBody = new HashMap();
             requestBody.put(REGISTRY_STATUS, ACTIVE);
-            requestBody.put(PARTICIPANT_CODE, (String) participantDetails.get(PARTICIPANT_CODE));
+            requestBody.put(PARTICIPANT_CODE, participantDetails.get(PARTICIPANT_CODE));
 
             HttpResponse<String> httpResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_UPDATE, JSONUtils.serialize(requestBody), getHeadersMap(headers));
             if (httpResponse.getStatus() != 200) {
@@ -607,6 +612,8 @@ public class OnboardService extends BaseController {
                 generateAndSetPassword((String) participantDetails.get(PARTICIPANT_CODE));
             }
         }
+
+        emailService.sendMail((String) participantDetails.get(PRIMARY_EMAIL), successIdentitySub, commonTemplate("identity-success.ftl"));
     }
 
     public ResponseEntity<Object> getInfo(Map<String, Object> requestBody) throws Exception {
@@ -653,7 +660,6 @@ public class OnboardService extends BaseController {
         if (httpResp.getStatus() == 200) {
             Map<String, Object> payorResp = JSONUtils.deserialize(httpResp.getBody(), Map.class);
             result = (String) payorResp.get(RESULT);
-            updateStatus((String) requestBody.get(EMAIL), result);
         } else {
             response = JSONUtils.deserialize(httpResp.getBody(), Response.class);
             throw new ClientException(response.getError().getCode(), response.getError().getMessage());
@@ -945,12 +951,12 @@ public class OnboardService extends BaseController {
     }
 
     private void addSponsors(List<Map<String, Object>> participantsList) throws Exception {
-        String selectQuery = String.format("SELECT * FROM %S WHERE applicant_email IN (%s)", onboardingVerifierTable, getParticipantCodeList(participantsList, PRIMARY_EMAIL));
+        String selectQuery = String.format("SELECT * FROM %S WHERE participant_code IN (%s)", onboardingVerifierTable, getParticipantCodeList(participantsList, PARTICIPANT_CODE));
         ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
         Map<String, Object> sponsorMap = new HashMap<>();
         while (resultSet.next()) {
             Sponsor sponsorResponse = new Sponsor(resultSet.getString(APPLICANT_EMAIL), resultSet.getString(APPLICANT_CODE), resultSet.getString(VERIFIER_CODE), resultSet.getString(FORMSTATUS), resultSet.getLong("createdon"), resultSet.getLong("updatedon"));
-            sponsorMap.put(resultSet.getString(APPLICANT_EMAIL), sponsorResponse);
+            sponsorMap.put(resultSet.getString(PARTICIPANT_CODE), sponsorResponse);
         }
         filterSponsors(sponsorMap, participantsList);
     }
@@ -1002,9 +1008,9 @@ public class OnboardService extends BaseController {
 
     private void filterSponsors(Map<String, Object> sponsorMap, List<Map<String, Object>> participantsList) {
         for (Map<String, Object> responseList : participantsList) {
-            String email = (String) responseList.get(PRIMARY_EMAIL);
-            if (sponsorMap.containsKey(email)) {
-                responseList.put(SPONSORS, Collections.singletonList(sponsorMap.get(email)));
+            String code = (String) responseList.get(PARTICIPANT_CODE);
+            if (sponsorMap.containsKey(code)) {
+                responseList.put(SPONSORS, Collections.singletonList(sponsorMap.get(code)));
             }
         }
     }
@@ -1185,21 +1191,6 @@ public class OnboardService extends BaseController {
         Response response = new Response();
         response.setStatus(SUCCESSFUL);
         return response;
-    }
-
-    private void updateStatus(String email, String status) throws Exception {
-        String query = String.format("UPDATE %s SET status='%s',updatedOn=%d WHERE applicant_email='%s'", onboardingVerifierTable, status, System.currentTimeMillis(), email);
-        postgreSQLClient.execute(query);
-    }
-
-    private void updateIdentityStatus(OnboardRequest request) throws Exception {
-        if (request.getRoles().contains(PAYOR)){
-            int random = new SecureRandom().nextInt(999999 - 100000 + 1) + 100000;
-            request.setApplicantCode(String.valueOf(random));
-        }
-        String query = String.format("INSERT INTO %s (applicant_email,applicant_code,verifier_code,status,createdOn,updatedOn) VALUES ('%s','%s','%s','%s',%d,%d);",
-                onboardingVerifierTable, request.getPrimaryEmail(), request.getApplicantCode(), request.getVerifierCode(), org.swasth.common.utils.Constants.PENDING, System.currentTimeMillis(), System.currentTimeMillis());
-        postgreSQLClient.execute(query);
     }
 
 }
