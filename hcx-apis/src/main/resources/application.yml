@@ -37,7 +37,7 @@ registry:
   user-api-path: ${registry_user_api_path:/api/v1/User}
 
 participantCode:
-  fieldSeparator: ${participant_code_field_separator:.}
+  fieldSeparator: ${participant_code_field_separator:_}
 
 #postgres config
 postgres:
