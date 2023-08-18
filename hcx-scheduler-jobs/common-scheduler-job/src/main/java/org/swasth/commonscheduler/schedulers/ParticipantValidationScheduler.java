@@ -41,26 +41,32 @@ public class ParticipantValidationScheduler extends BaseScheduler {
     private int notificationExpiry;
     @Value("${certificate.expiry-days}")
     private List<Integer> beforeExpiryDaysList;
+    
 
     @Scheduled(fixedDelayString = "${fixedDelay.in.milliseconds.participantVerify}")
     public void process() throws Exception {
         logger.info("Participant validation scheduler started");
+        certExpiry(Constants.ENCRYPTION_CERT_EXPIRY);
+        certExpiry(Constants.SIGNING_CERT_PATH_EXPIRY);
+    }
+
+    public void certExpiry(String participantCert) throws Exception {
         String expiryMessage = "";
         String beforeExpiryMessage = "";
-        List<Map<String, Object>> participants = new ArrayList<>();
         List<String> expiredParticipantCodes = new ArrayList<>();
         List<String> aboutToExpireParticipantCodes = new ArrayList<>();
+        List<Map<String, Object>> participants = new ArrayList<>();
         for (int beforeExpiryDay : beforeExpiryDaysList) {
             long expiryTime = System.currentTimeMillis() + (1 + beforeExpiryDay) * 24L * 60 * 60 * 1000;
-            participants = registryService.getDetails("{ \"filters\": { \"encryption_cert_expiry\": { \"<\": " + expiryTime + " } } }");
+            participants = registryService.getDetails("{ \"filters\": { " + participantCert + ": { \"<\": " + expiryTime + " } } }");
             for (Map<String, Object> participant : participants) {
-                long certExpiry = (long) participant.get(Constants.ENCRYPTION_CERT_EXPIRY);
+                long certExpiry = (long) participant.get(participantCert);
                 String participantCode = (String) participant.get(Constants.PARTICIPANT_CODE);
-                long earlierDayTime = expiryTime - (24L * 60 * 60 * 1000) ;
+                long earlierDayTime = expiryTime - (24L * 60 * 60 * 1000);
                 if (certExpiry <= System.currentTimeMillis()) {
                     expiredParticipantCodes.add(participantCode);
                     expiryMessage = getTemplateMessage(expiryTopicCode);
-                } else if (certExpiry > earlierDayTime && certExpiry < expiryTime){
+                } else if (certExpiry > earlierDayTime && certExpiry < expiryTime) {
                     aboutToExpireParticipantCodes.add(participantCode);
                     beforeExpiryMessage = getTemplateMessage(beforeExpiryTopicCode).replace("${days}", String.valueOf(beforeExpiryDay));
                 }
@@ -71,7 +77,6 @@ public class ParticipantValidationScheduler extends BaseScheduler {
         generateEvent(expiredParticipantCodes, expiryMessage, expiryTopicCode);
         logger.info("Total number of participants with expired or expiring encryption certificate in {}", participants.size());
         logger.info("Participant validation scheduler ended");
-
     }
 
     private void generateEvent(List<String> participantCodes, String message, String topiCode) throws Exception {
@@ -81,6 +86,7 @@ public class ParticipantValidationScheduler extends BaseScheduler {
         kafkaClient.send(notifyTopic, Constants.NOTIFICATION, event);
         logger.info("Notify event is pushed to kafka: {}", event);
     }
+
     private String getTemplateMessage(String topicCode) throws Exception {
         return (String) JSONUtils.deserialize((String) (NotificationUtils.getNotification(topicCode).get(Constants.TEMPLATE)), Map.class).get(Constants.MESSAGE);
     }
