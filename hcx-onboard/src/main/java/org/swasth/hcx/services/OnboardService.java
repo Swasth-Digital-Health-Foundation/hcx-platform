@@ -451,7 +451,7 @@ public class OnboardService extends BaseController {
                 throw new ClientException(ErrorCodes.INTERNAL_SERVER_ERROR, "Error while updating participant details: " + httpResponse.getBody());
             }
             if (!StringUtils.equals((String) participantDetails.getOrDefault(REGISTRY_STATUS, ""), ACTIVE) && StringUtils.equals((String) requestBody.getOrDefault(REGISTRY_STATUS, ""), ACTIVE)) {
-                generateAndSetPassword((String) participantDetails.get(PARTICIPANT_CODE));
+                generateAndSetPassword(headers,(String) participantDetails.get(PARTICIPANT_CODE));
             }
         }
     }
@@ -470,16 +470,16 @@ public class OnboardService extends BaseController {
         return (Map<String, Object>) registryResponse.getParticipants().get(0);
     }
 
-    private Map<String, Object> userSearch(String requestBody, HttpHeaders headers) throws Exception {
+    private List<Map<String,Object>> userSearch(String requestBody, HttpHeaders headers) throws Exception {
         Map<String,String> headersMap = new HashMap<>();
         Token token = new Token(Objects.requireNonNull(headers.get(AUTHORIZATION)).get(0));
         headersMap.put(AUTHORIZATION,"Bearer " + token.getToken());
         HttpResponse<String> searchResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + USER_SEARCH, requestBody, headersMap);
         RegistryResponse registryResponse = JSONUtils.deserialize(searchResponse.getBody(), RegistryResponse.class);
         if (registryResponse.getUsers().isEmpty())
-            return new HashMap<>();
+            return new ArrayList<>();
         else
-            return (Map<String, Object>) registryResponse.getUsers().get(0);
+            return registryResponse.getUsers();
     }
 
     public ResponseEntity<Object> onboardUpdate(HttpHeaders headers, Map<String, Object> requestBody) throws Exception {
@@ -541,7 +541,7 @@ public class OnboardService extends BaseController {
                 }
             }
             if (!StringUtils.equals((String) participantDetails.get(REGISTRY_STATUS), ACTIVE) && StringUtils.equals((String) participant.getOrDefault(REGISTRY_STATUS, ""), ACTIVE)){
-                generateAndSetPassword((String) participant.get(PARTICIPANT_CODE));
+                generateAndSetPassword(headers, (String) participant.get(PARTICIPANT_CODE));
             }
             Response response = new Response(PARTICIPANT_CODE, participant.get(PARTICIPANT_CODE));
             response.put(IDENTITY_VERIFICATION, identityStatus);
@@ -625,7 +625,7 @@ public class OnboardService extends BaseController {
                 throw new ClientException(ErrorCodes.INTERNAL_SERVER_ERROR, "Error while updating participant details: " + httpResponse.getBody());
             }
             if (!StringUtils.equals((String) participantDetails.get(REGISTRY_STATUS), ACTIVE) && StringUtils.equals((String) requestBody.getOrDefault(REGISTRY_STATUS, ""), ACTIVE)) {
-                generateAndSetPassword((String) participantDetails.get(PARTICIPANT_CODE));
+                generateAndSetPassword(headers, (String) participantDetails.get(PARTICIPANT_CODE));
             }
         }
 
@@ -792,15 +792,17 @@ public class OnboardService extends BaseController {
 
     private boolean isUserExistsInOrg(String userEmail, String userRole, String participantCode, HttpHeaders headers) throws Exception {
         String body = "{ \"filters\": { \"email\": { \"eq\": \"" + userEmail + "\" }, \"tenant_roles.participant_code\": { \"eq\": \"" + participantCode + "\" }, \"tenant_roles.role\": { \"eq\": \"" + userRole + "\" } } }";
-        return !userSearch(body, headers).isEmpty();
+        List<Map<String, Object>> userSearchResult = userSearch(body, headers);
+        return !userSearchResult.isEmpty() && !userSearchResult.get(0).isEmpty();
     }
 
     private boolean isUserExists(User user, HttpHeaders headers) throws Exception {
         String body = "{ \"filters\": { \"email\": { \"eq\": \"" + user.getEmail() + "\" } } }";
-        Map<String, Object> userDetails = userSearch(body, headers);
-        if (userDetails.isEmpty()) {
+        List<Map<String, Object>> userSearchResult = userSearch(body, headers);
+        if (userSearchResult.isEmpty()) {
             return false;
         } else {
+            Map<String, Object> userDetails = userSearchResult.get(0);
             user.setUserId((String) userDetails.get(USER_ID));
             return true;
         }
@@ -1182,11 +1184,11 @@ public class OnboardService extends BaseController {
         return RandomStringUtils.random(length, characters);
     }
 
-    public Response generateAndSetPassword(String participantCode) throws Exception {
+    public Response generateAndSetPassword(HttpHeaders headers, String participantCode) throws Exception {
         String password = generateRandomPassword(24);
         Map<String, Object> registryDetails = getParticipant(PARTICIPANT_CODE, participantCode);
         setKeycloakPassword(participantCode, password, registryDetails);
-        emailService.sendMail((String) registryDetails.get(PRIMARY_EMAIL), passwordGenerateSub, passwordGenerate((String) registryDetails.get(PARTICIPANT_NAME),password,(String) registryDetails.get(PRIMARY_EMAIL)));
+        emailService.sendMail((String) registryDetails.get(PRIMARY_EMAIL), getUserList(headers, participantCode), passwordGenerateSub, passwordGenerate((String) registryDetails.get(PARTICIPANT_NAME), password, (String) registryDetails.get(PRIMARY_EMAIL)));
         return getSuccessResponse();
     }
 
@@ -1210,16 +1212,6 @@ public class OnboardService extends BaseController {
         return response;
     }
 
-    private void updateStatus(String email, String status) throws Exception {
-        String query = String.format("UPDATE %s SET status='%s',updatedOn=%d WHERE applicant_email='%s'", onboardingVerifierTable, status, System.currentTimeMillis(), email);
-        postgreSQLClient.execute(query);
-    }
-
-    private void updateIdentityStatus(String email, String applicantCode, String verifierCode, String status) throws Exception {
-        String query = String.format("INSERT INTO %s (applicant_email,applicant_code,verifier_code,status,createdOn,updatedOn) VALUES ('%s','%s','%s','%s',%d,%d) ON CONFLICT (applicant_email) DO NOTHING;",
-                onboardingVerifierTable, email, applicantCode, verifierCode, status, System.currentTimeMillis(), System.currentTimeMillis());
-        postgreSQLClient.execute(query);
-    }
     public String createTenantRequest(String userId, String participantCode) throws JsonProcessingException {
         Map<String, Object> request = new HashMap<>();
         request.put(PARTICIPANT_CODE, participantCode);
@@ -1229,10 +1221,28 @@ public class OnboardService extends BaseController {
         request.put(USERS, tenantList);
         return JSONUtils.serialize(request);
     }
+   
     private Map<String, Object> createTenantList(String userId, String role) {
         Map<String, Object> user = new HashMap<>();
         user.put(USER_ID, userId);
         user.put(ROLE, role);
         return user;
+
+    private List<String> getUserList(HttpHeaders headers, String participantCode) throws Exception {
+        List<Map<String, Object>> userSearch = userSearch(JSONUtils.serialize(Map.of(FILTERS, new HashMap<>())), headers);
+        if (!userSearch.isEmpty() && !userSearch.get(0).isEmpty()) {
+            List<String> emailList = new ArrayList<>();
+            for (Map<String, Object> userMap : userSearch) {
+                List<Map<String, Object>> tenantRoles = JSONUtils.deserialize(userMap.get(TENANT_ROLES), ArrayList.class);
+                for (Map<String, Object> tenantMap : tenantRoles) {
+                    if (StringUtils.equals((String) tenantMap.get(ROLE), ADMIN) && StringUtils.equals((String) tenantMap.get(PARTICIPANT_CODE), participantCode)) {
+                        emailList.add((String) userMap.get(EMAIL));
+                    }
+                }
+            }
+            return emailList;
+        } else {
+            return new ArrayList<>();
+        }
     }
 }
