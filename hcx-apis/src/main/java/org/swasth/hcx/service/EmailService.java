@@ -3,6 +3,7 @@ package org.swasth.hcx.service;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.swasth.common.exception.ClientException;
 
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
@@ -20,7 +21,7 @@ public class EmailService {
     private String adminPwd;
 
     @Async
-    public CompletableFuture<Boolean> sendMail(String to, String subject, String message){
+    public CompletableFuture<Boolean> sendMail(String to, String subject, String message) throws ClientException {
         try {
             MimeMessage mimeMessage = new MimeMessage(getSession());
             mimeMessage.addRecipient(Message.RecipientType.TO,new InternetAddress(to));
@@ -29,12 +30,15 @@ public class EmailService {
             //send message
             Transport.send(mimeMessage);
             return CompletableFuture.completedFuture(true);
-        } catch (MessagingException e) {throw new RuntimeException(e);}
+        } catch (MessagingException e) {
+            throw new ClientException(e.getMessage());
+        }
     }
 
     private Session getSession() {
         return Session.getDefaultInstance(getMailProperties(),
                 new javax.mail.Authenticator() {
+                    @Override
                     protected PasswordAuthentication getPasswordAuthentication() {
                         return new PasswordAuthentication(adminMail, adminPwd);
                     }
