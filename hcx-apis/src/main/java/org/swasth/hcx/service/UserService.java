@@ -148,7 +148,7 @@ public class UserService extends BaseRegistryService {
         RegistryResponse registryResponse = (RegistryResponse) Objects.requireNonNull(searchResponse.getBody());
         if (registryResponse.getUsers().isEmpty())
             throw new ClientException(ErrorCodes.ERR_INVALID_USER_ID, INVALID_USER_ID);
-        return (Map<String, Object>) registryResponse.getUsers().get(0);
+        return registryResponse.getUsers().get(0);
     }
 
     private String getUserRequest(String userId) {

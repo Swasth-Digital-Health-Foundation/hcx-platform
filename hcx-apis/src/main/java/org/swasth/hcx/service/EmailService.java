@@ -54,9 +54,9 @@ public class EmailService {
         properties.put("mail.smtp.starttls.required", "true");
         properties.put("mail.smtp.ssl.protocols", "TLSv1.2");
         properties.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+        properties.put("mail.smtp.ssl.checkserveridentity", "true"); // Enable server hostname verification
         return properties;
     }
-
 }
 
 
