@@ -19,7 +19,7 @@ import java.util.Map;
 @Service
 public class KeycloakApiAccessService {
 
-    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
+    private static final Logger logger = LoggerFactory.getLogger(KeycloakApiAccessService.class);
     @Value("${keycloak.base-url}")
     private String keycloakURL;
     @Value("${keycloak.admin-password}")

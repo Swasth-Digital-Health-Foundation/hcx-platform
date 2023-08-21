@@ -2,14 +2,8 @@ package org.swasth.hcx.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import kong.unirest.HttpResponse;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
-import org.keycloak.admin.client.Keycloak;
-import org.keycloak.admin.client.resource.RealmResource;
-import org.keycloak.admin.client.resource.UsersResource;
-import org.keycloak.representations.idm.CredentialRepresentation;
-import org.keycloak.representations.idm.UserRepresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,13 +13,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.swasth.auditindexer.function.AuditIndexer;
 import org.swasth.common.dto.RegistryResponse;
 import org.swasth.common.dto.ResponseError;
 import org.swasth.common.dto.Token;
 import org.swasth.common.exception.*;
 import org.swasth.common.utils.JSONUtils;
-import javax.ws.rs.core.Response;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -297,10 +289,7 @@ public class UserService extends BaseRegistryService {
         for (Map<String, Object> user : userList) {
             String userId = (String) user.get(USER_ID);
             String role = (String) user.get(ROLE);
-            if (!userRolesMap.containsKey(userId)) {
-                userRolesMap.put(userId, new ArrayList<>());
-            }
-            userRolesMap.get(userId).add(role);
+            userRolesMap.computeIfAbsent(userId, k -> new ArrayList<>()).add(role);
         }
         return userRolesMap;
     }

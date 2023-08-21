@@ -1227,6 +1227,7 @@ public class OnboardService extends BaseController {
         user.put(USER_ID, userId);
         user.put(ROLE, role);
         return user;
+    }
 
     private List<String> getUserList(HttpHeaders headers, String participantCode) throws Exception {
         List<Map<String, Object>> userSearch = userSearch(JSONUtils.serialize(Map.of(FILTERS, new HashMap<>())), headers);
