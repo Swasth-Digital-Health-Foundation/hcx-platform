@@ -75,15 +75,15 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
   }
 
 
-  def createErrorMap(error: Option[ErrorResponse]): util.Map[String, AnyRef] = {
-    val errorMap: util.Map[String, AnyRef] = new util.HashMap[String, AnyRef]
+  def createErrorMap(error: Option[ErrorResponse]):util.Map[String, AnyRef] = {
+    val errorMap:util.Map[String, AnyRef] = new util.HashMap[String, AnyRef]
     errorMap.put("code", error.flatMap(_.code).getOrElse(""))
     errorMap.put("message", error.flatMap(_.message).getOrElse(""))
     errorMap.put("trace", error.flatMap(_.trace).getOrElse(""))
     errorMap
   }
 
-  def dispatchErrorResponse(event: util.Map[String, AnyRef], error: Option[ErrorResponse], correlationId: String, payloadRefId: String, senderCtx: util.Map[String, AnyRef], context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
+  def   dispatchErrorResponse(event: util.Map[String, AnyRef], error: Option[ErrorResponse], correlationId: String, payloadRefId: String, senderCtx: util.Map[String, AnyRef], context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
     val protectedMap = new util.HashMap[String, AnyRef]
     //Update sender code
     protectedMap.put(Constants.HCX_SENDER_CODE, config.hcxRegistryCode)
@@ -310,7 +310,7 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
   }
 
 
-  def getTag(event: util.Map[String, AnyRef], audit: util.HashMap[String, AnyRef]): Unit = {
+  def getTag(event : util.Map[String, AnyRef],audit: util.HashMap[String, AnyRef]): Unit = {
     val tagSet = new java.util.HashSet[String]()
     tagSet.add(getCDataListValue(event, Constants.SENDER, Constants.TAGS).toString)
     tagSet.add(getCDataListValue(event, Constants.RECIPIENT, Constants.TAGS).toString)
