@@ -38,31 +38,10 @@ public class UserService extends BaseRegistryService {
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
     @Value("${registry.user-api-path}")
     private String registryUserPath;
-    @Value("${keycloak.base-url}")
-    private String keycloakURL;
-    @Value("${keycloak.admin-password}")
-    private String keycloakAdminPassword;
-    @Value("${keycloak.admin-user}")
-    private String keycloakAdminUserName;
-    @Value("${keycloak.master-realm}")
-    private String keycloakMasterRealm;
-    @Value("${keycloak.protocol-access-realm}")
-    private String keycloackProtocolAccessRealm;
-    @Value("${keycloak.admin-client-id}")
-    private String keycloackClientId;
-    @Value("${email.user-token-message}")
-    private String userEmailMessage;
-    @Value("${email.user-token-subject}")
-    private String emailSub;
     @Autowired
     private ParticipantService participantService;
     @Autowired
-    private EmailService emailService;
-
-    @Autowired
-    protected AuditIndexer auditIndexer;
-    private Keycloak keycloak;
-
+    private KeycloakApiAccessService apiAccessService;
     public RegistryResponse create(Map<String, Object> requestBody, String code) throws Exception {
         HttpResponse<String> response = invite(requestBody, registryUserPath);
         if (response.getStatus() == 200) {
@@ -107,12 +86,12 @@ public class UserService extends BaseRegistryService {
             ArrayList<Map<String, Object>> tenantRolesList = JSONUtils.convert(registryDetails.get(TENANT_ROLES), ArrayList.class);
             if (StringUtils.equals(action, PARTICIPANT_USER_ADD)) {
                 userAdd(roles, participantCode, tenantRolesList, finalRequest);
-                addUserWithParticipant(userId, participantCode, (String) registryDetails.get(USER_NAME));
+                apiAccessService.addUserWithParticipant(userId, participantCode, (String) registryDetails.get(USER_NAME));
             } else if (StringUtils.equals(action, PARTICIPANT_USER_REMOVE)) {
                 ArrayList<Map<String, Object>> filteredTenantRoles = new ArrayList<>();
                 userRemove(roles, participantCode, finalRequest, tenantRolesList, filteredTenantRoles);
                 if (roles.contains(ADMIN)) {
-                    removeUserWithParticipant(participantCode, userId);
+                    apiAccessService.removeUserWithParticipant(participantCode, userId);
                 }
             }
             response = update(finalRequest, registryDetails, registryUserPath);
@@ -156,19 +135,10 @@ public class UserService extends BaseRegistryService {
         if (tenantRolesList.isEmpty()) {
             throw new ClientException("User does not have any role to remove");
         }
-        boolean adminRoleExists = false;
         for (Map<String, Object> tenantRole : tenantRolesList) {
-            if (tenantRole.get(ROLE).equals(ADMIN) && tenantRole.get(PARTICIPANT_CODE).equals(participantCode)) {
-                if (!adminRoleExists) {
-                    adminRoleExists = true;
-                    filteredTenantRoles.add(tenantRole);
-                }
-            } else if (!roles.contains((String) tenantRole.get(ROLE)) && tenantRole.get(PARTICIPANT_CODE).equals(participantCode)) {
+         if (!roles.contains((String) tenantRole.get(ROLE)) && tenantRole.get(PARTICIPANT_CODE).equals(participantCode)) {
                 filteredTenantRoles.add(tenantRole);
             }
-        }
-        if (!adminRoleExists) {
-            throw new ClientException("Cannot remove admin role, at least one admin role must remain.");
         }
         finalRequest.put(TENANT_ROLES, filteredTenantRoles);
     }
@@ -322,70 +292,6 @@ public class UserService extends BaseRegistryService {
         filters.put("tenant_roles.participant_code", Map.of("or", organisations));
         return JSONUtils.serialize(requestBody);
     }
-
-    public void addUserWithParticipant(String email, String participantCode, String name) throws ClientException {
-        try (Keycloak keycloak = Keycloak.getInstance(keycloakURL, keycloakMasterRealm, keycloakAdminUserName, keycloakAdminPassword, keycloackClientId)) {
-            RealmResource realmResource = keycloak.realm(keycloackProtocolAccessRealm);
-            UsersResource usersResource = realmResource.users();
-            String userName = String.format("%s:%s", participantCode, email);
-            List<UserRepresentation> existingUsers = usersResource.search(userName);
-            if (!existingUsers.isEmpty()) {
-                logger.info("User name  : {} is already exists", userName);
-            } else {
-                String password = generateRandomPassword();
-                UserRepresentation user = createUserRequest(userName, name, password);
-                Response response = usersResource.create(user);
-                if (response.getStatus() == 201) {
-                    String message = userEmailMessage;
-                    message = message.replace("NAME", name).replace("USER_ID", email).replace("PASSWORD", password).replace("PARTICIPANT_CODE", participantCode);
-                    emailService.sendMail(email, emailSub, message);
-                    logger.info("user name : {} is added to the keycloak record", userName);
-                }
-            }
-        } catch (Exception e) {
-            throw new ClientException("Unable to add user and participant record to Keycloak: " + e.getMessage());
-        }
-    }
-
-    private UserRepresentation createUserRequest(String userName, String name, String password) {
-        UserRepresentation user = new UserRepresentation();
-        user.setUsername(userName);
-        user.setFirstName(name);
-        user.setEnabled(true);
-        Map<String, List<String>> attributes = new HashMap<>();
-        attributes.put("entity", List.of("api-access"));
-        user.setAttributes(attributes);
-        CredentialRepresentation credential = new CredentialRepresentation();
-        credential.setType(CredentialRepresentation.PASSWORD);
-        credential.setValue(password);
-        credential.setTemporary(false);
-        user.setCredentials(List.of(credential));
-        return user;
-    }
-
-    private String generateRandomPassword(){
-        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#&*";
-        return RandomStringUtils.random(16, characters);
-    }
-
-    public void removeUserWithParticipant(String participantCode, String email) throws ClientException {
-        try (Keycloak keycloak = Keycloak.getInstance(keycloakURL, keycloakMasterRealm, keycloakAdminUserName, keycloakAdminPassword, keycloackClientId)) {
-            String userName = String.format("%s:%s", participantCode, email);
-            RealmResource realmResource = keycloak.realm(keycloackProtocolAccessRealm);
-            UsersResource usersResource = realmResource.users();
-            List<UserRepresentation> existingUsers = usersResource.search(userName);
-            if (existingUsers.isEmpty()) {
-                logger.info("user name {} does not exist in the keycloak", userName);
-                return;
-            }
-            String userId = existingUsers.get(0).getId();
-            usersResource.get(userId).remove();
-            logger.info("username: {} removed from the keycloak record", userName);
-        } catch (Exception e) {
-            throw new ClientException(e.getMessage());
-        }
-    }
-
     public Map<String, List<String>> constructRequestBody(List<Map<String, Object>> userList) {
         Map<String, List<String>> userRolesMap = new HashMap<>();
         for (Map<String, Object> user : userList) {

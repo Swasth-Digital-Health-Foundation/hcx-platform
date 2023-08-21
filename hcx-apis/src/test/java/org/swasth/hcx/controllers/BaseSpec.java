@@ -37,7 +37,7 @@ import java.net.URL;
 import java.util.*;
 
 
-@WebMvcTest({CoverageEligibilityController.class, PreAuthController.class, ClaimsController.class, PaymentsController.class, StatusController.class, SearchController.class, CommunicationController.class, PredeterminationController.class, ParticipantController.class, NotificationController.class, AuditService.class, NotificationService.class, EventHandler.class, EventGenerator.class, ParticipantService.class , RetryController.class , UserController.class , UserService.class , BaseRegistryService.class, FetchController.class, JWTController.class, JWTService.class, EmailService.class})
+@WebMvcTest({CoverageEligibilityController.class, PreAuthController.class, ClaimsController.class, PaymentsController.class, StatusController.class, SearchController.class, CommunicationController.class, PredeterminationController.class, ParticipantController.class, NotificationController.class, AuditService.class, NotificationService.class, EventHandler.class, EventGenerator.class, ParticipantService.class , RetryController.class , UserController.class , UserService.class , BaseRegistryService.class, FetchController.class, JWTController.class, JWTService.class, KeycloakApiAccessService.class})
 @ExtendWith(MockitoExtension.class)
 @ActiveProfiles("test")
 @Import(GenericConfiguration.class)
@@ -96,7 +96,7 @@ public class BaseSpec {
     @Autowired
     protected JWTService jwtService;
     @MockBean
-    protected EmailService emailService;
+    protected KeycloakApiAccessService keycloakApiAccessService;
 
     @BeforeEach
     public void setup() {
@@ -588,7 +588,7 @@ public class BaseSpec {
         return JSONUtils.serialize(obj);
     }
 
-    public String getParticipantAddBodyPartilStatus() throws JsonProcessingException{
+    public String getParticipantAddBodyPartialStatus() throws JsonProcessingException{
         Map<String,Object> obj = new HashMap<>();
         obj.put("participant_code","test-123.yopmail@swasth-hcx");
         obj.put("users",List.of(Map.of("user_id","test-123@yopmail.com","role","admin"),Map.of("user_id","test-456@yopmail.com","role","viewer")));
