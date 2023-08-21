@@ -68,9 +68,9 @@ public class ProtocolRequestProcessorStreamTask {
         sendAuditToKafka(claimsJob, config, kafkaConnector,"claims-audit-events-sink-");
 
         // preAuth Job
-//        SingleOutputStreamOperator<Map<String,Object>> preAuthJob = eventStream.getSideOutput(config.preAuthOutputTag)
-//                .process(new PreauthProcessFunction(config)).setParallelism(config.downstreamOperatorsParallelism);
-//        sendAuditToKafka(preAuthJob, config, kafkaConnector,"preauth-audit-events-sink");
+        SingleOutputStreamOperator<Map<String,Object>> preAuthJob = eventStream.getSideOutput(config.preAuthOutputTag)
+                .process(new PreauthProcessFunction(config)).setParallelism(config.downstreamOperatorsParallelism);
+        sendAuditToKafka(preAuthJob, config, kafkaConnector,"preauth-audit-events-sink");
 
         // predetermination Job
 //        SingleOutputStreamOperator<Map<String,Object>> preDeterminationJob = eventStream.getSideOutput(config.preDeterminationOutputTag)
