@@ -128,7 +128,7 @@ public class UserService extends BaseRegistryService {
             throw new ClientException("User does not have any role to remove");
         }
         for (Map<String, Object> tenantRole : tenantRolesList) {
-         if (!roles.contains((String) tenantRole.get(ROLE)) && tenantRole.get(PARTICIPANT_CODE).equals(participantCode)) {
+         if (!roles.contains(tenantRole.get(ROLE).toString()) && tenantRole.get(PARTICIPANT_CODE).equals(participantCode)) {
                 filteredTenantRoles.add(tenantRole);
             }
         }
