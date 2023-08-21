@@ -44,7 +44,7 @@ public class ProcessorFilterFunction extends ProcessFunction<Map<String, Object>
         }
     }
 
-    private void pushToOutputTag(ProcessFunction<Map<String, Object>, Map<String, Object>>.Context context, Map<String, Object> event, OutputTag<Map<String, Object>> outputTag, String action) throws Exception {
+    private void pushToOutputTag(ProcessFunction<Map<String, Object>, Map<String, Object>>.Context context, Map<String, Object> event, OutputTag<Map<String, Object>> outputTag, String action) {
         if (event != null) {
             context.output(outputTag, event);
             logger.info("{} : is processing", action);
