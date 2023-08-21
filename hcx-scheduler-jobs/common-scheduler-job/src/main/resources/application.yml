@@ -20,8 +20,10 @@ registry:
   basePath: ${registry_base_path:http://aa5c04ed467c04ea89789cead03e4275-320353178.ap-south-1.elb.amazonaws.com:8081}
 
 topicCode:
- encryptionCertExpired: ${topic_code_encryption_cert_expired:notif-encryption-cert-expired}
- beforeExpiry: ${topic_code_before_encryption_cert_expiry:notif-encryption-key-expiry}
+ encryption-cert-expired: ${encryption_cert_expired_topic_code:notif-encryption-cert-expired}
+ before-encryption-cert-expiry: ${before_encryption_cert_expiry_topic_code:notif-encryption-key-expiry}
+ signing-cert-expired: ${signing_cert_expired_topic_code:notif-signing-cert-expired}
+ before-signing-cert-expiry: ${before_signing_cert_expiry_topic_code:notif-signing-key-expiry}
 
 #postgres config
 postgres:

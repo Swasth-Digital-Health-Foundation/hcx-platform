@@ -22,12 +22,17 @@ public class ParticipantValidationScheduler extends BaseScheduler {
     @Autowired
     private RegistryService registryService;
 
-    @Value("${topicCode.encryptionCertExpired}")
-    private String expiryTopicCode;
+    @Value("${topicCode.encryption-cert-expired}")
+    private String encryptionExpiredTopicCode;
 
-    @Value("${topicCode.beforeExpiry}")
-    private String beforeExpiryTopicCode;
+    @Value("${topicCode.before-encryption-cert-expiry}")
+    private String encryptionExpiryTopicCode;
 
+    @Value("${topicCode.signing-cert-expired}")
+    private String signingExpiredTopicCode;
+
+    @Value("${topicCode.before-signing-cert-expiry}")
+    private String signingExpiryTopicCode;
     @Value("${kafka.topic.notification}")
     private String notifyTopic;
 
@@ -46,11 +51,11 @@ public class ParticipantValidationScheduler extends BaseScheduler {
     @Scheduled(fixedDelayString = "${fixedDelay.in.milliseconds.participantVerify}")
     public void process() throws Exception {
         logger.info("Participant validation scheduler started");
-        certExpiry(Constants.ENCRYPTION_CERT_EXPIRY);
-        certExpiry(Constants.SIGNING_CERT_PATH_EXPIRY);
+        certExpiry(Constants.ENCRYPTION_CERT_EXPIRY, encryptionExpiryTopicCode, encryptionExpiredTopicCode);
+        certExpiry(Constants.SIGNING_CERT_PATH_EXPIRY, signingExpiryTopicCode, signingExpiredTopicCode);
     }
 
-    public void certExpiry(String participantCert) throws Exception {
+    public void certExpiry(String certType, String expiryTopicCode, String expiredTopicCode) throws Exception {
         String expiryMessage = "";
         String beforeExpiryMessage = "";
         List<String> expiredParticipantCodes = new ArrayList<>();
@@ -58,24 +63,24 @@ public class ParticipantValidationScheduler extends BaseScheduler {
         List<Map<String, Object>> participants = new ArrayList<>();
         for (int beforeExpiryDay : beforeExpiryDaysList) {
             long expiryTime = System.currentTimeMillis() + (1 + beforeExpiryDay) * 24L * 60 * 60 * 1000;
-            participants = registryService.getDetails("{ \"filters\": { " + participantCert + ": { \"<\": " + expiryTime + " } } }");
+            participants = registryService.getDetails("{ \"filters\": { " + certType + ": { \"<\": " + expiryTime + " } } }");
             for (Map<String, Object> participant : participants) {
-                long certExpiry = (long) participant.get(participantCert);
+                long certExpiry = (long) participant.get(certType);
                 String participantCode = (String) participant.get(Constants.PARTICIPANT_CODE);
                 long earlierDayTime = expiryTime - (24L * 60 * 60 * 1000);
                 if (certExpiry <= System.currentTimeMillis()) {
                     expiredParticipantCodes.add(participantCode);
-                    expiryMessage = getTemplateMessage(expiryTopicCode);
+                    expiryMessage = getTemplateMessage(expiredTopicCode);
                 } else if (certExpiry > earlierDayTime && certExpiry < expiryTime) {
                     aboutToExpireParticipantCodes.add(participantCode);
-                    beforeExpiryMessage = getTemplateMessage(beforeExpiryTopicCode).replace("${days}", String.valueOf(beforeExpiryDay));
+                    beforeExpiryMessage = getTemplateMessage(expiryTopicCode).replace("${days}", String.valueOf(beforeExpiryDay));
                 }
             }
-            generateEvent(aboutToExpireParticipantCodes, beforeExpiryMessage, beforeExpiryTopicCode);
+            generateEvent(aboutToExpireParticipantCodes, beforeExpiryMessage, expiryTopicCode);
             aboutToExpireParticipantCodes.clear();
         }
-        generateEvent(expiredParticipantCodes, expiryMessage, expiryTopicCode);
-        logger.info("Total number of participants with expired or expiring encryption certificate in {}", participants.size());
+        generateEvent(expiredParticipantCodes, expiryMessage, expiredTopicCode);
+        logger.info("Total number of participants with expired or expiring {} certificate in {}", certType, participants.size());
         logger.info("Participant validation scheduler ended");
     }
 
