@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.swasth.common.exception.ClientException;
 import javax.ws.rs.core.Response;
+import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +56,6 @@ public class KeycloakApiAccessService {
                     String message = userEmailMessage;
                     message = message.replace("NAME", name).replace("USER_ID", email).replace("PASSWORD", password).replace("PARTICIPANT_CODE", participantCode);
                     emailService.sendMail(email, emailSub, message);
-                    logger.info("user name : {} is added to the keycloak record", userName);
                 }
             }
         } catch (Exception e) {
@@ -81,7 +81,13 @@ public class KeycloakApiAccessService {
 
     private String generateRandomPassword(){
         String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#&*";
-        return RandomStringUtils.random(16, characters);
+        SecureRandom secureRandom = new SecureRandom();
+        StringBuilder password = new StringBuilder(16);
+        for (int i = 0; i < 16; i++) {
+            int randomIndex = secureRandom.nextInt(characters.length());
+            password.append(characters.charAt(randomIndex));
+        }
+        return password.toString();
     }
 
 
@@ -92,12 +98,10 @@ public class KeycloakApiAccessService {
             UsersResource usersResource = realmResource.users();
             List<UserRepresentation> existingUsers = usersResource.search(userName);
             if (existingUsers.isEmpty()) {
-                logger.info("user name {} does not exist in the keycloak", userName);
                 return;
             }
             String userId = existingUsers.get(0).getId();
             usersResource.get(userId).remove();
-            logger.info("username: {} removed from the keycloak record", userName);
         } catch (Exception e) {
             throw new ClientException(e.getMessage());
         }
