@@ -73,34 +73,34 @@ public class ProtocolRequestProcessorStreamTask {
         sendAuditToKafka(preAuthJob, config, kafkaConnector,"preauth-audit-events-sink");
 
         // predetermination Job
-//        SingleOutputStreamOperator<Map<String,Object>> preDeterminationJob = eventStream.getSideOutput(config.preDeterminationOutputTag)
-//                .process(new PredeterminationProcessFunction(config)).setParallelism(config.downstreamOperatorsParallelism);
-//        sendAuditToKafka(preDeterminationJob, config, kafkaConnector,"predetermination-audit-events-sink");
+        SingleOutputStreamOperator<Map<String,Object>> preDeterminationJob = eventStream.getSideOutput(config.preDeterminationOutputTag)
+                .process(new PredeterminationProcessFunction(config)).setParallelism(config.downstreamOperatorsParallelism);
+        sendAuditToKafka(preDeterminationJob, config, kafkaConnector,"predetermination-audit-events-sink");
 
         // payment Job
-//        SingleOutputStreamOperator<Map<String,Object>> paymentJob = eventStream.getSideOutput(config.paymentOutputTag)
-//                .process(new PaymentsProcessFunction(config)).setParallelism(config.downstreamOperatorsParallelism);
-//        sendAuditToKafka(paymentJob, config, kafkaConnector,"payment-audit-events-sink");
+        SingleOutputStreamOperator<Map<String,Object>> paymentJob = eventStream.getSideOutput(config.paymentOutputTag)
+                .process(new PaymentsProcessFunction(config)).setParallelism(config.downstreamOperatorsParallelism);
+        sendAuditToKafka(paymentJob, config, kafkaConnector,"payment-audit-events-sink");
 
         // fetch Job
-//        SingleOutputStreamOperator<Map<String,Object>> fetchJob = eventStream.getSideOutput(config.fetchOutputTag)
-//                .process(new PaymentsProcessFunction(config)).setParallelism(config.downstreamOperatorsParallelism);
-//        sendAuditToKafka(fetchJob, config, kafkaConnector,"fetch-audit-events-sink");
+        SingleOutputStreamOperator<Map<String,Object>> fetchJob = eventStream.getSideOutput(config.fetchOutputTag)
+                .process(new PaymentsProcessFunction(config)).setParallelism(config.downstreamOperatorsParallelism);
+        sendAuditToKafka(fetchJob, config, kafkaConnector,"fetch-audit-events-sink");
 
         // retry Job
-//        SingleOutputStreamOperator<Map<String,Object>> retryJob = eventStream.getSideOutput(config.retryOutputTag)
-//                .process(new RetryProcessFunction(config)).setParallelism(config.downstreamOperatorsParallelism);
-//        sendAuditToKafka(retryJob, config, kafkaConnector,"retry-audit-events-sink");
+        SingleOutputStreamOperator<Map<String,Object>> retryJob = eventStream.getSideOutput(config.retryOutputTag)
+                .process(new RetryProcessFunction(config)).setParallelism(config.downstreamOperatorsParallelism);
+        sendAuditToKafka(retryJob, config, kafkaConnector,"retry-audit-events-sink");
 
         // communication Job
-//        SingleOutputStreamOperator<Map<String,Object>> communicationJob = eventStream.getSideOutput(config.communicationOutputTag)
-//                .process(new CommunicationProcessFunction(config)).setParallelism(config.downstreamOperatorsParallelism);
-//        sendAuditToKafka(communicationJob, config, kafkaConnector,"communication-audit-events-sink");
+        SingleOutputStreamOperator<Map<String,Object>> communicationJob = eventStream.getSideOutput(config.communicationOutputTag)
+                .process(new CommunicationProcessFunction(config)).setParallelism(config.downstreamOperatorsParallelism);
+        sendAuditToKafka(communicationJob, config, kafkaConnector,"communication-audit-events-sink");
 
         // status search Job
-//        SingleOutputStreamOperator<Map<String,Object>> statusSearchJob = eventStream.getSideOutput(config.statusSearchOutputTag)
-//                .process(new StatusSearchProcessFunction(config)).setParallelism(config.downstreamOperatorsParallelism);
-//        sendAuditToKafka(statusSearchJob, config, kafkaConnector,"status-audit-events-sink");
+        SingleOutputStreamOperator<Map<String,Object>> statusSearchJob = eventStream.getSideOutput(config.statusSearchOutputTag)
+                .process(new StatusSearchProcessFunction(config)).setParallelism(config.downstreamOperatorsParallelism);
+        sendAuditToKafka(statusSearchJob, config, kafkaConnector,"status-audit-events-sink");
 
         System.out.println(config.jobName() + " is processing");
         env.execute(config.jobName());
