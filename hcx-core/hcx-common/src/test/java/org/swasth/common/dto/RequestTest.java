@@ -18,7 +18,7 @@ import static org.swasth.common.utils.Constants.*;
 
     @Test
     public void check_payload() throws Exception {
-        Request request = new Request(getRequestBody(), COVERAGE_ELIGIBILITY_CHECK);
+        Request request = new Request(getRequestBody(), COVERAGE_ELIGIBILITY_CHECK, getAuthorizationHeader());
         request.setStatus(Constants.COMPLETE_STATUS);
         request.setMid("test_123");
         assertEquals(COMPLETE_STATUS,request.getStatus());
@@ -26,13 +26,13 @@ import static org.swasth.common.utils.Constants.*;
 
     @Test
     public void check_plain_payload() throws Exception {
-        Request request = new Request(getPlainRequestBody(), COVERAGE_ELIGIBILITY_CHECK);
+        Request request = new Request(getPlainRequestBody(), COVERAGE_ELIGIBILITY_CHECK, getAuthorizationHeader());
         assertNotNull(request);
     }
 
     @Test(expected = ClientException.class)
     public void check_exception_payload() throws Exception {
-        new Request(null, COVERAGE_ELIGIBILITY_CHECK);
+        new Request(null, COVERAGE_ELIGIBILITY_CHECK, getAuthorizationHeader());
     }
 
     public Map<String, Object> getRequestBody() {
@@ -58,7 +58,7 @@ import static org.swasth.common.utils.Constants.*;
 
     @Test
     public void testNotificationPayload() throws Exception {
-        Request request = new Request(getNotificationRequest(), NOTIFICATION_NOTIFY);
+        Request request = new Request(getNotificationRequest(), NOTIFICATION_NOTIFY, getAuthorizationHeader());
         assertEquals("notif-participant-onboarded", request.getTopicCode());
         assertNotNull(request.getNotificationMessage());
         assertEquals(PARTICIPANT_CODE, request.getRecipientType());
@@ -67,7 +67,7 @@ import static org.swasth.common.utils.Constants.*;
 
      @Test
      public void testNotificationPayloadWithInvalidCorrId() throws Exception {
-         Request request = new Request(getInvalidCorrIdNotificationRequest(), NOTIFICATION_NOTIFY);
+         Request request = new Request(getInvalidCorrIdNotificationRequest(), NOTIFICATION_NOTIFY, getAuthorizationHeader());
          assertNotNull(request.getCorrelationId());
      }
 
@@ -97,7 +97,7 @@ import static org.swasth.common.utils.Constants.*;
 
      @Test
      public void testSubscriptionPayload() throws Exception {
-         Request request = new Request(getSubscriptionRequest(), NOTIFICATION_SUBSCRIBE);
+         Request request = new Request(getSubscriptionRequest(), NOTIFICATION_SUBSCRIBE, getAuthorizationHeader());
          assertEquals("hcx-notification-001",request.getTopicCode());
          assertEquals("hcx-apollo-12345", request.getRecipientCode());
          assertEquals(2,request.getSenderList().size());
@@ -117,7 +117,7 @@ import static org.swasth.common.utils.Constants.*;
 
      @Test
      public void testSubscriptionUpdatePayload() throws Exception {
-         Request request = new Request(getSubscriptionUpdateRequest(), NOTIFICATION_SUBSCRIPTION_UPDATE);
+         Request request = new Request(getSubscriptionUpdateRequest(), NOTIFICATION_SUBSCRIPTION_UPDATE, getAuthorizationHeader());
          assertEquals("hcx-notification-001",request.getTopicCode());
          assertEquals("payor01@hcx", request.getRecipientCode());
          assertEquals("provider01@hcx", request.getSenderCode());
@@ -135,5 +135,9 @@ import static org.swasth.common.utils.Constants.*;
          obj.put(EXPIRY, System.currentTimeMillis());
          obj.put(IS_DELEGATED, true);
          return obj;
+     }
+
+     public String getAuthorizationHeader() {
+         return "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJMYU9HdVRrYVpsVEtzaERwUng1R25JaXUwV1A1S3VGUUoyb29WMEZnWGx3In0.eyJleHAiOjE2NDcwNzgwNjksImlhdCI6MTY0Njk5MTY2OSwianRpIjoiNDcyYzkwOTAtZWQ4YS00MDYxLTg5NDQtMzk4MjhmYzBjM2I4IiwiaXNzIjoiaHR0cDovL2E5ZGQ2M2RlOTFlZTk0ZDU5ODQ3YTEyMjVkYThiMTExLTI3Mzk1NDEzMC5hcC1zb3V0aC0xLmVsYi5hbWF6b25hd3MuY29tOjgwODAvYXV0aC9yZWFsbXMvc3dhc3RoLWhlYWx0aC1jbGFpbS1leGNoYW5nZSIsImF1ZCI6ImFjY291bnQiLCJzdWIiOiIwYzU3NjNkZS03MzJkLTRmZDQtODU0Ny1iMzk2MGMxMzIwZjUiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJyZWdpc3RyeS1mcm9udGVuZCIsInNlc3Npb25fc3RhdGUiOiIxMThhMTRmMS04OTAxLTQxZTMtYWE5Zi1iNWFjMjYzNjkzMzIiLCJhY3IiOiIxIiwiYWxsb3dlZC1vcmlnaW5zIjpbImh0dHBzOi8vbG9jYWxob3N0OjQyMDIiLCJodHRwOi8vbG9jYWxob3N0OjQyMDIiLCJodHRwczovL2xvY2FsaG9zdDo0MjAwIiwiaHR0cHM6Ly9uZGVhci54aXYuaW4iLCJodHRwOi8vbG9jYWxob3N0OjQyMDAiLCJodHRwOi8vbmRlYXIueGl2LmluIiwiaHR0cDovLzIwLjE5OC42NC4xMjgiXSwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbIkhJRS9ISU8uSENYIiwiZGVmYXVsdC1yb2xlcy1uZGVhciJdfSwicmVzb3VyY2VfYWNjZXNzIjp7ImFjY291bnQiOnsicm9sZXMiOlsibWFuYWdlLWFjY291bnQiLCJtYW5hZ2UtYWNjb3VudC1saW5rcyIsInZpZXctcHJvZmlsZSJdfX0sInNjb3BlIjoicHJvZmlsZSBlbWFpbCIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwibmFtZSI6ImhjeCBhZG1pbiIsInByZWZlcnJlZF91c2VybmFtZSI6ImhjeC1hZG1pbiIsImdpdmVuX25hbWUiOiJoY3ggYWRtaW4ifQ.SwDJNGkHOs7MrArqwdkArLkRDgPIU3SHwMdrppmG2JHQkpYRLqFpfmFPgIYNAyi_b_ZQnXKwuhT6ABNEV2-viJWTPLYe4z5JkeUGNurnrkSoMMObrd0s1tLYjdgu5j5kLaeUBeSeULTkdBfAM9KZX5Gn6Ri6AKs6uFq22hJOmhtw3RTyX-7kozG-SzSfIyN_-7mvJBZjBR73gaNJyEms4-aKULAnQ6pYkj4hzzlac2WCucq2zZnipeupBOJzx5z27MLdMs8lfNRTTqkQVhoUK0DhDxyj9N_TzbycPdykajhOrerKfpEnYcZpWfC-bJJSDagnP9D407OqoxoE3_niHw";
      }
 }

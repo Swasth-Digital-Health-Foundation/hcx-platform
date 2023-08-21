@@ -81,6 +81,8 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
 
     @Value("${allowedParticipantStatus}")
     private List<String> allowedParticipantStatus;
+    @Value("${expiry.api-call-id-expiry}")
+    private int apiCallIdExpiryDays;
 
     @Value("${incoming-request.expiry-days}")
     private int incomingRequestExpiryDays;
@@ -161,8 +163,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                     jsonRequest.validateSubscriptionRequests(jsonRequest.getTopicCode(), senderListDetails, recipientDetails, getSubscriptionMandatoryHeaders(), notification, allowedParticipantStatus);
                     requestObj.getPayload().put(RECIPIENT_CODE, recipientDetails.get(PARTICIPANT_CODE));
                 } else if (path.contains(NOTIFICATION_SUBSCRIPTION_LIST)) { //for validating /notification/subscription/list
-                    JSONRequest jsonRequest = new JSONRequest(requestBody, true, path, hcxCode, hcxRoles);
-                    requestObj = jsonRequest;
+                    requestObj = new JSONRequest(requestBody, true, path, hcxCode, hcxRoles);
                     Map<String, Object> recipientDetails = registryService.fetchDetails(OS_OWNER, subject);
                     requestObj.getPayload().put(RECIPIENT_CODE, recipientDetails.get(PARTICIPANT_CODE));
                 } else if (path.contains(NOTIFICATION_SUBSCRIPTION_UPDATE) || path.contains(NOTIFICATION_ON_SUBSCRIBE)) {
@@ -200,7 +201,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                modifiedReq = requestHandler.getUpdatedBody(exchange, chain, requestObj.getPayload());
             } catch (Exception e) {
                 logger.error(MessageFormat.format(CORRELATION_ERR_MSG, correlationId,  e.getMessage()));
-                return exceptionHandler.errorResponse(e, exchange, correlationId, apiCallId, requestObj);
+                return exceptionHandler.errorResponse(exchange.getRequest().getHeaders(), e, exchange, correlationId, apiCallId, requestObj);
             }
             return modifiedReq;
         };
@@ -217,8 +218,14 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
         return searchRequest;
     }
 
-    private List<Map<String, Object>> getCallAuditData(String apiCallId) throws Exception {
-        return getAuditData(Collections.singletonMap(API_CALL_ID, apiCallId));
+    private List<Map<String, Object>> getCallAuditData(String apiCallId, String senderCode) throws Exception {
+        Map<String, String> filters = new HashMap<>();
+        Map<String, Object> dateFilters = constructDateFilters(apiCallIdExpiryDays);
+        filters.put(API_CALL_ID, apiCallId);
+        filters.put(HCX_SENDER_CODE, senderCode);
+        filters.put(START_DATETIME, (String) dateFilters.get(START_DATETIME));
+        filters.put(STOP_DATETIME, (String) dateFilters.get(STOP_DATETIME));
+        return getAuditData(filters);
     }
 
     private List<Map<String, Object>> getCorrelationAuditData(String correlationId, int incomingRequestExpiry) throws Exception {
