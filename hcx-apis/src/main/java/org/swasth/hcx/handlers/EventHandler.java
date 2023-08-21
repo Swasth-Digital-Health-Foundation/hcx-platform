@@ -63,7 +63,6 @@ public class EventHandler {
 	public String userIndexAlias;
 
     public void processAndSendEvent(String metadataTopic, Request request) throws Exception {
-        System.out.println("---- kafka topic will be ------------"  + metadataTopic);
         String payloadTopic = env.getProperty(KAFKA_TOPIC_PAYLOAD);
         String key = request.getHcxSenderCode();
         // TODO: check and remove writing payload event to kafka
