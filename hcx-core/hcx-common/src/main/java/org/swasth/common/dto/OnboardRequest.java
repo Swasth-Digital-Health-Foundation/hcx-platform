@@ -53,6 +53,10 @@ public class OnboardRequest {
 
     public String getApplicantCode() { return this.applicantCode; }
 
+    public void setApplicantCode(String applicantCode){
+        this.applicantCode = applicantCode;
+    }
+
     public String getVerifierCode() { return this.verifierCode; }
 
     public List<Object> getAdditionalVerification() { return (List<Object>) requestBody.get(ADDITIONALVERIFICATION); }

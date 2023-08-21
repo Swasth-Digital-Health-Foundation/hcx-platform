@@ -1,12 +1,14 @@
 package org.swasth.common.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import static org.swasth.common.utils.Constants.*;
+import static org.swasth.common.utils.Constants.PARTICIPANT_CODE;
+import static org.swasth.common.utils.Constants.ROLE;
 
 public class User {
 
@@ -90,12 +92,8 @@ public class User {
     public void setTenantRoles(List<Map<String,Object>> tenantRoles){
         this.tenantRoles = tenantRoles;
     }
-
     public void setCreatedBy(String createdBy){
         this.createdBy = createdBy;
-    }
-    public String getRole() {
-        return (String) getTenantRoles().get(0).getOrDefault(ROLE, "");
     }
     
 }
