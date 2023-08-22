@@ -30,10 +30,8 @@ public class RetryScheduler extends BaseScheduler {
     public void process() throws Exception {
 
         System.out.println("Retry batch job is started");
-        ResultSet result = null;
-        Connection connection = postgreSQLClient.getConnection();
-        Statement createStatement = connection.createStatement();
-        try {
+        ResultSet result;
+        try(Connection connection = postgreSQLClient.getConnection(); Statement createStatement = connection.createStatement()){
             String selectQuery = String.format("SELECT * FROM %s WHERE status = '%s' AND retryCount <= %d;", postgresTableName, Constants.RETRY_STATUS, maxRetry);
             result = postgreSQLClient.executeQuery(selectQuery);
             int metrics = 0;
@@ -58,11 +56,6 @@ public class RetryScheduler extends BaseScheduler {
         } catch (Exception e) {
             System.out.println("Error while processing event: " + e.getMessage());
             throw e;
-        } finally {
-            if(result != null) result.close();
-            if(createStatement != null) createStatement.close();
-            connection.close();
         }
     }
-
 }
