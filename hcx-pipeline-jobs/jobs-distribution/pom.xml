@@ -20,36 +20,7 @@
             <version>${flink.version}</version>
             <type>jar</type>
         </dependency>
-        <dependency>
-            <groupId>org.swasth</groupId>
-            <artifactId>coverage-eligibility-job</artifactId>
-            <version>1.0.0</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>org.swasth</groupId>
-            <artifactId>preauth-job</artifactId>
-            <version>1.0.0</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>org.swasth</groupId>
-            <artifactId>claims-job</artifactId>
-            <version>1.0.0</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>org.swasth</groupId>
-            <artifactId>payments-job</artifactId>
-            <version>1.0.0</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>org.swasth</groupId>
-            <artifactId>status-job</artifactId>
-            <version>1.0.0</version>
-            <type>jar</type>
-        </dependency>
+
         <dependency>
             <groupId>org.swasth</groupId>
             <artifactId>composite-search-job</artifactId>
@@ -59,24 +30,6 @@
         <dependency>
             <groupId>org.swasth</groupId>
             <artifactId>search-response-job</artifactId>
-            <version>1.0.0</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>org.swasth</groupId>
-            <artifactId>communication-job</artifactId>
-            <version>1.0.0</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>org.swasth</groupId>
-            <artifactId>predetermination-job</artifactId>
-            <version>1.0.0</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>org.swasth</groupId>
-            <artifactId>retry-job</artifactId>
             <version>1.0.0</version>
             <type>jar</type>
         </dependency>
@@ -94,9 +47,8 @@
         </dependency>
         <dependency>
             <groupId>org.swasth</groupId>
-            <artifactId>fetch-job</artifactId>
+            <artifactId>protocol-request-processor</artifactId>
             <version>1.0.0</version>
-            <type>jar</type>
         </dependency>
     </dependencies>
 
