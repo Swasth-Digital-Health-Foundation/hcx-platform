@@ -182,9 +182,9 @@ public class BaseRequest {
     public void validateUsingAuditData(List<String> allowedEntitiesForForward, List<String> allowedRolesForForward, Map<String, Object> senderDetails, Map<String, Object> recipientDetails, List<Map<String, Object>> correlationAuditData, List<Map<String, Object>> callAuditData, List<Map<String, Object>> participantCtxAuditData, String path) throws Exception {
         validateCondition(!callAuditData.isEmpty(), ErrorCodes.ERR_INVALID_API_CALL_ID, API_CALL_SAME_MSG);
         //validate correlation id belongs to same cycle or not
-        if(!correlationAuditData.isEmpty() && !correlationAuditData.get(0).get(ACTION).toString().contains(getEntity(apiAction))){
-            throw new ClientException(ErrorCodes.ERR_INVALID_CORRELATION_ID, INVALID_CORRELATION_ID_CYCLE);
-        }
+//        if(!correlationAuditData.isEmpty() && !correlationAuditData.get(0).get(ACTION).toString().contains(getEntity(apiAction))){
+//            throw new ClientException(ErrorCodes.ERR_INVALID_CORRELATION_ID, INVALID_CORRELATION_ID_CYCLE);
+//        }
 
         // validate request cycle is not closed
         for (Map<String, Object> audit : correlationAuditData) {
