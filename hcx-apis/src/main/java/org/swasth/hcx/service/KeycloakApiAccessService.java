@@ -1,5 +1,4 @@
 package org.swasth.hcx.service;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.admin.client.resource.UsersResource;
@@ -41,6 +40,7 @@ public class KeycloakApiAccessService {
     private EmailService emailService;
 
     public void addUserWithParticipant(String email, String participantCode, String name) throws ClientException {
+        Response response = null;
         try (Keycloak keycloak = Keycloak.getInstance(keycloakURL, keycloakMasterRealm, keycloakAdminUserName, keycloakAdminPassword, keycloackClientId)) {
             RealmResource realmResource = keycloak.realm(keycloackProtocolAccessRealm);
             UsersResource usersResource = realmResource.users();
@@ -51,7 +51,8 @@ public class KeycloakApiAccessService {
             } else {
                 String password = generateRandomPassword();
                 UserRepresentation user = createUserRequest(userName, name, password);
-                Response response = usersResource.create(user);
+                response = usersResource.create(user);
+                response.close();
                 if (response.getStatus() == 201) {
                     String message = userEmailMessage;
                     message = message.replace("NAME", name).replace("USER_ID", email).replace("PASSWORD", password).replace("PARTICIPANT_CODE", participantCode);
@@ -60,6 +61,10 @@ public class KeycloakApiAccessService {
             }
         } catch (Exception e) {
             throw new ClientException("Unable to add user and participant record to Keycloak: " + e.getMessage());
+        } finally {
+            if (response != null) {
+                response.close();
+            }
         }
     }
 

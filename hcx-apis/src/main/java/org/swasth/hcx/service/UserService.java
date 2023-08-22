@@ -72,7 +72,6 @@ public class UserService extends BaseRegistryService {
         CompletableFuture<Map<String, Object>> future = new CompletableFuture<>();
         try {
             HttpResponse<String> response;
-            Thread.sleep(1000);
             registryDetails = getUser(userId);
             Map<String, Object> finalRequest = new HashMap<>();
             ArrayList<Map<String, Object>> tenantRolesList = JSONUtils.convert(registryDetails.get(TENANT_ROLES), ArrayList.class);
