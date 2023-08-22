@@ -13,10 +13,10 @@ server:
 kafka:
   topic:
     payload: ${kafka_payload_topic:${env}.hcx.request.payload}
-    coverageeligibility: ${kafka_coverageeligibility_topic:${env}.hcx.request.coverageeligibility}
-    preauth: ${kafka_preauth_topic:${env}.hcx.request.preauth}
-    claim: ${kafka_claim_topic:${env}.hcx.request.claim}
-    payment: ${kafka_payment_topic:${env}.hcx.request.payment}
+    coverageeligibility: ${kafka_coverageeligibility_topic:${env}.hcx.protocol.request.processor}
+    preauth: ${kafka_preauth_topic:${env}.hcx.protocol.request.processor}
+    claim: ${kafka_claim_topic:${env}.hcx.protocol.request.processor}
+    payment: ${kafka_payment_topic:${env}.hcx.protocol.request.processor}
     status: ${kafka_status_topic:${env}.hcx.request.status.search}
     search: ${kafka_search_topic:${env}.hcx.request.search}
     searchresponse: ${kafka_search_response_topic:${env}.hcx.response.search}
