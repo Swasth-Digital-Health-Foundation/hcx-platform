@@ -37,7 +37,7 @@ const LinkedParticipant = () => {
 
 
   const viewParticipant =(value:any) =>{
-    getParticipant(value.email).then((res :any) => {
+    getParticipantByCode(value.participantcode).then((res :any) => {
       console.log("we are in inside get par", res);
        dispatch(addParticipantDetails(res["data"]["participants"][0]));
        dispatch(addAppData({"sidebar":"Profile"}));
