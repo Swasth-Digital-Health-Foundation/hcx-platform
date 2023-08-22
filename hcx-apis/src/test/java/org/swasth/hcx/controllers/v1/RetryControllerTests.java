@@ -1,6 +1,7 @@
 package org.swasth.hcx.controllers.v1;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MvcResult;
@@ -31,7 +32,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
         doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
         ResultSet mockResultSet = getMockResultSet();
         doReturn(mockResultSet).when(postgreSQLClient).executeQuery(anyString());
-        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + "/request/retry/e49e067d-60ff-40ee-b3df-08abb6c2fda1").param("mid",Constants.MID).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + "/request/retry/e49e067d-60ff-40ee-b3df-08abb6c2fda1").param("mid",Constants.MID).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         Map<String,Object> output = JSONUtils.deserialize(response.getContentAsString(),Map.class);
         int status = response.getStatus();
@@ -44,7 +45,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
         doNothing().when(mockKafkaClient).send(anyString(),anyString(),any());
         ResultSet mockResultSet = getEmptyResultSet();
         doReturn(mockResultSet).when(postgreSQLClient).executeQuery(anyString());
-        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + "/request/retry/e49e067d-60ff-40ee-b3df-08abb6c2fda1").param("mid",Constants.MID).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + "/request/retry/e49e067d-60ff-40ee-b3df-08abb6c2fda1").param("mid",Constants.MID).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         Map<String,Object> output = JSONUtils.deserialize(response.getContentAsString(),Map.class);
         Map<String,Object> errorMap = (Map<String, Object>) output.get("error");

@@ -6,21 +6,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.swasth.apigateway.exception.ErrorCodes;
 import org.swasth.apigateway.exception.ServerException;
 import org.swasth.apigateway.models.BaseRequest;
-import org.swasth.apigateway.utils.Utils;
 import org.swasth.auditindexer.function.AuditIndexer;
 import org.swasth.common.dto.Request;
 import org.swasth.common.helpers.EventGenerator;
 import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.HttpUtils;
 import org.swasth.common.utils.JSONUtils;
-import org.swasth.common.utils.UUIDUtils;
 
 import java.util.*;
-import static org.swasth.common.utils.Constants.*;
+
+import static org.swasth.common.utils.Constants.AUTHORIZATION;
+import static org.swasth.common.utils.Constants.ERROR_STATUS;
 
 
 @Service
@@ -57,8 +58,8 @@ public class AuditService {
         return details;
     }
 
-    public void createAuditLog(BaseRequest request) throws Exception {
-        Request req = new Request(request.getPayload(), request.getApiAction().replaceAll("/" + internalVersion, ""));
+    public void createAuditLog(HttpHeaders headers, BaseRequest request) throws Exception {
+        Request req = new Request(request.getPayload(), request.getApiAction().replaceAll("/" + internalVersion, ""), Objects.requireNonNull(headers.get(AUTHORIZATION)).get(0));
         req.setStatus(ERROR_STATUS);
         req.setErrorDetails(request.getErrorDetails());
         auditIndexer.createDocument(eventGenerator.generateAuditEvent(req));

@@ -115,13 +115,13 @@ public class EventGenerator {
         return event;
     }
 
-    public Map<String, Object> getManualIdentityVerifyEvent(String email, String status) {
+    public Map<String, Object> getManualIdentityVerifyEvent(String code, String status) {
         Map<String,Object> event = new HashMap<>();
         event.put(EID, ONBOARD);
         event.put(MID, UUIDUtils.getUUID());
         event.put(ETS, System.currentTimeMillis());
         event.put(ACTION, PARTICIPANT_VERIFY_IDENTITY);
-        event.put(PRIMARY_EMAIL, email);
+        event.put(PARTICIPANT_CODE, code);
         event.put(AUDIT_STATUS, status);
         return event;
     }

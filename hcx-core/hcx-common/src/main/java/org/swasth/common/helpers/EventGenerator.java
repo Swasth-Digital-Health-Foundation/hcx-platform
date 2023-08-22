@@ -86,8 +86,11 @@ public class EventGenerator {
         event.put(RECIPIENT_NAME, request.getRecipientName());
         event.put(SENDER_PRIMARY_EMAIL, request.getSenderPrimaryEmail());
         event.put(RECIPIENT_PRIMARY_EMAIL, request.getRecipientPrimaryEmail());
-        event.put(PAYLOAD_SIZE,request.getPayloadSize().length);
-        getTag(request,event);
+        event.put(PAYLOAD_SIZE, request.getPayloadSize().length);
+        if (request.getUserId() != null && !request.getUserId().isEmpty()) {
+            event.put(USER_ID, request.getUserId());
+        }
+        getTag(request, event);
         return event;
     }
 
@@ -111,6 +114,7 @@ public class EventGenerator {
             event.put(MID, request.getMid());
             event.put(ETS, System.currentTimeMillis());
             event.put(ACTION, request.getApiAction());
+            event.put(USER_ID, request.getUserId());
             Map<String, Object> headers = new HashMap<>();
             headers.put(JOSE, filterJoseHeaders);
             headers.put(PROTOCOL, filterProtocolHeaders);
