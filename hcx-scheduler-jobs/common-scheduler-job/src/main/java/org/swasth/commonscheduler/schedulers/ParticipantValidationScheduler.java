@@ -51,8 +51,8 @@ public class ParticipantValidationScheduler extends BaseScheduler {
     @Scheduled(fixedDelayString = "${fixedDelay.in.milliseconds.participantVerify}")
     public void process() throws Exception {
         logger.info("Participant validation scheduler started");
-        certExpiry(Constants.ENCRYPTION_CERT_EXPIRY, encryptionExpiryTopicCode, encryptionExpiredTopicCode);
         certExpiry(Constants.SIGNING_CERT_PATH_EXPIRY, signingExpiryTopicCode, signingExpiredTopicCode);
+        certExpiry(Constants.ENCRYPTION_CERT_EXPIRY, encryptionExpiryTopicCode, encryptionExpiredTopicCode);
     }
 
     public void certExpiry(String certType, String expiryTopicCode, String expiredTopicCode) throws Exception {
@@ -63,7 +63,7 @@ public class ParticipantValidationScheduler extends BaseScheduler {
         List<Map<String, Object>> participants = new ArrayList<>();
         for (int beforeExpiryDay : beforeExpiryDaysList) {
             long expiryTime = System.currentTimeMillis() + (1 + beforeExpiryDay) * 24L * 60 * 60 * 1000;
-            participants = registryService.getDetails("{ \"filters\": { " + certType + ": { \"<\": " + expiryTime + " } } }");
+            participants = registryService.getDetails("{ \"filters\": { \"" + certType + "\": { \"<\": " + expiryTime + " } } }");
             for (Map<String, Object> participant : participants) {
                 long certExpiry = (long) participant.get(certType);
                 String participantCode = (String) participant.get(Constants.PARTICIPANT_CODE);
