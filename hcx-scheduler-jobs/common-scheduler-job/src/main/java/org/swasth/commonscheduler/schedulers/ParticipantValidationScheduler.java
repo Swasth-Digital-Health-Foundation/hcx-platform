@@ -91,7 +91,6 @@ public class ParticipantValidationScheduler extends BaseScheduler {
         kafkaClient.send(notifyTopic, Constants.NOTIFICATION, event);
         logger.info("Notify event is pushed to kafka: {}", event);
     }
-
     private String getTemplateMessage(String topicCode) throws Exception {
         return (String) JSONUtils.deserialize((String) (NotificationUtils.getNotification(topicCode).get(Constants.TEMPLATE)), Map.class).get(Constants.MESSAGE);
     }
