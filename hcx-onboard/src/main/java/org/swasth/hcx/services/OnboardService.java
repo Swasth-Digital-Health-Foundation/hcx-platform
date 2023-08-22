@@ -961,10 +961,10 @@ public class OnboardService extends BaseController {
         return freemarkerService.renderTemplate("verification-status.ftl", model);
     }
 
-    private String passwordGenerate(String participantName, String password, String email) throws Exception {
+    private String passwordGenerate(String participantName, String password, String participantCode) throws Exception {
         Map<String, Object> model = new HashMap<>();
         model.put("PARTICIPANT_NAME", participantName);
-        model.put("USERNAME", email);
+        model.put("USERNAME", participantCode);
         model.put("PASSWORD", password);
         return freemarkerService.renderTemplate("password-generate.ftl", model);
     }
@@ -1188,7 +1188,7 @@ public class OnboardService extends BaseController {
         String password = generateRandomPassword(24);
         Map<String, Object> registryDetails = getParticipant(PARTICIPANT_CODE, participantCode);
         setKeycloakPassword(participantCode, password, registryDetails);
-        emailService.sendMail((String) registryDetails.get(PRIMARY_EMAIL), getUserList(headers, participantCode), passwordGenerateSub, passwordGenerate((String) registryDetails.get(PARTICIPANT_NAME), password, (String) registryDetails.get(PRIMARY_EMAIL)));
+        emailService.sendMail((String) registryDetails.get(PRIMARY_EMAIL), getUserList(headers, participantCode), passwordGenerateSub, passwordGenerate((String) registryDetails.get(PARTICIPANT_NAME), password, participantCode));
         return getSuccessResponse();
     }
 
