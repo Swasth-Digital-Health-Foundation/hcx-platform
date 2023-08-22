@@ -39,7 +39,11 @@ jobs:
           restore-keys: ${{ runner.os }}-maven-
 
       - name: Maven Build
-        run: mvn clean install -P hcx-scheduler-jobs
+        run: |
+          cd hcx-core
+          mvn clean install
+          cd ../hcx-scheduler-jobs
+          mvn clean install
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2

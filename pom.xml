@@ -23,7 +23,6 @@
                 <module>hcx-apis</module>
                 <module>hcx-core</module>
                 <module>api-gateway</module>
-                <module>hcx-scheduler-jobs</module>
             </modules>
         </profile>
         <profile>
@@ -54,16 +53,6 @@
             <modules>
                 <module>hcx-core</module>
                 <module>hcx-onboard</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>hcx-scheduler-jobs</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <modules>
-                <module>hcx-core</module>
-                <module>hcx-scheduler-jobs</module>
             </modules>
         </profile>
     </profiles>
