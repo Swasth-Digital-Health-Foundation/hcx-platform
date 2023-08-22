@@ -105,6 +105,7 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
     if (result.retry) {
       logger.info("Error while dispatching error response: " + error.flatMap(_.message).getOrElse(""))
       metrics.incCounter(metric = config.dispatcherRetryCount)
+      generateRetryMetrics(event, metrics)
     }
   }
 
@@ -149,6 +150,7 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
             updateDBStatus(payloadRefId, Constants.DISPATCH_STATUS)
             setStatus(event, Constants.DISPATCH_STATUS)
             metrics.incCounter(metric = config.dispatcherSuccessCount)
+            generateSuccessMetrics(event, metrics)
           }
           if (result.retry) {
             var retryCount: Int = 0
@@ -160,6 +162,7 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
               updateDBStatus(payloadRefId, Constants.REQ_RETRY)
               setStatus(event, Constants.QUEUED_STATUS)
               metrics.incCounter(metric = config.dispatcherRetryCount)
+              generateRetryMetrics(event, metrics)
               Console.println("Event is updated for retrying..")
             }
           }
@@ -191,6 +194,7 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
     setStatus(event, Constants.ERROR_STATUS)
     setErrorDetails(event, createErrorMap(result.error))
     metrics.incCounter(metric = config.dispatcherFailedCount)
+    generateFailedMetrics(event, metrics)
     dispatchErrorResponse(event, result.error, correlationId, payloadRefId, senderCtx, context, metrics)
   }
 
@@ -211,25 +215,25 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
   }
 
   override def metricsList(): List[String] = {
-    List(config.dispatcherSuccessCount, config.dispatcherFailedCount, config.dispatcherRetryCount, config.dispatcherValidationFailedCount, config.dispatcherValidationSuccessCount, config.auditEventsCount)
+    List(config.dispatcherSuccessCount, config.dispatcherFailedCount, config.dispatcherRetryCount, config.dispatcherValidationFailedCount, config.dispatcherValidationSuccessCount, config.auditEventsCount, config.coverageEligibilityDispatcherSuccessCount, config.preAuthDispatcherSuccessCount, config.retryDispatcherSuccessCount, config.claimDispatcherSuccessCount, config.predeterminationDispatcherSuccessCount, config.fetchDispatcherSuccessCount, config.paymentDispatcherSuccessCount, config.communicationDispatcherSuccessCount, config.searchDispatcherSuccessCount, config.searchDispatcherFailedCount, config.coverageEligibilityDispatcherFailedCount, config.preAuthDispatcherFailedCount, config.predeterminationDispatcherFailedCount, config.claimDispatcherFailedCount, config.paymentDispatcherFailedCount, config.fetchDispatcherFailedCount, config.retryDispatcherFailedCount, config.communicationDispatcherFailedCount, config.coverageEligibilityDispatcherRetryCount, config.claimDispatcherRetryCount, config.preAuthDispatcherRetryCount, config.predeterminationDispatcherRetryCount, config.paymentDispatcherRetryCount, config.searchDispatcherRetryCount, config.fetchDispatcherRetryCount, config.communicationDispatcherRetryCount, config.retryDispatcherRetryCount)
   }
 
   def createAuditRecord(event: util.Map[String, AnyRef]): util.Map[String, AnyRef] = {
     val audit = new util.HashMap[String, AnyRef]();
     audit.put(Constants.EID, Constants.AUDIT)
-    audit.put(Constants.HCX_RECIPIENT_CODE,getProtocolStringValue(event,Constants.HCX_RECIPIENT_CODE))
-    audit.put(Constants.HCX_SENDER_CODE,getProtocolStringValue(event,Constants.HCX_SENDER_CODE))
-    audit.put(Constants.API_CALL_ID,getProtocolStringValue(event,Constants.API_CALL_ID))
-    audit.put(Constants.HCX_CORRELATION_ID,getProtocolStringValue(event,Constants.HCX_CORRELATION_ID))
-    audit.put(Constants.WORKFLOW_ID,getProtocolStringValue(event,Constants.WORKFLOW_ID))
-    audit.put(Constants.HCX_TIMESTAMP,getProtocolStringValue(event,Constants.HCX_TIMESTAMP))
-    audit.put(Constants.ERROR_DETAILS,getProtocolMapValue(event,Constants.ERROR_DETAILS))
-    audit.put(Constants.DEBUG_DETAILS,getProtocolMapValue(event,Constants.DEBUG_DETAILS))
-    audit.put(Constants.MID,event.get(Constants.MID).asInstanceOf[String])
-    audit.put(Constants.ACTION,event.get(Constants.ACTION).asInstanceOf[String])
-    audit.put(Constants.HCX_STATUS,getProtocolStringValue(event,Constants.HCX_STATUS))
-    audit.put(Constants.REQUESTED_TIME,event.get(Constants.ETS))
-    audit.put(Constants.UPDATED_TIME,event.getOrDefault(Constants.UPDATED_TIME, Calendar.getInstance().getTime()))
+    audit.put(Constants.HCX_RECIPIENT_CODE, getProtocolStringValue(event, Constants.HCX_RECIPIENT_CODE))
+    audit.put(Constants.HCX_SENDER_CODE, getProtocolStringValue(event, Constants.HCX_SENDER_CODE))
+    audit.put(Constants.API_CALL_ID, getProtocolStringValue(event, Constants.API_CALL_ID))
+    audit.put(Constants.HCX_CORRELATION_ID, getProtocolStringValue(event, Constants.HCX_CORRELATION_ID))
+    audit.put(Constants.WORKFLOW_ID, getProtocolStringValue(event, Constants.WORKFLOW_ID))
+    audit.put(Constants.HCX_TIMESTAMP, getProtocolStringValue(event, Constants.HCX_TIMESTAMP))
+    audit.put(Constants.ERROR_DETAILS, getProtocolMapValue(event, Constants.ERROR_DETAILS))
+    audit.put(Constants.DEBUG_DETAILS, getProtocolMapValue(event, Constants.DEBUG_DETAILS))
+    audit.put(Constants.MID, event.get(Constants.MID).asInstanceOf[String])
+    audit.put(Constants.ACTION, event.get(Constants.ACTION).asInstanceOf[String])
+    audit.put(Constants.HCX_STATUS, getProtocolStringValue(event, Constants.HCX_STATUS))
+    audit.put(Constants.REQUESTED_TIME, event.get(Constants.ETS))
+    audit.put(Constants.UPDATED_TIME, event.getOrDefault(Constants.UPDATED_TIME, Calendar.getInstance().getTime()))
     audit.put(Constants.ETS, Calendar.getInstance().getTime())
     audit.put(Constants.SENDER_ROLE, getCDataListValue(event, Constants.SENDER, Constants.ROLES))
     audit.put(Constants.RECIPIENT_ROLE, getCDataListValue(event, Constants.RECIPIENT, Constants.ROLES))
@@ -238,7 +242,7 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
     audit.put(Constants.SENDER_PRIMARY_EMAIL, getCDataStringValue(event, Constants.SENDER, Constants.PRIMARY_EMAIL))
     audit.put(Constants.RECIPIENT_PRIMARY_EMAIL, getCDataStringValue(event, Constants.RECIPIENT, Constants.PRIMARY_EMAIL))
     audit.put(Constants.PAYLOAD, removeSensitiveData(payload))
-    audit.put(Constants.PAYLOAD_SIZE,getPayloadSize)
+    audit.put(Constants.PAYLOAD_SIZE, getPayloadSize)
     if (event.containsKey(Constants.USER_ID)) {
       audit.put(Constants.USER_ID, event.getOrDefault(Constants.USER_ID, ""))
     }
@@ -320,4 +324,49 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
   }
   @throws[JsonProcessingException]
   def getPayloadSize: Integer = payload.get(Constants.PAYLOAD).asInstanceOf[String].getBytes.length
+
+  def generateSuccessMetrics(event: util.Map[String, AnyRef], metrics: Metrics): Unit = {
+    val action: String = event.get(Constants.ACTION).asInstanceOf[String];
+    action match {
+      case Constants.COVERAGE_ELIGIBILITY_CHECK => metrics.incCounter(config.coverageEligibilityDispatcherSuccessCount)
+      case Constants.PRE_AUTH_SUBMIT => metrics.incCounter(config.preAuthDispatcherSuccessCount)
+      case Constants.PREDETERMINATION_SUBMIT => metrics.incCounter(config.predeterminationDispatcherSuccessCount)
+      case Constants.CLAIM_SUBMIT => metrics.incCounter(config.claimDispatcherSuccessCount)
+      case Constants.COMMUNICATION_REQUEST => metrics.incCounter(config.communicationDispatcherSuccessCount)
+      case Constants.PAYMENT_NOTICE_REQUEST => metrics.incCounter(config.paymentDispatcherSuccessCount)
+      case Constants.HCX_STATUS_CONTROLLER => metrics.incCounter(config.searchDispatcherSuccessCount)
+      case Constants.REQUEST_RETRY => metrics.incCounter(config.retryDispatcherSuccessCount)
+      case Constants.EOB_FETCH => metrics.incCounter(config.fetchDispatcherSuccessCount)
+    }
+  }
+
+  def generateFailedMetrics(event: util.Map[String, AnyRef], metrics: Metrics): Unit = {
+    val action: String = event.get(Constants.ACTION).asInstanceOf[String];
+    action match {
+      case Constants.COVERAGE_ELIGIBILITY_CHECK => metrics.incCounter(config.coverageEligibilityDispatcherFailedCount)
+      case Constants.PRE_AUTH_SUBMIT => metrics.incCounter(config.preAuthDispatcherFailedCount)
+      case Constants.PREDETERMINATION_SUBMIT => metrics.incCounter(config.predeterminationDispatcherFailedCount)
+      case Constants.CLAIM_SUBMIT => metrics.incCounter(config.claimDispatcherFailedCount)
+      case Constants.COMMUNICATION_REQUEST => metrics.incCounter(config.communicationDispatcherFailedCount)
+      case Constants.PAYMENT_NOTICE_REQUEST => metrics.incCounter(config.paymentDispatcherFailedCount)
+      case Constants.HCX_STATUS_CONTROLLER => metrics.incCounter(config.searchDispatcherFailedCount)
+      case Constants.REQUEST_RETRY => metrics.incCounter(config.retryDispatcherFailedCount)
+      case Constants.EOB_FETCH => metrics.incCounter(config.fetchDispatcherFailedCount)
+    }
+  }
+
+  def generateRetryMetrics(event: util.Map[String, AnyRef], metrics: Metrics): Unit = {
+    val action: String = event.get(Constants.ACTION).asInstanceOf[String];
+    action match {
+      case Constants.COVERAGE_ELIGIBILITY_CHECK => metrics.incCounter(config.coverageEligibilityDispatcherRetryCount)
+      case Constants.PRE_AUTH_SUBMIT => metrics.incCounter(config.preAuthDispatcherRetryCount)
+      case Constants.PREDETERMINATION_SUBMIT => metrics.incCounter(config.predeterminationDispatcherRetryCount)
+      case Constants.CLAIM_SUBMIT => metrics.incCounter(config.claimDispatcherRetryCount)
+      case Constants.COMMUNICATION_REQUEST => metrics.incCounter(config.communicationDispatcherRetryCount)
+      case Constants.PAYMENT_NOTICE_REQUEST => metrics.incCounter(config.paymentDispatcherRetryCount)
+      case Constants.HCX_STATUS_CONTROLLER => metrics.incCounter(config.searchDispatcherRetryCount)
+      case Constants.REQUEST_RETRY => metrics.incCounter(config.retryDispatcherRetryCount)
+      case Constants.EOB_FETCH => metrics.incCounter(config.fetchDispatcherRetryCount)
+    }
+  }
 }
