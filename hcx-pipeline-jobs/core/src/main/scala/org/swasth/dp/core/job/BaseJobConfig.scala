@@ -66,6 +66,39 @@ class BaseJobConfig(val config: Config, val jobName: String) extends Serializabl
   val dispatcherRetryCount = "dispatcher-retry-count"
   val auditEventsCount = "audit-events-count"
 
+  // Dispatch success metrics
+  val coverageEligibilityDispatcherSuccessCount = "coverage-eligibility-dispatcher-success-count"
+  val preAuthDispatcherSuccessCount = "pre-auth-dispatcher-success-count"
+  val predeterminationDispatcherSuccessCount = "predetermination-dispatcher-success-count"
+  val claimDispatcherSuccessCount = "claim-dispatcher-success-count"
+  val communicationDispatcherSuccessCount = "communication-dispatcher-success-count"
+  val paymentDispatcherSuccessCount = "payment-dispatcher-success-count"
+  val fetchDispatcherSuccessCount = "fetch-dispatcher-success--count"
+  val searchDispatcherSuccessCount = "search-dispatcher-success-count"
+  val retryDispatcherSuccessCount = "retry-dispatcher-success-count"
+
+  // Dispatch failed metrics
+  val coverageEligibilityDispatcherFailedCount = "coverage-eligibility-dispatcher-failed-count"
+  val preAuthDispatcherFailedCount = "pre-auth-dispatcher-failed-count"
+  val predeterminationDispatcherFailedCount = "predetermination-dispatcher-failed-count"
+  val claimDispatcherFailedCount = "claim-dispatcher-failed-count"
+  val communicationDispatcherFailedCount = "communication-dispatcher-failed-count"
+  val paymentDispatcherFailedCount = "payment-dispatcher-failed-count"
+  val fetchDispatcherFailedCount = "fetch-dispatcher-failed--count"
+  val searchDispatcherFailedCount = "search-dispatcher-failed-count"
+  val retryDispatcherFailedCount = "retry-dispatcher-failed-count"
+
+  // Dispatch retry metrics
+  val coverageEligibilityDispatcherRetryCount = "coverage-eligibility-dispatcher-retry-count"
+  val preAuthDispatcherRetryCount = "pre-auth-dispatcher-retry-count"
+  val predeterminationDispatcherRetryCount = "predetermination-dispatcher-retry-count"
+  val claimDispatcherRetryCount = "claim-dispatcher-retry-count"
+  val communicationDispatcherRetryCount = "communication-dispatcher-retry-count"
+  val paymentDispatcherRetryCount = "payment-dispatcher-retry-count"
+  val fetchDispatcherRetryCount = "fetch-dispatcher-retry--count"
+  val searchDispatcherRetryCount = "search-dispatcher-retry-count"
+  val retryDispatcherRetryCount = "retry-dispatcher-retry-count"
+
   def kafkaConsumerProperties: Properties = {
     val properties = new Properties()
     properties.setProperty("bootstrap.servers", kafkaBrokerServers)
