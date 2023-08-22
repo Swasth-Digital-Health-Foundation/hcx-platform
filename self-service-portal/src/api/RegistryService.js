@@ -9,12 +9,12 @@ export const getParticipantSearch = async ({headers = {}}) => {
 
 export const getParticipant = async (email) => {
     var payload = { "filters": { "primary_email": { "eq":  email} } };
-    return post("/applicant/search?fields=communication,sponsors,onboard_validation_properties,mockparticipants", payload);
+    return post("/applicant/search?fields=communication,sponsors,onboard_validation_properties", payload);
 }
 
 export const getParticipantByCode = async (code) => {
     var payload = { "filters": { "participant_code": { "eq":  code} } };
-    return post("/applicant/search?fields=communication,sponsors,onboard_validation_properties,mockparticipants", payload);
+    return post("/applicant/search?fields=communication,sponsors,onboard_validation_properties", payload);
 }
 
 export const generateClientSecret = async (code, token="") => {
