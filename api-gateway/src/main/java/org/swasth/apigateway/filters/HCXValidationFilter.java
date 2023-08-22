@@ -132,7 +132,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                     requestObj.getPayload().put(RECIPIENTDETAILS, recipientDetails);
                     List<Map<String, Object>> participantCtxAuditDetails = getParticipantCtxAuditData(jweRequest.getHcxSenderCode(), jweRequest.getHcxRecipientCode(), jweRequest.getCorrelationId());
                     jweRequest.validate(getMandatoryHeaders(), subject, timestampRange, senderDetails, recipientDetails, allowedParticipantStatus);
-                    jweRequest.validateUsingAuditData(allowedEntitiesForForward, allowedRolesForForward, senderDetails, recipientDetails, getCorrelationAuditData(jweRequest.getCorrelationId(), incomingRequestExpiryDays), getCallAuditData(jweRequest.getApiCallId()), participantCtxAuditDetails, path, jweRequest, correlationDataCloseDays, getCorrelationAuditData(jweRequest.getCorrelationId(), correlationDataCloseDays));
+                    jweRequest.validateUsingAuditData(allowedEntitiesForForward, allowedRolesForForward, senderDetails, recipientDetails, getCorrelationAuditData(jweRequest.getCorrelationId(), incomingRequestExpiryDays), getCallAuditData(jweRequest.getApiCallId(),jweRequest.getHcxSenderCode()), participantCtxAuditDetails, path, jweRequest, correlationDataCloseDays, getCorrelationAuditData(jweRequest.getCorrelationId(), correlationDataCloseDays));
                     validateParticipantCtxDetails(participantCtxAuditDetails, path);
                 } else if (path.contains(NOTIFICATION_SUBSCRIBE) || path.contains(NOTIFICATION_UNSUBSCRIBE)) { //for validating /notification/subscribe, /notification/unsubscribe
                     JSONRequest jsonRequest = new JSONRequest(requestBody, true, path, hcxCode, hcxRoles);
@@ -190,7 +190,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                         jsonRequest.validate(getRedirectMandatoryHeaders(), subject, timestampRange, senderDetails, recipientDetails, allowedParticipantStatus);
                         if (getApisForRedirect().contains(path)) {
                             if (REDIRECT_STATUS.equalsIgnoreCase(jsonRequest.getStatus()))
-                                jsonRequest.validateRedirect(getRolesForRedirect(), getDetails(jsonRequest.getRedirectTo()), getCallAuditData(jsonRequest.getApiCallId()), getCorrelationAuditData(jsonRequest.getCorrelationId(), incomingRequestExpiryDays), allowedParticipantStatus);
+                                jsonRequest.validateRedirect(getRolesForRedirect(), getDetails(jsonRequest.getRedirectTo()), getCallAuditData(jsonRequest.getApiCallId(),jsonRequest.getHcxSenderCode()), getCorrelationAuditData(jsonRequest.getCorrelationId(), incomingRequestExpiryDays), allowedParticipantStatus);
                             else
                                 throw new ClientException(ErrorCodes.ERR_INVALID_REDIRECT_TO, MessageFormat.format(INVALID_STATUS_REDIRECT, jsonRequest.getStatus(), REDIRECT_STATUS));
                         } else
