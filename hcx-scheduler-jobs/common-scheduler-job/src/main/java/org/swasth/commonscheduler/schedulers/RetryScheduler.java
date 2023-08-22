@@ -2,26 +2,17 @@ package org.swasth.commonscheduler.schedulers;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.swasth.common.dto.Request;
-import org.swasth.common.helpers.EventGenerator;
 import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
-import org.swasth.kafka.client.KafkaClient;
-import org.swasth.postgresql.PostgreSQLClient;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
-
-import static org.swasth.common.utils.Constants.*;
 
 @Component
 public class RetryScheduler extends BaseScheduler {
