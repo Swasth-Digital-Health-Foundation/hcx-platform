@@ -16,9 +16,7 @@ import java.util.Map;
 
 @Component
 public class RetryScheduler extends BaseScheduler {
-
-    private final Logger logger = LoggerFactory.getLogger(RetryScheduler.class);
-
+    
     @Value("${max.retry}")
     private int maxRetry;
 
