@@ -41,6 +41,7 @@ public class Constants {
     public static final String PREDETERMINATION_SUBMIT = "/predetermination/submit";
     public static final String PREDETERMINATION_ONSUBMIT = "/predetermination/on_submit";
 
+    public static final String PAYLOAD_SIZE = "payload_size";
     //Fetch APIs
     public static final String EOB_FETCH = "/eob/fetch";
     public static final String EOB_ON_FETCH = "/eob/on_fetch";
@@ -86,7 +87,9 @@ public class Constants {
     public static final String CONFIG_MANAGER = "config-manager";
     public static final List<String> ALLOWED_REMOVE_ROLES = Arrays.asList(VIEWER,CONFIG_MANAGER);
     public static final String TENANT_ROLES = "tenant_roles";
+    public static final String REALM_ACCESS = "realm_access";
     public static final String USER_ID = "user_id";
+    public static final String IS_USER_EXISTS = "is_user_exists";
     public static final String EMAIL = "email";
     public static final String MOBILE = "mobile";
     public static final List<String>NOT_ALLOWED_FIELDS_FOR_UPDATE = Arrays.asList(TENANT_ROLES,EMAIL,MOBILE);
@@ -222,6 +225,7 @@ public class Constants {
     public static final String MOCK_PROVIDER = "mock_provider";
     public static final String MOCK_PAYOR = "mock_payor";
     public static final String EQUAL_OPERATION = "eq";
+    public static final String OR_OPERATION = "or";
     public static final String OSID = "osid";
     public static final String AUTHORIZATION = "Authorization";
     public static final String FILTERS = "filters";
@@ -365,5 +369,7 @@ public class Constants {
    public static final String USER_NAME = "user_name";
    public static final String CREATED_BY = "created_by";
    public static final List<String> ALLOWED_DELEGATED_TOPICS = Arrays.asList("notif-workflow-update");
+   public static final String API_ACCESS = "api-access";
+   public static final String SECRET = "secret";
 
 }

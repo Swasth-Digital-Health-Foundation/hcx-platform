@@ -11,3 +11,7 @@
 # gitignore for Gradle project(s).
 **/.gradle/**
 **/lib/build/**
+hcx-pipeline-jobs/fetch-job/dependency-reduced-pom.xml
+hcx-pipeline-jobs/notification-job/dependency-reduced-pom.xml
+hcx-pipeline-jobs/notification-job/dependency-reduced-pom.xml
+hcx-pipeline-jobs/protocol-request-processor/dependency-reduced-pom.xml

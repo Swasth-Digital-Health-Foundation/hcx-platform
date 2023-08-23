@@ -3,6 +3,7 @@ package org.swasth.hcx.controllers.v1;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MvcResult;
@@ -33,7 +34,7 @@ class NotificationControllerTest extends BaseSpec {
         ResultSet mockResultSet = getSubscriptionsResultSet();
         doReturn(mockResultSet).when(postgreSQLClient).executeQuery(anyString());
         String requestBody = getOnePayorSubscriptionRequest();
-        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIBE).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIBE).content(requestBody).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         assertEquals(202, status);
@@ -50,7 +51,7 @@ class NotificationControllerTest extends BaseSpec {
         ResultSet mockResultSet = getSubscriptionListResultSet();
         doReturn(mockResultSet).when(postgreSQLClient).executeQuery(anyString());
         String requestBody = getSubscriptionRequest();
-        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIBE).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIBE).content(requestBody).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         assertEquals(202, status);
@@ -65,7 +66,7 @@ class NotificationControllerTest extends BaseSpec {
     void testNotificationUnSubscribeException() throws Exception {
         doThrow(new ClientException(ErrorCodes.INTERNAL_SERVER_ERROR, "Test Internal Server Error")).when(postgreSQLClient).executeQuery(anyString());
         String requestBody = getSubscriptionRequest();
-        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_UNSUBSCRIBE).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_UNSUBSCRIBE).content(requestBody).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         assertEquals(400, status);
@@ -81,7 +82,7 @@ class NotificationControllerTest extends BaseSpec {
         ResultSet mockResultSet = getSubscriptionListResultSet();
         doReturn(mockResultSet).when(postgreSQLClient).executeQuery(anyString());
         String requestBody = getSubscriptionRequest();
-        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_UNSUBSCRIBE).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_UNSUBSCRIBE).content(requestBody).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         assertEquals(202, status);
@@ -98,7 +99,7 @@ class NotificationControllerTest extends BaseSpec {
         ResultSet mockResultSet = getSubscriptionsResultSet();
         doReturn(mockResultSet).when(postgreSQLClient).executeQuery(anyString());
         String requestBody = getSubscriptionHcxRequest();
-        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_UNSUBSCRIBE).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_UNSUBSCRIBE).content(requestBody).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         assertEquals(202, status);
@@ -112,7 +113,7 @@ class NotificationControllerTest extends BaseSpec {
     void testNotificationSubscribeException() throws Exception {
         doThrow(new ClientException(ErrorCodes.INTERNAL_SERVER_ERROR, "Test Internal Server Error")).when(postgreSQLClient).executeQuery(anyString());
         String requestBody = getSubscriptionRequest();
-        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIBE).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIBE).content(requestBody).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         assertEquals(400, status);
@@ -128,7 +129,7 @@ class NotificationControllerTest extends BaseSpec {
         ResultSet mockResultSet = getSubscriptionsResultSet();
         doReturn(mockResultSet).when(postgreSQLClient).executeQuery(anyString());
         String requestBody = getSubscriptionHcxRequest();
-        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIBE).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIBE).content(requestBody).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         assertEquals(202, status);
@@ -142,7 +143,7 @@ class NotificationControllerTest extends BaseSpec {
         ResultSet mockResultSet = Mockito.mock(ResultSet.class);
         doReturn(mockResultSet).when(postgreSQLClient).executeQuery(anyString());
         String requestBody = getSubscriptionListRequest();
-        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIPTION_LIST).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIPTION_LIST).content(requestBody).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
@@ -156,7 +157,7 @@ class NotificationControllerTest extends BaseSpec {
         ResultSet mockResultSet = getMockResultSet(ACTIVE);
         doReturn(mockResultSet).when(postgreSQLClient).executeQuery(anyString());
         String requestBody = getSubscriptionListRequest();
-        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIPTION_LIST).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIPTION_LIST).content(requestBody).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
@@ -177,7 +178,7 @@ class NotificationControllerTest extends BaseSpec {
         ResultSet mockResultSet = getMockResultSet(INACTIVE);
         doReturn(mockResultSet).when(postgreSQLClient).executeQuery(anyString());
         String requestBody = getSubscriptionListRequest();
-        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIPTION_LIST).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIPTION_LIST).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
@@ -198,7 +199,7 @@ class NotificationControllerTest extends BaseSpec {
         ResultSet mockResultSet = getMockResultSet();
         doReturn(mockResultSet).when(postgreSQLClient).executeQuery(anyString());
         String requestBody = getSubscriptionListRequest();
-        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIPTION_LIST).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIPTION_LIST).content(requestBody).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
@@ -223,7 +224,7 @@ class NotificationControllerTest extends BaseSpec {
     void testSubscriptionListException() throws Exception {
         doThrow(Exception.class).when(postgreSQLClient).executeQuery(anyString());
         String requestBody = getSubscriptionListRequest();
-        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIPTION_LIST).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIPTION_LIST).content(requestBody).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         assertEquals(500, status);
@@ -235,7 +236,7 @@ class NotificationControllerTest extends BaseSpec {
         ResultSet mockResultSet = getMockResultSet();
         doReturn(mockResultSet).when(postgreSQLClient).executeQuery(anyString());
         String requestBody = getSubscriptionListRequestWithValidFilters();
-        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIPTION_LIST).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIPTION_LIST).content(requestBody).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
@@ -246,7 +247,7 @@ class NotificationControllerTest extends BaseSpec {
     @Test
     void testSubscriptionListWithInvalidFilters() throws Exception {
         String requestBody = getSubscriptionListRequestWithInValidFilters();
-        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIPTION_LIST).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIPTION_LIST).content(requestBody).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         assertEquals(400, status);
@@ -258,7 +259,7 @@ class NotificationControllerTest extends BaseSpec {
     @Test
     void testNotificationListEmpty() throws Exception {
         String requestBody = getNotificationListRequest();
-        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_LIST).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_LIST).content(requestBody).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         assertEquals(200, status);
@@ -266,7 +267,7 @@ class NotificationControllerTest extends BaseSpec {
 
     @Test
     void testNotificationListData() throws Exception {
-        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_LIST).content(getNotificationListRequest()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_LIST).content(getNotificationListRequest()).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         assertEquals(200, status);
@@ -277,7 +278,7 @@ class NotificationControllerTest extends BaseSpec {
 
     @Test
     void testNotificationInvalidFilterProperties() throws Exception {
-        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_LIST).content(getInvalidFilterRequest()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_LIST).content(getInvalidFilterRequest()).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         assertEquals(400, status);
@@ -384,7 +385,7 @@ class NotificationControllerTest extends BaseSpec {
         doReturn(getSubscriptionsResultSet()).when(postgreSQLClient).executeQuery(anyString());
         doNothing().when(mockKafkaClient).send(anyString(), anyString(), any());
         String requestBody = getNotificationRequest(List.of("subscription-123"));
-        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_NOTIFY).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_NOTIFY).content(requestBody).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
@@ -396,7 +397,7 @@ class NotificationControllerTest extends BaseSpec {
         doReturn(getSubscriptionsResultSet()).when(postgreSQLClient).executeQuery(anyString());
         doNothing().when(mockKafkaClient).send(anyString(), anyString(), any());
         String requestBody = getNotificationRequest(List.of("subscription-124"));
-        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_NOTIFY).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_NOTIFY).content(requestBody).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
@@ -460,7 +461,7 @@ class NotificationControllerTest extends BaseSpec {
         doNothing().when(mockKafkaClient).send(anyString(), anyString(), any());
         doReturn(getMockResultSet(ACTIVE)).when(postgreSQLClient).executeQuery(anyString());
         String requestBody = getOnSubscriptionRequest();
-        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_ON_SUBSCRIBE).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_ON_SUBSCRIBE).content(requestBody).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         assertEquals(400, status);
@@ -474,7 +475,7 @@ class NotificationControllerTest extends BaseSpec {
     void testNotificationOnSubscribeException() throws Exception {
         doThrow(new ClientException(ErrorCodes.INTERNAL_SERVER_ERROR, "Test Internal Server Error")).when(postgreSQLClient).executeQuery(anyString());
         String requestBody = getOnSubscriptionRequest();
-        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_ON_SUBSCRIBE).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_ON_SUBSCRIBE).content(requestBody).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         assertEquals(400, status);
@@ -487,7 +488,7 @@ class NotificationControllerTest extends BaseSpec {
     void testNotificationOnSubscribeNullResponse() throws Exception {
         doReturn(getSubscriptionUpdateEmptyResultSet()).when(postgreSQLClient).executeQuery(anyString());
         String requestBody = getOnSubscriptionRequest();
-        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_ON_SUBSCRIBE).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_ON_SUBSCRIBE).content(requestBody).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         assertEquals(400, status);
@@ -502,7 +503,7 @@ class NotificationControllerTest extends BaseSpec {
         doNothing().when(mockKafkaClient).send(anyString(), anyString(), any());
         doNothing().when(auditIndexer).createDocument(anyMap());
         String requestBody = getOnSubscriptionRequest();
-        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_ON_SUBSCRIBE).content(requestBody).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_ON_SUBSCRIBE).content(requestBody).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         assertEquals(202, status);
@@ -515,7 +516,7 @@ class NotificationControllerTest extends BaseSpec {
         doReturn(getSubscriptionUpdateResultSet()).when(postgreSQLClient).executeQuery(anyString());
         doReturn(getSubscriptionUpdateAuditLog()).when(mockEventGenerator).createAuditLog(anyString(), anyString(), anyMap(), anyMap());
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIPTION_UPDATE)
-                .content(getSubscriptionUpdateRequest("notif-workflow-update", ACTIVE, true)).contentType(MediaType.APPLICATION_JSON)).andReturn();
+                .content(getSubscriptionUpdateRequest("notif-workflow-update", ACTIVE, true)).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
@@ -527,7 +528,7 @@ class NotificationControllerTest extends BaseSpec {
     void testSubscriptionUpdateIsDelegateFailure() throws Exception {
         doReturn(getSubscriptionUpdateAuditLog()).when(mockEventGenerator).createAuditLog(anyString(), anyString(), anyMap(), anyMap());
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIPTION_UPDATE)
-                .content(getSubscriptionUpdateRequest("notif-participant-onboarded", ACTIVE, true)).contentType(MediaType.APPLICATION_JSON)).andReturn();
+                .content(getSubscriptionUpdateRequest("notif-participant-onboarded", ACTIVE, true)).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
@@ -561,7 +562,7 @@ class NotificationControllerTest extends BaseSpec {
     @Test
     void testSubscriptionUpdateWithInvalidTopicCode() throws Exception {
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIPTION_UPDATE)
-                .content(getSubscriptionUpdateRequest("invalid-topic-123", ACTIVE, true)).contentType(MediaType.APPLICATION_JSON)).andReturn();
+                .content(getSubscriptionUpdateRequest("invalid-topic-123", ACTIVE, true)).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
@@ -573,7 +574,7 @@ class NotificationControllerTest extends BaseSpec {
     @Test
     void testSubscriptionUpdateWithNoUpdateProps() throws Exception {
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIPTION_UPDATE)
-                .content(getSubscriptionUpdateMissingFieldsRequest("notif-participant-onboarded")).contentType(MediaType.APPLICATION_JSON)).andReturn();
+                .content(getSubscriptionUpdateMissingFieldsRequest("notif-participant-onboarded")).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
@@ -593,7 +594,7 @@ class NotificationControllerTest extends BaseSpec {
     @Test
     void testSubscriptionUpdateWithInvalidExpiry() throws Exception {
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIPTION_UPDATE)
-                .content(getSubscriptionUpdateInvalidExpiryRequest("notif-participant-onboarded")).contentType(MediaType.APPLICATION_JSON)).andReturn();
+                .content(getSubscriptionUpdateInvalidExpiryRequest("notif-participant-onboarded")).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
@@ -616,7 +617,7 @@ class NotificationControllerTest extends BaseSpec {
     @Test
     void testSubscriptionUpdateWithInvalidSubscriptionStatus() throws Exception {
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIPTION_UPDATE)
-                .content(getSubscriptionUpdateRequest("notif-participant-onboarded", "InvalidStatus", true)).contentType(MediaType.APPLICATION_JSON)).andReturn();
+                .content(getSubscriptionUpdateRequest("notif-participant-onboarded", "InvalidStatus", true)).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
@@ -628,7 +629,7 @@ class NotificationControllerTest extends BaseSpec {
     @Test
     void testSubscriptionUpdateWithInvalidIsDelegated() throws Exception {
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIPTION_UPDATE)
-                .content(getSubscriptionUpdateRequest("notif-participant-onboarded", ACTIVE, "test")).contentType(MediaType.APPLICATION_JSON)).andReturn();
+                .content(getSubscriptionUpdateRequest("notif-participant-onboarded", ACTIVE, "test")).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);
@@ -642,7 +643,7 @@ class NotificationControllerTest extends BaseSpec {
     void testSubscriptionUpdateWithInvalidSubscriptionDetails() throws Exception {
         doReturn(getSubscriptionUpdateEmptyResultSet()).when(postgreSQLClient).executeQuery(anyString());
         MvcResult mvcResult = mockMvc.perform(post(VERSION_PREFIX + NOTIFICATION_SUBSCRIPTION_UPDATE)
-                .content(getSubscriptionUpdateRequest("notif-workflow-update", ACTIVE, true)).contentType(MediaType.APPLICATION_JSON)).andReturn();
+                .content(getSubscriptionUpdateRequest("notif-workflow-update", ACTIVE, true)).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         Response resObj = JSONUtils.deserialize(response.getContentAsString(), Response.class);

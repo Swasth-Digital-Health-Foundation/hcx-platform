@@ -1,13 +1,11 @@
 package org.swasth.common.dto;
 
 import org.junit.Test;
-import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
 
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.swasth.common.utils.Constants.*;
 
 public class OnboardingRequestTest {
@@ -50,11 +48,13 @@ public class OnboardingRequestTest {
         participant.put(TERMS_AND_CONDITIONS_VERSION,"1");
         body.add(participant);
         OnboardRequest onboardRequest = new OnboardRequest(body);
+        onboardRequest.setApplicantCode("12345");
         assertEquals(participant.get(PARTICIPANT_NAME), onboardRequest.getParticipantName());
         assertEquals(participant.get(PRIMARY_MOBILE), onboardRequest.getPrimaryMobile());
         assertEquals(participant.get(PARTICIPANT), onboardRequest.getParticipant());
         assertEquals(participant.get(PRIMARY_EMAIL), onboardRequest.getPrimaryEmail());
         assertEquals(participant.get(ROLES), onboardRequest.getRoles());
         assertEquals(participant.get(TERMS_AND_CONDITIONS_VERSION),onboardRequest.getTermsAndConditionsVersion());
+        assertEquals("12345", onboardRequest.getApplicantCode());
     }
 }

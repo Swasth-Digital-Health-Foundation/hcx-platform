@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static org.swasth.common.utils.Constants.ORGANISATION;
 
@@ -20,7 +21,7 @@ public class RegistryResponse {
     @JsonProperty("status")
     private String status;
     private ArrayList<Object> participants;
-    private ArrayList<Object> users;
+    private ArrayList<Map<String,Object>> users;
 
 
     public RegistryResponse() {
@@ -46,7 +47,7 @@ public class RegistryResponse {
         if (StringUtils.equals(entity, ORGANISATION)) {
             this.participants = (ArrayList<Object>) response;
         } else {
-            this.users = (ArrayList<Object>) response;
+            this.users = (ArrayList<Map<String, Object>>) response;
         }
     }
 
@@ -86,7 +87,7 @@ public class RegistryResponse {
         return participants;
     }
 
-    public List<Object> getUsers() {
+    public List<Map<String,Object>> getUsers() {
         return users;
     }
 

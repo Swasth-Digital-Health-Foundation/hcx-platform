@@ -48,9 +48,9 @@ public class UserController extends BaseController {
     }
 
     @PostMapping(USER_SEARCH)
-    public ResponseEntity<Object> search(@RequestBody Map<String, Object> requestBody) {
+    public ResponseEntity<Object> search(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
         try {
-            return getSuccessResponse(userService.search(requestBody));
+            return getSuccessResponse(userService.search(header,requestBody));
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
         }

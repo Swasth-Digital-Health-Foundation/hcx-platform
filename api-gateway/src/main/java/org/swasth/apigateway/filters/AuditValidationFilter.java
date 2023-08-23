@@ -70,7 +70,7 @@ public class AuditValidationFilter extends AbstractGatewayFilterFactory<AuditVal
                 }
             modifiedReq = requestHandler.getUpdatedBody(exchange, chain, filterMap);
             } catch (Exception e) {
-                return exceptionHandler.errorResponse(e, exchange, null, null, new BaseRequest());
+                return exceptionHandler.errorResponse(exchange.getRequest().getHeaders(), e, exchange, null, null, new BaseRequest());
             }
             return modifiedReq;
         };
