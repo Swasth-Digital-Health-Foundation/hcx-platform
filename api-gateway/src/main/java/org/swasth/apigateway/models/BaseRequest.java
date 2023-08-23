@@ -192,10 +192,14 @@ public class BaseRequest {
             String entity = getEntity(action);
             validateCondition(!OPERATIONAL_ENTITIES.contains(entity) && action.contains("on_") && ((List<String>) audit.get(RECIPIENT_ROLE)).contains(PROVIDER) && audit.get(STATUS).equals(COMPLETE_STATUS), ErrorCodes.ERR_INVALID_CORRELATION_ID, CLOSED_CYCLE_MSG);
         }
-        if (!correlationFilteredData.isEmpty()) {
-            List<Map<String, Object>> filteredList = filteredList(correlationFilteredData, correlationDataCloseDays);
-            if (filteredList.isEmpty() && correlationFilteredData.get(0).get(HCX_SENDER_CODE).toString().equals(jweRequest.getHcxSenderCode()) && correlationAuditData.get(0).get(CORRELATION_ID).toString().contains(jweRequest.getCorrelationId())) {
-                throw new ClientException(ErrorCodes.ERR_INVALID_CORRELATION_ID, CORRELATION_ID_DUPLICATE);
+        String actionEntity = getEntity(jweRequest.getApiAction());
+        if (!OPERATIONAL_ENTITIES.contains(actionEntity)) {
+            if (!correlationFilteredData.isEmpty()) {
+                List<Map<String, Object>> filteredList = filteredList(correlationFilteredData, correlationDataCloseDays);
+                // validating correlation id at sender context
+                if (filteredList.isEmpty() && correlationFilteredData.get(0).get(HCX_SENDER_CODE).toString().equals(jweRequest.getHcxSenderCode()) && correlationAuditData.get(0).get(CORRELATION_ID).toString().contains(jweRequest.getCorrelationId())) {
+                    throw new ClientException(ErrorCodes.ERR_INVALID_CORRELATION_ID, CORRELATION_ID_DUPLICATE);
+                }
             }
         }
         if (apiAction.contains("on_")) {
