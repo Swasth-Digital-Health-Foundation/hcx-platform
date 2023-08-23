@@ -23,16 +23,16 @@ public class ParticipantValidationScheduler extends BaseScheduler {
     private RegistryService registryService;
 
     @Value("${topicCode.encryption-cert-expired}")
-    private String encryptionExpiredTopicCode;
+    private String encryptionCertExpiredTopicCode;
 
     @Value("${topicCode.before-encryption-cert-expiry}")
-    private String encryptionExpiryTopicCode;
+    private String beforeEncryptionCertExpiryTopicCode;
 
     @Value("${topicCode.signing-cert-expired}")
-    private String signingExpiredTopicCode;
+    private String signingCertExpiredTopicCode;
 
     @Value("${topicCode.before-signing-cert-expiry}")
-    private String signingExpiryTopicCode;
+    private String beforeSigningCertExpiryTopicCode;
     @Value("${kafka.topic.notification}")
     private String notifyTopic;
 
@@ -45,14 +45,13 @@ public class ParticipantValidationScheduler extends BaseScheduler {
     @Value("${notification.expiry}")
     private int notificationExpiry;
     @Value("${certificate.expiry-days}")
-    private List<Integer> beforeExpiryDaysList;
-    
+    private List<Integer> certificateExpiryDaysList;
 
     @Scheduled(fixedDelayString = "${fixedDelay.in.milliseconds.participantVerify}")
     public void process() throws Exception {
         logger.info("Participant validation scheduler started");
-        certExpiry(Constants.SIGNING_CERT_PATH_EXPIRY, signingExpiryTopicCode, signingExpiredTopicCode);
-        certExpiry(Constants.ENCRYPTION_CERT_EXPIRY, encryptionExpiryTopicCode, encryptionExpiredTopicCode);
+        certExpiry(Constants.SIGNING_CERT_PATH_EXPIRY, beforeSigningCertExpiryTopicCode, signingCertExpiredTopicCode);
+        certExpiry(Constants.ENCRYPTION_CERT_EXPIRY, beforeEncryptionCertExpiryTopicCode, encryptionCertExpiredTopicCode);
     }
 
     public void certExpiry(String certType, String expiryTopicCode, String expiredTopicCode) throws Exception {
@@ -61,7 +60,7 @@ public class ParticipantValidationScheduler extends BaseScheduler {
         List<String> expiredParticipantCodes = new ArrayList<>();
         List<String> aboutToExpireParticipantCodes = new ArrayList<>();
         List<Map<String, Object>> participants = new ArrayList<>();
-        for (int beforeExpiryDay : beforeExpiryDaysList) {
+        for (int beforeExpiryDay : certificateExpiryDaysList) {
             long expiryTime = System.currentTimeMillis() + (1 + beforeExpiryDay) * 24L * 60 * 60 * 1000;
             participants = registryService.getDetails("{ \"filters\": { \"" + certType + "\": { \"<\": " + expiryTime + " } } }");
             for (Map<String, Object> participant : participants) {
