@@ -33,6 +33,7 @@ import org.swasth.hcx.controllers.BaseController;
 import org.swasth.hcx.helpers.EventGenerator;
 import org.swasth.hcx.utils.CertificateUtil;
 import org.swasth.hcx.utils.SlugUtils;
+import org.swasth.kafka.client.KafkaClient;
 import org.swasth.postgresql.IDatabaseService;
 
 import javax.annotation.PostConstruct;
@@ -174,7 +175,13 @@ public class OnboardService extends BaseController {
     @Autowired
     private FreemarkerService freemarkerService;
 
+    @Autowired
+    private KafkaClient kafkaClient;
+
     private Keycloak keycloak;
+
+    @Value("${kafka.topic.message}")
+    private String messageTopic;
 
     @PostConstruct()
     public void init(){
@@ -297,10 +304,10 @@ public class OnboardService extends BaseController {
         if (!phoneVerified && requestBody.containsKey(PRIMARY_MOBILE)) {
             shortUrl = hcxURL + "/api/url/" + generateRandomPassword(10);
             longUrl = generateURL(requestBody, PHONE, (String) requestBody.get(PRIMARY_MOBILE)).toString();
-            smsService.sendLink((String) requestBody.get(PRIMARY_MOBILE), phoneSub + "\r\n" + shortUrl);
+            kafkaClient.send(messageTopic, SMS, eventGenerator.getSMSMessageEvent(phoneSub + "\r\n" + shortUrl, Arrays.asList((String) requestBody.get(PRIMARY_MOBILE))));
         }
         if (!emailVerified && requestBody.containsKey(PRIMARY_EMAIL)) {
-            emailService.sendMail((String) requestBody.get(PRIMARY_EMAIL), linkSub, linkTemplate((String) requestBody.get(PARTICIPANT_NAME), (String) requestBody.get(PARTICIPANT_CODE), generateURL(requestBody, EMAIL, (String) requestBody.get(PRIMARY_EMAIL)), linkExpiry / 86400000, (ArrayList<String>) requestBody.get(ROLES), (String) requestBody.getOrDefault("user_id", "")));
+            kafkaClient.send(messageTopic, EMAIL, eventGenerator.getEmailMessageEvent(linkTemplate((String) requestBody.get(PARTICIPANT_NAME), (String) requestBody.get(PARTICIPANT_CODE), generateURL(requestBody, EMAIL, (String) requestBody.get(PRIMARY_EMAIL)), linkExpiry / 86400000, (ArrayList<String>) requestBody.get(ROLES), (String) requestBody.getOrDefault("user_id", "")), linkSub, Arrays.asList((String) requestBody.get(PRIMARY_EMAIL)), new ArrayList<>(), new ArrayList<>()));
         }
         regenerateCount++;
         String updateQuery = String.format("UPDATE %s SET updatedOn=%d, expiry=%d, regenerate_count=%d, last_regenerate_date='%s', phone_short_url='%s', phone_long_url='%s' WHERE primary_email='%s'",
@@ -387,13 +394,13 @@ public class OnboardService extends BaseController {
             logger.info("Communication details verification :: participant_code : {} :: type : {} :: status : {}", participantCode, type, communicationStatus);
             if (StringUtils.equals(type, EMAIL) && emailEnabled) {
                 communicationStatus = emailVerified ? SUCCESSFUL : FAILED;
-                emailService.sendMail((String) jwtPayload.get(SUB), verificationSub, verificationStatus(name, communicationStatus));
+                kafkaClient.send(messageTopic, EMAIL, eventGenerator.getEmailMessageEvent(verificationStatus(name, communicationStatus), verificationSub, Arrays.asList((String) jwtPayload.get(SUB)), new ArrayList<>(), new ArrayList<>()));
             }
             if (StringUtils.equals(type, PHONE) && phoneEnabled) {
                 communicationStatus = phoneVerified ? SUCCESSFUL : FAILED;
                 String phoneverification = phoneStatus;
                 phoneverification = phoneverification.replace("STATUS", communicationStatus);
-                smsService.sendLink((String) jwtPayload.get(SUB), phoneverification + "\r\n" + "Thanks, HCX Team.");
+                kafkaClient.send(messageTopic, SMS, eventGenerator.getSMSMessageEvent(phoneverification + "\r\n" + "Thanks, HCX Team.", Arrays.asList((String) jwtPayload.get(SUB))));
             }
             return communicationStatus;
         } catch (Exception e) {
@@ -502,10 +509,10 @@ public class OnboardService extends BaseController {
                         mockPayorDetails = createMockParticipant(headers, PAYOR, participantDetails);
                     }
                     if (participantDetails.getOrDefault("status", "").equals(CREATED)) {
-                        emailService.sendMail(email, onboardingSuccessSub, successTemplate((String) participant.get(PARTICIPANT_NAME), mockProviderDetails, mockPayorDetails));
+                        kafkaClient.send(messageTopic, EMAIL, eventGenerator.getEmailMessageEvent(successTemplate((String) participant.get(PARTICIPANT_NAME), mockProviderDetails, mockPayorDetails), onboardingSuccessSub, Arrays.asList(email), new ArrayList<>(), new ArrayList<>()));
                     }
                 } else if (participantDetails.getOrDefault("status", "").equals(CREATED)) {
-                    emailService.sendMail(email, onboardingSuccessSub, pocSuccessTemplate((String) participant.get(PARTICIPANT_NAME)));
+                    kafkaClient.send(messageTopic, EMAIL, eventGenerator.getEmailMessageEvent(pocSuccessTemplate((String) participant.get(PARTICIPANT_NAME)), onboardingSuccessSub, Arrays.asList(email), new ArrayList<>(), new ArrayList<>()));
                 }
             }
             if (!StringUtils.equals((String) participantDetails.get(REGISTRY_STATUS), ACTIVE) && StringUtils.equals((String) participant.getOrDefault(REGISTRY_STATUS, ""), ACTIVE)){
@@ -567,7 +574,7 @@ public class OnboardService extends BaseController {
         auditIndexer.createDocument(eventGenerator.getManualIdentityVerifyEvent(applicantEmail, status));
         if (status.equals(ACCEPTED)) {
             updateParticipant(headers, applicantEmail, status);
-            emailService.sendMail(applicantEmail, successIdentitySub, commonTemplate("identity-success.ftl"));
+            kafkaClient.send(messageTopic, EMAIL, eventGenerator.getEmailMessageEvent(commonTemplate("identity-success.ftl"), successIdentitySub, Arrays.asList(applicantEmail), new ArrayList<>(), new ArrayList<>()));
             return getSuccessResponse(new Response());
         } else {
             throw new ClientException(ErrorCodes.ERR_INVALID_IDENTITY, "Identity verification has failed");
@@ -679,7 +686,7 @@ public class OnboardService extends BaseController {
         String token = generateInviteToken(code, email, role, invitedBy);
         URL url = new URL(String.format("%s%s?jwt_token=%s", hcxURL, userInviteEndpoint, token));
         Map<String, Object> participant = getParticipant(PARTICIPANT_CODE, code);
-        emailService.sendMail(email, userInviteSub, userInviteTemplate((String) participant.getOrDefault(PARTICIPANT_NAME, ""), role, url));
+        kafkaClient.send(messageTopic, EMAIL, eventGenerator.getEmailMessageEvent(userInviteTemplate((String) participant.getOrDefault(PARTICIPANT_NAME, ""), role, url), userInviteSub, Arrays.asList(email), new ArrayList<>(), new ArrayList<>()));
         String query = String.format("INSERT INTO %s (participant_code,user_email,invited_by,invite_status,created_on) VALUES ('%s','%s','%s','pending',%d)", onboardUserInviteTable, code, email, invitedBy, System.currentTimeMillis());
         postgreSQLClient.execute(query);
         auditIndexer.createDocument(eventGenerator.getOnboardUserInvite(requestBody,(String) participant.getOrDefault(PARTICIPANT_NAME, "")));
@@ -722,9 +729,9 @@ public class OnboardService extends BaseController {
         updateInviteStatus(user.getEmail(), "accepted");
         Map<String,Object> participantDetails = getParticipant(PARTICIPANT_CODE, token.getParticipantCode());
         if (isUserExists) {
-            emailService.sendMail(user.getEmail(), Arrays.asList(token.getInvitedBy()), userInviteAcceptSub, existingUserInviteAcceptTemplate((String) participantDetails.get(PARTICIPANT_NAME), user.getUsername()));
+            kafkaClient.send(messageTopic, EMAIL, eventGenerator.getEmailMessageEvent(existingUserInviteAcceptTemplate((String) participantDetails.get(PARTICIPANT_NAME), user.getUsername()), userInviteAcceptSub, Arrays.asList(user.getEmail()), Arrays.asList(token.getInvitedBy()), new ArrayList<>()));
         } else {
-            emailService.sendMail(user.getEmail(), Arrays.asList(token.getInvitedBy()), userInviteAcceptSub, userInviteAcceptTemplate(user.getUserId(), (String) participantDetails.get(PARTICIPANT_NAME), user.getUsername()));
+            kafkaClient.send(messageTopic, EMAIL, eventGenerator.getEmailMessageEvent(userInviteAcceptTemplate(user.getUserId(), (String) participantDetails.get(PARTICIPANT_NAME), user.getUsername()), userInviteAcceptSub, Arrays.asList(user.getEmail()), Arrays.asList(token.getInvitedBy()), new ArrayList<>()));
         }
         auditIndexer.createDocument(eventGenerator.getOnboardUserInviteAccepted(user,participantDetails));
         return getSuccessResponse();
@@ -788,7 +795,7 @@ public class OnboardService extends BaseController {
         User user = JSONUtils.deserialize(body.get("user"), User.class);
         updateInviteStatus(user.getEmail(), "rejected");
         Map<String,Object> participantDetails = getParticipant(PARTICIPANT_CODE, token.getParticipantCode());
-        emailService.sendMail(user.getEmail(), Collections.singletonList(token.getInvitedBy()), userInviteRejectSub, userInviteRejectTemplate(user.getEmail(), (String) participantDetails.get(PARTICIPANT_NAME)));
+        kafkaClient.send(messageTopic, EMAIL, eventGenerator.getEmailMessageEvent(userInviteRejectTemplate(user.getEmail(), (String) participantDetails.get(PARTICIPANT_NAME)), userInviteRejectSub, Arrays.asList(user.getEmail()), Arrays.asList(token.getInvitedBy()), new ArrayList<>()));
         auditIndexer.createDocument(eventGenerator.getOnboardUserInviteRejected(user, (String) hcxDetails.getOrDefault(PARTICIPANT_NAME,"")));
         return getSuccessResponse();
     }
@@ -1132,7 +1139,7 @@ public class OnboardService extends BaseController {
         String password = generateRandomPassword(24);
         Map<String, Object> registryDetails = getParticipant(PARTICIPANT_CODE, participantCode);
         setKeycloakPassword(participantCode, password, registryDetails);
-        emailService.sendMail((String) registryDetails.get(PRIMARY_EMAIL), passwordGenerateSub, passwordGenerate((String) registryDetails.get(PARTICIPANT_NAME),password,(String) registryDetails.get(PRIMARY_EMAIL)));
+        kafkaClient.send(messageTopic, EMAIL, eventGenerator.getEmailMessageEvent(passwordGenerate((String) registryDetails.get(PARTICIPANT_NAME),password,(String) registryDetails.get(PRIMARY_EMAIL)), passwordGenerateSub, Arrays.asList((String) registryDetails.get(PRIMARY_EMAIL)), new ArrayList<>(), new ArrayList<>()));
         return getSuccessResponse();
     }
 
