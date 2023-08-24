@@ -22,6 +22,8 @@ headers:
 rbac:
   path: ${RBAC_PATH:classpath:rbac.yaml}
 
+allowedUserRolesForProtocolApiAccess: ${allowed_user_roles_for_protocol_api_access:admin}
+
 #hcx error headers
 plainrequest:
   headers:
@@ -60,14 +62,17 @@ jwt:
   audience: ${JWT_AUDIENCE:}
   jwkUrl: ${JWT_JWK_URL:https://dev-hcx.swasth.app/auth/realms/realm-name/protocol/openid-connect/certs}
   claimsNamespacePath: ${JWT_NS_PATH:$.realm_access.roles}
-  entityRealm: ${JWT_ENTITY_REALM:Organisation@swasth-hcx-participants,User@swasth-hcx-users}
+  apiAccessUserClaimsNamespacePath: ${JWT_API_ACCESS_USER_NS_PATH:$.realm_access.user_roles}
+  apiAccessParticipantClaimsNamespacePath: ${JWT_API_ACCESS_PARTICIPANT_NS_PATH:$.realm_access.participant_roles}
+  entityRealm: ${JWT_ENTITY_REALM:Organisation@swasth-hcx-participants,User@swasth-hcx-users,api-access@api-access}
+
 redis:
   host: ${REDIS_HOST:localhost}
   port: ${REDIS_PORT:6379}
   expires: ${REDIS_EXPIRES:3600}
 
 registry:
-  basePath: ${REGISTRY_BASE_PATH:http://a0b2bab079318431d8ca99f1efb1c25c-874274596.ap-south-1.elb.amazonaws.com:8081}
+  basePath: ${REGISTRY_BASE_PATH:http://aa5c04ed467c04ea89789cead03e4275-320353178.ap-south-1.elb.amazonaws.com:8081}
   hcxCode: ${REGISTRY_HCX_CODE:1-d2d56996-1b77-4abb-b9e9-0e6e7343c72e}
   hcxRoles: ${REGISTRY_HCX_ROLE:HIE/HIO.HCX}
 
@@ -91,6 +96,8 @@ es:
 tag:
    name : ${tag_name:}
 
+expiry:
+  api-call-id-expiry: ${api_call_id_expiry_days:90}
 #audit config
 audit:
   index: ${audit_index:hcx_audit}

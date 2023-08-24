@@ -5,7 +5,7 @@ logging:
   level:
     root: ${LOGGING_LEVEL_ROOT:INFO}
 
-env: ${ENV:local}
+env: ${ENV:dev}
 
 hcx-url: ${hcx_url:https://dev-hcx.swasth.app}
 api-version: ${api_version:v0.7}
@@ -42,7 +42,8 @@ onboard:
 email:
   id: ${email_id:}
   pwd: ${email_pwd:}
-  linkSub: ${link_sub:HCX - Onboarding Details}
+  send-link-sub: ${send-link-sub:HCX - Onboarding details and Email verification}
+  regenerate-link-sub: ${regenerate-link-sub:HCX - Regenerate Email Link}
   success-identity-sub: ${success_identity_sub:HCX - Identity Verified}
   failed-identity-sub: ${failed_identity_sub:HCX - Identity Verification Failed}
   onboarding-success-sub: ${onboarding_success_sub:HCX - Onboarding Successful}
@@ -53,7 +54,6 @@ email:
   password-generate-sub: ${password_generate_sub:HCX - Participant Client Secret}
 
 phone:
-  send-link-msg : ${send_link_msg:HCX mobile verification link is :}
   verification-msg: ${phone_verification_msg:Your phone verification is STATUS.}
 
 hcx-api:

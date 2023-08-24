@@ -13,10 +13,10 @@ server:
 kafka:
   topic:
     payload: ${kafka_payload_topic:${env}.hcx.request.payload}
-    coverageeligibility: ${kafka_coverageeligibility_topic:${env}.hcx.request.coverageeligibility}
-    preauth: ${kafka_preauth_topic:${env}.hcx.request.preauth}
-    claim: ${kafka_claim_topic:${env}.hcx.request.claim}
-    payment: ${kafka_payment_topic:${env}.hcx.request.payment}
+    coverageeligibility: ${kafka_coverageeligibility_topic:${env}.hcx.protocol.request.processor}
+    preauth: ${kafka_preauth_topic:${env}.hcx.protocol.request.processor}
+    claim: ${kafka_claim_topic:${env}.hcx.protocol.request.processor}
+    payment: ${kafka_payment_topic:${env}.hcx.protocol.request.processor}
     status: ${kafka_status_topic:${env}.hcx.request.status.search}
     search: ${kafka_search_topic:${env}.hcx.request.search}
     searchresponse: ${kafka_search_response_topic:${env}.hcx.response.search}
@@ -31,13 +31,13 @@ kafka:
 
 
 registry:
-  basePath: ${registry_basePath:http://a0b2bab079318431d8ca99f1efb1c25c-874274596.ap-south-1.elb.amazonaws.com:8081}
+  basePath: ${registry_basePath:http://aa5c04ed467c04ea89789cead03e4275-320353178.ap-south-1.elb.amazonaws.com:8081}
   hcxcode: ${registry_hcxcode:1-d2d56996-1b77-4abb-b9e9-0e6e7343c72e}
   organisation-api-path: ${registry_api_path:/api/v1/Organisation}
   user-api-path: ${registry_user_api_path:/api/v1/User}
 
 participantCode:
-  fieldSeparator: ${participant_code_field_separator:.}
+  fieldSeparator: ${participant_code_field_separator:_}
 
 #postgres config
 postgres:
@@ -128,10 +128,14 @@ certificates:
   bucketName : ${certificates_bucketName:}
 
 keycloak:
-  client-id: ${client_id:registry-frontend}
   grant-type: ${grant_type:password}
   client-secret: ${client_secret:c4f23c80-96d1-4f39-9784-8a7cb1f61e7a}
   user-realm-url: ${user_realm_url:http://dev-hcx.swasth.app/auth/realms/swasth-hcx-users/protocol/openid-connect/token}
+  user-client-id: ${user_client_id:registry-frontend}
   participant-realm-url: ${participant_realm_url:http://dev-hcx.swasth.app/auth/realms/swasth-hcx-participants/protocol/openid-connect/token}
+  participant-client-id: ${participant_client_id:registry-frontend}
+  protocol-api-access-realm-url: ${protocol_api_access_realm_url:http://dev-hcx.swasth.app/auth/realms/api-access/protocol/openid-connect/token}
+  protocol-api-access-client-id: ${protocol_api_access_client_id:registry}
   user-realm-private-key-path: ${keycloak_user_realm_private_key_path:} 
-  participant-realm-private-key-path: ${keycloak_participant_realm_private_key_path:} 
+  participant-realm-private-key-path: ${keycloak_participant_realm_private_key_path:}
+  protocol-api-access-private-key-path: ${keycloak_protocol_api_access_realm_private_key_path:}
