@@ -18,14 +18,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class SMSDispatcher extends ProcessFunction<Map<String,Object>, Map<String,Object>> {
+public class SMSDispatcher extends BaseDispatcher {
 
     private final Logger logger = LoggerFactory.getLogger(SMSDispatcher.class);
-
-    protected MessageServiceConfig config;
-
     public SMSDispatcher(MessageServiceConfig config) {
-        this.config = config;
+        super(config);
     }
 
     @Override
@@ -35,13 +32,14 @@ public class SMSDispatcher extends ProcessFunction<Map<String,Object>, Map<Strin
             if (!recipients.isEmpty()) {
                 for (String recipient : recipients) {
                     String msgId = sendSMS(recipient, event.get("message").toString());
-                    logger.info("SMS is successfully sent :: Mid: {} Message Id: {}", event.get("mid"), msgId);
-                    // TODO: add auditing
+                    auditService.indexAudit(eventGenerator.createMessageDispatchAudit(event, new HashMap<>()));
+                    System.out.println("SMS is successfully sent :: Mid: " + event.get("mid") + " Message Id: " + msgId);
                 }
             }
         } catch (Exception e) {
-            logger.error("Exception while sending SMS: " + e.getMessage());
-            throw e;
+            e.printStackTrace();
+            auditService.indexAudit(eventGenerator.createMessageDispatchAudit(event, createErrorMap("", e.getMessage(), "")));
+            System.out.println("Exception while sending SMS: " + e.getMessage());
         }
     }
 

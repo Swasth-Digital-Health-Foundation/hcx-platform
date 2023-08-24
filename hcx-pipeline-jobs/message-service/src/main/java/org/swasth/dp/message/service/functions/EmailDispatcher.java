@@ -11,14 +11,12 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.util.*;
 
-public class EmailDispatcher extends ProcessFunction<Map<String,Object>, Map<String,Object>> {
+public class EmailDispatcher extends BaseDispatcher {
 
     private final Logger logger = LoggerFactory.getLogger(EmailDispatcher.class);
 
-    protected MessageServiceConfig config;
-
-    public EmailDispatcher(MessageServiceConfig confi) {
-        this.config = config;
+    public EmailDispatcher(MessageServiceConfig config) {
+        super(config);
     }
 
     @Override
@@ -26,12 +24,14 @@ public class EmailDispatcher extends ProcessFunction<Map<String,Object>, Map<Str
         try{
             Map<String,Object> recipients = (Map<String,Object>) event.getOrDefault("recipients", new HashMap<>());
             if (!recipients.isEmpty()) {
-                    sendMail((List<String>) recipients.getOrDefault("to", new ArrayList<>()), (List<String>) recipients.getOrDefault("cc", new ArrayList<>()), (List<String>) recipients.getOrDefault("bcc", new ArrayList<>()), event.get("sub").toString(), event.get("message").toString());
-                    logger.info("Email is successfully sent :: Mid: {}", event.get("mid"));
-                    // TODO: add auditing
+                sendMail((List<String>) recipients.getOrDefault("to", new ArrayList<>()), (List<String>) recipients.getOrDefault("cc", new ArrayList<>()), (List<String>) recipients.getOrDefault("bcc", new ArrayList<>()), event.get("subject").toString(), event.get("message").toString());
+                auditService.indexAudit(eventGenerator.createMessageDispatchAudit(event, new HashMap<>()));
+                System.out.println("Email is successfully sent :: Mid: " + event.get("mid"));
             }
         } catch (Exception e) {
-            logger.error("Error while sending email: {}", e.getMessage());
+            e.printStackTrace();
+            auditService.indexAudit(eventGenerator.createMessageDispatchAudit(event, createErrorMap("", e.getMessage(), "")));
+            System.out.println("Error while sending email: " + e.getMessage());
         }
     }
 
@@ -77,4 +77,7 @@ public class EmailDispatcher extends ProcessFunction<Map<String,Object>, Map<Str
         properties.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
         return properties;
     }
+
+
+
 }
