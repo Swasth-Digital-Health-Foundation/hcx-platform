@@ -118,7 +118,6 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
     val recipientCtx = event.getOrDefault(Constants.CDATA, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]].getOrDefault(Constants.RECIPIENT, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]]
     try {
       payload = getPayload(payloadRefId);
-      Console.println("-----------payload ----------------------" + payload)
       if (MapUtils.isEmpty(senderCtx)) {
         Console.println("sender context is empty for mid: " + payloadRefId)
         logger.warn("sender context is empty for mid: " + payloadRefId)
@@ -169,7 +168,6 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
           if (!result.retry && !result.success) {
             dispatchError(payloadRefId, event, result, correlationId, senderCtx, context, metrics)
           }
-          Console.println("payload before adding to audit ----" + payload)
           audit(event, context, metrics)
         }
       }
