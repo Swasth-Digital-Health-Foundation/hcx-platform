@@ -187,7 +187,7 @@ class ParticipantControllerTests extends BaseSpec{
     void participant_update_success_scenario() throws Exception {
         registryServer.enqueue(new MockResponse()
                 .setResponseCode(200)
-                .setBody("[{\"osid\":\"1-68c5deca-8299-4feb-b441-923bb649a9a3\"}]")
+                .setBody("[{\"osid\":\"1-68c5deca-8299-4feb-b441-923bb649a9a3\",\"osOwner\":[\"0c5763de-732d-4fd4-8547-b3960c1320f5\"]}]")
                 .addHeader("Content-Type", "application/json"));
         registryServer.enqueue(new MockResponse()
                 .setResponseCode(200)
@@ -225,7 +225,7 @@ class ParticipantControllerTests extends BaseSpec{
     void participant_update_not_found_scenario() throws Exception {
         registryServer.enqueue(new MockResponse()
                 .setResponseCode(200)
-                .setBody("[{\"osid\":\"1-68c5deca-8299-4feb-b441-923bb649a9a3\"}]")
+                .setBody("[{\"osid\":\"1-68c5deca-8299-4feb-b441-923bb649a9a3\",\"osOwner\":[\"0c5763de-732d-4fd4-8547-b3960c1320f5\"]}]")
                 .addHeader("Content-Type", "application/json"));
         registryServer.enqueue(new MockResponse()
                 .setResponseCode(404)
@@ -242,7 +242,7 @@ class ParticipantControllerTests extends BaseSpec{
     void participant_update_un_authorize_scenario() throws Exception {
         registryServer.enqueue(new MockResponse()
                 .setResponseCode(200)
-                .setBody("[{\"primary_email\":\"provider01@gmail.com\", \"osid\":\"1-68c5deca-8299-4feb-b441-923bb649a9a3\"}]")
+                .setBody("[{\"primary_email\":\"provider01@gmail.com\", \"osid\":\"1-68c5deca-8299-4feb-b441-923bb649a9a3\",\"osOwner\":[\"a507e23b-8280-46a7-b9e1-79afc7f864fc\"]}]")
                 .addHeader("Content-Type", "application/json"));
         registryServer.enqueue(new MockResponse()
                 .setResponseCode(200)
@@ -262,7 +262,7 @@ class ParticipantControllerTests extends BaseSpec{
     void participant_update_user_token_scenario() throws Exception {
         registryServer.enqueue(new MockResponse()
                 .setResponseCode(200)
-                .setBody("[{\"primary_email\":\"testprovider1@apollo.com\", \"osid\":\"testprovider1.apollo@swasth-hcx-dev\"}]")
+                .setBody("[{\"primary_email\":\"testprovider1@apollo.com\", \"osid\":\"testprovider1.apollo@swasth-hcx-dev\",\"osOwner\":[\"df4597b7-6fb5-4aac-ad03-5199e5c5ea15\"]}]")
                 .addHeader("Content-Type", "application/json"));
         registryServer.enqueue(new MockResponse()
                 .setResponseCode(200)
@@ -283,7 +283,7 @@ class ParticipantControllerTests extends BaseSpec{
     void participant_update_user_token_invalid_scenario() throws Exception {
         registryServer.enqueue(new MockResponse()
                 .setResponseCode(200)
-                .setBody("[{\"primary_email\":\"provider01@gmail.com\", \"osid\":\"1-68c5deca-8299-4feb-b441-923bb649a9a3\"}]")
+                .setBody("[{\"primary_email\":\"provider01@gmail.com\", \"osid\":\"1-68c5deca-8299-4feb-b441-923bb649a9a3\",\"osOwner\":[\"8527853c-b442-44db-aeda-dbbdcf472d9b\"]}]")
                 .addHeader("Content-Type", "application/json"));
         registryServer.enqueue(new MockResponse()
                 .setResponseCode(200)
