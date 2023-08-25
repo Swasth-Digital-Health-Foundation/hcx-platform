@@ -283,7 +283,7 @@ class ParticipantControllerTests extends BaseSpec{
     void participant_update_user_token_invalid_scenario() throws Exception {
         registryServer.enqueue(new MockResponse()
                 .setResponseCode(200)
-                .setBody("[{\"primary_email\":\"provider01@gmail.com\", \"osid\":\"1-68c5deca-8299-4feb-b441-923bb649a9a3\",\"osOwner\":[\"8527853c-b442-44db-aeda-dbbdcf472d9b\"]}]")
+                .setBody("[{\"primary_email\":\"provider01@gmail.com\", \"osid\":\"1-68c5deca-8299-4feb-b441-923bb649a9a3\",\"osOwner\":[\"8527853c-b442-44db-aeda-dbbdcf472db\"]}]")
                 .addHeader("Content-Type", "application/json"));
         registryServer.enqueue(new MockResponse()
                 .setResponseCode(200)
