@@ -324,7 +324,13 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
     }
   }
   @throws[JsonProcessingException]
-  def getPayloadSize: Integer = payload.get(Constants.PAYLOAD).asInstanceOf[String].getBytes.length
+  def getPayloadSize: Integer = {
+    if (payload.containsKey(Constants.PAYLOAD)) {
+      payload.get(Constants.PAYLOAD).asInstanceOf[String].getBytes.length
+    } else {
+      JSONUtil.serializeToBytes(payload).length
+    }
+  }
 
   def generateSuccessMetrics(event: util.Map[String, AnyRef], metrics: Metrics): Unit = {
     val action: String = event.get(Constants.ACTION).asInstanceOf[String];
