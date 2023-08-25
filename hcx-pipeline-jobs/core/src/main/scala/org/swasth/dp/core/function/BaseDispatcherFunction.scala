@@ -242,7 +242,9 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
     audit.put(Constants.SENDER_PRIMARY_EMAIL, getCDataStringValue(event, Constants.SENDER, Constants.PRIMARY_EMAIL))
     audit.put(Constants.RECIPIENT_PRIMARY_EMAIL, getCDataStringValue(event, Constants.RECIPIENT, Constants.PRIMARY_EMAIL))
     audit.put(Constants.PAYLOAD, removeSensitiveData(payload))
-    audit.put(Constants.PAYLOAD_SIZE, getPayloadSize)
+    if (getPayloadSize != null) {
+      audit.put(Constants.PAYLOAD_SIZE, getPayloadSize)
+    }
     if (event.containsKey(Constants.USER_ID)) {
       audit.put(Constants.USER_ID, event.getOrDefault(Constants.USER_ID, ""))
     }
