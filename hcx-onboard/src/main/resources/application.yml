@@ -9,6 +9,14 @@ env: ${ENV:dev}
 
 hcx-url: ${hcx_url:https://dev-hcx.swasth.app}
 api-version: ${api_version:v0.7}
+
+#kafka config
+bootstrap-servers: ${bootstrap_servers:localhost:9092}
+
+kafka:
+  topic:
+    message: ${kafka_message_topic:${env}.hcx.request.message}
+
 #elasticsearch config
 es:
   host: ${es_host:localhost}

@@ -1,13 +1,16 @@
 package org.swasth.hcx.helpers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.swasth.common.dto.OnboardRequest;
 import org.swasth.common.dto.ResponseError;
 import org.swasth.common.dto.User;
+import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.utils.UUIDUtils;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.swasth.common.utils.Constants.*;
@@ -178,4 +181,33 @@ public class EventGenerator {
         event.put(INVITE_STATUS,REJECTED);
         return  event;
     }
+
+    public String getEmailMessageEvent(String message, String subject, List<String> to, List<String> cc, List<String> bcc) throws JsonProcessingException {
+        Map<String,Object> event = new HashMap<>();
+        event.put(EID, "MESSAGE");
+        event.put(MID, UUIDUtils.getUUID());
+        event.put(ETS, System.currentTimeMillis());
+        event.put(CHANNEL, EMAIL);
+        event.put(SUBJECT, subject);
+        event.put(MESSAGE, message);
+        Map<String,Object> recipients = new HashMap<>();
+        recipients.put(TO, to);
+        recipients.put(CC, cc);
+        recipients.put(BCC, bcc);
+        event.put(RECIPIENTS, recipients);
+        return JSONUtils.serialize(event);
+    }
+
+    public String getSMSMessageEvent(String message, List<String> to) throws JsonProcessingException {
+        Map<String,Object> event = new HashMap<>();
+        event.put(EID, "MESSAGE");
+        event.put(MID, UUIDUtils.getUUID());
+        event.put(ETS, System.currentTimeMillis());
+        event.put(CHANNEL, SMS);
+        event.put(MESSAGE, message);
+        Map<String,Object> recipients = new HashMap<>();
+        recipients.put(TO, to);
+        return  JSONUtils.serialize(event);
+    }
+
 }
