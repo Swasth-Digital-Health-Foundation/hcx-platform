@@ -117,6 +117,7 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
     val senderCtx = event.getOrDefault(Constants.CDATA, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]].getOrDefault(Constants.SENDER, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]]
     val recipientCtx = event.getOrDefault(Constants.CDATA, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]].getOrDefault(Constants.RECIPIENT, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]]
     try {
+      payload = getPayload(payloadRefId);
       if (MapUtils.isEmpty(senderCtx)) {
         Console.println("sender context is empty for mid: " + payloadRefId)
         logger.warn("sender context is empty for mid: " + payloadRefId)
@@ -137,10 +138,8 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
           audit(event, context, metrics);
           dispatchErrorResponse(event, validationResult.error, correlationId, payloadRefId, senderCtx, context, metrics)
         }
-
         if (validationResult.status) {
           metrics.incCounter(metric = config.dispatcherValidationSuccessCount)
-          payload = getPayload(payloadRefId);
           val payloadJSON = JSONUtil.serialize(payload);
           val result = dispatcherUtil.dispatch(recipientCtx, payloadJSON)
           logger.info("result::" + result)
@@ -242,9 +241,7 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
     audit.put(Constants.SENDER_PRIMARY_EMAIL, getCDataStringValue(event, Constants.SENDER, Constants.PRIMARY_EMAIL))
     audit.put(Constants.RECIPIENT_PRIMARY_EMAIL, getCDataStringValue(event, Constants.RECIPIENT, Constants.PRIMARY_EMAIL))
     audit.put(Constants.PAYLOAD, removeSensitiveData(payload))
-    if (getPayloadSize != null) {
-      audit.put(Constants.PAYLOAD_SIZE, getPayloadSize)
-    }
+    audit.put(Constants.PAYLOAD_SIZE, getPayloadSize)
     if (event.containsKey(Constants.USER_ID)) {
       audit.put(Constants.USER_ID, event.getOrDefault(Constants.USER_ID, ""))
     }
