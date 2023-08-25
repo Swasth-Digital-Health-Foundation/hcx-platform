@@ -215,7 +215,7 @@
                             <transformers>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>org.swasth.dp.claims.task.ClaimsStreamTask</mainClass>
+                                    <mainClass>org.swasth.dp.message.service.task.MessageServiceStreamTask</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>
