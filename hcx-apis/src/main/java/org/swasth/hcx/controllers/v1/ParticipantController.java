@@ -16,6 +16,7 @@ import org.swasth.hcx.controllers.BaseController;
 import org.swasth.hcx.models.Participant;
 import org.swasth.hcx.service.ParticipantService;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -72,7 +73,7 @@ public class ParticipantController extends BaseController {
             service.getCertificatesUrl(requestBody, code);
             service.validate(requestBody, false);
             Map<String, Object> details = service.getParticipant(code);
-            service.authorizeEntity(Objects.requireNonNull(header.get(AUTHORIZATION)).get(0).split(" ")[1], participant.getParticipantCode(), (String) ((List<String>) details.get(OS_OWNER).get(0));
+            service.authorizeEntity(Objects.requireNonNull(header.get(AUTHORIZATION)).get(0).split(" ")[1], participant.getParticipantCode(), (String) ((List<String>) details.get(OS_OWNER)).get(0));
             return getSuccessResponse(service.update(requestBody, details, header, code));
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
