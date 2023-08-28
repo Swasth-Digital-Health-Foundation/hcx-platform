@@ -159,6 +159,9 @@ public class Constants {
     public static  final String UPDATED_BY = "updatedBy";
     public static  final String PROPS = "props";
     public static  final String CREATED = "Created";
+    public static  final String CHANNEL = "channel";
+    public static  final String SUBJECT = "subject";
+    public static  final String SMS = "sms";
 
     //Request props
     public static final String PROTOCOL_HEADERS_MANDATORY = "protocol.headers.mandatory";
@@ -271,6 +274,9 @@ public class Constants {
     public static final String RECIPIENT_ROLES = "recipient_roles";
     public static final String SUBSCRIPTIONS = "subscriptions";
     public static final String RECIPIENTS = "recipients";
+    public static final String TO = "to";
+    public static final String CC = "cc";
+    public static final String BCC = "bcc";
     public static final String RECIPIENT_TYPE = "recipient_type";
     public static final String NOTIFICATION_DATA = "notification_data";
     public static final String ALLOWED_RECIPIENTS = "allowed_recipients";
