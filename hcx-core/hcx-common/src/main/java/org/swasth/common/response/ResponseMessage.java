@@ -92,6 +92,7 @@ public class ResponseMessage {
     public static final String API_CALL_SAME_MSG = "Request exist with same api call id";
     public static final String CLOSED_CYCLE_MSG = "Invalid request, cycle is closed for correlation id";
     public static final String INVALID_CORRELATION_ID_CYCLE = "Correlation id of one cycle cannot be used in another cycle";
+    public static final String CORRELATION_ID_DUPLICATE  =  "Request Exist with same correlation id";
     public static final String INVALID_ON_ACTION = "Invalid on_action request, corresponding action request does not exist";
     public static final String INVALID_FORWARD = "Entity is not allowed for forwarding";
     public static final String FORWARD_REQ_ERR_MSG = "Request cannot be forwarded to the forward initiators";
