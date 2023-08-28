@@ -13,9 +13,18 @@ const SideBar = () => {
       dispatch(addAppData({"sidebar":value}));
     };
 
+    const env = process.env.REACT_APP_ENV;
 
 
-    const sideBarNames = ["Profile","Manage Participants", "Manage Users","Launch Payor App","Launch Dashboard"];
+     
+    let sideBarNames = [];
+
+    if(env === "poc"){
+      sideBarNames = ["Profile","Manage Participants", "Manage Users","Launch Dashboard"];
+    } else {
+      sideBarNames = ["Profile","Manage Participants", "Manage Users","Launch Payor App","Launch Dashboard"];
+    }
+
     return(
     <aside
     id="logo-sidebar"

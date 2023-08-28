@@ -2,6 +2,16 @@
 import { post } from '../api/APIService';
 import axios from 'axios';
 
+const env = process.env.REACT_APP_ENV;
+
+let applicantSearchAPI = '';
+
+if (env === 'poc') {
+    applicantSearchAPI = "/applicant/search?fields=communication,sponsors,onboard_validation_properties";
+} else {
+    applicantSearchAPI = "/applicant/search?fields=communication,sponsors,onboard_validation_properties,mockparticipants"
+}
+
 export const getParticipantSearch = async ({headers = {}}) => {
     var payload = { "filters": { "roles": { "eq": "payor" }, "status": { "eq": "Active" }, "supported_apis": { "eq": "onboarding" } } };
     return post("/participant/search", payload);
@@ -9,12 +19,12 @@ export const getParticipantSearch = async ({headers = {}}) => {
 
 export const getParticipant = async (email) => {
     var payload = { "filters": { "primary_email": { "eq":  email} } };
-    return post("/applicant/search?fields=communication,sponsors,onboard_validation_properties,mockparticipants", payload);
+    return post(applicantSearchAPI, payload);
 }
 
 export const getParticipantByCode = async (code) => {
     var payload = { "filters": { "participant_code": { "eq":  code} } };
-    return post("/applicant/search?fields=communication,sponsors,onboard_validation_properties,mockparticipants", payload);
+    return post(applicantSearchAPI, payload);
 }
 
 export const generateClientSecret = async (code, token="") => {
