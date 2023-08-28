@@ -165,7 +165,6 @@ const SignUp: React.FC = () => {
   // }
 
   const onSubmit = () => {
-    setShowLoader(true);
     const jwtToken = _.get(queryString.parse(window.location.search), "jwt_token");
     let formData: any[];
       if (isJWTPresent) {
@@ -184,6 +183,7 @@ const SignUp: React.FC = () => {
         formData[0].participant['tag'] = [tag]
       }
       setShowLoader(true);
+      console.log("loaderr  ", showLoader);
       post("/participant/verify", JSON.stringify(formData))
         .then((data => {
           //setState({ ...formState, ...(formData[0]), ...{ "participant_code": _.get(data, 'data.result.participant_code'), "verifier_code": payor.participant_code, "identity_verification": _.get(data, 'data.result.identity_verification') } })
@@ -195,14 +195,14 @@ const SignUp: React.FC = () => {
             } else {
               dispatch(addAppData({"stageRegister":"setPassword"}))
             }
-            setShowLoader(false);
             setCheckBasic(true);
-            setCheckVerify(true);
+            setCheckVerify(true)
+            setShowLoader(false);
+            console.log("loaderr  ", showLoader);
           }, 500);
         })).catch(err => {
           if (_.get(err, 'response.data.error.message') && _.get(err, 'response.data.error.message') == "Username already invited / registered for Organisation") {
             toast.error('This email address already exists');
-            setShowLoader(false);
           } else {
             toast.error(_.get(err, 'response.data.error.message') || "Internal Server Error", {
               position: toast.POSITION.TOP_CENTER
@@ -214,7 +214,6 @@ const SignUp: React.FC = () => {
             setShowLoader(false);
           }, 500);
         })
-        setShowLoader(false);
   }
 
   const resetPassword = () => {
@@ -236,7 +235,7 @@ const SignUp: React.FC = () => {
               position: toast.POSITION.TOP_CENTER
             });
           }).finally(() => {
-            setSending(false);
+            setShowLoader(false);
           })
         });
 
@@ -245,7 +244,6 @@ const SignUp: React.FC = () => {
           osOwner = res["data"]["participants"][0]["osOwner"];
           dispatch(addParticipantDetails(res["data"]["participants"][0]));
         })
-        setShowLoader(false);
   }
 
 
@@ -256,8 +254,8 @@ const SignUp: React.FC = () => {
 
   return (
     <>
-      {showLoader ? <Loader></Loader> : null }
       <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+      {showLoader ? <Loader></Loader> : null }
         <div className="flex flex-wrap items-center">
           <div className="hidden w-full xl:block xl:w-1/2">
             <div className="py-17.5 px-26 text-center">

@@ -130,7 +130,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               {/* <!-- Menu Item Dashboard --> */}
               <SidebarLinkGroup
                 activeCondition={
-                  pathname === '/onboarding/profile' || pathname.includes('dashboard')
+                  pathname === '/onboarding/profile' || pathname.includes('/onboarding/profile')
                 }
               >
                 {(handleClick, open) => {
@@ -218,7 +218,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                       <NavLink
                         to="#"
                         className={`group relative flex items-center gap-2.5 rounded-sm px-4 py-2 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${(pathname === '/' ||
-                          pathname.includes('dashboard')) &&
+                          pathname.includes('users')) &&
                           'bg-graydark dark:bg-meta-4'
                           }`}
                         onClick={(e) => {
@@ -309,7 +309,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                       <NavLink
                         to="#"
                         className={`group relative flex items-center gap-2.5 rounded-sm px-4 py-2 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${(pathname === '/' ||
-                          pathname.includes('dashboard')) &&
+                          pathname.includes('participant')) &&
                           'bg-graydark dark:bg-meta-4'
                           }`}
                         onClick={(e) => {
@@ -375,7 +375,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               </SidebarLinkGroup>
               <SidebarLinkGroup
                 activeCondition={
-                  pathname === '/onboarding/participants' || pathname.includes('participants')
+                  pathname === '/onboarding/apps' || pathname.includes('apps')
                 }
               >
                 {(handleClick, open) => {
@@ -384,7 +384,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                       <NavLink
                         to="#"
                         className={`group relative flex items-center gap-2.5 rounded-sm px-4 py-2 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${(pathname === '/' ||
-                          pathname.includes('dashboard')) &&
+                          pathname.includes('apps')) &&
                           'bg-graydark dark:bg-meta-4'
                           }`}
                         onClick={(e) => {

@@ -32,7 +32,8 @@ const RoleSelection: React.FC<RoleSelectionProps> = ({ payorList, onRoleSubmit }
   const onSubmit = () => {
     window.console.log("applicant missing", radioRole, payorSelected, applicantCode);
     if(radioRole == "provider" && payorSelected == process.env.REACT_APP_MOCK_PAYOR_CODE){
-      dispatch(addAppData({ "payorSelectedCodeRegister": "" }))
+      dispatch(addAppData({ "payorSelectedCodeRegister": process.env.REACT_APP_MOCK_PAYOR_CODE }))
+      dispatch(addAppData({ "applicantCodeRegister":""}));
       setApplicantCode("");
       return onRoleSubmit();
     }
@@ -40,9 +41,10 @@ const RoleSelection: React.FC<RoleSelectionProps> = ({ payorList, onRoleSubmit }
       toast.error("Applicant code can not be empty");
       setApplicantError(true);
     }else{
-    return onRoleSubmit();
+      return onRoleSubmit();
     }
   }
+  
 
   return (
     <>
