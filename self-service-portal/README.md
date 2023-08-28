@@ -1,46 +1,44 @@
-# hcx-mock-payer-app
+# TailAdmin React - Tailwind CSS React Admin Dashboard Template
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+TailAdmin is a free and open-source admin dashboard template built on **React and Tailwind CSS**, providing developers with everything they need to create a comprehensive, data-driven back-end, 
+dashboard, or admin panel solution for upcoming web projects.
 
-## Available Scripts
+[![tailwind admin template](https://ucarecdn.com/364f2f57-6e1a-4ca4-9fc8-ab721029f6c3/tailadmingh.png)](https://tailadmin.com/)
 
-In the project directory, you can run:
 
-### `npm start`
+With TailAdmin, you get access to all the necessary dashboard UI components, elements, and pages required to build a feature-rich and complete dashboard or admin panel. Whether you're building dashboard or admin panel for a complex web application or a simple website, TailAdmin is the perfect solution to help you get up and running quickly.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### [🚀 View Demo](https://react-demo.tailadmin.com/)
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+### [✨ Visit Website](https://tailadmin.com/)
 
-### `npm test`
+### [⬇️ Download Now](https://tailadmin.com/download)
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### [📄 Documentation/Installation](https://tailadmin.com/docs)
 
-### `npm run build`
+### [⚡ PRO Version](https://tailadmin.com/pricing)
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### [🖌️ TailAdmin Figma](https://www.figma.com/community/file/1214477970819985778)
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+TailAdmin React dashboard template based on Tailwind CSS is a pre-designed starting point for building a web-based dashboard using the React JavaScript library and the Tailwind CSS utility-first framework. This Tailwind CSS + React Dashboard Template - built using Tailwind CSS and **includes pre-built components, such as navigation menus, charts, tables, and forms, which can be easily customized and integrated into a small-to-large React web application**.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+If you're looking for a high-quality **React-Tailwind Dashboard, Admin Panel Template, or UI Kit**, TailAdmin will be the perfect choice for you!
 
-### `npm run eject`
+## TailAdmin React - Installation
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+You'll need to install Node.js >=v14.16+ (Recommended Version) (NPM comes along with it) and TailAdmin uses **Vite** for frontend tooling, to peform installation and building production version, please follow these steps from below:
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+- Use terminal and navigate to the project (tailadmin-react) root.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+- Then run : <code>npm install</code>
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+- Then run : <code>npm start</code>
 
-## Learn More
+Now, in the browser go to <code>localhost:5173</code>
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+**For Production Build**
+Run : <code>npm run build</code>
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+Default build output directory: /dist
+
+This command will generate a dist as build folder in the root of your template that you can upload to your server.
