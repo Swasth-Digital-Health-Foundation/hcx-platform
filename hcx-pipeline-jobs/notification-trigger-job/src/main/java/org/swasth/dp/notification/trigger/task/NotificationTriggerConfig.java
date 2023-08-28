@@ -7,7 +7,7 @@ import org.swasth.dp.core.job.BaseJobConfig;
 import java.util.List;
 import java.util.Map;
 
-public class NotificationTriggerConfig  extends BaseJobConfig {
+public class NotificationTriggerConfig extends BaseJobConfig {
 
     private Config config;
 
