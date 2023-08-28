@@ -87,8 +87,8 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
     @Value("${incoming-request.expiry-days}")
     private int incomingRequestExpiryDays;
 
-    @Value("${incoming-request.correlation-id-close-days}")
-    private int correlationDataCloseDays;
+    @Value("${correlation-id.reuse-after-days}")
+    private int correlationIDReuseAfterDays;
 
     public HCXValidationFilter() {
         super(Config.class);
@@ -132,7 +132,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                     requestObj.getPayload().put(RECIPIENTDETAILS, recipientDetails);
                     List<Map<String, Object>> participantCtxAuditDetails = getParticipantCtxAuditData(jweRequest.getHcxSenderCode(), jweRequest.getHcxRecipientCode(), jweRequest.getCorrelationId());
                     jweRequest.validate(getMandatoryHeaders(), subject, timestampRange, senderDetails, recipientDetails, allowedParticipantStatus);
-                    jweRequest.validateUsingAuditData(allowedEntitiesForForward, allowedRolesForForward, senderDetails, recipientDetails, getCorrelationAuditData(jweRequest.getCorrelationId(), incomingRequestExpiryDays), getCallAuditData(jweRequest.getApiCallId(),jweRequest.getHcxSenderCode()), participantCtxAuditDetails, path, jweRequest, correlationDataCloseDays, getCorrelationAuditData(jweRequest.getCorrelationId(), correlationDataCloseDays));
+                    jweRequest.validateUsingAuditData(allowedEntitiesForForward, allowedRolesForForward, senderDetails, recipientDetails, getCorrelationAuditData(jweRequest.getCorrelationId(), incomingRequestExpiryDays), getCallAuditData(jweRequest.getApiCallId(),jweRequest.getHcxSenderCode()), participantCtxAuditDetails, path, jweRequest, correlationIDReuseAfterDays, getCorrelationAuditData(jweRequest.getCorrelationId(), correlationIDReuseAfterDays));
                     validateParticipantCtxDetails(participantCtxAuditDetails, path);
                 } else if (path.contains(NOTIFICATION_SUBSCRIBE) || path.contains(NOTIFICATION_UNSUBSCRIBE)) { //for validating /notification/subscribe, /notification/unsubscribe
                     JSONRequest jsonRequest = new JSONRequest(requestBody, true, path, hcxCode, hcxRoles);
@@ -238,7 +238,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
     }
 
     private List<Map<String, Object>> getParticipantCtxAuditData(String senderCode, String recipientCode, String correlationId) throws Exception {
-        Map<String, Object> dateFilters = constructDateFilters(correlationDataCloseDays);
+        Map<String, Object> dateFilters = constructDateFilters(correlationIDReuseAfterDays);
         Map<String, String> filters = new HashMap<>();
         filters.put(HCX_SENDER_CODE, recipientCode);
         filters.put(HCX_RECIPIENT_CODE, senderCode);
