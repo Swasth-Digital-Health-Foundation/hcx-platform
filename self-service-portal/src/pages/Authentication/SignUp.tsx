@@ -7,7 +7,6 @@ import { useSelector, useDispatch } from 'react-redux';
 import { post } from '../../api/APIService';
 import { setUserPassword, generateTokenUser } from '../../api/KeycloakService';
 import { getParticipantSearch, getParticipant } from '../../api/RegistryService';
-import { userInvite, serachUser } from '../../api/UserService';
 import { addAppData } from '../../reducers/app_data';
 import { addParticipantDetails } from '../../reducers/participant_details_reducer';
 import { addParticipantToken } from '../../reducers/token_reducer';
@@ -20,6 +19,8 @@ import SetPassword from '../../components/SetPassword';
 import OnboardingSuccess from '../../components/OnboardingSuccess';
 import RoleSelection from '../../components/RoleSelection';
 import InviteUserRegister from '../../components/InviteUserRegister';
+import { serachUser } from '../../api/UserService';
+import Loader from '../../common/Loader';
 
 
 type Payor = {
@@ -118,7 +119,7 @@ const SignUp: React.FC = () => {
   }
 
   const getParticipantDetails = () => {
-    setSending(true)
+    setShowLoader(true);
     let payload;
     window.console.log("in get info", _.get(appData,"applicantCodeRegister"),_.get(appData,"payorSelectedCodeRegister"))
       if (_.get(appData,"applicantCodeRegister") && _.get(appData,"payorSelectedCodeRegister")) {
@@ -146,7 +147,7 @@ const SignUp: React.FC = () => {
         setInvalidApplicantCode(true);
         setFetchResponse(true);
       })).finally(() => {
-        setSending(false)
+        setShowLoader(false);
       })
   }
 
@@ -164,6 +165,7 @@ const SignUp: React.FC = () => {
   // }
 
   const onSubmit = () => {
+    setShowLoader(true);
     const jwtToken = _.get(queryString.parse(window.location.search), "jwt_token");
     let formData: any[];
       if (isJWTPresent) {
@@ -209,14 +211,16 @@ const SignUp: React.FC = () => {
           }
         }).finally(() => {
           setTimeout(() => {
-            setSending(false)
+            setShowLoader(false);
           }, 500);
         })
+        setShowLoader(false);
   }
 
   const resetPassword = () => {
     console.log("we are here to set the password");
         let osOwner;
+        setShowLoader(true);
         setCheckResetPass(true);
 
         serachUser(_.get(appData,"emailRegister")).then((res: any) => {
@@ -241,6 +245,7 @@ const SignUp: React.FC = () => {
           osOwner = res["data"]["participants"][0]["osOwner"];
           dispatch(addParticipantDetails(res["data"]["participants"][0]));
         })
+        setShowLoader(false);
   }
 
 
@@ -251,6 +256,7 @@ const SignUp: React.FC = () => {
 
   return (
     <>
+      {showLoader ? <Loader></Loader> : null }
       <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
         <div className="flex flex-wrap items-center">
           <div className="hidden w-full xl:block xl:w-1/2">
