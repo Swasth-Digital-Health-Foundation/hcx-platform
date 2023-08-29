@@ -303,3 +303,49 @@
     {"message": "Your encryption certificate got expired, please update your details with new certificate."}
   status: Active
   is_delegate: false
+- topic_code: notif-signing-cert-expired
+  title: Signing certificate expiry
+  description: Notification about signing certificate expiry
+  allowed_senders:
+    - HIE/HIO.HCX
+  allowed_recipients:
+    - provider
+    - payor
+    - agency.tpa
+    - agency.regulator
+    - research
+    - member.isnp
+    - agency.sponsor
+    - HIE/HIO.HCX
+  type: Targeted
+  category: Network
+  priority: 1
+  template: >-
+    {"message": "Your signing certificate got expired, please update your details with new certificate."}
+  status: Active
+  is_delegate: false
+- topic_code: notif-signing-key-expiry
+  title: Signing Key expiration
+  description: >-
+    Notification about the signing key expiration for the participant in the
+    ecosystem.
+  allowed_senders:
+    - HIE/HIO.HCX
+  allowed_recipients:
+    - payor
+    - provider
+    - agency.tpa
+    - agency.regulator
+    - research
+    - member.isnp
+    - agency.sponsor
+    - HIE/HIO.HCX
+  type: Targeted
+  category: Network
+  priority: 1
+  template: >-
+    {"message": "${participant_name} signing key will be expiring on
+    ${DDMMYYYY}. Please renew your encryption key before ${DDMMYYYY} to carry on
+    operating on HCX."}
+  status: Active
+  is_delegate: false
