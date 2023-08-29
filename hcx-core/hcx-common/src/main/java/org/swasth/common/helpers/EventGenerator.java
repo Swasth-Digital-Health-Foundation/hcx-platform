@@ -6,6 +6,7 @@ import org.swasth.common.dto.Request;
 import org.swasth.common.dto.Response;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.utils.JWTUtils;
+import org.swasth.common.utils.UUIDUtils;
 
 import java.util.*;
 
@@ -252,6 +253,21 @@ public class EventGenerator {
         }
     }
 
+    public String getEmailMessageEvent(String message, String subject, List<String> to, List<String> cc, List<String> bcc) throws JsonProcessingException {
+        Map<String,Object> event = new HashMap<>();
+        event.put(EID, "MESSAGE");
+        event.put(MID, UUIDUtils.getUUID());
+        event.put(ETS, System.currentTimeMillis());
+        event.put(CHANNEL, EMAIL);
+        event.put(SUBJECT, subject);
+        event.put(MESSAGE, message);
+        Map<String,Object> recipients = new HashMap<>();
+        recipients.put(TO, to);
+        recipients.put(CC, cc);
+        recipients.put(BCC, bcc);
+        event.put(RECIPIENTS, recipients);
+        return JSONUtils.serialize(event);
+    }
     public String createNotifyEvent(String topicCode, String senderCode, String recipientType, List<String> recipients, long expiry, String message, String privateKey) throws Exception {
         Map<String, Object> notificationHeaders = new HashMap<>();
         notificationHeaders.put(SENDER_CODE, senderCode);
