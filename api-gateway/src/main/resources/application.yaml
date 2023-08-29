@@ -96,6 +96,12 @@ es:
 tag:
    name : ${tag_name:}
 
+incoming-request:
+   expiry-days: ${request_incoming_expiry_date:90}
+
+correlation-id:
+  reuse-after-days: ${correlation_id_reuse_after_days:30}
+
 expiry:
   api-call-id-expiry: ${api_call_id_expiry_days:90}
 #audit config
