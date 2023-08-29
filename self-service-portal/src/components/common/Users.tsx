@@ -175,7 +175,7 @@ const Users = () => {
               <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                 <tr>
                   <th scope="col" className="px-6 py-3">
-                    User Name
+                    User
                   </th>
                   <th scope="col" className="px-6 py-3">
                     User Code
@@ -357,7 +357,7 @@ const Users = () => {
                     <button
                       type="submit"
                       className="button-secondary"
-                      onClick={(event) => { event.preventDefault(); inviteUsers(); setShowDetails(false) }}
+                      onClick={(event) => { event.preventDefault(); inviteUsers(); setShowDetails(false);  }}
                     >
                       Update User
                     </button>

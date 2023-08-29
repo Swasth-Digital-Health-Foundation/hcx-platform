@@ -20,7 +20,7 @@ const ParticipantInfo = () => {
   const participantDetails: Object = useSelector((state: RootState) => state.participantDetailsReducer.participantDetails);
   const authToken = useSelector((state: RootState) => state.tokenReducer.participantToken);
   console.log("part details in dash", participantDetails, authToken);
-  const [email, setEmail] = useState(_.get(participantDetails, "primary_email") || "");
+  const [email, setEmail] = useState(_.get(participantDetails, "primary_email") || "example@org.com");
   const [phone, setPhone] = useState(_.get(participantDetails, "primary_mobile") || "1234567890");
   const [address, setAddress] = useState(_.get(participantDetails, "address") || {});
   const [encryptionCert, setEncryptionCert] = useState(_.get(participantDetails, "encryption_cert") || '');
@@ -348,7 +348,7 @@ const ParticipantInfo = () => {
               >
                 Encryption Certificate
               </label>
-              <div className="flex mb-3">
+              < div className="flex mb-3">
                 <div className="flex items-center mr-4">
                   <input id="inline-radio" type="radio" value="" name="inline-radio-group" className="radio-primary"
                     onClick={() => setCertType("text")} defaultChecked></input>
