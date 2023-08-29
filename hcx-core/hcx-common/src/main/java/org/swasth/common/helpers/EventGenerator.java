@@ -268,18 +268,6 @@ public class EventGenerator {
         event.put(RECIPIENTS, recipients);
         return JSONUtils.serialize(event);
     }
-
-    public String getSMSMessageEvent(String message, List<String> to) throws JsonProcessingException {
-        Map<String,Object> event = new HashMap<>();
-        event.put(EID, "MESSAGE");
-        event.put(MID, UUIDUtils.getUUID());
-        event.put(ETS, System.currentTimeMillis());
-        event.put(CHANNEL, SMS);
-        event.put(MESSAGE, message);
-        Map<String,Object> recipients = new HashMap<>();
-        recipients.put(TO, to);
-        return  JSONUtils.serialize(event);
-
     public String createNotifyEvent(String topicCode, String senderCode, String recipientType, List<String> recipients, long expiry, String message, String privateKey) throws Exception {
         Map<String, Object> notificationHeaders = new HashMap<>();
         notificationHeaders.put(SENDER_CODE, senderCode);
