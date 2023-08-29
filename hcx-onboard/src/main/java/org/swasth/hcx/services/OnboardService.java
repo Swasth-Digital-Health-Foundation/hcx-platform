@@ -1193,7 +1193,7 @@ public class OnboardService extends BaseController {
         String password = generateRandomPassword(24);
         Map<String, Object> registryDetails = getParticipant(PARTICIPANT_CODE, participantCode);
         setKeycloakPassword(participantCode, password, registryDetails);
-        kafkaClient.send(messageTopic, EMAIL, eventGenerator.getEmailMessageEvent(passwordGenerate((String) registryDetails.get(PARTICIPANT_NAME),password,(String) registryDetails.get(PRIMARY_EMAIL)), passwordGenerateSub, Arrays.asList((String) registryDetails.get(PRIMARY_EMAIL)), new ArrayList<>(), new ArrayList<>()));
+        kafkaClient.send(messageTopic, EMAIL, eventGenerator.getEmailMessageEvent(passwordGenerate((String) registryDetails.get(PARTICIPANT_NAME),password,(String) registryDetails.get(PRIMARY_EMAIL)), passwordGenerateSub, Arrays.asList((String) registryDetails.get(PRIMARY_EMAIL)), getUserList(headers, participantCode), new ArrayList<>()));
         return getSuccessResponse();
     }
 
