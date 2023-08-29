@@ -74,7 +74,7 @@ const BasicInformation: React.FC<BasicInformationProps> = ({onInfoSubmit}:BasicI
         <div className="relative">
           <input
             type="tel"
-            placeholder="Enter your phone number"
+            placeholder="Enter your full name"
             className={"w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"  + (phoneError ? " !border-danger" : "")}
             value={phoneNumber}
             onChange={(event) => { setPhoneError(false); setPhoneNumber(event.target.value); dispatch(addAppData({ "phoneRegister": event.target.value })) }}
@@ -109,7 +109,7 @@ const BasicInformation: React.FC<BasicInformationProps> = ({onInfoSubmit}:BasicI
         <div className="relative">
           <input
             type="text"
-            placeholder="Enter your organization name"
+            placeholder="Enter your full name"
             className={"w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"  + (orgError ? " !border-danger" : "")}
             value={org}
             onChange={(event) => { setOrgError(false); setOrg(event.target.value); dispatch(addAppData({ "organizationNameRegister": event.target.value })) }}

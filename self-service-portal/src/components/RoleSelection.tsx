@@ -1,8 +1,11 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import React, { useState, useRef, useEffect, ChangeEvent } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { addAppData } from '../reducers/app_data';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import _ from 'lodash';
+import { RootState } from '../store';
+import TermsOfUse from './TermsOfUse';
 
 type Payor = {
   participant_code: string,
@@ -18,6 +21,7 @@ interface RoleSelectionProps {
 const RoleSelection: React.FC<RoleSelectionProps> = ({ payorList, onRoleSubmit }: RoleSelectionProps) => {
 
   const dispatch = useDispatch();
+  const appData: Object = useSelector((state: RootState) => state.appDataReducer.appData);
   const [radioRole, setRadioRole] = useState('provider');
   const [payorSelected, setPayorSelected] = useState(process.env.REACT_APP_MOCK_PAYOR_CODE);
   const [applicantCode, setApplicantCode] = useState('');
@@ -32,8 +36,7 @@ const RoleSelection: React.FC<RoleSelectionProps> = ({ payorList, onRoleSubmit }
   const onSubmit = () => {
     window.console.log("applicant missing", radioRole, payorSelected, applicantCode);
     if(radioRole == "provider" && payorSelected == process.env.REACT_APP_MOCK_PAYOR_CODE){
-      dispatch(addAppData({ "payorSelectedCodeRegister": process.env.REACT_APP_MOCK_PAYOR_CODE }))
-      dispatch(addAppData({ "applicantCodeRegister":""}));
+      dispatch(addAppData({ "payorSelectedCodeRegister": "" }))
       setApplicantCode("");
       return onRoleSubmit();
     }
@@ -41,13 +44,19 @@ const RoleSelection: React.FC<RoleSelectionProps> = ({ payorList, onRoleSubmit }
       toast.error("Applicant code can not be empty");
       setApplicantError(true);
     }else{
-      return onRoleSubmit();
+    return onRoleSubmit();
     }
   }
-  
+
+  const setShowTerms = (event: ChangeEvent<HTMLInputElement>) => {
+    console.log("event.target.value", event.target.checked);
+    dispatch(addAppData({ "showTerms": event.target.checked }));
+    dispatch(addAppData({ "termsAccepted": event.target.checked }));
+  }
 
   return (
     <>
+      <TermsOfUse></TermsOfUse>
       <div className="mb-4">
         <label className="mb-2.5 block font-medium text-black dark:text-white">
           Role
@@ -157,6 +166,13 @@ const RoleSelection: React.FC<RoleSelectionProps> = ({ payorList, onRoleSubmit }
             </div>
           </div> : null}
         </> : null}
+        <div className="flex items-center justify-center mt-10 mb-4">
+                                <input id="link-checkbox" type="checkbox" value="" className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                  onChange={(event) => setShowTerms(event)}
+                                  checked={_.get(appData, "termsAccepted")}></input>
+                                <label htmlFor="link-checkbox" className="ml-2 label-primary">I agree with the <a href="#" onClick={() => dispatch(addAppData({ "showTerms": true }))} className="text-blue-600 dark:text-blue-500 hover:underline">terms and conditions</a>.</label>
+                              </div>
+      {_.get(appData, "termsAccepted") ?
       <div className="my-5">
         <input
           type="submit"
@@ -164,7 +180,17 @@ const RoleSelection: React.FC<RoleSelectionProps> = ({ payorList, onRoleSubmit }
           className="w-full cursor-pointer rounded-lg border border-primary bg-primary p-4 text-white transition hover:bg-opacity-90"
           onClick={(event) => { event.preventDefault(); onSubmit() }}
         />
-      </div>
+      </div> : 
+      <div className="my-5">
+            <input
+              type="submit"
+              disabled
+              value="Next"
+              className="w-full cursor-pointer rounded-lg border border-primary bg-primary p-4 text-white transition hover:bg-opacity-90 disabled:bg-opacity-90"
+              onClick={(event) => { event.preventDefault(); onSubmit() }}
+            />
+          </div>}
+
       <div className="mt-6 text-center">
         <p>
           Already have an account?{' '}
