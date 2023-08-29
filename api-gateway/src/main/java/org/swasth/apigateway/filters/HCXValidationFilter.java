@@ -84,6 +84,12 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
     @Value("${expiry.api-call-id-expiry}")
     private int apiCallIdExpiryDays;
 
+    @Value("${incoming-request.expiry-days}")
+    private int incomingRequestExpiryDays;
+
+    @Value("${correlation-id.reuse-after-days}")
+    private int correlationIDReuseAfterDays;
+
     public HCXValidationFilter() {
         super(Config.class);
     }
@@ -126,7 +132,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                     requestObj.getPayload().put(RECIPIENTDETAILS, recipientDetails);
                     List<Map<String, Object>> participantCtxAuditDetails = getParticipantCtxAuditData(jweRequest.getHcxSenderCode(), jweRequest.getHcxRecipientCode(), jweRequest.getCorrelationId());
                     jweRequest.validate(getMandatoryHeaders(), subject, timestampRange, senderDetails, recipientDetails, allowedParticipantStatus);
-                    jweRequest.validateUsingAuditData(allowedEntitiesForForward, allowedRolesForForward, senderDetails, recipientDetails, getCorrelationAuditData(jweRequest.getCorrelationId()), getCallAuditData(jweRequest.getApiCallId(),jweRequest.getHcxSenderCode()), participantCtxAuditDetails, path);
+                    jweRequest.validateUsingAuditData(allowedEntitiesForForward, allowedRolesForForward, senderDetails, recipientDetails, getCorrelationAuditData(jweRequest.getCorrelationId(), incomingRequestExpiryDays), getCallAuditData(jweRequest.getApiCallId(),jweRequest.getHcxSenderCode()), participantCtxAuditDetails, path, jweRequest, correlationIDReuseAfterDays, getCorrelationAuditData(jweRequest.getCorrelationId(), correlationIDReuseAfterDays));
                     validateParticipantCtxDetails(participantCtxAuditDetails, path);
                 } else if (path.contains(NOTIFICATION_SUBSCRIBE) || path.contains(NOTIFICATION_UNSUBSCRIBE)) { //for validating /notification/subscribe, /notification/unsubscribe
                     JSONRequest jsonRequest = new JSONRequest(requestBody, true, path, hcxCode, hcxRoles);
@@ -184,7 +190,7 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
                         jsonRequest.validate(getRedirectMandatoryHeaders(), subject, timestampRange, senderDetails, recipientDetails, allowedParticipantStatus);
                         if (getApisForRedirect().contains(path)) {
                             if (REDIRECT_STATUS.equalsIgnoreCase(jsonRequest.getStatus()))
-                                jsonRequest.validateRedirect(getRolesForRedirect(), getDetails(jsonRequest.getRedirectTo()), getCallAuditData(jsonRequest.getApiCallId(), jsonRequest.getHcxSenderCode()), getCorrelationAuditData(jsonRequest.getCorrelationId()), allowedParticipantStatus);
+                                jsonRequest.validateRedirect(getRolesForRedirect(), getDetails(jsonRequest.getRedirectTo()), getCallAuditData(jsonRequest.getApiCallId(),jsonRequest.getHcxSenderCode()), getCorrelationAuditData(jsonRequest.getCorrelationId(), incomingRequestExpiryDays), allowedParticipantStatus);
                             else
                                 throw new ClientException(ErrorCodes.ERR_INVALID_REDIRECT_TO, MessageFormat.format(INVALID_STATUS_REDIRECT, jsonRequest.getStatus(), REDIRECT_STATUS));
                         } else
@@ -222,15 +228,23 @@ public class HCXValidationFilter extends AbstractGatewayFilterFactory<HCXValidat
         return getAuditData(filters);
     }
 
-    private List<Map<String, Object>> getCorrelationAuditData(String correlationId) throws Exception {
-        return getAuditData(Collections.singletonMap(CORRELATION_ID, correlationId));
+    private List<Map<String, Object>> getCorrelationAuditData(String correlationId, int incomingRequestExpiry) throws Exception {
+        Map<String, Object> dateFilters = constructDateFilters(incomingRequestExpiry);
+        Map<String, String> filters = new HashMap<>();
+        filters.put(CORRELATION_ID, correlationId);
+        filters.put(START_DATETIME, (String) dateFilters.get(START_DATETIME));
+        filters.put(STOP_DATETIME, (String) dateFilters.get(STOP_DATETIME));
+        return getAuditData(filters);
     }
 
     private List<Map<String, Object>> getParticipantCtxAuditData(String senderCode, String recipientCode, String correlationId) throws Exception {
+        Map<String, Object> dateFilters = constructDateFilters(correlationIDReuseAfterDays);
         Map<String, String> filters = new HashMap<>();
         filters.put(HCX_SENDER_CODE, recipientCode);
         filters.put(HCX_RECIPIENT_CODE, senderCode);
         filters.put(CORRELATION_ID, correlationId);
+        filters.put(START_DATETIME, (String) dateFilters.get(START_DATETIME));
+        filters.put(STOP_DATETIME, (String) dateFilters.get(STOP_DATETIME));
         return getAuditData(filters);
     }
 
