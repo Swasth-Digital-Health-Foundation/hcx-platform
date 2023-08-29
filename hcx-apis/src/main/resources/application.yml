@@ -28,6 +28,7 @@ kafka:
     onsubscription: ${kafka_onsubscription_topic:${env}.hcx.request.onsubscription}
     retry: ${kafka_retry_topic:${env}.hcx.request.retry}
     fetch: ${kafka_fetch_topic:${env}.hcx.request.fetch}
+    message: ${kafka_message_topic:${env}.hcx.request.message}
 
 
 registry:

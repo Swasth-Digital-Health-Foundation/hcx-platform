@@ -333,7 +333,7 @@ public class OnboardService extends BaseController {
         }
         if (!emailVerified && requestBody.containsKey(PRIMARY_EMAIL)) {
             if (regenerateCount > 0) {
-                kafkaClient.send(messageTopic, EMAIL, eventGenerator.getEmailMessageEvent(regenerateLinkTemplate((String) requestBody.get(PARTICIPANT_NAME), generateURL(requestBody, EMAIL, (String) requestBody.get(PRIMARY_EMAIL)), linkExpiry / 86400000)), regenerateLinkSub, Arrays.asList((String) requestBody.get(PRIMARY_EMAIL)), new ArrayList<>(), new ArrayList<>()));
+                kafkaClient.send(messageTopic, EMAIL, eventGenerator.getEmailMessageEvent(regenerateLinkTemplate((String) requestBody.get(PARTICIPANT_NAME), generateURL(requestBody, EMAIL, (String) requestBody.get(PRIMARY_EMAIL)), linkExpiry / 86400000), regenerateLinkSub, Arrays.asList((String) requestBody.get(PRIMARY_EMAIL)), new ArrayList<>(), new ArrayList<>()));
             } else {
                 kafkaClient.send(messageTopic, EMAIL, eventGenerator.getEmailMessageEvent(linkTemplate((String) requestBody.get(PARTICIPANT_NAME), (String) requestBody.get(PARTICIPANT_CODE), generateURL(requestBody, EMAIL, (String) requestBody.get(PRIMARY_EMAIL)), linkExpiry / 86400000, (ArrayList<String>) requestBody.get(ROLES), (String) requestBody.getOrDefault("user_id", "")), linkSub, Arrays.asList((String) requestBody.get(PRIMARY_EMAIL)), new ArrayList<>(), new ArrayList<>()));
             }
@@ -758,7 +758,7 @@ public class OnboardService extends BaseController {
         updateInviteStatus(user.getEmail(), "accepted");
         Map<String,Object> participantDetails = getParticipant(PARTICIPANT_CODE, token.getParticipantCode());
         // user
-        kafkaClient.send(messageTopic, EMAIL, eventGenerator.getEmailMessageEvent(userInviteAcceptTemplate(user.getUserId(), (String) participantDetails.get(PARTICIPANT_NAME), user.getUsername(),(String) user.getTenantRoles().get(0).getOrDefault(ROLE, ""))), userInviteAcceptSub, Arrays.asList(user.getEmail()), Arrays.asList(token.getInvitedBy()), new ArrayList<>()));
+        kafkaClient.send(messageTopic, EMAIL, eventGenerator.getEmailMessageEvent(userInviteAcceptTemplate(user.getUserId(), (String) participantDetails.get(PARTICIPANT_NAME), user.getUsername(),(String) user.getTenantRoles().get(0).getOrDefault(ROLE, "")), userInviteAcceptSub, Arrays.asList(user.getEmail()), Arrays.asList(token.getInvitedBy()), new ArrayList<>()));
         // participant
         kafkaClient.send(messageTopic, EMAIL, eventGenerator.getEmailMessageEvent(userInviteAcceptParticipantTemplate((String) participantDetails.get(PARTICIPANT_NAME),user.getUsername(),(String) user.getTenantRoles().get(0).getOrDefault(ROLE, "")), userInviteAcceptSub, Arrays.asList((String) participantDetails.get(PRIMARY_EMAIL)), Arrays.asList(token.getInvitedBy()), new ArrayList<>()));
         auditIndexer.createDocument(eventGenerator.getOnboardUserInviteAccepted(user,participantDetails));

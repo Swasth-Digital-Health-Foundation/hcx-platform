@@ -10,11 +10,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.swasth.common.exception.ClientException;
+import org.swasth.common.helpers.EventGenerator;
+import org.swasth.kafka.client.KafkaClient;
+
 import javax.ws.rs.core.Response;
 import java.security.SecureRandom;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
+import static org.swasth.common.utils.Constants.EMAIL;
+import static org.swasth.common.utils.Constants.PARTICIPANT_NAME;
 
 @Service
 public class KeycloakApiAccessService {
@@ -36,8 +40,12 @@ public class KeycloakApiAccessService {
     private String userEmailMessage;
     @Value("${email.user-token-subject}")
     private String emailSub;
+    @Value("${kafka.topic.message}")
+    private String messageTopic;
     @Autowired
-    private EmailService emailService;
+    private KafkaClient kafkaClient;
+    @Autowired
+    protected EventGenerator eventGenerator;
 
     public void addUserWithParticipant(String email, String participantCode, String name) throws ClientException {
         Response response = null;
@@ -56,7 +64,7 @@ public class KeycloakApiAccessService {
                 if (response.getStatus() == 201) {
                     String message = userEmailMessage;
                     message = message.replace("NAME", name).replace("USER_ID", email).replace("PASSWORD", password).replace("PARTICIPANT_CODE", participantCode);
-                    emailService.sendMail(email, emailSub, message);
+                    kafkaClient.send(messageTopic, EMAIL, eventGenerator.getEmailMessageEvent(message, emailSub, List.of(email), new ArrayList<>(), new ArrayList<>()));
                 }
             }
         } catch (Exception e) {
