@@ -76,11 +76,11 @@ public class UserService extends BaseRegistryService {
             Map<String, Object> finalRequest = new HashMap<>();
             ArrayList<Map<String, Object>> tenantRolesList = JSONUtils.convert(registryDetails.get(TENANT_ROLES), ArrayList.class);
             if (StringUtils.equals(action, PARTICIPANT_USER_ADD)) {
-                userAdd(roles, participantCode, tenantRolesList, finalRequest);
+                addUser(roles, participantCode, tenantRolesList, finalRequest);
                 apiAccessService.addUserWithParticipant(userId, participantCode, (String) registryDetails.get(USER_NAME));
             } else if (StringUtils.equals(action, PARTICIPANT_USER_REMOVE)) {
                 ArrayList<Map<String, Object>> filteredTenantRoles = new ArrayList<>();
-                userRemove(roles, participantCode, finalRequest, tenantRolesList, filteredTenantRoles);
+                removeUser(roles, participantCode, finalRequest, tenantRolesList, filteredTenantRoles);
                 if (roles.contains(ADMIN)) {
                     apiAccessService.removeUserWithParticipant(participantCode, userId);
                 }
@@ -101,7 +101,7 @@ public class UserService extends BaseRegistryService {
     }
 
     @Async
-    private void userAdd(List<String> roles, String participantCode, List<Map<String, Object>> tenantRolesList, Map<String, Object> finalRequest) throws ClientException {
+    private void addUser(List<String> roles, String participantCode, List<Map<String, Object>> tenantRolesList, Map<String, Object> finalRequest) throws ClientException {
         for (String role : roles) {
             for (Map<String, Object> tenantRole : tenantRolesList) {
                 if (tenantRole.get(ROLE).equals(role) && tenantRole.get(PARTICIPANT_CODE).equals(participantCode)) {
@@ -122,7 +122,7 @@ public class UserService extends BaseRegistryService {
         return request;
     }
     @Async
-    private void userRemove(List<String> roles, String participantCode, Map<String, Object> finalRequest, ArrayList<Map<String, Object>> tenantRolesList, ArrayList<Map<String, Object>> filteredTenantRoles) throws ClientException {
+    private void removeUser(List<String> roles, String participantCode, Map<String, Object> finalRequest, ArrayList<Map<String, Object>> tenantRolesList, ArrayList<Map<String, Object>> filteredTenantRoles) throws ClientException {
         if (tenantRolesList.isEmpty()) {
             throw new ClientException("User does not have any role to remove");
         }
