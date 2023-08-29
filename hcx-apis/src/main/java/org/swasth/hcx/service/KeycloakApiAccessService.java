@@ -1,4 +1,5 @@
 package org.swasth.hcx.service;
+
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.admin.client.resource.UsersResource;
@@ -15,10 +16,12 @@ import org.swasth.kafka.client.KafkaClient;
 
 import javax.ws.rs.core.Response;
 import java.security.SecureRandom;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.swasth.common.utils.Constants.EMAIL;
-import static org.swasth.common.utils.Constants.PARTICIPANT_NAME;
 
 @Service
 public class KeycloakApiAccessService {
