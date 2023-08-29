@@ -16,7 +16,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.swasth.common.helpers.EventGenerator;
 import org.swasth.common.service.RegistryService;
-import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.commonscheduler.config.GenericConfiguration;
 import org.swasth.kafka.client.KafkaClient;
@@ -24,10 +23,12 @@ import org.swasth.kafka.client.KafkaClient;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.InetAddress;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.lenient;
 
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest(classes ={ ParticipantValidationScheduler.class, BaseScheduler.class})
@@ -52,22 +53,18 @@ public class ParticipantValidationSchedulerTests {
     private MockWebServer registryServer =  new MockWebServer();
 
     @BeforeEach
-    public void start() throws IOException {
+    void setup() throws Exception {
         registryServer.start(InetAddress.getByName("localhost"),8082);
+        Field kafkaClientField = BaseScheduler.class.getDeclaredField("kafkaClient");
+        kafkaClientField.setAccessible(true);
+        BaseScheduler baseScheduler = scheduler;
+        kafkaClientField.set(baseScheduler, kafkaClient);
     }
 
     @AfterEach
     public void teardown() throws IOException, InterruptedException {
         registryServer.shutdown();
         Thread.sleep(2000);
-    }
-
-    @BeforeEach
-    void setup() throws Exception {
-        Field kafkaClientField = BaseScheduler.class.getDeclaredField("kafkaClient");
-        kafkaClientField.setAccessible(true);
-        BaseScheduler baseScheduler = scheduler;
-        kafkaClientField.set(baseScheduler, kafkaClient);
     }
 
     @Test
