@@ -33,6 +33,7 @@ import org.swasth.hcx.controllers.BaseController;
 import org.swasth.hcx.helpers.EventGenerator;
 import org.swasth.hcx.utils.CertificateUtil;
 import org.swasth.hcx.utils.SlugUtils;
+import org.swasth.kafka.client.IEventService;
 import org.swasth.kafka.client.KafkaClient;
 import org.swasth.postgresql.IDatabaseService;
 
@@ -171,7 +172,7 @@ public class OnboardService extends BaseController {
     private FreemarkerService freemarkerService;
 
     @Autowired
-    private KafkaClient kafkaClient;
+    private IEventService kafkaClient;
 
     private Keycloak keycloak;
 
