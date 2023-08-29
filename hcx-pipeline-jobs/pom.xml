@@ -24,6 +24,7 @@
         <module>notification-job</module>
         <module>notification-trigger-job</module>
         <module>protocol-request-processor</module>
+        <module>message-service</module>
     </modules>
     <properties>
         <!-- maven specific properties -->
