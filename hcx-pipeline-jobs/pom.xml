@@ -18,8 +18,6 @@
     <url>https://swasth.org/</url>
     <modules>
         <module>core</module>
-        <module>composite-search-job</module>
-        <module>search-response-job</module>
         <module>jobs-distribution</module>
         <module>notification-job</module>
         <module>notification-trigger-job</module>
