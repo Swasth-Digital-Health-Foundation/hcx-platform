@@ -33,13 +33,13 @@ public class SMSDispatcher extends BaseDispatcher {
             if (!recipients.isEmpty()) {
                 for (String recipient : recipients) {
                     String msgId = sendSMS(recipient, event.get("message").toString());
-                    auditService.indexAudit(eventGenerator.createMessageDispatchAudit(event, new HashMap<>()));
+                    auditService.indexAudit(config.onboardIndex, config.onboardIndexAlias, eventGenerator.createMessageDispatchAudit(event, new HashMap<>()));
                     System.out.println("SMS is successfully sent :: Mid: " + event.get("mid") + " Message Id: " + msgId);
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
-            auditService.indexAudit(eventGenerator.createMessageDispatchAudit(event, createErrorMap("", e.getMessage(), "")));
+            auditService.indexAudit(config.onboardIndex, config.onboardIndexAlias, eventGenerator.createMessageDispatchAudit(event, createErrorMap("", e.getMessage(), "")));
             System.out.println("Exception while sending SMS: " + e.getMessage());
             throw e;
         }

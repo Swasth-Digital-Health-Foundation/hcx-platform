@@ -26,12 +26,12 @@ public class EmailDispatcher extends BaseDispatcher {
             Map<String,Object> recipients = (Map<String,Object>) event.getOrDefault("recipients", new HashMap<>());
             if (!recipients.isEmpty()) {
                 sendMail((List<String>) recipients.getOrDefault("to", new ArrayList<>()), (List<String>) recipients.getOrDefault("cc", new ArrayList<>()), (List<String>) recipients.getOrDefault("bcc", new ArrayList<>()), event.get("subject").toString(), event.get("message").toString());
-                auditService.indexAudit(eventGenerator.createMessageDispatchAudit(event, new HashMap<>()));
+                auditService.indexAudit(config.onboardIndex, config.onboardIndexAlias, eventGenerator.createMessageDispatchAudit(event, new HashMap<>()));
                 System.out.println("Email is successfully sent :: Mid: " + event.get("mid"));
             }
         } catch (Exception e) {
             e.printStackTrace();
-            auditService.indexAudit(eventGenerator.createMessageDispatchAudit(event, createErrorMap("", e.getMessage(), "")));
+            auditService.indexAudit(config.onboardIndex, config.onboardIndexAlias, eventGenerator.createMessageDispatchAudit(event, createErrorMap("", e.getMessage(), "")));
             System.out.println("Error while sending email: " + e.getMessage());
             throw e;
         }
