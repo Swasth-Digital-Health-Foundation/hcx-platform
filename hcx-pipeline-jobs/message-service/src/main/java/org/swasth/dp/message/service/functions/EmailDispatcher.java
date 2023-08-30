@@ -58,6 +58,7 @@ public class EmailDispatcher extends BaseDispatcher {
     }
 
     private Session getSession() {
+        System.out.println("email---------" + config.emailId + config.emailPwd);
         return Session.getDefaultInstance(getMailProperties(),
                 new javax.mail.Authenticator() {
                     protected PasswordAuthentication getPasswordAuthentication() {
