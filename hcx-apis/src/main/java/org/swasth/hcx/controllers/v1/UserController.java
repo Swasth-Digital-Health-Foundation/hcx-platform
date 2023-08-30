@@ -93,14 +93,29 @@ public class UserController extends BaseController {
 
     @PostMapping(PARTICIPANT_USER_ADD)
     public ResponseEntity<Object> addUser(@RequestHeader HttpHeaders headers, @RequestBody Map<String, Object> requestBody) {
+        return commonController(headers, requestBody, PARTICIPANT_USER_ADD);
+    }
+
+    @PostMapping(PARTICIPANT_USER_REMOVE)
+    public ResponseEntity<Object> userRemove(@RequestHeader HttpHeaders headers, @RequestBody Map<String, Object> requestBody) {
+        return commonController(headers, requestBody, PARTICIPANT_USER_REMOVE);
+    }
+
+    public ResponseEntity<Object> getSuccessResponse(Object response) {
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    public ResponseEntity<Object> commonController(HttpHeaders headers, Map<String, Object> requestBody, String actionType) {
         CompletableFuture<Map<String, Object>> future = new CompletableFuture<>();
         try {
             List<CompletableFuture<Map<String, Object>>> futures = new ArrayList<>();
             userService.authorizeToken(headers, (String) requestBody.get(PARTICIPANT_CODE));
             List<Map<String, Object>> users = (List<Map<String, Object>>) requestBody.get(USERS);
-            for (Map<String, Object> user : users) {
-                Map<String, Object> userRequest = userService.constructRequestBody(requestBody, user);
-                future = userService.processUser(userRequest, headers, PARTICIPANT_USER_ADD);
+            Map<String, List<String>> userRolesMap = userService.constructRequestBody(users);
+            for (Map.Entry<String, List<String>> entry : userRolesMap.entrySet()) {
+                String userId = entry.getKey();
+                List<String> roles = entry.getValue();
+                future = userService.processUser(userId, roles, (String) requestBody.get(PARTICIPANT_CODE), headers, actionType);
                 futures.add(future);
             }
             List<Map<String, Object>> responses = new ArrayList<>();
@@ -108,9 +123,9 @@ public class UserController extends BaseController {
                 responses.add(futureResponse.get());
             }
             Map<String, Object> resultMap = userService.createResultMap(responses);
-            String overAllstatus = userService.overallStatus(responses);
-            resultMap.put(OVER_ALL_STATUS, overAllstatus);
-            return userService.getHttpStatus(overAllstatus, resultMap);
+            String overallStatus = userService.overallStatus(responses);
+            resultMap.put(OVER_ALL_STATUS, overallStatus);
+            return userService.getHttpStatus(overallStatus, resultMap);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             future.completeExceptionally(e);
@@ -119,39 +134,4 @@ public class UserController extends BaseController {
             return exceptionHandler(new Response(), e);
         }
     }
-
-    @PostMapping(PARTICIPANT_USER_REMOVE)
-    public ResponseEntity<Object> userRemove(@RequestHeader HttpHeaders headers, @RequestBody Map<String, Object> requestBody) {
-        CompletableFuture<Map<String, Object>> future = new CompletableFuture<>();
-        try {
-            userService.authorizeToken(headers, (String) requestBody.get(PARTICIPANT_CODE));
-            List<CompletableFuture<Map<String, Object>>> futures = new ArrayList<>();
-
-            List<Map<String, Object>> users = (List<Map<String, Object>>) requestBody.get(USERS);
-            for (Map<String, Object> user : users) {
-                Map<String, Object> userRequest = userService.constructRequestBody(requestBody, user);
-                future = userService.processUser(userRequest, headers, PARTICIPANT_USER_REMOVE);
-                futures.add(future);
-            }
-            List<Map<String, Object>> responses = new ArrayList<>();
-            for (CompletableFuture<Map<String, Object>> future1 : futures) {
-                responses.add(future1.get());
-            }
-            Map<String, Object> resultMap = userService.createResultMap(responses);
-            String overAllstatus = userService.overallStatus(responses);
-            resultMap.put(OVER_ALL_STATUS, overAllstatus);
-            return userService.getHttpStatus(overAllstatus, resultMap);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            future.completeExceptionally(e);
-            return exceptionHandler(new Response(), e);
-        } catch (Exception e) {
-            return exceptionHandler(new Response(), e);
-        }
-    }
-
-    public ResponseEntity<Object> getSuccessResponse(Object response) {
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
 }
