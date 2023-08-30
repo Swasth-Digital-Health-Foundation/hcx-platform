@@ -41,6 +41,7 @@ public class SMSDispatcher extends BaseDispatcher {
             e.printStackTrace();
             auditService.indexAudit(eventGenerator.createMessageDispatchAudit(event, createErrorMap("", e.getMessage(), "")));
             System.out.println("Exception while sending SMS: " + e.getMessage());
+            throw e;
         }
     }
 

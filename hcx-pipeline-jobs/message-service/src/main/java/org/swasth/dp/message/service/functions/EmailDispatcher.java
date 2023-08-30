@@ -33,6 +33,7 @@ public class EmailDispatcher extends BaseDispatcher {
             e.printStackTrace();
             auditService.indexAudit(eventGenerator.createMessageDispatchAudit(event, createErrorMap("", e.getMessage(), "")));
             System.out.println("Error while sending email: " + e.getMessage());
+            throw e;
         }
     }
 
