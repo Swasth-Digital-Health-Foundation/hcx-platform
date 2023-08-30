@@ -21,7 +21,9 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
 
   const dispatch = useDispatch();
   const appLink = process.env.REACT_APP_PAYOR_APP;
+  const dashboardLink = process.env.REACT_APP_DASHBOARD;
   console.log("process env react app", appLink, process.env.REACT_PAYOR_APP);
+
   const participantDetails: Object = useSelector((state: RootState) => state.participantDetailsReducer.participantDetails);
   const authToken = useSelector((state: RootState) => state.tokenReducer.participantToken);
   const appData: Object = useSelector((state: RootState) => state.appDataReducer.appData);
@@ -458,7 +460,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                           </li>
                           <li>
                             <NavLink
-                              to={`${appLink}?jwt_token=${authToken}`}
+                              to={`${dashboardLink}?jwt_token=${authToken}`}
                               target="_blank"
                               className={({ isActive }) =>
                                 'group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ' +
