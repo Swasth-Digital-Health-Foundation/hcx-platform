@@ -22,6 +22,7 @@ public class EmailDispatcher extends BaseDispatcher {
     @Override
     public void processElement(Map<String, Object> event, ProcessFunction<Map<String, Object>, Map<String, Object>>.Context context, Collector<Map<String, Object>> collector) {
         try{
+            System.out.println("Processing Email Event :: Mid: " + event.get("mid"));
             Map<String,Object> recipients = (Map<String,Object>) event.getOrDefault("recipients", new HashMap<>());
             if (!recipients.isEmpty()) {
                 sendMail((List<String>) recipients.getOrDefault("to", new ArrayList<>()), (List<String>) recipients.getOrDefault("cc", new ArrayList<>()), (List<String>) recipients.getOrDefault("bcc", new ArrayList<>()), event.get("subject").toString(), event.get("message").toString());

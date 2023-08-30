@@ -28,6 +28,7 @@ public class SMSDispatcher extends BaseDispatcher {
     @Override
     public void processElement(Map<String, Object> event, ProcessFunction<Map<String, Object>, Map<String, Object>>.Context context, Collector<Map<String, Object>> collector) {
         try {
+            System.out.println("Processing SMS Event :: Mid: " + event.get("mid"));
             List<String> recipients = (List<String>) ((Map<String,Object>) event.getOrDefault("recipients", new HashMap<>())).getOrDefault("to", new ArrayList<>());
             if (!recipients.isEmpty()) {
                 for (String recipient : recipients) {
