@@ -1,14 +1,12 @@
 package org.swasth.hcx.controllers.v1;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.swasth.common.dto.Response;
 import org.swasth.common.utils.Constants;
 import org.swasth.hcx.controllers.BaseController;
-import org.swasth.hcx.services.EmailService;
 import org.swasth.hcx.services.OnboardService;
 
 import java.util.ArrayList;
@@ -21,10 +19,6 @@ import static org.swasth.common.utils.Constants.*;
 @RequestMapping(Constants.VERSION_PREFIX)
 public class OnboardController extends BaseController {
 
-    @Value("${email.failed-identity-sub}")
-    private String failedIdentitySub;
-    @Autowired
-    private EmailService emailService;
 
     @Autowired
     private OnboardService service;
@@ -60,12 +54,10 @@ public class OnboardController extends BaseController {
 
     @PostMapping(PARTICIPANT_VERIFY_IDENTITY)
     public ResponseEntity<Object> identityVerify(@RequestHeader HttpHeaders headers, @RequestBody Map<String, Object> requestBody) throws Exception {
-        String applicantEmail = requestBody.getOrDefault(PRIMARY_EMAIL, "").toString();
         try {
             return service.manualIdentityVerify(headers, requestBody);
         } catch (Exception e) {
-            emailService.sendMail(applicantEmail, failedIdentitySub, service.commonTemplate("identity-fail.ftl"));
-            return exceptionHandler(applicantEmail, PARTICIPANT_VERIFY_IDENTITY, new Response(), e);
+            return exceptionHandler("", PARTICIPANT_VERIFY_IDENTITY, new Response(), e);
 
         }
     }

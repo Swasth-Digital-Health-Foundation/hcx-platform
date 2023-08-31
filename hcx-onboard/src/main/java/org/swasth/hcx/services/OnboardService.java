@@ -34,7 +34,6 @@ import org.swasth.hcx.helpers.EventGenerator;
 import org.swasth.hcx.utils.CertificateUtil;
 import org.swasth.hcx.utils.SlugUtils;
 import org.swasth.kafka.client.IEventService;
-import org.swasth.kafka.client.KafkaClient;
 import org.swasth.postgresql.IDatabaseService;
 
 import javax.annotation.PostConstruct;
@@ -56,9 +55,7 @@ import static org.swasth.common.utils.Constants.*;
 
 @Service
 public class OnboardService extends BaseController {
-
     private static final Logger logger = LoggerFactory.getLogger(BaseController.class);
-
     @Value("${email.send-link-sub}")
     private String linkSub;
     @Value("${email.regenerate-link-sub}")
@@ -148,10 +145,6 @@ public class OnboardService extends BaseController {
     private String emailConfig;
     @Value("${onboard.phone}")
     private String phoneConfig;
-    @Autowired
-    private SMSService smsService;
-    @Autowired
-    private EmailService emailService;
 
     @Autowired
     private IDatabaseService postgreSQLClient;
@@ -165,7 +158,6 @@ public class OnboardService extends BaseController {
 
     @Autowired
     protected AuditIndexer auditIndexer;
-
     @Autowired
     protected EventGenerator eventGenerator;
     @Autowired
@@ -178,6 +170,9 @@ public class OnboardService extends BaseController {
 
     @Value("${kafka.topic.message}")
     private String messageTopic;
+
+    @Value("${email.failed-identity-sub}")
+    private String failedIdentitySub;
 
     @PostConstruct()
     public void init(){
@@ -605,17 +600,18 @@ public class OnboardService extends BaseController {
                 onboardingVerifierTable, status, System.currentTimeMillis(), participantCode);
         postgreSQLClient.execute(query);
         auditIndexer.createDocument(eventGenerator.getManualIdentityVerifyEvent(participantCode, status));
+        Map<String,Object> participantDetails = getParticipant(PARTICIPANT_CODE, participantCode);
         if (status.equals(ACCEPTED)) {
-            updateParticipant(headers, participantCode, status);
+            updateParticipant(headers, status, participantDetails);
             return getSuccessResponse(new Response());
         } else {
+            kafkaClient.send(messageTopic, EMAIL, eventGenerator.getEmailMessageEvent(commonTemplate("identity-fail.ftl"), failedIdentitySub, Arrays.asList((String) participantDetails.get(PRIMARY_EMAIL)), new ArrayList<>(), new ArrayList<>()));
             throw new ClientException(ErrorCodes.ERR_INVALID_IDENTITY, "Identity verification has failed");
         }
     }
 
-    private void updateParticipant(HttpHeaders headers, String code, String identityStatus) throws Exception{
-        Map<String,Object> participantDetails = getParticipant(PARTICIPANT_CODE, code);
-        String onboardingQuery = String.format("SELECT * FROM %s WHERE participant_code='%s'", onboardVerificationTable, code);
+    private void updateParticipant(HttpHeaders headers, String identityStatus, Map<String,Object> participantDetails) throws Exception{
+        String onboardingQuery = String.format("SELECT * FROM %s WHERE participant_code='%s'", onboardVerificationTable, participantDetails.get(PARTICIPANT_CODE));
         ResultSet resultSet1 = (ResultSet) postgreSQLClient.executeQuery(onboardingQuery);
         String communicationStatus = "";
         if (resultSet1.next()) {
