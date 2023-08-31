@@ -5,7 +5,7 @@ logging:
 #kafka config
 bootstrap-servers: ${bootstrap_servers:localhost:9092}
 
-env: local
+env: ${ENV:local}
 
 server:
   port: ${SERVER_PORT:8080}
