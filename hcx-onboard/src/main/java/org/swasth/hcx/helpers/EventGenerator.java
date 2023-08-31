@@ -207,6 +207,7 @@ public class EventGenerator {
         event.put(MESSAGE, message);
         Map<String,Object> recipients = new HashMap<>();
         recipients.put(TO, to);
+        event.put(RECIPIENTS, recipients);
         return  JSONUtils.serialize(event);
     }
 

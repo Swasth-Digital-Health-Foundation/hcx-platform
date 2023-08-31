@@ -133,7 +133,12 @@
         <dependency>
             <groupId>javax.mail</groupId>
             <artifactId>mail</artifactId>
-            <version>1.5.0-b01</version>
+            <version>1.4.7</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.mail</groupId>
+            <artifactId>javax.mail-api</artifactId>
+            <version>1.6.2</version>
         </dependency>
     </dependencies>
 
@@ -215,7 +220,7 @@
                             <transformers>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>org.swasth.dp.claims.task.ClaimsStreamTask</mainClass>
+                                    <mainClass>org.swasth.dp.message.service.task.MessageServiceStreamTask</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>

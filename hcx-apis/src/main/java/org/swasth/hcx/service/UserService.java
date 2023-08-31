@@ -13,7 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.swasth.auditindexer.function.AuditIndexer;
 import org.swasth.common.dto.RegistryResponse;
 import org.swasth.common.dto.ResponseError;
 import org.swasth.common.dto.Token;
@@ -33,10 +32,8 @@ public class UserService extends BaseRegistryService {
     private String registryUserPath;
     @Autowired
     private ParticipantService participantService;
-
     @Autowired
-    protected AuditIndexer auditIndexer;
-
+    private KeycloakApiAccessService apiAccessService;
     public RegistryResponse create(Map<String, Object> requestBody, String code) throws Exception {
         HttpResponse<String> response = invite(requestBody, registryUserPath);
         if (response.getStatus() == 200) {
@@ -69,28 +66,29 @@ public class UserService extends BaseRegistryService {
     }
 
     @Async
-    public CompletableFuture<Map<String, Object>> processUser(Map<String, Object> requestBody, HttpHeaders headers, String action) {
+    public CompletableFuture<Map<String, Object>> processUser(String userId, List<String> roles, String participantCode, HttpHeaders headers, String action) {
         Map<String, Object> registryDetails = new HashMap<>();
         Map<String, Object> responseMap = new HashMap<>();
         CompletableFuture<Map<String, Object>> future = new CompletableFuture<>();
         try {
             HttpResponse<String> response;
-            String userId = (String) requestBody.get(USER_ID);
             registryDetails = getUser(userId);
             Map<String, Object> finalRequest = new HashMap<>();
-            if (registryDetails.containsKey(TENANT_ROLES)) {
-                ArrayList<Map<String, Object>> tenantRolesList = JSONUtils.convert(registryDetails.get(TENANT_ROLES), ArrayList.class);
-                if (StringUtils.equals(action, PARTICIPANT_USER_ADD)) {
-                    userAdd(requestBody, finalRequest, tenantRolesList);
-                } else if (StringUtils.equals(action, PARTICIPANT_USER_REMOVE)) {
-                    ArrayList<Map<String, Object>> filteredTenantRoles = new ArrayList<>();
-                    userRemove(requestBody, finalRequest, tenantRolesList, filteredTenantRoles);
+            ArrayList<Map<String, Object>> tenantRolesList = JSONUtils.convert(registryDetails.get(TENANT_ROLES), ArrayList.class);
+            if (StringUtils.equals(action, PARTICIPANT_USER_ADD)) {
+                addUser(roles, participantCode, tenantRolesList, finalRequest);
+                apiAccessService.addUserWithParticipant(userId, participantCode, (String) registryDetails.get(USER_NAME));
+            } else if (StringUtils.equals(action, PARTICIPANT_USER_REMOVE)) {
+                ArrayList<Map<String, Object>> filteredTenantRoles = new ArrayList<>();
+                removeUser(roles, participantCode, finalRequest, tenantRolesList, filteredTenantRoles);
+                if (roles.contains(ADMIN)) {
+                    apiAccessService.removeUserWithParticipant(participantCode, userId);
                 }
-                response = update(finalRequest, registryDetails, registryUserPath);
-                generateAddRemoveUserAudit(userId, action, requestBody, getUserFromToken(headers));
-                if (response.getStatus() == 200) {
-                    responseMap = getResponse((String) registryDetails.get(USER_ID), SUCCESSFUL);
-                }
+            }
+            response = update(finalRequest, registryDetails, registryUserPath);
+            generateAddRemoveUserAudit(userId, action, tenantRolesList.get(0), getUserFromToken(headers));
+            if (response.getStatus() == 200) {
+                responseMap = getResponse((String) registryDetails.get(USER_ID), SUCCESSFUL);
             }
             future.complete(responseMap);
             return future;
@@ -103,32 +101,38 @@ public class UserService extends BaseRegistryService {
     }
 
     @Async
-    private void userRemove(Map<String, Object> requestBody, Map<String, Object> finalRequest, ArrayList<Map<String, Object>> tenantRolesList, ArrayList<Map<String, Object>> filteredTenantRoles) throws ClientException {
+    private void addUser(List<String> roles, String participantCode, List<Map<String, Object>> tenantRolesList, Map<String, Object> finalRequest) throws ClientException {
+        for (String role : roles) {
+            for (Map<String, Object> tenantRole : tenantRolesList) {
+                if (tenantRole.get(ROLE).equals(role) && tenantRole.get(PARTICIPANT_CODE).equals(participantCode)) {
+                    throw new ClientException("Role '" + role + "' with Participant Code '" + participantCode + " already exists.");
+                }
+            }
+        }
+        for (String role : roles) {
+            tenantRolesList.add(constructRequest(role, participantCode));
+        }
+        finalRequest.put(TENANT_ROLES, tenantRolesList);
+    }
+
+    public Map<String, Object> constructRequest(String role, String participantCode) {
+        Map<String, Object> request = new HashMap<>();
+        request.put(PARTICIPANT_CODE, participantCode);
+        request.put(ROLE, role);
+        return request;
+    }
+    @Async
+    private void removeUser(List<String> roles, String participantCode, Map<String, Object> finalRequest, ArrayList<Map<String, Object>> tenantRolesList, ArrayList<Map<String, Object>> filteredTenantRoles) throws ClientException {
         if (tenantRolesList.isEmpty()) {
             throw new ClientException("User does not have any role to remove");
         }
         for (Map<String, Object> tenantRole : tenantRolesList) {
-            String role = (String) tenantRole.get(ROLE);
-            String participantCode = (String) tenantRole.get(PARTICIPANT_CODE);
-            if (!requestBody.get(ROLE).equals(role) && participantCode.equals(requestBody.get(PARTICIPANT_CODE))) {
+         if (!roles.contains(tenantRole.get(ROLE).toString()) && tenantRole.get(PARTICIPANT_CODE).equals(participantCode)) {
                 filteredTenantRoles.add(tenantRole);
             }
         }
         finalRequest.put(TENANT_ROLES, filteredTenantRoles);
     }
-
-    @Async
-    private void userAdd(Map<String, Object> requestBody, Map<String, Object> finalRequest, ArrayList<Map<String, Object>> tenantRolesList) throws ClientException {
-        for (Map<String, Object> userExist : tenantRolesList) {
-            if (userExist.get(ROLE).equals(requestBody.get(ROLE)) && userExist.get(PARTICIPANT_CODE).equals(requestBody.get(PARTICIPANT_CODE))) {
-                throw new ClientException("User with the role : " + requestBody.get(ROLE) + " and participant code : " + requestBody.get(PARTICIPANT_CODE) + " is already exist for the user_id : " + requestBody.get(USER_ID));
-            }
-        }
-        finalRequest.put(TENANT_ROLES, tenantRolesList);
-        requestBody.remove(USER_ID);
-        tenantRolesList.add(requestBody);
-    }
-
 
     private Map<String, Object> getResponse(String userId, String status) {
         Map<String, Object> responseMap = new HashMap<>();
@@ -143,7 +147,7 @@ public class UserService extends BaseRegistryService {
         RegistryResponse registryResponse = (RegistryResponse) Objects.requireNonNull(searchResponse.getBody());
         if (registryResponse.getUsers().isEmpty())
             throw new ClientException(ErrorCodes.ERR_INVALID_USER_ID, INVALID_USER_ID);
-        return (Map<String, Object>) registryResponse.getUsers().get(0);
+        return registryResponse.getUsers().get(0);
     }
 
     private String getUserRequest(String userId) {
@@ -187,14 +191,6 @@ public class UserService extends BaseRegistryService {
                 throw new ClientException(ErrorCodes.ERR_INVALID_USER_DETAILS, "Fields not allowed for update: " + requestFields);
             }
         }
-    }
-
-    public Map<String, Object> constructRequestBody(Map<String, Object> requestBody, Map<String, Object> user) {
-        Map<String, Object> userRequest = new HashMap<>();
-        userRequest.put(PARTICIPANT_CODE, requestBody.get(PARTICIPANT_CODE));
-        userRequest.put(ROLE, user.get(ROLE));
-        userRequest.put(USER_ID, user.get(USER_ID));
-        return userRequest;
     }
 
     public void authorizeToken(HttpHeaders headers, String participantCode) throws Exception {
@@ -284,8 +280,17 @@ public class UserService extends BaseRegistryService {
         if (filters.containsKey("tenant_roles.participant_code")) {
             throw new ClientException("This field is not allowed in filters : tenant_roles.participant_code");
         }
-        filters.put("tenant_roles.participant_code", Map.of("or",organisations));
+        filters.put("tenant_roles.participant_code", Map.of("or", organisations));
         return JSONUtils.serialize(requestBody);
+    }
+    public Map<String, List<String>> constructRequestBody(List<Map<String, Object>> userList) {
+        Map<String, List<String>> userRolesMap = new HashMap<>();
+        for (Map<String, Object> user : userList) {
+            String userId = (String) user.get(USER_ID);
+            String role = (String) user.get(ROLE);
+            userRolesMap.computeIfAbsent(userId, k -> new ArrayList<>()).add(role);
+        }
+        return userRolesMap;
     }
 }
 
