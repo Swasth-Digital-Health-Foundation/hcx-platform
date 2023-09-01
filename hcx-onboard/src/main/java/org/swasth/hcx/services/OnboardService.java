@@ -184,8 +184,8 @@ public class OnboardService extends BaseController {
         keycloak = Keycloak.getInstance(keycloakURL, keycloakMasterRealm, keycloakAdminUserName, keycloakAdminPassword, keycloackClientId);
     }
     public ResponseEntity<Object> verify(HttpHeaders header, ArrayList<Map<String, Object>> body) throws Exception {
-        logger.info("Participant verification :: " + body);
         OnboardRequest request = new OnboardRequest(body);
+        logger.info("Participant verification :: participant name" + request.getParticipantName());
         Map<String, Object> output = new HashMap<>();
         onboardProcess(header, request, output);
         return getSuccessResponse(new Response(output));
@@ -213,7 +213,7 @@ public class OnboardService extends BaseController {
         sendVerificationLink(participant);
         updateResponse(output, identityVerified, participantCode, userId, isUserExists);
         auditIndexer.createDocument(eventGenerator.getOnboardVerifyEvent(request, participantCode));
-        logger.info("Verification link  has been sent successfully :: participant code : " + participantCode + " :: primary email : " + participant.get(PRIMARY_EMAIL));
+        logger.info("Verification link  has been sent successfully :: participant code : " + participantCode);
     }
     private void updateIdentityDetails(String participantCode, OnboardRequest request, String status) throws Exception {
         if (request.getRoles().contains(PAYOR)){
@@ -491,7 +491,7 @@ public class OnboardService extends BaseController {
     }
 
     public ResponseEntity<Object> onboardUpdate(HttpHeaders headers, Map<String, Object> requestBody) throws Exception {
-        logger.info("Onboard update: " + requestBody);
+        logger.info("Onboard update: " + requestBody.get(PARTICIPANT_CODE));
         boolean emailVerified = false;
         boolean phoneVerified = false;
         String commStatus = PENDING;
@@ -673,7 +673,7 @@ public class OnboardService extends BaseController {
     }
 
     private String identityVerify(Map<String, Object> requestBody) throws Exception {
-        logger.info("Identity verification :: request: {}", requestBody);
+        logger.info("Identity verification :: request: {}", requestBody.get(PARTICIPANT_CODE));
         String verifierCode = (String) requestBody.get(VERIFIER_CODE);
         Map<String, Object> verifierDetails = getParticipant(PARTICIPANT_CODE, verifierCode);
         String result = REJECTED;
@@ -707,7 +707,7 @@ public class OnboardService extends BaseController {
     }
 
     public Response userInvite(Map<String, Object> requestBody, HttpHeaders headers) throws Exception {
-        logger.info("User invite: " + requestBody);
+        logger.info("User invite: " + requestBody.get(PARTICIPANT_CODE));
         String email = (String) requestBody.getOrDefault(EMAIL, "");
         String role = (String) requestBody.getOrDefault(ROLE, "");
         String code = (String) requestBody.getOrDefault(PARTICIPANT_CODE, "");
