@@ -83,7 +83,7 @@ public class ParticipantController extends BaseController {
     @PostMapping(PARTICIPANT_SEARCH)
     public ResponseEntity<Object> search(@RequestBody Map<String, Object> requestBody) {
         try {
-            logger.info("Searching participant: {}", requestBody.get(PARTICIPANT_CODE));
+            logger.info("Searching participant: {}", requestBody);
             return getSuccessResponse(service.search(requestBody));
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);

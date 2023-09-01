@@ -213,7 +213,6 @@ public class OnboardService extends BaseController {
         sendVerificationLink(participant);
         updateResponse(output, identityVerified, participantCode, userId, isUserExists);
         auditIndexer.createDocument(eventGenerator.getOnboardVerifyEvent(request, participantCode));
-        logger.info("Verification link  has been sent successfully :: participant code : " + participantCode);
     }
     private void updateIdentityDetails(String participantCode, OnboardRequest request, String status) throws Exception {
         if (request.getRoles().contains(PAYOR)){
@@ -673,7 +672,7 @@ public class OnboardService extends BaseController {
     }
 
     private String identityVerify(Map<String, Object> requestBody) throws Exception {
-        logger.info("Identity verification :: request: {}", requestBody.get(PARTICIPANT_CODE));
+        logger.info("Identity verification :: request: {}", requestBody);
         String verifierCode = (String) requestBody.get(VERIFIER_CODE);
         Map<String, Object> verifierDetails = getParticipant(PARTICIPANT_CODE, verifierCode);
         String result = REJECTED;
