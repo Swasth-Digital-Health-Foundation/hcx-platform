@@ -46,7 +46,6 @@ public class SMSDispatcher extends BaseDispatcher {
     }
 
     public String sendSMS(String phone, String content){
-        System.out.println("aws " + config.awsAccessKey + config.awsAccessSecret);
         String phoneNumber = "+91"+ phone;
         AmazonSNS snsClient = AmazonSNSClient.builder().withCredentials(new AWSCredentialsProvider() {
             @Override
