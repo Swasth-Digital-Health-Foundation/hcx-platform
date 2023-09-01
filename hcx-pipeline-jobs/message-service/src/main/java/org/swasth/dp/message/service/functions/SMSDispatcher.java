@@ -3,7 +3,6 @@ package org.swasth.dp.message.service.functions;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.sns.AmazonSNS;
 import com.amazonaws.services.sns.AmazonSNSClient;
 import com.amazonaws.services.sns.model.PublishRequest;
@@ -59,7 +58,7 @@ public class SMSDispatcher extends BaseDispatcher {
             public void refresh() {
 
             }
-        }).withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration("https://sns.ap-south-1.amazonaws.com", (config.awsRegion))).build();
+        }).withRegion(config.awsRegion).build();
 
         PublishResult result = snsClient.publish(new PublishRequest()
                 .withMessage(content)
