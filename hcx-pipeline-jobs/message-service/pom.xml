@@ -127,6 +127,11 @@
         </dependency>
         <dependency>
             <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk-bom</artifactId>
+            <version>1.12.540</version>
+        </dependency>
+        <dependency>
+            <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-sns</artifactId>
             <version>1.12.540</version>
         </dependency>
