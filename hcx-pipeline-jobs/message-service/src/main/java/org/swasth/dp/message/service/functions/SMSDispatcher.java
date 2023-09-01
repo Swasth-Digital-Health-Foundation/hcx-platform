@@ -60,6 +60,8 @@ public class SMSDispatcher extends BaseDispatcher {
             }
         }).withRegion(config.awsRegion).build();
 
+        snsClient.setEndpoint("https://sns.ap-south-1.amazonaws.com");
+
         PublishResult result = snsClient.publish(new PublishRequest()
                 .withMessage(content)
                 .withPhoneNumber(phoneNumber));
