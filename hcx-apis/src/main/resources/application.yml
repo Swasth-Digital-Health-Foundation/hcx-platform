@@ -5,7 +5,7 @@ logging:
 #kafka config
 bootstrap-servers: ${bootstrap_servers:localhost:9092}
 
-env: local
+env: ${ENV:local}
 
 server:
   port: ${SERVER_PORT:8080}
@@ -17,17 +17,17 @@ kafka:
     preauth: ${kafka_preauth_topic:${env}.hcx.protocol.request.processor}
     claim: ${kafka_claim_topic:${env}.hcx.protocol.request.processor}
     payment: ${kafka_payment_topic:${env}.hcx.protocol.request.processor}
-    status: ${kafka_status_topic:${env}.hcx.request.status.search}
+    status: ${kafka_status_topic:${env}.hcx.protocol.request.processor}
     search: ${kafka_search_topic:${env}.hcx.request.search}
     searchresponse: ${kafka_search_response_topic:${env}.hcx.response.search}
-    communication: ${kafka_communication_topic:${env}.hcx.request.communication}
-    predetermination: ${kafka_predetermination_topic:${env}.hcx.request.predetermination}
+    communication: ${kafka_communication_topic:${env}.hcx.protocol.request.processor}
+    predetermination: ${kafka_predetermination_topic:${env}.hcx.protocol.request.processor}
     notification: ${kafka_notification_topic:${env}.hcx.request.notification}
     subscription: ${kafka_subscription_topic:${env}.hcx.request.subscription}
     audit: ${kafka_audit_topic:${env}.hcx.audit}
     onsubscription: ${kafka_onsubscription_topic:${env}.hcx.request.onsubscription}
-    retry: ${kafka_retry_topic:${env}.hcx.request.retry}
-    fetch: ${kafka_fetch_topic:${env}.hcx.request.fetch}
+    retry: ${kafka_retry_topic:${env}.hcx.protocol.request.processor}
+    fetch: ${kafka_fetch_topic:${env}.hcx.protocol.request.processor}
     message: ${kafka_message_topic:${env}.hcx.request.message}
 
 

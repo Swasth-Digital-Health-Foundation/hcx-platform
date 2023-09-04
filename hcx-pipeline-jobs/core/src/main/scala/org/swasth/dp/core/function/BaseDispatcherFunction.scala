@@ -214,8 +214,7 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
   }
 
   override def metricsList(): List[String] = {
-    List(config.dispatcherSuccessCount, config.dispatcherFailedCount, config.dispatcherRetryCount, config.dispatcherValidationFailedCount, config.dispatcherValidationSuccessCount, config.auditEventsCount, config.coverageEligibilityOnDispatcherSuccessCount, config.preAuthDispatcherSuccessCount, config.retryDispatcherSuccessCount, config.claimDispatcherSuccessCount, config.predeterminationDispatcherSuccessCount, config.fetchDispatcherSuccessCount, config.paymentDispatcherSuccessCount, config.communicationDispatcherSuccessCount, config.searchDispatcherSuccessCount, config.searchDispatcherFailedCount, config.coverageEligibilityDispatcherFailedCount, config.preAuthDispatcherFailedCount, config.predeterminationDispatcherFailedCount, config.claimDispatcherFailedCount, config.paymentDispatcherFailedCount, config.fetchDispatcherFailedCount, config.retryDispatcherFailedCount, config.communicationDispatcherFailedCount, config.coverageEligibilityDispatcherRetryCount, config.claimDispatcherRetryCount, config.preAuthDispatcherRetryCount, config.predeterminationDispatcherRetryCount, config.paymentDispatcherRetryCount, config.searchDispatcherRetryCount, config.fetchDispatcherRetryCount, config.communicationDispatcherRetryCount, config.retryDispatcherRetryCount, config.coverageEligibilityOnDispatcherSuccessCount, config.coverageEligibilityOnDispatcherFailedCount, config.coverageEligibilityOnDispatcherRetryCount, config.communicationOnDispatcherSuccessCount, config.communicationOnDispatcherFailedCount, config.communicationOnDispatcherRetryCount, config.preAuthOnDispatcherFailedCount, config.preAuthOnDispatcherSuccessCount, config.preAuthDispatcherRetryCount, config.predeterminationOnDispatcherSuccessCount, config.predeterminationOnDispatcherFailedCount, config.predeterminationOnDispatcherRetryCount, config.paymentOnDispatcherSuccessCount, config.paymentOnDispatcherFailedCount, config.paymentOnDispatcherRetryCount, config.fetchOnDispatcherSuccessCount, config.fetchOnDispatcherOnFailedCount, config.fetchDispatcherRetryCount, config.searchOnDispatcherSuccessCount, config.searchOnDispatcherRetryCount, config.searchOnDispatcherFailedCount, config.claimOnDispatcherSuccessCount, config.claimOnDispatcherRetryCount, config.claimOnDispatcherFailedCount)
-  }
+    List(config.dispatcherSuccessCount, config.dispatcherFailedCount, config.dispatcherRetryCount, config.dispatcherValidationFailedCount, config.dispatcherValidationSuccessCount, config.auditEventsCount, config.coverageEligibilityDispatcherSuccessCount, config.coverageEligibilityOnDispatcherSuccessCount, config.coverageEligibilityDispatcherRetryCount, config.coverageEligibilityOnDispatcherRetryCount, config.coverageEligibilityDispatcherFailedCount, config.coverageEligibilityOnDispatcherFailedCount, config.preAuthDispatcherSuccessCount, config.preAuthOnDispatcherSuccessCount, config.preAuthDispatcherRetryCount, config.preAuthOnDispatcherRetryCount, config.preAuthDispatcherFailedCount, config.preAuthOnDispatcherFailedCount, config.predeterminationDispatcherSuccessCount, config.predeterminationOnDispatcherSuccessCount, config.predeterminationDispatcherFailedCount, config.predeterminationOnDispatcherFailedCount, config.predeterminationDispatcherRetryCount, config.predeterminationOnDispatcherRetryCount, config.claimDispatcherSuccessCount, config.claimOnDispatcherSuccessCount, config.claimDispatcherFailedCount, config.claimOnDispatcherFailedCount, config.claimDispatcherRetryCount, config.claimOnDispatcherRetryCount, config.paymentDispatcherSuccessCount, config.paymentOnDispatcherSuccessCount, config.paymentDispatcherFailedCount, config.paymentOnDispatcherFailedCount, config.paymentDispatcherRetryCount, config.paymentOnDispatcherRetryCount, config.fetchDispatcherSuccessCount, config.fetchOnDispatcherSuccessCount, config.fetchDispatcherFailedCount, config.fetchOnDispatcherFailedCount, config.fetchDispatcherRetryCount, config.fetchOnDispatcherRetryCount, config.communicationDispatcherSuccessCount, config.communicationOnDispatcherSuccessCount, config.communicationDispatcherFailedCount, config.communicationOnDispatcherFailedCount, config.communicationDispatcherRetryCount, config.communicationOnDispatcherRetryCount, config.searchDispatcherSuccessCount, config.searchOnDispatcherSuccessCount, config.searchDispatcherFailedCount, config.searchOnDispatcherFailedCount, config.searchDispatcherRetryCount, config.searchOnDispatcherRetryCount, config.retryDispatcherSuccessCount, config.retryDispatcherFailedCount, config.retryDispatcherRetryCount)}
 
   def createAuditRecord(event: util.Map[String, AnyRef]): util.Map[String, AnyRef] = {
     val audit = new util.HashMap[String, AnyRef]();
@@ -359,7 +358,7 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
       case Constants.COVERAGE_ELIGIBILITY_CHECK => metrics.incCounter(config.coverageEligibilityDispatcherFailedCount)
       case Constants.COVERAGE_ELIGIBILITY_ONCHECK => metrics.incCounter(config.coverageEligibilityOnDispatcherFailedCount)
       case Constants.PRE_AUTH_SUBMIT => metrics.incCounter(config.preAuthDispatcherFailedCount)
-      case Constants.PRE_AUTH_ONSUBMIT => metrics.incCounter(config.preAuthDispatcherOnFailedCount)
+      case Constants.PRE_AUTH_ONSUBMIT => metrics.incCounter(config.preAuthOnDispatcherFailedCount)
       case Constants.PREDETERMINATION_SUBMIT => metrics.incCounter(config.predeterminationDispatcherFailedCount)
       case Constants.PREDETERMINATION_ONSUBMIT => metrics.incCounter(config.predeterminationOnDispatcherFailedCount)
       case Constants.CLAIM_SUBMIT => metrics.incCounter(config.claimDispatcherFailedCount)
@@ -371,7 +370,7 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
       case Constants.HCX_STATUS_CONTROLLER => metrics.incCounter(config.searchDispatcherFailedCount)
       case Constants.HCX_ONSTATUS_CONTROLLER => metrics.incCounter(config.searchOnDispatcherFailedCount)
       case Constants.EOB_FETCH => metrics.incCounter(config.fetchDispatcherFailedCount)
-      case Constants.EOB_ON_FETCH => metrics.incCounter(config.fetchOnDispatcherOnFailedCount)
+      case Constants.EOB_ON_FETCH => metrics.incCounter(config.fetchOnDispatcherFailedCount)
       case Constants.REQUEST_RETRY => metrics.incCounter(config.retryDispatcherFailedCount)
     }
   }
@@ -382,7 +381,7 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
       case Constants.COVERAGE_ELIGIBILITY_CHECK => metrics.incCounter(config.coverageEligibilityDispatcherRetryCount)
       case Constants.COVERAGE_ELIGIBILITY_ONCHECK => metrics.incCounter(config.coverageEligibilityOnDispatcherRetryCount)
       case Constants.PRE_AUTH_SUBMIT => metrics.incCounter(config.preAuthDispatcherRetryCount)
-      case Constants.PRE_AUTH_ONSUBMIT => metrics.incCounter(config.preAuthOnDispatcherFailedCount)
+      case Constants.PRE_AUTH_ONSUBMIT => metrics.incCounter(config.preAuthOnDispatcherRetryCount)
       case Constants.PREDETERMINATION_SUBMIT => metrics.incCounter(config.predeterminationDispatcherRetryCount)
       case Constants.PREDETERMINATION_ONSUBMIT => metrics.incCounter(config.predeterminationOnDispatcherRetryCount)
       case Constants.CLAIM_SUBMIT => metrics.incCounter(config.claimDispatcherRetryCount)

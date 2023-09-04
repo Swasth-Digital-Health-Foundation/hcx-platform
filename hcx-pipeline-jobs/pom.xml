@@ -18,8 +18,6 @@
     <url>https://swasth.org/</url>
     <modules>
         <module>core</module>
-        <module>composite-search-job</module>
-        <module>search-response-job</module>
         <module>jobs-distribution</module>
         <module>notification-job</module>
         <module>notification-trigger-job</module>
@@ -31,7 +29,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <scala.version>2.12.11</scala.version>
         <scala.maj.version>2.12</scala.maj.version>
-        <flink.version>1.13.5</flink.version>
+        <flink.version>1.12.0</flink.version>
         <kafka.version>2.4.0</kafka.version>
         <java.target.runtime>11</java.target.runtime>
         <jackson-jaxrs.version>1.9.13</jackson-jaxrs.version>
