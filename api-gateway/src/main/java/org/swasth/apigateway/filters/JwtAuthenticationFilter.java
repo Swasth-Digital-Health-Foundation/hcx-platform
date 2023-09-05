@@ -6,6 +6,11 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.jayway.jsonpath.JsonPath;
 import net.minidev.json.JSONArray;
 import org.apache.commons.lang3.StringUtils;
+import org.keycloak.admin.client.Keycloak;
+import org.keycloak.admin.client.resource.RealmResource;
+import org.keycloak.admin.client.resource.UserResource;
+import org.keycloak.representations.idm.UserRepresentation;
+import org.keycloak.representations.idm.UserSessionRepresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,14 +37,12 @@ import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
 import reactor.core.publisher.Mono;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.text.MessageFormat;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.swasth.common.response.ResponseMessage.*;
 import static org.swasth.common.utils.Constants.AUTH_REQUIRED;
@@ -66,6 +69,20 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
     private final Acl authenticatedAllowedPaths;
     private Map<String,JWTVerifier> verifierCache = new HashMap<>();
 
+    private Keycloak keycloak;
+
+    @Value("${keycloak.base-url}")
+    private String keycloakURL;
+    @Value("${keycloak.admin-password}")
+    private String keycloakAdminPassword;
+    @Value("${keycloak.admin-user}")
+    private String keycloakAdminUserName;
+    @Value("${keycloak.master-realm}")
+    private String keycloakMasterRealm;
+    @Value("${keycloak.participant-realm}")
+    private String keycloackParticipantRealm;
+    @Value("${keycloak.client-id}")
+    private String keycloackClientId;
     @Value("${allowedUserRolesForProtocolApiAccess}")
     private List<String> allowedUserRolesForProtocolApiAccess;
 
@@ -83,6 +100,11 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         this.authenticatedAllowedPaths = aclMap.get("AUTHENTICATED");
     }
 
+    @PostConstruct()
+    public void init(){
+        keycloak = Keycloak.getInstance(keycloakURL, keycloakMasterRealm, keycloakAdminUserName, keycloakAdminPassword, keycloackClientId);
+    }
+
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
 
@@ -93,7 +115,8 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
                 String path = exchange.getRequest().getPath().value();
                 String entityType = getEntityType(token);
                 DecodedJWT decodedJWT = getJWTVerifier(entityType).verify(token);
-
+                String subject =decodedJWT.getSubject();
+                String session = String.valueOf(decodedJWT.getClaim("session-state"));
                 ServerHttpRequest request = exchange.getRequest().mutate().
                         header(X_JWT_SUB_HEADER, decodedJWT.getSubject()).
                         build();
@@ -103,6 +126,19 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
                     JSONArray claims;
                     if(StringUtils.equalsIgnoreCase(entityType, Constants.API_ACCESS)) {
                         List<String> userRoles = JsonPath.read(payload, jwtConfigs.getApiAccessUserClaimsNamespacePath());
+                        RealmResource realmResource = keycloak.realm(keycloackParticipantRealm);
+                        List<UserRepresentation> users = realmResource.users().search(subject);
+                        if (!users.isEmpty()) {
+                            UserRepresentation user = users.get(0);
+                            UserResource userResource = realmResource.users().get(user.getId());
+                            List<UserSessionRepresentation> activeSessions = userResource.getUserSessions();
+                            List<UserSessionRepresentation> offlineSessions = userResource.getOfflineSessions(session);
+                            if (activeSessions.isEmpty() || offlineSessions.isEmpty()){
+                                throw new ClientException(ErrorCodes.ERR_ACCESS_DENIED, "There are no active sessions or offline sessions ");
+                            }
+                        }else {
+                            throw new ClientException(ErrorCodes.ERR_ACCESS_DENIED, "Invalid authorization token");
+                        }
                         if(!validateRoles(allowedUserRolesForProtocolApiAccess, userRoles)){
                             throw new JWTVerificationException(ErrorCodes.ERR_ACCESS_DENIED, MessageFormat.format(USER_ROLE_ACCESS_DENIED_MSG, allowedUserRolesForProtocolApiAccess));
                         }
@@ -183,7 +219,6 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         if (!components[0].equals("Bearer")) {
             throw new JWTVerificationException(ErrorCodes.ERR_ACCESS_DENIED, BEARER_MISSING);
         }
-
         return components[1].trim();
     }
 
@@ -195,5 +230,4 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         }
         return false;
     }
-
 }
