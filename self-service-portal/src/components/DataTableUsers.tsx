@@ -7,6 +7,7 @@ import { getAllUser, serachUser, userInvite, userRemove } from '../api/UserServi
 import { RootState } from '../store';
 import ModalUserUpdate from './ModalUserUpdate';
 import Loader from '../common/Loader';
+import ModalConfirmBack from './ModalConfrimBack';
 
 
 const DataTableUsers: React.FC = () => {
@@ -18,6 +19,7 @@ const DataTableUsers: React.FC = () => {
   const [showDetails, setShowDetails] = useState(false);
   const [userDetails, setUserDetails] = useState({ "name": "", "user_code": "", "email": "", "participant_code": "", "role": "" })
   const [showComponent, setShowComponent] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   useEffect(() => {
     const delayTimeout = setTimeout(() => {
@@ -57,6 +59,7 @@ const DataTableUsers: React.FC = () => {
   const removeUser = (userDetails:any) => {
     userRemove(userDetails.participant_code, [{ "user_id": userDetails.email, "role": userDetails.role }]).then(res => {
       getAllUser(participantToken).then((res: any) => {
+        setShowComponent(false);
         let user = res["data"]["users"];
         console.log("user data", user);
         let dataUser: any = [];
@@ -66,6 +69,7 @@ const DataTableUsers: React.FC = () => {
           });
         });
         setUserData(dataUser);
+        setShowComponent(true);
       })
       toast.success("User successfully removed.")
     }).catch(err => {
@@ -86,6 +90,15 @@ const DataTableUsers: React.FC = () => {
     setShowDetails(false);
   }
 
+  const deleteUserCancel = () => {
+    setShowDeleteModal(false);
+  }
+
+  const deleteUserApproved = () => {
+    setShowDeleteModal(false);
+    removeUser(userDetails);
+  }
+
   useEffect(() => {
     if(showComponent) {
     const dataTableTwo = new DataTable('#dataTableTwo', {
@@ -99,6 +112,10 @@ const DataTableUsers: React.FC = () => {
     <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
       {showDetails  ==  true?
       <ModalUserUpdate show={showDetails} values={userDetails} onSubmitClick={(role) => inviteUsers(role)} onCancelClick={() => setShowDetails(false)}></ModalUserUpdate> :
+      null }
+      {showDeleteModal == true?
+      <ModalConfirmBack show={showDeleteModal} title="Remove User from Organization" body="You are about to remove the user from the participant organization. User once removed can only be added through invite again." 
+      onCancelClick={deleteUserCancel} onSubmitClick={deleteUserApproved}></ModalConfirmBack> :
       null }
       { showComponent ? 
       <div className="data-table-common data-table-two max-w-full overflow-x-auto">
@@ -322,7 +339,10 @@ const DataTableUsers: React.FC = () => {
                   <td>{_.get(value, "role")}</td>
                   <td className="py-5 px-4">
                 <div className="flex items-center space-x-3.5">
-                  <button className="hover:text-primary">
+                  {adminRoleParticipants.find(element => element == _.get(value, "participant_code")) !== undefined &&  _.get(appData,"username") != _.get(value, "email")?
+                  <>
+                  <button className="hover:text-primary"
+                  onClick={(event) => { event.preventDefault(); userDetailsShow(value); setShowDeleteModal(true); console.log("i amc delete");  }}>
                     <svg
                       className="fill-danger"
                       width="18"
@@ -349,7 +369,6 @@ const DataTableUsers: React.FC = () => {
                       />
                     </svg>
                   </button>
-                  {adminRoleParticipants.find(element => element == _.get(value, "participant_code")) !== undefined &&  _.get(appData,"username") != _.get(value, "email")?
                   <button className="hover:text-primary"
                   onClick={(event) => { event.preventDefault(); userDetailsShow(value); setShowDetails(true); console.log("i amc licked") }}>
                     <svg
@@ -366,22 +385,9 @@ const DataTableUsers: React.FC = () => {
                     <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
                     </svg>
                   </button>
+                  </>
                   :
-                  <button className="hover:text-primary" disabled>
-                    <svg
-                      className="fill-white"
-                      width="18"
-                      height="18"
-                      viewBox="0 0 24 24"
-                      stroke="white"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    >  
-                    <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
-                    <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
-                    </svg>
-                  </button> }
+                   "" }
                 </div>
               </td>
 

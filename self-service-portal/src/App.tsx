@@ -11,6 +11,7 @@ import UserVerify from './components/UserVerify';
 import UserList from './pages/Users/UsersList';
 import ParticipantList from './pages/Participants/ParticipantsList';
 import UsersInvite from './pages/Users/UsersInvite';
+import ResetPassword from './pages/Authentication/ResetPassword';
 
 const DefaultLayout = lazy(() => import('./layout/DefaultLayout'));
 
@@ -36,6 +37,11 @@ function App() {
         <Route 
           path="/onboarding/register" 
           element={<SignUp/>}
+        >    
+        </Route>
+        <Route 
+          path="/onboarding/resetpassword" 
+          element={<ResetPassword/>}
         >    
         </Route>
         <Route 
@@ -80,7 +86,7 @@ function App() {
             path="/onboarding/profile"
             element={
               <>
-                <PageTitle title="Analytics Dashboard | TailAdmin - Tailwind CSS Admin Dashboard Template" />
+                <PageTitle title="Swasth HCX Self Service Portal" />
                 <ProfilePage />
               </>
             }

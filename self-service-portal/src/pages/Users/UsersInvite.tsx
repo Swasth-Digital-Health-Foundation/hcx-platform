@@ -123,8 +123,8 @@ const UsersInvite = () => {
             {userDetials.map((value, index) => {
                 return <>
                 <div className="mt-4 grid md:mt-6 md:gap-6 2xl:mt-7.5 2xl:gap-7.5">
-                 <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">                 
-                    <div className="flex flex-col gap-5.5 p-6.5">
+                 <div className="flex flex-wrap rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">                 
+                    <div className="w-1/2 flex flex-col gap-5.5 p-6.5">
                         <label className="mb-2.5 block font-medium text-black dark:text-white">
                             Email
                         </label>
@@ -160,7 +160,7 @@ const UsersInvite = () => {
                             </span>
                         </div>
                     </div>
-                    <div className="flex flex-col gap-5.5 p-6.5">
+                    <div className="w-1/2 flex flex-col gap-5.5 p-6.5">
                         <label className="mb-2.5 block font-medium text-black dark:text-white">
                             Role
                         </label>

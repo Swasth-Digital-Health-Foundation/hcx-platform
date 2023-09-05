@@ -33,7 +33,8 @@ const SignIn: React.FC = () => {
     if (username == "" || password == ""){
       if(username == "") setUserError(true);
       if(password == "") setPassError(true);
-      
+      setPassError(true);
+      setUserError(true);
     }else{
       console.log("i am here")
       dispatch(addAppData({"username":username}));
@@ -141,7 +142,7 @@ const SignIn: React.FC = () => {
                     <input
                       type="email"
                       placeholder="Enter your email"
-                      className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                      className={"w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary" + (userError ? " !border-danger" : "")}
                       onChange={(event) => {setUserName(event.target.value); setUserError(false)}}
                     />
 
@@ -173,7 +174,7 @@ const SignIn: React.FC = () => {
                     <input
                       type="password"
                       placeholder="Enter your password"
-                      className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                      className={"w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary" + (passError ? " !border-danger" : "")}
                       onChange={(event) => {setPassword(event.target.value); setPassError(false)}}
                     />
 
@@ -208,6 +209,13 @@ const SignIn: React.FC = () => {
                     className="w-full cursor-pointer rounded-lg border border-primary bg-primary p-4 text-white transition hover:bg-opacity-90"
                     onClick={(event) => {event.preventDefault(); Signin(userName,password)}}
                   />
+                </div>
+                <div className="mt-2 text-center">
+                  <p>
+                    <Link to="/onboarding/resetpassword" className="text-primary" target='_blank'>
+                      Forgot Password?
+                    </Link>
+                  </p>
                 </div>
                 <div className="mt-6 text-center">
                   <p>

@@ -27,21 +27,21 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
   const participantDetails: Object = useSelector((state: RootState) => state.participantDetailsReducer.participantDetails);
   const authToken = useSelector((state: RootState) => state.tokenReducer.participantToken);
   const appData: Object = useSelector((state: RootState) => state.appDataReducer.appData);
-  const [email, setEmail] =useState('');
-  const [pass, setPass] =useState('');
+  const [email, setEmail] = useState('');
+  const [pass, setPass] = useState('');
   console.log("part details in dash", participantDetails, authToken);
 
   //const { login } = useAuthActions();
   useEffect(() => {
-    getParticipant(_.get(appData,"username")).then(res => { 
-        console.log("verifier details",res);
-        const partData = res["data"]["participants"][0];
-        console.log("part data in launch", partData, btoa(_.get(partData,"mock_payor.primary_email")));
-        setEmail(_.get(partData,"mock_payor.primary_email") ? _.get(partData,"mock_payor.primary_email") : '');
-        setPass(_.get(partData,"mock_payor.password") ? _.get(partData,"mock_payor.password") : '');
-  })
+    getParticipant(_.get(appData, "username")).then(res => {
+      console.log("verifier details", res);
+      const partData = res["data"]["participants"][0];
+      console.log("part data in launch", partData, btoa(_.get(partData, "mock_payor.primary_email")));
+      setEmail(_.get(partData, "mock_payor.primary_email") ? _.get(partData, "mock_payor.primary_email") : '');
+      setPass(_.get(partData, "mock_payor.password") ? _.get(partData, "mock_payor.password") : '');
+    })
   }, [participantDetails]);
-  
+
   const storedSidebarExpanded = localStorage.getItem('sidebar-expanded');
   const [sidebarExpanded, setSidebarExpanded] = useState(
     storedSidebarExpanded === null ? false : storedSidebarExpanded === 'true'
@@ -91,8 +91,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
       {/* <!-- SIDEBAR HEADER --> */}
       <div className="flex items-center justify-between gap-2 px-6 py-5.5 lg:py-6.5">
         <NavLink to="/onboarding/profile">
-        <img className="hidden dark:block w-40" src={Logo} alt="Logo" />
-        <img className="dark:hidden w-40" src={Logo} alt="Logo" />
+          <img className="hidden dark:block w-40" src={Logo} alt="Logo" />
+          <img className="dark:hidden w-40" src={Logo} alt="Logo" />
         </NavLink>
 
         <button
@@ -325,12 +325,15 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                           fill="white"
                           width="18px"
                           height="18px"
-                          viewBox="0 0 1920 1920"
+                          viewBox="-2 0 16 16"
+                          id="company-16px"
                           xmlns="http://www.w3.org/2000/svg"
                         >
                           <path
-                            d="M1807.059 1270.091c-68.668 48.452-188.725 116.556-343.906 158.57-18.861-102.55-92.725-187.37-196.066-219.106-91.708-28.235-185.11-48.339-279.53-61.666 71.944-60.762 121.638-145.807 135.982-243.162 21.91-.791 44.837-1.243 71.04-1.243 166.023.904 331.143 26.316 490.955 75.445 72.621 22.362 121.525 87.755 121.525 162.861v128.301Zm-451.765 338.824c-114.183 80.753-330.24 198.099-621.176 198.099-129.43 0-379.144-26.203-621.177-198.1v-128.752c0-74.993 49.017-140.499 121.75-162.861 162.41-49.694 330.354-74.88 499.427-74.88h8.47c166.588.79 331.821 26.09 491.407 75.106 72.509 22.249 121.3 87.642 121.3 162.635v128.753Zm-903.53-761.901V734.072c0-155.632 126.608-282.352 282.354-282.352 155.746 0 282.353 126.72 282.353 282.352v112.942c0 155.746-126.607 282.353-282.353 282.353S451.765 1002.76 451.765 847.014Zm734.118-734.118c75.22 0 146.146 29.478 199.567 82.899 53.309 53.421 82.786 124.235 82.786 199.454V508.19c0 155.746-126.607 282.353-282.353 282.353-19.651 0-38.4-2.598-56.47-6.438v-50.033c0-156.423-92.047-290.71-224.188-354.748 8.357-148.066 130.447-266.428 280.658-266.428Zm532.857 758.061c-91.37-28.01-184.546-48.226-279.755-61.666 86.174-72.508 142.192-179.802 142.192-301.1V395.248c0-105.374-41.11-204.65-115.877-279.304-74.767-74.767-173.93-115.99-279.417-115.99-200.696 0-365.138 151.002-390.211 345.148-20.217-3.275-40.433-6.325-61.553-6.325-217.977 0-395.294 177.43-395.294 395.294v112.942c0 121.298 56.018 228.593 142.305 301.214-94.305 13.214-188.16 33.092-279.529 61.1C81.092 1246.375 0 1355.249 0 1480.163v185.675l22.588 16.941c275.238 206.344 563.803 237.177 711.53 237.177 344.244 0 593.618-148.63 711.53-237.177l22.587-16.94v-120.51c205.214-50.597 355.652-146.032 429.177-201.373l22.588-16.941V1141.79c0-125.026-80.979-233.901-201.261-270.833Z"
-                            fillRule="evenodd"
+                            id="Path_133"
+                            data-name="Path 133"
+                            d="M323.5-192h-9a1.5,1.5,0,0,0-1.5,1.5V-176h12v-14.5A1.5,1.5,0,0,0,323.5-192ZM318-177v-3h2v3Zm6,0h-3v-3.5a.5.5,0,0,0-.5-.5h-3a.5.5,0,0,0-.5.5v3.5h-3v-13.5a.5.5,0,0,1,.5-.5h9a.5.5,0,0,1,.5.5Zm-8-12h2v2h-2Zm4,0h2v2h-2Zm-4,4h2v2h-2Zm4,0h2v2h-2Z"
+                            transform="translate(-313 192)"
                           />
                         </svg>
                         Participants
@@ -396,7 +399,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                             : setSidebarExpanded(true);
                         }}
                       >
- <svg
+                        <svg
                           className="fill-current"
                           width="18"
                           height="18"
@@ -421,7 +424,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                             fill=""
                           />
                         </svg>
-                        
+
                         Apps
                         <svg
                           className={`absolute right-4 top-1/2 -translate-y-1/2 fill-current ${open && 'rotate-180'
