@@ -50,7 +50,7 @@ const SignUp: React.FC = () => {
   const [invalidApplicantCode, setInvalidApplicantCode] = useState(false);
   const [payor, setPayor] = useState<Payor>();
   const [sending, setSending] = useState(false);
-  const [applicantCode, setApplicantCode] = useState("1299");
+  const [applicantCode, setApplicantCode] = useState("12990");
   const [fetchResponse, setFetchResponse] = useState(false);
   const [payorList, setPayorList] = useState<Payor[]>();
   const [showPassword, setShowPassword] = useState(false);
@@ -175,7 +175,7 @@ const SignUp: React.FC = () => {
       } else if ( _.get(appData,"roleSelectedRegister") == "provider" && _.get(appData,"applicantCodeRegister") != "") {
         formData = [{ "type": "onboard-through-verifier", "verifier_code": _.get(appData,"payorSelectedCodeRegister"), "applicant_code": _.get(appData,"applicantCodeRegister") , additionalVerification: fields, "participant": { "participant_name": _.get(appData,"organizationNameRegister"), "primary_email": _.get(appData,"emailRegister"), "primary_mobile": _.get(appData,"phoneRegister"), "roles": ["provider"] } }];
       } else if (_.get(appData,"roleSelectedRegister") == "provider" && _.get(appData,"applicantCodeRegister") == "") {
-        formData = [{ "type": "onboard-through-verifier", "verifier_code": mockPayorCode, "applicant_code": "1299", additionalVerification: fields, "participant": { "participant_name": _.get(appData,"organizationNameRegister"), "primary_email": _.get(appData,"emailRegister"), "primary_mobile": _.get(appData,"phoneRegister"), "roles": ["provider"]  } }];
+        formData = [{ "type": "onboard-through-verifier", "verifier_code": mockPayorCode, "applicant_code": String(Math.floor(Math.random() * 123456789)), additionalVerification: fields, "participant": { "participant_name": _.get(appData,"organizationNameRegister"), "primary_email": _.get(appData,"emailRegister"), "primary_mobile": _.get(appData,"phoneRegister"), "roles": ["provider"]  } }];
       } else {
         console.log("i came in else");
         formData = [];
