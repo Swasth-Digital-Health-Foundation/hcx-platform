@@ -42,7 +42,10 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.swasth.common.response.ResponseMessage.*;
 import static org.swasth.common.utils.Constants.AUTH_REQUIRED;
@@ -83,6 +86,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
     private String keycloackParticipantRealm;
     @Value("${keycloak.client-id}")
     private String keycloackClientId;
+
     @Value("${allowedUserRolesForProtocolApiAccess}")
     private List<String> allowedUserRolesForProtocolApiAccess;
 
@@ -91,7 +95,6 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
 
     @Autowired
     JWTVerifierFactory jwtVerifierFactory;
-
     public JwtAuthenticationFilter(JwtConfigs jwtConfigs,
                                    AuthorizationService authorizationService,
                                    Map<String, Acl> aclMap) {
@@ -128,7 +131,6 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
                         List<String> userRoles = JsonPath.read(payload, jwtConfigs.getApiAccessUserClaimsNamespacePath());
                         RealmResource realmResource = keycloak.realm(keycloackParticipantRealm);
                         List<UserRepresentation> users = realmResource.users().search(subject);
-                        if (!users.isEmpty()) {
                             UserRepresentation user = users.get(0);
                             UserResource userResource = realmResource.users().get(user.getId());
                             List<UserSessionRepresentation> activeSessions = userResource.getUserSessions();
@@ -136,9 +138,6 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
                             if (activeSessions.isEmpty() || offlineSessions.isEmpty()){
                                 throw new ClientException(ErrorCodes.ERR_ACCESS_DENIED, "There are no active sessions or offline sessions ");
                             }
-                        }else {
-                            throw new ClientException(ErrorCodes.ERR_ACCESS_DENIED, "Invalid authorization token");
-                        }
                         if(!validateRoles(allowedUserRolesForProtocolApiAccess, userRoles)){
                             throw new JWTVerificationException(ErrorCodes.ERR_ACCESS_DENIED, MessageFormat.format(USER_ROLE_ACCESS_DENIED_MSG, allowedUserRolesForProtocolApiAccess));
                         }
@@ -219,6 +218,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         if (!components[0].equals("Bearer")) {
             throw new JWTVerificationException(ErrorCodes.ERR_ACCESS_DENIED, BEARER_MISSING);
         }
+
         return components[1].trim();
     }
 
@@ -230,4 +230,5 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         }
         return false;
     }
+
 }
