@@ -16,6 +16,8 @@ import java.util.Map;
 
 @Component
 public class RetryScheduler extends BaseScheduler {
+
+    private final Logger logger = LoggerFactory.getLogger(RetryScheduler.class);
     
     @Value("${max.retry}")
     private int maxRetry;
@@ -26,10 +28,8 @@ public class RetryScheduler extends BaseScheduler {
     @Value("${postgres.tablename}")
     private String postgresTableName;
 
-    @Scheduled(fixedDelayString = "${fixedDelay.in.milliseconds.retry}")
     public void process() throws Exception {
-
-        System.out.println("Retry batch job is started");
+        logger.info("Retry batch job is started");
         ResultSet result;
         try(Connection connection = postgreSQLClient.getConnection(); Statement createStatement = connection.createStatement()){
             String selectQuery = String.format("SELECT * FROM %s WHERE status = '%s' AND retryCount <= %d;", postgresTableName, Constants.RETRY_STATUS, maxRetry);

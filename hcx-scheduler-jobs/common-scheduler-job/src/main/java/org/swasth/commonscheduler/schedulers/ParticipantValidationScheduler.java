@@ -47,7 +47,6 @@ public class ParticipantValidationScheduler extends BaseScheduler {
     @Value("${certificate.expiry-days}")
     private List<Integer> certificateExpiryDaysList;
 
-    @Scheduled(fixedDelayString = "${fixedDelay.in.milliseconds.participantVerify}")
     public void process() throws Exception {
         logger.info("Participant validation scheduler started");
         certExpiry(Constants.SIGNING_CERT_PATH_EXPIRY, beforeSigningCertExpiryTopicCode, signingCertExpiredTopicCode);
