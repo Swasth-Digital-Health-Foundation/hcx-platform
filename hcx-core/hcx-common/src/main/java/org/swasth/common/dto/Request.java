@@ -17,14 +17,19 @@ import static org.swasth.common.utils.Constants.*;
 
 public class Request {
 
-    private final Map<String, Object> payload;
+    private  Map<String, Object> payload;
     protected Map<String, Object> hcxHeaders = null;
     private String mid = UUIDUtils.getUUID();
     private String apiAction;
-    private final String payloadWithoutSensitiveData;
+    private String payloadWithoutSensitiveData;
     private Token token;
 
     public Request(Map<String, Object> body, String apiAction ,String jwtToken) throws Exception {
+        new Request(body,apiAction);
+        token = new Token(jwtToken);
+    }
+
+    public Request(Map<String, Object> body, String apiAction) throws Exception {
         this.apiAction = apiAction;
         this.payload = body;
         try {
@@ -42,7 +47,6 @@ public class Request {
                 hcxHeaders = body;
             }
             this.payloadWithoutSensitiveData = PayloadUtils.removeSensitiveData(body, apiAction);
-            token = new Token(jwtToken);
         } catch (Exception e) {
             throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, "Error while parsing the payload");
         }

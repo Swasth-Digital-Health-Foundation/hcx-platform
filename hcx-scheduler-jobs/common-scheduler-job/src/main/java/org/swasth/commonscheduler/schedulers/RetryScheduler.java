@@ -37,7 +37,7 @@ public class RetryScheduler extends BaseScheduler {
             int metrics = 0;
             while (result.next()) {
                 String action = result.getString(Constants.ACTION);
-                Request request = new Request(JSONUtils.deserialize(result.getString("data"), Map.class), action,"");
+                Request request = new Request(JSONUtils.deserialize(result.getString("data"), Map.class), action);
                 request.setMid(result.getString(Constants.MID));
                 request.setApiAction(action);
                 int retryCount = result.getInt(Constants.RETRY_COUNT) + 1 ;
