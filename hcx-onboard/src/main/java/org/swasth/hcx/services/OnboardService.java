@@ -204,9 +204,8 @@ public class OnboardService extends BaseController {
             Map<String, Object> onboardValidations = getConfig(request.getVerifierCode(), ONBOARD_VALIDATION_PROPERTIES);
             updateConfig(participantCode, onboardValidations);
         }
-        ArrayList<String> channel = new ArrayList<>(Arrays.asList(EMAIL,MOBILE));
         participant.put(USER_ID, userId);
-        participant.put("channel",channel);
+        participant.put("channel",Arrays.asList(EMAIL,MOBILE));
         sendVerificationLink(participant);
         updateResponse(output, identityVerified, participantCode, userId, isUserExists);
         auditIndexer.createDocument(eventGenerator.getOnboardVerifyEvent(request, participantCode));
@@ -302,9 +301,8 @@ public class OnboardService extends BaseController {
     }
 
     public ResponseEntity<Object> sendVerificationLink(Map<String, Object> requestBody) throws Exception {
-        Map<String , Object> body =requestBody;
         if (!requestBody.containsKey(ROLES)) {
-            requestBody = getParticipant(PARTICIPANT_CODE, (String) requestBody.get(PARTICIPANT_CODE));
+            requestBody.putAll(getParticipant(PARTICIPANT_CODE, (String) requestBody.get(PARTICIPANT_CODE)));
         }
         String query = String.format("SELECT regenerate_count, last_regenerate_date, email_verified, phone_verified FROM %s WHERE participant_code='%s'", onboardVerificationTable, requestBody.get(PARTICIPANT_CODE));
         ResultSet result = (ResultSet) postgreSQLClient.executeQuery(query);
@@ -324,7 +322,7 @@ public class OnboardService extends BaseController {
         }
         String shortUrl = null;
         String longUrl = null;
-        List<String> channel = Optional.ofNullable((List<String>) body.get("channel"))
+        List<String> channel = Optional.ofNullable((List<String>) requestBody.get("channel"))
                 .orElse(new ArrayList<>());
         if (!phoneVerified && channel.contains(MOBILE)) {
             shortUrl = hcxURL + "/api/url/" + generateRandomPassword(10);
