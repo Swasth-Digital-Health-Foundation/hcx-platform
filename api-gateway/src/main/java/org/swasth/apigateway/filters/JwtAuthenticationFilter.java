@@ -9,7 +9,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.admin.client.resource.UserResource;
-import org.keycloak.representations.idm.UserRepresentation;
 import org.keycloak.representations.idm.UserSessionRepresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,10 +69,8 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
     private final JwtConfigs jwtConfigs;
     private final AuthorizationService authorizationService;
     private final Acl authenticatedAllowedPaths;
-    private Map<String,JWTVerifier> verifierCache = new HashMap<>();
-
+    private Map<String, JWTVerifier> verifierCache = new HashMap<>();
     private Keycloak keycloak;
-
     @Value("${keycloak.base-url}")
     private String keycloakURL;
     @Value("${keycloak.admin-password}")
@@ -89,12 +86,11 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
 
     @Value("${allowedUserRolesForProtocolApiAccess}")
     private List<String> allowedUserRolesForProtocolApiAccess;
-
     @Autowired
     ExceptionHandler exceptionHandler;
-
     @Autowired
     JWTVerifierFactory jwtVerifierFactory;
+
     public JwtAuthenticationFilter(JwtConfigs jwtConfigs,
                                    AuthorizationService authorizationService,
                                    Map<String, Acl> aclMap) {
@@ -104,13 +100,12 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
     }
 
     @PostConstruct()
-    public void init(){
+    public void init() {
         keycloak = Keycloak.getInstance(keycloakURL, keycloakMasterRealm, keycloakAdminUserName, keycloakAdminPassword, keycloackClientId);
     }
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-
         if (exchange.getAttributes().containsKey(AUTH_REQUIRED) && (Boolean) exchange.getAttributes().get(
                 AUTH_REQUIRED)) {
             try {
@@ -118,38 +113,26 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
                 String path = exchange.getRequest().getPath().value();
                 String entityType = getEntityType(token);
                 DecodedJWT decodedJWT = getJWTVerifier(entityType).verify(token);
-                String subject =decodedJWT.getSubject();
-                String session = String.valueOf(decodedJWT.getClaim("session-state"));
                 ServerHttpRequest request = exchange.getRequest().mutate().
                         header(X_JWT_SUB_HEADER, decodedJWT.getSubject()).
                         build();
-
+                checkSessions(decodedJWT.getSubject(), decodedJWT.getClaim("session_state").asString());
                 if (!authenticatedAllowedPaths.getPaths().contains(path) && !Utils.containsRegexPath(authenticatedAllowedPaths.getRegexPaths(), path)) {
                     String payload = new String(Base64.getDecoder().decode(decodedJWT.getPayload()));
                     JSONArray claims;
-                    if(StringUtils.equalsIgnoreCase(entityType, Constants.API_ACCESS)) {
+                    if (StringUtils.equalsIgnoreCase(entityType, Constants.API_ACCESS)) {
                         List<String> userRoles = JsonPath.read(payload, jwtConfigs.getApiAccessUserClaimsNamespacePath());
-                        RealmResource realmResource = keycloak.realm(keycloackParticipantRealm);
-                        List<UserRepresentation> users = realmResource.users().search(subject);
-                            UserRepresentation user = users.get(0);
-                            UserResource userResource = realmResource.users().get(user.getId());
-                            List<UserSessionRepresentation> activeSessions = userResource.getUserSessions();
-                            List<UserSessionRepresentation> offlineSessions = userResource.getOfflineSessions(session);
-                            if (activeSessions.isEmpty() || offlineSessions.isEmpty()){
-                                throw new ClientException(ErrorCodes.ERR_ACCESS_DENIED, "There are no active sessions or offline sessions ");
-                            }
-                        if(!validateRoles(allowedUserRolesForProtocolApiAccess, userRoles)){
+                        if (!validateRoles(allowedUserRolesForProtocolApiAccess, userRoles)) {
                             throw new JWTVerificationException(ErrorCodes.ERR_ACCESS_DENIED, MessageFormat.format(USER_ROLE_ACCESS_DENIED_MSG, allowedUserRolesForProtocolApiAccess));
                         }
-                       claims = JsonPath.read(payload, jwtConfigs.getApiAccessParticipantClaimsNamespacePath());
+                        claims = JsonPath.read(payload, jwtConfigs.getApiAccessParticipantClaimsNamespacePath());
                     } else {
                         claims = JsonPath.read(payload, jwtConfigs.getClaimsNamespacePath());
                     }
                     if (!authorizationService.isAuthorized(exchange, claims, entityType)) {
                         throw new JWTVerificationException(ErrorCodes.ERR_ACCESS_DENIED, ACCESS_DENIED_MSG);
-                    } 
+                    }
                 }
-
                 return chain.filter(exchange.mutate().request(request).build());
 
             } catch (Exception e) {
@@ -160,7 +143,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         }
     }
 
-    private JWTVerifier getJWTVerifier(String entityType) throws InvalidKeySpecException, NoSuchAlgorithmException, JwkException, IOException, ClientException{
+    private JWTVerifier getJWTVerifier(String entityType) throws InvalidKeySpecException, NoSuchAlgorithmException, JwkException, IOException, ClientException {
         if (verifierCache.containsKey(entityType)) {
             return verifierCache.get(entityType);
         } else {
@@ -172,8 +155,8 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         }
     }
 
-    private Map<String,String> getEntityRealm() {
-        Map<String,String> entityRealm = new HashMap<>();
+    private Map<String, String> getEntityRealm() {
+        Map<String, String> entityRealm = new HashMap<>();
         for (String str : jwtConfigs.getEntityRealm()) {
             String[] parts = str.split("@");
             if (parts.length == 2) {
@@ -183,10 +166,10 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         return entityRealm;
     }
 
-    private String getEntityType(String token) throws ClientException{
+    private String getEntityType(String token) throws ClientException {
         String entityType = "";
-        try{
-            entityType =  ((List<String>) JSONUtils.decodeBase64String(token.split("\\.")[1], Map.class).get("entity")).get(0);
+        try {
+            entityType = ((List<String>) JSONUtils.decodeBase64String(token.split("\\.")[1], Map.class).get("entity")).get(0);
         } catch (Exception e) {
             throw new ClientException(ErrorCodes.ERR_ACCESS_DENIED, "Invalid authorization token");
         }
@@ -231,4 +214,19 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         return false;
     }
 
+    public void checkSessions(String subject, String sessionId) throws ClientException {
+        try {
+            RealmResource realmResource = keycloak.realm(keycloackParticipantRealm);
+            UserResource usersResource = realmResource.users().get(subject);
+            List<UserSessionRepresentation> activeSessions = usersResource.getUserSessions();
+            if (!activeSessions.isEmpty()) {
+                activeSessions.stream().anyMatch(session -> session.getId().equals(sessionId));
+            } else {
+                List<UserSessionRepresentation> offlineSessions = usersResource.getOfflineSessions(sessionId);
+                offlineSessions.stream().anyMatch(session -> session.getId().equals(sessionId));
+            }
+        } catch (Exception notFoundException) {
+            throw new ClientException(ErrorCodes.ERR_ACCESS_DENIED, "The user is offline or inactive");
+        }
+    }
 }
