@@ -65,6 +65,7 @@ const SetPassword:React.FC<SetPasswordProps> = ({createPassword}:SetPasswordProp
                       </svg>
                     </span>
                   </div>
+                  {pass1Error ? <p className='text-danger italic'>* Please enter valid password</p> : null }
                 </div>
 
                 <div className="mb-6">
@@ -100,6 +101,7 @@ const SetPassword:React.FC<SetPasswordProps> = ({createPassword}:SetPasswordProp
                       </svg>
                     </span>
                   </div>
+                  {pass2Error ? <p className='text-danger italic'>* Please enter valid password</p> : null }
                 </div>
                 <div className="mb-5">
                   <input

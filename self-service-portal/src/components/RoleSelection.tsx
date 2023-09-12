@@ -164,6 +164,7 @@ const RoleSelection: React.FC<RoleSelectionProps> = ({ payorList, onRoleSubmit }
                 </svg>
               </span>
             </div>
+            {applicantError ? <p className='text-danger italic'>* Please enter valid applicant code</p> : null }
           </div> : null}
         </> : null}
         <div className="flex items-center justify-center mt-10 mb-4">

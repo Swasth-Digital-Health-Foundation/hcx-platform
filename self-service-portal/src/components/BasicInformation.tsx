@@ -65,6 +65,7 @@ const BasicInformation: React.FC<BasicInformationProps> = ({onInfoSubmit}:BasicI
             </svg>
           </span>
         </div>
+        {emailError ? <p className='text-danger italic'>* Please enter valid email address</p> : null }
       </div>
 
       <div className="mb-4">
@@ -101,6 +102,7 @@ const BasicInformation: React.FC<BasicInformationProps> = ({onInfoSubmit}:BasicI
             </svg>
           </span>
         </div>
+        {phoneError ? <p className='text-danger italic'>* Please enter valid phone number</p> : null }
       </div>
       <div className="mb-4">
         <label className="mb-2.5 block font-medium text-black dark:text-white">
@@ -137,6 +139,7 @@ const BasicInformation: React.FC<BasicInformationProps> = ({onInfoSubmit}:BasicI
             </svg>
           </span>
         </div>
+        {orgError ? <p className='text-danger italic'>* Please enter valid organization name</p> : null }
       </div>
 
       <div className="mb-5">

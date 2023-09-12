@@ -33,8 +33,6 @@ const SignIn: React.FC = () => {
     if (username == "" || password == ""){
       if(username == "") setUserError(true);
       if(password == "") setPassError(true);
-      setPassError(true);
-      setUserError(true);
     }else{
       console.log("i am here")
       dispatch(addAppData({"username":username}));
@@ -60,18 +58,22 @@ const SignIn: React.FC = () => {
                   dispatch(addParticipantDetails(res["data"]["participants"][0]));
                 })
                 if(index == 0){
-                  dispatch(addAppData({"sidebar":"Profile"}))
+                  navigate("/onboarding/profile");
                 }else{
-                  dispatch(addAppData({"sidebar":"Manage Participants"}))
+                  navigate("/onboarding/participants");
                 }
               })
             });
           }
-        })
-        navigate("/onboarding/profile");
+        }).catch((error) => {
+          toast.error("Something went wrong. Please contact the administrator" || "Internal Server Error", {
+            position: toast.POSITION.TOP_RIGHT
+        });
+        });
+        //navigate("/onboarding/profile");
     }).catch((error) => {
       toast.error("Unable to login. Please check the credentials" || "Internal Server Error", {
-        position: toast.POSITION.TOP_CENTER
+        position: toast.POSITION.TOP_RIGHT
     });
     })}
   }
@@ -141,7 +143,7 @@ const SignIn: React.FC = () => {
                   <div className="relative">
                     <input
                       type="email"
-                      placeholder="Enter your email"
+                      placeholder="Enter your registered email address"
                       className={"w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary" + (userError ? " !border-danger" : "")}
                       onChange={(event) => {setUserName(event.target.value); setUserError(false)}}
                     />
@@ -164,6 +166,7 @@ const SignIn: React.FC = () => {
                       </svg>
                     </span>
                   </div>
+                  {userError ? <p className='text-danger italic'>* Please enter valid email address</p> : null }
                 </div>
 
                 <div className="mb-6">
@@ -200,6 +203,7 @@ const SignIn: React.FC = () => {
                       </svg>
                     </span>
                   </div>
+                  {passError ? <p className='text-danger italic'>* Please enter valid password</p> : null }
                 </div>
 
                 <div className="mb-5">
@@ -212,14 +216,14 @@ const SignIn: React.FC = () => {
                 </div>
                 <div className="mt-2 text-center">
                   <p>
-                    <Link to="/onboarding/resetpassword" className="text-primary" target='_blank'>
+                    <Link to="/onboarding/resetpassword" className="text-primary">
                       Forgot Password?
                     </Link>
                   </p>
                 </div>
                 <div className="mt-6 text-center">
                   <p>
-                    Don’t have any account?{' '}
+                    Don’t have an account?{' '}
                     <Link to="/onboarding/register" className="text-primary">
                       Sign Up
                     </Link>
