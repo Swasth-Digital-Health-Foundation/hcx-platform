@@ -59,6 +59,12 @@ const ResetPassword: React.FC = () => {
           </div>
           <div className="w-full xl:w-1/2">
             <div className="w-full p-4 sm:p-12.5 xl:p-17.5">
+            <div className="text-center w-full xl:hidden">
+              <Link className="mb-5.5 inline-block" to="#">
+                <img className="hidden dark:block w-48" src={Logo} alt="Logo" />
+                <img className="dark:hidden w-48" src={Logo} alt="Logo" />
+              </Link>
+              </div>
               <h2 className="mb-3 text-2xl font-bold text-black dark:text-white sm:text-title-xl2">
                 Reset Password
               </h2>
