@@ -40,7 +40,7 @@ class HCXRequestTest extends BaseSpec {
                 .thenReturn(getProviderDetails())
                 .thenReturn(getPayorDetails());
         Mockito.when(auditService.getAuditLogs(any())).thenReturn(new ArrayList<>());
-
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_CHECK)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "8527853c-b442-44db-aeda-dbbdcf472d9b")
@@ -50,27 +50,7 @@ class HCXRequestTest extends BaseSpec {
                 .consumeWith(result -> assertEquals(HttpStatus.ACCEPTED, result.getStatus()));
     }
 
-    @Test
-    void check_hcx_request_session_offline_scenario() throws Exception {
-        server.enqueue(new MockResponse()
-                .setResponseCode(400)
-                .addHeader("Content-Type", "application/json"));
-
-        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
-                .thenReturn(getProviderDetails())
-                .thenReturn(getPayorDetails());
-        Mockito.when(auditService.getAuditLogs(any())).thenReturn(new ArrayList<>());
-
-        client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_CHECK)
-                .header(Constants.AUTHORIZATION, getPayorTokenNotInKeycloak())
-                .header("X-jwt-sub", "4c64a104-66a8-463f-aaa4-0787cb4145e9")
-                .bodyValue(getRequestBody())
-                .exchange()
-                .expectBody(Map.class)
-                .consumeWith(result -> assertEquals(HttpStatus.BAD_REQUEST, result.getStatus()));
-    }
-
-  // scenario : api call id is already exist in the getAuditLogs, we are making request one more time, and it is failing.
+    // scenario : api call id is already exist in the getAuditLogs, we are making request one more time, and it is failing.
     @Test
     void check_hcx_request_with_same_api_call_id_scenario() throws Exception {
         server.enqueue(new MockResponse()
@@ -81,6 +61,7 @@ class HCXRequestTest extends BaseSpec {
                 .thenReturn(getPayorDetails());
         Mockito.when(auditService.getAuditLogs(any()))
                 .thenReturn(getAuditLogs());
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_CHECK)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "8527853c-b442-44db-aeda-dbbdcf472d9b")
@@ -93,8 +74,8 @@ class HCXRequestTest extends BaseSpec {
                     assertEquals(API_CALL_SAME_MSG, getResponseErrorMessage(result));
                 });
     }
-  
-  @Test
+
+    @Test
     void check_hcx_request_success_for_sender_context_api_call_id_scenario() throws Exception {
         server.enqueue(new MockResponse()
                 .setResponseCode(202)
@@ -102,6 +83,7 @@ class HCXRequestTest extends BaseSpec {
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getProviderDetails())
                 .thenReturn(getPayorDetails());
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_CHECK)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "8527853c-b442-44db-aeda-dbbdcf472d9b")
@@ -110,7 +92,7 @@ class HCXRequestTest extends BaseSpec {
                 .expectBody(Map.class)
                 .consumeWith(result -> assertEquals(HttpStatus.ACCEPTED, result.getStatus()));
     }
-  
+
     // scenario : Request with correlationId is already exist in the getAuditLogs,and we are making request again, and it's failing
     @Test
     void check_hcx_request_same_correlation_id_scenario() throws Exception {
@@ -126,6 +108,7 @@ class HCXRequestTest extends BaseSpec {
                 .thenReturn(getAuditLogs())
                 .thenReturn(new ArrayList<>())
                 .thenReturn(getAuditLogs());
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_CHECK)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "8527853c-b442-44db-aeda-dbbdcf472d9b")
@@ -134,7 +117,7 @@ class HCXRequestTest extends BaseSpec {
                 .expectBody(Map.class)
                 .consumeWith(result -> assertEquals(HttpStatus.BAD_REQUEST, result.getStatus()));
     }
-  
+
     // Request already exist with correlationId but status is complete and timestamp is more than some days, and it is success
     @Test
     void check_hcx_request_reuse_correlation_id_scenario_after_complete_status_and_timestamp() throws Exception {
@@ -149,6 +132,7 @@ class HCXRequestTest extends BaseSpec {
                 .thenReturn(getAuditLogs())
                 .thenReturn(new ArrayList<>())
                 .thenReturn(getCorrelationIdAuditLogs());
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_CHECK)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "8527853c-b442-44db-aeda-dbbdcf472d9b")
@@ -157,7 +141,7 @@ class HCXRequestTest extends BaseSpec {
                 .expectBody(Map.class)
                 .consumeWith(result -> assertEquals(HttpStatus.ACCEPTED, result.getStatus()));
     }
-  
+
     @Test
     void check_hcx_request_parse_timestamp_exception() throws Exception {
         server.enqueue(new MockResponse()
@@ -171,6 +155,7 @@ class HCXRequestTest extends BaseSpec {
                 .thenReturn(getAuditLogs())
                 .thenReturn(new ArrayList<>())
                 .thenReturn(getInvalidTimestampAuditLogs());
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_CHECK)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "8527853c-b442-44db-aeda-dbbdcf472d9b")
@@ -179,7 +164,7 @@ class HCXRequestTest extends BaseSpec {
                 .expectBody(Map.class)
                 .consumeWith(result -> assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatus()));
     }
-  
+
     @Test
     void check_hcx_request_filter_list_empty() throws Exception {
         server.enqueue(new MockResponse()
@@ -193,25 +178,29 @@ class HCXRequestTest extends BaseSpec {
                 .thenReturn(getAuditLogs())
                 .thenReturn(new ArrayList<>())
                 .thenReturn(getAuditLogs());
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_CHECK)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "8527853c-b442-44db-aeda-dbbdcf472d9b")
                 .bodyValue(getCorrelationIDRequestBody())
                 .exchange()
                 .expectBody(Map.class)
-                .consumeWith(result -> assertEquals(HttpStatus.ACCEPTED, result.getStatus())); 
+                .consumeWith(result -> assertEquals(HttpStatus.ACCEPTED, result.getStatus()));
     }
-   
+
     @Test
     void check_hcx_request_invalid_caller_id_and_sender_code_with_api_access_token() throws Exception {
+        server.enqueue(new MockResponse()
+                .addHeader("Content-Type", "application/json"));
+
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getProviderDetails())
                 .thenReturn(getPayorDetails());
         Mockito.when(auditService.getAuditLogs(any())).thenReturn(new ArrayList<>());
-
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_CHECK)
                 .header(Constants.AUTHORIZATION, getAPIAccessToken())
-                .header("X-jwt-sub", "8527853c-b442-44db-aeda-dbbdcf472d9b")
+                .header("X-jwt-sub", "f5b0ba6c-959e-4dfe-a2d3-2c9d18d23f4e")
                 .bodyValue(getRequestBody())
                 .exchange()
                 .expectBody(Map.class)
@@ -224,11 +213,14 @@ class HCXRequestTest extends BaseSpec {
 
     @Test
     void check_hcx_request_access_denied_api_access_token_without_admin_role() throws Exception {
+        server.enqueue(new MockResponse()
+                .addHeader("Content-Type", "application/json"));
+
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getProviderDetails())
                 .thenReturn(getPayorDetails());
         Mockito.when(auditService.getAuditLogs(any())).thenReturn(new ArrayList<>());
-
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_CHECK)
                 .header(Constants.AUTHORIZATION, getAPIAccessTokenWithoutAdminRole())
                 .header("X-jwt-sub", "8527853c-b442-44db-aeda-dbbdcf472d9b")
@@ -255,8 +247,7 @@ class HCXRequestTest extends BaseSpec {
                 .thenReturn(getAuditLogs())
                 .thenReturn(getAuditLogs())
                 .thenReturn(new ArrayList<>());
-
-
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_ONCHECK)
                 .header(Constants.AUTHORIZATION, getPayorToken())
                 .header("X-jwt-sub", "df7d9449-7a78-4db0-aaaf-e0a946598ffd")
@@ -279,7 +270,7 @@ class HCXRequestTest extends BaseSpec {
                 .thenReturn(new ArrayList<>())
                 .thenReturn(getAuditLogs())
                 .thenReturn(getAuditLogs());
-
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_ONCHECK)
                 .header(Constants.AUTHORIZATION, getPayorToken())
                 .header("X-jwt-sub", "df7d9449-7a78-4db0-aaaf-e0a946598ffd")
@@ -361,7 +352,7 @@ class HCXRequestTest extends BaseSpec {
                 .thenReturn(getProviderDetails())
                 .thenReturn(getPayorDetails());
         Mockito.when(auditService.getAuditLogs(any())).thenCallRealMethod();
-
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_CHECK)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
@@ -482,7 +473,7 @@ class HCXRequestTest extends BaseSpec {
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(new HashMap<>())
                 .thenReturn(getBlockedPayorDetails());
-
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_CHECK)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "8527853c-b442-44db-aeda-dbbdcf472d9b")
@@ -500,7 +491,7 @@ class HCXRequestTest extends BaseSpec {
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(new HashMap<>())
                 .thenReturn(getInactivePayorDetails());
-
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_CHECK)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "8527853c-b442-44db-aeda-dbbdcf472d9b")
@@ -518,7 +509,7 @@ class HCXRequestTest extends BaseSpec {
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(new HashMap<>())
                 .thenReturn(getNotallowedPayorDetails());
-
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_CHECK)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "8527853c-b442-44db-aeda-dbbdcf472d9b")
@@ -536,7 +527,7 @@ class HCXRequestTest extends BaseSpec {
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(new HashMap<>())
                 .thenReturn(getNotallowedPayorDetails());
-
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_CHECK)
                 .header(Constants.AUTHORIZATION, getHCXAdminToken())
                 .header("X-jwt-sub", "8527853c-b442-44db-aeda-dbbdcf472d9b")
@@ -555,7 +546,7 @@ class HCXRequestTest extends BaseSpec {
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getProviderDetails())
                 .thenReturn(getPayorDetails());
-
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_CHECK)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "8527853c-b442-44db-aeda-dbbdcf472d9b")
@@ -573,7 +564,7 @@ class HCXRequestTest extends BaseSpec {
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getProviderDetails())
                 .thenReturn(getPayorDetails());
-
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_CHECK)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "8527853c-b442-44db-aeda-dbbdcf472d9b")
@@ -591,7 +582,7 @@ class HCXRequestTest extends BaseSpec {
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getPayorDetails())
                 .thenReturn(getProviderDetails());
-
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_ONCHECK)
                 .header(Constants.AUTHORIZATION, getPayorToken())
                 .header("X-jwt-sub", "df7d9449-7a78-4db0-aaaf-e0a946598ffd")
@@ -609,7 +600,7 @@ class HCXRequestTest extends BaseSpec {
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getPayorDetails())
                 .thenReturn(getProviderDetails());
-
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_ONCHECK)
                 .header(Constants.AUTHORIZATION, getPayorToken())
                 .header("X-jwt-sub", "df7d9449-7a78-4db0-aaaf-e0a946598ffd")
@@ -627,7 +618,7 @@ class HCXRequestTest extends BaseSpec {
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getPayorDetails())
                 .thenReturn(getProviderDetails());
-
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_ONCHECK)
                 .header(Constants.AUTHORIZATION, getPayorToken())
                 .header("X-jwt-sub", "df7d9449-7a78-4db0-aaaf-e0a946598ffd")
@@ -653,7 +644,7 @@ class HCXRequestTest extends BaseSpec {
                 .thenReturn(getAuditLogs())
                 .thenReturn(getAuditLogs())
                 .thenReturn(new ArrayList<>());
-
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_CHECK)
                 .header(Constants.AUTHORIZATION, getPayorToken())
                 .header("X-jwt-sub", "df7d9449-7a78-4db0-aaaf-e0a946598ffd")
@@ -670,7 +661,7 @@ class HCXRequestTest extends BaseSpec {
                 .thenReturn(getPayor2Details());
         Mockito.when(auditService.getAuditLogs(any()))
                 .thenReturn(new ArrayList<>());
-
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_CHECK)
                 .header(Constants.AUTHORIZATION, getPayorToken())
                 .header("X-jwt-sub", "df7d9449-7a78-4db0-aaaf-e0a946598ffd")
@@ -692,7 +683,7 @@ class HCXRequestTest extends BaseSpec {
                 .thenReturn(getAuditLogs())
                 .thenReturn(new ArrayList<>())
                 .thenReturn(getAuditLogs());
-
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_CHECK)
                 .header(Constants.AUTHORIZATION, getPayorToken())
                 .header("X-jwt-sub", "df7d9449-7a78-4db0-aaaf-e0a946598ffd")
@@ -715,7 +706,7 @@ class HCXRequestTest extends BaseSpec {
         Mockito.when(auditService.getAuditLogs(any()))
                 .thenReturn(new ArrayList<>())
                 .thenReturn(getOnActionAuditLogs());
-
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_ONCHECK)
                 .header(Constants.AUTHORIZATION, getPayorToken())
                 .header("X-jwt-sub", "df7d9449-7a78-4db0-aaaf-e0a946598ffd")
@@ -730,7 +721,7 @@ class HCXRequestTest extends BaseSpec {
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getPayorDetails())
                 .thenReturn(getProviderDetails());
-
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix + Constants.PREDETERMINATION_ONSUBMIT)
                 .header(Constants.AUTHORIZATION, getPayorToken())
                 .header("X-jwt-sub", "df7d9449-7a78-4db0-aaaf-e0a946598ffd")
@@ -748,7 +739,7 @@ class HCXRequestTest extends BaseSpec {
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getPayorDetails())
                 .thenReturn(getProviderDetails());
-
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_ONCHECK)
                 .header(Constants.AUTHORIZATION, getPayorToken())
                 .header("X-jwt-sub", "df7d9449-7a78-4db0-aaaf-e0a946598ffd")
@@ -767,7 +758,7 @@ class HCXRequestTest extends BaseSpec {
                 .thenReturn(getPayorDetails())
                 .thenReturn(getProviderDetails())
                 .thenReturn(getProviderDetails());
-
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_ONCHECK)
                 .header(Constants.AUTHORIZATION, getPayorToken())
                 .header("X-jwt-sub", "df7d9449-7a78-4db0-aaaf-e0a946598ffd")
@@ -785,7 +776,7 @@ class HCXRequestTest extends BaseSpec {
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getProviderDetails())
                 .thenReturn(getPayorDetails());
-
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_CHECK)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "8527853c-b442-44db-aeda-dbbdcf472d9b")
@@ -803,7 +794,7 @@ class HCXRequestTest extends BaseSpec {
         server.enqueue(new MockResponse()
                 .setResponseCode(202)
                 .addHeader("Content-Type", "application/json"));
-
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getProviderDetails());
         Mockito.when(registryService.getDetails(anyString()))
@@ -831,6 +822,7 @@ class HCXRequestTest extends BaseSpec {
                 .thenReturn(Arrays.asList(getPayorDetails()));
         Mockito.when(jwtUtils.isValidSignature(anyString(), anyString()))
                 .thenReturn(Boolean.TRUE);
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix08 + Constants.NOTIFICATION_NOTIFY)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "8527853c-b442-44db-aeda-dbbdcf472d9b")
@@ -854,6 +846,7 @@ class HCXRequestTest extends BaseSpec {
                 .thenReturn(getHCXAdminDetails());
         Mockito.when(jwtUtils.isValidSignature(anyString(), anyString()))
                 .thenReturn(Boolean.TRUE);
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix08 + Constants.NOTIFICATION_NOTIFY)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "8527853c-b442-44db-aeda-dbbdcf472d9b")
@@ -873,6 +866,7 @@ class HCXRequestTest extends BaseSpec {
                 .thenReturn(getProviderDetails());
         Mockito.when(jwtUtils.isValidSignature(anyString(), anyString()))
                 .thenReturn(Boolean.TRUE);
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix08 + Constants.NOTIFICATION_NOTIFY)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "8527853c-b442-44db-aeda-dbbdcf472d9b")
@@ -895,6 +889,7 @@ class HCXRequestTest extends BaseSpec {
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(new HashMap<>())
                 .thenReturn(getHCXAdminDetails());
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix08 + Constants.NOTIFICATION_NOTIFY)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "8527853c-b442-44db-aeda-dbbdcf472d9b")
@@ -916,7 +911,8 @@ class HCXRequestTest extends BaseSpec {
 
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getBlockedProviderDetails())
-                        .thenReturn(getHCXAdminDetails());
+                .thenReturn(getHCXAdminDetails());
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix08 + Constants.NOTIFICATION_NOTIFY)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "8527853c-b442-44db-aeda-dbbdcf472d9b")
@@ -940,6 +936,7 @@ class HCXRequestTest extends BaseSpec {
                 .thenReturn(getProviderDetails());
         Mockito.when(jwtUtils.isValidSignature(anyString(), anyString()))
                 .thenReturn(Boolean.TRUE);
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix08 + Constants.NOTIFICATION_NOTIFY)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "8527853c-b442-44db-aeda-dbbdcf472d9b")
@@ -965,6 +962,7 @@ class HCXRequestTest extends BaseSpec {
                 .thenReturn(Arrays.asList(getPayorDetails()));
         Mockito.when(jwtUtils.isValidSignature(anyString(), anyString()))
                 .thenReturn(Boolean.TRUE);
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix08 + Constants.NOTIFICATION_NOTIFY)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "8527853c-b442-44db-aeda-dbbdcf472d9b")
@@ -988,6 +986,7 @@ class HCXRequestTest extends BaseSpec {
                 .thenReturn(getPayorDetails());
         Mockito.when(jwtUtils.isValidSignature(anyString(), anyString()))
                 .thenReturn(Boolean.TRUE);
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix08 + Constants.NOTIFICATION_NOTIFY)
                 .header(Constants.AUTHORIZATION, getPayorToken())
                 .header("X-jwt-sub", "8527853c-b442-44db-aeda-dbbdcf472d9b")
@@ -1013,6 +1012,7 @@ class HCXRequestTest extends BaseSpec {
                 .thenReturn(Arrays.asList(getPayorDetails()));
         Mockito.when(jwtUtils.isValidSignature(anyString(), anyString()))
                 .thenReturn(Boolean.TRUE);
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix08 + Constants.NOTIFICATION_NOTIFY)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "8527853c-b442-44db-aeda-dbbdcf472d9b")
@@ -1038,6 +1038,7 @@ class HCXRequestTest extends BaseSpec {
                 .thenReturn(Arrays.asList(getPayorDetails()));
         Mockito.when(jwtUtils.isValidSignature(anyString(), anyString()))
                 .thenReturn(Boolean.TRUE);
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix08 + Constants.NOTIFICATION_NOTIFY)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "8527853c-b442-44db-aeda-dbbdcf472d9b")
@@ -1063,6 +1064,7 @@ class HCXRequestTest extends BaseSpec {
                 .thenReturn(Arrays.asList(getPayorDetails()));
         Mockito.when(jwtUtils.isValidSignature(anyString(), anyString()))
                 .thenReturn(Boolean.TRUE);
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix08 + Constants.NOTIFICATION_NOTIFY)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "8527853c-b442-44db-aeda-dbbdcf472d9b")
@@ -1104,7 +1106,7 @@ class HCXRequestTest extends BaseSpec {
 
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getProviderDetails());
-
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix08 + Constants.NOTIFICATION_SUBSCRIBE)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "8527853c-b442-44db-aeda-dbbdcf472d9b")
@@ -1126,7 +1128,7 @@ class HCXRequestTest extends BaseSpec {
 
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getProviderDetails());
-
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix08 + Constants.NOTIFICATION_SUBSCRIBE)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "8527853c-b442-44db-aeda-dbbdcf472d9b")
@@ -1145,7 +1147,7 @@ class HCXRequestTest extends BaseSpec {
         server.enqueue(new MockResponse()
                 .setResponseCode(202)
                 .addHeader("Content-Type", "application/json"));
-
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getProviderDetails());
 
@@ -1170,7 +1172,7 @@ class HCXRequestTest extends BaseSpec {
 
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getPayorDetails());
-
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix08 + Constants.NOTIFICATION_SUBSCRIBE)
                 .header(Constants.AUTHORIZATION, getPayorToken())
                 .header("X-jwt-sub", "8527853c-b442-44db-aeda-dbbdcf472d9b")
@@ -1192,6 +1194,7 @@ class HCXRequestTest extends BaseSpec {
 
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getBlockedProviderDetails());
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix08 + Constants.NOTIFICATION_SUBSCRIBE)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "8527853c-b442-44db-aeda-dbbdcf472d9b")
@@ -1213,7 +1216,7 @@ class HCXRequestTest extends BaseSpec {
 
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getProviderDetails());
-
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix08 + Constants.NOTIFICATION_SUBSCRIBE)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "8527853c-b442-44db-aeda-dbbdcf472d9b")
@@ -1235,7 +1238,7 @@ class HCXRequestTest extends BaseSpec {
 
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getProviderDetails());
-
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix08 + Constants.NOTIFICATION_SUBSCRIBE)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "8527853c-b442-44db-aeda-dbbdcf472d9b")
@@ -1260,7 +1263,7 @@ class HCXRequestTest extends BaseSpec {
 
         Mockito.when(registryService.getDetails(anyString()))
                 .thenReturn(Arrays.asList(getPayorDetails()));
-
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix08 + Constants.NOTIFICATION_SUBSCRIBE)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "8527853c-b442-44db-aeda-dbbdcf472d9b")
@@ -1285,7 +1288,7 @@ class HCXRequestTest extends BaseSpec {
 
         Mockito.when(registryService.getDetails(anyString()))
                 .thenReturn(Arrays.asList(getPayorDetails()));
-
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix08 + Constants.NOTIFICATION_SUBSCRIBE)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "8527853c-b442-44db-aeda-dbbdcf472d9b")
@@ -1310,11 +1313,11 @@ class HCXRequestTest extends BaseSpec {
 
         Mockito.when(registryService.getDetails(anyString()))
                 .thenReturn(Arrays.asList(getPayorDetails()));
-
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix08 + Constants.NOTIFICATION_SUBSCRIBE)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "8527853c-b442-44db-aeda-dbbdcf472d9b")
-                .bodyValue(getSubscriptionRequest("notif-claim-particular-disease", Arrays.asList("new-payor-3","test-payor")))
+                .bodyValue(getSubscriptionRequest("notif-claim-particular-disease", Arrays.asList("new-payor-3", "test-payor")))
                 .exchange()
                 .expectBody(Map.class)
                 .consumeWith(result -> {
@@ -1334,6 +1337,7 @@ class HCXRequestTest extends BaseSpec {
                 .thenReturn(getProviderDetails());
         Mockito.when(registryService.getDetails(anyString()))
                 .thenReturn(Arrays.asList(getPayorDetails()));
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix08 + Constants.NOTIFICATION_SUBSCRIBE)
                 .header(Constants.AUTHORIZATION, getPayorToken())
                 .header("X-jwt-sub", "df7d9449-7a78-4db0-aaaf-e0a946598ffd")
@@ -1353,6 +1357,7 @@ class HCXRequestTest extends BaseSpec {
                 .thenReturn(getProviderDetails());
         Mockito.when(registryService.getDetails(anyString()))
                 .thenReturn(Arrays.asList(getPayorDetails()));
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix08 + Constants.NOTIFICATION_UNSUBSCRIBE)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "8527853c-b442-44db-aeda-dbbdcf472d9b")
@@ -1372,6 +1377,7 @@ class HCXRequestTest extends BaseSpec {
                 .thenReturn(getProviderDetails());
         Mockito.when(registryService.getDetails(anyString()))
                 .thenReturn(Arrays.asList(getPayorDetails()));
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix08 + Constants.NOTIFICATION_UNSUBSCRIBE)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "8527853c-b442-44db-aeda-dbbdcf472d9b")
@@ -1392,6 +1398,7 @@ class HCXRequestTest extends BaseSpec {
 
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getProviderDetails());
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix08 + Constants.NOTIFICATION_SUBSCRIPTION_LIST)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "8527853c-b442-44db-aeda-dbbdcf472d9b")
@@ -1409,6 +1416,7 @@ class HCXRequestTest extends BaseSpec {
 
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getProviderDetails());
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix08 + Constants.NOTIFICATION_SUBSCRIPTION_UPDATE)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "8527853c-b442-44db-aeda-dbbdcf472d9b")
@@ -1426,6 +1434,7 @@ class HCXRequestTest extends BaseSpec {
 
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getProviderDetails());
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix08 + Constants.NOTIFICATION_ON_SUBSCRIBE)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "8527853c-b442-44db-aeda-dbbdcf472d9b")
@@ -1443,6 +1452,7 @@ class HCXRequestTest extends BaseSpec {
 
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
                 .thenReturn(getBlockedProviderDetails());
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix08 + Constants.NOTIFICATION_ON_SUBSCRIBE)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "8527853c-b442-44db-aeda-dbbdcf472d9b")
@@ -1466,10 +1476,11 @@ class HCXRequestTest extends BaseSpec {
                 .thenReturn(getProviderDetails());
         Mockito.when(registryService.getDetails(anyString()))
                 .thenReturn(Arrays.asList(getPayorDetails()));
+        Mockito.doNothing().when(sessions).checkSessions(anyString(), anyString());
         client.post().uri(versionPrefix08 + Constants.NOTIFICATION_SUBSCRIBE)
                 .header(Constants.AUTHORIZATION, getProviderToken())
                 .header("X-jwt-sub", "8527853c-b442-44db-aeda-dbbdcf472d9b")
-                .bodyValue(getSubscriptionRequest("notif-participant-system-downtime", Arrays.asList("new-payor-3","*")))
+                .bodyValue(getSubscriptionRequest("notif-participant-system-downtime", Arrays.asList("new-payor-3", "*")))
                 .exchange()
                 .expectBody(Map.class)
                 .consumeWith(result -> assertEquals(HttpStatus.ACCEPTED, result.getStatus()));

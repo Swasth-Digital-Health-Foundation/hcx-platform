@@ -6,10 +6,6 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.jayway.jsonpath.JsonPath;
 import net.minidev.json.JSONArray;
 import org.apache.commons.lang3.StringUtils;
-import org.keycloak.admin.client.Keycloak;
-import org.keycloak.admin.client.resource.RealmResource;
-import org.keycloak.admin.client.resource.UserResource;
-import org.keycloak.representations.idm.UserSessionRepresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +32,6 @@ import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
 import reactor.core.publisher.Mono;
 
-import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
@@ -70,26 +65,14 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
     private final AuthorizationService authorizationService;
     private final Acl authenticatedAllowedPaths;
     private Map<String, JWTVerifier> verifierCache = new HashMap<>();
-    private Keycloak keycloak;
-    @Value("${keycloak.base-url}")
-    private String keycloakURL;
-    @Value("${keycloak.admin-password}")
-    private String keycloakAdminPassword;
-    @Value("${keycloak.admin-user}")
-    private String keycloakAdminUserName;
-    @Value("${keycloak.master-realm}")
-    private String keycloakMasterRealm;
-    @Value("${keycloak.participant-realm}")
-    private String keycloackParticipantRealm;
-    @Value("${keycloak.client-id}")
-    private String keycloackClientId;
-
     @Value("${allowedUserRolesForProtocolApiAccess}")
     private List<String> allowedUserRolesForProtocolApiAccess;
     @Autowired
     ExceptionHandler exceptionHandler;
     @Autowired
     JWTVerifierFactory jwtVerifierFactory;
+    @Autowired
+    CheckSessions sessions;
 
     public JwtAuthenticationFilter(JwtConfigs jwtConfigs,
                                    AuthorizationService authorizationService,
@@ -97,11 +80,6 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         this.jwtConfigs = jwtConfigs;
         this.authorizationService = authorizationService;
         this.authenticatedAllowedPaths = aclMap.get("AUTHENTICATED");
-    }
-
-    @PostConstruct()
-    public void init() {
-        keycloak = Keycloak.getInstance(keycloakURL, keycloakMasterRealm, keycloakAdminUserName, keycloakAdminPassword, keycloackClientId);
     }
 
     @Override
@@ -116,7 +94,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
                 ServerHttpRequest request = exchange.getRequest().mutate().
                         header(X_JWT_SUB_HEADER, decodedJWT.getSubject()).
                         build();
-                checkSessions(decodedJWT.getSubject(), decodedJWT.getClaim("session_state").asString());
+                sessions.checkSessions(decodedJWT.getSubject(), decodedJWT.getClaim("session_state").asString());
                 if (!authenticatedAllowedPaths.getPaths().contains(path) && !Utils.containsRegexPath(authenticatedAllowedPaths.getRegexPaths(), path)) {
                     String payload = new String(Base64.getDecoder().decode(decodedJWT.getPayload()));
                     JSONArray claims;
@@ -212,21 +190,5 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
             }
         }
         return false;
-    }
-
-    public void checkSessions(String subject, String sessionId) throws ClientException {
-        try {
-            RealmResource realmResource = keycloak.realm(keycloackParticipantRealm);
-            UserResource usersResource = realmResource.users().get(subject);
-            List<UserSessionRepresentation> activeSessions = usersResource.getUserSessions();
-            if (!activeSessions.isEmpty()) {
-                activeSessions.stream().anyMatch(session -> session.getId().equals(sessionId));
-            } else {
-                List<UserSessionRepresentation> offlineSessions = usersResource.getOfflineSessions(sessionId);
-                offlineSessions.stream().anyMatch(session -> session.getId().equals(sessionId));
-            }
-        } catch (Exception notFoundException) {
-            throw new ClientException(ErrorCodes.ERR_ACCESS_DENIED, "The user is offline or inactive");
-        }
     }
 }

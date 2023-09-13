@@ -72,7 +72,7 @@ redis:
   expires: ${REDIS_EXPIRES:3600}
 
 registry:
-  basePath: ${REGISTRY_BASE_PATH:http://aa5c04ed467c04ea89789cead03e4275-320353178.ap-south-1.elb.amazonaws.com:8081}
+  basePath: ${REGISTRY_BASE_PATH:http://aa5c04ed467c04ea89789cead03e4275-352660981.ap-south-1.elb.amazonaws.com:8081}
   hcxCode: ${REGISTRY_HCX_CODE:1-d2d56996-1b77-4abb-b9e9-0e6e7343c72e}
   hcxRoles: ${REGISTRY_HCX_ROLE:HIE/HIO.HCX}
 
@@ -227,7 +227,7 @@ spring:
 keycloak:
   base-url: ${keycloak_base_url:https://dev-hcx.swasth.app/auth}
   admin-user: ${keycloack_admin_user_name:admin}
-  admin-password: ${keycloak_admin_password:fcf615eb80ce6dbd0634}
+  admin-password: ${keycloak_admin_password:test-password}
   master-realm: ${keycloak_master_realm:master}
   client-id: ${keycloack_client_id:admin-cli}
   participant-realm: ${keycloack_users_realm:swasth-hcx-participants}
