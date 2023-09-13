@@ -1,7 +1,28 @@
-import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const NewClaim = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [insurancePlanInputRef, setInsurancePlanInputRef] = useState<any>();
+  const [treatmentInputRef, setTreatmentInputRef] = useState<any>();
+
+  const providerDetails = {
+    name: location.state?.name,
+    id: location.state?.id,
+  };
+
+  const handleInsurancePlanChange = (e: any) => {
+    setInsurancePlanInputRef(e.target.value);
+  };
+
+  const handleServiceTypeChange = (e: any) => {
+    setTreatmentInputRef(e.target.value);
+  };
+
+  console.log(insurancePlanInputRef);
+  console.log(treatmentInputRef);
+
   return (
     <div className="w-full pt-2 sm:p-12.5 xl:p-1">
       <h2 className="mb-4 -mt-4 text-3xl font-bold text-black dark:text-white sm:text-title-xl2">
@@ -12,13 +33,32 @@ const NewClaim = () => {
       </h2>
       <div>
         <h2 className="text-bold text-base font-bold text-black dark:text-white">
-          Provider name:
+          Provider name:{' '}
+          {providerDetails.id || providerDetails.name ? (
+            providerDetails?.name
+          ) : (
+            <div>
+              <input
+                type="text"
+                placeholder="Enter provider name"
+                className="mt-2 w-full rounded-lg border-[1.5px] border-stroke bg-white py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+              />
+            </div>
+          )}
         </h2>
         <h2 className="text-bold mt-1 text-base font-bold text-black dark:text-white">
-          HCX ID:
-        </h2>
-        <h2 className="text-bold mt-1 text-base font-bold text-black dark:text-white">
-          Cashless enabled:
+          HCX ID:{' '}
+          {providerDetails.id || providerDetails.name ? (
+            providerDetails?.id
+          ) : (
+            <div>
+              <input
+                type="text"
+                placeholder="Enter HCX id"
+                className="mt-2 w-full rounded-lg border-[1.5px] border-stroke bg-white py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+              />
+            </div>
+          )}
         </h2>
       </div>
       <div className="border-gray-300 my-4 border-t "></div>
@@ -28,10 +68,12 @@ const NewClaim = () => {
         </label>
         <div className="relative z-20 bg-white dark:bg-form-input">
           <select
+            onChange={handleServiceTypeChange}
             required
             className="relative z-20 w-full appearance-none rounded border border-stroke bg-transparent bg-transparent py-4 px-6 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark"
           >
-            <option value="">OPD</option>
+            <option value="OPD"></option>
+            <option value="OPD">OPD</option>
           </select>
           <span className="absolute top-1/2 right-4 z-10 -translate-y-1/2">
             <svg
@@ -59,10 +101,12 @@ const NewClaim = () => {
         </label>
         <div className="relative z-20 bg-white dark:bg-form-input">
           <select
+            onChange={handleInsurancePlanChange}
             required
             className="relative z-20 w-full appearance-none rounded border border-stroke bg-transparent bg-transparent py-4 px-6 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark"
           >
-            <option value="">ABC123</option>
+            <option value="none">None</option>
+            <option value="ABC123">ABC123</option>
           </select>
           <span className="absolute top-1/2 right-4 z-10 -translate-y-1/2">
             <svg
@@ -88,7 +132,10 @@ const NewClaim = () => {
           <a
             className="cursor-pointer underline"
             onClick={() => {
-              // navigate('/new-claim');
+              if (treatmentInputRef)
+                navigate('/coverage-eligibility-request', {
+                  state: treatmentInputRef,
+                });
             }}
           >
             + Add health plan
@@ -96,11 +143,15 @@ const NewClaim = () => {
         </div>
         <div className="mb-5 mt-5">
           <button
+            disabled={
+              insurancePlanInputRef === undefined ||
+              insurancePlanInputRef === 'none'
+            }
             onClick={(event: any) => {
               event.preventDefault();
-              navigate('/coverage-eligibility-request');
+              navigate('/coverage-eligibility');
             }}
-            className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray"
+            className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
           >
             Check coverage eligibility
           </button>
