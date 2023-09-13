@@ -24,34 +24,37 @@ public class Request {
     private String payloadWithoutSensitiveData;
     private Token token;
 
-    public Request(Map<String, Object> body, String apiAction ,String jwtToken) throws Exception {
-        new Request(body,apiAction);
-        token = new Token(jwtToken);
-    }
-
     public Request(Map<String, Object> body, String apiAction) throws Exception {
         this.apiAction = apiAction;
         this.payload = body;
         try {
-            if (apiAction.equals(NOTIFICATION_NOTIFY)) {
-                hcxHeaders = getHeadersFromPayload();
-                hcxHeaders.putAll(JSONUtils.decodeBase64String(getPayloadValues()[1], Map.class));
-                hcxHeaders.putAll(getNotificationHeaders());
-                if (StringUtils.isEmpty((String) getHcxHeaders().getOrDefault("correlation_id", "")))
-                    hcxHeaders.put(CORRELATION_ID, UUIDUtils.getUUID());
-                else
-                    hcxHeaders.put(CORRELATION_ID, hcxHeaders.get("correlation_id"));
-            } else if (body.containsKey(PAYLOAD)) {
-                hcxHeaders = getHeadersFromPayload();
-            } else {
-                hcxHeaders = body;
-            }
-            this.payloadWithoutSensitiveData = PayloadUtils.removeSensitiveData(body, apiAction);
+            initializeHeaders(body, apiAction);
         } catch (Exception e) {
             throw new ClientException(ErrorCodes.ERR_INVALID_PAYLOAD, "Error while parsing the payload");
         }
     }
+    public Request(Map<String, Object> body, String apiAction, String token) throws Exception {
+        this(body, apiAction);
+        this.token = new Token(token);
+    }
 
+    private void initializeHeaders(Map<String, Object> body, String apiAction) throws Exception {
+        if (NOTIFICATION_NOTIFY.equals(apiAction)) {
+            hcxHeaders = getHeadersFromPayload();
+            hcxHeaders.putAll(JSONUtils.decodeBase64String(getPayloadValues()[1], Map.class));
+            hcxHeaders.putAll(getNotificationHeaders());
+            if (StringUtils.isEmpty((String) hcxHeaders.getOrDefault(CORRELATION_ID, ""))) {
+                hcxHeaders.put(CORRELATION_ID, UUIDUtils.getUUID());
+            } else {
+                hcxHeaders.put(CORRELATION_ID, hcxHeaders.get(CORRELATION_ID));
+            }
+        } else if (body.containsKey(PAYLOAD)) {
+            hcxHeaders = getHeadersFromPayload();
+        } else {
+            hcxHeaders = body;
+        }
+        this.payloadWithoutSensitiveData = PayloadUtils.removeSensitiveData(body, apiAction);
+    }
     private Map<String,Object> getHeadersFromPayload() throws Exception {
         return JSONUtils.decodeBase64String(getPayloadValues()[0], Map.class);
     }
