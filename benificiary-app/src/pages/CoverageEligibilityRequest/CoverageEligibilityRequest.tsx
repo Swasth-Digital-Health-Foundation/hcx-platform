@@ -1,7 +1,9 @@
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const CoverageEligibilityRequest = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  // console.log(location.state);
   return (
     <div className="w-full pt-2 sm:p-12.5 xl:p-1">
       <h2 className="mb-4 -mt-4 text-3xl font-bold text-black dark:text-white sm:text-title-xl2">
@@ -17,9 +19,6 @@ const CoverageEligibilityRequest = () => {
         <h2 className="text-bold mt-1 text-base font-bold text-black dark:text-white">
           HCX ID:
         </h2>
-        <h2 className="text-bold mt-1 text-base font-bold text-black dark:text-white">
-          Cashless enabled:
-        </h2>
       </div>
       <div className="border-gray-300 my-4 border-t "></div>
       <div className="mt-4">
@@ -28,10 +27,15 @@ const CoverageEligibilityRequest = () => {
         </label>
         <div className="relative z-20 bg-white dark:bg-form-input">
           <select
+            disabled={location.state}
             required
             className="relative z-20 w-full appearance-none rounded border border-stroke bg-transparent bg-transparent py-4 px-6 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark"
           >
-            <option value="">OPD</option>
+            {location.state ? (
+              <option value={`${location.state}`}>{location.state}</option>
+            ) : (
+              <option value="">OPD</option>
+            )}
           </select>
           <span className="absolute top-1/2 right-4 z-10 -translate-y-1/2">
             <svg
@@ -89,7 +93,7 @@ const CoverageEligibilityRequest = () => {
           Insurance details
         </h2>
         <div className="flex flex-col gap-5.5 py-4">
-          <div className="mt-4">
+          <div>
             <label className="mb-2.5 block text-left font-medium text-black dark:text-white">
               Payor Details: *
             </label>

@@ -1,9 +1,7 @@
-import qrCodeImage from '../../images/googleQRcodes.png';
-import ClaimCycleTable from '../../components/ClaimCycleTable';
 import { useNavigate } from 'react-router-dom';
 import Html5QrcodePlugin from '../../components/Html5QrcodeScannerPlugin/Html5QrcodeScannerPlugin';
-import { useEffect, useState } from 'react';
-import { postRequest } from '../../services/networkService';
+import { useState } from 'react';
+import ActiveClaimCycleCard from '../../components/ActiveClaimCycleCard';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -61,7 +59,7 @@ const Home = () => {
             Active claim cycle
           </h1>
         </div>
-        <ClaimCycleTable />
+        <ActiveClaimCycleCard />
       </div>
     </div>
   );
