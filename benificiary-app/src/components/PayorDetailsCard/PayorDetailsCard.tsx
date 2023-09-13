@@ -1,4 +1,9 @@
-const PayorDetailsCard = (Props: any) => {
+const PayorDetailsCard = ({ onInputChange, cardKey }: any) => {
+  const handleInputChange = (event: any) => {
+    const { name, value } = event.target;
+    // Pass the updated data back to the parent component
+    onInputChange({ [name]: value });
+  };
   return (
     <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
       <div className="flex flex-col gap-5.5 p-4">
@@ -9,9 +14,12 @@ const PayorDetailsCard = (Props: any) => {
           <div className="relative z-20 bg-white dark:bg-form-input">
             <select
               required
+              name={`payor`}
+              onChange={handleInputChange}
               className="relative z-20 w-full appearance-none rounded border border-stroke bg-transparent py-4 px-6 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input"
             >
-              <option value="">Swast payor</option>
+              <option value="none">none</option>
+              <option value="Swast payor">Swast payor</option>
             </select>
             <span className="absolute top-1/2 right-4 z-10 -translate-y-1/2">
               <svg
@@ -40,6 +48,8 @@ const PayorDetailsCard = (Props: any) => {
           <div className="relative">
             <input
               required
+              name={`insurance_id`}
+              onChange={handleInputChange}
               type="text"
               placeholder="Insurance ID"
               className={
