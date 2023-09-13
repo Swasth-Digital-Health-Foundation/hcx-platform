@@ -4,6 +4,8 @@ import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.idm.UserSessionRepresentation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.swasth.apigateway.exception.ClientException;
@@ -14,6 +16,7 @@ import java.util.List;
 
 @Component
 public class CheckSessions {
+    private static final Logger logger = LoggerFactory.getLogger(CheckSessions.class);
     private Keycloak keycloak;
     @Value("${keycloak.base-url}")
     private String keycloakURL;
@@ -39,10 +42,12 @@ public class CheckSessions {
             UserResource usersResource = realmResource.users().get(subject);
             List<UserSessionRepresentation> activeSessions = usersResource.getUserSessions();
             if (!activeSessions.isEmpty()) {
-                activeSessions.stream().anyMatch(session -> session.getId().equals(sessionId));
+                if (activeSessions.stream().anyMatch(session -> session.getId().equals(sessionId)));
+                    logger.info("The user has active session");
             } else {
                 List<UserSessionRepresentation> offlineSessions = usersResource.getOfflineSessions(sessionId);
-                offlineSessions.stream().anyMatch(session -> session.getId().equals(sessionId));
+                if (offlineSessions.stream().anyMatch(session -> session.getId().equals(sessionId)))
+                    logger.info("The user has offline session");
             }
         } catch (Exception notFoundException) {
             throw new ClientException(ErrorCodes.ERR_ACCESS_DENIED, "The user is offline or inactive");
