@@ -45,7 +45,6 @@ public class CheckSessions {
                 offlineSessions.stream().anyMatch(session -> session.getId().equals(sessionId));
             }
         } catch (Exception notFoundException) {
-            notFoundException.printStackTrace();
             throw new ClientException(ErrorCodes.ERR_ACCESS_DENIED, "The user is offline or inactive");
         }
     }
