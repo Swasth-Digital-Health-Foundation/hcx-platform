@@ -2,13 +2,112 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Logo from '../../images/swasth_logo.png';
 import PayorDetailsCard from '../../components/PayorDetailsCard/PayorDetailsCard';
+import { postRequest } from '../../services/networkService';
+import { toast } from 'react-toastify';
+import LoadingButton from '../../components/LoadingButton';
 
 const SignUp = () => {
   const navigate = useNavigate();
   const [cards, setCards] = useState<any>([]);
+  const [mobileNumber, setMobileNumber] = useState<number>();
+  const [userName, setUserName] = useState();
+  const [email, setEmail] = useState();
+  const [isValid, setIsValid] = useState(true);
+  const [loading, setLoading] = useState(false);
+
+  // Function to update card data
+  const updateCardData = (cardKey: any, newData: any) => {
+    const updatedCards = cards.map((card: any) =>
+      card.cardKey === cardKey ? { ...card, ...newData } : card
+    );
+    setCards(updatedCards);
+  };
 
   const addCard = () => {
-    setCards([...cards, { id: cards.length + 1 }]);
+    const cardKey = cards.length + 1;
+
+    const newCard = {
+      cardKey,
+    };
+
+    setCards([...cards, newCard]);
+  };
+
+  const removeCard = (cardToRemove: any) => {
+    const updatedCards = cards.filter(
+      (card: any) => card.cardKey !== cardToRemove.cardKey
+    );
+    setCards(updatedCards);
+  };
+
+  const [payor, setPayor] = useState<string>('');
+  const handlePayorChange = (e: any) => {
+    setPayor(e.target.value);
+  };
+
+  const [insuranceId, setInsuranceId] = useState<string>('');
+  const handleInsuranceIdChange = (e: any) => {
+    setInsuranceId(e.target.value);
+  };
+
+  let addMoreDetails = cards.map((ele: any) => {
+    return { insurance_id: ele.insurance_id, payor: ele.payor };
+  });
+
+  let payload = {
+    email: email,
+    mobile: mobileNumber !== undefined ? mobileNumber.toString() : '',
+    name: userName,
+    payor_details: [
+      {
+        insurance_id: insuranceId,
+        payor: payor,
+      },
+      ...addMoreDetails,
+    ],
+  };
+
+  const registerUser = async () => {
+    try {
+      setLoading(true);
+      let registerResponse: any = await postRequest('invite', payload);
+      setLoading(false);
+      toast.success('User registered successfully!', {
+        position: toast.POSITION.TOP_CENTER,
+      });
+      navigate('/home');
+    } catch (error: any) {
+      setLoading(false);
+      toast.error(error.response.data.params.errmsg, {
+        position: toast.POSITION.TOP_CENTER,
+      });
+    }
+  };
+
+  const handleMobileNumberChange = (e: any) => {
+    const inputValue = e.target.value;
+    // Check if the input contains exactly 10 numeric characters
+    const isValidInput = /^\d{10}$/.test(inputValue);
+    console.log(isValidInput);
+    setIsValid(isValidInput);
+    setMobileNumber(inputValue);
+  };
+
+  const handleUserNameChange = (e: any) => {
+    setUserName(e.target.value);
+  };
+
+  const handleEmailChange = (e: any) => {
+    setEmail(e.target.value);
+  };
+
+  const insuranceCheck = insuranceId === '';
+  const payorCheck = payor === (undefined || 'none' || null);
+  const handleDisable = () => {
+    if (!isValid || insuranceCheck || payorCheck) {
+      return true;
+    }
+    return false;
   };
 
   return (
@@ -17,6 +116,14 @@ const SignUp = () => {
         <Link className="inline-block p-4 md:block lg:block lg:hidden" to="#">
           <img className="w-48 dark:hidden" src={Logo} alt="Logo" />
         </Link>
+        <div
+          className="-mt-4 mb-2 ml-4 cursor-pointer text-3xl"
+          onClick={() => {
+            navigate(-1);
+          }}
+        >
+          &#11013;
+        </div>
         <div className="w-full p-4 sm:p-12.5 xl:p-17.5">
           <h2 className="mb-4 -mt-4 text-3xl font-bold text-black dark:text-white sm:text-title-xl2">
             New user profile
@@ -28,10 +135,11 @@ const SignUp = () => {
             <div className="mb-6">
               <div>
                 <label className="mb-2.5 block text-left font-medium text-black dark:text-white">
-                  User name
+                  User's name
                 </label>
                 <div className="relative">
                   <input
+                    onChange={handleUserNameChange}
                     type="text"
                     placeholder="Enter your name"
                     className={
@@ -46,11 +154,12 @@ const SignUp = () => {
                 </label>
                 <div className="relative">
                   <input
+                    onChange={handleMobileNumberChange}
                     type="number"
                     placeholder="Enter mobile number"
-                    className={
-                      'w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
-                    }
+                    className={`border ${
+                      isValid ? 'border-stroke' : 'border-red'
+                    } w-full rounded-lg bg-transparent py-4 pl-6 pr-10 outline-none focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary`}
                   />
                 </div>
               </div>
@@ -60,15 +169,13 @@ const SignUp = () => {
                 </label>
                 <div className="relative">
                   <input
+                    onChange={handleEmailChange}
                     type="email"
                     placeholder="Enter email address"
                     className={
                       'w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
                     }
                   />
-                  {/* <p className="mt-2 text-right underline">
-                    <a>Resend OTP</a>
-                  </p> */}
                 </div>
               </div>
             </div>
@@ -86,9 +193,11 @@ const SignUp = () => {
                   <div className="relative z-20 bg-white dark:bg-form-input">
                     <select
                       required
+                      onChange={handlePayorChange}
                       className="relative z-20 w-full appearance-none rounded border border-stroke bg-transparent py-4 px-6 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input"
                     >
-                      <option value="">Swast payor</option>
+                      <option value="none">none</option>
+                      <option value="Swast payor">Swast payor</option>
                     </select>
                     <span className="absolute top-1/2 right-4 z-10 -translate-y-1/2">
                       <svg
@@ -117,6 +226,7 @@ const SignUp = () => {
                   <div className="relative">
                     <input
                       required
+                      onChange={handleInsuranceIdChange}
                       type="text"
                       placeholder="Insurance ID"
                       className={
@@ -127,11 +237,26 @@ const SignUp = () => {
                 </div>
               </div>
             </div>
+            {/* <PayorDetailsCard onInputChange={updateCardData} /> */}
 
             <div>
-              {cards.map((index: any) => (
-                <div className="mt-3">
-                  <PayorDetailsCard key={index} />
+              {cards.map((card: any) => (
+                <div className="relative mt-3" key={card.id}>
+                  <button
+                    onClick={(event: any) => {
+                      event.preventDefault();
+                      removeCard(card);
+                    }}
+                    className="absolute right-5 mt-3 flex rounded bg-gray px-2 text-black dark:text-white"
+                  >
+                    -
+                  </button>
+                  <PayorDetailsCard
+                    onInputChange={(newData: any) =>
+                      updateCardData(card.cardKey, newData)
+                    }
+                    cardKey={card.cardKey}
+                  />
                 </div>
               ))}
             </div>
@@ -143,16 +268,23 @@ const SignUp = () => {
             </div>
 
             <div className="mb-5">
-              <button
-                onClick={(event: any) => {
-                  event.preventDefault();
-                  navigate('/home');
-                }}
-                type="submit"
-                className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray"
-              >
-                Save profile details
-              </button>
+              {!loading ? (
+                <button
+                  disabled={handleDisable()}
+                  onClick={(event: any) => {
+                    event.preventDefault();
+                    // navigate('/home');
+                    // submitData();
+                    registerUser();
+                  }}
+                  type="submit"
+                  className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
+                >
+                  Save profile details
+                </button>
+              ) : (
+                <LoadingButton />
+              )}
             </div>
           </form>
         </div>
