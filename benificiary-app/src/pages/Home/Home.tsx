@@ -1,9 +1,22 @@
 import qrCodeImage from '../../images/googleQRcodes.png';
 import ClaimCycleTable from '../../components/ClaimCycleTable';
 import { useNavigate } from 'react-router-dom';
+import Html5QrcodePlugin from '../../components/Html5QrcodeScannerPlugin/Html5QrcodeScannerPlugin';
+import { useEffect, useState } from 'react';
+import { postRequest } from '../../services/networkService';
 
 const Home = () => {
   const navigate = useNavigate();
+  const [qrCodeData, setQrCodeData] = useState<any>();
+  const onNewScanResult = (decodedText: any, decodedResult: any) => {
+    setQrCodeData(decodedText);
+  };
+  if (qrCodeData !== undefined) {
+    let obj = JSON.parse(qrCodeData);
+    navigate('/new-claim', { state: obj });
+  }
+  
+
   return (
     <div>
       <div className="flex justify-between">
@@ -13,18 +26,26 @@ const Home = () => {
           </h1>
         </div>
         <div>
-          <a className="underline cursor-pointer">+ Add health plan</a>
+          <a className="cursor-pointer underline">+ Add health plan</a>
         </div>
       </div>
       <div className="mt-2">
         <div className="qr-code p-1">
-          <img src={qrCodeImage} alt="QR scanner" />
+          {/* <img src={qrCodeImage} alt="QR scanner" /> */}
+          <div id="reader">
+            <Html5QrcodePlugin
+              fps={60}
+              qrbox={250}
+              disableFlip={false}
+              qrCodeSuccessCallback={onNewScanResult}
+            />
+          </div>
         </div>
         <p className="mt-1">Scan provider QR code to verify coverage</p>
         <p className="mt-3 font-bold text-black">OR</p>
         <div className="mt-3">
           <a
-            className="underline cursor-pointer"
+            className="cursor-pointer underline"
             onClick={() => {
               navigate('/new-claim');
             }}
