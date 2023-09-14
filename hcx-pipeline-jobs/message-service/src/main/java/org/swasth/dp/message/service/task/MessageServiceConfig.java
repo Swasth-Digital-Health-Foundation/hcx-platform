@@ -25,6 +25,10 @@ public class MessageServiceConfig extends BaseJobConfig {
     public String emailId;
     public String emailPwd;
 
+    public String onboardIndex;
+
+    public String onboardIndexAlias;
+
     public OutputTag<Map<String,Object>> emailOutputTag = new OutputTag<>("email-events") {
     };
 
@@ -47,5 +51,7 @@ public class MessageServiceConfig extends BaseJobConfig {
         awsRegion = config.getString("aws.region");
         emailId = config.getString("email.id");
         emailPwd = config.getString("email.pwd");
+        onboardIndex = config.getString("audit.onboard.index");
+        onboardIndexAlias = config.getString("audit.onboard.alias");
     }
 }

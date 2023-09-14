@@ -16,6 +16,7 @@ import org.swasth.hcx.controllers.BaseController;
 import org.swasth.hcx.models.Participant;
 import org.swasth.hcx.service.ParticipantService;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -50,7 +51,7 @@ public class ParticipantController extends BaseController {
     @PostMapping(PARTICIPANT_CREATE)
     public ResponseEntity<Object> create(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
         try {
-            logger.info("Creating participant: {}", requestBody);
+            logger.info("Creating participant: {}", requestBody.get(PARTICIPANT_NAME));
             Participant participant = new Participant(requestBody);
             service.validate(requestBody, true);
             requestBody.put(PRIMARY_EMAIL, participant.getprimaryEmail().toLowerCase());
@@ -66,13 +67,13 @@ public class ParticipantController extends BaseController {
     @PostMapping(PARTICIPANT_UPDATE)
     public ResponseEntity<Object> update(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
         try {
-            logger.info("Updating participant: {}", requestBody);
+            logger.info("Updating participant: {}", requestBody.get(PARTICIPANT_CODE));
             Participant participant = new Participant(requestBody);
             String code = participant.getParticipantCode();
             service.getCertificatesUrl(requestBody, code);
             service.validate(requestBody, false);
             Map<String, Object> details = service.getParticipant(code);
-            service.authorizeEntity(Objects.requireNonNull(header.get(AUTHORIZATION)).get(0).split(" ")[1], participant.getParticipantCode(), (String) details.get(PRIMARY_EMAIL));
+            service.authorizeEntity(Objects.requireNonNull(header.get(AUTHORIZATION)).get(0).split(" ")[1], participant.getParticipantCode(), ((List<String>) details.get(OS_OWNER)).get(0));
             return getSuccessResponse(service.update(requestBody, details, header, code));
         } catch (Exception e) {
             return exceptionHandler(new Response(), e);
@@ -102,7 +103,7 @@ public class ParticipantController extends BaseController {
     @PostMapping(PARTICIPANT_DELETE)
     public ResponseEntity<Object> delete(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
         try {
-            logger.info("Deleting participant: {}", requestBody);
+            logger.info("Deleting participant: {}", requestBody.get(PARTICIPANT_CODE));
             if (!requestBody.containsKey(PARTICIPANT_CODE))
                 throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_CODE, PARTICIPANT_CODE_MSG);
             Participant participant = new Participant(requestBody);

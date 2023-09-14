@@ -176,12 +176,12 @@ public class ParticipantService extends BaseRegistryService {
         eventHandler.createParticipantAudit(event);      
     }
 
-    public void authorizeEntity(String authToken, String participantCode, String email) throws ClientException, JsonProcessingException {
+    public void authorizeEntity(String authToken, String participantCode, String sub) throws ClientException, JsonProcessingException {
         Token token = new Token(authToken);
         if (token.getRoles().contains(ADMIN_ROLE)) {
             return;
         } else if (validateRoles(token.getRoles())){
-            if(!StringUtils.equalsIgnoreCase(token.getUsername(), email))
+            if(!StringUtils.equalsIgnoreCase(token.getSubject(), sub))
                 throw new ClientException(ErrorCodes.ERR_ACCESS_DENIED, "Invalid authorization token");
         } else if (StringUtils.equals(token.getEntityType(), "User")) {
             boolean result = false;
