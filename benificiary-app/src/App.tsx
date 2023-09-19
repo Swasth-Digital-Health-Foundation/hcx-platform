@@ -7,10 +7,13 @@ import Loader from './common/Loader';
 import Home from './pages/Home/Home';
 import NewClaim from './pages/NewClaimCycle/NewClaim';
 import SignUp from './pages/Authentication/SignUp';
-import CoverageEligibility from './pages/CoverageEligibility/CoverageEligibility';
-import CreateClaimRequest from './pages/CreateClaimRequest/CreateClaimRequest';
+import CoverageEligibility from './pages/ViewCoverageEligibilityDetails/CoverageEligibility';
+import InitiateNewClaimRequest from './pages/InitiateNewClaimRequest/InitiateNewClaimRequest';
 import ViewClaimRequestDetails from './pages/ViewClaimRequestDetails/ViewClaimRequestDetails';
 import CoverageEligibilityRequest from './pages/CoverageEligibilityRequest/CoverageEligibilityRequest';
+import RequestSuccessPage from './pages/CoverageEligibilityRequest/RequestSuccessPage';
+import PreAuthRequest from './pages/InitiatePreAuthRequest/PreAuthRequest';
+import ClaimRequestFromHomePage from './pages/ClaimRequestFromHomePage/ClaimRequestFromHomePage';
 
 const App = () => {
   const [loading, setLoading] = useState<boolean>(true);
@@ -39,12 +42,21 @@ const App = () => {
             element={<CoverageEligibility />}
           />
           <Route
-            path="/create-claim-request"
-            element={<CreateClaimRequest />}
+            path="/initiate-claim-request"
+            element={<InitiateNewClaimRequest />}
+          />
+          <Route
+            path="/initiate-preauth-request"
+            element={<PreAuthRequest />}
           />
           <Route
             path="/view-claim-request"
             element={<ViewClaimRequestDetails />}
+          />
+          <Route path="/request-success" element={<RequestSuccessPage />} />
+          <Route
+            path="/new-claim-request"
+            element={<ClaimRequestFromHomePage />}
           />
         </Route>
       </Routes>

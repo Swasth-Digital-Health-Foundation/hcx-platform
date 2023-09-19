@@ -2,48 +2,79 @@ import React from 'react';
 
 const ViewClaimRequestDetails = () => {
   return (
-    <div className="w-full pt-2 sm:p-12.5 xl:p-1">
-      <h2 className="mb-4 -mt-4 text-3xl font-bold text-black dark:text-white sm:text-title-xl2">
-        Claim details : Claim ID
-      </h2>
-      <div className="border-gray-300 my-4 border-t "></div>
-      {/* <div className="flex items-center justify-between"> */}
-      <h2 className="sm:text-title-xl1 mb-4 text-right font-semibold text-success dark:text-success">
-        pending verification
-      </h2>
-      {/* </div> */}
-      <div>
-        <h2 className="text-base font-bold text-black dark:text-white">
-          Provider name :
-        </h2>
-        <h2 className="text-bold mt-1 text-base font-bold text-black dark:text-white">
-          HCX ID :
-        </h2>
-        <h2 className="text-bold mt-1 text-base font-bold text-black dark:text-white">
-          Insurance plan :
-        </h2>
-        <h2 className="text-bold mt-1 text-base font-bold text-black dark:text-white">
-          Treatment/Service type :
-        </h2>
-        <h2 className="text-bold mt-1 text-base font-bold text-black dark:text-white">
-          Diagnosis details :
-        </h2>
-        <h2 className="text-bold mt-1 text-base font-bold text-black dark:text-white">
-          Billing details :
+    <>
+      <div className="flex items-center justify-between">
+        <h2 className="sm:text-title-xl1 mb-4 text-2xl font-semibold text-black dark:text-white">
+          Claim request details :
         </h2>
       </div>
-      <div className="border-gray-300 my-4 border-t "></div>
-      <div>
-        <h2 className="mb-4 mt-4 text-3xl font-bold text-black dark:text-white sm:text-title-xl2">
-          Action needed :
-        </h2>
-        <h2 className="text-1xl sm:text-title-base mb-4 mt-4 font-bold text-black dark:text-white">
-          Policyholder consent : *
-        </h2>
+      <div className="rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
         <div>
+          <h2 className="text-bold text-base font-bold text-black dark:text-white">
+            Provider name :
+          </h2>
+          <h2 className="text-bold mt-1 text-base font-bold text-black dark:text-white">
+            Participant code :
+          </h2>
+          <h2 className="text-bold mt-1 text-base font-bold text-black dark:text-white">
+            Select insurance plan :
+          </h2>
+          <h2 className="text-bold mt-1 text-base font-bold text-black dark:text-white">
+            Treatment/Service type :
+          </h2>
+          <h2 className="text-bold mt-1 text-base font-bold text-black dark:text-white">
+            Payor name :
+          </h2>
+          <h2 className="text-bold mt-1 text-base font-bold text-black dark:text-white">
+            Insurance ID :
+          </h2>
+        </div>
+      </div>
+      <div className="flex items-center justify-between">
+        <h2 className="sm:text-title-xl1 text-1xl mt-2 mb-4 font-semibold text-black dark:text-white">
+          Treatment and billing details :
+        </h2>
+      </div>
+      <div className="rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
+        <div>
+          <h2 className="text-bold text-base font-bold text-black dark:text-white">
+            Service type :
+          </h2>
+          <h2 className="text-bold mt-1 text-base font-bold text-black dark:text-white">
+            Bill amount :
+          </h2>
+        </div>
+      </div>
+      <div className="flex items-center justify-between">
+        <h2 className="sm:text-title-xl1 text-1xl mt-2 mb-4 font-semibold text-black dark:text-white">
+          Supporting documents :
+        </h2>
+      </div>
+      <div className="rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
+        <div>
+          <h2 className="text-bold text-base font-bold text-black dark:text-white">
+            Document type :
+          </h2>
+          <h2 className="text-bold mt-1 text-base font-bold text-black dark:text-white">
+            Bill amount :
+          </h2>
+        </div>
+      </div>
+      <div className="flex items-center justify-between">
+        <h2 className="sm:text-title-xl1 text-1xl mt-2 mb-4 font-semibold text-black dark:text-white">
+          Next step :
+        </h2>
+      </div>
+      <div className="rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
+        <div>
+          <h2 className="text-bold text-base font-bold text-black dark:text-white">
+            Policyholder consent :
+          </h2>
           <label className="font-small mb-2.5 block text-left text-black dark:text-white">
             Please enter OTP shared by payor to verify claim :
           </label>
+        </div>
+        <div>
           <div className="relative">
             <input
               required
@@ -68,7 +99,7 @@ const ViewClaimRequestDetails = () => {
           </button>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { postRequest } from '../../services/networkService';
 import LoadingButton from '../../components/LoadingButton';
+import { sendOTP, verifyOTP } from '../../services/OTPservice';
 
 const VerifyOTP = () => {
   const navigate = useNavigate();
@@ -20,24 +21,35 @@ const VerifyOTP = () => {
     },
   };
 
+  const verifyOTPrequestBody = {
+    mobile: location.state,
+    otp_code: OTP,
+  };
+
   const userExist = async () => {
     try {
       setLoading(true);
-      const response: any = await postRequest('search', filter);
-      if (response.data.length === 0) {
-        navigate('/signup');
-        setLoading(false);
-      } else {
-        setTimeout(() => {
+      const otpResponse = await verifyOTP('verify/otp', verifyOTPrequestBody);
+      console.log(otpResponse);
+      if (otpResponse.status === 200) {
+        const searchUser = await postRequest('/search', filter);
+        console.log(searchUser);
+        if (searchUser?.data?.length !== 0) {
           navigate('/home', { state: filter });
-          setLoading(false)
-        }, 1000);
+        } else {
+          navigate('/signup');
+        }
       }
     } catch (error: any) {
+      console.log(error);
       setLoading(false);
-      toast.error(error.response.data.params.errmsg, {
-        position: toast.POSITION.TOP_CENTER,
-      });
+      if (error.response.status === 400) {
+        toast.info(error.response.data.message, {
+          position: toast.POSITION.TOP_CENTER,
+        });
+        // navigate('/home', { state: filter });
+        navigate('/signup');
+      }
     }
   };
 
@@ -49,25 +61,51 @@ const VerifyOTP = () => {
     setOTP(inputValue);
   };
 
+  const mobileNumberPayload = {
+    mobile: verifyOTPrequestBody.mobile,
+  };
+
+  const resendOTP = async () => {
+    try {
+      let response = await sendOTP('send/otp', mobileNumberPayload);
+      console.log(response);
+      toast.success('OTP sent successfully!');
+    } catch (err: any) {
+      console.log(err);
+      toast.error('Please try again!');
+    }
+  };
+
+  console.log(verifyOTPrequestBody.mobile);
+
   return (
     <div className="w-full border-stroke bg-white dark:border-strokedark xl:w-1/2 xl:border-l-2">
       <div className="w-full p-4 sm:p-12.5 xl:p-17.5">
+        <div
+          className="ml-1 mb-1 flex flex-row align-middle"
+          onClick={() => navigate(-1)}
+        >
+          <svg
+            className="w-6"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              fillRule="evenodd"
+              d="M7.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l2.293 2.293a1 1 0 010 1.414z"
+              clipRule="evenodd"
+            ></path>
+          </svg>
+        </div>
         <Link
           className="mb-5.5 inline-block md:block lg:block lg:hidden"
           to="#"
         >
           <img className="w-48 dark:hidden" src={Logo} alt="Logo" />
         </Link>
-        <div
-          className="-mt-4 mb-2 cursor-pointer text-3xl"
-          onClick={() => {
-            navigate(-1);
-          }}
-        >
-          &#11013;
-        </div>
         <h1 className="mb-5 text-3xl font-bold text-black dark:text-white sm:text-title-xl2">
-          Welcome
+          Welcome to the HCX beneficiary app
         </h1>
         <h2 className="mb-9 text-2xl font-bold text-black dark:text-white sm:text-title-xl2">
           Please sign in to your account.
@@ -99,20 +137,11 @@ const VerifyOTP = () => {
                 <input
                   onChange={handleOTPchange}
                   type="number"
-                  placeholder="OTP"
+                  placeholder="Enter 6-digit OTP"
                   className={`border ${
                     isValid ? 'border-stroke' : 'border-red'
                   } w-full rounded-lg bg-transparent py-4 pl-6 pr-10 outline-none focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary`}
                 />
-                <p className="mt-2 text-right underline">
-                  <a
-                    onClick={() => {
-                      toast.success('OTP sent successfully!');
-                    }}
-                  >
-                    Resend OTP
-                  </a>
-                </p>
               </div>
             </div>
           </div>
@@ -122,23 +151,27 @@ const VerifyOTP = () => {
               <button
                 onClick={(event: any) => {
                   event.preventDefault();
-                  if (OTP === '123456') {
-                    // navigate('/home');
-                    userExist();
-                  } else {
-                    toast.error('Enter valid OTP!');
-                  }
+                  userExist();
                 }}
                 disabled={!isValid || OTP === null}
                 type="submit"
                 className="align-center flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
               >
-                Sign In
+                Verify OTP
               </button>
             ) : (
               <LoadingButton />
             )}
           </div>
+          <p className="mt-2 text-center underline">
+            <a
+              onClick={() => {
+                resendOTP();
+              }}
+            >
+              Resend OTP
+            </a>
+          </p>
         </form>
       </div>
     </div>

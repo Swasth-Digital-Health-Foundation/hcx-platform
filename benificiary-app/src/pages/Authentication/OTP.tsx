@@ -3,6 +3,7 @@ import Logo from '../../images/swasth_logo.png';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 import LoadingButton from '../../components/LoadingButton';
+import { sendOTP } from '../../services/OTPservice';
 
 const OTP = () => {
   const navigate = useNavigate();
@@ -10,14 +11,24 @@ const OTP = () => {
   const [isValid, setIsValid] = useState(true);
   const [loading, setLoading] = useState(false);
 
-  const formSubmit = (event: any) => {
-    setLoading(true);
-    event.preventDefault();
-    toast.success('OTP sent!');
-    setTimeout(() => {
-      navigate('/verify-otp', { state: mobileNumber });
+  const payload = {
+    mobile: mobileNumber,
+  };
+
+  const formSubmit = async () => {
+    try {
+      setLoading(true);
+      let response = await sendOTP('send/otp', payload);
+      console.log(response);
+      toast.success('OTP sent successfully!');
+      setTimeout(() => {
+        navigate('/verify-otp', { state: mobileNumber });
+        setLoading(false);
+      }, 2000);
+    } catch (err: any) {
       setLoading(false);
-    }, 2000);
+      console.log(err);
+    }
   };
 
   const handleMobileNumberChange = (e: any) => {
@@ -39,7 +50,7 @@ const OTP = () => {
           <img className="w-48 dark:hidden" src={Logo} alt="Logo" />
         </Link>
         <h1 className="mb-5 text-3xl font-bold text-black dark:text-white sm:text-title-xl2">
-          Welcome
+          Welcome to the HCX beneficiary app
         </h1>
         {/* <span className="mb-1.5 block font-medium">Start for free</span> */}
         <h2 className="mb-9 text-2xl font-bold text-black dark:text-white sm:text-title-xl2">
