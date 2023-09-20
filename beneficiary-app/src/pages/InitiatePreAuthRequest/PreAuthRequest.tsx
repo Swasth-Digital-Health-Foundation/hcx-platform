@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { handleFileChange } from '../../utils/attachmentSizeValidation';
 
 const PreAuthRequest = () => {
   const navigate = useNavigate();
@@ -30,6 +31,50 @@ const PreAuthRequest = () => {
       value: '',
     },
   ];
+
+  const [selectedFile, setSelectedFile]: any = useState<FileList | undefined>(
+    undefined
+  );
+  const [fileErrorMessage, setFileErrorMessage]: any = useState();
+  const [isSuccess, setIsSuccess]: any = useState(false);
+
+  const [amount, setAmount] = useState<any>();
+  const [serviceType, setServiceType] = useState<string>('Consultation');
+  const [documentType, setDocumentType] = useState<string>('');
+
+  const [loading, setLoading] = useState(false);
+
+  let FileLists: any;
+  if (selectedFile !== undefined) {
+    FileLists = Array.from(selectedFile);
+  }
+
+  // const data = location.state;
+
+  const handleDelete = (name: any) => {
+    if (selectedFile !== undefined) {
+      const updatedFilesList = selectedFile.filter(
+        (file: any) => file.name !== name
+      );
+      setSelectedFile(updatedFilesList);
+    }
+  };
+
+  const initiateClaimRequestBody = {
+    // ...location.state?.initiateClaimRequestBody,
+    billingDeatils: {
+      serviceType: serviceType,
+      billAmount: amount,
+    },
+    supportingDocuments: {
+      [documentType]:
+        FileLists !== undefined
+          ? FileLists.map((ele: any) => {
+              return ele.name;
+            })
+          : [],
+    },
+  };
 
   return (
     <div className="w-full pt-2 sm:p-12.5 xl:p-1">
@@ -163,21 +208,41 @@ const PreAuthRequest = () => {
                 name="profile"
                 id="profile"
                 className="sr-only"
-                // onChange={handleFileChange}
+                onChange={(event: any) => {
+                  handleFileChange(
+                    event,
+                    setFileErrorMessage,
+                    setIsSuccess,
+                    setSelectedFile
+                  );
+                }}
               />
             </label>
           </div>
           <div>OR</div>
           <div>
+            <label htmlFor="actual-btn" className="upload underline">
+              Upload documents
+            </label>
             <input
+              hidden
+              id="actual-btn"
               type="file"
               multiple={true}
-              //   onChange={handleFileChange}
+              onChange={(event: any) => {
+                handleFileChange(
+                  event,
+                  setFileErrorMessage,
+                  setIsSuccess,
+                  setSelectedFile
+                );
+              }}
               className="w-full rounded-md border border-stroke p-3 outline-none transition file:rounded file:border-[0.5px] file:border-stroke file:bg-[#EEEEEE] file:py-1 file:px-2.5 file:text-sm file:font-medium focus:border-primary file:focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:file:border-strokedark dark:file:bg-white/30 dark:file:text-white"
             />
           </div>
         </div>
       </div>
+      
       <div className="mb-5 mt-4">
         <button
           onClick={(event: any) => {

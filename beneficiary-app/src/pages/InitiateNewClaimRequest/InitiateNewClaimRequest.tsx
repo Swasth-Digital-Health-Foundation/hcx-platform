@@ -37,7 +37,7 @@ const InitiateNewClaimRequest = () => {
   };
 
   const initiateClaimRequestBody = {
-    ...location.state.initiateClaimRequestBody,
+    ...location.state?.initiateClaimRequestBody,
     billingDeatils: {
       serviceType: serviceType,
       billAmount: amount,
@@ -52,22 +52,22 @@ const InitiateNewClaimRequest = () => {
     },
   };
 
-  // const submitClaim = async () => {
-  //   try {
-  //     setLoading(true);
-  //     const submit = await generateOutgoingRequest(
-  //       'claim/submit',
-  //       initiateClaimRequestBody
-  //     );
-  //     console.log(submit);
-  //     setLoading(false);
-  //     navigate('/request-success', { state: 'new claim' });
-  //   } catch (error) {
-  //     console.log(error);
-  //     setLoading(false);
-  //     toast.error('Faild to submit claim, Please try again');
-  //   }
-  // };
+  const submitClaim = async () => {
+    try {
+      setLoading(true);
+      const submit = await generateOutgoingRequest(
+        'claim/submit',
+        initiateClaimRequestBody
+      );
+      console.log(submit);
+      setLoading(false);
+      navigate('/request-success', { state: 'new claim' });
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
+      toast.error('Faild to submit claim, Please try again');
+    }
+  };
   const claimRequestDetails: any = [
     {
       key: 'Provider name :',
@@ -293,9 +293,10 @@ const InitiateNewClaimRequest = () => {
             disabled={false}
             onClick={(event: any) => {
               event.preventDefault();
-              navigate('/view-claim-request', {
-                state: { initiateClaimRequestBody },
-              });
+              submitClaim()
+              // navigate('/view-claim-request', {
+              //   state: { initiateClaimRequestBody },
+              // });
             }}
             type="submit"
             className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
