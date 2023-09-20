@@ -41,9 +41,6 @@ const VerifyOTP = () => {
           });
         } else {
           navigate('/signup');
-          toast.success('OTP verified successfully!', {
-            position: toast.POSITION.TOP_CENTER,
-          });
         }
       }
     } catch (error: any) {

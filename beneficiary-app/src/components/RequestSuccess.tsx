@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import successImage from '../../images/Group 49576.png';
+import successImage from '../images/Group 49576.png';
 
 const RequestSuccess = () => {
   const navigate = useNavigate();

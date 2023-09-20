@@ -12,7 +12,7 @@ import InitiateNewClaimRequest from './pages/InitiateNewClaimRequest/InitiateNew
 import ViewClaimRequestDetails from './pages/ViewClaimRequestDetails/ViewClaimRequestDetails';
 import CoverageEligibilityRequest from './pages/CoverageEligibilityRequest/CoverageEligibilityRequest';
 import PreAuthRequest from './pages/InitiatePreAuthRequest/PreAuthRequest';
-import RequestSuccess from './pages/InitiateNewClaimRequest/RequestSuccess';
+import RequestSuccess from './components/RequestSuccess';
 
 const App = () => {
   const [loading, setLoading] = useState<boolean>(true);

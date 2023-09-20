@@ -4,30 +4,49 @@ import { useNavigate } from 'react-router-dom';
 const PreAuthRequest = () => {
   const navigate = useNavigate();
   const preAuth = 'the pre-auth';
+  const preauthRequestDetails: any = [
+    {
+      key: 'Provider name :',
+      value: '',
+    },
+    {
+      key: 'Participant code :',
+      value: '',
+    },
+    {
+      key: 'Select insurance plan :',
+      value: '',
+    },
+    {
+      key: 'Treatment/Service type :',
+      value: '',
+    },
+    {
+      key: 'Payor name :',
+      value: '',
+    },
+    {
+      key: 'Insurance ID :',
+      value: '',
+    },
+  ];
+
   return (
     <div className="w-full pt-2 sm:p-12.5 xl:p-1">
       <h2 className="mb-4 text-2xl font-bold text-black dark:text-white sm:text-title-xl2">
         New pre-auth request
       </h2>
       <div className="rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
-        <h2 className="text-bold text-base font-bold text-black dark:text-white">
-          Provider name :
-        </h2>
-        <h2 className="text-bold mt-1 text-base font-bold text-black dark:text-white">
-          Participant code :
-        </h2>
-        <h2 className="text-bold mt-1 text-base font-bold text-black dark:text-white">
-          Select insurance plan :
-        </h2>
-        <h2 className="text-bold mt-1 text-base font-bold text-black dark:text-white">
-          Treatment/Service type :
-        </h2>
-        <h2 className="text-bold mt-1 text-base font-bold text-black dark:text-white">
-          Payor name :
-        </h2>
-        <h2 className="text-bold mt-1 text-base font-bold text-black dark:text-white">
-          Insurance ID :
-        </h2>
+        {preauthRequestDetails.map((ele: any) => {
+          return (
+            <>
+              <h2 className="text-bold text-base font-bold text-black dark:text-white">
+                {ele.key}
+              </h2>
+              <span className="text-base font-medium">{ele.value}</span>
+            </>
+          );
+        })}
       </div>
       <div className="mt-4 rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
         <h2 className="text-bold mb-4 text-base font-bold text-black dark:text-white">

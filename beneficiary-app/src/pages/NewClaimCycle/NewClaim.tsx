@@ -67,16 +67,6 @@ const NewClaim = () => {
     setProviderName(result);
   };
 
-  // // const providerDetails = {
-  // //   name: location.state?.name,
-  // //   id: location.state?.id,
-  // // };
-
-  // const sendProviderDetails = {
-  //   name: providerName,
-  //   id: participantCode,
-  // };
-
   const initiateClaimRequestBody = {
     providerName: providerName,
     participantCode: participantCode,

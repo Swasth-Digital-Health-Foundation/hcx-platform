@@ -9,7 +9,33 @@ const CoverageEligibility = () => {
     setSelectedValue(event.target.value);
   };
 
-  console.log(selectedValue);
+  const claimRequestDetails: any = [
+    {
+      key: 'Provider name :',
+      value: '',
+    },
+    {
+      key: 'Participant code :',
+      value: '',
+    },
+    {
+      key: 'Select insurance plan :',
+      value: '',
+    },
+    {
+      key: 'Treatment/Service type :',
+      value: '',
+    },
+    {
+      key: 'Payor name :',
+      value: '',
+    },
+    {
+      key: 'Insurance ID :',
+      value: '',
+    },
+  ];
+
   return (
     <div className="-pt-2 w-full sm:p-12.5 xl:p-1">
       <h2 className="sm:text-title-xl1 mb-1 text-end font-semibold text-success dark:text-success">
@@ -22,24 +48,16 @@ const CoverageEligibility = () => {
           </h2>
         </div>
         <div>
-          <h2 className="text-bold text-base font-bold text-black dark:text-white">
-            Provider name :
-          </h2>
-          <h2 className="text-bold mt-1 text-base font-bold text-black dark:text-white">
-            Participant code :
-          </h2>
-          <h2 className="text-bold mt-1 text-base font-bold text-black dark:text-white">
-            Select insurance plan :
-          </h2>
-          <h2 className="text-bold mt-1 text-base font-bold text-black dark:text-white">
-            Treatment/Service type :
-          </h2>
-          <h2 className="text-bold mt-1 text-base font-bold text-black dark:text-white">
-            Payor name :
-          </h2>
-          <h2 className="text-bold mt-1 text-base font-bold text-black dark:text-white">
-            Insurance ID :
-          </h2>
+          {claimRequestDetails.map((ele: any) => {
+            return (
+              <>
+                <h2 className="text-bold text-base font-bold text-black dark:text-white">
+                  {ele.key}
+                </h2>
+                <span className="text-base font-medium">{ele.value}</span>
+              </>
+            );
+          })}
         </div>
       </div>
       <div className="border-gray-300 my-4 border-t "></div>
