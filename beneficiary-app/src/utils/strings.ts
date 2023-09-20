@@ -22,7 +22,7 @@ export default {
   ADD_ANOTHER: '+ Add another',
   SAVE_PROFILE_DETAILS: 'Save profile details',
   WELCOME_TEXT: 'Welcome,',
-  SCAN_QRCODE: 'Scan provider QR code to verify coverage',
+  SCAN_QRCODE: 'Scan provider QR code to initiate coverage eligibility request',
   SUBMIT_NEW_CLAIM: 'Click here to submit a new claim',
   YOUR_ACTIVE_CYCLE: 'Your active claim cycle',
   COVERAGE_ELIGIBILITY_REQUEST_HEADING: 'New coverage eligibility request',

@@ -1,10 +1,10 @@
 import axios from 'axios';
 
-const registry_url =
-  'http://aa5c04ed467c04ea89789cead03e4275-352660981.ap-south-1.elb.amazonaws.com:8081/api/v1/Beneficiary';
-
 async function postRequest(method: any, payload: any) {
-  const response = await axios.post(`${registry_url}/${method}`, payload);
+  const response = await axios.post(
+    `${process.env.registry_url}/${method}`,
+    payload
+  );
   return response;
 }
 
