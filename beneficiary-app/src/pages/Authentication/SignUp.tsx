@@ -5,6 +5,7 @@ import PayorDetailsCard from '../../components/PayorDetailsCard/PayorDetailsCard
 import { postRequest } from '../../services/registryService';
 import { toast } from 'react-toastify';
 import LoadingButton from '../../components/LoadingButton';
+import strings from '../../utils/strings';
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -117,20 +118,20 @@ const SignUp = () => {
         <img className="w-48 dark:hidden" src={Logo} alt="Logo" />
       </Link>
       <h2 className="sm:text-title-xl1 mb-4 text-2xl font-bold text-black dark:text-white">
-        {process.env.ADD_PROFILE_DETAILS}
+        {strings.ADD_PROFILE_DETAILS}
       </h2>
       <div className="w-full rounded-sm border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark sm:p-12.5 xl:p-17.5">
         <form>
           <div className="mb-6">
             <div>
               <label className="mb-2.5 block text-left font-medium text-black dark:text-white">
-              {process.env.USERS_NAME}
+                {strings.USERS_NAME}
               </label>
               <div className="relative">
                 <input
                   onChange={handleUserNameChange}
                   type="text"
-                  placeholder={process.env.ENTER_YOUR_NAME}
+                  placeholder={strings.ENTER_YOUR_NAME}
                   className={
                     'w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
                   }
@@ -139,13 +140,13 @@ const SignUp = () => {
             </div>
             <div className="mt-5">
               <label className="mb-2.5 block text-left font-medium text-black dark:text-white">
-                {process.env.MOBILE}
+                {strings.MOBILE}
               </label>
               <div className="relative">
                 <input
                   onChange={handleMobileNumberChange}
                   type="number"
-                  placeholder={process.env.ENTER_MOBILE_NUMBER}
+                  placeholder={strings.ENTER_MOBILE_NUMBER}
                   className={`border ${
                     isValid ? 'border-stroke' : 'border-red'
                   } w-full rounded-lg bg-transparent py-4 pl-6 pr-10 outline-none focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary`}
@@ -154,13 +155,13 @@ const SignUp = () => {
             </div>
             <div className="mt-5">
               <label className="mb-2.5 block text-left font-medium text-black dark:text-white">
-                {process.env.EMAILID}
+                {strings.EMAILID}
               </label>
               <div className="relative">
                 <input
                   onChange={handleEmailChange}
                   type="email"
-                  placeholder={process.env.ENTER_EMAIL_ADDRESS}
+                  placeholder={strings.ENTER_EMAIL_ADDRESS}
                   className={
                     'w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
                   }
@@ -170,14 +171,14 @@ const SignUp = () => {
           </div>
 
           <h2 className="sm:text-title-xl1 mb-4 text-2xl font-bold text-black dark:text-white">
-           {process.env.ADD_INSURANCE_PLAN}
+            {strings.ADD_INSURANCE_PLAN}
           </h2>
 
           <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
             <div className="flex flex-col gap-5.5 p-4">
               <div>
                 <label className="mb-2.5 block text-left font-medium text-black dark:text-white">
-                  {process.env.PAYOR_DETAILS}
+                  {strings.PAYOR_DETAILS}
                 </label>
                 <div className="relative z-20 bg-white dark:bg-form-input">
                   <select
@@ -209,7 +210,7 @@ const SignUp = () => {
               </div>
               <div>
                 <label className="mb-2.5 block text-left font-medium text-black dark:text-white">
-                  {process.env.INSURANCE_ID}
+                  {strings.INSURANCE_ID}
                 </label>
                 <div className="relative">
                   <input
@@ -250,7 +251,7 @@ const SignUp = () => {
 
           <div className="mt-4 text-right">
             <a className="underline" onClick={addCard}>
-              {process.env.ADD_ANOTHER}
+              {strings.ADD_ANOTHER}
             </a>
           </div>
         </form>
@@ -266,7 +267,7 @@ const SignUp = () => {
             type="submit"
             className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
           >
-            {process.env.SAVE_PROFILE_DETAILS}
+            {strings.SAVE_PROFILE_DETAILS}
           </button>
         ) : (
           <LoadingButton />

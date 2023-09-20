@@ -101,14 +101,14 @@ const InitiateNewClaimRequest = () => {
         New claim request
       </h2>
       <div className="rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
-        {claimRequestDetails.map((ele: any) => {
+        {claimRequestDetails.map((ele: any, index: any) => {
           return (
-            <>
+            <div key={index}>
               <h2 className="text-bold mt-1 text-base font-bold text-black dark:text-white">
                 {ele.key}
               </h2>
               <span className="text-base font-medium">{ele.value}</span>
-            </>
+            </div>
           );
         })}
       </div>

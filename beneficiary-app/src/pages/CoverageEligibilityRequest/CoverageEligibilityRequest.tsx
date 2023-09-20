@@ -5,6 +5,7 @@ import LoadingButton from '../../components/LoadingButton';
 import { toast } from 'react-toastify';
 import { postRequest } from '../../services/registryService';
 import * as _ from 'lodash';
+import strings from '../../utils/strings';
 
 const CoverageEligibilityRequest = () => {
   const navigate = useNavigate();
@@ -87,18 +88,18 @@ const CoverageEligibilityRequest = () => {
   return (
     <div className="w-full pt-2 sm:p-12.5 xl:p-1">
       <h2 className="mb-4 -mt-4 text-3xl font-bold text-black dark:text-white sm:text-title-xl2">
-        {process.env.COVERAGE_ELIGIBILITY_REQUEST_HEADING}
+        {strings.COVERAGE_ELIGIBILITY_REQUEST_HEADING}
       </h2>
       <div className="rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
         <div>
           <h2 className="text-bold text-base font-bold text-black dark:text-white">
-            {process.env.PROVIDER_NAME}{' '}
+            {strings.PROVIDER_NAME}{' '}
             {providerDetails.providerName !== undefined
               ? providerDetails.providerName
               : ''}
           </h2>
           <h2 className="text-bold mt-1 text-base font-bold text-black dark:text-white">
-            {process.env.PARTICIPANT_CODE}{' '}
+            {strings.PARTICIPANT_CODE}{' '}
             {providerDetails.participantCode !== undefined
               ? providerDetails.participantCode
               : ''}
@@ -107,7 +108,7 @@ const CoverageEligibilityRequest = () => {
         <div className="border-gray-300 my-4 border-t "></div>
         <div className="mt-4">
           <label className="mb-2.5 block text-left font-medium text-black dark:text-white">
-            {process.env.SERVICE_TYPE}
+            {strings.SERVICE_TYPE}
           </label>
           <div className="relative z-20 bg-white dark:bg-form-input">
             <select
@@ -143,7 +144,7 @@ const CoverageEligibilityRequest = () => {
         <div className="mt-4">
           <div className="mt-4">
             <label className="mb-2.5 block text-left font-medium text-black dark:text-white">
-              {process.env.SELECT_INSURANCE_PLAN}
+              {strings.SELECT_INSURANCE_PLAN}
             </label>
             <div className="relative z-20 bg-white dark:bg-form-input">
               <select
@@ -180,12 +181,12 @@ const CoverageEligibilityRequest = () => {
           {insurancePlan === 'none' ? (
             <>
               <h2 className="sm:text-title-xl1 mt-4 mb-2 text-2xl font-bold text-black dark:text-white">
-                {process.env.INSURANCE_DETAILS}
+                {strings.INSURANCE_DETAILS}
               </h2>
               <div className="flex flex-col gap-5.5 py-4">
                 <div>
                   <label className="mb-2.5 block text-left font-medium text-black dark:text-white">
-                    {process.env.PAYOR_DETAILS}
+                    {strings.PAYOR_DETAILS}
                   </label>
                   <div className="relative z-20 bg-white dark:bg-form-input">
                     <select
@@ -220,7 +221,7 @@ const CoverageEligibilityRequest = () => {
                 </div>
                 <div>
                   <label className="mb-2.5 block text-left font-medium text-black dark:text-white">
-                    {process.env.INSURANCE_ID}
+                    {strings.INSURANCE_ID}
                   </label>
                   <div className="relative">
                     <input
@@ -255,7 +256,7 @@ const CoverageEligibilityRequest = () => {
             }}
             className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
           >
-            {process.env.CHECK_COVERAGE_ELIGIBILITY}
+            {strings.CHECK_COVERAGE_ELIGIBILITY}
           </button>
         ) : (
           <LoadingButton />

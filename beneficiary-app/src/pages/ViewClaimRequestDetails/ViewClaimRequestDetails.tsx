@@ -63,14 +63,14 @@ const ViewClaimRequestDetails = () => {
       </div>
       <div className="rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
         <div>
-          {claimRequestDetails.map((ele: any) => {
+          {claimRequestDetails.map((ele: any, index: any) => {
             return (
-              <>
+              <div key={index}>
                 <h2 className="text-bold text-base font-bold text-black dark:text-white">
                   {ele.key}
                 </h2>
                 <span className="text-base font-medium">{ele.value}</span>
-              </>
+              </div>
             );
           })}
         </div>

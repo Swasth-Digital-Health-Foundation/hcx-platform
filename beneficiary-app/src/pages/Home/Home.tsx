@@ -2,6 +2,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import Html5QrcodePlugin from '../../components/Html5QrcodeScannerPlugin/Html5QrcodeScannerPlugin';
 import { useState } from 'react';
 import ActiveClaimCycleCard from '../../components/ActiveClaimCycleCard';
+import strings from '../../utils/strings';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -22,7 +23,7 @@ const Home = () => {
       <div className="flex justify-between">
         <div className="">
           <h1 className="text-1xl font-bold text-black dark:text-white">
-            {process.env.WELCOME} Ajit
+            {strings.WELCOME_TEXT} Ajit
           </h1>
         </div>
       </div>
@@ -38,7 +39,7 @@ const Home = () => {
               />
             </div>
           </div>
-          <p className="mt-1 text-center">{process.env.SCAN_QRCODE}</p>
+          <p className="mt-1 text-center">{strings.SCAN_QRCODE}</p>
           <p className="mt-3 text-center font-bold text-black dark:text-gray">
             OR
           </p>
@@ -49,14 +50,14 @@ const Home = () => {
                 navigate('/new-claim', { state: mobile });
               }}
             >
-              {process.env.SUBMIT_NEW_CLAIM}
+              {strings.SUBMIT_NEW_CLAIM}
             </a>
           </div>
         </div>
       </div>
       <div className="mt-3">
         <h1 className="px-1 text-2xl font-bold text-black dark:text-white">
-          {process.env.YOUR_ACTIVE_CYCLE} (5)
+          {strings.YOUR_ACTIVE_CYCLE} (5)
         </h1>
         <div className="border-gray-300 my-4 border-t"></div>
         <ActiveClaimCycleCard />

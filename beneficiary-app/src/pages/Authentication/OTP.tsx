@@ -5,6 +5,7 @@ import { toast } from 'react-toastify';
 import LoadingButton from '../../components/LoadingButton';
 import { sendOTP } from '../../services/hcxMockService';
 import * as _ from 'lodash';
+import strings from '../../utils/strings';
 
 const OTP = () => {
   const navigate = useNavigate();
@@ -51,22 +52,22 @@ const OTP = () => {
           <img className="w-48 dark:hidden" src={Logo} alt="Logo" />
         </Link>
         <h1 className="mb-5 text-3xl font-bold text-black dark:text-white sm:text-title-xl2">
-          {process.env.WELCOME}
+          {strings.WELCOME}
         </h1>
         <h2 className="mb-9 text-2xl font-bold text-black dark:text-white sm:text-title-xl2">
-          {process.env.SIGNIN}
+          {strings.SIGNIN}
         </h2>
 
         <form>
           <div className="mb-6">
             <label className="mb-2.5 block text-left font-medium text-black dark:text-white">
-              {process.env.ENTER_MOBILE_NUMBER}
+              {strings.ENTER_MOBILE_NUMBER}
             </label>
             <div className="relative">
               <input
                 onChange={handleMobileNumberChange}
                 type="number"
-                placeholder={process.env.TEN_DIGIT}
+                placeholder={strings.TEN_DIGIT}
                 className={`border ${
                   isValid ? 'border-stroke' : 'border-red'
                 } w-full rounded-lg bg-transparent py-4 pl-6 pr-10 outline-none focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary`}
@@ -82,7 +83,7 @@ const OTP = () => {
                 onClick={formSubmit}
                 disabled={!isValid || mobileNumber === undefined}
               >
-                {process.env.SEND_OTP}
+                {strings.SEND_OTP}
               </button>
             ) : (
               <LoadingButton />
