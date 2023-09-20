@@ -1,10 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import {
-  generateToken,
-  hcxRegistryPostRequest,
-  // protocolApiPostRequest,
-} from '../../services/networkService';
+import { generateToken, hcxPostRequest } from '../../services/hcxService';
 import LoadingButton from '../../components/LoadingButton';
 
 const NewClaim = () => {
@@ -47,7 +43,7 @@ const NewClaim = () => {
       try {
         const tokenResponse = await generateToken(tokenRequestBody);
         setToken(tokenResponse.data.access_token);
-        const response = await hcxRegistryPostRequest(
+        const response = await hcxPostRequest(
           'participant/search',
           payload,
           config

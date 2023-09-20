@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { handleFileChange } from '../../utils/attachmentSizeValidation';
-import { protocolApiPostRequest } from '../../services/protocolAPIservice';
+import { generateOutgoingRequest } from '../../services/hcxMockService';
 import LoadingButton from '../../components/LoadingButton';
 import { toast } from 'react-toastify';
 
@@ -55,7 +55,7 @@ const InitiateNewClaimRequest = () => {
   const submitClaim = async () => {
     try {
       setLoading(true);
-      const submit = await protocolApiPostRequest(
+      const submit = await generateOutgoingRequest(
         'claim/submit',
         initiateClaimRequestBody
       );

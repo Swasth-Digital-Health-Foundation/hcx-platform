@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Logo from '../../images/swasth_logo.png';
 import PayorDetailsCard from '../../components/PayorDetailsCard/PayorDetailsCard';
-import { postRequest } from '../../services/networkService';
+import { postRequest } from '../../services/registryService';
 import { toast } from 'react-toastify';
 import LoadingButton from '../../components/LoadingButton';
 
@@ -112,40 +112,25 @@ const SignUp = () => {
   };
 
   return (
-    // <div>
     <div className="w-full border-stroke bg-white p-2 dark:border-strokedark xl:w-1/2 xl:border">
       <Link className="inline-block px-4 md:block lg:block lg:hidden" to="#">
         <img className="w-48 dark:hidden" src={Logo} alt="Logo" />
       </Link>
-      {/* <div className="flex flex-row align-middle" onClick={() => navigate(-1)}>
-        <svg
-          className="mb-2 -mt-2 w-6"
-          fill="currentColor"
-          viewBox="0 0 20 20"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            fillRule="evenodd"
-            d="M7.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l2.293 2.293a1 1 0 010 1.414z"
-            clipRule="evenodd"
-          ></path>
-        </svg>
-      </div> */}
       <h2 className="sm:text-title-xl1 mb-4 text-2xl font-bold text-black dark:text-white">
-        Add profile details :
+        {process.env.ADD_PROFILE_DETAILS}
       </h2>
       <div className="w-full rounded-sm border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark sm:p-12.5 xl:p-17.5">
         <form>
           <div className="mb-6">
             <div>
               <label className="mb-2.5 block text-left font-medium text-black dark:text-white">
-                User's name
+              {process.env.USERS_NAME}
               </label>
               <div className="relative">
                 <input
                   onChange={handleUserNameChange}
                   type="text"
-                  placeholder="Enter your name"
+                  placeholder={process.env.ENTER_YOUR_NAME}
                   className={
                     'w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
                   }
@@ -154,13 +139,13 @@ const SignUp = () => {
             </div>
             <div className="mt-5">
               <label className="mb-2.5 block text-left font-medium text-black dark:text-white">
-                Mobile number *
+                {process.env.MOBILE}
               </label>
               <div className="relative">
                 <input
                   onChange={handleMobileNumberChange}
                   type="number"
-                  placeholder="Enter mobile number"
+                  placeholder={process.env.ENTER_MOBILE_NUMBER}
                   className={`border ${
                     isValid ? 'border-stroke' : 'border-red'
                   } w-full rounded-lg bg-transparent py-4 pl-6 pr-10 outline-none focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary`}
@@ -169,13 +154,13 @@ const SignUp = () => {
             </div>
             <div className="mt-5">
               <label className="mb-2.5 block text-left font-medium text-black dark:text-white">
-                Email ID
+                {process.env.EMAILID}
               </label>
               <div className="relative">
                 <input
                   onChange={handleEmailChange}
                   type="email"
-                  placeholder="Enter email address"
+                  placeholder={process.env.ENTER_EMAIL_ADDRESS}
                   className={
                     'w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
                   }
@@ -185,14 +170,14 @@ const SignUp = () => {
           </div>
 
           <h2 className="sm:text-title-xl1 mb-4 text-2xl font-bold text-black dark:text-white">
-            Add insurance plan :
+           {process.env.ADD_INSURANCE_PLAN}
           </h2>
 
           <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
             <div className="flex flex-col gap-5.5 p-4">
               <div>
                 <label className="mb-2.5 block text-left font-medium text-black dark:text-white">
-                  Payor Details *
+                  {process.env.PAYOR_DETAILS}
                 </label>
                 <div className="relative z-20 bg-white dark:bg-form-input">
                   <select
@@ -224,7 +209,7 @@ const SignUp = () => {
               </div>
               <div>
                 <label className="mb-2.5 block text-left font-medium text-black dark:text-white">
-                  Insurance ID *
+                  {process.env.INSURANCE_ID}
                 </label>
                 <div className="relative">
                   <input
@@ -265,7 +250,7 @@ const SignUp = () => {
 
           <div className="mt-4 text-right">
             <a className="underline" onClick={addCard}>
-              + Add another
+              {process.env.ADD_ANOTHER}
             </a>
           </div>
         </form>
@@ -276,21 +261,18 @@ const SignUp = () => {
             disabled={handleDisable()}
             onClick={(event: any) => {
               event.preventDefault();
-              // navigate('/home');
-              // submitData();
               registerUser();
             }}
             type="submit"
             className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
           >
-            Save profile details
+            {process.env.SAVE_PROFILE_DETAILS}
           </button>
         ) : (
           <LoadingButton />
         )}
       </div>
     </div>
-    // </div>
   );
 };
 

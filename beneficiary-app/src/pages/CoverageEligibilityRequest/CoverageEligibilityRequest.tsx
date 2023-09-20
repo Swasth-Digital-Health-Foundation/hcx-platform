@@ -1,8 +1,9 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { protocolApiPostRequest } from '../../services/protocolAPIservice';
+import { generateOutgoingRequest } from '../../services/hcxMockService';
 import { useEffect, useState } from 'react';
 import LoadingButton from '../../components/LoadingButton';
 import { toast } from 'react-toastify';
+import { postRequest } from '../../services/registryService';
 
 const CoverageEligibilityRequest = () => {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ const CoverageEligibilityRequest = () => {
   const [payor, setPayor] = useState<string>('');
   const [insuranceId, setInsuranceId] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
+  const [patientName, setPatientName] = useState<string>('');
 
   const providerDetails = {
     providerName: location?.state?.obj?.name,
@@ -22,6 +24,7 @@ const CoverageEligibilityRequest = () => {
 
   if (insurancePlan === 'none') {
     payload = {
+      patientName: patientName,
       mobile: location?.state?.filters?.filters?.mobile?.eq || '',
       serviceType: serviceType,
       insurancePlan: insurancePlan,
@@ -31,6 +34,7 @@ const CoverageEligibilityRequest = () => {
     };
   } else {
     payload = {
+      patientName: patientName,
       mobile: location?.state?.filters?.filters?.mobile?.eq || '',
       serviceType: serviceType,
       insurancePlan: insurancePlan,
@@ -38,12 +42,33 @@ const CoverageEligibilityRequest = () => {
     };
   }
 
+  const filter = {
+    entityType: ['Beneficiary'],
+    filters: {
+      mobile: { eq: payload?.mobile },
+    },
+  };
+
+  //beneficiary search
+  useEffect(() => {
+    const getPatientName = async () => {
+      try {
+        let response = await postRequest('/search', filter);
+        console.log(response);
+        setPatientName(response.data[0]?.name);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    getPatientName();
+  }, []);
+
   console.log(payload);
 
   const sendCoverageEligibilityRequest = async () => {
     try {
       setIsLoading(true);
-      let response = await protocolApiPostRequest(
+      let response = await generateOutgoingRequest(
         'coverageeligibility/check',
         payload
       );

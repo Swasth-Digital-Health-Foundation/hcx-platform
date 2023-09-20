@@ -2,9 +2,9 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Logo from '../../images/swasth_logo.png';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
-import { postRequest } from '../../services/networkService';
+import { postRequest } from '../../services/registryService';
 import LoadingButton from '../../components/LoadingButton';
-import { sendOTP, verifyOTP } from '../../services/OTPservice';
+import { sendOTP, verifyOTP } from '../../services/hcxMockService';
 
 const VerifyOTP = () => {
   const navigate = useNavigate();
@@ -105,23 +105,23 @@ const VerifyOTP = () => {
           <img className="w-48 dark:hidden" src={Logo} alt="Logo" />
         </Link>
         <h1 className="mb-5 text-3xl font-bold text-black dark:text-white sm:text-title-xl2">
-          Welcome to the HCX beneficiary app
+          {process.env.WELCOME}
         </h1>
         <h2 className="mb-9 text-2xl font-bold text-black dark:text-white sm:text-title-xl2">
-          Please sign in to your account.
+          {process.env.SIGNIN}
         </h2>
 
         <form>
           <div className="mb-6">
             <div>
               <label className="mb-2.5 block text-left font-medium text-black dark:text-white">
-                OTP sent to below mobile number
+                {process.env.OTP_SENT}
               </label>
               <div className="relative">
                 <input
                   type="number"
                   value={location.state}
-                  placeholder="10-digit mobile no."
+                  placeholder={process.env.TEN_DIGIT}
                   disabled
                   className={
                     'w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
@@ -131,13 +131,13 @@ const VerifyOTP = () => {
             </div>
             <div className="mt-5">
               <label className="mb-2.5 block text-left font-medium text-black dark:text-white">
-                Enter OTP
+                {process.env.ENTER_OTP}
               </label>
               <div className="relative">
                 <input
                   onChange={handleOTPchange}
                   type="number"
-                  placeholder="Enter 6-digit OTP"
+                  placeholder={process.env.SIX_DIGIT}
                   className={`border ${
                     isValid ? 'border-stroke' : 'border-red'
                   } w-full rounded-lg bg-transparent py-4 pl-6 pr-10 outline-none focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary`}
@@ -157,7 +157,7 @@ const VerifyOTP = () => {
                 type="submit"
                 className="align-center flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
               >
-                Verify OTP
+                {process.env.VERIFY_OTP_BUTTON}
               </button>
             ) : (
               <LoadingButton />
@@ -169,7 +169,7 @@ const VerifyOTP = () => {
                 resendOTP();
               }}
             >
-              Resend OTP
+              {process.env.RESEND_OTP_BUTTON}
             </a>
           </p>
         </form>
