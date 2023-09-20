@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { generateToken, hcxPostRequest } from '../../services/hcxService';
 import LoadingButton from '../../components/LoadingButton';
+import { toast } from 'react-toastify';
+import * as _ from 'lodash';
 
 const NewClaim = () => {
   const navigate = useNavigate();
@@ -28,8 +30,8 @@ const NewClaim = () => {
   };
 
   const tokenRequestBody = {
-    username: 'hcxgateway@swasth.org',
-    password: 'Swasth@12345',
+    username: process.env.TOKEN_GENERATION_USERNAME,
+    password: process.env.TOKEN_GENERATION_PASSWORD,
   };
 
   const config = {
@@ -50,9 +52,10 @@ const NewClaim = () => {
         );
         setOpenDropdown(true);
         setSearchResults(response.data?.participants);
-      } catch (error) {
+      } catch (error: any) {
         setOpenDropdown(false);
-        console.error('Error fetching data:', error);
+        console.log(error.response.data.error.message);
+        // toast.error(_.get(error, 'response.data.error.message'))
       }
     };
     searchParticipant();
@@ -64,15 +67,15 @@ const NewClaim = () => {
     setProviderName(result);
   };
 
-  // const providerDetails = {
-  //   name: location.state?.name,
-  //   id: location.state?.id,
-  // };
+  // // const providerDetails = {
+  // //   name: location.state?.name,
+  // //   id: location.state?.id,
+  // // };
 
-  const sendProviderDetails = {
-    name: providerName,
-    id: participantCode,
-  };
+  // const sendProviderDetails = {
+  //   name: providerName,
+  //   id: participantCode,
+  // };
 
   const initiateClaimRequestBody = {
     providerName: providerName,
@@ -84,33 +87,15 @@ const NewClaim = () => {
     mobile: location.state,
   };
 
-  // console.log(coverageEligibilityRequestPayload);
-
-  // const sendCoverageEligibilityRequest = async () => {
-  //   try {
-  //     setIsLoading(true);
-  //     let response = await protocolApiPostRequest(
-  //       'coverageeligibility/check',
-  //       coverageEligibilityRequestPayload
-  //     );
-  //     setIsLoading(false);
-  //     if (response?.status === 202) {
-  //       navigate('/request-success');
-  //     }
-  //   } catch (error) {
-  //     setIsLoading(false);
-  //     console.log(error);
-  //   }
-  // };
   return (
     <div className="w-full pt-2 sm:p-12.5 xl:p-1 ">
       <h2 className="mb-4 -mt-4 text-3xl font-bold text-black dark:text-white sm:text-title-xl2">
-        Provide details to initiate claim request
+        {process.env.PROVIDE_DETAILS_FOR_NEW_CLAIM}
       </h2>
       <div className="rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
         <div>
           <h2 className="text-bold text-base font-bold text-black dark:text-white">
-            Provider name:{' '}
+            {process.env.PROVIDER_NAME}{' '}
             <div className="relative">
               <input
                 type="text"
@@ -144,8 +129,8 @@ const NewClaim = () => {
                 </svg>
               </span>
               {openDropdown && searchResults.length !== 0 ? (
-                <div className="max-h-40 overflow-y-auto">
-                  <ul className="border-gray-300 left-0 w-full rounded-lg bg-white px-2 text-black">
+                <div className="max-h-40 overflow-y-auto overflow-x-hidden">
+                  <ul className="border-gray-300 left-0 w-full rounded-lg bg-gray px-2 text-black">
                     {searchResults.map((result: any, index: any) => (
                       <li
                         key={index}
@@ -157,7 +142,8 @@ const NewClaim = () => {
                         }
                         className="hover:bg-gray-200 cursor-pointer p-2"
                       >
-                        {result?.participant_name || ''}
+                        {result?.participant_name +
+                          ` (${result?.participant_code})` || ''}
                       </li>
                     ))}
                   </ul>
@@ -168,7 +154,7 @@ const NewClaim = () => {
             </div>
           </h2>
           <h2 className="text-bold mt-1 text-base font-bold text-black dark:text-white">
-            Participant code:{' '}
+            {process.env.PARTICIPANT_CODE}{' '}
             <div>
               <input
                 onChange={(e) => {
@@ -186,7 +172,7 @@ const NewClaim = () => {
         <div className="border-gray-300 my-4 border-t "></div>
         <div className="mt-4">
           <label className="mb-2.5 block text-left font-medium text-black dark:text-white">
-            Treatment/Service type: *
+            {process.env.SERVICE_TYPE}
           </label>
           <div className="relative z-20 bg-white dark:bg-form-input">
             <select
@@ -221,7 +207,7 @@ const NewClaim = () => {
         </div>
         <div className="mt-4">
           <label className="mb-2.5 block text-left font-medium text-black dark:text-white">
-            Select insurance plan: *
+            {process.env.SELECT_INSURANCE_PLAN}
           </label>
           <div className="relative z-20 bg-white dark:bg-form-input">
             <select
@@ -257,12 +243,12 @@ const NewClaim = () => {
           {insurancePlanInputRef === 'none' ? (
             <>
               <h2 className="sm:text-title-xl1 mt-4 mb-2 text-2xl font-bold text-black dark:text-white">
-                Insurance details
+                {process.env.INSURANCE_DETAILS}
               </h2>
               <div className="flex flex-col gap-5.5 py-4">
                 <div>
                   <label className="mb-2.5 block text-left font-medium text-black dark:text-white">
-                    Payor Details: *
+                    {process.env.PAYOR_DETAILS}
                   </label>
                   <div className="relative z-20 bg-white dark:bg-form-input">
                     <select
@@ -297,7 +283,7 @@ const NewClaim = () => {
                 </div>
                 <div>
                   <label className="mb-2.5 block text-left font-medium text-black dark:text-white">
-                    Insurance ID *
+                    {process.env.INSURANCE_ID}
                   </label>
                   <div className="relative">
                     <input
@@ -315,26 +301,7 @@ const NewClaim = () => {
                 </div>
               </div>
             </>
-          ) : (
-            <>
-              {/* <p className="mt-3 text-center">OR</p>
-              <div className="mt-3 text-center">
-                <a
-                  className="cursor-pointer underline"
-                  onClick={() => {
-                    navigate('/coverage-eligibility-request', {
-                      state:
-                        providerDetails.id || providerDetails.name !== undefined
-                          ? providerDetails
-                          : sendProviderDetails,
-                    });
-                  }}
-                >
-                  + Add health plan
-                </a>
-              </div> */}
-            </>
-          )}
+          ) : null}
         </div>
       </div>
       <div className="mb-5 mt-5">
@@ -352,11 +319,10 @@ const NewClaim = () => {
               navigate('/initiate-claim-request', {
                 state: { initiateClaimRequestBody },
               });
-              // sendCoverageEligibilityRequest();
             }}
             className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
           >
-            Initiate claim request
+            {process.env.INITIATE_CLAIM_REQUEST}
           </button>
         ) : (
           <LoadingButton />

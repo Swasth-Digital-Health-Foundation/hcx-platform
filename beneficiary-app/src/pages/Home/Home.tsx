@@ -22,17 +22,13 @@ const Home = () => {
       <div className="flex justify-between">
         <div className="">
           <h1 className="text-1xl font-bold text-black dark:text-white">
-            Welcome, Ajit
+            {process.env.WELCOME} Ajit
           </h1>
         </div>
-        {/* <div>
-          <a className="cursor-pointer underline">+ Add health plan</a>
-        </div> */}
       </div>
       <div className="rounded-sm border border-stroke bg-white p-2 shadow-default dark:border-strokedark dark:bg-boxdark">
         <div className="mt-2">
           <div className="qr-code p-1">
-            {/* <img src={qrCodeImage} alt="QR scanner" /> */}
             <div id="reader" className="px-1">
               <Html5QrcodePlugin
                 fps={60}
@@ -42,9 +38,7 @@ const Home = () => {
               />
             </div>
           </div>
-          <p className="mt-1 text-center">
-            Scan provider QR code to verify coverage
-          </p>
+          <p className="mt-1 text-center">{process.env.SCAN_QRCODE}</p>
           <p className="mt-3 text-center font-bold text-black dark:text-gray">
             OR
           </p>
@@ -55,14 +49,14 @@ const Home = () => {
                 navigate('/new-claim', { state: mobile });
               }}
             >
-              Click here to submit a new claim
+              {process.env.SUBMIT_NEW_CLAIM}
             </a>
           </div>
         </div>
       </div>
       <div className="mt-3">
         <h1 className="px-1 text-2xl font-bold text-black dark:text-white">
-          Your active claim cycle (5)
+          {process.env.YOUR_ACTIVE_CYCLE} (5)
         </h1>
         <div className="border-gray-300 my-4 border-t"></div>
         <ActiveClaimCycleCard />

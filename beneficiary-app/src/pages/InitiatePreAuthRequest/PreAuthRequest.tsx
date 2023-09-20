@@ -3,14 +3,12 @@ import { useNavigate } from 'react-router-dom';
 
 const PreAuthRequest = () => {
   const navigate = useNavigate();
+  const preAuth = 'the pre-auth';
   return (
     <div className="w-full pt-2 sm:p-12.5 xl:p-1">
       <h2 className="mb-4 text-2xl font-bold text-black dark:text-white sm:text-title-xl2">
         New pre-auth request
       </h2>
-      {/* <h2 className="sm:text-title-xl1 mb-4 mt-4 font-bold text-black dark:text-white">
-        Date :
-      </h2> */}
       <div className="rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
         <h2 className="text-bold text-base font-bold text-black dark:text-white">
           Provider name :
@@ -164,8 +162,8 @@ const PreAuthRequest = () => {
       <div className="mb-5 mt-4">
         <button
           onClick={(event: any) => {
-            event.preventDefault();
-            navigate('/request-success',{state:"the pre-auth"});
+            // event.preventDefault();
+            navigate('/request-success', { state: preAuth });
           }}
           type="submit"
           className="align-center mt-8 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray"

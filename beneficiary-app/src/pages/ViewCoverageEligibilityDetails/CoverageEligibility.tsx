@@ -13,7 +13,7 @@ const CoverageEligibility = () => {
   return (
     <div className="-pt-2 w-full sm:p-12.5 xl:p-1">
       <h2 className="sm:text-title-xl1 mb-1 text-end font-semibold text-success dark:text-success">
-        Eligible
+        &#10004; Eligible
       </h2>
       <div className="rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
         <div className="flex items-center justify-between">
@@ -48,6 +48,22 @@ const CoverageEligibility = () => {
         <h2 className="text-bold text-1xl mt-1 font-bold text-black dark:text-white">
           Next step :
         </h2>
+        <div className="mb-3 mt-4 flex items-center">
+          <input
+            onChange={handleRadioChange}
+            id="default-radio-1"
+            type="radio"
+            value="Initiate pre-auth request"
+            name="default-radio"
+            className="text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600 h-4 w-4 focus:ring-2"
+          />
+          <label
+            htmlFor="default-radio-1"
+            className="text-gray-900 dark:text-gray-300 ml-2 text-sm font-medium"
+          >
+            Initiate pre-auth request
+          </label>
+        </div>
         <div className="mt-2 mb-2 flex items-center">
           <input
             onChange={handleRadioChange}
@@ -64,22 +80,7 @@ const CoverageEligibility = () => {
             Initiate new claim request
           </label>
         </div>
-        <div className="mb-3 flex items-center">
-          <input
-            onChange={handleRadioChange}
-            id="default-radio-1"
-            type="radio"
-            value="Initiate pre-auth request"
-            name="default-radio"
-            className="text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600 h-4 w-4 focus:ring-2"
-          />
-          <label
-            htmlFor="default-radio-1"
-            className="text-gray-900 dark:text-gray-300 ml-2 text-sm font-medium"
-          >
-            Initiate pre-auth request
-          </label>
-        </div>
+
         <div className="mb-5 mt-5">
           <button
             disabled={selectedValue === ''}

@@ -1,6 +1,59 @@
 import React from 'react';
+import { useLocation } from 'react-router-dom';
 
 const ViewClaimRequestDetails = () => {
+  const location = useLocation();
+  const details = location.state.initiateClaimRequestBody;
+  console.log(details);
+
+  const claimRequestDetails: any = [
+    {
+      key: 'Provider name :',
+      value: details?.providerName || '',
+    },
+    {
+      key: 'Participant code :',
+      value: details?.participantCode || '',
+    },
+    {
+      key: 'Select insurance plan :',
+      value: details?.insurancePlan || '',
+    },
+    {
+      key: 'Treatment/Service type :',
+      value: details?.serviceType || '',
+    },
+    {
+      key: 'Payor name :',
+      value: details?.payor || '',
+    },
+    {
+      key: 'Insurance ID :',
+      value: details?.insuranceId || '',
+    },
+  ];
+
+  const treatmentDetails = [
+    {
+      key: 'Service type :',
+      value: details?.billingDeatils?.serviceType || '',
+    },
+    {
+      key: 'Bill amount :',
+      value: details?.billingDeatils?.billAmount || '',
+    },
+  ];
+
+  const supportingDocuments = [
+    {
+      key: 'Document type :',
+      value: details?.billingDeatils?.serviceType || '',
+    },
+    {
+      key: 'Bill amount :',
+      value: details?.billingDeatils?.billAmount || '',
+    },
+  ];
   return (
     <>
       <div className="flex items-center justify-between">
@@ -10,24 +63,16 @@ const ViewClaimRequestDetails = () => {
       </div>
       <div className="rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
         <div>
-          <h2 className="text-bold text-base font-bold text-black dark:text-white">
-            Provider name :
-          </h2>
-          <h2 className="text-bold mt-1 text-base font-bold text-black dark:text-white">
-            Participant code :
-          </h2>
-          <h2 className="text-bold mt-1 text-base font-bold text-black dark:text-white">
-            Select insurance plan :
-          </h2>
-          <h2 className="text-bold mt-1 text-base font-bold text-black dark:text-white">
-            Treatment/Service type :
-          </h2>
-          <h2 className="text-bold mt-1 text-base font-bold text-black dark:text-white">
-            Payor name :
-          </h2>
-          <h2 className="text-bold mt-1 text-base font-bold text-black dark:text-white">
-            Insurance ID :
-          </h2>
+          {claimRequestDetails.map((ele: any) => {
+            return (
+              <>
+                <h2 className="text-bold text-base font-bold text-black dark:text-white">
+                  {ele.key}
+                </h2>
+                <span className="text-base font-medium">{ele.value}</span>
+              </>
+            );
+          })}
         </div>
       </div>
       <div className="flex items-center justify-between">
@@ -37,12 +82,16 @@ const ViewClaimRequestDetails = () => {
       </div>
       <div className="rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
         <div>
-          <h2 className="text-bold text-base font-bold text-black dark:text-white">
-            Service type :
-          </h2>
-          <h2 className="text-bold mt-1 text-base font-bold text-black dark:text-white">
-            Bill amount :
-          </h2>
+          {treatmentDetails.map((ele: any) => {
+            return (
+              <>
+                <h2 className="text-bold text-base font-bold text-black dark:text-white">
+                  {ele.key}
+                </h2>
+                <span className="text-base font-medium">{ele.value}</span>
+              </>
+            );
+          })}
         </div>
       </div>
       <div className="flex items-center justify-between">
@@ -52,12 +101,16 @@ const ViewClaimRequestDetails = () => {
       </div>
       <div className="rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
         <div>
-          <h2 className="text-bold text-base font-bold text-black dark:text-white">
-            Document type :
-          </h2>
-          <h2 className="text-bold mt-1 text-base font-bold text-black dark:text-white">
-            Bill amount :
-          </h2>
+          {supportingDocuments.map((ele: any) => {
+            return (
+              <>
+                <h2 className="text-bold text-base font-bold text-black dark:text-white">
+                  {ele.key}
+                </h2>
+                <span className="text-base font-medium">{ele.value}</span>
+              </>
+            );
+          })}
         </div>
       </div>
       <div className="flex items-center justify-between">

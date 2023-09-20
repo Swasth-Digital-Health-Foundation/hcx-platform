@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { toast } from 'react-toastify';
 import LoadingButton from '../../components/LoadingButton';
 import { sendOTP } from '../../services/hcxMockService';
+import * as _ from 'lodash';
 
 const OTP = () => {
   const navigate = useNavigate();
@@ -27,7 +28,7 @@ const OTP = () => {
       }, 2000);
     } catch (err: any) {
       setLoading(false);
-      console.log(err);
+      toast.error(_.get(err, 'response.data.error.message'));
     }
   };
 
@@ -52,7 +53,6 @@ const OTP = () => {
         <h1 className="mb-5 text-3xl font-bold text-black dark:text-white sm:text-title-xl2">
           {process.env.WELCOME}
         </h1>
-        {/* <span className="mb-1.5 block font-medium">Start for free</span> */}
         <h2 className="mb-9 text-2xl font-bold text-black dark:text-white sm:text-title-xl2">
           {process.env.SIGNIN}
         </h2>

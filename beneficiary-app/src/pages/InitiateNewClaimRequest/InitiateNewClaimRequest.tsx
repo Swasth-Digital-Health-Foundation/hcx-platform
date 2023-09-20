@@ -15,7 +15,7 @@ const InitiateNewClaimRequest = () => {
   const [isSuccess, setIsSuccess]: any = useState(false);
 
   const [amount, setAmount] = useState<any>();
-  const [serviceType, setServiceType] = useState<string>('');
+  const [serviceType, setServiceType] = useState<string>('Consultation');
   const [documentType, setDocumentType] = useState<string>('');
 
   const [loading, setLoading] = useState(false);
@@ -52,22 +52,48 @@ const InitiateNewClaimRequest = () => {
     },
   };
 
-  const submitClaim = async () => {
-    try {
-      setLoading(true);
-      const submit = await generateOutgoingRequest(
-        'claim/submit',
-        initiateClaimRequestBody
-      );
-      console.log(submit);
-      setLoading(false);
-      navigate('/request-success', { state: 'new claim' });
-    } catch (error) {
-      console.log(error);
-      setLoading(false);
-      toast.error('Faild to submit claim, Please try again');
-    }
-  };
+  // const submitClaim = async () => {
+  //   try {
+  //     setLoading(true);
+  //     const submit = await generateOutgoingRequest(
+  //       'claim/submit',
+  //       initiateClaimRequestBody
+  //     );
+  //     console.log(submit);
+  //     setLoading(false);
+  //     navigate('/request-success', { state: 'new claim' });
+  //   } catch (error) {
+  //     console.log(error);
+  //     setLoading(false);
+  //     toast.error('Faild to submit claim, Please try again');
+  //   }
+  // };
+  const claimRequestDetails: any = [
+    {
+      key: 'Provider name :',
+      value: data?.initiateClaimRequestBody?.providerName || '',
+    },
+    {
+      key: 'Participant code :',
+      value: data?.initiateClaimRequestBody?.participantCode || '',
+    },
+    {
+      key: 'Select insurance plan :',
+      value: data?.initiateClaimRequestBody?.insurancePlan || '',
+    },
+    {
+      key: 'Treatment/Service type :',
+      value: data?.initiateClaimRequestBody?.serviceType || '',
+    },
+    {
+      key: 'Payor name :',
+      value: data?.initiateClaimRequestBody?.payor || '',
+    },
+    {
+      key: 'Insurance ID :',
+      value: data?.initiateClaimRequestBody?.insuranceId || '',
+    },
+  ];
 
   return (
     <div className="w-full pt-2 sm:p-12.5 xl:p-1">
@@ -75,42 +101,16 @@ const InitiateNewClaimRequest = () => {
         New claim request
       </h2>
       <div className="rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
-        <h2 className="text-bold text-base font-bold text-black dark:text-white">
-          Provider name :{' '}
-        </h2>
-        <span className="">
-          {data?.initiateClaimRequestBody?.providerName || ''}
-        </span>
-        <h2 className="text-bold mt-1 text-base font-bold text-black dark:text-white">
-          Participant code :{' '}
-        </h2>
-        <span className="text-base font-medium">
-          {data?.initiateClaimRequestBody?.participantCode || ''}
-        </span>
-        <h2 className="text-bold mt-1 text-base font-bold text-black dark:text-white">
-          Select insurance plan :{' '}
-        </h2>
-        <span className="text-base font-medium">
-          {data?.initiateClaimRequestBody?.insurancePlan || ''}
-        </span>
-        <h2 className="text-bold mt-1 text-base font-bold text-black dark:text-white">
-          Treatment/Service type :{' '}
-        </h2>
-        <span className="text-base font-medium">
-          {data?.initiateClaimRequestBody?.serviceType || ''}
-        </span>
-        <h2 className="text-bold mt-1 text-base font-bold text-black dark:text-white">
-          Payor name :{' '}
-        </h2>
-        <span className="text-base font-medium">
-          {data?.initiateClaimRequestBody?.payor || ''}
-        </span>
-        <h2 className="text-bold mt-1 text-base font-bold text-black dark:text-white">
-          Insurance ID :{' '}
-        </h2>
-        <span className="text-base font-medium">
-          {data?.initiateClaimRequestBody?.insuranceId || ''}
-        </span>
+        {claimRequestDetails.map((ele: any) => {
+          return (
+            <>
+              <h2 className="text-bold mt-1 text-base font-bold text-black dark:text-white">
+                {ele.key}
+              </h2>
+              <span className="text-base font-medium">{ele.value}</span>
+            </>
+          );
+        })}
       </div>
       <div className="mt-4 rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
         <h2 className="text-bold text-base font-bold text-black dark:text-white">
@@ -293,7 +293,9 @@ const InitiateNewClaimRequest = () => {
             disabled={false}
             onClick={(event: any) => {
               event.preventDefault();
-              submitClaim();
+              navigate('/view-claim-request', {
+                state: { initiateClaimRequestBody },
+              });
             }}
             type="submit"
             className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
@@ -305,7 +307,6 @@ const InitiateNewClaimRequest = () => {
         )}
       </div>
     </div>
-    // </div>
   );
 };
 

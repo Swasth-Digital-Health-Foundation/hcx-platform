@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import LoadingButton from '../../components/LoadingButton';
 import { toast } from 'react-toastify';
 import { postRequest } from '../../services/registryService';
+import * as _ from 'lodash';
 
 const CoverageEligibilityRequest = () => {
   const navigate = useNavigate();
@@ -56,14 +57,13 @@ const CoverageEligibilityRequest = () => {
         let response = await postRequest('/search', filter);
         console.log(response);
         setPatientName(response.data[0]?.name);
-      } catch (err) {
-        console.log(err);
+      } catch (error) {
+        console.log(error);
+        toast.error(_.get(error, 'response.data.error.message'));
       }
     };
     getPatientName();
   }, []);
-
-  console.log(payload);
 
   const sendCoverageEligibilityRequest = async () => {
     try {
@@ -79,6 +79,7 @@ const CoverageEligibilityRequest = () => {
       }
     } catch (error) {
       setIsLoading(false);
+      toast.error(_.get(error, 'response.data.error.message'));
       console.log(error);
     }
   };
@@ -86,18 +87,18 @@ const CoverageEligibilityRequest = () => {
   return (
     <div className="w-full pt-2 sm:p-12.5 xl:p-1">
       <h2 className="mb-4 -mt-4 text-3xl font-bold text-black dark:text-white sm:text-title-xl2">
-        New coverage eligibility request
+        {process.env.COVERAGE_ELIGIBILITY_REQUEST_HEADING}
       </h2>
       <div className="rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
         <div>
           <h2 className="text-bold text-base font-bold text-black dark:text-white">
-            Provider name:{' '}
+            {process.env.PROVIDER_NAME}{' '}
             {providerDetails.providerName !== undefined
               ? providerDetails.providerName
               : ''}
           </h2>
           <h2 className="text-bold mt-1 text-base font-bold text-black dark:text-white">
-            Participant code:{' '}
+            {process.env.PARTICIPANT_CODE}{' '}
             {providerDetails.participantCode !== undefined
               ? providerDetails.participantCode
               : ''}
@@ -106,7 +107,7 @@ const CoverageEligibilityRequest = () => {
         <div className="border-gray-300 my-4 border-t "></div>
         <div className="mt-4">
           <label className="mb-2.5 block text-left font-medium text-black dark:text-white">
-            Treatment/Service type: *
+            {process.env.SERVICE_TYPE}
           </label>
           <div className="relative z-20 bg-white dark:bg-form-input">
             <select
@@ -142,7 +143,7 @@ const CoverageEligibilityRequest = () => {
         <div className="mt-4">
           <div className="mt-4">
             <label className="mb-2.5 block text-left font-medium text-black dark:text-white">
-              Select insurance plan: *
+              {process.env.SELECT_INSURANCE_PLAN}
             </label>
             <div className="relative z-20 bg-white dark:bg-form-input">
               <select
@@ -179,12 +180,12 @@ const CoverageEligibilityRequest = () => {
           {insurancePlan === 'none' ? (
             <>
               <h2 className="sm:text-title-xl1 mt-4 mb-2 text-2xl font-bold text-black dark:text-white">
-                Insurance details
+                {process.env.INSURANCE_DETAILS}
               </h2>
               <div className="flex flex-col gap-5.5 py-4">
                 <div>
                   <label className="mb-2.5 block text-left font-medium text-black dark:text-white">
-                    Payor Details: *
+                    {process.env.PAYOR_DETAILS}
                   </label>
                   <div className="relative z-20 bg-white dark:bg-form-input">
                     <select
@@ -219,7 +220,7 @@ const CoverageEligibilityRequest = () => {
                 </div>
                 <div>
                   <label className="mb-2.5 block text-left font-medium text-black dark:text-white">
-                    Insurance ID *
+                    {process.env.INSURANCE_ID}
                   </label>
                   <div className="relative">
                     <input
@@ -237,26 +238,7 @@ const CoverageEligibilityRequest = () => {
                 </div>
               </div>
             </>
-          ) : (
-            <>
-              {/* <p className="mt-3 text-center">OR</p>
-              <div className="mt-3 text-center">
-                <a
-                  className="cursor-pointer underline"
-                  onClick={() => {
-                    navigate('/coverage-eligibility-request', {
-                      state:
-                        providerDetails.id || providerDetails.name !== undefined
-                          ? providerDetails
-                          : sendProviderDetails,
-                    });
-                  }}
-                >
-                  + Add health plan
-                </a>
-              </div> */}
-            </>
-          )}
+          ) : null}
         </div>
       </div>
       <div className="mb-5 mt-5">
@@ -273,7 +255,7 @@ const CoverageEligibilityRequest = () => {
             }}
             className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
           >
-            Check coverage eligibility
+            {process.env.CHECK_COVERAGE_ELIGIBILITY}
           </button>
         ) : (
           <LoadingButton />

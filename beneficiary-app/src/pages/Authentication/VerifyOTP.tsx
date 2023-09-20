@@ -36,26 +36,28 @@ const VerifyOTP = () => {
         console.log(searchUser);
         if (searchUser?.data?.length !== 0) {
           navigate('/home', { state: filter });
+          toast.success('OTP verified successfully!', {
+            position: toast.POSITION.TOP_CENTER,
+          });
         } else {
           navigate('/signup');
+          toast.success('OTP verified successfully!', {
+            position: toast.POSITION.TOP_CENTER,
+          });
         }
       }
     } catch (error: any) {
-      console.log(error);
       setLoading(false);
       if (error.response.status === 400) {
-        toast.info(error.response.data.message, {
+        toast.error('Enter valid OTP!', {
           position: toast.POSITION.TOP_CENTER,
         });
-        // navigate('/home', { state: filter });
-        navigate('/signup');
       }
     }
   };
 
   const handleOTPchange = (e: any) => {
     const inputValue = e.target.value;
-    // Check if the input contains exactly 10 numeric characters
     const isValidInput = /^\d{6}$/.test(inputValue);
     setIsValid(isValidInput);
     setOTP(inputValue);
@@ -75,8 +77,6 @@ const VerifyOTP = () => {
       toast.error('Please try again!');
     }
   };
-
-  console.log(verifyOTPrequestBody.mobile);
 
   return (
     <div className="w-full border-stroke bg-white dark:border-strokedark xl:w-1/2 xl:border-l-2">

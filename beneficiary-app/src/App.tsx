@@ -11,8 +11,8 @@ import CoverageEligibility from './pages/ViewCoverageEligibilityDetails/Coverage
 import InitiateNewClaimRequest from './pages/InitiateNewClaimRequest/InitiateNewClaimRequest';
 import ViewClaimRequestDetails from './pages/ViewClaimRequestDetails/ViewClaimRequestDetails';
 import CoverageEligibilityRequest from './pages/CoverageEligibilityRequest/CoverageEligibilityRequest';
-import RequestSuccessPage from './pages/CoverageEligibilityRequest/RequestSuccessPage';
 import PreAuthRequest from './pages/InitiatePreAuthRequest/PreAuthRequest';
+import RequestSuccess from './pages/InitiateNewClaimRequest/RequestSuccess';
 
 const App = () => {
   const [loading, setLoading] = useState<boolean>(true);
@@ -52,7 +52,7 @@ const App = () => {
             path="/view-claim-request"
             element={<ViewClaimRequestDetails />}
           />
-          <Route path="/request-success" element={<RequestSuccessPage />} />
+          <Route path="/request-success" element={<RequestSuccess />} />
         </Route>
       </Routes>
     </>
