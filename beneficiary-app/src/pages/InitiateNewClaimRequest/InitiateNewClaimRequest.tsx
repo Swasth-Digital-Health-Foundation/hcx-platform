@@ -4,6 +4,7 @@ import { handleFileChange } from '../../utils/attachmentSizeValidation';
 import { generateOutgoingRequest } from '../../services/hcxMockService';
 import LoadingButton from '../../components/LoadingButton';
 import { toast } from 'react-toastify';
+import strings from '../../utils/strings';
 
 const InitiateNewClaimRequest = () => {
   const navigate = useNavigate();
@@ -98,7 +99,7 @@ const InitiateNewClaimRequest = () => {
   return (
     <div className="w-full pt-2 sm:p-12.5 xl:p-1">
       <h2 className="mb-4 text-2xl font-bold text-black dark:text-white sm:text-title-xl2">
-        New claim request
+        {strings.NEW_CLAIM_REQUEST}
       </h2>
       <div className="rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
         {claimRequestDetails.map((ele: any, index: any) => {
@@ -114,10 +115,10 @@ const InitiateNewClaimRequest = () => {
       </div>
       <div className="mt-4 rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
         <h2 className="text-bold text-base font-bold text-black dark:text-white">
-          Treatment & billing details :
+          {strings.TREATMENT_AND_BILLING_DETAILS}
         </h2>
         <label className="mb-2.5 block text-left font-medium text-black dark:text-white">
-          Service type :
+          {strings.SERVICE_TYPE}
         </label>
         <div className="relative z-20 bg-white dark:bg-form-input">
           <select
@@ -148,7 +149,7 @@ const InitiateNewClaimRequest = () => {
         </div>
         <div className="mt-4 items-center">
           <h2 className="text-1xl sm:text-title-xl1 mb-4 mt-4 flex w-50 font-bold text-black dark:text-white">
-            Bill amount :
+            {strings.BILL_AMOUNT}
           </h2>
           <input
             required
@@ -163,10 +164,10 @@ const InitiateNewClaimRequest = () => {
       </div>
       <div className="mt-4 rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
         <h2 className="text-1xl mb-4 font-bold text-black dark:text-white sm:text-title-xl2">
-          Supporting documents :
+          {strings.SUPPORTING_DOCS}
         </h2>
         <label className="mb-2.5 block text-left font-medium text-black dark:text-white">
-          Document type :
+          {strings.DOC_TYPE}
         </label>
         <div className="relative z-20 mb-4 bg-white dark:bg-form-input">
           <select
@@ -244,7 +245,7 @@ const InitiateNewClaimRequest = () => {
           <div>OR</div>
           <div>
             <label htmlFor="actual-btn" className="upload underline">
-              Upload documents
+              {strings.UPLOAD_DOCS}
             </label>
             <input
               hidden
@@ -275,7 +276,7 @@ const InitiateNewClaimRequest = () => {
                     className="text-red underline"
                     onClick={() => handleDelete(file?.name)}
                   >
-                    Delete
+                    {strings.DELETE}
                   </a>
                 </div>
               );
@@ -293,7 +294,7 @@ const InitiateNewClaimRequest = () => {
             disabled={false}
             onClick={(event: any) => {
               event.preventDefault();
-              submitClaim()
+              submitClaim();
               // navigate('/view-claim-request', {
               //   state: { initiateClaimRequestBody },
               // });

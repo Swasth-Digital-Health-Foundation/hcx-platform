@@ -34,4 +34,11 @@ export default {
   CHECK_COVERAGE_ELIGIBILITY: 'Check coverage eligibility',
   PROVIDE_DETAILS_FOR_NEW_CLAIM: 'Provide details to initiate claim request',
   INITIATE_CLAIM_REQUEST: 'Initiate claim request',
+  NEW_CLAIM_REQUEST: 'New claim request',
+  TREATMENT_AND_BILLING_DETAILS: 'Treatment & billing details :',
+  BILL_AMOUNT: 'Bill amount :',
+  SUPPORTING_DOCS: 'Supporting documents :',
+  DOC_TYPE: 'Document type :',
+  UPLOAD_DOCS: 'Upload documents',
+  DELETE: 'Delete',
 };
