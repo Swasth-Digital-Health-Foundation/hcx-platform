@@ -53,11 +53,13 @@ const InitiateNewClaimRequest = () => {
     },
   };
 
+  console.log(initiateClaimRequestBody)
+
   const submitClaim = async () => {
     try {
       setLoading(true);
       const submit = await generateOutgoingRequest(
-        'claim/submit',
+        'create/claim/submit',
         initiateClaimRequestBody
       );
       console.log(submit);
@@ -302,7 +304,7 @@ const InitiateNewClaimRequest = () => {
             type="submit"
             className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
           >
-            Submit claim
+            {strings.SUBMIT_CLAIM}
           </button>
         ) : (
           <LoadingButton />

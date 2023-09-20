@@ -2,7 +2,7 @@ import axios from 'axios';
 
 async function generateOutgoingRequest(method: any, payload: any) {
   const response = await axios.post(
-    `${process.env.hcx_mock_service}/create/${method}`,
+    `${process.env.hcx_mock_service}/${method}`,
     payload
   );
   return response;

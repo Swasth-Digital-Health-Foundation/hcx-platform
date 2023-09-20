@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { handleFileChange } from '../../utils/attachmentSizeValidation';
+import strings from '../../utils/strings';
 
 const PreAuthRequest = () => {
   const navigate = useNavigate();
@@ -79,7 +80,7 @@ const PreAuthRequest = () => {
   return (
     <div className="w-full pt-2 sm:p-12.5 xl:p-1">
       <h2 className="mb-4 text-2xl font-bold text-black dark:text-white sm:text-title-xl2">
-        New pre-auth request
+        {strings.NEW_PREAUTH_REQUEST}
       </h2>
       <div className="rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
         {preauthRequestDetails.map((ele: any) => {
@@ -95,10 +96,10 @@ const PreAuthRequest = () => {
       </div>
       <div className="mt-4 rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
         <h2 className="text-bold mb-4 text-base font-bold text-black dark:text-white">
-          Treatment & billing details :
+          {strings.TREATMENT_AND_BILLING_DETAILS}
         </h2>
         <label className="mb-2.5 block text-left font-medium text-black dark:text-white">
-          Service type :
+          {strings.SERVICE_TYPE}
         </label>
         <div className="relative z-20 bg-white dark:bg-form-input">
           <select
@@ -128,7 +129,7 @@ const PreAuthRequest = () => {
         </div>
         <div className="mt-4 items-center">
           <h2 className="text-1xl sm:text-title-xl1 mb-4 mt-4 flex w-50 font-bold text-black dark:text-white">
-            Estimated bill amount :
+            {strings.ESTIMATED_BILL_AMOUNT}
           </h2>
           <input
             required
@@ -142,10 +143,10 @@ const PreAuthRequest = () => {
       </div>
       <div className="mt-4 rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
         <h2 className="text-1xl mb-4 font-bold text-black dark:text-white sm:text-title-xl2">
-          Supporting documents :
+          {strings.SUPPORTING_DOCS}
         </h2>
         <label className="mb-2.5 block text-left font-medium text-black dark:text-white">
-          Document type :
+          {strings.DOC_TYPE}
         </label>
         <div className="relative z-20 mb-4 bg-white dark:bg-form-input">
           <select
@@ -222,7 +223,7 @@ const PreAuthRequest = () => {
           <div>OR</div>
           <div>
             <label htmlFor="actual-btn" className="upload underline">
-              Upload documents
+              {strings.UPLOAD_DOCS}
             </label>
             <input
               hidden
@@ -242,7 +243,7 @@ const PreAuthRequest = () => {
           </div>
         </div>
       </div>
-      
+
       <div className="mb-5 mt-4">
         <button
           onClick={(event: any) => {
@@ -252,7 +253,7 @@ const PreAuthRequest = () => {
           type="submit"
           className="align-center mt-8 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray"
         >
-          Submit pre-auth
+          {strings.SUBMIT_PREAUTH}
         </button>
       </div>
     </div>

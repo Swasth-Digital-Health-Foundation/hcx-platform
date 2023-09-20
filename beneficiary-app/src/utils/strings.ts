@@ -41,4 +41,16 @@ export default {
   DOC_TYPE: 'Document type :',
   UPLOAD_DOCS: 'Upload documents',
   DELETE: 'Delete',
+  SUBMIT_CLAIM: 'Submit claim',
+  NEW_PREAUTH_REQUEST: 'New pre-auth request',
+  ESTIMATED_BILL_AMOUNT: 'Estimated bill amount :',
+  SUBMIT_PREAUTH: 'Submit pre-auth',
+  CLAIM_REQUEST_DETAILS: 'Claim request details :',
+  NEXT_STEP: 'Next step :',
+  POLICYHOLDER_CONSENT: 'Policyholder consent :',
+  ENTER_OTP_TO_VERIFY_CLAIM:
+    'Please enter OTP shared by payor to verify claim :',
+  INITIATE_PREAUTH_REQUEST: 'Initiate pre-auth request',
+  INITIATE_NEW_CLAIM_REQUEST: 'Initiate new claim request',
+  PROCEED: 'Proceed',
 };

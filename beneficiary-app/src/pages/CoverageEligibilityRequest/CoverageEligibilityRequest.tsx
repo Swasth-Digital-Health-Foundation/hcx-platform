@@ -70,7 +70,7 @@ const CoverageEligibilityRequest = () => {
     try {
       setIsLoading(true);
       let response = await generateOutgoingRequest(
-        'coverageeligibility/check',
+        'create/coverageeligibility/check',
         payload
       );
       console.log(response);

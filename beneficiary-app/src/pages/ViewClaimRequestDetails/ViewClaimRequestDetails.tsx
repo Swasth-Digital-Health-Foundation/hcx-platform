@@ -1,5 +1,6 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
+import strings from '../../utils/strings';
 
 const ViewClaimRequestDetails = () => {
   const location = useLocation();
@@ -58,7 +59,7 @@ const ViewClaimRequestDetails = () => {
     <>
       <div className="flex items-center justify-between">
         <h2 className="sm:text-title-xl1 mb-4 text-2xl font-semibold text-black dark:text-white">
-          Claim request details :
+          {strings.CLAIM_REQUEST_DETAILS}
         </h2>
       </div>
       <div className="rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
@@ -77,7 +78,7 @@ const ViewClaimRequestDetails = () => {
       </div>
       <div className="flex items-center justify-between">
         <h2 className="sm:text-title-xl1 text-1xl mt-2 mb-4 font-semibold text-black dark:text-white">
-          Treatment and billing details :
+          {strings.TREATMENT_AND_BILLING_DETAILS}
         </h2>
       </div>
       <div className="rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
@@ -96,7 +97,7 @@ const ViewClaimRequestDetails = () => {
       </div>
       <div className="flex items-center justify-between">
         <h2 className="sm:text-title-xl1 text-1xl mt-2 mb-4 font-semibold text-black dark:text-white">
-          Supporting documents :
+          {strings.SUPPORTING_DOCS}
         </h2>
       </div>
       <div className="rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
@@ -115,16 +116,16 @@ const ViewClaimRequestDetails = () => {
       </div>
       <div className="flex items-center justify-between">
         <h2 className="sm:text-title-xl1 text-1xl mt-2 mb-4 font-semibold text-black dark:text-white">
-          Next step :
+          {strings.NEXT_STEP}
         </h2>
       </div>
       <div className="rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
         <div>
           <h2 className="text-bold text-base font-bold text-black dark:text-white">
-            Policyholder consent :
+            {strings.POLICYHOLDER_CONSENT}
           </h2>
           <label className="font-small mb-2.5 block text-left text-black dark:text-white">
-            Please enter OTP shared by payor to verify claim :
+            {strings.ENTER_OTP_TO_VERIFY_CLAIM}
           </label>
         </div>
         <div>
@@ -148,7 +149,7 @@ const ViewClaimRequestDetails = () => {
             type="submit"
             className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray"
           >
-            Verify
+            {strings.VERIFY_OTP_BUTTON}
           </button>
         </div>
       </div>

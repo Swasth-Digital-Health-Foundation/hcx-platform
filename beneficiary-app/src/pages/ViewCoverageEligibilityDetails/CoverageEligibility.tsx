@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import strings from '../../utils/strings';
 
 const CoverageEligibility = () => {
   const navigate = useNavigate();
@@ -16,10 +17,6 @@ const CoverageEligibility = () => {
     },
     {
       key: 'Participant code :',
-      value: '',
-    },
-    {
-      key: 'Select insurance plan :',
       value: '',
     },
     {
@@ -44,7 +41,7 @@ const CoverageEligibility = () => {
       <div className="rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
         <div className="flex items-center justify-between">
           <h2 className="sm:text-title-xl1 mb-4 text-2xl font-semibold text-black dark:text-white">
-            Claim request details : ID
+            {strings.CLAIM_REQUEST_DETAILS} ID
           </h2>
         </div>
         <div>
@@ -64,7 +61,7 @@ const CoverageEligibility = () => {
 
       <div className="mt-4">
         <h2 className="text-bold text-1xl mt-1 font-bold text-black dark:text-white">
-          Next step :
+          {strings.NEXT_STEP}
         </h2>
         <div className="mb-3 mt-4 flex items-center">
           <input
@@ -79,7 +76,7 @@ const CoverageEligibility = () => {
             htmlFor="default-radio-1"
             className="text-gray-900 dark:text-gray-300 ml-2 text-sm font-medium"
           >
-            Initiate pre-auth request
+            {strings.INITIATE_PREAUTH_REQUEST}
           </label>
         </div>
         <div className="mt-2 mb-2 flex items-center">
@@ -95,7 +92,7 @@ const CoverageEligibility = () => {
             htmlFor="default-radio-2"
             className="text-gray-900 dark:text-gray-300 ml-2 text-sm font-medium"
           >
-            Initiate new claim request
+            {strings.INITIATE_NEW_CLAIM_REQUEST}
           </label>
         </div>
 
@@ -112,7 +109,7 @@ const CoverageEligibility = () => {
             }}
             className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
           >
-            Proceed
+            {strings.PROCEED}
           </button>
         </div>
       </div>
