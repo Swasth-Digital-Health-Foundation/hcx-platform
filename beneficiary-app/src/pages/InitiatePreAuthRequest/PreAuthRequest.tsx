@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { handleFileChange } from '../../utils/attachmentSizeValidation';
 import strings from '../../utils/strings';
+import LoadingButton from '../../components/LoadingButton';
 
 const PreAuthRequest = () => {
   const navigate = useNavigate();
@@ -61,21 +62,51 @@ const PreAuthRequest = () => {
     }
   };
 
-  const initiateClaimRequestBody = {
-    // ...location.state?.initiateClaimRequestBody,
-    billingDeatils: {
-      serviceType: serviceType,
-      billAmount: amount,
-    },
-    supportingDocuments: {
-      [documentType]:
-        FileLists !== undefined
-          ? FileLists.map((ele: any) => {
-              return ele.name;
-            })
-          : [],
-    },
-  };
+  // const initiateClaimRequestBody = {
+  //   ...location.state?.initiateClaimRequestBody,
+  //   billingDeatils: {
+  //     serviceType: serviceType,
+  //     billAmount: amount,
+  //   },
+  //   supportingDocuments: {
+  //     [documentType]:
+  //       FileLists !== undefined
+  //         ? FileLists.map((ele: any) => {
+  //             return ele.name;
+  //           })
+  //         : [],
+  //   },
+  // };
+
+  // const claimRequestDetails: any = [
+  //   {
+  //     key: 'Provider name :',
+  //     value: data?.initiateClaimRequestBody?.providerName || providerName,
+  //   },
+  //   {
+  //     key: 'Participant code :',
+  //     value:
+  //       data?.initiateClaimRequestBody?.participantCode ||
+  //       dataFromCard?.participant_code,
+  //   },
+  //   {
+  //     key: 'Treatment/Service type :',
+  //     value:
+  //       data?.initiateClaimRequestBody?.serviceType ||
+  //       dataFromCard?.request_type,
+  //   },
+  //   {
+  //     key: 'Payor name :',
+  //     value: data?.initiateClaimRequestBody?.payor || '',
+  //   },
+  //   {
+  //     key: 'Insurance ID :',
+  //     value:
+  //       data?.initiateClaimRequestBody?.insuranceId ||
+  //       dataFromCard?.insurance_id ||
+  //       'null',
+  //   },
+  // ];
 
   return (
     <div className="w-full pt-2 sm:p-12.5 xl:p-1">
@@ -133,7 +164,7 @@ const PreAuthRequest = () => {
           </h2>
           <input
             required
-            type="text"
+            type="number"
             placeholder="Enter amount"
             className={
               'w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
@@ -242,19 +273,46 @@ const PreAuthRequest = () => {
             />
           </div>
         </div>
+        {isSuccess ? (
+          <div>
+            {FileLists.map((file: any) => {
+              return (
+                <div className="flex items-center justify-between">
+                  <div className="mb-2.5 mt-4 block text-left text-sm text-black dark:text-white">
+                    {file?.name}
+                  </div>
+                  <a
+                    className="text-red underline"
+                    onClick={() => handleDelete(file?.name)}
+                  >
+                    {strings.DELETE}
+                  </a>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="mb-2.5 mt-4 block text-left text-xs text-red dark:text-red">
+            {fileErrorMessage}
+          </div>
+        )}
       </div>
-
       <div className="mb-5 mt-4">
-        <button
-          onClick={(event: any) => {
-            // event.preventDefault();
-            navigate('/request-success', { state: preAuth });
-          }}
-          type="submit"
-          className="align-center mt-8 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray"
-        >
-          {strings.SUBMIT_PREAUTH}
-        </button>
+        {!loading ? (
+          <button
+            disabled={false}
+            onClick={(event: any) => {
+              event.preventDefault();
+              // submitClaim();
+            }}
+            type="submit"
+            className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
+          >
+            {strings.SUBMIT_CLAIM}
+          </button>
+        ) : (
+          <LoadingButton />
+        )}
       </div>
     </div>
   );

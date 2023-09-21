@@ -17,6 +17,7 @@
     "-": "^0.0.1",
     "apexcharts": "^3.37.0",
     "axios": "^1.5.0",
+    "dayjs": "^1.11.10",
     "flatpickr": "^4.6.13",
     "html5-qrcode": "^2.3.8",
     "http-proxy-middleware": "^2.0.6",

@@ -4,13 +4,15 @@ import successImage from '../images/Group 49576.png';
 const RequestSuccess = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  console.log(location.state)
+  const mobile = location.state?.mobileNumber;
   return (
     <>
       <div className="flex-col justify-center p-5">
         <img className="m-auto" src={successImage} alt="success icon" />
       </div>
       <p className="text-center">
-        Congratulations! You've initiated the {location.state} eligibility
+        Congratulations! You've initiated the {location.state?.text}
         request with your insurer. Your insurer will review and respond to your
         request. You can track the request status under active claims tab on
         homepage.
@@ -18,7 +20,7 @@ const RequestSuccess = () => {
       <button
         onClick={(event: any) => {
           event.preventDefault();
-          navigate('/home');
+          navigate('/home', { state: mobile });
         }}
         type="submit"
         className="align-center mt-8 flex w-full justify-center rounded bg-primary py-3 font-medium text-gray"

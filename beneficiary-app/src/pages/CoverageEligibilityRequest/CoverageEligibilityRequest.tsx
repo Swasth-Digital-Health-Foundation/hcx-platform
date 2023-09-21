@@ -51,6 +51,9 @@ const CoverageEligibilityRequest = () => {
     },
   };
 
+  console.log(location.state);
+  // console.log(_.get(location, 'state.filter.filters.mobile.eq'))
+
   //beneficiary search
   useEffect(() => {
     const getPatientName = async () => {
@@ -76,7 +79,12 @@ const CoverageEligibilityRequest = () => {
       console.log(response);
       setIsLoading(false);
       if (response?.status === 202) {
-        navigate('/request-success', { state: 'the coverage eligibility' });
+        navigate('/request-success', {
+          state: {
+            text: 'the coverage eligibility',
+            mobileNumber: _.get(location, 'state.mobile'),
+          },
+        });
       }
     } catch (error) {
       setIsLoading(false);
@@ -256,7 +264,7 @@ const CoverageEligibilityRequest = () => {
             }}
             className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
           >
-            {strings.CHECK_COVERAGE_ELIGIBILITY}
+            {strings.INITIATE_COVERAGE_ELIGIBILITY}
           </button>
         ) : (
           <LoadingButton />

@@ -31,7 +31,7 @@ export default {
   SERVICE_TYPE: 'Treatment/Service type: *',
   SELECT_INSURANCE_PLAN: 'Select insurance plan: *',
   INSURANCE_DETAILS: 'Insurance details',
-  CHECK_COVERAGE_ELIGIBILITY: 'Check coverage eligibility',
+  INITIATE_COVERAGE_ELIGIBILITY: 'Initiate coverage eligibility request',
   PROVIDE_DETAILS_FOR_NEW_CLAIM: 'Provide details to initiate claim request',
   INITIATE_CLAIM_REQUEST: 'Initiate claim request',
   NEW_CLAIM_REQUEST: 'New claim request',

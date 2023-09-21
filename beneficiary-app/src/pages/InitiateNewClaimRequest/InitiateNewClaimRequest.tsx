@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { handleFileChange } from '../../utils/attachmentSizeValidation';
 import { generateOutgoingRequest } from '../../services/hcxMockService';
 import LoadingButton from '../../components/LoadingButton';
 import { toast } from 'react-toastify';
 import strings from '../../utils/strings';
+import { generateToken, searchParticipant } from '../../services/hcxService';
 
 const InitiateNewClaimRequest = () => {
   const navigate = useNavigate();
@@ -21,12 +22,17 @@ const InitiateNewClaimRequest = () => {
 
   const [loading, setLoading] = useState(false);
 
+  const [token, setToken] = useState<string>('');
+  const [providerName, setProviderName] = useState<string>('');
+
   let FileLists: any;
   if (selectedFile !== undefined) {
     FileLists = Array.from(selectedFile);
   }
 
   const data = location.state;
+
+  const dataFromCard = location.state;
 
   const handleDelete = (name: any) => {
     if (selectedFile !== undefined) {
@@ -53,7 +59,36 @@ const InitiateNewClaimRequest = () => {
     },
   };
 
-  console.log(initiateClaimRequestBody)
+  const payload = {
+    filters: {
+      participant_code: { eq: location.state?.participant_code },
+    },
+  };
+
+  const tokenRequestBody = {
+    username: process.env.TOKEN_GENERATION_USERNAME,
+    password: process.env.TOKEN_GENERATION_PASSWORD,
+  };
+
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+
+  useEffect(() => {
+    const search = async () => {
+      try {
+        const tokenResponse = await generateToken(tokenRequestBody);
+        setToken(tokenResponse.data?.access_token);
+        const response = await searchParticipant(payload, config);
+        setProviderName(response.data?.participants[0].participant_name);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    search();
+  }, []);
 
   const submitClaim = async () => {
     try {
@@ -64,29 +99,32 @@ const InitiateNewClaimRequest = () => {
       );
       console.log(submit);
       setLoading(false);
-      navigate('/request-success', { state: 'new claim' });
+      navigate('/request-success', { state: { text: 'new claim' } });
     } catch (error) {
       console.log(error);
       setLoading(false);
       toast.error('Faild to submit claim, Please try again');
     }
   };
+
+  console.log(dataFromCard)
+
   const claimRequestDetails: any = [
     {
       key: 'Provider name :',
-      value: data?.initiateClaimRequestBody?.providerName || '',
+      value: data?.initiateClaimRequestBody?.providerName || providerName,
     },
     {
       key: 'Participant code :',
-      value: data?.initiateClaimRequestBody?.participantCode || '',
-    },
-    {
-      key: 'Select insurance plan :',
-      value: data?.initiateClaimRequestBody?.insurancePlan || '',
+      value:
+        data?.initiateClaimRequestBody?.participantCode ||
+        dataFromCard?.participant_code,
     },
     {
       key: 'Treatment/Service type :',
-      value: data?.initiateClaimRequestBody?.serviceType || '',
+      value:
+        data?.initiateClaimRequestBody?.serviceType ||
+        dataFromCard?.request_type,
     },
     {
       key: 'Payor name :',
@@ -94,7 +132,10 @@ const InitiateNewClaimRequest = () => {
     },
     {
       key: 'Insurance ID :',
-      value: data?.initiateClaimRequestBody?.insuranceId || '',
+      value:
+        data?.initiateClaimRequestBody?.insuranceId ||
+        dataFromCard?.insurance_id ||
+        'null',
     },
   ];
 
@@ -297,9 +338,6 @@ const InitiateNewClaimRequest = () => {
             onClick={(event: any) => {
               event.preventDefault();
               submitClaim();
-              // navigate('/view-claim-request', {
-              //   state: { initiateClaimRequestBody },
-              // });
             }}
             type="submit"
             className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
