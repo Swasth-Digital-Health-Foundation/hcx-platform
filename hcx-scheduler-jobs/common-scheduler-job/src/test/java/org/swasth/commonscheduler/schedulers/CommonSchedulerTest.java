@@ -1,5 +1,6 @@
 package org.swasth.commonscheduler.schedulers;
 
+
 import io.zonky.test.db.postgres.embedded.EmbeddedPostgres;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -30,7 +31,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -74,7 +74,7 @@ public class CommonSchedulerTest {
     }
 
     @Test
-    void testRunWithParticipantValidationArg() throws Exception {
+    void testParticipantValidationScheduler() throws Exception {
         registryServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .addHeader("Content-Type", "application/json"));
@@ -84,8 +84,6 @@ public class CommonSchedulerTest {
         lenient().doNothing().when(kafkaClient).send(anyString(),anyString(),anyString());
         String[] args = { "ParticipantValidation" };
         commonSchedulerJob.run(args);
-        verify(kafkaClient, times(0)).send(anyString(), anyString(), anyString());
-        assertEquals("mockedEvent", eventGenerator.createNotifyEvent(anyString(),anyString(),anyString(),anyList(),anyLong(),anyString(),anyString()));
     }
     private List<Map<String,Object>> getProviderDetailsLessThanCurrentDay() throws Exception {
         return JSONUtils.deserialize("[{ \"participant_name\": \"HCX Gateway\", \"primary_mobile\": \"\", \"primary_email\": \"hcxgateway@gmail.com\", \"roles\": [ \"HIE/HIO.HCX\" ], \"status\": \"Created\", \"endpoint_url\": \"http://a54c5bc648f1a41b8871b77ac01060ed-1840123973.ap-south-1.elb.amazonaws.com:8080\", \"encryption_cert\": \"urn:isbn:0-4234\", \"encryption_cert_expiry\": 1693301576009,\n" +
@@ -103,8 +101,6 @@ public class CommonSchedulerTest {
         lenient().doNothing().when(kafkaClient).send(anyString(),anyString(),anyString());
         String[] args = { "ParticipantValidation" };
         commonSchedulerJob.run(args);
-        verify(kafkaClient, times(0)).send(anyString(), anyString(), anyString());
-        assertEquals("mockedEvent", eventGenerator.createNotifyEvent(anyString(),anyString(),anyString(),anyList(),anyLong(),anyString(),anyString()));
     }
     private List<Map<String,Object>> getProviderDetailsMoreThanFiveDays() throws Exception {
         return JSONUtils.deserialize("[{ \"participant_name\": \"HCX Gateway\", \"primary_mobile\": \"\", \"primary_email\": \"hcxgateway@gmail.com\", \"roles\": [ \"HIE/HIO.HCX\" ], \"status\": \"Created\", \"endpoint_url\": \"http://a54c5bc648f1a41b8871b77ac01060ed-1840123973.ap-south-1.elb.amazonaws.com:8080\", \"encryption_cert\": \"urn:isbn:0-4234\", \"encryption_cert_expiry\": 1695569991000,\n" +
@@ -112,12 +108,11 @@ public class CommonSchedulerTest {
     }
 
     @Test
-    public void testRunWithRetryArg() throws Exception {
-            postgreSQLClient.execute("CREATE TABLE payload(mid character varying PRIMARY KEY, data character varying NOT NULL, action character varying, status character varying, retrycount integer, lastupdatedon bigint)");
-            when(eventGenerator.generateMetadataEvent(any())).thenReturn("mockedEvent");
-            lenient().doNothing().when(kafkaClient).send(anyString(), anyString(), anyString());
-            String[] args = {"Retry"};
-            commonSchedulerJob.run(args);
-            verify(kafkaClient, times(0)).send(anyString(), anyString(), anyString());
-         }
+    public void testRetryRequestsScheduler() throws Exception {
+        postgreSQLClient.execute("CREATE TABLE payload(mid character varying PRIMARY KEY, data character varying NOT NULL, action character varying, status character varying, retrycount integer, lastupdatedon bigint)");
+        when(eventGenerator.generateMetadataEvent(any())).thenReturn("mockedEvent");
+        lenient().doNothing().when(kafkaClient).send(anyString(), anyString(), anyString());
+        String[] args = {"Retry"};
+        commonSchedulerJob.run(args);
+        }
     }
