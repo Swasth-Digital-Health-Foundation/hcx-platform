@@ -4,13 +4,17 @@ import { useEffect, useState } from 'react';
 import ActiveClaimCycleCard from '../../components/ActiveClaimCycleCard';
 import strings from '../../utils/strings';
 import { generateOutgoingRequest } from '../../services/hcxMockService';
+import { postRequest } from '../../services/registryService';
+import * as _ from 'lodash';
 
 const Home = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [qrCodeData, setQrCodeData] = useState<any>();
+  const [activeRequests, setActiveRequests] = useState<any>();
+  const [userInformation, setUserInformation] = useState<any>([]);
   const onNewScanResult = (decodedText: any, decodedResult: any) => {
-    console.log(decodedResult)
+    console.log(decodedResult);
     setQrCodeData(decodedText);
   };
   if (qrCodeData !== undefined) {
@@ -19,10 +23,18 @@ const Home = () => {
       state: { obj: obj, filters: location.state },
     });
   }
-  const mobile = location?.state?.filters?.mobile?.eq;
+
+  const mobile = _.get(location, 'state.filters.mobile.eq', undefined);
 
   const requestPayload = {
-    mobile: '6363062395',
+    mobile: mobile,
+  };
+
+  const filter = {
+    entityType: ['Beneficiary'],
+    filters: {
+      mobile: { eq: requestPayload?.mobile },
+    },
   };
 
   useEffect(() => {
@@ -32,56 +44,30 @@ const Home = () => {
           'claim/list',
           requestPayload
         );
-        console.log(response);
+        setActiveRequests(response.data);
       } catch (err) {
         console.log(err);
       }
     };
+    const search = async () => {
+      try {
+        const searchUser = await postRequest('/search', filter);
+        console.log(searchUser);
+        setUserInformation(searchUser.data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    search();
     getActivePlans();
   }, []);
 
-  const response = {
-    preauth: [],
-    'Total count': 4,
-    claim: [
-      {
-        date: '1695188829847',
-        insurance_id: null,
-        claimType: 'OPD',
-        claimID: 'df6da60e-5bd9-475d-8d96-ffc23e52566a',
-        status: 'Pending',
-      },
-      {
-        date: '1695188992056',
-        insurance_id: null,
-        claimType: 'OPD',
-        claimID: '4e03b18b-e39a-40e2-85af-aa5e5548a784',
-        status: 'Pending',
-      },
-      {
-        date: '1695208599972',
-        insurance_id: null,
-        claimType: 'OPD',
-        claimID: '9cd885ef-fe87-4330-8b18-cc32f84622f2',
-        status: 'Pending',
-      },
-    ],
-    coverageEligibility: [
-      {
-        date: '1695188541776',
-        insurance_id: '12345678',
-        claimType: 'OPD',
-        claimID: '9fef61c7-d1f8-4062-a364-fa64f983d3c2',
-        status: 'Pending',
-      },
-    ],
-  };
   return (
     <div>
       <div className="flex justify-between">
         <div className="">
           <h1 className="text-1xl font-bold text-black dark:text-white">
-            {strings.WELCOME_TEXT} Ajit
+            {strings.WELCOME_TEXT} {userInformation[0]?.name || ''}
           </h1>
         </div>
       </div>
@@ -118,7 +104,7 @@ const Home = () => {
           {strings.YOUR_ACTIVE_CYCLE} (5)
         </h1>
         <div className="border-gray-300 my-4 border-t"></div>
-        {response.claim.map((ele: any) => {
+        {activeRequests?.claim.map((ele: any) => {
           return (
             <div className="mt-2">
               <ActiveClaimCycleCard
@@ -133,7 +119,7 @@ const Home = () => {
           );
         })}
         <div className="mt-2">
-          {response.coverageEligibility.map((ele: any) => {
+          {activeRequests?.coverageEligibility.map((ele: any) => {
             return (
               <div className="mt-2">
                 <ActiveClaimCycleCard
@@ -149,7 +135,7 @@ const Home = () => {
           })}
         </div>
         <div className="mt-2">
-          {response.preauth.map((ele: any) => {
+          {activeRequests?.preauth.map((ele: any) => {
             return (
               <div className="mt-2">
                 <ActiveClaimCycleCard

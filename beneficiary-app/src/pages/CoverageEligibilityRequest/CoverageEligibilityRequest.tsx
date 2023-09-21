@@ -27,7 +27,7 @@ const CoverageEligibilityRequest = () => {
   if (insurancePlan === 'none') {
     payload = {
       patientName: patientName,
-      mobile: location?.state?.filters?.filters?.mobile?.eq || '',
+      mobile: _.get(location, 'state.filters.filters.mobile.eq') || '',
       serviceType: serviceType,
       insurancePlan: insurancePlan,
       payor: payor,
@@ -37,7 +37,7 @@ const CoverageEligibilityRequest = () => {
   } else {
     payload = {
       patientName: patientName,
-      mobile: location?.state?.filters?.filters?.mobile?.eq || '',
+      mobile: _.get(location, 'state.filters.filters.mobile.eq') || '',
       serviceType: serviceType,
       insurancePlan: insurancePlan,
       ...providerDetails,

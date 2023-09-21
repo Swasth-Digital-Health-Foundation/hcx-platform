@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { generateToken, hcxPostRequest } from '../../services/hcxService';
+import { generateToken, searchParticipant } from '../../services/hcxService';
 import LoadingButton from '../../components/LoadingButton';
 import { toast } from 'react-toastify';
 import * as _ from 'lodash';
@@ -42,15 +42,11 @@ const NewClaim = () => {
   };
 
   useEffect(() => {
-    let searchParticipant = async () => {
+    let search = async () => {
       try {
         const tokenResponse = await generateToken(tokenRequestBody);
         setToken(tokenResponse.data.access_token);
-        const response = await hcxPostRequest(
-          'participant/search',
-          payload,
-          config
-        );
+        const response = await searchParticipant(payload, config);
         setOpenDropdown(true);
         setSearchResults(response.data?.participants);
       } catch (error: any) {
@@ -59,7 +55,7 @@ const NewClaim = () => {
         // toast.error(_.get(error, 'response.data.error.message'))
       }
     };
-    searchParticipant();
+    search();
   }, [providerName]);
 
   const handleSelect = (result: any, participantCode: any) => {

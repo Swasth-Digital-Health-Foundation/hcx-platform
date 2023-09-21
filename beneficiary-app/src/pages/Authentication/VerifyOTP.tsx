@@ -30,7 +30,7 @@ const VerifyOTP = () => {
   const userExist = async () => {
     try {
       setLoading(true);
-      const otpResponse = await verifyOTP('verify/otp', verifyOTPrequestBody);
+      const otpResponse = await verifyOTP(verifyOTPrequestBody);
       console.log(otpResponse);
       if (otpResponse.status === 200) {
         const searchUser = await postRequest('/search', filter);
@@ -67,7 +67,7 @@ const VerifyOTP = () => {
 
   const resendOTP = async () => {
     try {
-      let response = await sendOTP('send/otp', mobileNumberPayload);
+      let response = await sendOTP(mobileNumberPayload);
       console.log(response);
       toast.success('OTP sent successfully!');
     } catch (err: any) {

@@ -1,8 +1,8 @@
 import axios from 'axios';
 
-async function hcxPostRequest(method: any, payload: any, config: any) {
+async function searchParticipant(payload: any, config?: any) {
   const response = await axios.post(
-    `${process.env.hcx_service}/${method}`,
+    `${process.env.hcx_service}/participant/search`,
     payload,
     config
   );
@@ -22,4 +22,4 @@ async function generateToken(payload: any) {
   return response;
 }
 
-export { hcxPostRequest, generateToken };
+export { searchParticipant, generateToken };

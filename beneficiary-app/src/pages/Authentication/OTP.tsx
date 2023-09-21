@@ -20,7 +20,7 @@ const OTP = () => {
   const formSubmit = async () => {
     try {
       setLoading(true);
-      let response = await sendOTP('send/otp', payload);
+      let response = await sendOTP(payload);
       console.log(response);
       toast.success('OTP sent successfully!');
       setTimeout(() => {
