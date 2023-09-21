@@ -74,7 +74,7 @@ public class CommonSchedulerTest {
     }
 
     @Test
-    void testRunWithParticipantValidationArg() throws Exception {
+    void testParticipantValidationScheduler() throws Exception {
         registryServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .addHeader("Content-Type", "application/json"));
