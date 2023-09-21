@@ -108,7 +108,7 @@ public class CommonSchedulerTest {
     }
 
     @Test
-    public void testRunWithRetryArg() throws Exception {
+    public void testRetryRequestsScheduler() throws Exception {
         postgreSQLClient.execute("CREATE TABLE payload(mid character varying PRIMARY KEY, data character varying NOT NULL, action character varying, status character varying, retrycount integer, lastupdatedon bigint)");
         when(eventGenerator.generateMetadataEvent(any())).thenReturn("mockedEvent");
         lenient().doNothing().when(kafkaClient).send(anyString(), anyString(), anyString());
