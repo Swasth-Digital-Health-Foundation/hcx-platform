@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.context.ActiveProfiles;
 import org.swasth.common.helpers.EventGenerator;
 import org.swasth.common.service.RegistryService;
@@ -26,9 +27,7 @@ import org.swasth.postgresql.PostgreSQLClient;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -38,6 +37,13 @@ import static org.mockito.Mockito.*;
 @SpringBootTest(classes ={ ParticipantValidationScheduler.class, CommonSchedulerJob.class, BaseScheduler.class})
 @Import(GenericConfiguration.class)
 @ActiveProfiles("test")
+@EmbeddedKafka(
+        partitions = 1,
+        controlledShutdown = false,
+        brokerProperties = {
+                "listeners=PLAINTEXT://localhost:9092",
+                "port=9092"
+        })
 public class CommonSchedulerTest {
     @Autowired
     private CommonSchedulerJob commonSchedulerJob;
