@@ -1,5 +1,5 @@
 export default {
-  WELCOME: 'Welcome to the HCX beneficiary app',
+  WELCOME: 'Welcome to the HCX beneficiary app -------------------',
   SIGNIN: 'Please sign in to your account.',
   ENTER_MOBILE_NUMBER: 'Enter your mobile no. to sign in :',
   TEN_DIGIT: '10-digit mobile no.',

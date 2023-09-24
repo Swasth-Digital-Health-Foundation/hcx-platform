@@ -36,7 +36,6 @@ const App = () => {
           pauseOnFocusLoss
           draggable
           pauseOnHover
-          theme="dark"
         />
       <Routes>
         <Route path="/" element={<Navigate to="/otp" />} />
