@@ -13,6 +13,7 @@ import { toast } from 'react-toastify';
 const ViewClaimRequestDetails = () => {
   const location = useLocation();
   const details = location.state;
+  console.log(details);
 
   const [token, setToken] = useState<string>('');
 
@@ -27,7 +28,6 @@ const ViewClaimRequestDetails = () => {
 
   const [activeRequests, setActiveRequests] = useState<any>([]);
 
-  const [entries, setEntries] = useState<any>([]);
   const participantCodePayload = {
     filters: {
       participant_code: { eq: location.state?.participantCode },
@@ -122,12 +122,12 @@ const ViewClaimRequestDetails = () => {
     },
   ];
 
-  // const supportingDocuments = [
-  //   {
-  //     key: 'Document type :',
-  //     value: details?.billingDeatils?.serviceType || '',
-  //   },
-  // ];
+  const supportingDocuments = [
+    {
+      key: 'Document type :',
+      value: details?.billingDeatils?.serviceType || '',
+    },
+  ];
 
   const getCommunicationRes = async () => {
     try {
@@ -174,11 +174,6 @@ const ViewClaimRequestDetails = () => {
         );
         setLoading(false);
         setActiveRequests(response.data?.entries);
-        // const filteredEntries = activeRequests.filter(
-        //   (entry: any) => entry.claimID === details?.claim_id
-        // );
-        // setEntries(filteredEntries);
-        console.log(response.data?.entries)
       } catch (err) {
         setLoading(false);
       }
@@ -186,11 +181,16 @@ const ViewClaimRequestDetails = () => {
     getActivePlans();
   }, []);
 
-  // useEffect(() => {
-  // }, []);
+  const [entries, setEntries] = useState([]);
 
-  // console.log(entries[0]?.supportingDocuments);
-  console.log(activeRequests)
+  useEffect(() => {
+    const filteredEntries = activeRequests.filter(
+      (entry: any) => entry.claimID === details?.claim_id
+    );
+    setEntries(filteredEntries);
+  }, []);
+
+  console.log(entries);
 
   return (
     <>
@@ -203,9 +203,9 @@ const ViewClaimRequestDetails = () => {
         <div>
           {claimRequestDetails.map((ele: any, index: any) => {
             return (
-              <div key={index + 1}>
+              <div key={index}>
                 <h2 className="text-bold text-base font-bold text-black dark:text-white">
-                  Document {ele.key + 1}
+                  {ele.key}
                 </h2>
                 <span className="text-base font-medium">{ele.value}</span>
               </div>
@@ -239,13 +239,13 @@ const ViewClaimRequestDetails = () => {
       </div>
       <div className="rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
         <div>
-          {entries[0]?.supportingDocuments.map((ele: any, index: any) => {
+          {supportingDocuments.map((ele: any) => {
             return (
               <>
                 <h2 className="text-bold text-base font-bold text-black dark:text-white">
-                  {index}
+                  {ele.key}
                 </h2>
-                <span className="text-base font-medium">{ele}</span> <br />
+                <span className="text-base font-medium">{ele.value}</span>
               </>
             );
           })}
