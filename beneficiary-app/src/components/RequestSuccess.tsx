@@ -12,7 +12,7 @@ const RequestSuccess = () => {
         <img className="m-auto" src={successImage} alt="success icon" />
       </div>
       <p className="text-center">
-        Congratulations! You've initiated the {location.state?.text}
+        Congratulations! You've initiated the {location.state?.text} {''}
         request with your insurer. Your insurer will review and respond to your
         request. You can track the request status under active claims tab on
         homepage.

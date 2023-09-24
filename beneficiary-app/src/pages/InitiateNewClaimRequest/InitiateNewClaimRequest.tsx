@@ -71,7 +71,7 @@ const InitiateNewClaimRequest = () => {
   const filter = {
     entityType: ['Beneficiary'],
     filters: {
-      mobile: { eq: '6363062395' },
+      mobile: { eq: location.state.mobile.filters.mobile.eq },
     },
   };
 
@@ -148,18 +148,6 @@ const InitiateNewClaimRequest = () => {
     }
   }, [token]);
 
-  const submitClaim = async () => {
-    try {
-      const submit = await generateOutgoingRequest(
-        'create/claim/submit',
-        initiateClaimRequestBody
-      );
-    } catch (error) {
-      setLoading(false);
-      toast.error('Faild to submit claim, Please try again');
-    }
-  };
-
   const handleUpload = async () => {
     try {
       setLoading(true);
@@ -183,11 +171,12 @@ const InitiateNewClaimRequest = () => {
         data: formData,
       });
       setUrlList(response.data);
-      console.log(response);
       toast.info('Documents uploaded successfully!');
-      // console.log('File uploaded successfully', response);
       if (response.data.length !== 0) {
-        submitClaim();
+        const submit = await generateOutgoingRequest(
+          'create/claim/submit',
+          initiateClaimRequestBody
+        );
         navigate('/request-success', {
           state: {
             text: 'new claim',

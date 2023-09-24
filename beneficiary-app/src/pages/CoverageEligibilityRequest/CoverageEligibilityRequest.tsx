@@ -18,8 +18,8 @@ const CoverageEligibilityRequest = () => {
   const [patientName, setPatientName] = useState<string>('');
 
   const providerDetails = {
-    providerName: location?.state?.obj?.name,
-    participantCode: location?.state?.obj?.id,
+    providerName: location?.state?.obj?.provider_name,
+    participantCode: location?.state?.obj?.participant_code,
   };
 
   let payload: any;

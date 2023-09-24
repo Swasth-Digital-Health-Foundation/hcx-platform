@@ -5,13 +5,14 @@ import { generateToken, searchParticipant } from '../../services/hcxService';
 import axios from 'axios';
 import {
   createCommunicationOnRequest,
+  generateOutgoingRequest,
   isInitiated,
 } from '../../services/hcxMockService';
+import { toast } from 'react-toastify';
 
 const ViewClaimRequestDetails = () => {
   const location = useLocation();
   const details = location.state;
-  console.log(details);
 
   const [token, setToken] = useState<string>('');
 
@@ -22,8 +23,11 @@ const ViewClaimRequestDetails = () => {
 
   const [OTP, setOTP] = useState<any>();
 
-  const [beneficiaryBankDetails, setBankDetails] = useState(true);
+  const [loading, setLoading] = useState(false);
 
+  const [activeRequests, setActiveRequests] = useState<any>([]);
+
+  const [entries, setEntries] = useState<any>([]);
   const participantCodePayload = {
     filters: {
       participant_code: { eq: location.state?.participantCode },
@@ -118,12 +122,12 @@ const ViewClaimRequestDetails = () => {
     },
   ];
 
-  const supportingDocuments = [
-    {
-      key: 'Document type :',
-      value: details?.billingDeatils?.serviceType || '',
-    },
-  ];
+  // const supportingDocuments = [
+  //   {
+  //     key: 'Document type :',
+  //     value: details?.billingDeatils?.serviceType || '',
+  //   },
+  // ];
 
   const getCommunicationRes = async () => {
     try {
@@ -146,11 +150,47 @@ const ViewClaimRequestDetails = () => {
   const verifyOTP = async () => {
     try {
       const res = await createCommunicationOnRequest(payload);
-      console.log(res);
+      // console.log(res);
+      if (res.status === 202) {
+        toast.success(res.data?.body?.message);
+      }
     } catch (err) {
       console.log(err);
+      toast.error('verification faild!');
     }
   };
+
+  const requestPayload = {
+    mobile: location.state.mobile.filters.mobile.eq,
+  };
+
+  useEffect(() => {
+    const getActivePlans = async () => {
+      try {
+        setLoading(true);
+        let response = await generateOutgoingRequest(
+          'bsp/request/list',
+          requestPayload
+        );
+        setLoading(false);
+        setActiveRequests(response.data?.entries);
+        // const filteredEntries = activeRequests.filter(
+        //   (entry: any) => entry.claimID === details?.claim_id
+        // );
+        // setEntries(filteredEntries);
+        console.log(response.data?.entries)
+      } catch (err) {
+        setLoading(false);
+      }
+    };
+    getActivePlans();
+  }, []);
+
+  // useEffect(() => {
+  // }, []);
+
+  // console.log(entries[0]?.supportingDocuments);
+  console.log(activeRequests)
 
   return (
     <>
@@ -163,9 +203,9 @@ const ViewClaimRequestDetails = () => {
         <div>
           {claimRequestDetails.map((ele: any, index: any) => {
             return (
-              <div key={index}>
+              <div key={index + 1}>
                 <h2 className="text-bold text-base font-bold text-black dark:text-white">
-                  {ele.key}
+                  Document {ele.key + 1}
                 </h2>
                 <span className="text-base font-medium">{ele.value}</span>
               </div>
@@ -199,13 +239,13 @@ const ViewClaimRequestDetails = () => {
       </div>
       <div className="rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
         <div>
-          {supportingDocuments.map((ele: any) => {
+          {entries[0]?.supportingDocuments.map((ele: any, index: any) => {
             return (
               <>
                 <h2 className="text-bold text-base font-bold text-black dark:text-white">
-                  {ele.key}
+                  {index}
                 </h2>
-                <span className="text-base font-medium">{ele.value}</span>
+                <span className="text-base font-medium">{ele}</span> <br />
               </>
             );
           })}
@@ -256,82 +296,6 @@ const ViewClaimRequestDetails = () => {
                 className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray"
               >
                 {strings.VERIFY_OTP_BUTTON}
-              </button>
-            </div>
-          </div>
-        </>
-      ) : null}
-
-      {beneficiaryBankDetails ? (
-        <>
-          <div className="flex items-center justify-between">
-            <h2 className="sm:text-title-xl1 text-1xl mt-2 mb-4 font-semibold text-black dark:text-white">
-              {strings.NEXT_STEP}
-            </h2>
-          </div>
-          <div className="rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
-            <div>
-              <h2 className="text-bold text-base font-bold text-black dark:text-white">
-                {/* {strings.POLICYHOLDER_CONSENT} */}
-                Beneficiary account details :
-              </h2>
-              <label className="font-small mb-2.5 block text-left text-black dark:text-white">
-                {/* {strings.ENTER_OTP_TO_VERIFY_CLAIM} */}
-                Please enter beneficiary bank account details.
-              </label>
-            </div>
-            <div className="mt-4 items-center">
-              <h2 className="text-1xl sm:text-title-xl1 mb-4 mt-4 flex w-50 text-black dark:text-white">
-                Beneficiary Name :
-              </h2>
-              <input
-                onChange={(e: any) => {}}
-                required
-                type="text"
-                placeholder="Enter name"
-                className={
-                  'w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
-                }
-              />
-            </div>
-            <div className="mt-4 items-center">
-              <h2 className="text-1xl sm:text-title-xl1 mb-4 mt-4 flex w-50 text-black dark:text-white">
-                Bank account no :
-              </h2>
-              <input
-                onChange={(e: any) => {}}
-                required
-                type="text"
-                placeholder="Enter amount"
-                className={
-                  'w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
-                }
-              />
-            </div>
-            <div className="mt-4 items-center">
-              <h2 className="text-1xl sm:text-title-xl1 mb-4 mt-4 flex w-50 text-black dark:text-white">
-                IFSC code :
-              </h2>
-              <input
-                onChange={(e: any) => {}}
-                required
-                type="text"
-                placeholder="Enter amount"
-                className={
-                  'w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
-                }
-              />
-            </div>
-            <div className="mb-5">
-              <button
-                onClick={(event: any) => {
-                  event.preventDefault();
-                  //   navigate('/home');
-                }}
-                type="submit"
-                className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray"
-              >
-                Submit
               </button>
             </div>
           </div>

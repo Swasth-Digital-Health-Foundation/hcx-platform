@@ -8,6 +8,7 @@ import { toast } from 'react-toastify';
 import { generateToken, searchParticipant } from '../../services/hcxService';
 import * as _ from 'lodash';
 import axios from 'axios';
+import { postRequest } from '../../services/registryService';
 
 const PreAuthRequest = () => {
   const navigate = useNavigate();
@@ -30,6 +31,8 @@ const PreAuthRequest = () => {
   const [providerName, setProviderName] = useState<string>('');
   const [payorName, setPayorName] = useState<string>('');
   const [fileUrlList, setUrlList] = useState<any>([]);
+
+  const [userInfo, setUserInformation] = useState<any>([]);
 
   let FileLists: any;
   if (selectedFile !== undefined) {
@@ -72,6 +75,25 @@ const PreAuthRequest = () => {
     },
   ];
 
+  const filter = {
+    entityType: ['Beneficiary'],
+    filters: {
+      mobile: { eq: location.state?.mobile?.filters?.mobile?.eq },
+    },
+  };
+
+  useEffect(() => {
+    const search = async () => {
+      try {
+        const searchUser = await postRequest('/search', filter);
+        setUserInformation(searchUser.data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    search();
+  }, []);
+
   const requestPayload = {
     providerName: dataFromCard?.providerName || providerName,
     participantCode: dataFromCard?.participantCode,
@@ -80,15 +102,15 @@ const PreAuthRequest = () => {
     insuranceId: dataFromCard?.insuranceId,
     mobile: location.state?.mobile?.filters?.mobile?.eq || '',
     billAmount: estimatedAmount,
-    supportingDocuments: {
-      documentType: documentType,
-      urls:
-        fileUrlList !== undefined
-          ? fileUrlList.map((ele: any) => {
-              return ele.url;
-            })
-          : [],
-    },
+    patientName: userInfo[0]?.name,
+    supportingDocuments: [
+      {
+        documentType: documentType,
+        urls: fileUrlList.map((ele: any) => {
+          return ele.url;
+        }),
+      },
+    ],
   };
 
   console.log(requestPayload);
@@ -153,6 +175,56 @@ const PreAuthRequest = () => {
     }
   }, [token]);
 
+  // const handleUpload = async () => {
+  //   try {
+  //     setLoading(true);
+  //     toast.info('Uploading documents please wait...!');
+  //     const formData = new FormData();
+  //     formData.append('mobile', location.state?.mobile?.filters?.mobile?.eq);
+
+  //     FileLists.forEach((file: any) => {
+  //       console.log(file);
+  //       formData.append(`file`, file);
+  //     });
+
+  //     const headers = {
+  //       Authorization: `Bearer ${token}`,
+  //     };
+
+  //     const response = await axios({
+  //       url: 'https://dev-hcx.swasth.app/api/v0.7/upload/documents',
+  //       method: 'POST',
+  //       headers: headers,
+  //       data: formData,
+  //     });
+  //     setUrlList(response.data);
+  //     toast.info('Documents uploaded successfully!');
+  //     console.log('File uploaded successfully', response);
+  //   } catch (error) {
+  //     console.error('Error uploading file', error);
+  //   }
+  // };
+
+  // const submitClaim = async () => {
+  //   try {
+  //     setLoading(true);
+  //     const submit = await generateOutgoingRequest(
+  //       'create/preauth/submit',
+  //       requestPayload
+  //     );
+  //     setLoading(false);
+  //     navigate('/request-success', {
+  //       state: {
+  //         text: 'new pre-auth',
+  //         mobileNumber: location.state?.mobile,
+  //       },
+  //     });
+  //   } catch (error) {
+  //     setLoading(false);
+  //     toast.error('Faild to submit pre-auth claim, Please try again');
+  //   }
+  // };
+
   const handleUpload = async () => {
     try {
       setLoading(true);
@@ -177,29 +249,25 @@ const PreAuthRequest = () => {
       });
       setUrlList(response.data);
       toast.info('Documents uploaded successfully!');
-      console.log('File uploaded successfully', response);
+      if (response.data.length !== 0) {
+        const submit = await generateOutgoingRequest(
+          'create/preauth/submit',
+          requestPayload
+        );
+        console.log(submit);
+        // if (response.status === 202) {
+        navigate('/request-success', {
+          state: {
+            text: 'new preauth',
+            mobileNumber: location.state?.mobile,
+          },
+        });
+        // }
+      }
+      setLoading(false);
     } catch (error) {
+      setLoading(false);
       console.error('Error uploading file', error);
-    }
-  };
-
-  const submitClaim = async () => {
-    try {
-      setLoading(true);
-      const submit = await generateOutgoingRequest(
-        'create/preauth/submit',
-        requestPayload
-      );
-      setLoading(false);
-      navigate('/request-success', {
-        state: {
-          text: 'new pre-auth',
-          mobileNumber: location.state?.mobile,
-        },
-      });
-    } catch (error) {
-      setLoading(false);
-      toast.error('Faild to submit pre-auth claim, Please try again');
     }
   };
 
@@ -411,7 +479,6 @@ const PreAuthRequest = () => {
             onClick={(event: any) => {
               event.preventDefault();
               handleUpload();
-              submitClaim();
             }}
             type="submit"
             className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
