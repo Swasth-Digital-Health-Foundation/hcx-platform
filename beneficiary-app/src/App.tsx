@@ -13,6 +13,7 @@ import ViewClaimRequestDetails from './pages/ViewClaimRequestDetails/ViewClaimRe
 import CoverageEligibilityRequest from './pages/CoverageEligibilityRequest/CoverageEligibilityRequest';
 import PreAuthRequest from './pages/InitiatePreAuthRequest/PreAuthRequest';
 import RequestSuccess from './components/RequestSuccess';
+import { ToastContainer } from 'react-toastify';
 
 const App = () => {
   const [loading, setLoading] = useState<boolean>(true);
@@ -25,6 +26,18 @@ const App = () => {
     <Loader />
   ) : (
     <>
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          hideProgressBar
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="dark"
+        />
       <Routes>
         <Route path="/" element={<Navigate to="/otp" />} />
         <Route path="/otp" element={<OTP />}></Route>
