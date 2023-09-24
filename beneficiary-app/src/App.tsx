@@ -1,4 +1,4 @@
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import OTP from './pages/Authentication/OTP';
 import VerifyOTP from './pages/Authentication/VerifyOTP';
 import DefaultLayout from './layout/DefaultLayout';
@@ -26,6 +26,7 @@ const App = () => {
   ) : (
     <>
       <Routes>
+        <Route path="/" element={<Navigate to="/otp" />} />
         <Route path="/otp" element={<OTP />}></Route>
         <Route path="/signup" element={<SignUp />}></Route>
         <Route path="/verify-otp" element={<VerifyOTP />}></Route>
@@ -49,7 +50,7 @@ const App = () => {
             element={<PreAuthRequest />}
           />
           <Route
-            path="/view-claim-request"
+            path="/view-active-request"
             element={<ViewClaimRequestDetails />}
           />
           <Route path="/request-success" element={<RequestSuccess />} />

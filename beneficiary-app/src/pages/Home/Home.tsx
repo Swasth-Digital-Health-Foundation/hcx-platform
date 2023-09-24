@@ -11,7 +11,11 @@ const Home = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [qrCodeData, setQrCodeData] = useState<any>();
-  const [activeRequests, setActiveRequests] = useState<any>();
+  const [activeRequests, setActiveRequests] = useState<any>([]);
+  const [displayedData, setDisplayedData] = useState<any>(
+    activeRequests.slice(0, 5)
+  );
+  const [currentIndex, setCurrentIndex] = useState(5);
   const [userInformation, setUserInformation] = useState<any>([]);
   const [loading, setLoading] = useState(false);
 
@@ -40,10 +44,6 @@ const Home = () => {
     },
   };
 
-  // console.log(filter);
-  // console.log(location.state);
-  // console.log(activeRequests);
-
   useEffect(() => {
     const getActivePlans = async () => {
       try {
@@ -53,12 +53,16 @@ const Home = () => {
           requestPayload
         );
         setLoading(false);
-        setActiveRequests(response.data);
+        setActiveRequests(response.data?.entries);
+        setDisplayedData(response.data?.entries.slice(0, 5));
       } catch (err) {
         setLoading(false);
-        console.log(err);
       }
     };
+    getActivePlans();
+  }, []);
+
+  useEffect(() => {
     const search = async () => {
       try {
         const searchUser = await postRequest('/search', filter);
@@ -68,15 +72,20 @@ const Home = () => {
       }
     };
     search();
-    getActivePlans();
   }, []);
+
+  const loadMoreData = () => {
+    const nextData = activeRequests.slice(currentIndex, currentIndex + 5);
+    setDisplayedData([...displayedData, ...nextData]);
+    setCurrentIndex(currentIndex + 5);
+  };
 
   return (
     <div>
       <div className="flex justify-between">
         <div className="">
           <h1 className="text-1xl font-bold text-black dark:text-white">
-            {strings.WELCOME_TEXT} {userInformation[0]?.name || ''}
+            {strings.WELCOME_TEXT} {userInformation[0]?.name || '...'}
           </h1>
         </div>
       </div>
@@ -100,7 +109,7 @@ const Home = () => {
             <a
               className="cursor-pointer underline"
               onClick={() => {
-                navigate('/new-claim', { state: mobileNumber });
+                navigate('/new-claim', { state: location.state });
               }}
             >
               {strings.SUBMIT_NEW_CLAIM}
@@ -109,61 +118,39 @@ const Home = () => {
         </div>
       </div>
       <div className="mt-3">
-        <h1 className="px-1 text-2xl font-bold text-black dark:text-white">
-          {strings.YOUR_ACTIVE_CYCLE}
-        </h1>
+        {displayedData.length === 0 ? (
+          <h1 className="px-1 text-2xl font-bold text-black dark:text-white">
+            No active claims
+          </h1>
+        ) : (
+          <h1 className="px-1 text-2xl font-bold text-black dark:text-white">
+            {strings.YOUR_ACTIVE_CYCLE} ({displayedData.length})
+          </h1>
+        )}
         <div className="border-gray-300 my-4 border-t"></div>
         {!loading ? (
           <div>
-            {activeRequests?.claim.map((ele: any) => {
+            {displayedData?.map((ele: any) => {
               return (
                 <div className="mt-2">
                   <ActiveClaimCycleCard
-                    participantCode={ele.participantCode}
+                    participantCode={ele.sender_code}
+                    payorCode={ele.recipient_code}
                     date={ele.date}
                     insurance_id={ele.insurance_id}
                     claimType={ele.claimType}
                     claimID={ele.claimID}
                     status={ele.status}
-                    link="/view-claim-request"
+                    type={ele.type}
+                    mobile={location.state}
                   />
                 </div>
               );
             })}
-            <div className="mt-2">
-              {activeRequests?.coverageEligibility.map((ele: any) => {
-                return (
-                  <div className="mt-2">
-                    <ActiveClaimCycleCard
-                      participantCode={ele.participantCode}
-                      date={ele.date}
-                      insurance_id={ele.insurance_id}
-                      claimType={ele.claimType}
-                      claimID={ele.claimID}
-                      status={ele.status}
-                      link="/coverage-eligibility"
-                    />
-                  </div>
-                );
-              })}
-            </div>
-            <div className="mt-2">
-              {activeRequests?.preauth.map((ele: any) => {
-                return (
-                  <div className="mt-2">
-                    <ActiveClaimCycleCard
-                      participantCode={ele.participantCode}
-                      claimID={ele.claimID}
-                      date={ele.date}
-                      insurance_id={ele.insurance_id}
-                      claimType={ele.claimType}
-                      claimId={ele.claimId}
-                      status={ele.status}
-                      link="/initiate-preauth-request"
-                    />
-                  </div>
-                );
-              })}
+            <div className="mt-2 flex justify-end underline">
+              {currentIndex < activeRequests.length && (
+                <button onClick={loadMoreData}>View More</button>
+              )}
             </div>
           </div>
         ) : (

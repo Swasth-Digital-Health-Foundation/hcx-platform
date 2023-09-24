@@ -20,7 +20,7 @@ const NewClaim = () => {
   const [insuranceId, setInsuranceId] = useState<string>('');
 
   const [token, setToken] = useState<string>('');
-  const [searchResults, setSearchResults] = useState<any>();
+  const [searchResults, setSearchResults] = useState<any>([]);
 
   const [openDropdown, setOpenDropdown] = useState(false);
 
@@ -44,6 +44,10 @@ const NewClaim = () => {
   useEffect(() => {
     let search = async () => {
       try {
+        if (providerName.trim() === '') {
+          setSearchResults([]);
+          return;
+        }
         const tokenResponse = await generateToken(tokenRequestBody);
         setToken(tokenResponse.data.access_token);
         const response = await searchParticipant(payload, config);
@@ -73,7 +77,8 @@ const NewClaim = () => {
     insuranceId: insuranceId,
     mobile: location.state,
   };
-
+  console.log(initiateClaimRequestBody)
+  
   return (
     <div className="w-full pt-2 sm:p-12.5 xl:p-1 ">
       <h2 className="mb-4 -mt-4 text-3xl font-bold text-black dark:text-white sm:text-title-xl2">
@@ -205,7 +210,7 @@ const NewClaim = () => {
               className="relative z-20 w-full appearance-none rounded border border-stroke bg-transparent bg-transparent py-4 px-6 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark"
             >
               <option value="">select</option>
-              <option value="none">none</option>
+              <option value="add another">add another</option>
               <option value="ABC123">ABC123</option>
             </select>
             <span className="absolute top-1/2 right-4 z-10 -translate-y-1/2">
@@ -227,7 +232,7 @@ const NewClaim = () => {
               </svg>
             </span>
           </div>
-          {insurancePlanInputRef === 'none' ? (
+          {insurancePlanInputRef === 'add another' ? (
             <>
               <h2 className="sm:text-title-xl1 mt-4 mb-2 text-2xl font-bold text-black dark:text-white">
                 {strings.INSURANCE_DETAILS}
@@ -298,18 +303,18 @@ const NewClaim = () => {
               insurancePlanInputRef === '' ||
               treatmentInputRef === '' ||
               providerName === '' ||
-              (insurancePlanInputRef === 'none' &&
+              (insurancePlanInputRef === 'add another' &&
                 (insuranceId === '' || payor === ''))
             }
             onClick={(event: any) => {
               event.preventDefault();
               navigate('/initiate-claim-request', {
-                state: { initiateClaimRequestBody },
+                state: { ...initiateClaimRequestBody },
               });
             }}
             className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
           >
-            {strings.INITIATE_CLAIM_REQUEST}
+            {strings.PROCEED}
           </button>
         ) : (
           <LoadingButton />

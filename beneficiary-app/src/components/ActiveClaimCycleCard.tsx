@@ -5,12 +5,14 @@ const ActiveClaimCycleCard = (Props: any) => {
   const date = new Date(parseInt(Props.date));
   const formattedDate = date.toISOString().split('T')[0];
   const information = {
-    insurance_id: Props.insurance_id,
-    request_type: Props.claimType,
+    insuranceId: Props.insurance_id,
+    serviceType: Props.claimType,
     request_id: Props.claimID,
     status: Props.status,
     claim_id: Props.claimID,
-    participant_code: Props.participantCode,
+    participantCode: Props.participantCode,
+    payorCode: Props.payorCode,
+    mobile: Props.mobile,
   };
 
   return (
@@ -34,7 +36,16 @@ const ActiveClaimCycleCard = (Props: any) => {
           </h2>
           <span
             className="cursor-pointer text-right underline"
-            onClick={() => navigate(Props.link, { state: information })}
+            onClick={() =>
+              navigate(
+                Props.type === 'claim'
+                  ? '/view-active-request'
+                  : Props.type === 'coverageEligibility'
+                  ? '/coverage-eligibility'
+                  : '/view-active-request',
+                { state: information }
+              )
+            }
           >
             View
           </span>

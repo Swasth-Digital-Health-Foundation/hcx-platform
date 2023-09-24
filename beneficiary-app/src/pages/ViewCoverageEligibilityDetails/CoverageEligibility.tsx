@@ -9,12 +9,18 @@ const CoverageEligibility = () => {
   const [selectedValue, setSelectedValue] = useState<string>('');
   const [token, setToken] = useState<string>();
   const [providerName, setProviderName] = useState<string>();
+  const [payorName, setPayorName] = useState<string>('');
 
   const handleRadioChange = (event: any) => {
     setSelectedValue(event.target.value);
   };
 
-  const requestDetails = location.state;
+  const requestDetails = {
+    providerName: providerName,
+    ...location.state,
+  };
+
+  console.log(requestDetails)
 
   const claimRequestDetails: any = [
     {
@@ -23,25 +29,31 @@ const CoverageEligibility = () => {
     },
     {
       key: 'Participant code :',
-      value: requestDetails?.participant_code || '',
+      value: requestDetails?.participantCode || '',
     },
     {
       key: 'Treatment/Service type :',
-      value: requestDetails?.request_type || '',
+      value: requestDetails?.serviceType || '',
     },
     {
       key: 'Payor name :',
-      value: '',
+      value: payorName,
     },
     {
       key: 'Insurance ID :',
-      value: requestDetails?.insurance_id || '',
+      value: requestDetails?.insuranceId || '',
     },
   ];
 
-  const payload = {
+  const participantCodePayload = {
     filters: {
-      participant_code: { eq: requestDetails?.participant_code },
+      participant_code: { eq: location.state?.participantCode },
+    },
+  };
+
+  const payorCodePayload = {
+    filters: {
+      participant_code: { eq: location.state?.payorCode },
     },
   };
 
@@ -55,11 +67,11 @@ const CoverageEligibility = () => {
       Authorization: `Bearer ${token}`,
     },
   };
+
   useEffect(() => {
     const search = async () => {
       try {
         const tokenResponse = await generateToken(tokenRequestBody);
-        // console.log(tokenResponse)
         if (tokenResponse.statusText === 'OK') {
           console.log(tokenResponse.data.access_token);
           setToken(tokenResponse.data.access_token);
@@ -72,13 +84,25 @@ const CoverageEligibility = () => {
   }, []);
 
   useEffect(() => {
-    if (token !== undefined) {
-      const search = async () => {
-        const response = await searchParticipant(payload, config);
-        console.log(response);
-        setProviderName(response.data?.participants[0].participant_name);
-      };
-      search()
+    try {
+      if (token !== undefined) {
+        const search = async () => {
+          const response = await searchParticipant(
+            participantCodePayload,
+            config
+          );
+          setProviderName(response.data?.participants[0].participant_name);
+
+          const payorResponse = await searchParticipant(
+            payorCodePayload,
+            config
+          );
+          setPayorName(payorResponse.data?.participants[0].participant_name);
+        };
+        search();
+      }
+    } catch (err) {
+      console.log(err);
     }
   }, [token]);
 
@@ -163,7 +187,9 @@ const CoverageEligibility = () => {
               if (selectedValue === 'Initiate new claim request') {
                 navigate('/initiate-claim-request', { state: requestDetails });
               } else {
-                navigate('/initiate-preauth-request');
+                navigate('/initiate-preauth-request', {
+                  state: requestDetails,
+                });
               }
             }}
             className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"

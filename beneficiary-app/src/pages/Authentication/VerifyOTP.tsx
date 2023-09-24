@@ -31,10 +31,8 @@ const VerifyOTP = () => {
     try {
       setLoading(true);
       const otpResponse = await verifyOTP(verifyOTPrequestBody);
-      console.log(otpResponse);
       if (otpResponse.status === 200) {
         const searchUser = await postRequest('/search', filter);
-        console.log(searchUser);
         if (searchUser?.data?.length !== 0) {
           toast.success('OTP verified successfully!', {
             position: toast.POSITION.TOP_CENTER,
@@ -68,10 +66,8 @@ const VerifyOTP = () => {
   const resendOTP = async () => {
     try {
       let response = await sendOTP(mobileNumberPayload);
-      console.log(response);
       toast.success('OTP sent successfully!');
     } catch (err: any) {
-      console.log(err);
       toast.error('Please try again!');
     }
   };

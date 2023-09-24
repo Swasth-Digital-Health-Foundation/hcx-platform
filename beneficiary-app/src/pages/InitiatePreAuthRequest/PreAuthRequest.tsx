@@ -1,38 +1,17 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { handleFileChange } from '../../utils/attachmentSizeValidation';
 import strings from '../../utils/strings';
 import LoadingButton from '../../components/LoadingButton';
+import { generateOutgoingRequest } from '../../services/hcxMockService';
+import { toast } from 'react-toastify';
+import { generateToken, searchParticipant } from '../../services/hcxService';
+import * as _ from 'lodash';
+import axios from 'axios';
 
 const PreAuthRequest = () => {
   const navigate = useNavigate();
-  const preAuth = 'the pre-auth';
-  const preauthRequestDetails: any = [
-    {
-      key: 'Provider name :',
-      value: '',
-    },
-    {
-      key: 'Participant code :',
-      value: '',
-    },
-    {
-      key: 'Select insurance plan :',
-      value: '',
-    },
-    {
-      key: 'Treatment/Service type :',
-      value: '',
-    },
-    {
-      key: 'Payor name :',
-      value: '',
-    },
-    {
-      key: 'Insurance ID :',
-      value: '',
-    },
-  ];
+  const location = useLocation();
 
   const [selectedFile, setSelectedFile]: any = useState<FileList | undefined>(
     undefined
@@ -40,11 +19,16 @@ const PreAuthRequest = () => {
   const [fileErrorMessage, setFileErrorMessage]: any = useState();
   const [isSuccess, setIsSuccess]: any = useState(false);
 
-  const [amount, setAmount] = useState<any>();
+  const [estimatedAmount, setAmount] = useState<any>();
   const [serviceType, setServiceType] = useState<string>('Consultation');
-  const [documentType, setDocumentType] = useState<string>('');
+  const [documentType, setDocumentType] = useState<string>('Prescription');
 
   const [loading, setLoading] = useState(false);
+
+  const [token, setToken] = useState<string>('');
+
+  const [providerName, setProviderName] = useState<string>('');
+  const [payorName, setPayorName] = useState<string>('');
 
   let FileLists: any;
   if (selectedFile !== undefined) {
@@ -52,6 +36,7 @@ const PreAuthRequest = () => {
   }
 
   // const data = location.state;
+  console.log(location.state);
 
   const handleDelete = (name: any) => {
     if (selectedFile !== undefined) {
@@ -62,51 +47,157 @@ const PreAuthRequest = () => {
     }
   };
 
-  // const initiateClaimRequestBody = {
-  //   ...location.state?.initiateClaimRequestBody,
-  //   billingDeatils: {
-  //     serviceType: serviceType,
-  //     billAmount: amount,
-  //   },
-  //   supportingDocuments: {
-  //     [documentType]:
-  //       FileLists !== undefined
-  //         ? FileLists.map((ele: any) => {
-  //             return ele.name;
-  //           })
-  //         : [],
-  //   },
-  // };
+  const dataFromCard = location.state;
+  console.log('yashas', dataFromCard);
 
-  // const claimRequestDetails: any = [
-  //   {
-  //     key: 'Provider name :',
-  //     value: data?.initiateClaimRequestBody?.providerName || providerName,
-  //   },
-  //   {
-  //     key: 'Participant code :',
-  //     value:
-  //       data?.initiateClaimRequestBody?.participantCode ||
-  //       dataFromCard?.participant_code,
-  //   },
-  //   {
-  //     key: 'Treatment/Service type :',
-  //     value:
-  //       data?.initiateClaimRequestBody?.serviceType ||
-  //       dataFromCard?.request_type,
-  //   },
-  //   {
-  //     key: 'Payor name :',
-  //     value: data?.initiateClaimRequestBody?.payor || '',
-  //   },
-  //   {
-  //     key: 'Insurance ID :',
-  //     value:
-  //       data?.initiateClaimRequestBody?.insuranceId ||
-  //       dataFromCard?.insurance_id ||
-  //       'null',
-  //   },
-  // ];
+  const preauthRequestDetails: any = [
+    {
+      key: 'Provider name :',
+      value: dataFromCard?.providerName || '',
+    },
+    {
+      key: 'Participant code :',
+      value: dataFromCard?.participantCode || '',
+    },
+    {
+      key: 'Treatment/Service type :',
+      value: dataFromCard?.serviceType || '',
+    },
+    {
+      key: 'Payor name :',
+      value: payorName,
+    },
+    {
+      key: 'Insurance ID :',
+      value: dataFromCard?.insuranceId || '',
+    },
+  ];
+
+  const requestPayload = {
+    providerName: dataFromCard?.providerName || providerName,
+    participantCode: dataFromCard?.participantCode,
+    serviceType: dataFromCard?.serviceType,
+    payor: payorName,
+    insuranceId: dataFromCard?.insuranceId,
+    mobile: location.state.mobile.filters.mobile.eq || '',
+    billingDeatils: {
+      serviceType: serviceType,
+      billAmount: estimatedAmount,
+    },
+    supportingDocuments: {
+      [documentType]:
+        FileLists !== undefined
+          ? FileLists.map((ele: any) => {
+              return ele.name;
+            })
+          : [],
+    },
+  };
+
+  console.log(requestPayload);
+
+  const participantCodePayload = {
+    filters: {
+      participant_code: { eq: location.state?.participantCode },
+    },
+  };
+
+  const payorCodePayload = {
+    filters: {
+      participant_code: { eq: location.state?.payorCode },
+    },
+  };
+
+  const tokenRequestBody = {
+    username: process.env.TOKEN_GENERATION_USERNAME,
+    password: process.env.TOKEN_GENERATION_PASSWORD,
+  };
+
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+
+  useEffect(() => {
+    const search = async () => {
+      try {
+        const tokenResponse = await generateToken(tokenRequestBody);
+        if (tokenResponse.statusText === 'OK') {
+          console.log(tokenResponse.data.access_token);
+          setToken(tokenResponse.data.access_token);
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    search();
+  }, []);
+
+  useEffect(() => {
+    try {
+      if (token !== undefined) {
+        const search = async () => {
+          const response = await searchParticipant(
+            participantCodePayload,
+            config
+          );
+          setProviderName(response.data?.participants[0].participant_name);
+
+          const payorResponse = await searchParticipant(
+            payorCodePayload,
+            config
+          );
+          setPayorName(payorResponse.data?.participants[0].participant_name);
+        };
+        search();
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }, [token]);
+
+  const submitClaim = async () => {
+    try {
+      setLoading(true);
+      const submit = await generateOutgoingRequest(
+        'create/preauth/submit',
+        requestPayload
+      );
+      setLoading(false);
+      navigate('/request-success', {
+        state: {
+          text: 'new pre-auth',
+          mobileNumber: location.state?.mobile,
+        },
+      });
+    } catch (error) {
+      setLoading(false);
+      toast.error('Faild to submit pre-auth claim, Please try again');
+    }
+  };
+
+  const handleUpload = async () => {
+    try {
+      const formData = new FormData();
+      formData.append('mobileNumber', '6363062395');
+      formData.append('file', selectedFile);
+  
+      // Add your Bearer token to the headers
+      const headers = {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data',
+      };
+  
+      const response = await axios.post('http://dev-hcx.swasth.app/api/v0.7/upload/documents', formData, {
+        headers: headers,
+      });
+  
+      console.log('File uploaded successfully', response);
+    } catch (error) {
+      console.error('Error uploading file', error);
+    }
+  };
 
   return (
     <div className="w-full pt-2 sm:p-12.5 xl:p-1">
@@ -134,6 +225,9 @@ const PreAuthRequest = () => {
         </label>
         <div className="relative z-20 bg-white dark:bg-form-input">
           <select
+            onChange={(e: any) => {
+              setServiceType(e.target.value);
+            }}
             required
             className="relative z-20 w-full appearance-none rounded border border-stroke bg-transparent bg-transparent py-4 px-6 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark"
           >
@@ -163,6 +257,9 @@ const PreAuthRequest = () => {
             {strings.ESTIMATED_BILL_AMOUNT}
           </h2>
           <input
+            onChange={(e: any) => {
+              setAmount(e.target.value);
+            }}
             required
             type="number"
             placeholder="Enter amount"
@@ -181,11 +278,14 @@ const PreAuthRequest = () => {
         </label>
         <div className="relative z-20 mb-4 bg-white dark:bg-form-input">
           <select
+            onChange={(e: any) => {
+              setDocumentType(e.target.value);
+            }}
             required
             className="relative z-20 w-full appearance-none rounded border border-stroke bg-transparent bg-transparent py-4 px-6 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark"
           >
-            <option value="">Prescription</option>
-            <option value="">Bill/invoice</option>
+            <option value="Prescription">Prescription</option>
+            <option value="Bill/invoice">Bill/invoice</option>
           </select>
           <span className="absolute top-1/2 right-4 z-10 -translate-y-1/2">
             <svg
@@ -303,7 +403,8 @@ const PreAuthRequest = () => {
             disabled={false}
             onClick={(event: any) => {
               event.preventDefault();
-              // submitClaim();
+              submitClaim();
+              // handleUpload()
             }}
             type="submit"
             className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"

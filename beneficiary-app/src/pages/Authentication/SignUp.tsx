@@ -41,7 +41,7 @@ const SignUp = () => {
     setCards(updatedCards);
   };
 
-  const [payor, setPayor] = useState<string>('Swast Payor');
+  const [payor, setPayor] = useState<string>('wemeanhospital Mock Payor');
   const handlePayorChange = (e: any) => {
     setPayor(e.target.value);
   };
@@ -76,7 +76,7 @@ const SignUp = () => {
       toast.success('User registered successfully!', {
         position: toast.POSITION.TOP_CENTER,
       });
-      navigate('/home');
+      navigate('/home', { state: mobileNumber });
     } catch (error: any) {
       setLoading(false);
       toast.error(error.response.data.params.errmsg, {
@@ -89,7 +89,6 @@ const SignUp = () => {
     const inputValue = e.target.value;
     // Check if the input contains exactly 10 numeric characters
     const isValidInput = /^\d{10}$/.test(inputValue);
-    console.log(isValidInput);
     setIsValid(isValidInput);
     setMobileNumber(inputValue);
   };
@@ -186,7 +185,7 @@ const SignUp = () => {
                     onChange={handlePayorChange}
                     className="relative z-20 w-full appearance-none rounded border border-stroke bg-transparent py-4 px-6 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input"
                   >
-                    <option value="Swast payor">Swast payor</option>
+                    <option value="wemeanhospital Mock Payor">wemeanhospital Mock Payor</option>
                   </select>
                   <span className="absolute top-1/2 right-4 z-10 -translate-y-1/2">
                     <svg

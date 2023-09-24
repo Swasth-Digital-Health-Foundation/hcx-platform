@@ -21,7 +21,6 @@ const OTP = () => {
     try {
       setLoading(true);
       let response = await sendOTP(payload);
-      console.log(response);
       toast.success('OTP sent successfully!');
       setTimeout(() => {
         navigate('/verify-otp', { state: mobileNumber });
@@ -37,7 +36,6 @@ const OTP = () => {
     const inputValue = e.target.value;
     // Check if the input contains exactly 10 numeric characters
     const isValidInput = /^\d{10}$/.test(inputValue);
-    console.log(isValidInput);
     setIsValid(isValidInput);
     setMobileNumber(inputValue);
   };

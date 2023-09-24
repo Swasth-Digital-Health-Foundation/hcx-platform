@@ -1,24 +1,91 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import strings from '../../utils/strings';
+import { generateToken, searchParticipant } from '../../services/hcxService';
+import axios from 'axios';
+import { isInitiated } from '../../services/hcxMockService';
 
 const ViewClaimRequestDetails = () => {
   const location = useLocation();
-  const details = location.state.initiateClaimRequestBody;
-  console.log(details);
+  const details = location.state;
+
+  const [token, setToken] = useState<string>('');
+
+  const [providerName, setProviderName] = useState<string>('');
+  const [payorName, setPayorName] = useState<string>('');
+
+  const participantCodePayload = {
+    filters: {
+      participant_code: { eq: location.state?.participantCode },
+    },
+  };
+
+  const payorCodePayload = {
+    filters: {
+      participant_code: { eq: location.state?.payorCode },
+    },
+  };
+
+  const tokenRequestBody = {
+    username: process.env.TOKEN_GENERATION_USERNAME,
+    password: process.env.TOKEN_GENERATION_PASSWORD,
+  };
+
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+
+  useEffect(() => {
+    const search = async () => {
+      try {
+        const tokenResponse = await generateToken(tokenRequestBody);
+        if (tokenResponse.statusText === 'OK') {
+          setToken(tokenResponse.data.access_token);
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    search();
+  }, []);
+
+  useEffect(() => {
+    try {
+      if (token !== undefined) {
+        const search = async () => {
+          const response = await searchParticipant(
+            participantCodePayload,
+            config
+          );
+          setProviderName(response.data?.participants[0].participant_name);
+
+          const payorResponse = await searchParticipant(
+            payorCodePayload,
+            config
+          );
+          setPayorName(payorResponse.data?.participants[0].participant_name);
+        };
+        search();
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }, [token]);
 
   const claimRequestDetails: any = [
     {
+      key: 'Claim ID :',
+      value: details?.claim_id || '',
+    },
+    {
       key: 'Provider name :',
-      value: details?.providerName || '',
+      value: providerName || '',
     },
     {
       key: 'Participant code :',
       value: details?.participantCode || '',
-    },
-    {
-      key: 'Select insurance plan :',
-      value: details?.insurancePlan || '',
     },
     {
       key: 'Treatment/Service type :',
@@ -26,7 +93,7 @@ const ViewClaimRequestDetails = () => {
     },
     {
       key: 'Payor name :',
-      value: details?.payor || '',
+      value: payorName || '',
     },
     {
       key: 'Insurance ID :',
@@ -37,7 +104,7 @@ const ViewClaimRequestDetails = () => {
   const treatmentDetails = [
     {
       key: 'Service type :',
-      value: details?.billingDeatils?.serviceType || '',
+      value: details?.request_type || '',
     },
     {
       key: 'Bill amount :',
@@ -50,11 +117,20 @@ const ViewClaimRequestDetails = () => {
       key: 'Document type :',
       value: details?.billingDeatils?.serviceType || '',
     },
-    {
-      key: 'Bill amount :',
-      value: details?.billingDeatils?.billAmount || '',
-    },
   ];
+
+  useEffect(() => {
+    const getRes = async () => {
+      try {
+        let res = await isInitiated();
+        console.log(res);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    getRes();
+  }, []);
+
   return (
     <>
       <div className="flex items-center justify-between">

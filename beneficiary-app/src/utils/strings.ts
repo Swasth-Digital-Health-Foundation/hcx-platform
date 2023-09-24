@@ -47,7 +47,7 @@ export default {
   SUBMIT_PREAUTH: 'Submit pre-auth',
   CLAIM_REQUEST_DETAILS: 'Claim request details :',
   NEXT_STEP: 'Next step :',
-  POLICYHOLDER_CONSENT: 'Policyholder consent :',
+  POLICYHOLDER_CONSENT: 'Beneficiary consent :',
   ENTER_OTP_TO_VERIFY_CLAIM:
     'Please enter OTP shared by payor to verify claim :',
   INITIATE_PREAUTH_REQUEST: 'Initiate pre-auth request',

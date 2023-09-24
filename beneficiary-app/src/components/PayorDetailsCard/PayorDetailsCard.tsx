@@ -19,7 +19,7 @@ const PayorDetailsCard = ({ onInputChange, cardKey }: any) => {
               className="relative z-20 w-full appearance-none rounded border border-stroke bg-transparent py-4 px-6 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input"
             >
               <option value="none">none</option>
-              <option value="Swast payor">Swast payor</option>
+              <option value="wemeanhospital Mock Payor">wemeanhospital Mock Payor</option>
             </select>
             <span className="absolute top-1/2 right-4 z-10 -translate-y-1/2">
               <svg

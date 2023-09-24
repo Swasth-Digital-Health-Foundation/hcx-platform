@@ -4,8 +4,8 @@ import successImage from '../images/Group 49576.png';
 const RequestSuccess = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  console.log(location.state)
   const mobile = location.state?.mobileNumber;
+  console.log(location.state)
   return (
     <>
       <div className="flex-col justify-center p-5">

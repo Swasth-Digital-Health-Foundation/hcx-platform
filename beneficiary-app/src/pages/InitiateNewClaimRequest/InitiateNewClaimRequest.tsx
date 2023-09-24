@@ -23,7 +23,9 @@ const InitiateNewClaimRequest = () => {
   const [loading, setLoading] = useState(false);
 
   const [token, setToken] = useState<string>('');
+
   const [providerName, setProviderName] = useState<string>('');
+  const [payorName, setPayorName] = useState<string>('');
 
   let FileLists: any;
   if (selectedFile !== undefined) {
@@ -31,8 +33,7 @@ const InitiateNewClaimRequest = () => {
   }
 
   const data = location.state;
-
-  const dataFromCard = location.state;
+  console.log(data);
 
   const handleDelete = (name: any) => {
     if (selectedFile !== undefined) {
@@ -44,7 +45,14 @@ const InitiateNewClaimRequest = () => {
   };
 
   const initiateClaimRequestBody = {
-    ...location.state?.initiateClaimRequestBody,
+    // ...data,
+    insuranceId: data?.insuranceId || '',
+    insurancePlan: data?.insurancePlan || null,
+    mobile: location.state.mobile.filters.mobile.eq || '',
+    participantCode: data?.participantCode || '',
+    payor: data?.payor || payorName,
+    providerName: data?.providerName || '',
+    serviceType: data?.serviceType || '',
     billingDeatils: {
       serviceType: serviceType,
       billAmount: amount,
@@ -59,9 +67,17 @@ const InitiateNewClaimRequest = () => {
     },
   };
 
-  const payload = {
+  console.log(initiateClaimRequestBody);
+
+  const participantCodePayload = {
     filters: {
-      participant_code: { eq: location.state?.participant_code },
+      participant_code: { eq: location.state?.participantCode },
+    },
+  };
+
+  const payorCodePayload = {
+    filters: {
+      participant_code: { eq: location.state?.payorCode },
     },
   };
 
@@ -80,15 +96,39 @@ const InitiateNewClaimRequest = () => {
     const search = async () => {
       try {
         const tokenResponse = await generateToken(tokenRequestBody);
-        setToken(tokenResponse.data?.access_token);
-        const response = await searchParticipant(payload, config);
-        setProviderName(response.data?.participants[0].participant_name);
+        if (tokenResponse.statusText === 'OK') {
+          console.log(tokenResponse.data.access_token);
+          setToken(tokenResponse.data.access_token);
+        }
       } catch (err) {
         console.log(err);
       }
     };
     search();
   }, []);
+
+  useEffect(() => {
+    try {
+      if (token !== undefined) {
+        const search = async () => {
+          const response = await searchParticipant(
+            participantCodePayload,
+            config
+          );
+          setProviderName(response.data?.participants[0].participant_name);
+
+          const payorResponse = await searchParticipant(
+            payorCodePayload,
+            config
+          );
+          setPayorName(payorResponse.data?.participants[0].participant_name);
+        };
+        search();
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }, [token]);
 
   const submitClaim = async () => {
     try {
@@ -97,45 +137,39 @@ const InitiateNewClaimRequest = () => {
         'create/claim/submit',
         initiateClaimRequestBody
       );
-      console.log(submit);
       setLoading(false);
-      navigate('/request-success', { state: { text: 'new claim' } });
+      navigate('/request-success', {
+        state: {
+          text: 'new claim',
+          mobileNumber: data.mobile || initiateClaimRequestBody.mobile,
+        },
+      });
     } catch (error) {
-      console.log(error);
       setLoading(false);
       toast.error('Faild to submit claim, Please try again');
     }
   };
 
-  console.log(dataFromCard)
-
   const claimRequestDetails: any = [
     {
       key: 'Provider name :',
-      value: data?.initiateClaimRequestBody?.providerName || providerName,
+      value: data.providerName || providerName,
     },
     {
       key: 'Participant code :',
-      value:
-        data?.initiateClaimRequestBody?.participantCode ||
-        dataFromCard?.participant_code,
+      value: data?.participantCode || '',
     },
     {
       key: 'Treatment/Service type :',
-      value:
-        data?.initiateClaimRequestBody?.serviceType ||
-        dataFromCard?.request_type,
+      value: data?.serviceType || '',
     },
     {
       key: 'Payor name :',
-      value: data?.initiateClaimRequestBody?.payor || '',
+      value: data?.payor || payorName,
     },
     {
       key: 'Insurance ID :',
-      value:
-        data?.initiateClaimRequestBody?.insuranceId ||
-        dataFromCard?.insurance_id ||
-        'null',
+      value: data?.insuranceId || 'null',
     },
   ];
 

@@ -24,10 +24,10 @@ const CoverageEligibilityRequest = () => {
 
   let payload: any;
 
-  if (insurancePlan === 'none') {
+  if (insurancePlan === 'add another') {
     payload = {
       patientName: patientName,
-      mobile: _.get(location, 'state.filters.filters.mobile.eq') || '',
+      mobile: location.state.mobile.filters.mobile.eq || _.get(location, 'state.mobile'),
       serviceType: serviceType,
       insurancePlan: insurancePlan,
       payor: payor,
@@ -37,7 +37,7 @@ const CoverageEligibilityRequest = () => {
   } else {
     payload = {
       patientName: patientName,
-      mobile: _.get(location, 'state.filters.filters.mobile.eq') || '',
+      mobile: location.state.mobile.filters.mobile.eq || _.get(location, 'state.mobile'),
       serviceType: serviceType,
       insurancePlan: insurancePlan,
       ...providerDetails,
@@ -51,7 +51,8 @@ const CoverageEligibilityRequest = () => {
     },
   };
 
-  console.log(location.state);
+  console.log(payload)
+  console.log(location.state.mobile.filters.mobile.eq)
   // console.log(_.get(location, 'state.filter.filters.mobile.eq'))
 
   //beneficiary search
@@ -59,10 +60,8 @@ const CoverageEligibilityRequest = () => {
     const getPatientName = async () => {
       try {
         let response = await postRequest('/search', filter);
-        console.log(response);
         setPatientName(response.data[0]?.name);
       } catch (error) {
-        console.log(error);
         toast.error(_.get(error, 'response.data.error.message'));
       }
     };
@@ -76,7 +75,6 @@ const CoverageEligibilityRequest = () => {
         'create/coverageeligibility/check',
         payload
       );
-      console.log(response);
       setIsLoading(false);
       if (response?.status === 202) {
         navigate('/request-success', {
@@ -89,7 +87,6 @@ const CoverageEligibilityRequest = () => {
     } catch (error) {
       setIsLoading(false);
       toast.error(_.get(error, 'response.data.error.message'));
-      console.log(error);
     }
   };
 
@@ -163,7 +160,7 @@ const CoverageEligibilityRequest = () => {
                 className="relative z-20 w-full appearance-none rounded border border-stroke bg-transparent bg-transparent py-4 px-6 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark"
               >
                 <option value="">select</option>
-                <option value="none">none</option>
+                <option value="add another">add another</option>
                 <option value="ABC123">ABC123</option>
               </select>
               <span className="absolute top-1/2 right-4 z-10 -translate-y-1/2">
@@ -186,7 +183,7 @@ const CoverageEligibilityRequest = () => {
               </span>
             </div>
           </div>
-          {insurancePlan === 'none' ? (
+          {insurancePlan === 'add another' ? (
             <>
               <h2 className="sm:text-title-xl1 mt-4 mb-2 text-2xl font-bold text-black dark:text-white">
                 {strings.INSURANCE_DETAILS}
@@ -256,7 +253,7 @@ const CoverageEligibilityRequest = () => {
             disabled={
               serviceType === '' ||
               insurancePlan === '' ||
-              (insurancePlan === 'none' && (payor === '' || insuranceId === ''))
+              (insurancePlan === 'add another' && (payor === '' || insuranceId === ''))
             }
             onClick={(event: any) => {
               event.preventDefault();
