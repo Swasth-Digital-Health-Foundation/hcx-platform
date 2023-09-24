@@ -21,11 +21,9 @@ const OTP = () => {
     try {
       setLoading(true);
       let response = await sendOTP(payload);
-      toast.success('OTP sent successfully!');
-      setTimeout(() => {
-        navigate('/verify-otp', { state: mobileNumber });
-        setLoading(false);
-      }, 2000);
+      // toast.success('OTP sent successfully!');
+      navigate('/verify-otp', { state: mobileNumber });
+      setLoading(false);
     } catch (err: any) {
       setLoading(false);
       toast.error(_.get(err, 'response.data.error.message'));
