@@ -5,7 +5,7 @@ const RequestSuccess = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const mobile = location.state?.mobileNumber;
-  console.log(location.state)
+  console.log(mobile)
   return (
     <>
       <div className="flex-col justify-center p-5">

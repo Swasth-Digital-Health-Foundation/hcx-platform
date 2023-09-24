@@ -66,7 +66,9 @@ const VerifyOTP = () => {
   const resendOTP = async () => {
     try {
       let response = await sendOTP(mobileNumberPayload);
-      toast.success('OTP sent successfully!');
+      if (response.status === 200) {
+        toast.success('OTP sent successfully!');
+      }
     } catch (err: any) {
       toast.error('Please try again!');
     }

@@ -13,6 +13,7 @@ const ActiveClaimCycleCard = (Props: any) => {
     participantCode: Props.participantCode,
     payorCode: Props.payorCode,
     mobile: Props.mobile,
+    billAmount: Props.billAmount,
   };
 
   return (

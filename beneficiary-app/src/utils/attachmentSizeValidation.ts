@@ -20,25 +20,25 @@ export const handleFileChange: any = (
   );
   setIsSuccess(!hasInvalidFileSize);
 
-  if (!hasInvalidFileSize) {
-    const base64Promises = validFiles.map((file: any) => {
-      return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = (e: any) => {
-          resolve({
-            name: file.name,
-            type: file.type,
-            size: file.size,
-            base64: e.target.result.split(',')[1], // Extract Base64 data
-          });
-        };
-        reader.readAsDataURL(file);
-      });
-    });
+  // if (!hasInvalidFileSize) {
+  //   const base64Promises = validFiles.map((file: any) => {
+  //     return new Promise((resolve) => {
+  //       const reader = new FileReader();
+  //       reader.onload = (e: any) => {
+  //         resolve({
+  //           name: file.name,
+  //           type: file.type,
+  //           size: file.size,
+  //           base64: e.target.result.split(',')[1], // Extract Base64 data
+  //         });
+  //       };
+  //       reader.readAsDataURL(file);
+  //     });
+  //   });
 
-    // Use Promise.all to wait for all files to be processed
-    Promise.all(base64Promises).then((base64Files) => {
-      setSelectedFile(base64Files);
-    });
-  }
+  //   // Use Promise.all to wait for all files to be processed
+  //   Promise.all(base64Promises).then((base64Files) => {
+  //     setSelectedFile(base64Files);
+  //   });
+  // }
 };

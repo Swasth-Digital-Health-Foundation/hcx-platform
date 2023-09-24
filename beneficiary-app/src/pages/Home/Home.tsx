@@ -143,6 +143,7 @@ const Home = () => {
                     status={ele.status}
                     type={ele.type}
                     mobile={location.state}
+                    billAmount={ele.billAmount}
                   />
                 </div>
               );

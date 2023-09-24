@@ -26,17 +26,16 @@ const App = () => {
     <Loader />
   ) : (
     <>
-        {/* <ToastContainer
+        <ToastContainer
           position="top-right"
-          autoClose={5000}
+          autoClose={1500}
           hideProgressBar
           newestOnTop={false}
           closeOnClick
           rtl={false}
           pauseOnFocusLoss
           draggable
-          pauseOnHover
-        /> */}
+        />
       <Routes>
         <Route path="/" element={<Navigate to="/otp" />} />
         <Route path="/otp" element={<OTP />}></Route>

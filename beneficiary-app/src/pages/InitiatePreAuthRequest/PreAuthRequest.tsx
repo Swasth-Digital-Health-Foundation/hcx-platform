@@ -29,6 +29,7 @@ const PreAuthRequest = () => {
 
   const [providerName, setProviderName] = useState<string>('');
   const [payorName, setPayorName] = useState<string>('');
+  const [fileUrlList, setUrlList] = useState<any>([]);
 
   let FileLists: any;
   if (selectedFile !== undefined) {
@@ -36,7 +37,6 @@ const PreAuthRequest = () => {
   }
 
   // const data = location.state;
-  console.log(location.state);
 
   const handleDelete = (name: any) => {
     if (selectedFile !== undefined) {
@@ -48,7 +48,6 @@ const PreAuthRequest = () => {
   };
 
   const dataFromCard = location.state;
-  console.log('yashas', dataFromCard);
 
   const preauthRequestDetails: any = [
     {
@@ -79,16 +78,14 @@ const PreAuthRequest = () => {
     serviceType: dataFromCard?.serviceType,
     payor: payorName,
     insuranceId: dataFromCard?.insuranceId,
-    mobile: location.state.mobile.filters.mobile.eq || '',
-    billingDeatils: {
-      serviceType: serviceType,
-      billAmount: estimatedAmount,
-    },
+    mobile: location.state?.mobile?.filters?.mobile?.eq || '',
+    billAmount: estimatedAmount,
     supportingDocuments: {
-      [documentType]:
-        FileLists !== undefined
-          ? FileLists.map((ele: any) => {
-              return ele.name;
+      documentType: documentType,
+      urls:
+        fileUrlList !== undefined
+          ? fileUrlList.map((ele: any) => {
+              return ele.url;
             })
           : [],
     },
@@ -124,7 +121,6 @@ const PreAuthRequest = () => {
       try {
         const tokenResponse = await generateToken(tokenRequestBody);
         if (tokenResponse.statusText === 'OK') {
-          console.log(tokenResponse.data.access_token);
           setToken(tokenResponse.data.access_token);
         }
       } catch (err) {
@@ -157,6 +153,36 @@ const PreAuthRequest = () => {
     }
   }, [token]);
 
+  const handleUpload = async () => {
+    try {
+      setLoading(true);
+      toast.info('Uploading documents please wait...!');
+      const formData = new FormData();
+      formData.append('mobile', location.state?.mobile?.filters?.mobile?.eq);
+
+      FileLists.forEach((file: any) => {
+        console.log(file);
+        formData.append(`file`, file);
+      });
+
+      const headers = {
+        Authorization: `Bearer ${token}`,
+      };
+
+      const response = await axios({
+        url: 'https://dev-hcx.swasth.app/api/v0.7/upload/documents',
+        method: 'POST',
+        headers: headers,
+        data: formData,
+      });
+      setUrlList(response.data);
+      toast.info('Documents uploaded successfully!');
+      console.log('File uploaded successfully', response);
+    } catch (error) {
+      console.error('Error uploading file', error);
+    }
+  };
+
   const submitClaim = async () => {
     try {
       setLoading(true);
@@ -177,27 +203,8 @@ const PreAuthRequest = () => {
     }
   };
 
-  const handleUpload = async () => {
-    try {
-      const formData = new FormData();
-      formData.append('mobileNumber', '6363062395');
-      formData.append('file', selectedFile);
-  
-      // Add your Bearer token to the headers
-      const headers = {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'multipart/form-data',
-      };
-  
-      const response = await axios.post('http://dev-hcx.swasth.app/api/v0.7/upload/documents', formData, {
-        headers: headers,
-      });
-  
-      console.log('File uploaded successfully', response);
-    } catch (error) {
-      console.error('Error uploading file', error);
-    }
-  };
+  // console.log(token)
+  // console.log(selectedFile);
 
   return (
     <div className="w-full pt-2 sm:p-12.5 xl:p-1">
@@ -400,11 +407,11 @@ const PreAuthRequest = () => {
       <div className="mb-5 mt-4">
         {!loading ? (
           <button
-            disabled={false}
+            disabled={estimatedAmount === '' || selectedFile === undefined}
             onClick={(event: any) => {
               event.preventDefault();
+              handleUpload();
               submitClaim();
-              // handleUpload()
             }}
             type="submit"
             className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"

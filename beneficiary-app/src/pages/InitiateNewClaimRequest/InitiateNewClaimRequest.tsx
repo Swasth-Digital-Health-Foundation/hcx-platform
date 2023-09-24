@@ -6,6 +6,8 @@ import LoadingButton from '../../components/LoadingButton';
 import { toast } from 'react-toastify';
 import strings from '../../utils/strings';
 import { generateToken, searchParticipant } from '../../services/hcxService';
+import axios from 'axios';
+import { postRequest } from '../../services/registryService';
 
 const InitiateNewClaimRequest = () => {
   const navigate = useNavigate();
@@ -16,9 +18,9 @@ const InitiateNewClaimRequest = () => {
   const [fileErrorMessage, setFileErrorMessage]: any = useState();
   const [isSuccess, setIsSuccess]: any = useState(false);
 
-  const [amount, setAmount] = useState<any>();
-  const [serviceType, setServiceType] = useState<string>('Consultation');
-  const [documentType, setDocumentType] = useState<string>('');
+  const [amount, setAmount] = useState<string>('');
+  const [serviceType, setServiceType] = useState<string>('OPD');
+  const [documentType, setDocumentType] = useState<string>('prescription');
 
   const [loading, setLoading] = useState(false);
 
@@ -27,14 +29,16 @@ const InitiateNewClaimRequest = () => {
   const [providerName, setProviderName] = useState<string>('');
   const [payorName, setPayorName] = useState<string>('');
 
+  const [fileUrlList, setUrlList] = useState<any>([]);
+
+  const [userInfo, setUserInformation] = useState<any>([]);
+
   let FileLists: any;
   if (selectedFile !== undefined) {
     FileLists = Array.from(selectedFile);
   }
 
   const data = location.state;
-  console.log(data);
-
   const handleDelete = (name: any) => {
     if (selectedFile !== undefined) {
       const updatedFilesList = selectedFile.filter(
@@ -45,29 +49,43 @@ const InitiateNewClaimRequest = () => {
   };
 
   const initiateClaimRequestBody = {
-    // ...data,
     insuranceId: data?.insuranceId || '',
     insurancePlan: data?.insurancePlan || null,
     mobile: location.state.mobile.filters.mobile.eq || '',
     participantCode: data?.participantCode || '',
     payor: data?.payor || payorName,
     providerName: data?.providerName || '',
+    patientName: userInfo[0]?.name,
     serviceType: data?.serviceType || '',
-    billingDeatils: {
-      serviceType: serviceType,
-      billAmount: amount,
-    },
-    supportingDocuments: {
-      [documentType]:
-        FileLists !== undefined
-          ? FileLists.map((ele: any) => {
-              return ele.name;
-            })
-          : [],
+    billAmount: amount,
+    supportingDocuments: [
+      {
+        documentType: documentType,
+        urls: fileUrlList.map((ele: any) => {
+          return ele.url;
+        }),
+      },
+    ],
+  };
+
+  const filter = {
+    entityType: ['Beneficiary'],
+    filters: {
+      mobile: { eq: '6363062395' },
     },
   };
 
-  console.log(initiateClaimRequestBody);
+  useEffect(() => {
+    const search = async () => {
+      try {
+        const searchUser = await postRequest('/search', filter);
+        setUserInformation(searchUser.data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    search();
+  }, []);
 
   const participantCodePayload = {
     filters: {
@@ -132,21 +150,55 @@ const InitiateNewClaimRequest = () => {
 
   const submitClaim = async () => {
     try {
-      setLoading(true);
       const submit = await generateOutgoingRequest(
         'create/claim/submit',
         initiateClaimRequestBody
       );
-      setLoading(false);
-      navigate('/request-success', {
-        state: {
-          text: 'new claim',
-          mobileNumber: data.mobile || initiateClaimRequestBody.mobile,
-        },
-      });
     } catch (error) {
       setLoading(false);
       toast.error('Faild to submit claim, Please try again');
+    }
+  };
+
+  const handleUpload = async () => {
+    try {
+      setLoading(true);
+      toast.info('Uploading documents please wait...!');
+      const formData = new FormData();
+      formData.append('mobile', location.state?.mobile?.filters?.mobile?.eq);
+
+      FileLists.forEach((file: any) => {
+        console.log(file);
+        formData.append(`file`, file);
+      });
+
+      const headers = {
+        Authorization: `Bearer ${token}`,
+      };
+
+      const response = await axios({
+        url: 'https://dev-hcx.swasth.app/api/v0.7/upload/documents',
+        method: 'POST',
+        headers: headers,
+        data: formData,
+      });
+      setUrlList(response.data);
+      console.log(response);
+      toast.info('Documents uploaded successfully!');
+      // console.log('File uploaded successfully', response);
+      if (response.data.length !== 0) {
+        submitClaim();
+        navigate('/request-success', {
+          state: {
+            text: 'new claim',
+            mobileNumber: data.mobile || initiateClaimRequestBody.mobile,
+          },
+        });
+      }
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+      console.error('Error uploading file', error);
     }
   };
 
@@ -203,7 +255,7 @@ const InitiateNewClaimRequest = () => {
             required
             className="relative z-20 w-full appearance-none rounded border border-stroke bg-transparent bg-transparent py-4 px-6 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark"
           >
-            <option value="Consultation">Consultation</option>
+            <option value="OPD">OPD</option>
           </select>
           <span className="absolute top-1/2 right-4 z-10 -translate-y-1/2">
             <svg
@@ -252,8 +304,8 @@ const InitiateNewClaimRequest = () => {
             onChange={(e: any) => setDocumentType(e.target.value)}
             className="relative z-20 w-full appearance-none rounded border border-stroke bg-transparent bg-transparent py-4 px-6 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark"
           >
-            <option value="Prescription">Prescription</option>
-            <option value="Bill/invoice">Bill/invoice</option>
+            <option value="prescription">Prescription</option>
+            <option value="invoice">Bill/invoice</option>
           </select>
           <span className="absolute top-1/2 right-4 z-10 -translate-y-1/2">
             <svg
@@ -368,10 +420,10 @@ const InitiateNewClaimRequest = () => {
       <div className="mb-5 mt-4">
         {!loading ? (
           <button
-            disabled={false}
+            disabled={amount === '' || selectedFile === undefined}
             onClick={(event: any) => {
               event.preventDefault();
-              submitClaim();
+              handleUpload();
             }}
             type="submit"
             className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
