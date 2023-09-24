@@ -23,6 +23,7 @@ const OTP = () => {
       let response = await sendOTP(payload);
       if (response.status === 200) {
         // toast.success('OTP sent successfully!');
+        alert('OTP sent successfully!');
         navigate('/verify-otp', { state: mobileNumber });
         setLoading(false);
       }
