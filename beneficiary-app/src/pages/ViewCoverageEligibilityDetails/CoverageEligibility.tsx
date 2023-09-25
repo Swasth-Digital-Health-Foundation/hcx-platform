@@ -23,12 +23,12 @@ const CoverageEligibility = () => {
   const requestDetails = {
     providerName: providerName,
     ...location.state,
-    billAmount:preauthOrClaimList[0]?.billAmount
+    billAmount: preauthOrClaimList[0]?.billAmount || '',
+    apiCallId: preauthOrClaimList[0]?.apiCallId || '',
   };
 
   const [type, setType] = useState<string[]>([]);
 
-  // console.log(requestDetails);
   console.log(preauthOrClaimList);
 
   const claimRequestDetails: any = [
@@ -162,6 +162,8 @@ const CoverageEligibility = () => {
     (obj: any) => obj.workflow_id === requestDetails?.workflowId || ''
   );
 
+  console.log(preauthOrClaimList);
+
   return (
     <>
       {!loading ? (
@@ -219,7 +221,7 @@ const CoverageEligibility = () => {
                       &#10004; Approved
                     </div>
                   ) : (
-                    <div className="sm:text-title-xl1 mb-1 text-end font-semibold text-success dark:text-success">
+                    <div className="sm:text-title-xl1 mb-1 text-end font-semibold text-warning dark:text-success">
                       Pending
                     </div>
                   )}

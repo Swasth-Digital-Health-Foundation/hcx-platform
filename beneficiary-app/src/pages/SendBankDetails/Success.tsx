@@ -1,5 +1,5 @@
 import React from 'react';
-import successImage from '../../images/Group 49576.png';
+import successImage from '../../images/Verified-512.png';
 import { useNavigate } from 'react-router-dom';
 
 const Success = () => {
@@ -7,7 +7,12 @@ const Success = () => {
   return (
     <>
       <div className="flex-col justify-center p-5">
-        <img className="m-auto" src={successImage} alt="success icon" />
+        <img
+          className="m-auto"
+          src={successImage}
+          alt="success icon"
+          width={150}
+        />
       </div>
       <p className="text-center">Bank details submitted successfully.</p>
       <button

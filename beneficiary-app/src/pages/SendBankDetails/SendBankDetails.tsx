@@ -72,7 +72,6 @@ const SendBankDetails = () => {
       if (res.status === 200) {
         setBankDetails(true);
         // toast.success('succes');
-        navigate('/success');
       }
     } catch (err) {
       console.log(err);
@@ -92,6 +91,7 @@ const SendBankDetails = () => {
       console.log(res);
       if (res.status === 202) {
         toast.success('Bank deatils submitted successfully!');
+        navigate('/success');
       }
     } catch (err) {
       console.log(err);
