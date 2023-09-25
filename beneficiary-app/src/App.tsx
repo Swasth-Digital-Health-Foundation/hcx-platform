@@ -14,6 +14,7 @@ import CoverageEligibilityRequest from './pages/CoverageEligibilityRequest/Cover
 import PreAuthRequest from './pages/InitiatePreAuthRequest/PreAuthRequest';
 import RequestSuccess from './components/RequestSuccess';
 import { ToastContainer } from 'react-toastify';
+import Profile from './pages/Profile/Profile';
 
 const App = () => {
   const [loading, setLoading] = useState<boolean>(true);
@@ -26,16 +27,16 @@ const App = () => {
     <Loader />
   ) : (
     <>
-        <ToastContainer
-          position="top-right"
-          autoClose={1500}
-          hideProgressBar
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-        />
+      <ToastContainer
+        position="top-right"
+        autoClose={1500}
+        hideProgressBar
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+      />
       <Routes>
         <Route path="/" element={<Navigate to="/otp" />} />
         <Route path="/otp" element={<OTP />}></Route>
@@ -65,6 +66,7 @@ const App = () => {
             element={<ViewClaimRequestDetails />}
           />
           <Route path="/request-success" element={<RequestSuccess />} />
+          <Route path="/profile" element={<Profile />} />
         </Route>
       </Routes>
     </>

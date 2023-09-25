@@ -1,20 +1,25 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import successImage from '../images/Group 49576.png';
+import successImage from '../images/success.png';
 
 const RequestSuccess = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const mobile = location.state?.mobileNumber;
-  console.log(mobile)
+
   return (
     <>
       <div className="flex-col justify-center p-5">
-        <img className="m-auto" src={successImage} alt="success icon" />
+        <img
+          className="m-auto"
+          src={successImage}
+          alt="success icon"
+          width={150}
+        />
       </div>
       <p className="text-center">
-        Congratulations! You've initiated the {location.state?.text} {''}
-        request with your insurer. Your insurer will review and respond to your
-        request. You can track the request status under active claims tab on
+        Congratulations! You have successfully initiated a new{' '}
+        {location.state?.text} {''}
+        request. You can track the request status from 'Active requests' on
         homepage.
       </p>
       <button

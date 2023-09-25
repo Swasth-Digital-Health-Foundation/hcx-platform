@@ -13,19 +13,13 @@ import { toast } from 'react-toastify';
 const ViewClaimRequestDetails = () => {
   const location = useLocation();
   const details = location.state;
-  console.log(details);
-
   const [token, setToken] = useState<string>('');
-
   const [providerName, setProviderName] = useState<string>('');
   const [payorName, setPayorName] = useState<string>('');
-
   const [initiated, setInitiated] = useState(false);
-
   const [OTP, setOTP] = useState<any>();
-
   const [loading, setLoading] = useState(false);
-
+  const [typeOfClaim, setTypeOfClaim] = useState([]);
   const [activeRequests, setActiveRequests] = useState<any>([]);
 
   const participantCodePayload = {
@@ -51,18 +45,50 @@ const ViewClaimRequestDetails = () => {
     },
   };
 
-  useEffect(() => {
-    const search = async () => {
-      try {
-        const tokenResponse = await generateToken(tokenRequestBody);
-        if (tokenResponse.statusText === 'OK') {
-          setToken(tokenResponse.data.access_token);
-        }
-      } catch (err) {
-        console.log(err);
+  const getActivePlans = async () => {
+    try {
+      setLoading(true);
+      let response = await generateOutgoingRequest(
+        'bsp/request/list',
+        requestPayload
+      );
+      setLoading(false);
+      setActiveRequests(response.data?.entries);
+    } catch (err) {
+      setLoading(false);
+    }
+  };
+  const search = async () => {
+    try {
+      const tokenResponse = await generateToken(tokenRequestBody);
+      if (tokenResponse.statusText === 'OK') {
+        setToken(tokenResponse.data.access_token);
       }
-    };
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const filteredEntries = activeRequests.filter(
+    (entry: any) => entry.claimID === details?.claim_id
+  );
+
+  // const checkForState = () => {
+  //   if(!details)
+  //     navigate("/");
+  //   else if(details && Object.hasOwn("type")) {
+  //     setTypeOfClaim(details.type);
+  //   }
+  // }
+
+  // if(typeOfClaim.includes())
+
+  useEffect(() => {
+    getActivePlans();
     search();
+    setEntries(filteredEntries);
+    // checkForState();
+
   }, []);
 
   useEffect(() => {
@@ -131,7 +157,7 @@ const ViewClaimRequestDetails = () => {
 
   const getCommunicationRes = async () => {
     try {
-      let res = await isInitiated(details?.claim_id);
+      let res = await isInitiated(details?.apiCallId);
       console.log(res);
       if (res.status === 200) {
         setInitiated(true);
@@ -141,8 +167,9 @@ const ViewClaimRequestDetails = () => {
     }
   };
 
+  console.log(details)
   const payload = {
-    request_id: details?.claim_id,
+    requestId: details?.apiCallId,
     mobile: details?.mobile?.filters?.mobile?.eq,
     otp_code: OTP,
   };
@@ -161,43 +188,17 @@ const ViewClaimRequestDetails = () => {
   };
 
   const requestPayload = {
-    mobile: location.state.mobile.filters.mobile.eq,
+    mobile: localStorage.getItem('mobile'),
   };
-
-  useEffect(() => {
-    const getActivePlans = async () => {
-      try {
-        setLoading(true);
-        let response = await generateOutgoingRequest(
-          'bsp/request/list',
-          requestPayload
-        );
-        setLoading(false);
-        setActiveRequests(response.data?.entries);
-      } catch (err) {
-        setLoading(false);
-      }
-    };
-    getActivePlans();
-  }, []);
-
   const [entries, setEntries] = useState([]);
-
-  useEffect(() => {
-    const filteredEntries = activeRequests.filter(
-      (entry: any) => entry.claimID === details?.claim_id
-    );
-    setEntries(filteredEntries);
-  }, []);
-
-  console.log(entries);
 
   return (
     <>
-      <div className="flex items-center justify-between">
-        <h2 className="sm:text-title-xl1 mb-4 text-2xl font-semibold text-black dark:text-white">
+      <div>
+        <h2 className="sm:text-title-xl1 mb-2 text-2xl font-semibold text-black dark:text-white">
           {strings.CLAIM_REQUEST_DETAILS}
         </h2>
+        <span className="text-base font-medium">{details?.workflowId}</span>
       </div>
       <div className="rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
         <div>
@@ -213,31 +214,31 @@ const ViewClaimRequestDetails = () => {
           })}
         </div>
       </div>
-      <div className="flex items-center justify-between">
-        <h2 className="sm:text-title-xl1 text-1xl mt-2 mb-4 font-semibold text-black dark:text-white">
-          {strings.TREATMENT_AND_BILLING_DETAILS}
-        </h2>
-      </div>
-      <div className="rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
+      <div className="mb-2 mt-2 rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
+        <div className="flex items-center justify-between">
+          <h2 className="sm:text-title-xl1 text-1xl mt-2 mb-4 font-semibold text-black dark:text-white">
+            {strings.TREATMENT_AND_BILLING_DETAILS}
+          </h2>
+        </div>
         <div>
           {treatmentDetails.map((ele: any) => {
             return (
-              <>
+              <div className='flex gap-2'>
                 <h2 className="text-bold text-base font-bold text-black dark:text-white">
                   {ele.key}
                 </h2>
                 <span className="text-base font-medium">{ele.value}</span>
-              </>
+              </div>
             );
           })}
         </div>
       </div>
-      <div className="flex items-center justify-between">
-        <h2 className="sm:text-title-xl1 text-1xl mt-2 mb-4 font-semibold text-black dark:text-white">
-          {strings.SUPPORTING_DOCS}
-        </h2>
-      </div>
-      <div className="rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
+      <div className="mb-2 rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
+        <div className="flex items-center justify-between">
+          <h2 className="sm:text-title-xl1 text-1xl mt-2 mb-4 font-semibold text-black dark:text-white">
+            {strings.SUPPORTING_DOCS}
+          </h2>
+        </div>
         <div>
           {supportingDocuments.map((ele: any) => {
             return (
@@ -289,7 +290,6 @@ const ViewClaimRequestDetails = () => {
               <button
                 onClick={(event: any) => {
                   event.preventDefault();
-                  //   navigate('/home');
                   verifyOTP();
                 }}
                 type="submit"

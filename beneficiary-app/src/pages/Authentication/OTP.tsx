@@ -9,13 +9,15 @@ import strings from '../../utils/strings';
 
 const OTP = () => {
   const navigate = useNavigate();
-  const [mobileNumber, setMobileNumber] = useState<number>();
+  const [mobileNumber, setMobileNumber] = useState<any>();
   const [isValid, setIsValid] = useState(true);
   const [loading, setLoading] = useState(false);
 
   const payload = {
     mobile: mobileNumber,
   };
+
+  localStorage.setItem('mobile', mobileNumber);
 
   const formSubmit = async () => {
     try {

@@ -34,6 +34,8 @@ const PreAuthRequest = () => {
 
   const [userInfo, setUserInformation] = useState<any>([]);
 
+  const [isPreauthInitiated, setisPreauthInitiated] = useState(false);
+
   let FileLists: any;
   if (selectedFile !== undefined) {
     FileLists = Array.from(selectedFile);
@@ -78,7 +80,7 @@ const PreAuthRequest = () => {
   const filter = {
     entityType: ['Beneficiary'],
     filters: {
-      mobile: { eq: location.state?.mobile?.filters?.mobile?.eq },
+      mobile: { eq: localStorage.getItem('mobile') },
     },
   };
 
@@ -94,15 +96,18 @@ const PreAuthRequest = () => {
     search();
   }, []);
 
+  console.log(userInfo);
+
   const requestPayload = {
     providerName: dataFromCard?.providerName || providerName,
     participantCode: dataFromCard?.participantCode,
     serviceType: dataFromCard?.serviceType,
     payor: payorName,
     insuranceId: dataFromCard?.insuranceId,
-    mobile: location.state?.mobile?.filters?.mobile?.eq || '',
+    mobile: localStorage.getItem('mobile'),
     billAmount: estimatedAmount,
     patientName: userInfo[0]?.name,
+    workflowId: dataFromCard?.workflowId,
     supportingDocuments: [
       {
         documentType: documentType,
@@ -113,7 +118,7 @@ const PreAuthRequest = () => {
     ],
   };
 
-  console.log(requestPayload);
+  // console.log(requestPayload);
 
   const participantCodePayload = {
     filters: {
@@ -271,23 +276,20 @@ const PreAuthRequest = () => {
     }
   };
 
-  // console.log(token)
-  // console.log(selectedFile);
-
   return (
-    <div className="w-full pt-2 sm:p-12.5 xl:p-1">
+    <div className="w-full">
       <h2 className="mb-4 text-2xl font-bold text-black dark:text-white sm:text-title-xl2">
         {strings.NEW_PREAUTH_REQUEST}
       </h2>
       <div className="rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
         {preauthRequestDetails.map((ele: any) => {
           return (
-            <>
+            <div className="mb-2">
               <h2 className="text-bold text-base font-bold text-black dark:text-white">
                 {ele.key}
               </h2>
               <span className="text-base font-medium">{ele.value}</span>
-            </>
+            </div>
           );
         })}
       </div>
@@ -306,7 +308,7 @@ const PreAuthRequest = () => {
             required
             className="relative z-20 w-full appearance-none rounded border border-stroke bg-transparent bg-transparent py-4 px-6 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark"
           >
-            <option value="">Consultation</option>
+            <option value="Consultation">Consultation</option>
           </select>
           <span className="absolute top-1/2 right-4 z-10 -translate-y-1/2">
             <svg
@@ -328,7 +330,7 @@ const PreAuthRequest = () => {
           </span>
         </div>
         <div className="mt-4 items-center">
-          <h2 className="text-1xl sm:text-title-xl1 mb-4 mt-4 flex w-50 font-bold text-black dark:text-white">
+          <h2 className="mb-2.5 block text-left font-medium text-black dark:text-white">
             {strings.ESTIMATED_BILL_AMOUNT}
           </h2>
           <input

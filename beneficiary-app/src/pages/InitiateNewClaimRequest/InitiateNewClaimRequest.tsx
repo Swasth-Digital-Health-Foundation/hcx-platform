@@ -19,7 +19,7 @@ const InitiateNewClaimRequest = () => {
   const [isSuccess, setIsSuccess]: any = useState(false);
 
   const [amount, setAmount] = useState<string>('');
-  const [serviceType, setServiceType] = useState<string>('OPD');
+  const [serviceType, setServiceType] = useState<string>('Consultation');
   const [documentType, setDocumentType] = useState<string>('prescription');
 
   const [loading, setLoading] = useState(false);
@@ -48,16 +48,19 @@ const InitiateNewClaimRequest = () => {
     }
   };
 
+  console.log(data)
+
   const initiateClaimRequestBody = {
     insuranceId: data?.insuranceId || '',
     insurancePlan: data?.insurancePlan || null,
-    mobile: location.state.mobile.filters.mobile.eq || '',
+    mobile: localStorage.getItem('mobile') || '',
     participantCode: data?.participantCode || '',
     payor: data?.payor || payorName,
     providerName: data?.providerName || '',
     patientName: userInfo[0]?.name,
     serviceType: data?.serviceType || '',
     billAmount: amount,
+    workflowId: data?.workflowId,
     supportingDocuments: [
       {
         documentType: documentType,
@@ -67,11 +70,12 @@ const InitiateNewClaimRequest = () => {
       },
     ],
   };
+  console.log(initiateClaimRequestBody);
 
   const filter = {
     entityType: ['Beneficiary'],
     filters: {
-      mobile: { eq: location.state.mobile.filters.mobile.eq },
+      mobile: { eq: localStorage.getItem('mobile') },
     },
   };
 
@@ -215,14 +219,14 @@ const InitiateNewClaimRequest = () => {
   ];
 
   return (
-    <div className="w-full pt-2 sm:p-12.5 xl:p-1">
+    <div className="w-full">
       <h2 className="mb-4 text-2xl font-bold text-black dark:text-white sm:text-title-xl2">
         {strings.NEW_CLAIM_REQUEST}
       </h2>
       <div className="rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
         {claimRequestDetails.map((ele: any, index: any) => {
           return (
-            <div key={index}>
+            <div key={index} className="mb-2">
               <h2 className="text-bold mt-1 text-base font-bold text-black dark:text-white">
                 {ele.key}
               </h2>
@@ -266,7 +270,7 @@ const InitiateNewClaimRequest = () => {
           </span>
         </div>
         <div className="mt-4 items-center">
-          <h2 className="text-1xl sm:text-title-xl1 mb-4 mt-4 flex w-50 font-bold text-black dark:text-white">
+          <h2 className="mb-2.5 block text-left font-medium text-black dark:text-white">
             {strings.BILL_AMOUNT}
           </h2>
           <input
@@ -417,7 +421,7 @@ const InitiateNewClaimRequest = () => {
             type="submit"
             className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
           >
-            {strings.SUBMIT_CLAIM}
+            Submit claim
           </button>
         ) : (
           <LoadingButton />

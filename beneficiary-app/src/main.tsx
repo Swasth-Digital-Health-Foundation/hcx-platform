@@ -5,13 +5,12 @@ import App from './App';
 import './index.css';
 import './satoshi.css';
 import './simple-datatables.css';
-import { ToastContainer } from 'react-toastify';
 import "react-toastify/dist/ReactToastify.css";
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-  <React.StrictMode>
+  // <React.StrictMode>
     <Router>
       <App />
     </Router>
-  </React.StrictMode>
+  // </React.StrictMode>
 );

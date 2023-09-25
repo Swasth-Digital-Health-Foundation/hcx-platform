@@ -24,6 +24,8 @@ const SignUp = () => {
     setCards(updatedCards);
   };
 
+  const getMobileFromLocalStorage: any = localStorage.getItem('mobile');
+
   const addCard = () => {
     const cardKey = cards.length + 1;
 
@@ -57,7 +59,7 @@ const SignUp = () => {
 
   let payload = {
     email: email,
-    mobile: mobileNumber !== undefined ? mobileNumber.toString() : '',
+    mobile: getMobileFromLocalStorage,
     name: userName,
     payor_details: [
       {
@@ -105,7 +107,7 @@ const SignUp = () => {
   const payorCheck = payor === ('' || 'none' || null);
   const numberCheck = mobileNumber?.length !== 10;
   const handleDisable = () => {
-    if (numberCheck || insuranceCheck || payorCheck) {
+    if ( insuranceCheck || payorCheck) {
       return true;
     }
     return false;
@@ -143,8 +145,8 @@ const SignUp = () => {
               </label>
               <div className="relative">
                 <input
-                  onChange={handleMobileNumberChange}
-                  type="number"
+                  disabled
+                  value={getMobileFromLocalStorage}
                   placeholder={strings.ENTER_MOBILE_NUMBER}
                   className={`border ${
                     isValid ? 'border-stroke' : 'border-red'
@@ -185,7 +187,12 @@ const SignUp = () => {
                     onChange={handlePayorChange}
                     className="relative z-20 w-full appearance-none rounded border border-stroke bg-transparent py-4 px-6 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input"
                   >
-                    <option value="wemeanhospital Mock Payor">wemeanhospital Mock Payor</option>
+                    <option value="wemeanhospital Mock Payor">
+                      wemeanhospital Mock Payor
+                    </option>
+                    <option value="Swast Payor">
+                      Swast Payor
+                    </option>
                   </select>
                   <span className="absolute top-1/2 right-4 z-10 -translate-y-1/2">
                     <svg

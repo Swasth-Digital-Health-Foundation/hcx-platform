@@ -27,7 +27,7 @@ const CoverageEligibilityRequest = () => {
   if (insurancePlan === 'add another') {
     payload = {
       patientName: patientName,
-      mobile: location.state.mobile.filters.mobile.eq || _.get(location, 'state.mobile'),
+      mobile: localStorage.getItem('mobile'),
       serviceType: serviceType,
       insurancePlan: insurancePlan,
       payor: payor,
@@ -37,7 +37,7 @@ const CoverageEligibilityRequest = () => {
   } else {
     payload = {
       patientName: patientName,
-      mobile: location.state.mobile.filters.mobile.eq || _.get(location, 'state.mobile'),
+      mobile: localStorage.getItem('mobile'),
       serviceType: serviceType,
       insurancePlan: insurancePlan,
       ...providerDetails,
@@ -47,13 +47,11 @@ const CoverageEligibilityRequest = () => {
   const filter = {
     entityType: ['Beneficiary'],
     filters: {
-      mobile: { eq: payload?.mobile },
+      mobile: { eq: localStorage.getItem('mobile') },
     },
   };
 
-  console.log(payload)
-  console.log(location.state.mobile.filters.mobile.eq)
-  // console.log(_.get(location, 'state.filter.filters.mobile.eq'))
+  console.log(payload);
 
   //beneficiary search
   useEffect(() => {
@@ -79,7 +77,7 @@ const CoverageEligibilityRequest = () => {
       if (response?.status === 202) {
         navigate('/request-success', {
           state: {
-            text: 'the coverage eligibility',
+            text: 'coverage eligibility',
             mobileNumber: _.get(location, 'state.mobile'),
           },
         });
@@ -161,7 +159,6 @@ const CoverageEligibilityRequest = () => {
               >
                 <option value="">select</option>
                 <option value="add another">add another</option>
-                <option value="ABC123">ABC123</option>
               </select>
               <span className="absolute top-1/2 right-4 z-10 -translate-y-1/2">
                 <svg
@@ -253,7 +250,8 @@ const CoverageEligibilityRequest = () => {
             disabled={
               serviceType === '' ||
               insurancePlan === '' ||
-              (insurancePlan === 'add another' && (payor === '' || insuranceId === ''))
+              (insurancePlan === 'add another' &&
+                (payor === '' || insuranceId === ''))
             }
             onClick={(event: any) => {
               event.preventDefault();
