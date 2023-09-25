@@ -183,7 +183,7 @@ const InitiateNewClaimRequest = () => {
         );
         navigate('/request-success', {
           state: {
-            text: 'new claim',
+            text: 'claim',
             mobileNumber: data.mobile || initiateClaimRequestBody.mobile,
           },
         });
