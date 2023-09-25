@@ -15,6 +15,8 @@ import PreAuthRequest from './pages/InitiatePreAuthRequest/PreAuthRequest';
 import RequestSuccess from './components/RequestSuccess';
 import { ToastContainer } from 'react-toastify';
 import Profile from './pages/Profile/Profile';
+import SendBankDetails from './pages/SendBankDetails/SendBankDetails';
+import Success from './pages/SendBankDetails/Success';
 
 const App = () => {
   const [loading, setLoading] = useState<boolean>(true);
@@ -67,6 +69,8 @@ const App = () => {
           />
           <Route path="/request-success" element={<RequestSuccess />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/bank-details" element={<SendBankDetails />} />
+          <Route path="/success" element={<Success />} />
         </Route>
       </Routes>
     </>

@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import strings from '../../utils/strings';
 import { generateToken, searchParticipant } from '../../services/hcxService';
 import axios from 'axios';
 import {
   createCommunicationOnRequest,
-  generateOutgoingRequest,
   isInitiated,
 } from '../../services/hcxMockService';
 import { toast } from 'react-toastify';
@@ -13,14 +12,20 @@ import { toast } from 'react-toastify';
 const ViewClaimRequestDetails = () => {
   const location = useLocation();
   const details = location.state;
+  const navigate = useNavigate();
+
   const [token, setToken] = useState<string>('');
+
   const [providerName, setProviderName] = useState<string>('');
   const [payorName, setPayorName] = useState<string>('');
+
   const [initiated, setInitiated] = useState(false);
+
   const [OTP, setOTP] = useState<any>();
-  const [loading, setLoading] = useState(false);
-  const [typeOfClaim, setTypeOfClaim] = useState([]);
-  const [activeRequests, setActiveRequests] = useState<any>([]);
+
+  const [beneficiaryBankDetails, setBankDetails] = useState(false);
+
+  const [seconVerification, setSecondVerification] = useState(false);
 
   const participantCodePayload = {
     filters: {
@@ -45,50 +50,24 @@ const ViewClaimRequestDetails = () => {
     },
   };
 
-  const getActivePlans = async () => {
-    try {
-      setLoading(true);
-      let response = await generateOutgoingRequest(
-        'bsp/request/list',
-        requestPayload
-      );
-      setLoading(false);
-      setActiveRequests(response.data?.entries);
-    } catch (err) {
-      setLoading(false);
-    }
+  const sendInfo = {
+    ...details,
+    payor: payorName,
+    providerName: providerName,
   };
-  const search = async () => {
-    try {
-      const tokenResponse = await generateToken(tokenRequestBody);
-      if (tokenResponse.statusText === 'OK') {
-        setToken(tokenResponse.data.access_token);
-      }
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  const filteredEntries = activeRequests.filter(
-    (entry: any) => entry.claimID === details?.claim_id
-  );
-
-  // const checkForState = () => {
-  //   if(!details)
-  //     navigate("/");
-  //   else if(details && Object.hasOwn("type")) {
-  //     setTypeOfClaim(details.type);
-  //   }
-  // }
-
-  // if(typeOfClaim.includes())
 
   useEffect(() => {
-    getActivePlans();
+    const search = async () => {
+      try {
+        const tokenResponse = await generateToken(tokenRequestBody);
+        if (tokenResponse.statusText === 'OK') {
+          setToken(tokenResponse.data.access_token);
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    };
     search();
-    setEntries(filteredEntries);
-    // checkForState();
-
   }, []);
 
   useEffect(() => {
@@ -148,6 +127,8 @@ const ViewClaimRequestDetails = () => {
     },
   ];
 
+  console.log(details)
+
   const supportingDocuments = [
     {
       key: 'Document type :',
@@ -155,9 +136,16 @@ const ViewClaimRequestDetails = () => {
     },
   ];
 
-  const getCommunicationRes = async () => {
+  const getVerificationPayload = {
+    type: 'otp_verification',
+    request_id: details?.apiCallId,
+  };
+
+  console.log(getVerificationPayload);
+
+  const getVerification = async () => {
     try {
-      let res = await isInitiated(details?.apiCallId);
+      let res = await isInitiated(getVerificationPayload);
       console.log(res);
       if (res.status === 200) {
         setInitiated(true);
@@ -167,38 +155,55 @@ const ViewClaimRequestDetails = () => {
     }
   };
 
-  console.log(details)
+  const getVerificationPayloadForBank = {
+    type: 'bank_details',
+    request_id: details?.apiCallId,
+  };
+
+  const getVerificationForBank = async () => {
+    try {
+      let res = await isInitiated(getVerificationPayloadForBank);
+      console.log(res);
+      if (res.status === 200) {
+        setBankDetails(true);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   const payload = {
-    requestId: details?.apiCallId,
-    mobile: details?.mobile?.filters?.mobile?.eq,
+    request_id: details?.apiCallId,
+    mobile: localStorage.getItem('mobile'),
     otp_code: OTP,
+    type: 'otp',
   };
 
   const verifyOTP = async () => {
     try {
       const res = await createCommunicationOnRequest(payload);
-      // console.log(res);
-      if (res.status === 202) {
-        toast.success(res.data?.body?.message);
-      }
+      console.log(res);
+      setInitiated(false);
+      setSecondVerification(true);
+      toast.success(res.data?.message);
+      navigate('/bank-details', { state: sendInfo });
+
     } catch (err) {
+      toast.error('Enter valid OTP!');
       console.log(err);
-      toast.error('verification faild!');
     }
   };
 
-  const requestPayload = {
-    mobile: localStorage.getItem('mobile'),
-  };
-  const [entries, setEntries] = useState([]);
+  
+
+  // console.log(bankDetailsPayload);
 
   return (
     <>
-      <div>
-        <h2 className="sm:text-title-xl1 mb-2 text-2xl font-semibold text-black dark:text-white">
+      <div className="flex items-center justify-between">
+        <h2 className="sm:text-title-xl1 mb-4 text-2xl font-semibold text-black dark:text-white">
           {strings.CLAIM_REQUEST_DETAILS}
         </h2>
-        <span className="text-base font-medium">{details?.workflowId}</span>
       </div>
       <div className="rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
         <div>
@@ -214,16 +219,16 @@ const ViewClaimRequestDetails = () => {
           })}
         </div>
       </div>
-      <div className="mb-2 mt-2 rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
-        <div className="flex items-center justify-between">
-          <h2 className="sm:text-title-xl1 text-1xl mt-2 mb-4 font-semibold text-black dark:text-white">
-            {strings.TREATMENT_AND_BILLING_DETAILS}
-          </h2>
-        </div>
+      <div className="flex items-center justify-between">
+        <h2 className="sm:text-title-xl1 text-1xl mt-2 mb-4 font-semibold text-black dark:text-white">
+          {strings.TREATMENT_AND_BILLING_DETAILS}
+        </h2>
+      </div>
+      <div className="rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
         <div>
           {treatmentDetails.map((ele: any) => {
             return (
-              <div className='flex gap-2'>
+              <div className="flex gap-2">
                 <h2 className="text-bold text-base font-bold text-black dark:text-white">
                   {ele.key}
                 </h2>
@@ -233,12 +238,12 @@ const ViewClaimRequestDetails = () => {
           })}
         </div>
       </div>
-      <div className="mb-2 rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
-        <div className="flex items-center justify-between">
-          <h2 className="sm:text-title-xl1 text-1xl mt-2 mb-4 font-semibold text-black dark:text-white">
-            {strings.SUPPORTING_DOCS}
-          </h2>
-        </div>
+      <div className="flex items-center justify-between">
+        <h2 className="sm:text-title-xl1 text-1xl mt-2 mb-4 font-semibold text-black dark:text-white">
+          {strings.SUPPORTING_DOCS}
+        </h2>
+      </div>
+      <div className="rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
         <div>
           {supportingDocuments.map((ele: any) => {
             return (
@@ -252,9 +257,16 @@ const ViewClaimRequestDetails = () => {
           })}
         </div>
       </div>
-      <div className="p-2" onClick={() => getCommunicationRes()}>
-        <span className="cursor-pointer underline">Refresh</span>
-      </div>
+
+      {!initiated ? (
+        <div
+          className="cursor-pointer py-3 underline"
+          onClick={() => getVerification()}
+        >
+          <span>Refresh</span>
+        </div>
+      ) : null}
+
       {initiated ? (
         <>
           <div className="flex items-center justify-between">
@@ -301,6 +313,12 @@ const ViewClaimRequestDetails = () => {
           </div>
         </>
       ) : null}
+      {seconVerification ? (
+        <p onClick={() => getVerificationForBank()}>Refresh</p>
+      ) : (
+        <></>
+      )}
+      
     </>
   );
 };

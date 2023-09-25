@@ -8,9 +8,9 @@ async function generateOutgoingRequest(url: any, payload: any) {
   return response;
 }
 
-async function isInitiated(requestId: any) {
-  const response = await axios.get(
-    `https://dev-hcx.swasth.app/hcx-mock-service/v0.7/check/communication/request?requestId=${requestId}`
+async function isInitiated(payload: any) {
+  const response = await axios.post(
+    `https://dev-hcx.swasth.app/hcx-mock-service/v0.7/check/communication/request`,payload
   );
   return response;
 }

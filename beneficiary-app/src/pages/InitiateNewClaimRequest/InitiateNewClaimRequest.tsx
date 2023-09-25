@@ -48,7 +48,7 @@ const InitiateNewClaimRequest = () => {
     }
   };
 
-  console.log(data)
+  console.log(data);
 
   const initiateClaimRequestBody = {
     insuranceId: data?.insuranceId || '',
@@ -194,6 +194,7 @@ const InitiateNewClaimRequest = () => {
       console.error('Error uploading file', error);
     }
   };
+  console.log(fileUrlList);
 
   const claimRequestDetails: any = [
     {

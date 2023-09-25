@@ -23,12 +23,13 @@ const CoverageEligibility = () => {
   const requestDetails = {
     providerName: providerName,
     ...location.state,
+    billAmount:preauthOrClaimList[0]?.billAmount
   };
 
   const [type, setType] = useState<string[]>([]);
 
   // console.log(requestDetails);
-  // console.log(preauthOrClaimList);
+  console.log(preauthOrClaimList);
 
   const claimRequestDetails: any = [
     {
@@ -98,6 +99,7 @@ const CoverageEligibility = () => {
     const payorResponse = await searchParticipant(payorCodePayload, config);
     setPayorName(payorResponse.data?.participants[0].participant_name);
   };
+
   useEffect(() => {
     tokenGeneration();
   }, []);
@@ -156,40 +158,10 @@ const CoverageEligibility = () => {
     getActivePlans();
   }, []);
 
-  // console.log(first)
-
   const filteredArray = coverageDetails.filter(
     (obj: any) => obj.workflow_id === requestDetails?.workflowId || ''
   );
 
-  // const treatmentDetails = [
-  //   {
-  //     key: 'Service type :',
-  //     value: preauthOrClaimList[0]?.claimType || '',
-  //   },
-  //   {
-  //     key: 'Bill amount :',
-  //     value: preauthOrClaimList[0]?.billAmount || '',
-  //   },
-  // ];
-
-  // const treatmentDetailsClaim = [
-  //   {
-  //     key: 'Service type :',
-  //     value: preauthOrClaimList[1]?.claimType || '',
-  //   },
-  //   {
-  //     key: 'Bill amount :',
-  //     value: preauthOrClaimList[1]?.billAmount || '',
-  //   },
-  // ];
-
-  // const supportingDocuments = [
-  //   {
-  //     key: 'Document type :',
-  //     value: preauthOrClaimList[0]?.billingDeatils?.serviceType || '',
-  //   },
-  // ];
   return (
     <>
       {!loading ? (
@@ -208,9 +180,7 @@ const CoverageEligibility = () => {
             {loading ? 'Please wait...' : ''}
             <h2 className="sm:text-title-xl1 mb-1 text-end font-semibold text-success dark:text-success">
               {filteredArray[0]?.status === 'Approved' ? (
-                <div className="text-success">
-                  &#10004; {requestDetails.status}
-                </div>
+                <div className="text-success">&#10004; Eligible</div>
               ) : (
                 <div className="text-warning">Pending</div>
               )}
@@ -240,9 +210,20 @@ const CoverageEligibility = () => {
           {preauthOrClaimList.map((ele: any) => {
             return (
               <>
-                <h2 className="sm:text-title-xl1 mt-3 text-2xl font-semibold text-black dark:text-white">
-                  {ele?.type} details :
-                </h2>
+                <div className=" flex items-center justify-between">
+                  <h2 className="sm:text-title-xl1 mt-3 text-2xl font-semibold text-black dark:text-white">
+                    {ele?.type} details :
+                  </h2>
+                  {ele?.status === 'Approved' ? (
+                    <div className="sm:text-title-xl1 mb-1 text-end font-semibold text-success dark:text-success">
+                      &#10004; Approved
+                    </div>
+                  ) : (
+                    <div className="sm:text-title-xl1 mb-1 text-end font-semibold text-success dark:text-success">
+                      Pending
+                    </div>
+                  )}
+                </div>
                 <div className="mt-4 rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
                   <div className="flex items-center justify-between">
                     <h2 className="sm:text-title-xl1 text-1xl mt-2 mb-4 font-semibold text-black dark:text-white">
@@ -257,9 +238,6 @@ const CoverageEligibility = () => {
                       <h2 className="text-bold text-base font-bold text-black dark:text-white">
                         Bill amount : {ele.billAmount}
                       </h2>
-                      {/* <span className="text-base font-medium">
-                    Bill amount :{ele.billAmount}
-                  </span> */}
                     </div>
                   </div>
                 </div>

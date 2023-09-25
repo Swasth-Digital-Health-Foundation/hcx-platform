@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import successImage from '../images/success.png';
+import successImage from '../images/Verified-512.png';
 
 const RequestSuccess = () => {
   const navigate = useNavigate();
@@ -17,7 +17,7 @@ const RequestSuccess = () => {
         />
       </div>
       <p className="text-center">
-        Congratulations! You have successfully initiated a new {' '}
+        Congratulations! You have successfully initiated a new{' '}
         {location.state?.text} {''}
         request. You can track the request status from 'Active requests' on
         homepage.
