@@ -23,10 +23,6 @@ const ViewClaimRequestDetails = () => {
 
   const [OTP, setOTP] = useState<any>();
 
-  const [beneficiaryBankDetails, setBankDetails] = useState(false);
-
-  const [seconVerification, setSecondVerification] = useState(false);
-
   const participantCodePayload = {
     filters: {
       participant_code: { eq: location.state?.participantCode },
@@ -127,8 +123,6 @@ const ViewClaimRequestDetails = () => {
     },
   ];
 
-  console.log(details)
-
   const supportingDocuments = [
     {
       key: 'Document type :',
@@ -152,23 +146,7 @@ const ViewClaimRequestDetails = () => {
       }
     } catch (err) {
       console.log(err);
-    }
-  };
-
-  const getVerificationPayloadForBank = {
-    type: 'bank_details',
-    request_id: details?.apiCallId,
-  };
-
-  const getVerificationForBank = async () => {
-    try {
-      let res = await isInitiated(getVerificationPayloadForBank);
-      console.log(res);
-      if (res.status === 200) {
-        setBankDetails(true);
-      }
-    } catch (err) {
-      console.log(err);
+      toast.error('Communication is not initiated.');
     }
   };
 
@@ -184,10 +162,8 @@ const ViewClaimRequestDetails = () => {
       const res = await createCommunicationOnRequest(payload);
       console.log(res);
       setInitiated(false);
-      setSecondVerification(true);
       toast.success(res.data?.message);
       navigate('/bank-details', { state: sendInfo });
-
     } catch (err) {
       toast.error('Enter valid OTP!');
       console.log(err);
@@ -196,7 +172,6 @@ const ViewClaimRequestDetails = () => {
 
   
 
-  // console.log(bankDetailsPayload);
 
   return (
     <>
@@ -260,8 +235,8 @@ const ViewClaimRequestDetails = () => {
 
       {!initiated ? (
         <div
-          className="cursor-pointer py-3 underline"
           onClick={() => getVerification()}
+          className="align-center flex w-20 justify-center rounded bg-primary py-1 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
         >
           <span>Refresh</span>
         </div>
@@ -313,12 +288,6 @@ const ViewClaimRequestDetails = () => {
           </div>
         </>
       ) : null}
-      {seconVerification ? (
-        <p onClick={() => getVerificationForBank()}>Refresh</p>
-      ) : (
-        <></>
-      )}
-      
     </>
   );
 };

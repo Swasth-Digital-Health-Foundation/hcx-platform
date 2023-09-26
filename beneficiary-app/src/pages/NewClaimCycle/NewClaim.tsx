@@ -77,8 +77,8 @@ const NewClaim = () => {
     insuranceId: insuranceId,
     mobile: location.state,
   };
-  console.log(initiateClaimRequestBody)
-  
+  console.log(initiateClaimRequestBody);
+
   return (
     <div className="w-full pt-2 sm:p-12.5 xl:p-1 ">
       <h2 className="mb-4 -mt-4 text-3xl font-bold text-black dark:text-white sm:text-title-xl2">
@@ -211,7 +211,6 @@ const NewClaim = () => {
             >
               <option value="">select</option>
               <option value="add another">add another</option>
-              <option value="ABC123">ABC123</option>
             </select>
             <span className="absolute top-1/2 right-4 z-10 -translate-y-1/2">
               <svg
@@ -251,7 +250,9 @@ const NewClaim = () => {
                       className="relative z-20 w-full appearance-none rounded border border-stroke bg-transparent bg-transparent py-4 px-6 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark"
                     >
                       <option value="">select</option>
-                      <option value="wemeanhospital Mock Payor">wemeanhospital Mock Payor</option>
+                      <option value="wemeanhospital Mock Payor">
+                        wemeanhospital Mock Payor
+                      </option>
                     </select>
                     <span className="absolute top-1/2 right-4 z-10 -translate-y-1/2">
                       <svg

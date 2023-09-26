@@ -138,6 +138,7 @@ const Home = () => {
         {!loading ? (
           <div>
             {displayedData?.map((ele: any) => {
+              console.log(ele)
               return (
                 <div className="mt-2">
                   <ActiveClaimCycleCard

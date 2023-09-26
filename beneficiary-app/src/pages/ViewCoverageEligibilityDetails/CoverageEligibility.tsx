@@ -23,8 +23,8 @@ const CoverageEligibility = () => {
   const requestDetails = {
     providerName: providerName,
     ...location.state,
-    billAmount: preauthOrClaimList[0]?.billAmount || '',
-    apiCallId: preauthOrClaimList[0]?.apiCallId || '',
+    billAmount: preauthOrClaimList[0]?.billAmount || location.state?.billAmount,
+    apiCallId: preauthOrClaimList[0]?.apiCallId || location.state?.apiCallId,
   };
 
   const [type, setType] = useState<string[]>([]);
@@ -57,6 +57,8 @@ const CoverageEligibility = () => {
       value: requestDetails?.apiCallId || '',
     },
   ];
+
+  console.log(requestDetails);
 
   const participantCodePayload = {
     filters: {
@@ -162,8 +164,8 @@ const CoverageEligibility = () => {
     (obj: any) => obj.workflow_id === requestDetails?.workflowId || ''
   );
 
-  console.log(preauthOrClaimList);
-
+  // console.log(preauthOrClaimList);
+  // console.log(filteredArray)
   return (
     <>
       {!loading ? (
@@ -181,7 +183,7 @@ const CoverageEligibility = () => {
             </button>
             {loading ? 'Please wait...' : ''}
             <h2 className="sm:text-title-xl1 mb-1 text-end font-semibold text-success dark:text-success">
-              {filteredArray[0]?.status === 'Approved' ? (
+              {requestDetails?.status === 'Approved' ? (
                 <div className="text-success">&#10004; Eligible</div>
               ) : (
                 <div className="text-warning">Pending</div>
@@ -214,7 +216,7 @@ const CoverageEligibility = () => {
               <>
                 <div className=" flex items-center justify-between">
                   <h2 className="sm:text-title-xl1 mt-3 text-2xl font-semibold text-black dark:text-white">
-                    {ele?.type} details :
+                    {ele?.type.charAt(0).toUpperCase() + ele?.type.slice(1)} details :
                   </h2>
                   {ele?.status === 'Approved' ? (
                     <div className="sm:text-title-xl1 mb-1 text-end font-semibold text-success dark:text-success">
