@@ -125,6 +125,7 @@ const CoverageEligibility = () => {
   };
 
   const [coverageDetails, setCoverageDetails] = useState<any>([]);
+  console.log(coverageDetails);
 
   const getActivePlans = async () => {
     try {
@@ -183,7 +184,7 @@ const CoverageEligibility = () => {
             </button>
             {loading ? 'Please wait...' : ''}
             <h2 className="sm:text-title-xl1 mb-1 text-end font-semibold text-success dark:text-success">
-              {requestDetails?.status === 'Approved' ? (
+              {coverageDetails[0]?.status === 'Approved' ? (
                 <div className="text-success">&#10004; Eligible</div>
               ) : (
                 <div className="text-warning">Pending</div>
@@ -216,7 +217,8 @@ const CoverageEligibility = () => {
               <>
                 <div className=" flex items-center justify-between">
                   <h2 className="sm:text-title-xl1 mt-3 text-2xl font-semibold text-black dark:text-white">
-                    {ele?.type.charAt(0).toUpperCase() + ele?.type.slice(1)} details :
+                    {ele?.type.charAt(0).toUpperCase() + ele?.type.slice(1)}{' '}
+                    details :
                   </h2>
                   {ele?.status === 'Approved' ? (
                     <div className="sm:text-title-xl1 mb-1 text-end font-semibold text-success dark:text-success">
