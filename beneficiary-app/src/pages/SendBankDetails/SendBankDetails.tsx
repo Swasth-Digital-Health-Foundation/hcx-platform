@@ -158,7 +158,7 @@ const SendBankDetails = () => {
         </div>
       </div>
       <button
-        className="align-center mt-3 flex w-20 justify-center rounded bg-primary py-1 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
+        className="align-center mt-3 mb-3 flex w-20 justify-center rounded bg-primary py-1 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
         onClick={() => getVerificationForBank()}
       >
         Refresh

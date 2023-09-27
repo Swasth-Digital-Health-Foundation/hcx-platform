@@ -39,7 +39,7 @@ export default {
   BILL_AMOUNT: 'Bill amount : *',
   SUPPORTING_DOCS: 'Supporting documents : *',
   DOC_TYPE: 'Document type :',
-  UPLOAD_DOCS: 'Upload documents',
+  UPLOAD_DOCS: 'Select documents to upload',
   DELETE: 'Delete',
   SUBMIT_CLAIM: 'Submit Pre-Auth Request',
   NEW_PREAUTH_REQUEST: 'New pre-auth request',

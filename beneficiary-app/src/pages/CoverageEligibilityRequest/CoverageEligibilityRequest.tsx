@@ -16,33 +16,26 @@ const CoverageEligibilityRequest = () => {
   const [insuranceId, setInsuranceId] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const [patientName, setPatientName] = useState<string>('');
+  const [payorFromInsuranceId, setpayorFromInsuranceId] = useState<string>('');
+  const [userInfo, setUserInformation] = useState<any>([]);
 
   const providerDetails = {
     providerName: location?.state?.obj?.provider_name,
     participantCode: location?.state?.obj?.participant_code,
   };
 
-  let payload: any;
+  let payload = {
+    providerName: location?.state?.obj?.provider_name,
+    participantCode: location?.state?.obj?.participant_code,
+    serviceType: serviceType,
+    insurancePlan: insurancePlan,
+    payor: insurancePlan === 'add another' ? payor : payorFromInsuranceId,
+    insuranceId: insurancePlan === 'add another' ? insuranceId : insurancePlan,
+    mobile: localStorage.getItem('mobile'),
+    patientName: patientName,
+  };
 
-  if (insurancePlan === 'add another') {
-    payload = {
-      patientName: patientName,
-      mobile: localStorage.getItem('mobile'),
-      serviceType: serviceType,
-      insurancePlan: insurancePlan,
-      payor: payor,
-      insuranceId: insuranceId,
-      ...providerDetails,
-    };
-  } else {
-    payload = {
-      patientName: patientName,
-      mobile: localStorage.getItem('mobile'),
-      serviceType: serviceType,
-      insurancePlan: insurancePlan,
-      ...providerDetails,
-    };
-  }
+  console.log(payload);
 
   const filter = {
     entityType: ['Beneficiary'],
@@ -59,6 +52,7 @@ const CoverageEligibilityRequest = () => {
       try {
         let response = await postRequest('/search', filter);
         setPatientName(response.data[0]?.name);
+        setUserInformation(response.data);
       } catch (error) {
         toast.error(_.get(error, 'response.data.error.message'));
       }
@@ -88,6 +82,22 @@ const CoverageEligibilityRequest = () => {
     }
   };
 
+  const getPayorName = () => {
+    if (userInfo) {
+      const matchingPayor = userInfo[0]?.payor_details.find(
+        (detail: any) => detail.insurance_id === insurancePlan
+      );
+      setpayorFromInsuranceId(
+        matchingPayor ? matchingPayor.payor : 'Payor not found'
+      );
+    }
+    return 'User info not available';
+  };
+
+  useEffect(() => {
+    getPayorName();
+  }, [insurancePlan]);
+
   return (
     <div className="w-full pt-2 sm:p-12.5 xl:p-1">
       <h2 className="mb-4 -mt-4 text-3xl font-bold text-black dark:text-white sm:text-title-xl2">
@@ -95,23 +105,31 @@ const CoverageEligibilityRequest = () => {
       </h2>
       <div className="rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
         <div>
-          <h2 className="text-bold text-base font-bold text-black dark:text-white">
-            {strings.PROVIDER_NAME}{' '}
-            {providerDetails.providerName !== undefined
-              ? providerDetails.providerName
-              : ''}
-          </h2>
-          <h2 className="text-bold mt-1 text-base font-bold text-black dark:text-white">
-            {strings.PARTICIPANT_CODE}{' '}
-            {providerDetails.participantCode !== undefined
-              ? providerDetails.participantCode
-              : ''}
-          </h2>
+          <div>
+            <h2 className="text-bold text-base font-bold text-black dark:text-white">
+              {strings.PROVIDER_NAME}{' '}
+            </h2>
+            <span>
+              {providerDetails.providerName !== undefined
+                ? providerDetails.providerName
+                : ''}
+            </span>
+          </div>
+          <div>
+            <h2 className="text-bold mt-1 text-base font-bold text-black dark:text-white">
+              {strings.PARTICIPANT_CODE}{' '}
+            </h2>
+            <span>
+              {providerDetails.participantCode !== undefined
+                ? providerDetails.participantCode
+                : ''}
+            </span>
+          </div>
         </div>
         <div className="border-gray-300 my-4 border-t "></div>
         <div className="mt-4">
           <label className="mb-2.5 block text-left font-medium text-black dark:text-white">
-            {strings.SERVICE_TYPE}
+            Treatment/Service Type: *
           </label>
           <div className="relative z-20 bg-white dark:bg-form-input">
             <select
@@ -123,6 +141,7 @@ const CoverageEligibilityRequest = () => {
             >
               <option value="">select</option>
               <option value="OPD">OPD</option>
+              <option value="OPD">IPD</option>
             </select>
             <span className="absolute top-1/2 right-4 z-10 -translate-y-1/2">
               <svg
@@ -158,6 +177,13 @@ const CoverageEligibilityRequest = () => {
                 className="relative z-20 w-full appearance-none rounded border border-stroke bg-transparent bg-transparent py-4 px-6 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark"
               >
                 <option value="">select</option>
+                {userInfo[0]?.payor_details.map((ele: any) => {
+                  return (
+                    <option value={ele?.insurance_id}>
+                      {ele?.insurance_id}
+                    </option>
+                  );
+                })}
                 <option value="add another">add another</option>
               </select>
               <span className="absolute top-1/2 right-4 z-10 -translate-y-1/2">

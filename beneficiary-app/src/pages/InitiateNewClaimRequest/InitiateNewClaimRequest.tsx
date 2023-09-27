@@ -194,7 +194,7 @@ const InitiateNewClaimRequest = () => {
       console.error('Error uploading file', error);
     }
   };
-  console.log(fileUrlList);
+  // console.log(fileUrlList);
 
   const claimRequestDetails: any = [
     {
@@ -249,7 +249,10 @@ const InitiateNewClaimRequest = () => {
             required
             className="relative z-20 w-full appearance-none rounded border border-stroke bg-transparent bg-transparent py-4 px-6 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark"
           >
-            <option value="OPD">OPD</option>
+            <option value="Consultation">Consultation</option>
+            <option value="Drugs">Drugs</option>
+            <option value="Wellness">Wellness</option>
+            <option value="Diagnostics">Diagnostics</option>
           </select>
           <span className="absolute top-1/2 right-4 z-10 -translate-y-1/2">
             <svg
@@ -298,8 +301,9 @@ const InitiateNewClaimRequest = () => {
             onChange={(e: any) => setDocumentType(e.target.value)}
             className="relative z-20 w-full appearance-none rounded border border-stroke bg-transparent bg-transparent py-4 px-6 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark"
           >
-            <option value="prescription">Prescription</option>
-            <option value="invoice">Bill/invoice</option>
+            <option value="Bill/invoice">Medical Bill/invoice</option>
+            <option value="Payment Receipt">Payment Receipt</option>
+            <option value="Prescription">Prescription</option>
           </select>
           <span className="absolute top-1/2 right-4 z-10 -translate-y-1/2">
             <svg

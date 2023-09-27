@@ -6,7 +6,6 @@ const ActiveClaimCycleCard = (Props: any) => {
   const day = date.getDate().toString().padStart(2, '0');
   const month = (date.getMonth() + 1).toString().padStart(2, '0');
   const year = date.getFullYear();
-  console.log(Props);
 
   const formattedDate = `${day}-${month}-${year}`;
   const information = {
@@ -21,8 +20,6 @@ const ActiveClaimCycleCard = (Props: any) => {
     billAmount: Props.billAmount,
     workflowId: Props.workflowId,
   };
-
-  console.log(information);
 
   const data: any = [
     {
@@ -55,34 +52,19 @@ const ActiveClaimCycleCard = (Props: any) => {
             return (
               <h2
                 key={index}
-                className="font-small block text-left text-black dark:text-white"
+                className="font-small mt-1 block text-left text-black dark:text-white"
               >
-                {ele.key} {ele.value}
+                <b>{ele.key}</b> {ele.value}
               </h2>
             );
           })}
-          {/* <h2 className="block text-left font-medium text-black dark:text-white">
-            Date : {formattedDate}
-          </h2>
-          <h2 className="block text-left font-medium text-black dark:text-white">
-            Insurance ID : {Props.insurance_id || 'null'}
-          </h2>
-          <h2 className="block text-left font-medium text-black dark:text-white">
-            Treatment/ServiceType : {Props.claimType}
-          </h2>
-          <h2 className="block text-left font-medium text-black dark:text-white">
-            Request ID : {Props.claimID}
-          </h2>
-          <h2 className="block text-left font-medium text-black dark:text-white">
-            Status : {Props.status}
-          </h2> */}
           <span
             className="cursor-pointer text-right underline"
             onClick={() =>
               navigate(
                 Props.type === 'claim'
                   ? '/view-active-request'
-                  : Props.type === undefined
+                  : Props.type === 'coverageeligibility'
                   ? '/coverage-eligibility'
                   : '/view-active-request',
                 { state: information }

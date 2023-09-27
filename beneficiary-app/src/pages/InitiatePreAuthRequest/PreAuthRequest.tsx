@@ -13,6 +13,7 @@ import { postRequest } from '../../services/registryService';
 const PreAuthRequest = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  console.log(location.state);
 
   const [selectedFile, setSelectedFile]: any = useState<FileList | undefined>(
     undefined
@@ -33,8 +34,6 @@ const PreAuthRequest = () => {
   const [fileUrlList, setUrlList] = useState<any>([]);
 
   const [userInfo, setUserInformation] = useState<any>([]);
-
-  const [isPreauthInitiated, setisPreauthInitiated] = useState(false);
 
   let FileLists: any;
   if (selectedFile !== undefined) {
@@ -96,8 +95,6 @@ const PreAuthRequest = () => {
     search();
   }, []);
 
-  console.log(userInfo);
-
   const requestPayload = {
     providerName: dataFromCard?.providerName || providerName,
     participantCode: dataFromCard?.participantCode,
@@ -118,7 +115,7 @@ const PreAuthRequest = () => {
     ],
   };
 
-  // console.log(requestPayload);
+  console.log(requestPayload);
 
   const participantCodePayload = {
     filters: {
@@ -180,62 +177,13 @@ const PreAuthRequest = () => {
     }
   }, [token]);
 
-  // const handleUpload = async () => {
-  //   try {
-  //     setLoading(true);
-  //     toast.info('Uploading documents please wait...!');
-  //     const formData = new FormData();
-  //     formData.append('mobile', location.state?.mobile?.filters?.mobile?.eq);
-
-  //     FileLists.forEach((file: any) => {
-  //       console.log(file);
-  //       formData.append(`file`, file);
-  //     });
-
-  //     const headers = {
-  //       Authorization: `Bearer ${token}`,
-  //     };
-
-  //     const response = await axios({
-  //       url: 'https://dev-hcx.swasth.app/api/v0.7/upload/documents',
-  //       method: 'POST',
-  //       headers: headers,
-  //       data: formData,
-  //     });
-  //     setUrlList(response.data);
-  //     toast.info('Documents uploaded successfully!');
-  //     console.log('File uploaded successfully', response);
-  //   } catch (error) {
-  //     console.error('Error uploading file', error);
-  //   }
-  // };
-
-  // const submitClaim = async () => {
-  //   try {
-  //     setLoading(true);
-  //     const submit = await generateOutgoingRequest(
-  //       'create/preauth/submit',
-  //       requestPayload
-  //     );
-  //     setLoading(false);
-  //     navigate('/request-success', {
-  //       state: {
-  //         text: 'new pre-auth',
-  //         mobileNumber: location.state?.mobile,
-  //       },
-  //     });
-  //   } catch (error) {
-  //     setLoading(false);
-  //     toast.error('Faild to submit pre-auth claim, Please try again');
-  //   }
-  // };
-
   const handleUpload = async () => {
+    const mobile = localStorage.getItem('monile');
     try {
       setLoading(true);
       toast.info('Uploading documents please wait...!');
       const formData = new FormData();
-      formData.append('mobile', location.state?.mobile?.filters?.mobile?.eq);
+      formData.append('mobile', `${mobile}`);
 
       FileLists.forEach((file: any) => {
         console.log(file);
@@ -252,9 +200,10 @@ const PreAuthRequest = () => {
         headers: headers,
         data: formData,
       });
-      setUrlList(response.data);
+      let responseData = response.data;
+      setUrlList(responseData);
       toast.info('Documents uploaded successfully!');
-      if (response.data.length !== 0) {
+      if (response.status === 200) {
         const submit = await generateOutgoingRequest(
           'create/preauth/submit',
           requestPayload
@@ -276,6 +225,7 @@ const PreAuthRequest = () => {
     }
   };
 
+  console.log(fileUrlList);
   return (
     <div className="w-full">
       <h2 className="mb-4 text-2xl font-bold text-black dark:text-white sm:text-title-xl2">
@@ -309,6 +259,9 @@ const PreAuthRequest = () => {
             className="relative z-20 w-full appearance-none rounded border border-stroke bg-transparent bg-transparent py-4 px-6 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark"
           >
             <option value="Consultation">Consultation</option>
+            <option value="Drugs">Drugs</option>
+            <option value="Wellness">Wellness</option>
+            <option value="Diagnostics">Diagnostics</option>
           </select>
           <span className="absolute top-1/2 right-4 z-10 -translate-y-1/2">
             <svg
@@ -361,8 +314,9 @@ const PreAuthRequest = () => {
             required
             className="relative z-20 w-full appearance-none rounded border border-stroke bg-transparent bg-transparent py-4 px-6 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark"
           >
+            <option value="Bill/invoice">Medical Bill/invoice</option>
+            <option value="Payment Receipt">Payment Receipt</option>
             <option value="Prescription">Prescription</option>
-            <option value="Bill/invoice">Bill/invoice</option>
           </select>
           <span className="absolute top-1/2 right-4 z-10 -translate-y-1/2">
             <svg
@@ -450,6 +404,16 @@ const PreAuthRequest = () => {
             />
           </div>
         </div>
+        {!loading ? (
+          <p
+            className="mt-3 cursor-pointer underline"
+            onClick={() => handleUpload()}
+          >
+            Click here to upload
+          </p>
+        ) : (
+          <p className="mt-3">Uploading documents please wait</p>
+        )}
         {isSuccess ? (
           <div>
             {FileLists.map((file: any) => {

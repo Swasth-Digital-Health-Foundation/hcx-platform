@@ -5,6 +5,7 @@ import LoadingButton from '../../components/LoadingButton';
 import { toast } from 'react-toastify';
 import * as _ from 'lodash';
 import strings from '../../utils/strings';
+import { postRequest } from '../../services/registryService';
 
 const NewClaim = () => {
   const navigate = useNavigate();
@@ -23,6 +24,7 @@ const NewClaim = () => {
   const [searchResults, setSearchResults] = useState<any>([]);
 
   const [openDropdown, setOpenDropdown] = useState(false);
+  const [payorFromInsuranceId, setpayorFromInsuranceId] = useState<string>('');
 
   const payload = {
     filters: {
@@ -41,24 +43,25 @@ const NewClaim = () => {
     },
   };
 
-  useEffect(() => {
-    let search = async () => {
-      try {
-        if (providerName.trim() === '') {
-          setSearchResults([]);
-          return;
-        }
-        const tokenResponse = await generateToken(tokenRequestBody);
-        setToken(tokenResponse.data.access_token);
-        const response = await searchParticipant(payload, config);
-        setOpenDropdown(true);
-        setSearchResults(response.data?.participants);
-      } catch (error: any) {
-        setOpenDropdown(false);
-        console.log(error.response.data.error.message);
-        // toast.error(_.get(error, 'response.data.error.message'))
+  let search = async () => {
+    try {
+      if (providerName.trim() === '') {
+        setSearchResults([]);
+        return;
       }
-    };
+      const tokenResponse = await generateToken(tokenRequestBody);
+      setToken(tokenResponse.data.access_token);
+      const response = await searchParticipant(payload, config);
+      setOpenDropdown(true);
+      setSearchResults(response.data?.participants);
+    } catch (error: any) {
+      setOpenDropdown(false);
+      console.log(error.response.data.error.message);
+      // toast.error(_.get(error, 'response.data.error.message'))
+    }
+  };
+
+  useEffect(() => {
     search();
   }, [providerName]);
 
@@ -68,15 +71,55 @@ const NewClaim = () => {
     setProviderName(result);
   };
 
-  const initiateClaimRequestBody = {
+  let initiateClaimRequestBody = {
     providerName: providerName,
     participantCode: participantCode,
     serviceType: treatmentInputRef,
     insurancePlan: insurancePlanInputRef,
-    payor: payor,
-    insuranceId: insuranceId,
-    mobile: location.state,
+    payor:
+      insurancePlanInputRef === 'add another' ? payor : payorFromInsuranceId,
+    insuranceId:
+      insurancePlanInputRef === 'add another'
+        ? insuranceId
+        : insurancePlanInputRef,
+    mobile: localStorage.getItem('mobile'),
   };
+
+  const [userInfo, setUserInformation] = useState<any>([]);
+
+  const filter = {
+    entityType: ['Beneficiary'],
+    filters: {
+      mobile: { eq: localStorage.getItem('mobile') },
+    },
+  };
+
+  const searchUserInfo = async () => {
+    try {
+      const searchUser = await postRequest('/search', filter);
+      setUserInformation(searchUser.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getPayorName = () => {
+    if (userInfo) {
+      const matchingPayor = userInfo[0]?.payor_details.find(
+        (detail: any) => detail.insurance_id === insurancePlanInputRef
+      );
+      setpayorFromInsuranceId(
+        matchingPayor ? matchingPayor.payor : 'Payor not found'
+      );
+    }
+    return 'User info not available';
+  };
+
+  useEffect(() => {
+    searchUserInfo();
+    getPayorName();
+  }, [insurancePlanInputRef]);
+
   console.log(initiateClaimRequestBody);
 
   return (
@@ -164,7 +207,7 @@ const NewClaim = () => {
         <div className="border-gray-300 my-4 border-t "></div>
         <div className="mt-4">
           <label className="mb-2.5 block text-left font-medium text-black dark:text-white">
-            {strings.SERVICE_TYPE}
+          Treatment/Service Type: *
           </label>
           <div className="relative z-20 bg-white dark:bg-form-input">
             <select
@@ -176,6 +219,7 @@ const NewClaim = () => {
             >
               <option value="">select</option>
               <option value="OPD">OPD</option>
+              <option value="OPD">IPD</option>
             </select>
             <span className="absolute top-1/2 right-4 z-10 -translate-y-1/2">
               <svg
@@ -210,6 +254,11 @@ const NewClaim = () => {
               className="relative z-20 w-full appearance-none rounded border border-stroke bg-transparent bg-transparent py-4 px-6 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark"
             >
               <option value="">select</option>
+              {userInfo[0]?.payor_details.map((ele: any) => {
+                return (
+                  <option value={ele?.insurance_id}>{ele?.insurance_id}</option>
+                );
+              })}
               <option value="add another">add another</option>
             </select>
             <span className="absolute top-1/2 right-4 z-10 -translate-y-1/2">

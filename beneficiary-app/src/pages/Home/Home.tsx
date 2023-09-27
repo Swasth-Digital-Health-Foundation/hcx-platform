@@ -13,9 +13,6 @@ const Home = () => {
   const location = useLocation();
   const [qrCodeData, setQrCodeData] = useState<any>();
   const [activeRequests, setActiveRequests] = useState<any>([]);
-  const [displayedData, setDisplayedData] = useState<any>(
-    activeRequests.slice(0, 5)
-  );
   const [currentIndex, setCurrentIndex] = useState(5);
   const [userInformation, setUserInformation] = useState<any>([]);
   const [loading, setLoading] = useState(false);
@@ -25,6 +22,11 @@ const Home = () => {
   const onNewScanResult = (decodedText: any, decodedResult: any) => {
     setQrCodeData(decodedText);
   };
+
+  const [finalData, setFinalData] = useState<any>([]);
+  const [displayedData, setDisplayedData] = useState<any>(
+    finalData.slice(0, 5)
+  );
 
   if (qrCodeData !== undefined) {
     let obj = JSON.parse(qrCodeData);
@@ -44,22 +46,6 @@ const Home = () => {
     },
   };
 
-  const getCoverageEligibilityRequestList = async () => {
-    try {
-      setLoading(true);
-      let response = await generateOutgoingRequest(
-        'bsp/request/list',
-        requestPayload
-      );
-      console.log(response);
-      setActiveRequests(response.data?.entries);
-      setDisplayedData(response.data?.entries.slice(0, 5));
-      setLoading(false);
-    } catch (err) {
-      setLoading(false);
-    }
-  };
-
   const search = async () => {
     try {
       const searchUser = await postRequest('/search', filter);
@@ -70,15 +56,61 @@ const Home = () => {
   };
 
   useEffect(() => {
-    search();
+    const getCoverageEligibilityRequestList = async () => {
+      try {
+        setLoading(true);
+        let response = await generateOutgoingRequest(
+          'bsp/request/list',
+          requestPayload
+        );
+        const data = response.data.entries;
+        setActiveRequests(data);
+
+        const coverageArray = [];
+        const claimArray = [];
+
+        for (const entry of data) {
+          // Iterate through each entry in the input data.
+          const key = Object.keys(entry)[0];
+          const objects = entry[key];
+
+          if (objects.length === 1 && objects[0].type === 'claim') {
+            // If there's only one object and its type is "claim," add it to claimArray.
+            claimArray.push(objects[0]);
+          } else {
+            // If there's more than one object or any object with type "coverageeligibility," add them to coverageArray.
+            coverageArray.push(
+              ...objects.filter(
+                (obj: any) => obj.type === 'coverageeligibility'
+              )
+            );
+          }
+        }
+        // Create a new array containing both claimArray and coverageArray.
+        const newArray = [...claimArray, ...coverageArray];
+        const sortedData = newArray.slice().sort((a: any, b: any) => {
+          return b.date - a.date;
+        });
+
+        setFinalData(sortedData);
+        setDisplayedData(sortedData.slice(0, 5));
+        setLoading(false);
+      } catch (err) {
+        setLoading(false);
+      }
+    };
     getCoverageEligibilityRequestList();
+    search();
   }, []);
 
   const loadMoreData = () => {
-    const nextData = activeRequests.slice(currentIndex, currentIndex + 5);
+    const nextData = finalData.slice(currentIndex, currentIndex + 5);
     setDisplayedData([...displayedData, ...nextData]);
     setCurrentIndex(currentIndex + 5);
   };
+
+  console.log(finalData);
+  console.log(currentIndex);
 
   return (
     <div>
@@ -137,10 +169,9 @@ const Home = () => {
         <div className="border-gray-300 my-4 border-t"></div>
         {!loading ? (
           <div>
-            {displayedData?.map((ele: any) => {
-              console.log(ele)
+            {displayedData?.map((ele: any, index: any) => {
               return (
-                <div className="mt-2">
+                <div className="mt-2" key={index}>
                   <ActiveClaimCycleCard
                     participantCode={ele.sender_code}
                     payorCode={ele.recipient_code}

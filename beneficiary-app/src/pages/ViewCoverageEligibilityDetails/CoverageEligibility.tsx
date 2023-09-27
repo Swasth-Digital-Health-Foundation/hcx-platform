@@ -15,21 +15,25 @@ const CoverageEligibility = () => {
   const [payorName, setPayorName] = useState<string>('');
   const [preauthOrClaimList, setpreauthOrClaimList] = useState<any>([]);
   const [loading, setisLoading] = useState(false);
+  const [coverageDetails, setCoverageDetails] = useState<any>([]);
+  const [apicallIds, setapicallIds] = useState<any>([]);
 
   const handleRadioChange = (event: any) => {
     setSelectedValue(event.target.value);
   };
 
+  // Now, apicallIds will contain an array of apicallId values from the "claim" objects
+
   const requestDetails = {
     providerName: providerName,
     ...location.state,
-    billAmount: preauthOrClaimList[0]?.billAmount || location.state?.billAmount,
-    apiCallId: preauthOrClaimList[0]?.apiCallId || location.state?.apiCallId,
+    billAmount: location.state?.billAmount || preauthOrClaimList[0]?.billAmount,
+    apiCallId: preauthOrClaimList[0]?.apiCallId,
   };
 
   const [type, setType] = useState<string[]>([]);
 
-  console.log(preauthOrClaimList);
+  console.log(location.state?.apiCallId);
 
   const claimRequestDetails: any = [
     {
@@ -54,11 +58,12 @@ const CoverageEligibility = () => {
     },
     {
       key: 'API call ID :',
-      value: requestDetails?.apiCallId || '',
+      value: location.state?.apiCallId || '',
     },
   ];
 
-  console.log(requestDetails);
+  let workflowId = requestDetails?.workflowId;
+  console.log(workflowId);
 
   const participantCodePayload = {
     filters: {
@@ -102,9 +107,7 @@ const CoverageEligibility = () => {
     setPayorName(payorResponse.data?.participants[0].participant_name);
   };
 
-  useEffect(() => {
-    tokenGeneration();
-  }, []);
+  useEffect(() => {}, []);
 
   useEffect(() => {
     try {
@@ -124,8 +127,7 @@ const CoverageEligibility = () => {
     mobile: localStorage.getItem('mobile'),
   };
 
-  const [coverageDetails, setCoverageDetails] = useState<any>([]);
-  console.log(coverageDetails);
+  // console.log(coverageDetails);
 
   const getActivePlans = async () => {
     try {
@@ -138,7 +140,21 @@ const CoverageEligibility = () => {
         'bsp/request/list',
         coverageEligibilityPayload
       );
-      setCoverageDetails(statusCheckCoverageEligibility.data?.entries);
+      let coverageData = statusCheckCoverageEligibility.data?.entries;
+      setCoverageDetails(coverageData);
+
+      const entryKey = Object?.keys(coverageDetails[0])[0];
+      console.log('entrykey', entryKey);
+
+      // Filter the objects with type "claim"
+      const claimObjects = coverageDetails[0][entryKey].filter(
+        (obj: any) => obj.type === 'claim'
+      );
+
+      // Extract the apicallId values from the "claim" objects
+      const apicallIds = claimObjects.map((obj: any) => obj.apiCallId);
+      setapicallIds(apicallIds);
+
       setisLoading(false);
       setpreauthOrClaimList(response.data?.entries);
       setType(
@@ -158,6 +174,7 @@ const CoverageEligibility = () => {
   };
 
   useEffect(() => {
+    tokenGeneration();
     getActivePlans();
   }, []);
 
@@ -165,8 +182,8 @@ const CoverageEligibility = () => {
     (obj: any) => obj.workflow_id === requestDetails?.workflowId || ''
   );
 
-  // console.log(preauthOrClaimList);
-  // console.log(filteredArray)
+  console.log('pre-claim', preauthOrClaimList);
+
   return (
     <>
       {!loading ? (
@@ -184,14 +201,18 @@ const CoverageEligibility = () => {
             </button>
             {loading ? 'Please wait...' : ''}
             <h2 className="sm:text-title-xl1 mb-1 text-end font-semibold text-success dark:text-success">
-              {coverageDetails[0]?.status === 'Approved' ? (
+              {/* {coverageDetails[0]?.[workflowId].some(
+                (obj: any) => 
+                  obj.type === 'coverageeligibility' &&
+                  obj.status === 'Approved'
+              ) ? (
                 <div className="text-success">&#10004; Eligible</div>
               ) : (
                 <div className="text-warning">Pending</div>
-              )}
+              )} */}
             </h2>
           </div>
-          <h2 className="sm:text-title-xl1 mb-2 text-2xl font-semibold text-black dark:text-white">
+          <h2 className="sm:text-title-xl1 text-2xl font-semibold text-black dark:text-white">
             {strings.CLAIM_REQUEST_DETAILS}
           </h2>
           <span className="text-base font-medium">
@@ -238,12 +259,22 @@ const CoverageEligibility = () => {
                   </div>
                   <div>
                     <div className="mb-2 ">
-                      <h2 className="text-bold text-base font-bold text-black dark:text-white">
-                        Service type : {ele.claimType}
-                      </h2>
-                      <h2 className="text-bold text-base font-bold text-black dark:text-white">
-                        Bill amount : {ele.billAmount}
-                      </h2>
+                      <div className="flex gap-2">
+                        <h2 className="text-bold text-base font-bold text-black dark:text-white">
+                          Service type :
+                        </h2>
+                        <span className="text-base font-medium">
+                          {ele.claimType}
+                        </span>
+                      </div>
+                      <div className="flex gap-2">
+                        <h2 className="text-bold text-base font-bold text-black dark:text-white">
+                          Bill amount :
+                        </h2>
+                        <span className="text-base font-medium">
+                          {ele.billAmount}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
