@@ -107,8 +107,6 @@ const CoverageEligibility = () => {
     setPayorName(payorResponse.data?.participants[0].participant_name);
   };
 
-  useEffect(() => {}, []);
-
   useEffect(() => {
     try {
       if (token !== undefined) {
@@ -132,14 +130,22 @@ const CoverageEligibility = () => {
   const getActivePlans = async () => {
     try {
       setisLoading(true);
-      let response = await generateOutgoingRequest(
-        'bsp/request/list',
-        preauthOrClaimListPayload
-      );
       let statusCheckCoverageEligibility = await generateOutgoingRequest(
         'bsp/request/list',
         coverageEligibilityPayload
       );
+      let response = await generateOutgoingRequest(
+        'bsp/request/list',
+        preauthOrClaimListPayload
+      );
+      let preAuthAndClaimList = response.data?.entries;
+      setpreauthOrClaimList(preAuthAndClaimList);
+      setType(
+        response.data?.entries.map((ele: any) => {
+          return ele.type;
+        })
+      );
+
       let coverageData = statusCheckCoverageEligibility.data?.entries;
       setCoverageDetails(coverageData);
 
@@ -156,12 +162,7 @@ const CoverageEligibility = () => {
       setapicallIds(apicallIds);
 
       setisLoading(false);
-      setpreauthOrClaimList(response.data?.entries);
-      setType(
-        response.data?.entries.map((ele: any) => {
-          return ele.type;
-        })
-      );
+
       if (preauthOrClaimList.length === 2) {
         setSelectedValue(false);
       } else {
@@ -178,9 +179,9 @@ const CoverageEligibility = () => {
     getActivePlans();
   }, []);
 
-  const filteredArray = coverageDetails.filter(
-    (obj: any) => obj.workflow_id === requestDetails?.workflowId || ''
-  );
+  // const filteredArray = coverageDetails.filter(
+  //   (obj: any) => obj.workflow_id === requestDetails?.workflowId || ''
+  // );
 
   console.log('pre-claim', preauthOrClaimList);
 
@@ -201,7 +202,7 @@ const CoverageEligibility = () => {
             </button>
             {loading ? 'Please wait...' : ''}
             <h2 className="sm:text-title-xl1 mb-1 text-end font-semibold text-success dark:text-success">
-              {/* {coverageDetails[0]?.[workflowId].some(
+              {coverageDetails[0]?.[workflowId].some(
                 (obj: any) => 
                   obj.type === 'coverageeligibility' &&
                   obj.status === 'Approved'
@@ -209,7 +210,7 @@ const CoverageEligibility = () => {
                 <div className="text-success">&#10004; Eligible</div>
               ) : (
                 <div className="text-warning">Pending</div>
-              )} */}
+              )}
             </h2>
           </div>
           <h2 className="sm:text-title-xl1 text-2xl font-semibold text-black dark:text-white">

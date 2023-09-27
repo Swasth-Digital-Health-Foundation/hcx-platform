@@ -174,9 +174,11 @@ const InitiateNewClaimRequest = () => {
         headers: headers,
         data: formData,
       });
-      setUrlList(response.data);
+      let obtainedResponse = response.data;
+      setUrlList(obtainedResponse);
       toast.info('Documents uploaded successfully!');
-      if (response.data.length !== 0) {
+
+      if (response.status === 200) {
         const submit = await generateOutgoingRequest(
           'create/claim/submit',
           initiateClaimRequestBody
@@ -188,13 +190,14 @@ const InitiateNewClaimRequest = () => {
           },
         });
       }
+
       setLoading(false);
     } catch (error) {
       setLoading(false);
       console.error('Error uploading file', error);
     }
   };
-  // console.log(fileUrlList);
+  console.log(fileUrlList);
 
   const claimRequestDetails: any = [
     {
