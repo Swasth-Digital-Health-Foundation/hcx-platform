@@ -35,7 +35,6 @@ const CoverageEligibilityRequest = () => {
     patientName: patientName,
   };
 
-  console.log(payload);
 
   const filter = {
     entityType: ['Beneficiary'],
@@ -43,8 +42,6 @@ const CoverageEligibilityRequest = () => {
       mobile: { eq: localStorage.getItem('mobile') },
     },
   };
-
-  console.log(payload);
 
   //beneficiary search
   useEffect(() => {

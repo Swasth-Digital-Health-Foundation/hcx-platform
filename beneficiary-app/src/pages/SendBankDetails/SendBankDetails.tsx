@@ -11,7 +11,6 @@ const SendBankDetails = () => {
   const location = useLocation();
   const details = location.state;
   const navigate = useNavigate();
-  console.log(details);
 
   const [beneficiaryName, setbeneficiaryName] = useState<string>('');
   const [accountNumber, setAccountNumber] = useState<string>('');

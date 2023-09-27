@@ -5,6 +5,7 @@ import { generateToken, searchParticipant } from '../../services/hcxService';
 import axios from 'axios';
 import {
   createCommunicationOnRequest,
+  generateOutgoingRequest,
   isInitiated,
 } from '../../services/hcxMockService';
 import { toast } from 'react-toastify';
@@ -22,6 +23,7 @@ const ViewClaimRequestDetails = () => {
   const [initiated, setInitiated] = useState(false);
 
   const [OTP, setOTP] = useState<any>();
+  const [docs, setSupportingDocs] = useState<any>([]);
 
   const participantCodePayload = {
     filters: {
@@ -64,6 +66,7 @@ const ViewClaimRequestDetails = () => {
       }
     };
     search();
+    getSupportingDocsFromList();
   }, []);
 
   useEffect(() => {
@@ -135,8 +138,6 @@ const ViewClaimRequestDetails = () => {
     request_id: details?.apiCallId,
   };
 
-  console.log(getVerificationPayload);
-
   const getVerification = async () => {
     try {
       let res = await isInitiated(getVerificationPayload);
@@ -170,11 +171,36 @@ const ViewClaimRequestDetails = () => {
     }
   };
 
+  const preauthOrClaimListPayload = {
+    workflow_id: details?.workflowId || '',
+  };
+
+  const getSupportingDocsFromList = async () => {
+    let response = await generateOutgoingRequest(
+      'bsp/request/list',
+      preauthOrClaimListPayload
+    );
+    const data = response.data?.entries;
+
+    const claimAndPreauthEntries = data.filter(
+      (entry: any) => entry.type === 'claim' || entry.type === 'preauth'
+    );
+
+    // Extract supporting documents from the filtered entries
+    const supportingDocumentsArray = claimAndPreauthEntries
+      .map((entry: any) => entry.supportingDocuments)
+      .flat();
+
+    setSupportingDocs(supportingDocumentsArray);
+  };
+
+  console.log(docs);
+
   return (
     <>
       <div className="mb-4 items-center justify-between">
         <h2 className="sm:text-title-xl1 text-2xl font-semibold text-black dark:text-white">
-          {strings.CLAIM_REQUEST_DETAILS} 
+          {strings.CLAIM_REQUEST_DETAILS}
         </h2>
         <span>{details?.workflowId}</span>
       </div>
@@ -182,7 +208,7 @@ const ViewClaimRequestDetails = () => {
         <div>
           {claimRequestDetails.map((ele: any, index: any) => {
             return (
-              <div key={index} className='mb-2'>
+              <div key={index} className="mb-2">
                 <h2 className="text-bold text-base font-bold text-black dark:text-white">
                   {ele.key}
                 </h2>
@@ -211,20 +237,24 @@ const ViewClaimRequestDetails = () => {
           })}
         </div>
       </div>
-      <div className="rounded-sm border border-stroke bg-white mt-3 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
+      <div className="mt-3 rounded-sm border border-stroke bg-white px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
         <div className="flex items-center justify-between">
           <h2 className="sm:text-title-xl1 text-1xl mt-2 mb-2 font-semibold text-black dark:text-white">
             {strings.SUPPORTING_DOCS}
           </h2>
         </div>
         <div>
-          {supportingDocuments.map((ele: any) => {
+          {docs.map((ele: any, index: any) => {
+            const parts = ele.split('/');
+            const fileName = parts[parts.length - 1];
+
+            // Split the file name by dot to extract the file extension
+            const fileExtension = fileName.split('.').pop();
             return (
               <>
-                <h2 className="text-bold text-base font-bold text-black dark:text-white">
-                  {ele.key}
-                </h2>
-                <span className="text-base font-medium">{ele.value}</span>
+                <a href={ele} className="flex text-base font-medium underline">
+                  document {index + 1}.{fileExtension}
+                </a>
               </>
             );
           })}

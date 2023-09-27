@@ -109,9 +109,6 @@ const Home = () => {
     setCurrentIndex(currentIndex + 5);
   };
 
-  console.log(finalData);
-  console.log(currentIndex);
-
   return (
     <div>
       <div className="flex justify-between">
@@ -163,7 +160,7 @@ const Home = () => {
           </h1>
         ) : (
           <h1 className="px-1 text-2xl font-bold text-black dark:text-white">
-            {strings.YOUR_ACTIVE_CYCLE} ({displayedData.length})
+            {strings.YOUR_ACTIVE_CYCLE} ({activeRequests.length})
           </h1>
         )}
         <div className="border-gray-300 my-4 border-t"></div>

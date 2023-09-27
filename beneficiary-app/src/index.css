@@ -331,3 +331,16 @@ input[type='search']::-webkit-search-cancel-button {
   cursor: pointer;
   margin-top: 1rem;
 }
+
+@layer base {
+  input[type='number']::-webkit-inner-spin-button,
+  input[type='number']::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+    /* touch-action: ; */
+  }
+}
+
+/* input{
+  : none;
+} */

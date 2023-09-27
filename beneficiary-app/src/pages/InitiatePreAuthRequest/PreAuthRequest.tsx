@@ -13,7 +13,6 @@ import { postRequest } from '../../services/registryService';
 const PreAuthRequest = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  console.log(location.state);
 
   const [selectedFile, setSelectedFile]: any = useState<FileList | undefined>(
     undefined
@@ -115,8 +114,6 @@ const PreAuthRequest = () => {
     ],
   };
 
-  console.log(requestPayload);
-
   const participantCodePayload = {
     filters: {
       participant_code: { eq: location.state?.participantCode },
@@ -178,15 +175,58 @@ const PreAuthRequest = () => {
   }, [token]);
 
   const handleUpload = async () => {
-    const mobile = localStorage.getItem('monile');
+    // const mobile = localStorage.getItem('monile');
+    // try {
+    //   setLoading(true);
+    //   toast.info('Uploading documents please wait...!');
+    //   const formData = new FormData();
+    //   formData.append('mobile', `${mobile}`);
+
+    //   FileLists.forEach((file: any) => {
+    //     console.log(file);
+    //     formData.append(`file`, file);
+    //   });
+
+    //   const headers = {
+    //     Authorization: `Bearer ${token}`,
+    //   };
+
+    //   const response = await axios({
+    //     url: 'https://dev-hcx.swasth.app/api/v0.7/upload/documents',
+    //     method: 'POST',
+    //     headers: headers,
+    //     data: formData,
+    //   });
+    //   let responseData = response.data;
+    //   setUrlList(responseData);
+    //   toast.info('Documents uploaded successfully!');
+    //   if (response.status === 200) {
+    //     const submit = await generateOutgoingRequest(
+    //       'create/preauth/submit',
+    //       requestPayload
+    //     );
+    //     console.log(submit);
+    //     // if (response.status === 202) {
+    //     navigate('/request-success', {
+    //       state: {
+    //         text: 'new preauth',
+    //         mobileNumber: location.state?.mobile,
+    //       },
+    //     });
+    //     // }
+    //   }
+    //   setLoading(false);
+    // } catch (error) {
+    //   setLoading(false);
+    //   console.error('Error uploading file', error);
+    // }
+    let mobile = localStorage.getItem('mobile');
     try {
       setLoading(true);
-      toast.info('Uploading documents please wait...!');
       const formData = new FormData();
       formData.append('mobile', `${mobile}`);
 
       FileLists.forEach((file: any) => {
-        console.log(file);
         formData.append(`file`, file);
       });
 
@@ -194,30 +234,19 @@ const PreAuthRequest = () => {
         Authorization: `Bearer ${token}`,
       };
 
+      toast.info('Uploading documents please wait...!');
       const response = await axios({
         url: 'https://dev-hcx.swasth.app/api/v0.7/upload/documents',
         method: 'POST',
         headers: headers,
         data: formData,
       });
-      let responseData = response.data;
-      setUrlList(responseData);
+      let obtainedResponse = response.data;
+      setUrlList((prevFileUrlList: any) => [
+        ...prevFileUrlList,
+        ...obtainedResponse,
+      ]);
       toast.info('Documents uploaded successfully!');
-      if (response.status === 200) {
-        const submit = await generateOutgoingRequest(
-          'create/preauth/submit',
-          requestPayload
-        );
-        console.log(submit);
-        // if (response.status === 202) {
-        navigate('/request-success', {
-          state: {
-            text: 'new preauth',
-            mobileNumber: location.state?.mobile,
-          },
-        });
-        // }
-      }
       setLoading(false);
     } catch (error) {
       setLoading(false);
@@ -225,7 +254,26 @@ const PreAuthRequest = () => {
     }
   };
 
-  console.log(fileUrlList);
+  const submitPreauth = async () => {
+    try {
+      setLoading(true);
+      let getUrl = await generateOutgoingRequest(
+        'create/preauth/submit',
+        requestPayload
+      );
+      setLoading(false);
+      navigate('/request-success', {
+        state: {
+          text: 'preauth',
+          mobileNumber: localStorage.getItem('mobile'),
+        },
+      });
+    } catch (err) {
+      setLoading(false);
+      toast.error('Faild to submit claim, try again!');
+    }
+  };
+
   return (
     <div className="w-full">
       <h2 className="mb-4 text-2xl font-bold text-black dark:text-white sm:text-title-xl2">
@@ -405,14 +453,18 @@ const PreAuthRequest = () => {
           </div>
         </div>
         {!loading ? (
-          <p
-            className="mt-3 cursor-pointer underline"
-            onClick={() => handleUpload()}
+          <div
+            className="underline"
+            onClick={() => {
+              if (fileUrlList !== 0) {
+                handleUpload();
+              }
+            }}
           >
-            Click here to upload
-          </p>
+            <span>Click here to upload documents</span>
+          </div>
         ) : (
-          <p className="mt-3">Uploading documents please wait</p>
+          <span>Please wait</span>
         )}
         {isSuccess ? (
           <div>
@@ -444,7 +496,7 @@ const PreAuthRequest = () => {
             disabled={estimatedAmount === '' || selectedFile === undefined}
             onClick={(event: any) => {
               event.preventDefault();
-              handleUpload();
+              submitPreauth();
             }}
             type="submit"
             className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"

@@ -48,9 +48,7 @@ const InitiateNewClaimRequest = () => {
     }
   };
 
-  console.log(data);
-
-  const initiateClaimRequestBody = {
+  let initiateClaimRequestBody: any = {
     insuranceId: data?.insuranceId || '',
     insurancePlan: data?.insurancePlan || null,
     mobile: localStorage.getItem('mobile') || '',
@@ -70,7 +68,6 @@ const InitiateNewClaimRequest = () => {
       },
     ],
   };
-  console.log(initiateClaimRequestBody);
 
   const filter = {
     entityType: ['Beneficiary'],
@@ -119,7 +116,6 @@ const InitiateNewClaimRequest = () => {
       try {
         const tokenResponse = await generateToken(tokenRequestBody);
         if (tokenResponse.statusText === 'OK') {
-          console.log(tokenResponse.data.access_token);
           setToken(tokenResponse.data.access_token);
         }
       } catch (err) {
@@ -155,12 +151,10 @@ const InitiateNewClaimRequest = () => {
   const handleUpload = async () => {
     try {
       setLoading(true);
-      toast.info('Uploading documents please wait...!');
       const formData = new FormData();
       formData.append('mobile', location.state?.mobile?.filters?.mobile?.eq);
 
       FileLists.forEach((file: any) => {
-        console.log(file);
         formData.append(`file`, file);
       });
 
@@ -168,6 +162,7 @@ const InitiateNewClaimRequest = () => {
         Authorization: `Bearer ${token}`,
       };
 
+      toast.info('Uploading documents please wait...!');
       const response = await axios({
         url: 'https://dev-hcx.swasth.app/api/v0.7/upload/documents',
         method: 'POST',
@@ -175,29 +170,17 @@ const InitiateNewClaimRequest = () => {
         data: formData,
       });
       let obtainedResponse = response.data;
-      setUrlList(obtainedResponse);
+      setUrlList((prevFileUrlList: any) => [
+        ...prevFileUrlList,
+        ...obtainedResponse,
+      ]);
       toast.info('Documents uploaded successfully!');
-
-      if (response.status === 200) {
-        const submit = await generateOutgoingRequest(
-          'create/claim/submit',
-          initiateClaimRequestBody
-        );
-        navigate('/request-success', {
-          state: {
-            text: 'claim',
-            mobileNumber: data.mobile || initiateClaimRequestBody.mobile,
-          },
-        });
-      }
-
       setLoading(false);
     } catch (error) {
       setLoading(false);
       console.error('Error uploading file', error);
     }
   };
-  console.log(fileUrlList);
 
   const claimRequestDetails: any = [
     {
@@ -221,6 +204,26 @@ const InitiateNewClaimRequest = () => {
       value: data?.insuranceId || 'null',
     },
   ];
+
+  const submitClaim = async () => {
+    try {
+      setLoading(true);
+      let getUrl = await generateOutgoingRequest(
+        'create/claim/submit',
+        initiateClaimRequestBody
+      );
+      setLoading(false);
+      navigate('/request-success', {
+        state: {
+          text: 'claim',
+          mobileNumber: data.mobile || initiateClaimRequestBody.mobile,
+        },
+      });
+    } catch (err) {
+      setLoading(false);
+      toast.error('Faild to submit claim, try again!');
+    }
+  };
 
   return (
     <div className="w-full">
@@ -394,6 +397,20 @@ const InitiateNewClaimRequest = () => {
             />
           </div>
         </div>
+        {!loading ? (
+          <div
+            className="underline"
+            onClick={() => {
+              if (fileUrlList !== 0) {
+                handleUpload();
+              }
+            }}
+          >
+            <span>Click here to upload documents</span>
+          </div>
+        ) : (
+          <span>Please wait</span>
+        )}
         {isSuccess ? (
           <div>
             {FileLists.map((file: any) => {
@@ -424,7 +441,7 @@ const InitiateNewClaimRequest = () => {
             disabled={amount === '' || selectedFile === undefined}
             onClick={(event: any) => {
               event.preventDefault();
-              handleUpload();
+              submitClaim();
             }}
             type="submit"
             className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"

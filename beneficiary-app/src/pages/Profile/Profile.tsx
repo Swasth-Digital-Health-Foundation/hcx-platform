@@ -25,8 +25,6 @@ const Profile = () => {
     search();
   }, []);
 
-  console.log(userInfo);
-
   const userProfileCard = [
     {
       key: 'Name :',

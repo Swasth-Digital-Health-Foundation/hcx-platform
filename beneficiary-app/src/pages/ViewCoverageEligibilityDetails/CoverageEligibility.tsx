@@ -18,6 +18,7 @@ const CoverageEligibility = () => {
   const [coverageDetails, setCoverageDetails] = useState<any>([]);
   const [apicallIds, setapicallIds] = useState<any>([]);
   const [coverageEligibilityStatus, setcoverageStatus] = useState<any>([]);
+  const [apicallIdForClaim, setApicallID] = useState<any>();
 
   const handleRadioChange = (event: any) => {
     setSelectedValue(event.target.value);
@@ -29,11 +30,10 @@ const CoverageEligibility = () => {
     providerName: providerName,
     ...location.state,
     billAmount: location.state?.billAmount || preauthOrClaimList[0]?.billAmount,
-    apiCallId: preauthOrClaimList[0]?.apiCallId,
+    apiCallId: apicallIdForClaim,
   };
 
   const [type, setType] = useState<string[]>([]);
-
 
   const claimRequestDetails: any = [
     {
@@ -124,8 +124,6 @@ const CoverageEligibility = () => {
     mobile: localStorage.getItem('mobile'),
   };
 
-  // console.log(coverageDetails);
-
   const getActivePlans = async () => {
     try {
       setisLoading(true);
@@ -139,6 +137,12 @@ const CoverageEligibility = () => {
       );
       let preAuthAndClaimList = response.data?.entries;
       setpreauthOrClaimList(preAuthAndClaimList);
+      for (const entry of preAuthAndClaimList) {
+        if (entry.type === 'claim') {
+          setApicallID(entry.apiCallId);
+          break; 
+        }
+      }
       setType(
         response.data?.entries.map((ele: any) => {
           return ele.type;
@@ -177,10 +181,14 @@ const CoverageEligibility = () => {
     getActivePlans();
   }, []);
 
-  // const filteredArray = coverageDetails.filter(
-  //   (obj: any) => obj.workflow_id === requestDetails?.workflowId || ''
-  // );
-
+  useEffect(() => {
+    for (const entry of preauthOrClaimList) {
+      if (entry.type === 'claim') {
+        setApicallID(entry.apiCallId);
+        break;
+      }
+    }
+  }, []);
 
   let coverageStatus = coverageDetails.find(
     (entryObj: any) => Object.keys(entryObj)[0] === workflowId
@@ -210,32 +218,35 @@ const CoverageEligibility = () => {
     <>
       {!loading ? (
         <div className="-pt-2">
-          <div className="mb-3 flex items-center justify-between">
+          <div className="relative just flex mb-10">
             <button
               disabled={loading}
               onClick={(event: any) => {
                 event.preventDefault();
                 getActivePlans();
               }}
-              className="align-center flex w-20 justify-center rounded bg-primary py-1 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
+              className="absolute right-0 align-center flex w-20 justify-center rounded bg-primary py-1 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
             >
               Refresh
             </button>
             {loading ? 'Please wait...' : ''}
-            <h2 className="sm:text-title-xl1 mb-1 text-end font-semibold text-success dark:text-success">
+          </div>
+          <div className="mt-4 flex items-center justify-between">
+            <h2 className="sm:text-title-xl1 text-2xl font-semibold text-black dark:text-white">
+              {strings.CLAIM_REQUEST_DETAILS}
+            </h2>
+            <h2 className="sm:text-title-xl1 text-end font-semibold text-success dark:text-success">
               {coverageEligibilityStatus === 'Approved' ? (
                 <div className="text-success">&#10004; Eligible</div>
               ) : (
-                <div className="text-warning">Pending</div>
+                <div className="text-warning mr-3">Pending</div>
               )}
             </h2>
           </div>
-          <h2 className="sm:text-title-xl1 text-2xl font-semibold text-black dark:text-white">
-            {strings.CLAIM_REQUEST_DETAILS}
-          </h2>
           <span className="text-base font-medium">
             {requestDetails.workflowId || ''}
           </span>
+
           <div className="mt-4 rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
             <div className="items-center justify-between"></div>
             <div>
@@ -251,7 +262,7 @@ const CoverageEligibility = () => {
               })}
             </div>
           </div>
-          {preauthOrClaimList.map((ele: any) => {
+          {preauthOrClaimList.map((ele: any, index: any) => {
             return (
               <>
                 <div className=" flex items-center justify-between">
@@ -295,6 +306,27 @@ const CoverageEligibility = () => {
                       </div>
                     </div>
                   </div>
+                  <div className="border-gray-300 my-4 border-t"></div>
+                  <h2 className="text-bold mb-3 text-base font-bold text-black dark:text-white">
+                    Supporting documents :
+                  </h2>
+                  {ele.supportingDocuments.map((ele: any, index: any) => {
+                    const parts = ele.split('/');
+                    const fileName = parts[parts.length - 1];
+
+                    // Split the file name by dot to extract the file extension
+                    const fileExtension = fileName.split('.').pop();
+                    return (
+                      <>
+                        <a
+                          href={ele}
+                          className="flex text-base font-medium underline"
+                        >
+                          document {index + 1}.{fileExtension}
+                        </a>
+                      </>
+                    );
+                  })}
                 </div>
               </>
             );

@@ -56,7 +56,6 @@ const NewClaim = () => {
       setSearchResults(response.data?.participants);
     } catch (error: any) {
       setOpenDropdown(false);
-      console.log(error.response.data.error.message);
       // toast.error(_.get(error, 'response.data.error.message'))
     }
   };
@@ -119,8 +118,6 @@ const NewClaim = () => {
     searchUserInfo();
     getPayorName();
   }, [insurancePlanInputRef]);
-
-  console.log(initiateClaimRequestBody);
 
   return (
     <div className="w-full pt-2 sm:p-12.5 xl:p-1 ">

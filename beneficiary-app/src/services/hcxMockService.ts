@@ -10,7 +10,8 @@ async function generateOutgoingRequest(url: any, payload: any) {
 
 async function isInitiated(payload: any) {
   const response = await axios.post(
-    `https://dev-hcx.swasth.app/hcx-mock-service/v0.7/check/communication/request`,payload
+    `https://dev-hcx.swasth.app/hcx-mock-service/v0.7/check/communication/request`,
+    payload
   );
   return response;
 }
