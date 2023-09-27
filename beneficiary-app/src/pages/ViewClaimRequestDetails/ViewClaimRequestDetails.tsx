@@ -14,6 +14,7 @@ const ViewClaimRequestDetails = () => {
   const location = useLocation();
   const details = location.state;
   const navigate = useNavigate();
+  console.log(details);
 
   const [token, setToken] = useState<string>('');
 
@@ -194,11 +195,20 @@ const ViewClaimRequestDetails = () => {
     setSupportingDocs(supportingDocumentsArray);
   };
 
-  console.log(docs);
-
   return (
     <>
-      <div className="mb-4 items-center justify-between">
+      <div className="relative mb-4 items-center justify-between">
+        {details?.status === 'Approved' ? (
+          <span
+            className={
+              'dark:text-green border-green absolute right-0 mr-2 rounded bg-success px-2.5 py-0.5 text-xs font-medium text-gray'
+            }
+          >
+            {details?.status}
+          </span>
+        ) : (
+          <></>
+        )}
         <h2 className="sm:text-title-xl1 text-2xl font-semibold text-black dark:text-white">
           {strings.CLAIM_REQUEST_DETAILS}
         </h2>
@@ -218,7 +228,7 @@ const ViewClaimRequestDetails = () => {
           })}
         </div>
       </div>
-      <div className="mt-3 rounded-sm border border-stroke bg-white px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
+      <div className="mt-3 rounded-sm border border-stroke bg-white px-3 pb-3 shadow-default dark:border-strokedark dark:bg-boxdark">
         <div className="flex items-center justify-between">
           <h2 className="sm:text-title-xl1 text-1xl mt-2 mb-2 font-semibold text-black dark:text-white">
             {strings.TREATMENT_AND_BILLING_DETAILS}
@@ -237,7 +247,7 @@ const ViewClaimRequestDetails = () => {
           })}
         </div>
       </div>
-      <div className="mt-3 rounded-sm border border-stroke bg-white px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
+      <div className="mt-3 rounded-sm border border-stroke bg-white px-3 pb-3 shadow-default dark:border-strokedark dark:bg-boxdark">
         <div className="flex items-center justify-between">
           <h2 className="sm:text-title-xl1 text-1xl mt-2 mb-2 font-semibold text-black dark:text-white">
             {strings.SUPPORTING_DOCS}
@@ -248,7 +258,6 @@ const ViewClaimRequestDetails = () => {
             const parts = ele.split('/');
             const fileName = parts[parts.length - 1];
 
-            // Split the file name by dot to extract the file extension
             const fileExtension = fileName.split('.').pop();
             return (
               <>
@@ -261,14 +270,27 @@ const ViewClaimRequestDetails = () => {
         </div>
       </div>
 
-      {!initiated ? (
+      { details?.status !== 'Approved' ? (
         <div
           onClick={() => getVerification()}
           className="align-center mt-4 flex w-20 justify-center rounded bg-primary py-1 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
         >
-          <span>Refresh</span>
+          <span className="cursor-pointer">Refresh</span>
         </div>
-      ) : null}
+      ) : (
+        <>
+          <button
+            onClick={(event: any) => {
+              event.preventDefault();
+              navigate('/home');
+            }}
+            type="submit"
+            className="align-center mt-8 flex w-full justify-center rounded bg-primary py-3 font-medium text-gray"
+          >
+            Home
+          </button>
+        </>
+      )}
 
       {initiated ? (
         <>

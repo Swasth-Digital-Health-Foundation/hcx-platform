@@ -40,7 +40,17 @@ const ActiveClaimCycleCard = (Props: any) => {
     },
     {
       key: 'Status :',
-      value: `${Props.status}`,
+      value: (
+        <span
+          className={`${
+            Props.status === 'Pending'
+              ? 'mr-2 rounded bg-warning px-2.5 py-0.5 text-xs font-medium text-gray dark:bg-warning dark:text-gray'
+              : 'dark:text-green border-green mr-2 rounded bg-success px-2.5 py-0.5 text-xs font-medium text-gray'
+          }`}
+        >
+          {Props.status}
+        </span>
+      ),
     },
   ];
 
@@ -54,7 +64,7 @@ const ActiveClaimCycleCard = (Props: any) => {
                 key={index}
                 className="font-small mt-1 block text-left text-black dark:text-white"
               >
-                <b>{ele.key}</b> {ele.value}
+                <b>{ele.key}</b> <span>{ele.value}</span>
               </h2>
             );
           })}
