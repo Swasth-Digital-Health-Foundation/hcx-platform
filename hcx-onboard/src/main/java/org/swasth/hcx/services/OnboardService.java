@@ -1109,7 +1109,9 @@ public class OnboardService extends BaseController {
             passwordCred.setType(CredentialRepresentation.PASSWORD);
             passwordCred.setValue(password);
             userResource.resetPassword(passwordCred);
-            logger.info("The Keycloak password for the os_owner :" + osOwner.get(0) + " has been successfully updated");
+            String userId = userResource.toRepresentation().getId();
+            realmResource.users().get(userId).logout();
+            logger.info("The Keycloak password for the os_owner :" + osOwner.get(0) + " has been successfully updated, and their sessions have been invalidated.");
         } catch (Exception e) {
             throw new ClientException("Unable to set keycloak password : " + e.getMessage());
         }

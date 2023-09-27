@@ -64,16 +64,15 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
     private final JwtConfigs jwtConfigs;
     private final AuthorizationService authorizationService;
     private final Acl authenticatedAllowedPaths;
-    private Map<String,JWTVerifier> verifierCache = new HashMap<>();
-
+    private Map<String, JWTVerifier> verifierCache = new HashMap<>();
     @Value("${allowedUserRolesForProtocolApiAccess}")
     private List<String> allowedUserRolesForProtocolApiAccess;
-
     @Autowired
     ExceptionHandler exceptionHandler;
-
     @Autowired
     JWTVerifierFactory jwtVerifierFactory;
+    @Autowired
+    CheckSessions sessions;
 
     public JwtAuthenticationFilter(JwtConfigs jwtConfigs,
                                    AuthorizationService authorizationService,
@@ -85,7 +84,6 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-
         if (exchange.getAttributes().containsKey(AUTH_REQUIRED) && (Boolean) exchange.getAttributes().get(
                 AUTH_REQUIRED)) {
             try {
@@ -93,28 +91,26 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
                 String path = exchange.getRequest().getPath().value();
                 String entityType = getEntityType(token);
                 DecodedJWT decodedJWT = getJWTVerifier(entityType).verify(token);
-
                 ServerHttpRequest request = exchange.getRequest().mutate().
                         header(X_JWT_SUB_HEADER, decodedJWT.getSubject()).
                         build();
-
+                sessions.checkSessions(decodedJWT.getSubject(), decodedJWT.getClaim("session_state").asString());
                 if (!authenticatedAllowedPaths.getPaths().contains(path) && !Utils.containsRegexPath(authenticatedAllowedPaths.getRegexPaths(), path)) {
                     String payload = new String(Base64.getDecoder().decode(decodedJWT.getPayload()));
                     JSONArray claims;
-                    if(StringUtils.equalsIgnoreCase(entityType, Constants.API_ACCESS)) {
+                    if (StringUtils.equalsIgnoreCase(entityType, Constants.API_ACCESS)) {
                         List<String> userRoles = JsonPath.read(payload, jwtConfigs.getApiAccessUserClaimsNamespacePath());
-                        if(!validateRoles(allowedUserRolesForProtocolApiAccess, userRoles)){
+                        if (!validateRoles(allowedUserRolesForProtocolApiAccess, userRoles)) {
                             throw new JWTVerificationException(ErrorCodes.ERR_ACCESS_DENIED, MessageFormat.format(USER_ROLE_ACCESS_DENIED_MSG, allowedUserRolesForProtocolApiAccess));
                         }
-                       claims = JsonPath.read(payload, jwtConfigs.getApiAccessParticipantClaimsNamespacePath());
+                        claims = JsonPath.read(payload, jwtConfigs.getApiAccessParticipantClaimsNamespacePath());
                     } else {
                         claims = JsonPath.read(payload, jwtConfigs.getClaimsNamespacePath());
                     }
                     if (!authorizationService.isAuthorized(exchange, claims, entityType)) {
                         throw new JWTVerificationException(ErrorCodes.ERR_ACCESS_DENIED, ACCESS_DENIED_MSG);
-                    } 
+                    }
                 }
-
                 return chain.filter(exchange.mutate().request(request).build());
 
             } catch (Exception e) {
@@ -125,7 +121,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         }
     }
 
-    private JWTVerifier getJWTVerifier(String entityType) throws InvalidKeySpecException, NoSuchAlgorithmException, JwkException, IOException, ClientException{
+    private JWTVerifier getJWTVerifier(String entityType) throws InvalidKeySpecException, NoSuchAlgorithmException, JwkException, IOException, ClientException {
         if (verifierCache.containsKey(entityType)) {
             return verifierCache.get(entityType);
         } else {
@@ -137,8 +133,8 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         }
     }
 
-    private Map<String,String> getEntityRealm() {
-        Map<String,String> entityRealm = new HashMap<>();
+    private Map<String, String> getEntityRealm() {
+        Map<String, String> entityRealm = new HashMap<>();
         for (String str : jwtConfigs.getEntityRealm()) {
             String[] parts = str.split("@");
             if (parts.length == 2) {
@@ -148,10 +144,10 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         return entityRealm;
     }
 
-    private String getEntityType(String token) throws ClientException{
+    private String getEntityType(String token) throws ClientException {
         String entityType = "";
-        try{
-            entityType =  ((List<String>) JSONUtils.decodeBase64String(token.split("\\.")[1], Map.class).get("entity")).get(0);
+        try {
+            entityType = ((List<String>) JSONUtils.decodeBase64String(token.split("\\.")[1], Map.class).get("entity")).get(0);
         } catch (Exception e) {
             throw new ClientException(ErrorCodes.ERR_ACCESS_DENIED, "Invalid authorization token");
         }
@@ -195,5 +191,4 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         }
         return false;
     }
-
 }

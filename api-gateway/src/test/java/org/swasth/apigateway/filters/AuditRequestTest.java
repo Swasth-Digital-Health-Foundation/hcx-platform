@@ -25,7 +25,7 @@ public class AuditRequestTest extends BaseSpec {
 
         client.post().uri(versionPrefix + Constants.AUDIT_SEARCH)
                 .header(Constants.AUTHORIZATION, getProviderToken())
-                .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
+                .header("X-jwt-sub", "8527853c-b442-44db-aeda-dbbdcf472d9b")
                 .bodyValue(getAuditRequestBody())
                 .exchange()
                 .expectBody(Map.class)
