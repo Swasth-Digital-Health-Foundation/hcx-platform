@@ -17,6 +17,7 @@ const CoverageEligibility = () => {
   const [loading, setisLoading] = useState(false);
   const [coverageDetails, setCoverageDetails] = useState<any>([]);
   const [apicallIds, setapicallIds] = useState<any>([]);
+  const [coverageEligibilityStatus, setcoverageStatus] = useState<any>([]);
 
   const handleRadioChange = (event: any) => {
     setSelectedValue(event.target.value);
@@ -33,7 +34,6 @@ const CoverageEligibility = () => {
 
   const [type, setType] = useState<string[]>([]);
 
-  console.log(location.state?.apiCallId);
 
   const claimRequestDetails: any = [
     {
@@ -63,7 +63,6 @@ const CoverageEligibility = () => {
   ];
 
   let workflowId = requestDetails?.workflowId;
-  console.log(workflowId);
 
   const participantCodePayload = {
     filters: {
@@ -150,7 +149,6 @@ const CoverageEligibility = () => {
       setCoverageDetails(coverageData);
 
       const entryKey = Object?.keys(coverageDetails[0])[0];
-      console.log('entrykey', entryKey);
 
       // Filter the objects with type "claim"
       const claimObjects = coverageDetails[0][entryKey].filter(
@@ -183,7 +181,30 @@ const CoverageEligibility = () => {
   //   (obj: any) => obj.workflow_id === requestDetails?.workflowId || ''
   // );
 
-  console.log('pre-claim', preauthOrClaimList);
+
+  let coverageStatus = coverageDetails.find(
+    (entryObj: any) => Object.keys(entryObj)[0] === workflowId
+  );
+
+  useEffect(() => {
+    if (
+      coverageStatus &&
+      coverageStatus[workflowId].some(
+        (obj: any) => obj.type === 'coverageeligibility'
+      )
+    ) {
+      // If it exists, find the object with type "coverageeligibility" and return its status
+      const eligibilityObject = coverageStatus[workflowId].find(
+        (obj: any) => obj.type === 'coverageeligibility'
+      );
+      const status = eligibilityObject.status;
+      setcoverageStatus(status);
+    } else {
+      console.log(
+        "Object with type 'coverageeligibility' not found for the given ID."
+      );
+    }
+  }, [coverageStatus]);
 
   return (
     <>
@@ -202,15 +223,11 @@ const CoverageEligibility = () => {
             </button>
             {loading ? 'Please wait...' : ''}
             <h2 className="sm:text-title-xl1 mb-1 text-end font-semibold text-success dark:text-success">
-              {/* {coverageDetails[0]?.[workflowId].some(
-                (obj: any) => 
-                  obj.type === 'coverageeligibility' &&
-                  obj.status === 'Approved'
-              ) ? (
+              {coverageEligibilityStatus === 'Approved' ? (
                 <div className="text-success">&#10004; Eligible</div>
               ) : (
                 <div className="text-warning">Pending</div>
-              )} */}
+              )}
             </h2>
           </div>
           <h2 className="sm:text-title-xl1 text-2xl font-semibold text-black dark:text-white">
