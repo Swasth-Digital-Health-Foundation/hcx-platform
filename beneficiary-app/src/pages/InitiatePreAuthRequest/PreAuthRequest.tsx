@@ -454,17 +454,19 @@ const PreAuthRequest = () => {
         </div>
         {!loading ? (
           <div
-            className="underline"
             onClick={() => {
               if (fileUrlList !== 0) {
                 handleUpload();
               }
             }}
+            className="mx-auto"
           >
-            <span>Click here to upload documents</span>
+            <button className="align-center text-balck m-auto mt-4 flex w-60 justify-center rounded bg-gray font-medium disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray">
+              Click here to upload documents
+            </button>
           </div>
         ) : (
-          <span>Please wait</span>
+          <span className='m-auto'>Please wait</span>
         )}
         {isSuccess ? (
           <div>
@@ -493,7 +495,7 @@ const PreAuthRequest = () => {
       <div className="mb-5 mt-4">
         {!loading ? (
           <button
-            disabled={estimatedAmount === '' || selectedFile === undefined}
+            disabled={estimatedAmount === '' || fileUrlList.length === 0}
             onClick={(event: any) => {
               event.preventDefault();
               submitPreauth();
