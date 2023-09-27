@@ -26,6 +26,8 @@ const ViewClaimRequestDetails = () => {
   const [OTP, setOTP] = useState<any>();
   const [docs, setSupportingDocs] = useState<any>([]);
 
+  const [preAuthAndClaimList, setpreauthOrClaimList] = useState<any>([]);
+
   const participantCodePayload = {
     filters: {
       participant_code: { eq: location.state?.participantCode },
@@ -182,6 +184,7 @@ const ViewClaimRequestDetails = () => {
       preauthOrClaimListPayload
     );
     const data = response.data?.entries;
+    setpreauthOrClaimList(data);
 
     const claimAndPreauthEntries = data.filter(
       (entry: any) => entry.type === 'claim' || entry.type === 'preauth'
@@ -195,16 +198,22 @@ const ViewClaimRequestDetails = () => {
     setSupportingDocs(supportingDocumentsArray);
   };
 
+  const hasClaimApproved = preAuthAndClaimList.some(
+    (entry: any) => entry.type === 'claim' && entry.status === 'Approved'
+  );
+
+  console.log(preAuthAndClaimList);
+
   return (
     <>
       <div className="relative mb-4 items-center justify-between">
-        {details?.status === 'Approved' ? (
+        {hasClaimApproved ? (
           <span
             className={
               'dark:text-green border-green absolute right-0 mr-2 rounded bg-success px-2.5 py-0.5 text-xs font-medium text-gray'
             }
           >
-            {details?.status}
+            Approved
           </span>
         ) : (
           <></>
@@ -270,7 +279,7 @@ const ViewClaimRequestDetails = () => {
         </div>
       </div>
 
-      { details?.status !== 'Approved' ? (
+      {!hasClaimApproved ? (
         <div
           onClick={() => getVerification()}
           className="align-center mt-4 flex w-20 justify-center rounded bg-primary py-1 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
