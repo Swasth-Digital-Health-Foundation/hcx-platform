@@ -50,12 +50,12 @@ const SendBankDetails = () => {
     },
   ];
 
-//   const supportingDocuments = [
-//     {
-//       key: 'Document type :',
-//       value: details?.billingDeatils?.serviceType || '',
-//     },
-//   ];
+  //   const supportingDocuments = [
+  //     {
+  //       key: 'Document type :',
+  //       value: details?.billingDeatils?.serviceType || '',
+  //     },
+  //   ];
 
   const [bankDetails, setBankDetails] = useState(false);
 
@@ -73,6 +73,7 @@ const SendBankDetails = () => {
         // toast.success('succes');
       }
     } catch (err) {
+      toast.error('Communication is not initiated!');
       console.log(err);
     }
   };
