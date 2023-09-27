@@ -19,6 +19,7 @@ import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.context.ActiveProfiles;
 import org.swasth.common.helpers.EventGenerator;
 import org.swasth.common.service.RegistryService;
+import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.commonscheduler.config.GenericConfiguration;
 import org.swasth.commonscheduler.job.CommonSchedulerJob;
@@ -27,6 +28,7 @@ import org.swasth.postgresql.PostgreSQLClient;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.sql.ResultSet;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -120,10 +122,18 @@ public class CommonSchedulerTest {
     @Test
     public void testRetryRequestsScheduler() throws Exception {
             postgreSQLClient.execute("CREATE TABLE payload(mid character varying PRIMARY KEY, data character varying NOT NULL, action character varying, status character varying, retrycount integer, lastupdatedon bigint)");
+            postgreSQLClient.execute("INSERT INTO payload(mid, data, action, status, retrycount, lastupdatedon) VALUES('e49e067d-60ff-40ee-b3df-08abb6c2fda1', '{}', '/coverageeligibility/check', 'request.retry',1,'1676218371439');");
             when(eventGenerator.generateMetadataEvent(any())).thenReturn("mockedEvent");
             lenient().doNothing().when(kafkaClient).send(anyString(), anyString(), anyString());
             String[] args = {"Retry"};
             commonSchedulerJob.run(args);
             verify(kafkaClient, times(0)).send(anyString(), anyString(), anyString());
-         }
+            ResultSet result = postgreSQLClient.executeQuery("SELECT * FROM payload where mid='e49e067d-60ff-40ee-b3df-08abb6c2fda1';");
+            if(result.next()) {
+                int retryCount = result.getInt(Constants.RETRY_COUNT);
+                assertEquals(2, retryCount);
+            } else throw new Exception("The test case failed.");
     }
+
+}
+
