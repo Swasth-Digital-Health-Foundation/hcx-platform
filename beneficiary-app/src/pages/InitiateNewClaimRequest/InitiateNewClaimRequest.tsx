@@ -399,19 +399,17 @@ const InitiateNewClaimRequest = () => {
         </div>
         {!loading ? (
           <div
+            className="underline"
             onClick={() => {
               if (fileUrlList !== 0) {
                 handleUpload();
               }
             }}
-            className="mx-auto"
           >
-            <button className="align-center text-balck m-auto mt-4 flex w-60 justify-center rounded bg-gray font-medium disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray">
-              Click here to upload documents
-            </button>
+            <span>Click here to upload documents</span>
           </div>
         ) : (
-          <span className="m-auto">Please wait</span>
+          <span>Please wait</span>
         )}
         {isSuccess ? (
           <div>
@@ -440,7 +438,7 @@ const InitiateNewClaimRequest = () => {
       <div className="mb-5 mt-4">
         {!loading ? (
           <button
-            disabled={amount === '' || fileUrlList.length === 0}
+            disabled={amount === '' || selectedFile === undefined}
             onClick={(event: any) => {
               event.preventDefault();
               submitClaim();

@@ -140,7 +140,7 @@ const CoverageEligibility = () => {
       for (const entry of preAuthAndClaimList) {
         if (entry.type === 'claim') {
           setApicallID(entry.apiCallId);
-          break;
+          break; 
         }
       }
       setType(
@@ -214,22 +214,18 @@ const CoverageEligibility = () => {
     }
   }, [coverageStatus]);
 
-  const hasClaimApproved = preauthOrClaimList.some(
-    (entry: any) => entry.type === 'claim' && entry.status === 'Approved'
-  );
-
   return (
     <>
       {!loading ? (
         <div className="-pt-2">
-          <div className="just relative mb-10 flex">
+          <div className="relative just flex mb-10">
             <button
               disabled={loading}
               onClick={(event: any) => {
                 event.preventDefault();
                 getActivePlans();
               }}
-              className="align-center absolute right-0 flex w-20 justify-center rounded bg-primary py-1 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
+              className="absolute right-0 align-center flex w-20 justify-center rounded bg-primary py-1 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
             >
               Refresh
             </button>
@@ -243,7 +239,7 @@ const CoverageEligibility = () => {
               {coverageEligibilityStatus === 'Approved' ? (
                 <div className="text-success">&#10004; Eligible</div>
               ) : (
-                <div className="mr-3 text-warning">Pending</div>
+                <div className="text-warning mr-3">Pending</div>
               )}
             </h2>
           </div>
@@ -405,37 +401,28 @@ const CoverageEligibility = () => {
           </div>
 
           <div className="mb-5 mt-5">
-            {!hasClaimApproved ? (
-              <button
-                disabled={selectedValue === ''}
-                onClick={(event: any) => {
-                  event.preventDefault();
-                  if (selectedValue === 'Initiate new claim request') {
-                    navigate('/initiate-claim-request', {
-                      state: requestDetails,
-                    });
-                  } else if (selectedValue === 'Initiate pre-auth request') {
-                    navigate('/initiate-preauth-request', {
-                      state: requestDetails,
-                    });
-                  } else {
-                    navigate('/view-active-request', {
-                      state: requestDetails,
-                    });
-                  }
-                }}
-                className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
-              >
-                {strings.PROCEED}
-              </button>
-            ) : (
-              <button
-                onClick={() => navigate('/home')}
-                className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
-              >
-                Home
-              </button>
-            )}
+            <button
+              disabled={selectedValue === ''}
+              onClick={(event: any) => {
+                event.preventDefault();
+                if (selectedValue === 'Initiate new claim request') {
+                  navigate('/initiate-claim-request', {
+                    state: requestDetails,
+                  });
+                } else if (selectedValue === 'Initiate pre-auth request') {
+                  navigate('/initiate-preauth-request', {
+                    state: requestDetails,
+                  });
+                } else {
+                  navigate('/view-active-request', {
+                    state: requestDetails,
+                  });
+                }
+              }}
+              className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
+            >
+              {strings.PROCEED}
+            </button>
           </div>
         </div>
       ) : (
