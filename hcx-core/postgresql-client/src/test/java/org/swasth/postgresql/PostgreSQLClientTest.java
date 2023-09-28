@@ -33,6 +33,7 @@ public class PostgreSQLClientTest {
 
     @Test
     public void testQueryExecute() throws ClientException, SQLException {
+        postgreSQLClient.execute("DROP TABLE IF EXISTS payload");
         postgreSQLClient.execute("CREATE TABLE payload(mid text PRIMARY KEY, data text)");
         postgreSQLClient.execute("INSERT INTO payload(mid,data)  VALUES('12345','eyJlbmMiOiJBMjU2R')");
         postgreSQLClient.close();
