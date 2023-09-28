@@ -6,6 +6,9 @@ fixedDelay.in.milliseconds:
   retry: ${retry_fixedDelay_in_milliseconds:20000}
   participantVerify: ${participantVerify_fixedDelay_in_milliseconds:20000}
 
+#kafka config
+bootstrap-servers: ${bootstrap_servers:localhost:9092}
+
 kafka:
   url: ${kafka_url:localhost:9092}
   groupId: ${kafka_group_id:local-retry-group}

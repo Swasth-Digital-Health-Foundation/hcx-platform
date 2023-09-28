@@ -5,7 +5,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.swasth.common.service.RegistryService;
 import org.swasth.common.utils.Constants;
@@ -47,7 +46,6 @@ public class ParticipantValidationScheduler extends BaseScheduler {
     @Value("${certificate.expiry-days}")
     private List<Integer> certificateExpiryDaysList;
 
-    @Scheduled(fixedDelayString = "${fixedDelay.in.milliseconds.participantVerify}")
     public void process() throws Exception {
         logger.info("Participant validation scheduler started");
         certExpiry(Constants.SIGNING_CERT_PATH_EXPIRY, beforeSigningCertExpiryTopicCode, signingCertExpiredTopicCode);
