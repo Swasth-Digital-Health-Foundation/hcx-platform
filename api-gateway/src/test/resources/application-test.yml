@@ -94,8 +94,8 @@ spring:
           filters:
             - name: RequestRateLimiter
               args:
-                redis-rate-limiter.replenishRate: 10
-                redis-rate-limiter.burstCapacity: 20
+                redis-rate-limiter.replenishRate: 100
+                redis-rate-limiter.burstCapacity: 200
             - RewritePath=/${version.external07}/coverageeligibility/(?<segment>/?.*), /${version.internal}/coverageeligibility/$\{segment}
             - RewritePath=/${version.external07}/preauth/(?<segment>/?.*), /${version.internal}/preauth/$\{segment}
             - RewritePath=/${version.external07}/claim/(?<segment>/?.*), /${version.internal}/claim/$\{segment}

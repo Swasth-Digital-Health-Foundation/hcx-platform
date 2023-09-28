@@ -39,7 +39,6 @@ public class BaseScheduler {
     protected PostgreSQLClient postgreSQLClient;
 
 
-    @PostConstruct
     public void init() throws SQLException, ClientException {
         kafkaClient = new KafkaClient(kafkaUrl);
         eventGenerator = new EventGenerator(getProtocolHeaders(), getJoseHeaders(), getRedirectHeaders(), getErrorHeaders(), getNotificationHeaders());
