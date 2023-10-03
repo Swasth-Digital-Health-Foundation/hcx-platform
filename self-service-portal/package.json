@@ -1,67 +1,55 @@
 {
-  "name": "mock-payer",
-  "version": "0.1.0",
+  "name": "tailadmin-react-pro",
   "private": true,
-  "dependencies": {
-    "@headlessui/react": "^1.7.10",
-    "@heroicons/react": "^2.0.15",
-    "@reduxjs/toolkit": "^1.9.5",
-    "@testing-library/jest-dom": "^5.16.5",
-    "@testing-library/react": "^13.4.0",
-    "@testing-library/user-event": "^13.5.0",
-    "@types/jest": "^27.5.2",
-    "@types/node": "^16.18.12",
-    "@types/react": "^18.0.28",
-    "@types/react-dom": "^18.0.11",
-    "@uidotdev/usehooks": "^2.0.1",
-    "axios": "^1.3.6",
-    "dotenv": "^16.0.3",
-    "flowbite": "^1.6.6",
-    "flowbite-react": "^0.4.10",
-    "history": "^4.10.1",
-    "lodash": "^4.17.21",
-    "query-string": "^8.1.0",
-    "raviger": "^4.1.2",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-redux": "^8.0.5",
-    "react-router-dom": "^5.2.0",
-    "react-scripts": "5.0.1",
-    "react-toastify": "^9.1.1",
-    "recoil": "^0.7.6",
-    "typescript": "^4.9.5",
-    "use-debounce": "^9.0.4",
-    "web-vitals": "^2.1.4"
-  },
+  "version": "1.0.6",
+  "type": "module",
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
+  "author": {
+    "name": "TailAdmin",
+    "email": "hello@tailadmin.com",
+    "url": "https://tailadmin.com"
   },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+  "dependencies": {
+    "@reduxjs/toolkit": "^1.9.5",
+    "@types/qs": "^6.9.7",
+    "apexcharts": "^3.37.0",
+    "axios": "^1.4.0",
+    "flatpickr": "^4.6.13",
+    "jsvectormap": "^1.5.1",
+    "localforage": "^1.10.0",
+    "lodash": "^4.17.21",
+    "match-sorter": "^6.3.1",
+    "qs": "^6.11.2",
+    "query-string": "^8.1.0",
+    "react": "^18.2.0",
+    "react-apexcharts": "^1.4.0",
+    "react-dom": "^18.2.0",
+    "react-flatpickr": "^3.10.13",
+    "react-redux": "^8.1.2",
+    "react-router-dom": "^6.8.1",
+    "react-toastify": "^9.1.3",
+    "simple-datatables": "^7.2.0",
+    "sort-by": "^0.0.2",
+    "swiper": "^9.2.0",
+    "use-debounce": "^9.0.4"
   },
   "devDependencies": {
-    "@types/lodash": "^4.14.194",
-    "@types/react-router-dom": "^5.3.3",
-    "autoprefixer": "^10.4.14",
-    "postcss": "^8.4.24",
-    "tailwindcss": "^3.3.2"
+    "@types/lodash": "^4.14.197",
+    "@types/react": "^18.0.27",
+    "@types/react-dom": "^18.0.10",
+    "@vitejs/plugin-react": "^3.1.0",
+    "autoprefixer": "^10.4.13",
+    "dotenv": "^16.3.1",
+    "file-loader": "^6.2.0",
+    "postcss": "^8.4.21",
+    "prettier": "^2.8.4",
+    "prettier-plugin-tailwindcss": "^0.2.2",
+    "tailwindcss": "^3.2.6",
+    "vite": "^4.1.0",
+    "webpack": "^5.79.0"
   }
 }
