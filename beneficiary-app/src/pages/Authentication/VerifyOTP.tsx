@@ -44,8 +44,13 @@ const VerifyOTP = () => {
       }
     } catch (error: any) {
       setLoading(false);
-      if (error.response.status === 400) {
+      if (error.response?.status === 400) {
+        // console.log("status",error.response)
         toast.error('Enter valid OTP!', {
+          position: toast.POSITION.TOP_CENTER,
+        });
+      } else {
+        toast.error('Request timed out,try again!', {
           position: toast.POSITION.TOP_CENTER,
         });
       }
