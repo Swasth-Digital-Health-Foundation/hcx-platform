@@ -250,7 +250,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                         onClick={(e) => {
                           e.preventDefault();
                           sidebarExpanded
-                            ? navigate('/otp')
+                            ? navigate('/beneficiary-otp')
                             : setSidebarExpanded(true);
                         }}
                       >
