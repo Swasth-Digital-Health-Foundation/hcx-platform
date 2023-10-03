@@ -73,7 +73,7 @@ const SignUp = () => {
   const registerUser = async () => {
     try {
       setLoading(true);
-      let registerResponse: any = await postRequest('invite', payload);
+      let registerResponse: any = await postRequest('/invite', payload);
       setLoading(false);
       toast.success('User registered successfully!', {
         position: toast.POSITION.TOP_CENTER,
