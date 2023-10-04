@@ -88,6 +88,9 @@ hcx-mock-service:
 hcx-keycloak:
   basePath: ${HCX_KEYCLOAK_BASEPATH:https://dev-hcx.swasth.app}
 
+hcx-registry:
+  basePath: ${HCX_REGISTRY_BASEPATH:http://aa5c04ed467c04ea89789cead03e4275-352660981.ap-south-1.elb.amazonaws.com:8081/api}
+
 #elasticsearch config
 es:
   host: ${es_host:localhost}
@@ -212,7 +215,7 @@ spring:
                 redis-rate-limiter.replenishRate: 10
                 redis-rate-limiter.burstCapacity: 20
           predicates:
-            - Path=/payer/**,/${version.external08}/user/create
+            - Path=/payer/**,/${version.external08}/user/create,/${version.external07}/upload/documents
 
         - id: hcx-keycloak-route
           uri: ${hcx-keycloak.basePath}
@@ -223,3 +226,13 @@ spring:
                 redis-rate-limiter.burstCapacity: 20
           predicates:
             - Path=/auth/admin/realms/*, /auth/realms/swasth-hcx-participants/protocol/openid-connect/certs, /auth/realms/master/protocol/openid-connect/token
+
+        - id: hcx-registry-route
+          uri: ${hcx-registry.basePath}
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
+          predicates:
+            - Path=${version.internal}/Beneficiary/*
