@@ -14,7 +14,6 @@ const ViewClaimRequestDetails = () => {
   const location = useLocation();
   const details = location.state;
   const navigate = useNavigate();
-  console.log(details);
 
   const [token, setToken] = useState<string>('');
 
@@ -129,13 +128,6 @@ const ViewClaimRequestDetails = () => {
     },
   ];
 
-  const supportingDocuments = [
-    {
-      key: 'Document type :',
-      value: details?.billingDeatils?.serviceType || '',
-    },
-  ];
-
   const getVerificationPayload = {
     type: 'otp_verification',
     request_id: details?.apiCallId,
@@ -160,6 +152,8 @@ const ViewClaimRequestDetails = () => {
     otp_code: OTP,
     type: 'otp',
   };
+
+  console.log(payload)
 
   const verifyOTP = async () => {
     try {
@@ -201,8 +195,6 @@ const ViewClaimRequestDetails = () => {
   const hasClaimApproved = preAuthAndClaimList.some(
     (entry: any) => entry.type === 'claim' && entry.status === 'Approved'
   );
-
-  console.log(preAuthAndClaimList);
 
   return (
     <>

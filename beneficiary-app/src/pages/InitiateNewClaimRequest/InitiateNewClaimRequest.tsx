@@ -20,7 +20,7 @@ const InitiateNewClaimRequest = () => {
 
   const [amount, setAmount] = useState<string>('');
   const [serviceType, setServiceType] = useState<string>('Consultation');
-  const [documentType, setDocumentType] = useState<string>('prescription');
+  const [documentType, setDocumentType] = useState<string>('Bill/invoice');
 
   const [loading, setLoading] = useState(false);
 
@@ -50,7 +50,7 @@ const InitiateNewClaimRequest = () => {
 
   let initiateClaimRequestBody: any = {
     insuranceId: data?.insuranceId || '',
-    insurancePlan: data?.insurancePlan || null,
+    // insurancePlan: data?.insurancePlan || null,
     mobile: localStorage.getItem('mobile') || '',
     participantCode: data?.participantCode || '',
     payor: data?.payor || payorName,
@@ -68,6 +68,8 @@ const InitiateNewClaimRequest = () => {
       },
     ],
   };
+
+  console.log(initiateClaimRequestBody)
 
   const filter = {
     entityType: ['Beneficiary'],
@@ -185,7 +187,7 @@ const InitiateNewClaimRequest = () => {
   const claimRequestDetails: any = [
     {
       key: 'Provider name :',
-      value: data.providerName || providerName,
+      value: data?.providerName || providerName,
     },
     {
       key: 'Participant code :',
@@ -212,6 +214,7 @@ const InitiateNewClaimRequest = () => {
         'create/claim/submit',
         initiateClaimRequestBody
       );
+      console.log(getUrl)
       setLoading(false);
       navigate('/request-success', {
         state: {
@@ -397,22 +400,6 @@ const InitiateNewClaimRequest = () => {
             />
           </div>
         </div>
-        {!loading ? (
-          <div
-            onClick={() => {
-              if (fileUrlList !== 0) {
-                handleUpload();
-              }
-            }}
-            className="mx-auto"
-          >
-            <button className="align-center text-balck m-auto mt-4 flex w-60 justify-center rounded bg-gray font-medium disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray">
-              Click here to upload documents
-            </button>
-          </div>
-        ) : (
-          <span className="m-auto">Please wait</span>
-        )}
         {isSuccess ? (
           <div>
             {FileLists.map((file: any) => {
@@ -435,6 +422,22 @@ const InitiateNewClaimRequest = () => {
           <div className="mb-2.5 mt-4 block text-left text-xs text-red dark:text-red">
             {fileErrorMessage}
           </div>
+        )}
+        {!loading ? (
+          <div
+            onClick={() => {
+              if (fileUrlList !== 0) {
+                handleUpload();
+              }
+            }}
+            className="mx-auto"
+          >
+            <button className="align-center text-balck m-auto mt-4 flex w-60 justify-center rounded bg-gray font-medium disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray">
+              Click here to upload documents
+            </button>
+          </div>
+        ) : (
+          <span className="m-auto">Please wait</span>
         )}
       </div>
       <div className="mb-5 mt-4">

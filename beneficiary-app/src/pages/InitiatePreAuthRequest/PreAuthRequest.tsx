@@ -452,22 +452,7 @@ const PreAuthRequest = () => {
             />
           </div>
         </div>
-        {!loading ? (
-          <div
-            onClick={() => {
-              if (fileUrlList !== 0) {
-                handleUpload();
-              }
-            }}
-            className="mx-auto"
-          >
-            <button className="align-center text-balck m-auto mt-4 flex w-60 justify-center rounded bg-gray font-medium disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray">
-              Click here to upload documents
-            </button>
-          </div>
-        ) : (
-          <span className='m-auto'>Please wait</span>
-        )}
+        
         {isSuccess ? (
           <div>
             {FileLists.map((file: any) => {
@@ -490,6 +475,22 @@ const PreAuthRequest = () => {
           <div className="mb-2.5 mt-4 block text-left text-xs text-red dark:text-red">
             {fileErrorMessage}
           </div>
+        )}
+        {!loading ? (
+          <div
+            onClick={() => {
+              if (fileUrlList !== 0) {
+                handleUpload();
+              }
+            }}
+            className="mx-auto"
+          >
+            <button className="align-center text-balck m-auto mt-4 flex w-60 justify-center rounded bg-gray font-medium disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray">
+              Click here to upload documents
+            </button>
+          </div>
+        ) : (
+          <span className='m-auto'>Please wait</span>
         )}
       </div>
       <div className="mb-5 mt-4">

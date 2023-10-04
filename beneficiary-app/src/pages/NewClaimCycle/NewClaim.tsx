@@ -119,6 +119,54 @@ const NewClaim = () => {
     getPayorName();
   }, [insurancePlanInputRef]);
 
+  // const getUserPayorDetails: any = userInfo[0]?.payor_details;
+  // // console.log(getUserPayorDetails);
+
+  // const [test, setTest] = useState<any>(getUserPayorDetails);
+  // console.log(test)
+
+  // const updatePayload = {
+  //   insurance_id:
+  //     insurancePlanInputRef === 'add another' ? payor : payorFromInsuranceId,
+  //   payor:
+  //     insurancePlanInputRef === 'add another'
+  //       ? insuranceId
+  //       : insurancePlanInputRef,
+  // };
+
+  // test.push(updatePayload);
+  // console.log(getUserPayorDetails);
+  // console.log(userInfo[0]?.payor_details);
+
+  //   // console.log(existingInsuranceDetails)
+
+  //   const updateUserDetailsPayload = {
+  //     ...userInfo[0]?.payor_details,
+  //     payor_details: { ...updatePayload},
+  //   };
+
+  //   console.log(updateUserDetailsPayload);
+
+  //   const updatedPayorDetails = [...getUserPayorDetails.payor_details];
+
+  // // Create a new object with the desired values
+  // const newPayorObject = {
+  //   insurance_id: insurancePlanInputRef === 'add another' ? payor : payorFromInsuranceId,,
+  //   payor: insurancePlanInputRef === 'add another'
+  //   ? insuranceId
+  //   : insurancePlanInputRef,
+  // };
+  // };
+
+  // // Push the new object into the cloned array
+  // updatedPayorDetails.push(newPayorObject);
+
+  // // Update the existingData with the updated payor_details array
+  // existingData.payor_details = updatedPayorDetails;
+
+  // // Now, existingData contains the updated payor_details array
+  // console.log(existingData);
+
   return (
     <div className="w-full pt-2 sm:p-12.5 xl:p-1 ">
       <h2 className="mb-4 -mt-4 text-3xl font-bold text-black dark:text-white sm:text-title-xl2">
@@ -204,7 +252,7 @@ const NewClaim = () => {
         <div className="border-gray-300 my-4 border-t "></div>
         <div className="mt-4">
           <label className="mb-2.5 block text-left font-medium text-black dark:text-white">
-          Treatment/Service Type: *
+            Treatment/Service Type: *
           </label>
           <div className="relative z-20 bg-white dark:bg-form-input">
             <select
@@ -296,8 +344,8 @@ const NewClaim = () => {
                       className="relative z-20 w-full appearance-none rounded border border-stroke bg-transparent bg-transparent py-4 px-6 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark"
                     >
                       <option value="">select</option>
-                      <option value="wemeanhospital Mock Payor">
-                        wemeanhospital Mock Payor
+                      <option value="Swasth-reference Payor">
+                        Swasth-reference Payor
                       </option>
                     </select>
                     <span className="absolute top-1/2 right-4 z-10 -translate-y-1/2">

@@ -40,20 +40,21 @@ const Profile = () => {
     },
   ];
 
-  const insuranceDetails = [
-    {
-      key: 'Insurance ID :',
-      value: userInfo[0]?.payor_details.map((ele: any) => {
-        return ele.insurance_id;
-      }),
-    },
-    {
-      key: 'Payor :',
-      value: userInfo[0]?.payor_details.map((ele: any) => {
-        return ele.payor;
-      }),
-    },
-  ];
+  // const insuranceDetails = [
+  //   {
+  //     key: 'Insurance ID :',
+  //     value: userInfo[0]?.payor_details.map((ele: any) => {
+  //       return ele.insurance_id;
+  //     }),
+  //   },
+  //   {
+  //     key: 'Payor :',
+  //     value: userInfo[0]?.payor_details.map((ele: any) => {
+  //       return ele.payor;
+  //     }),
+  //   },
+  // ];
+  console.log(userInfo);
 
   return (
     <>
@@ -74,18 +75,28 @@ const Profile = () => {
         <h2 className="text-bold -mb-2 text-2xl font-medium text-black dark:text-white">
           Insurance details :
         </h2>
-        <div className="mt-5 rounded-sm border border-stroke bg-white p-2 shadow-default dark:border-strokedark dark:bg-boxdark">
-          {insuranceDetails.map((ele: any) => {
-            return (
-              <div className="mb-2 flex">
-                <h2 className="text-bold text-base font-bold text-black dark:text-white">
-                  {ele.key}
-                </h2>
-                <span className="text-base font-medium">{ele.value}</span>
+        {userInfo[0]?.payor_details.map((ele: any) => {
+          return (
+            <div className="mt-5 rounded-sm border border-stroke bg-white p-2 shadow-default dark:border-strokedark dark:bg-boxdark">
+              <div className="mb-2">
+                <div className="flex gap-2">
+                  <h2 className="text-bold text-base font-bold text-black dark:text-white">
+                    Insurance ID :
+                  </h2>
+                  <span className="text-base font-medium">
+                    {ele?.insurance_id}
+                  </span>
+                </div>
+                <div className="flex gap-2">
+                  <h2 className="text-bold text-base font-bold text-black dark:text-white">
+                    Payor :
+                  </h2>
+                  <span className="text-base font-medium">{ele?.payor}</span>
+                </div>
               </div>
-            );
-          })}
-        </div>
+            </div>
+          );
+        })}
       </div>
     </>
   );

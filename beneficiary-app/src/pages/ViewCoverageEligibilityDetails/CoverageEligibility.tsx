@@ -24,11 +24,9 @@ const CoverageEligibility = () => {
     setSelectedValue(event.target.value);
   };
 
-  // Now, apicallIds will contain an array of apicallId values from the "claim" objects
-
   const requestDetails = {
-    providerName: providerName,
     ...location.state,
+    providerName: providerName,
     billAmount: location.state?.billAmount || preauthOrClaimList[0]?.billAmount,
     apiCallId: apicallIdForClaim,
   };
@@ -72,7 +70,9 @@ const CoverageEligibility = () => {
 
   const payorCodePayload = {
     filters: {
-      participant_code: { eq: location.state?.payorCode },
+      participant_code: {
+        eq: location.state?.payorCode || location.state?.payor,
+      },
     },
   };
 

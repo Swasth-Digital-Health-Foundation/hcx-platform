@@ -50,13 +50,6 @@ const SendBankDetails = () => {
     },
   ];
 
-  //   const supportingDocuments = [
-  //     {
-  //       key: 'Document type :',
-  //       value: details?.billingDeatils?.serviceType || '',
-  //     },
-  //   ];
-
   const [bankDetails, setBankDetails] = useState(false);
 
   const getVerificationPayloadForBank = {
@@ -64,10 +57,12 @@ const SendBankDetails = () => {
     request_id: details?.apiCallId,
   };
 
+  console.log(getVerificationPayloadForBank)
+
   const getVerificationForBank = async () => {
     try {
       let res = await isInitiated(getVerificationPayloadForBank);
-      console.log(res);
+      console.log(res.status);
       if (res.status === 200) {
         setBankDetails(true);
         // toast.success('succes');
@@ -84,6 +79,8 @@ const SendBankDetails = () => {
     account_number: accountNumber,
     ifsc_code: ifscCode,
   };
+
+  console.log(bankDetailsPayload)
 
   const submit = async () => {
     try {
@@ -138,25 +135,6 @@ const SendBankDetails = () => {
           })}
         </div>
       </div>
-      {/* <div className="mt-2 rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
-        <div className="flex items-center justify-between">
-          <h2 className="sm:text-title-xl1 text-1xl  mb-4 font-semibold text-black dark:text-white">
-            {strings.SUPPORTING_DOCS}
-          </h2>
-        </div>
-        <div>
-          {supportingDocuments.map((ele: any) => {
-            return (
-              <>
-                <h2 className="text-bold text-base font-bold text-black dark:text-white">
-                  {ele.key}
-                </h2>
-                <span className="text-base font-medium">{ele.value}</span>
-              </>
-            );
-          })}
-        </div>
-      </div> */}
       <button
         className="align-center mt-3 mb-3 flex w-20 justify-center rounded bg-primary py-1 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
         onClick={() => getVerificationForBank()}
