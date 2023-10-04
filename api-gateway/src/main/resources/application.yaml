@@ -235,4 +235,4 @@ spring:
                 redis-rate-limiter.replenishRate: 10
                 redis-rate-limiter.burstCapacity: 20
           predicates:
-            - Path=${version.internal}/Beneficiary/*
+            - Path=/${version.internal}/Beneficiary/*
