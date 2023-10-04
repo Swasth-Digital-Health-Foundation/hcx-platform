@@ -89,7 +89,7 @@ hcx-keycloak:
   basePath: ${HCX_KEYCLOAK_BASEPATH:https://dev-hcx.swasth.app}
 
 hcx-registry:
-  basePath: ${HCX_REGISTRY_BASEPATH:http://aa5c04ed467c04ea89789cead03e4275-352660981.ap-south-1.elb.amazonaws.com:8081/api}
+  basePath: ${HCX_REGISTRY_BASEPATH:http://hcx-registry.dev.svc.cluster.local:8082/api}
 
 #elasticsearch config
 es:
