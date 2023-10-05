@@ -17,6 +17,7 @@ import { ToastContainer } from 'react-toastify';
 import Profile from './pages/Profile/Profile';
 import SendBankDetails from './pages/SendBankDetails/SendBankDetails';
 import Success from './pages/SendBankDetails/Success';
+import CoverageEligibilitySuccessPage from './components/CoverageEligibilitySuccessPage';
 
 const App = () => {
   const [loading, setLoading] = useState<boolean>(true);
@@ -66,6 +67,10 @@ const App = () => {
           <Route
             path="/view-active-request"
             element={<ViewClaimRequestDetails />}
+          />
+          <Route
+            path="/coverage-eligibility-success-page"
+            element={<CoverageEligibilitySuccessPage />}
           />
           <Route path="/request-success" element={<RequestSuccess />} />
           <Route path="/profile" element={<Profile />} />
