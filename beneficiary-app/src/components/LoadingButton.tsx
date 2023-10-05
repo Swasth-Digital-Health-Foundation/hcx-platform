@@ -1,8 +1,8 @@
-const LoadingButton = () => {
+const LoadingButton = (Props:any) => {
   return (
     <button
       type="button"
-      className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed"
+      className={Props.className}
       disabled
     >
       <svg

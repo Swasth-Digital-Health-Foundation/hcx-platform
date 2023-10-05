@@ -6,6 +6,7 @@ import {
   isInitiated,
 } from '../../services/hcxMockService';
 import { toast } from 'react-toastify';
+import LoadingButton from '../../components/LoadingButton';
 
 const SendBankDetails = () => {
   const location = useLocation();
@@ -15,6 +16,8 @@ const SendBankDetails = () => {
   const [beneficiaryName, setbeneficiaryName] = useState<string>('');
   const [accountNumber, setAccountNumber] = useState<string>('');
   const [ifscCode, setIfsc] = useState<string>('');
+  const [refresh, setRefresh] = useState<any>(false);
+  const [loading, setLoading] = useState<any>(false);
 
   const claimRequestDetails: any = [
     {
@@ -57,17 +60,20 @@ const SendBankDetails = () => {
     request_id: details?.apiCallId,
   };
 
-  console.log(getVerificationPayloadForBank)
+  console.log(getVerificationPayloadForBank);
 
   const getVerificationForBank = async () => {
     try {
+      setRefresh(true);
       let res = await isInitiated(getVerificationPayloadForBank);
       console.log(res.status);
+      setRefresh(false);
       if (res.status === 200) {
         setBankDetails(true);
         // toast.success('succes');
       }
     } catch (err) {
+      setRefresh(false);
       toast.error('Communication is not initiated!');
       console.log(err);
     }
@@ -80,17 +86,21 @@ const SendBankDetails = () => {
     ifsc_code: ifscCode,
   };
 
-  console.log(bankDetailsPayload)
+  console.log(bankDetailsPayload);
 
   const submit = async () => {
     try {
+      setLoading(true);
       let res = await createCommunicationOnRequest(bankDetailsPayload);
       console.log(res);
+      setLoading(false);
       if (res.status === 202) {
         toast.success('Bank deatils submitted successfully!');
         navigate('/success');
       }
     } catch (err) {
+      setLoading(false);
+      toast.error('Faild to submit, please try again');
       console.log(err);
     }
   };
@@ -139,7 +149,11 @@ const SendBankDetails = () => {
         className="align-center mt-3 mb-3 flex w-20 justify-center rounded bg-primary py-1 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
         onClick={() => getVerificationForBank()}
       >
-        Refresh
+        {!refresh ? (
+          <span className="cursor-pointer">Refresh</span>
+        ) : (
+          <LoadingButton className="align-center flex w-20 justify-center rounded bg-primary font-medium text-gray disabled:cursor-not-allowed" />
+        )}
       </button>
 
       {bankDetails ? (
@@ -200,19 +214,23 @@ const SendBankDetails = () => {
               />
             </div>
             <div className="mt-3">
-              <button
-                disabled={accountNumber === '' || ifscCode === ''}
-                onClick={(event: any) => {
-                  event.preventDefault();
-                  //   navigate('/home');
-                  //   verifyOTP();
-                  submit();
-                }}
-                type="submit"
-                className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
-              >
-                Submit
-              </button>
+              {!loading ? (
+                <button
+                  disabled={accountNumber === '' || ifscCode === ''}
+                  onClick={(event: any) => {
+                    event.preventDefault();
+                    //   navigate('/home');
+                    //   verifyOTP();
+                    submit();
+                  }}
+                  type="submit"
+                  className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
+                >
+                  Submit
+                </button>
+              ) : (
+                <LoadingButton className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed" />
+              )}
             </div>
           </div>
         </>

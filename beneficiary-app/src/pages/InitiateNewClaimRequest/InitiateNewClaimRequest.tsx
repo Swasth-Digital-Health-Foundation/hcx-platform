@@ -69,7 +69,7 @@ const InitiateNewClaimRequest = () => {
     ],
   };
 
-  console.log(initiateClaimRequestBody)
+  console.log(initiateClaimRequestBody);
 
   const filter = {
     entityType: ['Beneficiary'],
@@ -214,7 +214,7 @@ const InitiateNewClaimRequest = () => {
         'create/claim/submit',
         initiateClaimRequestBody
       );
-      console.log(getUrl)
+      console.log(getUrl);
       setLoading(false);
       navigate('/request-success', {
         state: {
@@ -454,7 +454,7 @@ const InitiateNewClaimRequest = () => {
             Submit claim
           </button>
         ) : (
-          <LoadingButton />
+          <LoadingButton className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed" />
         )}
       </div>
     </div>

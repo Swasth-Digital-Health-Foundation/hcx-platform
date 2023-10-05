@@ -507,7 +507,7 @@ const PreAuthRequest = () => {
             {strings.SUBMIT_CLAIM}
           </button>
         ) : (
-          <LoadingButton />
+          <LoadingButton className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed"/>
         )}
       </div>
     </div>

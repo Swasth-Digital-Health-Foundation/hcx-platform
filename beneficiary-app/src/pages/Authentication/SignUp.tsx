@@ -107,7 +107,7 @@ const SignUp = () => {
   const payorCheck = payor === ('' || 'none' || null);
   const numberCheck = mobileNumber?.length !== 10;
   const handleDisable = () => {
-    if ( insuranceCheck || payorCheck) {
+    if (insuranceCheck || payorCheck) {
       return true;
     }
     return false;
@@ -190,9 +190,7 @@ const SignUp = () => {
                     <option value="wemeanhospital Mock Payor">
                       wemeanhospital Mock Payor
                     </option>
-                    <option value="Swast Payor">
-                      Swast Payor
-                    </option>
+                    <option value="Swast Payor">Swast Payor</option>
                   </select>
                   <span className="absolute top-1/2 right-4 z-10 -translate-y-1/2">
                     <svg
@@ -276,7 +274,7 @@ const SignUp = () => {
             {strings.SAVE_PROFILE_DETAILS}
           </button>
         ) : (
-          <LoadingButton />
+          <LoadingButton className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed" />
         )}
       </div>
     </div>

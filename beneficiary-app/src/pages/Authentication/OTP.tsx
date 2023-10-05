@@ -86,7 +86,7 @@ const OTP = () => {
                 {strings.SEND_OTP}
               </button>
             ) : (
-              <LoadingButton />
+              <LoadingButton className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed" />
             )}
           </div>
         </form>

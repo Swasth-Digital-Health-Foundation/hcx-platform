@@ -9,6 +9,7 @@ import {
   isInitiated,
 } from '../../services/hcxMockService';
 import { toast } from 'react-toastify';
+import LoadingButton from '../../components/LoadingButton';
 
 const ViewClaimRequestDetails = () => {
   const location = useLocation();
@@ -26,6 +27,10 @@ const ViewClaimRequestDetails = () => {
   const [docs, setSupportingDocs] = useState<any>([]);
 
   const [preAuthAndClaimList, setpreauthOrClaimList] = useState<any>([]);
+
+  const [refresh, setRefresh] = useState<any>(false);
+
+  const [loading, setLoading] = useState<any>(false);
 
   const participantCodePayload = {
     filters: {
@@ -135,12 +140,15 @@ const ViewClaimRequestDetails = () => {
 
   const getVerification = async () => {
     try {
+      setRefresh(true);
       let res = await isInitiated(getVerificationPayload);
       console.log(res);
+      setRefresh(false);
       if (res.status === 200) {
         setInitiated(true);
       }
     } catch (err) {
+      setRefresh(false);
       console.log(err);
       toast.error('Communication is not initiated.');
     }
@@ -153,16 +161,17 @@ const ViewClaimRequestDetails = () => {
     type: 'otp',
   };
 
-  console.log(payload)
-
   const verifyOTP = async () => {
     try {
+      setLoading(true);
       const res = await createCommunicationOnRequest(payload);
       console.log(res);
+      setLoading(false);
       setInitiated(false);
       toast.success(res.data?.message);
       navigate('/bank-details', { state: sendInfo });
     } catch (err) {
+      setLoading(false);
       toast.error('Enter valid OTP!');
       console.log(err);
     }
@@ -276,7 +285,11 @@ const ViewClaimRequestDetails = () => {
           onClick={() => getVerification()}
           className="align-center mt-4 flex w-20 justify-center rounded bg-primary py-1 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
         >
-          <span className="cursor-pointer">Refresh</span>
+          {!refresh ? (
+            <span className="cursor-pointer">Refresh</span>
+          ) : (
+            <LoadingButton className="align-center flex w-20 justify-center rounded bg-primary font-medium text-gray disabled:cursor-not-allowed" />
+          )}
         </div>
       ) : (
         <>
@@ -325,16 +338,20 @@ const ViewClaimRequestDetails = () => {
               </div>
             </div>
             <div className="mb-5">
-              <button
-                onClick={(event: any) => {
-                  event.preventDefault();
-                  verifyOTP();
-                }}
-                type="submit"
-                className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray"
-              >
-                {strings.VERIFY_OTP_BUTTON}
-              </button>
+              {loading ? (
+                <LoadingButton className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed" />
+              ) : (
+                <button
+                  onClick={(event: any) => {
+                    event.preventDefault();
+                    verifyOTP();
+                  }}
+                  type="submit"
+                  className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray"
+                >
+                  {strings.VERIFY_OTP_BUTTON}
+                </button>
+              )}
             </div>
           </div>
         </>

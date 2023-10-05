@@ -161,7 +161,7 @@ const VerifyOTP = () => {
                 {strings.VERIFY_OTP_BUTTON}
               </button>
             ) : (
-              <LoadingButton />
+              <LoadingButton className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed" />
             )}
           </div>
           <p className="mt-2 text-center underline">
