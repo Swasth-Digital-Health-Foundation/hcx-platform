@@ -1,6 +1,7 @@
 package org.swasth.hcx.models;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.swasth.common.utils.SlugUtils;
 
 import java.security.SecureRandom;
@@ -12,6 +13,9 @@ import static org.swasth.common.utils.Constants.*;
 public class Participant {
 
     private final Map<String, Object> requestBody;
+
+    @Value("${provider-specific-roles}")
+    private List<String> specificProviderRoles;
 
     public Participant(Map<String, Object> requestbody) {
         this.requestBody = requestbody;
@@ -40,10 +44,10 @@ public class Participant {
         return code;
     }
 
-    private String getRoleAppender(){
-        if (getRoles().contains(PROVIDER)){
+    private String getRoleAppender() {
+        if (getRoles().contains(PROVIDER) || getRoles().stream().anyMatch(specificProviderRoles::contains)) {
             return "hosp";
-        } else if (getRoles().contains(PAYOR)){
+        } else if (getRoles().contains(PAYOR)) {
             return "payr";
         } else {
             return getRoles().get(0);

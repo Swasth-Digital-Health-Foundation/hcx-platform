@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import lombok.Data;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.swasth.apigateway.exception.ClientException;
 import org.swasth.apigateway.exception.ErrorCodes;
 import org.swasth.apigateway.utils.DateTimeUtils;
@@ -33,6 +34,9 @@ public class BaseRequest {
     private String payloadWithoutSensitiveData = null;
     private String hcxRoles;
     private String hcxCode;
+
+    @Value("${provider-specific-roles}")
+    private List<String> providerSpecificRoles;
 
     public BaseRequest() {
     }
@@ -185,7 +189,7 @@ public class BaseRequest {
         for (Map<String, Object> audit : correlationAuditData) {
             String action = (String) audit.get(ACTION);
             String entity = getEntity(action);
-            validateCondition(!OPERATIONAL_ENTITIES.contains(entity) && action.contains("on_") && ((List<String>) audit.get(RECIPIENT_ROLE)).contains(PROVIDER) && audit.get(STATUS).equals(COMPLETE_STATUS), ErrorCodes.ERR_INVALID_CORRELATION_ID, CLOSED_CYCLE_MSG);
+            validateCondition(!OPERATIONAL_ENTITIES.contains(entity) && action.contains("on_") && ((List<String>) audit.get(RECIPIENT_ROLE)).contains(PROVIDER) && ((List<String>) audit.get(RECIPIENT_ROLE)).stream().anyMatch(providerSpecificRoles::contains) && audit.get(STATUS).equals(COMPLETE_STATUS), ErrorCodes.ERR_INVALID_CORRELATION_ID, CLOSED_CYCLE_MSG);
         }
         String actionEntity = getEntity(jweRequest.getApiAction());
         if (!OPERATIONAL_ENTITIES.contains(actionEntity)) {
@@ -213,11 +217,11 @@ public class BaseRequest {
                     validateCondition(getHcxRecipientCode().equals(audit.get(HCX_SENDER_CODE)), ErrorCodes.ERR_INVALID_FORWARD_REQ, FORWARD_REQ_ERR_MSG);
                 }
             }
-        } else if (!EXCLUDE_ENTITIES.contains(getEntity(path)) && !apiAction.contains("on_") && checkParticipantRole(allowedRolesForForward, senderRoles) && recipientRoles.contains(PROVIDER)) {
+        } else if (!EXCLUDE_ENTITIES.contains(getEntity(path)) && !apiAction.contains("on_") && checkParticipantRole(allowedRolesForForward, senderRoles) && recipientRoles.contains(PROVIDER) && recipientRoles.stream().anyMatch(providerSpecificRoles::contains)) {
             throw new ClientException(ErrorCodes.ERR_ACCESS_DENIED, INVALID_API_CALL);
         }
         // validation to check if participant is forwarding the request to provider
-        if (isForwardReq && !apiAction.contains("on_") && recipientRoles.contains(PROVIDER)) {
+        if (isForwardReq && !apiAction.contains("on_") && recipientRoles.contains(PROVIDER) && recipientRoles.stream().anyMatch(providerSpecificRoles::contains)) {
             throw new ClientException(ErrorCodes.ERR_INVALID_FORWARD_REQ, INVALID_FORWARD_TO_PROVIDER);
         }
     }

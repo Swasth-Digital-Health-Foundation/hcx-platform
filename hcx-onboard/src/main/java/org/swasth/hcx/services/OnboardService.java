@@ -174,6 +174,9 @@ public class OnboardService extends BaseController {
     @Value("${email.failed-identity-sub}")
     private String failedIdentitySub;
 
+    @Value("${provider-specific-roles}")
+    private List<String> specificProviderRoles;
+
     @PostConstruct()
     public void init(){
         keycloak = Keycloak.getInstance(keycloakURL, keycloakMasterRealm, keycloakAdminUserName, keycloakAdminPassword, keycloackClientId);
@@ -245,7 +248,7 @@ public class OnboardService extends BaseController {
         participant.put(REGISTRY_STATUS, CREATED);
         if (((ArrayList<String>) participant.get(ROLES)).contains(PAYOR))
             participant.put(SCHEME_CODE, "default");
-        if (((ArrayList<String>) participant.get(ROLES)).contains(PROVIDER))
+        if (((ArrayList<String>) participant.get(ROLES)).contains(PROVIDER) || ((ArrayList<String>) participant.get(ROLES)).stream().anyMatch(specificProviderRoles::contains))
             participant.put(APPLICANT_CODE, request.getApplicantCode());
     }
 
