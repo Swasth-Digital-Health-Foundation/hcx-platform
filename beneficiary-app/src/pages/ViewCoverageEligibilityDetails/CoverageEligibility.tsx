@@ -305,7 +305,7 @@ const CoverageEligibility = () => {
                           Bill amount :
                         </h2>
                         <span className="text-base font-medium">
-                          {ele.billAmount}
+                          INR {ele.billAmount}
                         </span>
                       </div>
                     </div>

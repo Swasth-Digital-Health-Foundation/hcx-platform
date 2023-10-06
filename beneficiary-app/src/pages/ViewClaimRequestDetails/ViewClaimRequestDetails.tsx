@@ -129,7 +129,7 @@ const ViewClaimRequestDetails = () => {
     },
     {
       key: 'Bill amount :',
-      value: details?.billAmount || '',
+      value: `INR ${details?.billAmount || ''}`,
     },
   ];
 

@@ -139,7 +139,7 @@ const SendBankDetails = () => {
                 <h2 className="text-bold text-base font-bold text-black dark:text-white">
                   {ele.key}
                 </h2>
-                <span className="text-base font-medium">{ele.value}</span>
+                <span className="text-base font-medium">INR {ele.value}</span>
               </div>
             );
           })}
