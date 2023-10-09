@@ -12,9 +12,7 @@ public class ParticipantTests {
     @Test
     void generate_participant_code_with_payor_role() {
         Participant participant = new Participant(getPayorRequestBody(),getSpecificProviderRoles());
-        System.out.println(participant.getParticipantName());
         String code = participant.generateCode("_", "swasth-hcx");
-        System.out.println(code);
         Assertions.assertTrue(code.contains("payr_rakshi"));
     }
 
