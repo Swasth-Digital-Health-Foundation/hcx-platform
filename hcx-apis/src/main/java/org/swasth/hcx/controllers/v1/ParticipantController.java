@@ -45,6 +45,8 @@ public class ParticipantController extends BaseController {
     @Value("${postgres.onboardingOtpTable}")
     private String onboardOtpTable;
 
+    @Value("${provider-specific.roles}")
+    private List<String> specificProviderRoles;
     @Autowired
     private ParticipantService service;
 
@@ -52,7 +54,7 @@ public class ParticipantController extends BaseController {
     public ResponseEntity<Object> create(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
         try {
             logger.info("Creating participant: {}", requestBody.get(PARTICIPANT_NAME));
-            Participant participant = new Participant(requestBody);
+            Participant participant = new Participant(requestBody, specificProviderRoles);
             service.validate(requestBody, true);
             requestBody.put(PRIMARY_EMAIL, participant.getprimaryEmail().toLowerCase());
             String code = participant.generateCode(fieldSeparator, hcxInstanceName);
@@ -68,7 +70,7 @@ public class ParticipantController extends BaseController {
     public ResponseEntity<Object> update(@RequestHeader HttpHeaders header, @RequestBody Map<String, Object> requestBody) {
         try {
             logger.info("Updating participant: {}", requestBody.get(PARTICIPANT_CODE));
-            Participant participant = new Participant(requestBody);
+            Participant participant = new Participant(requestBody, specificProviderRoles);
             String code = participant.getParticipantCode();
             service.getCertificatesUrl(requestBody, code);
             service.validate(requestBody, false);
@@ -106,7 +108,7 @@ public class ParticipantController extends BaseController {
             logger.info("Deleting participant: {}", requestBody.get(PARTICIPANT_CODE));
             if (!requestBody.containsKey(PARTICIPANT_CODE))
                 throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_CODE, PARTICIPANT_CODE_MSG);
-            Participant participant = new Participant(requestBody);
+            Participant participant = new Participant(requestBody, specificProviderRoles);
             Map<String, Object> details = service.getParticipant(participant.getParticipantCode());
             return getSuccessResponse(service.delete(details, header, participant.getParticipantCode()));
         } catch (Exception e) {

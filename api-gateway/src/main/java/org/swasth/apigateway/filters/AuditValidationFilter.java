@@ -41,7 +41,7 @@ public class AuditValidationFilter extends AbstractGatewayFilterFactory<AuditVal
     @Autowired
     RequestHandler requestHandler;
 
-    @Value("${provider-specific-roles}")
+    @Value("${provider-specific.roles}")
     private List<String> providerSpecificRoles;
 
     public AuditValidationFilter() {

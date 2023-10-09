@@ -4,26 +4,30 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @SpringBootTest(classes = { Participant.class })
 public class ParticipantTests {
 
     @Test
     void generate_participant_code_with_payor_role() {
-        Participant participant = new Participant(getPayorRequestBody());
+        Participant participant = new Participant(getPayorRequestBody(),getSpecificProviderRoles());
+        System.out.println(participant.getParticipantName());
         String code = participant.generateCode("_", "swasth-hcx");
+        System.out.println(code);
         Assertions.assertTrue(code.contains("payr_rakshi"));
     }
 
     @Test
     void generate_participant_code_with_provider_role() {
-        Participant participant = new Participant(getProviderRequestBody());
+        Participant participant = new Participant(getProviderRequestBody(), getSpecificProviderRoles());
         String code = participant.generateCode("_", "swasth-hcx");
         Assertions.assertEquals("hosp_rakshi_012345@swasth-hcx", code);
+    }
+
+    private List<String> getSpecificProviderRoles() {
+        return List.of("provider.hospital", "provider.clinic", "provider.practitioner",
+                "provider.diagnostics", "provider.pharmacy");
     }
 
     private Map<String,Object> getPayorRequestBody() {

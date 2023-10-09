@@ -35,7 +35,7 @@ public class BaseRequest {
     private String hcxRoles;
     private String hcxCode;
 
-    @Value("${provider-specific-roles}")
+    @Value("${provider-specific.roles}")
     private List<String> providerSpecificRoles;
 
     public BaseRequest() {

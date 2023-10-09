@@ -13,12 +13,11 @@ import static org.swasth.common.utils.Constants.*;
 public class Participant {
 
     private final Map<String, Object> requestBody;
+    private final List<String> specificProviderRoles;
 
-    @Value("${provider-specific-roles}")
-    private List<String> specificProviderRoles;
-
-    public Participant(Map<String, Object> requestbody) {
+    public Participant(Map<String, Object> requestbody, List<String> specificProviderRoles) {
         this.requestBody = requestbody;
+        this.specificProviderRoles = specificProviderRoles;
     }
 
     public String getprimaryEmail() {
@@ -45,6 +44,7 @@ public class Participant {
     }
 
     private String getRoleAppender() {
+        System.out.println(specificProviderRoles);
         if (getRoles().contains(PROVIDER) || getRoles().stream().anyMatch(specificProviderRoles::contains)) {
             return "hosp";
         } else if (getRoles().contains(PAYOR)) {
