@@ -1,7 +1,6 @@
 package org.swasth.hcx.models;
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.swasth.common.utils.SlugUtils;
 
 import java.security.SecureRandom;
@@ -44,7 +43,6 @@ public class Participant {
     }
 
     private String getRoleAppender() {
-        System.out.println(specificProviderRoles);
         if (getRoles().contains(PROVIDER) || getRoles().stream().anyMatch(specificProviderRoles::contains)) {
             return "hosp";
         } else if (getRoles().contains(PAYOR)) {
