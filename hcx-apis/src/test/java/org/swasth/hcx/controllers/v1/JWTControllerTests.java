@@ -105,6 +105,7 @@ class JWTControllerTests extends BaseSpec {
         assertEquals(200, status);
     }
 
+    
 
     @Test
     void api_access_token_generate_without_username() throws Exception {
