@@ -1,7 +1,8 @@
 package org.swasth.commonscheduler.schedulers;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
@@ -17,6 +18,7 @@ import java.util.Map;
 
 @Component
 public class UserSecretScheduler extends BaseScheduler {
+    private final Logger logger = LoggerFactory.getLogger(UserSecretScheduler.class);
     @Value("${postgres.table}")
     private String postgresTable;
 
@@ -40,9 +42,14 @@ public class UserSecretScheduler extends BaseScheduler {
 
     @Value("${hcx.privateKey}")
     private String hcxPrivateKey;
+    public void process() throws Exception {
+        logger.info("User secret job started");
+        processExpiredSecret();
+        processExpirySecret();
+    }
 
     public void processExpiredSecret() throws Exception {
-        System.out.println("UserSecret expired batch job is started");
+        logger.info("User secret expired batch job started");
         String expiryMessage = "";
         List<String> expiredParticipantCodes = new ArrayList<>();
         try (Connection connection = postgreSQLClient.getConnection();
@@ -53,19 +60,18 @@ public class UserSecretScheduler extends BaseScheduler {
                 String participants = result.getString("username");
                 expiredParticipantCodes.add(String.valueOf(participants));
                 expiryMessage = getTemplateMessage(secretExpired);
-                System.out.println(expiryMessage);
             }
             generateEvent(expiredParticipantCodes, expiryMessage, secretExpired);
             createStatement.executeBatch();
-            System.out.println("Job is completed");
+            logger.info("Job is completed");
         } catch (Exception e) {
-            System.out.println("Error while processing event: " + e.getMessage());
+            logger.info("Error while processing event: " + e.getMessage());
             throw e;
         }
     }
 
     public void processExpirySecret() throws Exception {
-        System.out.println("UserSecret expiry batch job is started");
+        logger.info("User secret expiry batch job started");
         String beforeExpiryMessage = "";
         List<String> aboutToExpireParticipantCodes = new ArrayList<>();
         try (Connection connection = postgreSQLClient.getConnection();
@@ -84,9 +90,9 @@ public class UserSecretScheduler extends BaseScheduler {
                 aboutToExpireParticipantCodes.clear();
             }
             createStatement.executeBatch();
-            System.out.println("Job is completed");
+            logger.info("Job is completed");
         } catch (Exception e) {
-            System.out.println("Error while processing event: " + e.getMessage());
+            logger.info("Error while processing event: " + e.getMessage());
             throw e;
         }
     }
@@ -96,7 +102,7 @@ public class UserSecretScheduler extends BaseScheduler {
         cal.add(Calendar.MILLISECOND, notificationExpiry);
         String event = eventGenerator.createNotifyEvent(topiCode, hcxParticipantCode, Constants.PARTICIPANT_CODE, participantCodes, cal.getTime().toInstant().toEpochMilli(), message, hcxPrivateKey);
         kafkaClient.send(notifyTopic, Constants.NOTIFICATION, event);
-        System.out.println("Event is pushed to kafka topic " + " :: event: " + event);
+        logger.info("Event is pushed to kafka topic " + " :: event: " + event);
     }
 
     private String getTemplateMessage(String topicCode) throws Exception {

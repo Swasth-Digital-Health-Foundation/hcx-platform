@@ -34,8 +34,7 @@ public class CommonSchedulerJob implements CommandLineRunner {
             retryScheduler.process();
         } else if (args.length > 0 && StringUtils.equalsIgnoreCase("UserSecret", args[0])){
             userSecretScheduler.init();
-            userSecretScheduler.processExpirySecret();
-            userSecretScheduler.processExpiredSecret();
+            userSecretScheduler.process();
         }else {
             System.out.println("No input to process the scheduler.");
         }
