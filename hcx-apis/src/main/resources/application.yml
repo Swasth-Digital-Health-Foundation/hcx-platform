@@ -32,7 +32,7 @@ kafka:
 
 
 registry:
-  basePath: ${registry_basePath:http://aa5c04ed467c04ea89789cead03e4275-320353178.ap-south-1.elb.amazonaws.com:8081}
+  basePath: ${registry_basePath:http://dev-hcx.swasth.app/registry}
   hcxcode: ${registry_hcxcode:1-d2d56996-1b77-4abb-b9e9-0e6e7343c72e}
   organisation-api-path: ${registry_api_path:/api/v1/Organisation}
   user-api-path: ${registry_user_api_path:/api/v1/User}
@@ -46,6 +46,7 @@ postgres:
   user: ${postgres_user:postgres}
   password: ${postgres_password:postgres}
   tablename: ${postgres_tablename:payload}
+  api-access-secrets-expiry-table: ${api_access_secrets_expiry_table:api_access_secrets_expiry}
   onboardingTable: ${onboarding_table:onboarding}
   onboardingOtpTable : ${onboarding_otp:onboarding_otp}
   subscription:
@@ -54,7 +55,6 @@ postgres:
     subscriptionQuery: ${postgres_subscription_subscriptionQuery:SELECT subscription_id,subscription_request_id,subscription_status,topic_code,sender_code,recipient_code,expiry,is_delegated FROM %s WHERE recipient_code = '%s'}
     subscriptionSelectQuery: ${postgres_subscription_subscriptionSelectQuery:SELECT subscription_id,subscription_request_id,subscription_status,topic_code,sender_code,recipient_code,expiry,is_delegated FROM %s WHERE subscription_id = '%s' AND sender_code = '%s' }
     updateSubscriptionQuery: ${postgres_subscription_updateSubscriptionQuery:UPDATE %s SET subscription_status = '%s'  WHERE subscription_id = '%s' RETURNING %s }
-
 
 #hcx error headers
 plainrequest:
@@ -152,3 +152,6 @@ email:
   pwd: ${email_pwd:}
   user-token-subject: ${token_generate_subject:HCX - Protocol APIs Access Token Generation credentials}
   user-token-message: ${user_token_message:Hi <b>NAME</b>,<br/><br/> Along with participant username and password, api access token can be generated using the following credentials. <br/> <ul><li> user_name -  USER_ID </li> <li> secret - PASSWORD</li><li> participant_code - PARTICIPANT_CODE</li></ul> This API Access token can be used to make protocol API requests.  Please refer to the instructions provided in the <a href = "https://github.com/Swasth-Digital-Health-Foundation/hcx-platform/blob/main/docs/user-manuals/How%20to%20generate%20an%20access%20token%20to%20make%20use%20of%20protocol%20APIs/README.md">link</a> to generate access token. <br/><br/> If you have any queries, Please reach out HCX team.  <br/><br/> Thanks and Regards <br/> HCX Team.}
+
+secret:
+  expiry-time: ${secret_expiry_time:90}
