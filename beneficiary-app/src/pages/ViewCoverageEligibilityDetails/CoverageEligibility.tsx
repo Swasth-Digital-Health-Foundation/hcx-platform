@@ -77,8 +77,8 @@ const CoverageEligibility = () => {
   };
 
   const tokenRequestBody = {
-    username: process.env.TOKEN_GENERATION_USERNAME,
-    password: process.env.TOKEN_GENERATION_PASSWORD,
+    username: process.env.SEARCH_PARTICIPANT_USERNAME,
+    password: process.env.SEARCH_PARTICIPANT_PASSWORD,
   };
 
   const config = {
