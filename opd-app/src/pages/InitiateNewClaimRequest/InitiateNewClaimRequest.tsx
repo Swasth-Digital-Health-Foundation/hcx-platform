@@ -1,15 +1,15 @@
-import { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { handleFileChange } from '../../utils/attachmentSizeValidation';
-import { generateOutgoingRequest } from '../../services/hcxMockService';
-import LoadingButton from '../../components/LoadingButton';
-import { toast } from 'react-toastify';
-import strings from '../../utils/strings';
-import { generateToken, searchParticipant } from '../../services/hcxService';
-import axios from 'axios';
-import { postRequest } from '../../services/registryService';
-import SelectInput from '../../components/SelectInput';
-import TextInputWithLabel from '../../components/inputField';
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { handleFileChange } from "../../utils/attachmentSizeValidation";
+import { generateOutgoingRequest } from "../../services/hcxMockService";
+import LoadingButton from "../../components/LoadingButton";
+import { toast } from "react-toastify";
+import strings from "../../utils/strings";
+import { generateToken, searchParticipant } from "../../services/hcxService";
+import axios from "axios";
+import { postRequest } from "../../services/registryService";
+import SelectInput from "../../components/SelectInput";
+import TextInputWithLabel from "../../components/inputField";
 
 const InitiateNewClaimRequest = () => {
   const navigate = useNavigate();
@@ -20,16 +20,16 @@ const InitiateNewClaimRequest = () => {
   const [fileErrorMessage, setFileErrorMessage]: any = useState();
   const [isSuccess, setIsSuccess]: any = useState(false);
 
-  const [amount, setAmount] = useState<string>('');
+  const [amount, setAmount] = useState<string>("");
   const [serviceType, setServiceType] = useState<string>();
-  const [documentType, setDocumentType] = useState<string>('prescription');
+  const [documentType, setDocumentType] = useState<string>("prescription");
 
   const [loading, setLoading] = useState(false);
 
-  const [token, setToken] = useState<string>('');
+  const [token, setToken] = useState<string>("");
 
-  const [providerName, setProviderName] = useState<string>('');
-  const [payorName, setPayorName] = useState<string>('');
+  const [providerName, setProviderName] = useState<string>("");
+  const [payorName, setPayorName] = useState<string>("");
 
   const [fileUrlList, setUrlList] = useState<any>([]);
 
@@ -40,10 +40,10 @@ const InitiateNewClaimRequest = () => {
     finalData.slice(0, 5)
   );
 
-  const [selectedInsurance, setSelectedInsurance] = useState<string>('');
+  const [selectedInsurance, setSelectedInsurance] = useState<string>("");
 
   const insuranceOptions = [
-    { label: 'Select', value: '' },
+    { label: "Select", value: "" },
     {
       label: displayedData[0]?.insurance_id,
       value: displayedData[0]?.insurance_id,
@@ -51,15 +51,33 @@ const InitiateNewClaimRequest = () => {
   ];
 
   const serviceTypeOptions = [
-    { label: 'Select', value: '' },
+    { label: "Select", value: "" },
     {
       label: displayedData[0]?.claimType,
       value: displayedData[0]?.claimType,
     },
   ];
 
+  // <option value="Bill/invoice">Medical Bill/invoice</option>
+  //           <option value="Payment Receipt">Payment Receipt</option>
+  //           <option value="Prescription">Prescription</option>
+  const documentTypeOptions = [
+    {
+      label: "Prescription",
+      value: "Prescription",
+    },
+    {
+      label: "Payment Receipt",
+      value: "Payment Receipt",
+    },
+    {
+      label: "Medical Bill/invoice",
+      value: "Medical Bill/invoice",
+    },
+  ];
+
   const treatmentOptions = [
-    { label: 'Consultation', value: 'Consultation' },
+    { label: "Consultation", value: "Consultation" },
     // {
     //   label: displayedData[0]?.claimType,
     //   value: displayedData[0]?.claimType,
@@ -84,14 +102,14 @@ const InitiateNewClaimRequest = () => {
   let initiateClaimRequestBody: any = {
     insuranceId: data?.insuranceId || displayedData[0]?.insurance_id,
     insurancePlan: data?.insurancePlan || null,
-    mobile: localStorage.getItem('mobile') || '',
+    mobile: localStorage.getItem("mobile") || "",
     participantCode:
-      data?.participantCode || localStorage.getItem('senderCode'),
+      data?.participantCode || localStorage.getItem("senderCode"),
     payor: data?.payor || payorName,
     providerName:
       data?.providerName ||
       providerName ||
-      localStorage.getItem('providerName'),
+      localStorage.getItem("providerName"),
     patientName: userInfo[0]?.name,
     serviceType: data?.serviceType || displayedData[0]?.claimType,
     billAmount: amount,
@@ -106,21 +124,21 @@ const InitiateNewClaimRequest = () => {
     ],
   };
 
-  console.log('claim request body', initiateClaimRequestBody);
-  console.log('claim state', data);
-  console.log('coverage data', displayedData);
+  console.log("claim request body", initiateClaimRequestBody);
+  // console.log('claim state', data);
+  // console.log('coverage data', displayedData);
 
   const filter = {
-    entityType: ['Beneficiary'],
+    entityType: ["Beneficiary"],
     filters: {
-      mobile: { eq: localStorage.getItem('mobile') },
+      mobile: { eq: localStorage.getItem("mobile") },
     },
   };
 
   useEffect(() => {
     const search = async () => {
       try {
-        const searchUser = await postRequest('/search', filter);
+        const searchUser = await postRequest("/search", filter);
         setUserInformation(searchUser.data);
       } catch (error) {
         console.log(error);
@@ -140,7 +158,7 @@ const InitiateNewClaimRequest = () => {
   const payorCodePayload = {
     filters: {
       participant_code: {
-        eq: location.state?.payorCode || displayedData[0]?.recipient_code,
+        eq: displayedData[0]?.recipient_code || location.state?.payorCode,
       },
     },
   };
@@ -157,48 +175,34 @@ const InitiateNewClaimRequest = () => {
   };
 
   useEffect(() => {
-    const token = async () => {
-      try {
-        const tokenResponse = await generateToken(tokenRequestBody);
-        if (tokenResponse.statusText === 'OK') {
-          setToken(tokenResponse.data.access_token);
-        }
-      } catch (err) {
-        console.log(err);
-      }
-    };
-    token();
     getCoverageEligibilityRequestList();
   }, []);
 
   useEffect(() => {
-    try {
-      if (token !== undefined) {
-        const search = async () => {
-          const response = await searchParticipant(
-            participantCodePayload,
-            config
-          );
-          setProviderName(response.data.participants[0]?.participant_name);
-
-          const payorResponse = await searchParticipant(
-            payorCodePayload,
-            config
-          );
-          setPayorName(payorResponse.data.participants[0]?.participant_name);
-        };
-        search();
+    const search = async () => {
+      try {
+        const tokenResponse = await generateToken(tokenRequestBody);
+        // if (tokenResponse.status === 200) {
+        let token = tokenResponse.data?.access_token;
+        setToken(token);
+        const payorResponse = await searchParticipant(payorCodePayload, config);
+        console.log("payorResponse", payorResponse);
+        let payorname = payorResponse.data?.participants[0]?.participant_name;
+        // console.log(payorName);
+        setPayorName(payorname);
+        // }
+      } catch (err) {
+        console.log("error", err);
       }
-    } catch (err) {
-      console.log(err);
-    }
-  }, [token]);
+    };
+    search();
+  }, [displayedData]);
 
   const handleUpload = async () => {
     try {
       setLoading(true);
       const formData = new FormData();
-      formData.append('mobile', location.state?.mobile?.filters?.mobile?.eq);
+      formData.append("mobile", location.state?.mobile?.filters?.mobile?.eq);
 
       FileLists.forEach((file: any) => {
         formData.append(`file`, file);
@@ -208,10 +212,10 @@ const InitiateNewClaimRequest = () => {
         Authorization: `Bearer ${token}`,
       };
 
-      toast.info('Uploading documents please wait...!');
+      toast.info("Uploading documents please wait...!");
       const response = await axios({
-        url: 'https://dev-hcx.swasth.app/api/v0.7/upload/documents',
-        method: 'POST',
+        url: "https://dev-hcx.swasth.app/api/v0.7/upload/documents",
+        method: "POST",
         headers: headers,
         data: formData,
       });
@@ -220,66 +224,44 @@ const InitiateNewClaimRequest = () => {
         ...prevFileUrlList,
         ...obtainedResponse,
       ]);
-      toast.info('Documents uploaded successfully!');
+      toast.info("Documents uploaded successfully!");
       setLoading(false);
     } catch (error) {
       setLoading(false);
-      console.error('Error uploading file', error);
+      console.error("Error uploading file", error);
     }
   };
-
-  const claimRequestDetails: any = [
-    {
-      key: 'Provider name :',
-      value: data.providerName || providerName,
-    },
-    {
-      key: 'Participant code :',
-      value: data?.participantCode || '',
-    },
-    {
-      key: 'Treatment/Service type :',
-      value: data?.serviceType || '',
-    },
-    {
-      key: 'Payor name :',
-      value: data?.payor || payorName,
-    },
-    {
-      key: 'Insurance ID :',
-      value: data?.insuranceId || 'null',
-    },
-  ];
 
   const submitClaim = async () => {
     try {
       setLoading(true);
       let getUrl = await generateOutgoingRequest(
-        'create/claim/submit',
+        "create/claim/submit",
         initiateClaimRequestBody
       );
+      console.log(getUrl.status);
       setLoading(false);
-      navigate('/request-success', {
+      navigate("/request-success", {
         state: {
-          text: 'claim',
+          text: "claim",
           mobileNumber: data.mobile || initiateClaimRequestBody.mobile,
         },
       });
     } catch (err) {
       setLoading(false);
-      toast.error('Faild to submit claim, try again!');
+      toast.error("Faild to submit claim, try again!");
     }
   };
 
   const requestPayload = {
-    sender_code: localStorage.getItem('senderCode'),
+    sender_code: localStorage.getItem("senderCode"),
   };
 
   const getCoverageEligibilityRequestList = async () => {
     try {
       setLoading(true);
       let response = await generateOutgoingRequest(
-        'bsp/request/list',
+        "bsp/request/list",
         requestPayload
       );
       const data = response.data.entries;
@@ -293,13 +275,13 @@ const InitiateNewClaimRequest = () => {
         const key = Object.keys(entry)[0];
         const objects = entry[key];
 
-        if (objects.length === 1 && objects[0].type === 'claim') {
+        if (objects.length === 1 && objects[0].type === "claim") {
           // If there's only one object and its type is "claim," add it to claimArray.
           claimArray.push(objects[0]);
         } else {
           // If there's more than one object or any object with type "coverageeligibility," add them to coverageArray.
           coverageArray.push(
-            ...objects.filter((obj: any) => obj.type === 'coverageeligibility')
+            ...objects.filter((obj: any) => obj.type === "coverageeligibility")
           );
         }
       }
@@ -325,16 +307,6 @@ const InitiateNewClaimRequest = () => {
         {strings.NEW_CLAIM_REQUEST}
       </h2>
       <div className="rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
-        {/* {claimRequestDetails.map((ele: any, index: any) => {
-          return (
-            <div key={index} className="mb-2">
-              <h2 className="text-bold mt-1 text-base font-bold text-black dark:text-white">
-                {ele.key}
-              </h2>
-              <span className="text-base font-medium">{ele.value}</span>
-            </div>
-          );
-        })} */}
         <SelectInput
           label="Selected insurance :"
           value={selectedInsurance || displayedData[0]?.insurance_id}
@@ -351,7 +323,7 @@ const InitiateNewClaimRequest = () => {
         />
         <SelectInput
           label="Service/Treatment given :"
-          value={'consultation'}
+          value={"consultation"}
           onChange={(e: any) => setAmount(e.target.value)}
           // disabled={true}
           options={treatmentOptions}
@@ -370,39 +342,12 @@ const InitiateNewClaimRequest = () => {
           {strings.SUPPORTING_DOCS}
         </h2>
         <div className="relative z-20 mb-4 bg-white dark:bg-form-input">
-          {/* <select
-            required
-            onChange={(e: any) => setDocumentType(e.target.value)}
-            className="relative z-20 w-full appearance-none rounded border border-stroke bg-transparent bg-transparent py-4 px-6 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark"
-          >
-            <option value="Bill/invoice">Medical Bill/invoice</option>
-            <option value="Payment Receipt">Payment Receipt</option>
-            <option value="Prescription">Prescription</option>
-          </select>
-          <span className="absolute top-1/2 right-4 z-10 -translate-y-1/2">
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <g opacity="0.8">
-                <path
-                  fillRule="evenodd"
-                  clipRule="evenodd"
-                  d="M5.29289 8.29289C5.68342 7.90237 6.31658 7.90237 6.70711 8.29289L12 13.5858L17.2929 8.29289C17.6834 7.90237 18.3166 7.90237 18.7071 8.29289C19.0976 8.68342 19.0976 9.31658 18.7071 9.70711L12.7071 15.7071C12.3166 16.0976 11.6834 16.0976 11.2929 15.7071L5.29289 9.70711C4.90237 9.31658 4.90237 8.68342 5.29289 8.29289Z"
-                  fill="#637381"
-                ></path>
-              </g>
-            </svg>
-          </span> */}
           <SelectInput
             label="Document type :"
             // value={treatmentType}
             onChange={(e: any) => setDocumentType(e.target.value)}
             disabled={false}
-            // options={treatmentTypeOptions}
+            options={documentTypeOptions}
           />
         </div>
         <div className="flex items-center justify-evenly gap-x-6">
@@ -515,7 +460,7 @@ const InitiateNewClaimRequest = () => {
       <div className="mb-5 mt-4">
         {!loading ? (
           <button
-            disabled={amount === '' || fileUrlList.length === 0}
+            disabled={amount === "" || fileUrlList.length === 0}
             onClick={(event: any) => {
               event.preventDefault();
               submitClaim();

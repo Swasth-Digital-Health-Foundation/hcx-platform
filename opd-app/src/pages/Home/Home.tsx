@@ -1,15 +1,14 @@
-import { useLocation, useNavigate } from 'react-router-dom';
-import Html5QrcodePlugin from '../../components/Html5QrcodeScannerPlugin/Html5QrcodeScannerPlugin';
-import { useEffect, useState } from 'react';
-import ActiveClaimCycleCard from '../../components/ActiveClaimCycleCard';
-import strings from '../../utils/strings';
-import { generateOutgoingRequest } from '../../services/hcxMockService';
-import { postRequest } from '../../services/registryService';
-import * as _ from 'lodash';
-import TransparentLoader from '../../components/TransparentLoader';
-import { searchParticipant } from '../../services/hcxService';
-import CustomButton from '../../components/CustomButton';
-import LoadingButton from '../../components/LoadingButton';
+import { useLocation, useNavigate } from "react-router-dom";
+import Html5QrcodePlugin from "../../components/Html5QrcodeScannerPlugin/Html5QrcodeScannerPlugin";
+import { useEffect, useState } from "react";
+import ActiveClaimCycleCard from "../../components/ActiveClaimCycleCard";
+import strings from "../../utils/strings";
+import { generateOutgoingRequest } from "../../services/hcxMockService";
+import * as _ from "lodash";
+import TransparentLoader from "../../components/TransparentLoader";
+import { searchParticipant } from "../../services/hcxService";
+import CustomButton from "../../components/CustomButton";
+import LoadingButton from "../../components/LoadingButton";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -19,13 +18,12 @@ const Home = () => {
   const [currentIndex, setCurrentIndex] = useState(5);
   const [participantInformation, setParticipantInformation] = useState<any>([]);
   const [loading, setLoading] = useState(false);
-  const [patients, setPatients] = useState<any>([]);
-  const [mobileNumber, setMobileNumber] = useState<string>('');
+  const [mobileNumber, setMobileNumber] = useState<string>("");
 
-  const getEmailFromLocalStorage = localStorage.getItem('email');
+  const getEmailFromLocalStorage = localStorage.getItem("email");
 
   const onNewScanResult = (decodedText: any, decodedResult: any) => {
-    console.log(decodedResult);
+    // console.log(decodedResult);
     setQrCodeData(decodedText);
   };
 
@@ -36,19 +34,19 @@ const Home = () => {
 
   if (qrCodeData !== undefined) {
     let obj = JSON.parse(qrCodeData);
-    navigate('/add-patient', {
+    navigate("/add-patient", {
       state: { obj: obj, mobile: location.state },
     });
   }
 
   const userSearchPayload = {
-    entityType: ['Beneficiary'],
+    entityType: ["Beneficiary"],
     filters: {
       primary_email: { eq: getEmailFromLocalStorage },
     },
   };
 
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem("token");
 
   const config = {
     headers: {
@@ -68,16 +66,16 @@ const Home = () => {
   };
 
   const requestPayload =
-    mobileNumber === ''
+    mobileNumber === ""
       ? { sender_code: participantInformation[0]?.participant_code }
       : { mobile: mobileNumber };
 
   localStorage.setItem(
-    'senderCode',
+    "senderCode",
     participantInformation[0]?.participant_code
   );
   localStorage.setItem(
-    'providerName',
+    "providerName",
     participantInformation[0]?.participant_name
   );
 
@@ -85,7 +83,7 @@ const Home = () => {
     try {
       setLoading(true);
       let response = await generateOutgoingRequest(
-        'bsp/request/list',
+        "bsp/request/list",
         requestPayload
       );
       const data = response.data.entries;
@@ -99,13 +97,13 @@ const Home = () => {
         const key = Object.keys(entry)[0];
         const objects = entry[key];
 
-        if (objects.length === 1 && objects[0].type === 'claim') {
+        if (objects.length === 1 && objects[0].type === "claim") {
           // If there's only one object and its type is "claim," add it to claimArray.
           claimArray.push(objects[0]);
         } else {
           // If there's more than one object or any object with type "coverageeligibility," add them to coverageArray.
           coverageArray.push(
-            ...objects.filter((obj: any) => obj.type === 'coverageeligibility')
+            ...objects.filter((obj: any) => obj.type === "coverageeligibility")
           );
         }
       }
@@ -154,6 +152,8 @@ const Home = () => {
     }
   });
 
+  // console.log(displayedData)
+
   return (
     <div>
       <div className="flex justify-between">
@@ -183,10 +183,10 @@ const Home = () => {
             <a
               className="cursor-pointer underline"
               onClick={() => {
-                navigate('/add-patient');
+                navigate("/add-patient");
               }}
             >
-              {/* {strings.SUBMIT_NEW_CLAIM} */}+ Add new patient
+              + Add new patient
             </a>
           </div>
         </div>
@@ -206,7 +206,7 @@ const Home = () => {
             type="text"
             placeholder="Enter mobile no."
             className={`border ${
-              true ? 'border-stroke' : 'border-red'
+              true ? "border-stroke" : "border-red"
             } bg w-full rounded-lg py-4 pl-6 pr-10 outline-none focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary`}
           />
         </div>
@@ -255,6 +255,7 @@ const Home = () => {
         {!loading ? (
           <div>
             {displayedData?.map((ele: any, index: any) => {
+              console.log(ele);
               return (
                 <div className="mt-2" key={index}>
                   <ActiveClaimCycleCard
@@ -270,7 +271,7 @@ const Home = () => {
                     billAmount={ele.billAmount}
                     workflowId={ele.workflow_id}
                     // mobile={ele.mobile}
-                    patientMobileNumber={ele.mobile}
+                    patientMobileNumber={ele.mobile || mobileNumber}
                   />
                 </div>
               );

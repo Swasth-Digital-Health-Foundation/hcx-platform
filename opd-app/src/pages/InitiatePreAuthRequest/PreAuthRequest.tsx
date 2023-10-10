@@ -1,15 +1,15 @@
-import { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { handleFileChange } from '../../utils/attachmentSizeValidation';
-import { generateOutgoingRequest } from '../../services/hcxMockService';
-import LoadingButton from '../../components/LoadingButton';
-import { toast } from 'react-toastify';
-import strings from '../../utils/strings';
-import { generateToken, searchParticipant } from '../../services/hcxService';
-import axios from 'axios';
-import { postRequest } from '../../services/registryService';
-import SelectInput from '../../components/SelectInput';
-import TextInputWithLabel from '../../components/inputField';
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { handleFileChange } from "../../utils/attachmentSizeValidation";
+import { generateOutgoingRequest } from "../../services/hcxMockService";
+import LoadingButton from "../../components/LoadingButton";
+import { toast } from "react-toastify";
+import strings from "../../utils/strings";
+import { generateToken, searchParticipant } from "../../services/hcxService";
+import axios from "axios";
+import { postRequest } from "../../services/registryService";
+import SelectInput from "../../components/SelectInput";
+import TextInputWithLabel from "../../components/inputField";
 
 const PreAuthRequest = () => {
   const navigate = useNavigate();
@@ -20,16 +20,16 @@ const PreAuthRequest = () => {
   const [fileErrorMessage, setFileErrorMessage]: any = useState();
   const [isSuccess, setIsSuccess]: any = useState(false);
 
-  const [amount, setAmount] = useState<string>('');
-  const [serviceType, setServiceType] = useState<string>('Consultation');
-  const [documentType, setDocumentType] = useState<string>('prescription');
+  const [amount, setAmount] = useState<string>("");
+  const [serviceType, setServiceType] = useState<string>("Consultation");
+  const [documentType, setDocumentType] = useState<string>("prescription");
 
   const [loading, setLoading] = useState(false);
 
-  const [token, setToken] = useState<string>('');
+  const [token, setToken] = useState<any>("");
 
-  const [providerName, setProviderName] = useState<string>('');
-  const [payorName, setPayorName] = useState<string>('');
+  const [providerName, setProviderName] = useState<string>("");
+  const [payorName, setPayorName] = useState<string>("");
 
   const [fileUrlList, setUrlList] = useState<any>([]);
 
@@ -41,7 +41,7 @@ const PreAuthRequest = () => {
     finalData.slice(0, 5)
   );
 
-  const [selectedInsurance, setSelectedInsurance] = useState<string>('');
+  const [selectedInsurance, setSelectedInsurance] = useState<string>("");
 
   let FileLists: any;
   if (selectedFile !== undefined) {
@@ -59,17 +59,30 @@ const PreAuthRequest = () => {
   };
 
   const insuranceOptions = [
-    { label: 'Select', value: '' },
+    { label: "Select", value: "" },
     {
       label: displayedData[0]?.insurance_id,
       value: displayedData[0]?.insurance_id,
     },
   ];
 
-  console.log(displayedData[0]?.insurance_id);
+  const documentTypeOptions = [
+    {
+      label: "Prescription",
+      value: "Prescription",
+    },
+    {
+      label: "Payment Receipt",
+      value: "Payment Receipt",
+    },
+    {
+      label: "Medical Bill/invoice",
+      value: "Medical Bill/invoice",
+    },
+  ];
 
   const serviceTypeOptions = [
-    { label: 'Select', value: '' },
+    { label: "Select", value: "" },
     {
       label: displayedData[0]?.claimType,
       value: displayedData[0]?.claimType,
@@ -77,7 +90,7 @@ const PreAuthRequest = () => {
   ];
 
   const treatmentOptions = [
-    { label: 'Consultation', value: 'Consultation' },
+    { label: "Consultation", value: "Consultation" },
     // {
     //   label: displayedData[0]?.claimType,
     //   value: displayedData[0]?.claimType,
@@ -87,14 +100,11 @@ const PreAuthRequest = () => {
   let initiateClaimRequestBody: any = {
     insuranceId: data?.insuranceId || displayedData[0]?.insurance_id,
     insurancePlan: data?.insurancePlan || null,
-    mobile: localStorage.getItem('mobile') || '',
+    mobile: localStorage.getItem("mobile") || "",
     participantCode:
-      data?.participantCode || localStorage.getItem('senderCode'),
+      data?.participantCode || localStorage.getItem("senderCode"),
     payor: data?.payor || payorName,
-    providerName:
-      data?.providerName ||
-      providerName ||
-      localStorage.getItem('providerName'),
+    providerName: data?.providerName || localStorage.getItem("providerName"),
     patientName: userInfo[0]?.name,
     serviceType: data?.serviceType || displayedData[0]?.claimType,
     billAmount: amount,
@@ -109,34 +119,36 @@ const PreAuthRequest = () => {
     ],
   };
 
-  console.log('initiateRequestBody', initiateClaimRequestBody);
+  console.log("initiateRequestBody", initiateClaimRequestBody);
 
   const filter = {
-    entityType: ['Beneficiary'],
+    entityType: ["Beneficiary"],
     filters: {
-      mobile: { eq: localStorage.getItem('mobile') },
+      mobile: { eq: localStorage.getItem("mobile") },
     },
   };
 
   useEffect(() => {
-    const search = async () => {
+    const searchUser = async () => {
       try {
-        const searchUser = await postRequest('/search', filter);
+        const searchUser = await postRequest("/search", filter);
         setUserInformation(searchUser.data);
       } catch (error) {
         console.log(error);
       }
     };
-    search();
+    searchUser();
   }, []);
 
-  console.log(displayedData[0]?.recipient_code);
-  console.log(displayedData[0]?.sender_code)
+  // console.log("zero",displayedData[0]?.sender_code);
+  // console.log(displayedData[0]?.sender_code);
+  // const recipientCode = displayedData[0]?.recipient_code;
+  const senderCode = displayedData[0]?.sender_code;
 
   const participantCodePayload = {
     filters: {
       participant_code: {
-        eq: location.state?.participantCode || displayedData[0]?.sender_code,
+        eq: location.state?.participantCode || senderCode,
       },
     },
   };
@@ -144,14 +156,14 @@ const PreAuthRequest = () => {
   const payorCodePayload = {
     filters: {
       participant_code: {
-        eq: location.state?.payorCode || displayedData[0]?.recipient_code,
+        eq: displayedData[0]?.recipient_code || location.state?.payorCode,
       },
     },
   };
 
   const tokenRequestBody = {
-    username: process.env.TOKEN_GENERATION_USERNAME,
-    password: process.env.TOKEN_GENERATION_PASSWORD,
+    username: "hcxgateway@swasth.org",
+    password: "Swasth@12345",
   };
 
   const config = {
@@ -160,48 +172,57 @@ const PreAuthRequest = () => {
     },
   };
 
+  // const searchPayorName = async () => {
+  //   try {
+  //     const payorResponse = await searchParticipant(payorCodePayload, config);
+  //     console.log("payorResponse", payorResponse);
+  //     let payorname = payorResponse.data?.participants[0]?.participant_name;
+  //     // console.log(payorName);
+  //     setPayorName(payorname);
+  //   } catch (err) {
+  //     console.log(err);
+  //   }
+  // };
+
   useEffect(() => {
     const search = async () => {
       try {
         const tokenResponse = await generateToken(tokenRequestBody);
-        if (tokenResponse.statusText === 'OK') {
-          setToken(tokenResponse.data.access_token);
-        }
+        // if (tokenResponse.status === 200) {
+        let token = tokenResponse.data?.access_token;
+        setToken(token);
+        const payorResponse = await searchParticipant(payorCodePayload, config);
+        console.log("payorResponse", payorResponse);
+        let payorname = payorResponse.data?.participants[0]?.participant_name;
+        // console.log(payorName);
+        setPayorName(payorname);
+        // }
       } catch (err) {
-        console.log(err);
+        console.log("error", err);
       }
     };
     search();
-    getCoverageEligibilityRequestList();
-  }, [displayedData[0]?.recipient_code]);
+  }, [displayedData]);
+
+  // const searchProviderName = async () => {
+  //   try {
+  //     const response = await searchParticipant(participantCodePayload, config);
+  //     let providername = response.data?.participants[0]?.participant_name;
+  //     setProviderName(providername);
+  //   } catch (err) {
+  //     console.log(err);
+  //   }
+  // };
 
   useEffect(() => {
-    try {
-      const search = async () => {
-        const response = await searchParticipant(
-          participantCodePayload,
-          config
-        );
-        let providername = response.data?.participants[0]?.participant_name;
-        setProviderName(providername);
-
-        const payorResponse = await searchParticipant(payorCodePayload, config);
-        let payorname = payorResponse.data?.participants[0]?.participant_name;
-        setPayorName(payorname);
-      };
-      search();
-    } catch (err) {
-      console.log(err);
-    }
+    getCoverageEligibilityRequestList();
   }, []);
-
-  console.log('payorname', payorName);
 
   const handleUpload = async () => {
     try {
       setLoading(true);
       const formData = new FormData();
-      formData.append('mobile', location.state?.mobile?.filters?.mobile?.eq);
+      formData.append("mobile", location.state?.mobile?.filters?.mobile?.eq);
 
       FileLists.forEach((file: any) => {
         formData.append(`file`, file);
@@ -211,10 +232,10 @@ const PreAuthRequest = () => {
         Authorization: `Bearer ${token}`,
       };
 
-      toast.info('Uploading documents please wait...!');
+      toast.info("Uploading documents please wait...!");
       const response = await axios({
-        url: 'https://dev-hcx.swasth.app/api/v0.7/upload/documents',
-        method: 'POST',
+        url: "https://dev-hcx.swasth.app/api/v0.7/upload/documents",
+        method: "POST",
         headers: headers,
         data: formData,
       });
@@ -223,67 +244,44 @@ const PreAuthRequest = () => {
         ...prevFileUrlList,
         ...obtainedResponse,
       ]);
-      toast.info('Documents uploaded successfully!');
+      toast.info("Documents uploaded successfully!");
       setLoading(false);
     } catch (error) {
       setLoading(false);
-      console.error('Error uploading file', error);
+      console.error("Error uploading file", error);
     }
   };
-
-  // const claimRequestDetails: any = [
-  //   {
-  //     key: 'Provider name :',
-  //     value: data.providerName || providerName,
-  //   },
-  //   {
-  //     key: 'Participant code :',
-  //     value: data?.participantCode || '',
-  //   },
-  //   {
-  //     key: 'Treatment/Service type :',
-  //     value: data?.serviceType || '',
-  //   },
-  //   {
-  //     key: 'Payor name :',
-  //     value: data?.payor || payorName,
-  //   },
-  //   {
-  //     key: 'Insurance ID :',
-  //     value: data?.insuranceId || 'null',
-  //   },
-  // ];
 
   const submitClaim = async () => {
     try {
       setLoading(true);
       let response = await generateOutgoingRequest(
-        'create/preauth/submit',
+        "create/preauth/submit",
         initiateClaimRequestBody
       );
-      console.log(response);
+      // console.log(response);
       setLoading(false);
-      navigate('/request-success', {
+      navigate("/request-success", {
         state: {
-          text: 'claim',
+          text: "pre-auth",
           mobileNumber: data.mobile || initiateClaimRequestBody.mobile,
         },
       });
     } catch (err) {
       setLoading(false);
-      toast.error('Faild to submit claim, try again!');
+      toast.error("Faild to submit claim, try again!");
     }
   };
 
   const requestPayload = {
-    sender_code: localStorage.getItem('senderCode'),
+    sender_code: localStorage.getItem("senderCode"),
   };
 
   const getCoverageEligibilityRequestList = async () => {
     try {
       setLoading(true);
       let response = await generateOutgoingRequest(
-        'bsp/request/list',
+        "bsp/request/list",
         requestPayload
       );
       const data = response.data.entries;
@@ -297,13 +295,13 @@ const PreAuthRequest = () => {
         const key = Object.keys(entry)[0];
         const objects = entry[key];
 
-        if (objects.length === 1 && objects[0].type === 'claim') {
+        if (objects.length === 1 && objects[0].type === "claim") {
           // If there's only one object and its type is "claim," add it to claimArray.
           claimArray.push(objects[0]);
         } else {
           // If there's more than one object or any object with type "coverageeligibility," add them to coverageArray.
           coverageArray.push(
-            ...objects.filter((obj: any) => obj.type === 'coverageeligibility')
+            ...objects.filter((obj: any) => obj.type === "coverageeligibility")
           );
         }
       }
@@ -345,7 +343,7 @@ const PreAuthRequest = () => {
         />
         <SelectInput
           label="Service/Treatment given :"
-          value={'consultation'}
+          value={"consultation"}
           onChange={(e: any) => setAmount(e.target.value)}
           // disabled={true}
           options={treatmentOptions}
@@ -372,7 +370,7 @@ const PreAuthRequest = () => {
             // value={treatmentType}
             onChange={(e: any) => setDocumentType(e.target.value)}
             disabled={false}
-            // options={treatmentTypeOptions}
+            options={documentTypeOptions}
           />
         </div>
         <div className="flex items-center justify-evenly gap-x-6">
@@ -485,7 +483,7 @@ const PreAuthRequest = () => {
       <div className="mb-5 mt-4">
         {!loading ? (
           <button
-            disabled={amount === '' || selectedFile === undefined}
+            disabled={amount === "" || fileUrlList.lenght === 0}
             onClick={(event: any) => {
               event.preventDefault();
               submitClaim();
@@ -493,7 +491,7 @@ const PreAuthRequest = () => {
             type="submit"
             className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
           >
-            Submit claim
+            Submit pre-auth
           </button>
         ) : (
           <LoadingButton className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed" />

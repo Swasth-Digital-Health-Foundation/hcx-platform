@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import strings from '../../utils/strings';
-import { generateToken, searchParticipant } from '../../services/hcxService';
+import React, { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import strings from "../../utils/strings";
+import { generateToken, searchParticipant } from "../../services/hcxService";
 import {
   generateOutgoingRequest,
   getConsultationDetails,
-} from '../../services/hcxMockService';
-import LoadingButton from '../../components/LoadingButton';
-import TransparentLoader from '../../components/TransparentLoader';
-import { toast } from 'react-toastify';
-import { postRequest } from '../../services/registryService';
+} from "../../services/hcxMockService";
+import LoadingButton from "../../components/LoadingButton";
+import TransparentLoader from "../../components/TransparentLoader";
+import { toast } from "react-toastify";
+import { postRequest } from "../../services/registryService";
 
 const ViewPatientDetails = () => {
   const navigate = useNavigate();
@@ -17,7 +17,7 @@ const ViewPatientDetails = () => {
   const [selectedValue, setSelectedValue] = useState<any>();
   const [token, setToken] = useState<string>();
   const [providerName, setProviderName] = useState<string>();
-  const [payorName, setPayorName] = useState<string>('');
+  const [payorName, setPayorName] = useState<string>("");
   const [preauthOrClaimList, setpreauthOrClaimList] = useState<any>([]);
   const [loading, setisLoading] = useState(false);
   const [coverageDetails, setCoverageDetails] = useState<any>([]);
@@ -25,7 +25,7 @@ const ViewPatientDetails = () => {
   const [coverageEligibilityStatus, setcoverageStatus] = useState<any>([]);
   const [apicallIdForClaim, setApicallID] = useState<any>();
   const [patientDetails, setPatientDetails] = useState<any>([]);
-  const [consultationDetail, setConsultationDetails] = useState();
+  const [consultationDetail, setConsultationDetails] = useState<any>();
 
   const handleRadioChange = (event: any) => {
     setSelectedValue(event.target.value);
@@ -40,60 +40,22 @@ const ViewPatientDetails = () => {
 
   const [type, setType] = useState<string[]>([]);
 
-  // const claimRequestDetails: any = [
-  //   {
-  //     key: 'Provider name :',
-  //     value: providerName || '',
-  //   },
-  //   {
-  //     key: 'Participant code :',
-  //     value: requestDetails?.participantCode || '',
-  //   },
-  //   {
-  //     key: 'Treatment/Service type :',
-  //     value: requestDetails?.serviceType || '',
-  //   },
-  //   {
-  //     key: 'Payor name :',
-  //     value: payorName,
-  //   },
-  //   {
-  //     key: 'Insurance ID :',
-  //     value: requestDetails?.insuranceId || '',
-  //   },
-  //   {
-  //     key: 'API call ID :',
-  //     value: location.state?.apiCallId || '',
-  //   },
-  // ];
-
-  // const medicalHistory = [
-  //   {
-  //     key: 'Blood group :',
-  //     value: 'Yashash',
-  //   },
-  //   {
-  //     key: 'Allergies :',
-  //     value: 'none',
-  //   },
-  // ];
-
   const payload = {
-    entityType: ['Beneficiary'],
+    entityType: ["Beneficiary"],
     filters: {
       mobile: {
         eq: `${
-          location.state?.patientMobile || localStorage.getItem('patientMobile')
+          location.state?.patientMobile || localStorage.getItem("patientMobile")
         }`,
       },
     },
   };
-  console.log('state', location.state);
+  console.log("state", location.state);
 
   const getPatientDetails = async () => {
     try {
       setisLoading(true);
-      let registerResponse: any = await postRequest('search', payload);
+      let registerResponse: any = await postRequest("search", payload);
       const patientDetails = registerResponse.data;
       setPatientDetails(patientDetails);
       // toast.success('successfull!', {
@@ -108,38 +70,37 @@ const ViewPatientDetails = () => {
 
   const personalDeatails = [
     {
-      key: 'Patient name :',
+      key: "Patient name :",
       value: patientDetails[0]?.name,
     },
     {
-      key: 'Mobile no :',
+      key: "Mobile no :",
       value: patientDetails[0]?.mobile,
     },
     {
-      key: 'Address :',
+      key: "Address :",
       value: patientDetails[0]?.address,
     },
   ];
 
   const consultationDetails = [
     {
-      key: 'Treatment type :',
-      value: 'Yashash',
+      key: "Treatment type :",
+      value: consultationDetail?.service_type,
     },
     {
-      key: 'Service type :',
-      value: 'none',
+      key: "Service type :",
+      value: consultationDetail?.treatment_type,
     },
     {
-      key: 'Symptom :',
-      value: 'none',
-    },
-    {
-      key: 'Supporting document :',
-      value: 'none',
+      key: "Symptom :",
+      value: consultationDetail?.symptoms,
     },
   ];
-  // let workflowId = requestDetails?.workflowId;
+  
+  let urls: string = consultationDetail?.supporting_documents_url;
+  const trimmedString: string = urls?.slice(1, -1);
+  const urlArray: any[] = trimmedString?.split(",");
 
   const participantCodePayload = {
     filters: {
@@ -195,7 +156,7 @@ const ViewPatientDetails = () => {
   }, [token]);
 
   const preauthOrClaimListPayload = {
-    workflow_id: requestDetails?.workflowId || '',
+    workflow_id: requestDetails?.workflowId || "",
   };
 
   const coverageEligibilityPayload = {
@@ -206,17 +167,17 @@ const ViewPatientDetails = () => {
     try {
       setisLoading(true);
       let statusCheckCoverageEligibility = await generateOutgoingRequest(
-        'bsp/request/list',
+        "bsp/request/list",
         coverageEligibilityPayload
       );
       let response = await generateOutgoingRequest(
-        'bsp/request/list',
+        "bsp/request/list",
         preauthOrClaimListPayload
       );
       let preAuthAndClaimList = response.data?.entries;
       setpreauthOrClaimList(preAuthAndClaimList);
       for (const entry of preAuthAndClaimList) {
-        if (entry.type === 'claim') {
+        if (entry.type === "claim") {
           setApicallID(entry.apiCallId);
           break;
         }
@@ -234,7 +195,7 @@ const ViewPatientDetails = () => {
 
       // Filter the objects with type "claim"
       const claimObjects = coverageDetails[0][entryKey].filter(
-        (obj: any) => obj.type === 'claim'
+        (obj: any) => obj.type === "claim"
       );
 
       // Extract the apicallId values from the "claim" objects
@@ -260,12 +221,12 @@ const ViewPatientDetails = () => {
     getConsultation();
   }, []);
 
-  console.log(location.state?.workflowId);
+  // console.log(location.state?.workflowId);
 
   const getConsultation = async () => {
     try {
       const response = await getConsultationDetails(location.state?.workflowId);
-      console.log(response);
+      console.log("consultation", response);
       let data = response.data;
       setConsultationDetails(data);
     } catch (err: any) {
@@ -274,78 +235,63 @@ const ViewPatientDetails = () => {
     }
   };
 
-  // useEffect(() => {
-  //   for (const entry of preauthOrClaimList) {
-  //     if (entry.type === 'claim') {
-  //       setApicallID(entry.apiCallId);
-  //       break;
-  //     }
-  //   }
-  // }, []);
+  useEffect(() => {
+    for (const entry of preauthOrClaimList) {
+      if (entry.type === "claim") {
+        setApicallID(entry.apiCallId);
+        break;
+      }
+    }
+  }, []);
 
-  // let coverageStatus = coverageDetails.find(
-  //   (entryObj: any) => Object.keys(entryObj)[0] === workflowId
-  // );
+  let coverageStatus = coverageDetails.find(
+    (entryObj: any) => Object.keys(entryObj)[0] === location.state?.workflowId
+  );
 
-  // useEffect(() => {
-  //   if (
-  //     coverageStatus &&
-  //     coverageStatus[workflowId].some(
-  //       (obj: any) => obj.type === 'coverageeligibility'
-  //     )
-  //   ) {
-  //     // If it exists, find the object with type "coverageeligibility" and return its status
-  //     const eligibilityObject = coverageStatus[workflowId].find(
-  //       (obj: any) => obj.type === 'coverageeligibility'
-  //     );
-  //     const status = eligibilityObject.status;
-  //     setcoverageStatus(status);
-  //   } else {
-  //     console.log(
-  //       "Object with type 'coverageeligibility' not found for the given ID."
-  //     );
-  //   }
-  // }, [coverageStatus]);
+  useEffect(() => {
+    if (
+      coverageStatus &&
+      coverageStatus[location.state?.workflowId].some(
+        (obj: any) => obj.type === "coverageeligibility"
+      )
+    ) {
+      // If it exists, find the object with type "coverageeligibility" and return its status
+      const eligibilityObject = coverageStatus[location.state?.workflowId].find(
+        (obj: any) => obj.type === "coverageeligibility"
+      );
+      const status = eligibilityObject.status;
+      setcoverageStatus(status);
+    } else {
+      console.log(
+        "Object with type 'coverageeligibility' not found for the given ID."
+      );
+    }
+  }, [coverageStatus]);
 
   useEffect(() => {
     getPatientDetails();
   }, [location.state?.patientMobile]);
+
+  const hasClaimApproved = preauthOrClaimList.some(
+    (entry: any) => entry.type === "claim"
+  );
+
   return (
     <>
       {!loading ? (
         <div className="-pt-2">
-          {/* <div className="just relative mb-10 flex">
-            <button
-              disabled={loading}
-              onClick={(event: any) => {
-                event.preventDefault();
-                getActivePlans();
-              }}
-              className="align-center absolute right-0 flex w-20 justify-center rounded bg-primary py-1 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
-            >
-              Refresh
-            </button>
-            {loading ? 'Please wait...' : ''}
-          </div>
-          <div className="mt-4 flex items-center justify-between">
-            <h2 className="sm:text-title-xl1 text-2xl font-semibold text-black dark:text-white">
-              {strings.CLAIM_REQUEST_DETAILS}
-            </h2>
+          <div className="flex items-center justify-between">
+            <label className="mb-2.5 block text-left text-2xl font-bold text-black dark:text-white">
+              Patient details
+            </label>
             <h2 className="sm:text-title-xl1 text-end font-semibold text-success dark:text-success">
-              {coverageEligibilityStatus === 'Approved' ? (
+              {coverageEligibilityStatus === "Approved" ? (
                 <div className="text-success">&#10004; Eligible</div>
               ) : (
                 <div className="mr-3 text-warning">Pending</div>
               )}
             </h2>
           </div>
-          <span className="text-base font-medium">
-            {requestDetails.workflowId || ''}
-          </span> */}
-
-          <label className="mb-2.5 block text-left text-2xl font-bold text-black dark:text-white">
-            Patient details
-          </label>
           <div className="mt-4 rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
             <label className="text-1xl mb-2.5 block text-left font-bold text-black dark:text-white">
               Personal details
@@ -442,16 +388,38 @@ const ViewPatientDetails = () => {
                 );
               })}
             </div>
+            <h2 className="text-bold text-base font-medium text-black dark:text-white">
+              Supporting documents :
+            </h2>
+            <div>
+              {urlArray?.map((ele: any, index: any) => {
+                const parts = ele.split("/");
+                const fileName = parts[parts.length - 1];
+
+                // Split the file name by dot to extract the file extension
+                const fileExtension = fileName.split(".").pop();
+                return (
+                  <>
+                    <a
+                      href={ele}
+                      className="flex text-base font-medium underline"
+                    >
+                      document {index + 1}.{fileExtension}
+                    </a>
+                  </>
+                );
+              })}
+            </div>
           </div>
           {preauthOrClaimList.map((ele: any, index: any) => {
             return (
               <>
                 <div className=" flex items-center justify-between">
                   <h2 className="sm:text-title-xl1 mt-3 text-2xl font-semibold text-black dark:text-white">
-                    {ele?.type.charAt(0).toUpperCase() + ele?.type.slice(1)}{' '}
+                    {ele?.type.charAt(0).toUpperCase() + ele?.type.slice(1)}{" "}
                     details :
                   </h2>
-                  {ele?.status === 'Approved' ? (
+                  {ele?.status === "Approved" ? (
                     <div className="sm:text-title-xl1 mb-1 text-end font-semibold text-success dark:text-success">
                       &#10004; Approved
                     </div>
@@ -492,11 +460,11 @@ const ViewPatientDetails = () => {
                     Supporting documents :
                   </h2>
                   {ele.supportingDocuments.map((ele: any, index: any) => {
-                    const parts = ele.split('/');
+                    const parts = ele.split("/");
                     const fileName = parts[parts.length - 1];
 
                     // Split the file name by dot to extract the file extension
-                    const fileExtension = fileName.split('.').pop();
+                    const fileExtension = fileName.split(".").pop();
                     return (
                       <>
                         <a
@@ -554,9 +522,9 @@ const ViewPatientDetails = () => {
               </>
             )}
 
-            {type.includes('claim') ? (
+            {type.includes("claim") ? (
               <></>
-            ) : type.includes('preauth') ? (
+            ) : type.includes("preauth") ? (
               <>
                 <h2 className="text-bold text-1xl mt-3 font-bold text-black dark:text-white">
                   {strings.NEXT_STEP}
@@ -581,30 +549,39 @@ const ViewPatientDetails = () => {
             ) : null}
           </div>
 
-          <div className="mb-5 mt-5">
+          {!hasClaimApproved ? (
+            <div className="mb-5 mt-5">
+              <button
+                disabled={selectedValue === ""}
+                onClick={(event: any) => {
+                  event.preventDefault();
+                  if (selectedValue === "Initiate new claim request") {
+                    navigate("/initiate-claim-request", {
+                      state: requestDetails,
+                    });
+                  } else if (selectedValue === "Initiate pre-auth request") {
+                    navigate("/initiate-preauth-request", {
+                      state: requestDetails,
+                    });
+                  } else {
+                    navigate("/view-active-request", {
+                      state: requestDetails,
+                    });
+                  }
+                }}
+                className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
+              >
+                {strings.PROCEED}
+              </button>
+            </div>
+          ) : (
             <button
-              disabled={selectedValue === ''}
-              onClick={(event: any) => {
-                event.preventDefault();
-                if (selectedValue === 'Initiate new claim request') {
-                  navigate('/initiate-claim-request', {
-                    state: requestDetails,
-                  });
-                } else if (selectedValue === 'Initiate pre-auth request') {
-                  navigate('/initiate-preauth-request', {
-                    state: requestDetails,
-                  });
-                } else {
-                  navigate('/view-active-request', {
-                    state: requestDetails,
-                  });
-                }
-              }}
+              onClick={() => navigate("/home")}
               className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
             >
-              {strings.PROCEED}
+              Home
             </button>
-          </div>
+          )}
         </div>
       ) : (
         <TransparentLoader />
