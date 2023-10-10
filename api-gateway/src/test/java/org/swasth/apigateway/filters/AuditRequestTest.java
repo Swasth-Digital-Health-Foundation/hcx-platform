@@ -33,7 +33,46 @@ public class AuditRequestTest extends BaseSpec {
                     assertEquals(result.getStatus(), HttpStatus.ACCEPTED);
                 });
     }
+    // Testcase for provider specific roles
+    @Test
+    public void check_audit_request_success_scenario_for_hospital_role() throws Exception {
+        server.enqueue(new MockResponse()
+                .setResponseCode(202)
+                .addHeader("Content-Type", "application/json"));
 
+        Mockito.when(registryService.getDetails(anyString()))
+                .thenReturn(Collections.singletonList(getProviderHospitalDetails()));
+
+        client.post().uri(versionPrefix + Constants.AUDIT_SEARCH)
+                .header(Constants.AUTHORIZATION, getProviderToken())
+                .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
+                .bodyValue(getAuditRequestBody())
+                .exchange()
+                .expectBody(Map.class)
+                .consumeWith(result -> {
+                    assertEquals(result.getStatus(), HttpStatus.ACCEPTED);
+                });
+    }
+
+    @Test
+    public void check_audit_request_success_scenario_for_payor_role() throws Exception {
+        server.enqueue(new MockResponse()
+                .setResponseCode(202)
+                .addHeader("Content-Type", "application/json"));
+
+        Mockito.when(registryService.getDetails(anyString()))
+                .thenReturn(Collections.singletonList(getPayorDetails()));
+
+        client.post().uri(versionPrefix + Constants.AUDIT_SEARCH)
+                .header(Constants.AUTHORIZATION, getPayorToken())
+                .header("X-jwt-sub", "f7b916c4-e148-4cd2-aa66-472e3610d869")
+                .bodyValue(getAuditRequestBody())
+                .exchange()
+                .expectBody(Map.class)
+                .consumeWith(result -> {
+                    assertEquals(result.getStatus(), HttpStatus.ACCEPTED);
+                });
+    }
     @Test
     public void check_audit_request_invalid_sender_scenario() throws Exception {
         Mockito.when(registryService.getDetails(anyString()))
