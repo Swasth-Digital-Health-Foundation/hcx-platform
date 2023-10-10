@@ -148,6 +148,7 @@ public class Constants {
     public static final String AUDIT_TIMESTAMP = "auditTimeStamp";
     public static final String UPDATED_TIME = "updatedTimestamp";
     public static final String REQUEST_TIME = "requestTimeStamp";
+    public static final List<String> PROVIDER_SPECIFIC_ROLES = Arrays.asList("provider.hospital", "provider.clinic", "provider.practitioner", "provider.diagnostics", "provider.pharmacy");
     public static  final String OBJECT = "object";
     public static  final String CDATA = "cdata";
     public static  final String EDATA = "edata";

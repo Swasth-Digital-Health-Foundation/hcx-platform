@@ -12,11 +12,9 @@ import static org.swasth.common.utils.Constants.*;
 public class Participant {
 
     private final Map<String, Object> requestBody;
-    private final List<String> providerSpecificRoles;
 
-    public Participant(Map<String, Object> requestbody, List<String> providerSpecificRoles) {
+    public Participant(Map<String, Object> requestbody) {
         this.requestBody = requestbody;
-        this.providerSpecificRoles = providerSpecificRoles;
     }
 
     public String getprimaryEmail() {
@@ -43,13 +41,18 @@ public class Participant {
     }
 
     private String getRoleAppender() {
-        if (getRoles().contains(PROVIDER) || getRoles().stream().anyMatch(providerSpecificRoles::contains)) {
+        if (getRoles().contains("provider")) {
             return "hosp";
-        } else if (getRoles().contains(PAYOR)) {
+        } else if (getRoles().stream().anyMatch(PROVIDER_SPECIFIC_ROLES::contains)) {
+            for (String role : getRoles()) {
+                if (role.startsWith("provider.")) {
+                    return role.substring(9, Math.min(role.length(), 13));
+                }
+            }
+        } else if (getRoles().contains("payor")) {
             return "payr";
-        } else {
-            return getRoles().get(0);
         }
+        return getRoles().isEmpty() ? "" : getRoles().get(0);
     }
 
     private String getRandomSeq(){
