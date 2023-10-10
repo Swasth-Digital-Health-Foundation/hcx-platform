@@ -35,7 +35,7 @@ public class AuditRequestTest extends BaseSpec {
     }
     // Testcase for provider specific roles
     @Test
-    public void check_audit_request_success_scenario_for_hospital_role() throws Exception {
+    void check_audit_request_success_scenario_for_hospital_role() throws Exception {
         server.enqueue(new MockResponse()
                 .setResponseCode(202)
                 .addHeader("Content-Type", "application/json"));
@@ -50,12 +50,12 @@ public class AuditRequestTest extends BaseSpec {
                 .exchange()
                 .expectBody(Map.class)
                 .consumeWith(result -> {
-                    assertEquals(result.getStatus(), HttpStatus.ACCEPTED);
+                    assertEquals(HttpStatus.ACCEPTED, result.getStatus());
                 });
     }
 
     @Test
-    public void check_audit_request_success_scenario_for_payor_role() throws Exception {
+     void check_audit_request_success_scenario_for_payor_role() throws Exception {
         server.enqueue(new MockResponse()
                 .setResponseCode(202)
                 .addHeader("Content-Type", "application/json"));
@@ -70,7 +70,7 @@ public class AuditRequestTest extends BaseSpec {
                 .exchange()
                 .expectBody(Map.class)
                 .consumeWith(result -> {
-                    assertEquals(result.getStatus(), HttpStatus.ACCEPTED);
+                    assertEquals(HttpStatus.ACCEPTED, result.getStatus());
                 });
     }
     @Test
