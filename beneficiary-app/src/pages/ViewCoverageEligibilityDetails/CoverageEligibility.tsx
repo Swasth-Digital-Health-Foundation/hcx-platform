@@ -222,14 +222,14 @@ const CoverageEligibility = () => {
     <>
       {!loading ? (
         <div className="-pt-2">
-          <div className="just relative flex">
+          <div className="relative flex pb-5">
             <button
               disabled={loading}
               onClick={(event: any) => {
                 event.preventDefault();
                 getActivePlans();
               }}
-              className="align-center flex w-20 justify-center rounded bg-primary py-1 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
+              className="align-center right-0 absolute flex w-20 justify-center rounded bg-primary py-1 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
             >
               Refresh
             </button>
@@ -243,7 +243,7 @@ const CoverageEligibility = () => {
               {coverageEligibilityStatus === 'Approved' ? (
                 <div className="text-success">&#10004; Eligible</div>
               ) : (
-                <div className="mr-3 text-warning">Pending</div>
+                <div className="mr-3 text-warning ">Pending</div>
               )}
             </h2>
           </div>
@@ -279,7 +279,7 @@ const CoverageEligibility = () => {
                       &#10004; Approved
                     </div>
                   ) : (
-                    <div className="sm:text-title-xl1 mb-1 text-end font-semibold text-warning dark:text-success">
+                    <div className="sm:text-title-xl1 mb-1 text-end font-semibold text-warning dark:text-warning">
                       Pending
                     </div>
                   )}
