@@ -5,7 +5,7 @@ export const handleFileChange: any = (
   setSelectedFile: any
 ) => {
   const files = event.target.files;
-  const MAX_FILE_SIZE = 4 * 1024 * 1024;
+  const MAX_FILE_SIZE = 1 * 1024 * 1024;
 
   const validFiles = Array.from(files).filter(
     (file: any) => file.size <= MAX_FILE_SIZE
@@ -21,7 +21,7 @@ export const handleFileChange: any = (
   });
   setErrorMsg(
     hasInvalidFileSize
-      ? 'File size is greater than the maximum limit (4MB)'
+      ? 'File size is greater than the maximum limit (1MB)'
       : ''
   );
   setIsSuccess(!hasInvalidFileSize);
