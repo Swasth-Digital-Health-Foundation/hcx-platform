@@ -222,14 +222,14 @@ const CoverageEligibility = () => {
     <>
       {!loading ? (
         <div className="-pt-2">
-          <div className="just relative mb-10 flex">
+          <div className="just relative flex">
             <button
               disabled={loading}
               onClick={(event: any) => {
                 event.preventDefault();
                 getActivePlans();
               }}
-              className="align-center absolute right-0 flex w-20 justify-center rounded bg-primary py-1 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
+              className="align-center flex w-20 justify-center rounded bg-primary py-1 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
             >
               Refresh
             </button>
