@@ -230,15 +230,10 @@ const PreAuthRequest = () => {
         formData.append(`file`, file);
       });
 
-      const headers = {
-        Authorization: `Bearer ${token}`,
-      };
-
       toast.info('Uploading documents please wait...!');
       const response = await axios({
-        url: 'https://dev-hcx.swasth.app/api/v0.7/upload/documents',
+        url: `${process.env.hcx_mock_service}/upload/documents`,
         method: 'POST',
-        headers: headers,
         data: formData,
       });
       let obtainedResponse = response.data;

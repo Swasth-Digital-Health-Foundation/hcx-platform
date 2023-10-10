@@ -36,6 +36,7 @@ const InitiateNewClaimRequest = () => {
   let FileLists: any;
   if (selectedFile !== undefined) {
     FileLists = Array.from(selectedFile);
+    console.log('new', FileLists);
   }
 
   const data = location.state;
@@ -69,7 +70,8 @@ const InitiateNewClaimRequest = () => {
     ],
   };
 
-  console.log(initiateClaimRequestBody);
+  // console.log(initiateClaimRequestBody);
+  // console.log(selectedFile)
 
   const filter = {
     entityType: ['Beneficiary'],
@@ -103,8 +105,8 @@ const InitiateNewClaimRequest = () => {
   };
 
   const tokenRequestBody = {
-    username: process.env.TOKEN_GENERATION_USERNAME,
-    password: process.env.TOKEN_GENERATION_PASSWORD,
+    username: process.env.SEARCH_PARTICIPANT_USERNAME,
+    password: process.env.SEARCH_PARTICIPANT_PASSWORD,
   };
 
   const config = {
@@ -150,25 +152,22 @@ const InitiateNewClaimRequest = () => {
     }
   }, [token]);
 
+  const mobileNumber: any = localStorage.getItem('mobile');
+
   const handleUpload = async () => {
     try {
       setLoading(true);
       const formData = new FormData();
-      formData.append('mobile', location.state?.mobile?.filters?.mobile?.eq);
+      formData.append('mobile', mobileNumber);
 
       FileLists.forEach((file: any) => {
         formData.append(`file`, file);
       });
 
-      const headers = {
-        Authorization: `Bearer ${token}`,
-      };
-
       toast.info('Uploading documents please wait...!');
       const response = await axios({
-        url: 'https://dev-hcx.swasth.app/api/v0.7/upload/documents',
+        url: `${process.env.hcx_mock_service}/upload/documents`,
         method: 'POST',
-        headers: headers,
         data: formData,
       });
       let obtainedResponse = response.data;
