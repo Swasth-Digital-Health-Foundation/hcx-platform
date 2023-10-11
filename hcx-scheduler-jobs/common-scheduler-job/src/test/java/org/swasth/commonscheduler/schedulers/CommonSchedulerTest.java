@@ -18,7 +18,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.context.ActiveProfiles;
-import org.swasth.common.exception.ClientException;
 import org.swasth.common.helpers.EventGenerator;
 import org.swasth.common.service.RegistryService;
 import org.swasth.common.utils.Constants;
@@ -169,6 +168,7 @@ public class CommonSchedulerTest {
         lenient().doNothing().when(kafkaClient).send(anyString(), anyString(), anyString());
         String[] args = {"UserSecret"};
         commonSchedulerJob.run(args);
+        verify(kafkaClient, times(0)).send(anyString(), anyString(), anyString());
     }
     @Test
     void testUserSecretAExpiredException() {
