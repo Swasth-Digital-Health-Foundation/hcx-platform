@@ -55,8 +55,6 @@ public class ParticipantService extends BaseRegistryService {
     private RedisCache redisCache;
     @Autowired
     private Environment env;
-    @Autowired
-    private UserService userService;
 
 
     public RegistryResponse create(Map<String, Object> requestBody, HttpHeaders header, String code) throws Exception {
