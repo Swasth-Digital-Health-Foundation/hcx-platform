@@ -1,17 +1,16 @@
-import { Navigate, Route, Routes } from 'react-router-dom';
-import DefaultLayout from './layout/DefaultLayout';
-import { useEffect, useState } from 'react';
-import Loader from './common/Loader';
-import Home from './pages/Home/Home';
-import InitiateNewClaimRequest from './pages/InitiateNewClaimRequest/InitiateNewClaimRequest';
-import ViewClaimRequestDetails from './pages/ViewClaimRequestDetails/ViewClaimRequestDetails';
-import PreAuthRequest from './pages/InitiatePreAuthRequest/PreAuthRequest';
-import RequestSuccess from './components/RequestSuccess';
-import { ToastContainer } from 'react-toastify';
-import AddPatientAndInitiateCoverageEligibility from './pages/AddPatientAndInitiateCoverageEligibility/AddPatientAndInitiateCoverageEligibility';
-import Login from './pages/Authentication/Login';
-import AddConsultation from './pages/AddConsultation/AddConsultation';
-import ViewPatientDetails from './pages/ViewPatientDetails/ViewPatientDetails';
+import { Navigate, Route, Routes } from "react-router-dom";
+import DefaultLayout from "./layout/DefaultLayout";
+import { useEffect, useState } from "react";
+import Loader from "./common/Loader";
+import Home from "./pages/Home/Home";
+import InitiateNewClaimRequest from "./pages/InitiateNewClaimRequest/InitiateNewClaimRequest";
+import PreAuthRequest from "./pages/InitiatePreAuthRequest/PreAuthRequest";
+import RequestSuccess from "./components/RequestSuccess";
+import { ToastContainer } from "react-toastify";
+import AddPatientAndInitiateCoverageEligibility from "./pages/AddPatientAndInitiateCoverageEligibility/AddPatientAndInitiateCoverageEligibility";
+import Login from "./pages/Authentication/Login";
+import AddConsultation from "./pages/AddConsultation/AddConsultation";
+import ViewPatientDetails from "./pages/ViewPatientDetails/ViewPatientDetails";
 
 const App = () => {
   const [loading, setLoading] = useState<boolean>(true);
@@ -35,9 +34,8 @@ const App = () => {
         draggable
       />
       <Routes>
-        <Route path="/" element={<Login />}></Route>
-        {/* <Route path="/signup" element={<SignUp />}></Route> */}
-        {/* <Route path="/verify-otp" element={<VerifyOTP />}></Route> */}
+        <Route path="/" element={<Navigate to="/login" />} />
+        <Route path="/login" element={<Login />}></Route>
         <Route element={<DefaultLayout />}>
           <Route path="/home" element={<Home />} />
           <Route
@@ -49,10 +47,6 @@ const App = () => {
             element={<InitiateNewClaimRequest />}
           />
           <Route path="/add-consultation" element={<AddConsultation />} />
-          {/* <Route
-            path="/coverage-eligibility-request"
-            element={<CoverageEligibilityRequest />}
-          /> */}
           <Route
             path="/coverage-eligibility"
             element={<ViewPatientDetails />}
@@ -65,14 +59,7 @@ const App = () => {
             path="/initiate-preauth-request"
             element={<PreAuthRequest />}
           />
-          {/* <Route
-            path="/view-active-request"
-            element={<ViewClaimRequestDetails />}
-          /> */}
           <Route path="/request-success" element={<RequestSuccess />} />
-          {/* <Route path="/profile" element={<Profile />} /> */}
-          {/* <Route path="/bank-details" element={<SendBankDetails />} /> */}
-          {/* <Route path="/success" element={<Success />} /> */}
         </Route>
       </Routes>
     </>
