@@ -270,7 +270,7 @@ const ViewPatientDetails = () => {
     <>
       {!loading ? (
         <div className="-pt-2">
-          <div className="just relative mb-10 flex">
+          <div className="relative flex pb-5">
             <button
               disabled={loading}
               onClick={(event: any) => {
