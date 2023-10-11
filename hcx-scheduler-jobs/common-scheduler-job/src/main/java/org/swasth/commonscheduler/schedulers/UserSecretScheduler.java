@@ -1,9 +1,11 @@
 package org.swasth.commonscheduler.schedulers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.swasth.common.exception.ClientException;
 import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.utils.NotificationUtils;
@@ -42,6 +44,7 @@ public class UserSecretScheduler extends BaseScheduler {
 
     @Value("${hcx.privateKey}")
     private String hcxPrivateKey;
+
     public void process() throws Exception {
         logger.info("User secret job started");
         processExpiredSecret();
@@ -65,7 +68,7 @@ public class UserSecretScheduler extends BaseScheduler {
             createStatement.executeBatch();
             logger.info("Job is completed");
         } catch (Exception e) {
-            throw e;
+            throw new ClientException(e.getMessage());
         }
     }
 
@@ -91,7 +94,7 @@ public class UserSecretScheduler extends BaseScheduler {
             createStatement.executeBatch();
             logger.info("Job is completed");
         } catch (Exception e) {
-            throw e;
+            throw new ClientException(e.getMessage());
         }
     }
 
@@ -102,7 +105,7 @@ public class UserSecretScheduler extends BaseScheduler {
         kafkaClient.send(notifyTopic, Constants.NOTIFICATION, event);
     }
 
-    private String getTemplateMessage(String topicCode) throws Exception {
-        return (String) JSONUtils.deserialize((String) (NotificationUtils.getNotification(topicCode).get(Constants.TEMPLATE)), Map.class).get(Constants.MESSAGE);
+    private String getTemplateMessage(String topicCode) throws JsonProcessingException {
+            return (String) JSONUtils.deserialize((String) (NotificationUtils.getNotification(topicCode).get(Constants.TEMPLATE)), Map.class).get(Constants.MESSAGE);
     }
 }

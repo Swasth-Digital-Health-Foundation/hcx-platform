@@ -10,7 +10,7 @@ import org.swasth.commonscheduler.schedulers.ParticipantValidationScheduler;
 import org.swasth.commonscheduler.schedulers.RetryScheduler;
 import org.swasth.commonscheduler.schedulers.UserSecretScheduler;
 
-@SpringBootApplication(scanBasePackages={"org.swasth.commonscheduler"})
+@SpringBootApplication(scanBasePackages = {"org.swasth.commonscheduler"})
 public class CommonSchedulerJob implements CommandLineRunner {
 
     @Autowired
@@ -20,6 +20,7 @@ public class CommonSchedulerJob implements CommandLineRunner {
     RetryScheduler retryScheduler;
     @Autowired
     UserSecretScheduler userSecretScheduler;
+
     public static void main(String[] args) {
         SpringApplication.run(CommonSchedulerJob.class, args);
     }
@@ -32,12 +33,11 @@ public class CommonSchedulerJob implements CommandLineRunner {
         } else if (args.length > 0 && StringUtils.equalsIgnoreCase("Retry", args[0])) {
             retryScheduler.init();
             retryScheduler.process();
-        } else if (args.length > 0 && StringUtils.equalsIgnoreCase("UserSecret", args[0])){
+        } else if (args.length > 0 && StringUtils.equalsIgnoreCase("UserSecret", args[0])) {
             userSecretScheduler.init();
             userSecretScheduler.process();
-        }else {
+        } else {
             System.out.println("No input to process the scheduler.");
         }
-
     }
 }
