@@ -20,20 +20,16 @@ const PreAuthRequest = () => {
   );
   const [fileErrorMessage, setFileErrorMessage]: any = useState();
   const [isSuccess, setIsSuccess]: any = useState(false);
-
   const [amount, setAmount] = useState<string>("");
   const [serviceType, setServiceType] = useState<string>("Consultation");
   const [documentType, setDocumentType] = useState<string>("prescription");
 
   const [loading, setLoading] = useState(false);
-
   const [token, setToken] = useState<any>("");
 
-  const [providerName, setProviderName] = useState<string>("");
   const [payorName, setPayorName] = useState<string>("");
 
   const [fileUrlList, setUrlList] = useState<any>([]);
-
   const [userInfo, setUserInformation] = useState<any>([]);
 
   const [activeRequests, setActiveRequests] = useState<any>([]);
@@ -91,13 +87,7 @@ const PreAuthRequest = () => {
     },
   ];
 
-  const treatmentOptions = [
-    { label: "Consultation", value: "Consultation" },
-    // {
-    //   label: displayedData[0]?.claimType,
-    //   value: displayedData[0]?.claimType,
-    // },
-  ];
+  const treatmentOptions = [{ label: "Consultation", value: "Consultation" }];
 
   let initiateClaimRequestBody: any = {
     insuranceId: data?.insuranceId || displayedData[0]?.insurance_id,
@@ -122,8 +112,6 @@ const PreAuthRequest = () => {
     ],
   };
 
-  console.log("initiateRequestBody", initiateClaimRequestBody);
-
   const filter = {
     entityType: ["Beneficiary"],
     filters: {
@@ -143,15 +131,15 @@ const PreAuthRequest = () => {
     searchUser();
   }, []);
 
-  const senderCode = displayedData[0]?.sender_code;
+  // const senderCode = displayedData[0]?.sender_code;
 
-  const participantCodePayload = {
-    filters: {
-      participant_code: {
-        eq: location.state?.participantCode || senderCode,
-      },
-    },
-  };
+  // const participantCodePayload = {
+  //   filters: {
+  //     participant_code: {
+  //       eq: location.state?.participantCode || senderCode,
+  //     },
+  //   },
+  // };
 
   const payorCodePayload = {
     filters: {
@@ -162,8 +150,8 @@ const PreAuthRequest = () => {
   };
 
   const tokenRequestBody = {
-    username: "hcxgateway@swasth.org",
-    password: "Swasth@12345",
+    username: process.env.SEARCH_PARTICIPANT_USERNAME,
+    password: process.env.SEARCH_PARTICIPANT_PASSWORD,
   };
 
   const config = {
@@ -176,15 +164,11 @@ const PreAuthRequest = () => {
     const search = async () => {
       try {
         const tokenResponse = await generateToken(tokenRequestBody);
-        // if (tokenResponse.status === 200) {
         let token = tokenResponse.data?.access_token;
         setToken(token);
         const payorResponse = await searchParticipant(payorCodePayload, config);
-        console.log("payorResponse", payorResponse);
         let payorname = payorResponse.data?.participants[0]?.participant_name;
-        // console.log(payorName);
         setPayorName(payorname);
-        // }
       } catch (err) {
         console.log("error", err);
       }

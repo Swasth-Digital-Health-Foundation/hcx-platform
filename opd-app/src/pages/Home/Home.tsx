@@ -23,7 +23,6 @@ const Home = () => {
   const getEmailFromLocalStorage = localStorage.getItem("email");
 
   const onNewScanResult = (decodedText: any, decodedResult: any) => {
-    // console.log(decodedResult);
     setQrCodeData(decodedText);
   };
 
@@ -150,8 +149,6 @@ const Home = () => {
       }
     }
   });
-  // console.log("mobile active ", displayedData);
-  // console.log("mobile",location.state)
   return (
     <div>
       <div className="flex justify-between">

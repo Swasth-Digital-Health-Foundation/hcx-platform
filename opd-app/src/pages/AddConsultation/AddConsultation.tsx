@@ -95,7 +95,6 @@ const AddConsultation = () => {
   };
 
   const patientMobile = location.state?.patientMobile;
-  console.log(patientMobile);
 
   const handleUpload = async () => {
     try {
@@ -354,22 +353,6 @@ const AddConsultation = () => {
             {fileErrorMessage}
           </div>
         )}
-        {/* {!loading ? (
-          <div
-            onClick={() => {
-              if (fileUrlList !== 0) {
-                handleUpload();
-              }
-            }}
-            className="mx-auto"
-          >
-            <button className="align-center text-balck m-auto mt-4 flex w-60 justify-center rounded bg-gray font-medium disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray">
-              Click here to upload documents
-            </button>
-          </div>
-        ) : (
-          <span className="m-auto">Please wait</span>
-        )} */}
       </div>
 
       {!loaderSubmit ? (

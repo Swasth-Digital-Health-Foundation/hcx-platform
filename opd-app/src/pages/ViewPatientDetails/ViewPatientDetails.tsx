@@ -57,9 +57,6 @@ const ViewPatientDetails = () => {
       let registerResponse: any = await postRequest("search", payload);
       const patientDetails = registerResponse.data;
       setPatientDetails(patientDetails);
-      // toast.success('successfull!', {
-      //   position: toast.POSITION.TOP_CENTER,
-      // });
     } catch (error: any) {
       toast.error(error.response.data.params.errmsg, {
         position: toast.POSITION.TOP_CENTER,
@@ -140,7 +137,6 @@ const ViewPatientDetails = () => {
 
   const search = async () => {
     const response = await searchParticipant(participantCodePayload, config);
-    // const name = ;
     setProviderName(response.data?.participants[0]?.participant_name);
 
     const payorResponse = await searchParticipant(payorCodePayload, config);
@@ -206,12 +202,6 @@ const ViewPatientDetails = () => {
       setapicallIds(apicallIds);
 
       setisLoading(false);
-
-      // if (preauthOrClaimList.length === 2) {
-      //   setSelectedValue(false);
-      // } else {
-      //   return;
-      // }
     } catch (err) {
       setisLoading(false);
       console.log(err);

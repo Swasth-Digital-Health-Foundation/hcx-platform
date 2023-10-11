@@ -61,9 +61,6 @@ const InitiateNewClaimRequest = () => {
     },
   ];
 
-  // <option value="Bill/invoice">Medical Bill/invoice</option>
-  //           <option value="Payment Receipt">Payment Receipt</option>
-  //           <option value="Prescription">Prescription</option>
   const documentTypeOptions = [
     {
       label: "Prescription",
@@ -79,13 +76,7 @@ const InitiateNewClaimRequest = () => {
     },
   ];
 
-  const treatmentOptions = [
-    { label: "Consultation", value: "Consultation" },
-    // {
-    //   label: displayedData[0]?.claimType,
-    //   value: displayedData[0]?.claimType,
-    // },
-  ];
+  const treatmentOptions = [{ label: "Consultation", value: "Consultation" }];
 
   let FileLists: any;
   if (selectedFile !== undefined) {
@@ -127,10 +118,6 @@ const InitiateNewClaimRequest = () => {
       },
     ],
   };
-
-  // console.log("claim request body", initiateClaimRequestBody);
-  // console.log('claim state', data);
-  // console.log('coverage data', displayedData);
 
   const filter = {
     entityType: ["Beneficiary"],
@@ -189,7 +176,6 @@ const InitiateNewClaimRequest = () => {
         let token = tokenResponse.data?.access_token;
         setToken(token);
         const payorResponse = await searchParticipant(payorCodePayload, config);
-        console.log("payorResponse", payorResponse);
         let payorname = payorResponse.data?.participants[0]?.participant_name;
         setPayorName(payorname);
       } catch (err) {
@@ -198,8 +184,6 @@ const InitiateNewClaimRequest = () => {
     };
     search();
   }, [displayedData]);
-
-  // console.log("location.state", location.state?.patientMobile);
 
   const handleUpload = async () => {
     try {
@@ -299,8 +283,6 @@ const InitiateNewClaimRequest = () => {
       setLoading(false);
     }
   };
-
-  // console.log(displayedData[0]?.insurance_id)
 
   return (
     <>
@@ -445,22 +427,6 @@ const InitiateNewClaimRequest = () => {
                 {fileErrorMessage}
               </div>
             )}
-            {/* {!loading ? (
-          <div
-            onClick={() => {
-              if (fileUrlList !== 0) {
-                handleUpload();
-              }
-            }}
-            className="mx-auto"
-          >
-            <button className="align-center text-balck m-auto mt-4 flex w-60 justify-center rounded bg-gray font-medium disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray">
-              Click here to upload documents
-            </button>
-          </div>
-        ) : (
-          <span className="m-auto">Please wait</span>
-        )} */}
           </div>
           <div className="mb-5 mt-4">
             {!submitLoading ? (

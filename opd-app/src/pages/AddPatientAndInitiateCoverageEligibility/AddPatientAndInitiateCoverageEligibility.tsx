@@ -57,13 +57,6 @@ const AddPatientAndInitiateCoverageEligibility = () => {
     mobile: mobile || patientDataFromState?.mobile || patientInfo[0]?.mobile,
     address:
       address || patientDataFromState?.address || patientInfo[0]?.address,
-    // medical_history: [
-    //   {
-    //     allergies: allergies || patientInfo[0]?.medical_history[0]?.allergies,
-    //     bloodGroup:
-    //       bloodGroup || patientInfo[0]?.medical_history[0]?.blood_group,
-    //   },
-    // ],
     medical_history: [
       {
         allergies: allergies,
@@ -136,7 +129,7 @@ const AddPatientAndInitiateCoverageEligibility = () => {
 
   useEffect(() => {
     search();
-    patientSearch();
+    // patientSearch();
   }, []);
 
   // useEffect(() => {
@@ -153,9 +146,8 @@ const AddPatientAndInitiateCoverageEligibility = () => {
 
   const registerUser = async () => {
     try {
-      setLoading(true);
+      // setLoading(true);
       let registerResponse: any = await postRequest("invite", payload);
-      // console.log(registerResponse);
       setLoading(false);
       toast.success(
         "Patient added successfully, initiating coverage eligibility",
@@ -186,8 +178,6 @@ const AddPatientAndInitiateCoverageEligibility = () => {
     }
   };
 
-  // console.log(participantInfo[0]?.osid);
-
   const patientSearch = async () => {
     try {
       setLoading(true);
@@ -202,10 +192,9 @@ const AddPatientAndInitiateCoverageEligibility = () => {
       if (responseData.length === 0) {
         toast.error("Patient not found!");
         setIsEditable(false);
+      } else {
+        toast.success("Patient already exists!");
       }
-      // toast.success('Patient added successfully!', {
-      //   position: toast.POSITION.TOP_CENTER,
-      // });
     } catch (error: any) {
       setIsEditable(false);
       setLoading(false);
@@ -216,9 +205,6 @@ const AddPatientAndInitiateCoverageEligibility = () => {
   };
 
   localStorage.setItem("patientMobile", mobile);
-
-  // const coverageeligibilityData = location.state.obj;
-  // console.log('coverageeligibilityData', coverageeligibilityData);
 
   const coverageeligibilityPayload = {
     insuranceId:
@@ -378,8 +364,8 @@ const AddPatientAndInitiateCoverageEligibility = () => {
           <CustomButton
             text="Add patient & Initiate consultation"
             onClick={() => {
-              updateMedicalHistory();
               registerUser();
+              updateMedicalHistory();
               sendCoverageEligibilityRequest();
             }}
             disabled={
