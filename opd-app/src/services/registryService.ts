@@ -1,7 +1,7 @@
-import axios from 'axios';
+import axios from "axios";
 
 async function postRequest(url: any, payload?: any) {
-  console.log("url",`${process.env.registry_url}/${url}`)
+  // console.log("url",`${process.env.registry_url}/${url}`)
   const response = await axios.post(
     `${process.env.registry_url}/${url}`,
     payload
@@ -9,4 +9,12 @@ async function postRequest(url: any, payload?: any) {
   return response;
 }
 
-export { postRequest };
+async function updateRequest(url: any, payload?: any) {
+  const response = await axios.put(
+    `${process.env.registry_url}/${url}`,
+    payload
+  );
+  return response;
+}
+
+export { postRequest, updateRequest };

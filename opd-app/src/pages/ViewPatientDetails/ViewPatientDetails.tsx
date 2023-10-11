@@ -14,7 +14,7 @@ import { postRequest } from "../../services/registryService";
 const ViewPatientDetails = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [selectedValue, setSelectedValue] = useState<any>();
+  const [selectedValue, setSelectedValue] = useState<string>("");
   const [token, setToken] = useState<string>();
   const [providerName, setProviderName] = useState<string>();
   const [payorName, setPayorName] = useState<string>("");
@@ -50,7 +50,8 @@ const ViewPatientDetails = () => {
       },
     },
   };
-  console.log("state", location.state);
+
+  console.log("payload", payload);
 
   const getPatientDetails = async () => {
     try {
@@ -97,7 +98,7 @@ const ViewPatientDetails = () => {
       value: consultationDetail?.symptoms,
     },
   ];
-  
+
   let urls: string = consultationDetail?.supporting_documents_url;
   const trimmedString: string = urls?.slice(1, -1);
   const urlArray: any[] = trimmedString?.split(",");
@@ -114,27 +115,27 @@ const ViewPatientDetails = () => {
     },
   };
 
-  // const tokenRequestBody = {
-  //   username: process.env.TOKEN_GENERATION_USERNAME,
-  //   password: process.env.TOKEN_GENERATION_PASSWORD,
-  // };
+  const tokenRequestBody = {
+    username: process.env.SEARCH_PARTICIPANT_USERNAME,
+    password: process.env.SEARCH_PARTICIPANT_PASSWORD,
+  };
 
   const config = {
     headers: {
-      Authorization: `Bearer eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI4NTI3ODUzYy1iNDQyLTQ0ZGItYWVkYS1kYmJkY2Y0NzJkOWIiLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsImlzcyI6Imh0dHA6XC9cL2tleWNsb2FrLmtleWNsb2FrLnN2Yy5jbHVzdGVyLmxvY2FsOjgwODBcL2F1dGhcL3JlYWxtc1wvc3dhc3RoLWhjeC1wYXJ0aWNpcGFudHMiLCJ0eXAiOiJCZWFyZXIiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJ0ZXN0cHJvdmlkZXIxQGFwb2xsby5jb20iLCJhdWQiOiJhY2NvdW50IiwiYWNyIjoiMSIsInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJwcm92aWRlciIsImRlZmF1bHQtcm9sZXMtbmRlYXIiXX0sImF6cCI6InJlZ2lzdHJ5LWZyb250ZW5kIiwicGFydGljaXBhbnRfY29kZSI6InRlc3Rwcm92aWRlcjEuYXBvbGxvQHN3YXN0aC1oY3gtZGV2Iiwic2NvcGUiOiJwcm9maWxlIGVtYWlsIiwiZXhwIjoxNjk4Mjk2OTI2LCJzZXNzaW9uX3N0YXRlIjoiMzNlZDQ3ZTYtYTk3OS00NDZmLThiNmEtN2Y4MDJlMmVhYzBlIiwiaWF0IjoxNjk2NTY4OTI2LCJqdGkiOiJlZTM4ZmFiOS01M2M1LTQ1ZWUtODQ3NC05NGQyYmJkOThmNDciLCJlbnRpdHkiOlsiT3JnYW5pc2F0aW9uIl0sImVtYWlsIjoidGVzdHByb3ZpZGVyMUBhcG9sbG8uY29tIn0.FkPN3V6q9gXeuKesm4YLNAZUhkIw3PQkK_DKHP_bSACVE6Ro2CnesGaogWbN0Gkh8gYvS6dH1W90Cz0-tYRpglMW9l2LiVpQ-z3Ca1FqpABHNz6CBsYhTEZTuaPFUDZVfXvCKYe8AkdAUQ8tSYeU64zCT-_ydYKsTQymPFynjcpVGzCa5Je5JCVkYBVoWO2WQ1ur9lOR6g3mGBRvlROhuXXZIStbzeybZniViEwp8cYfupSfyMajWxInwb8p_bi3oTbmqnwkuZF6T6x8DrXPp9in30_Ork8-3cqOzX-G9Y6sqm9nzMjbqMwx3CQoSjohrq9pOYpf3iLztMIgeX0DpA`,
+      Authorization: `Bearer ${token}`,
     },
   };
 
-  // const tokenGeneration = async () => {
-  //   try {
-  //     const tokenResponse = await generateToken(tokenRequestBody);
-  //     if (tokenResponse.statusText === 'OK') {
-  //       setToken(tokenResponse.data.access_token);
-  //     }
-  //   } catch (err) {
-  //     console.log(err);
-  //   }
-  // };
+  const tokenGeneration = async () => {
+    try {
+      const tokenResponse = await generateToken(tokenRequestBody);
+      if (tokenResponse.statusText === "OK") {
+        setToken(tokenResponse.data.access_token);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   const search = async () => {
     const response = await searchParticipant(participantCodePayload, config);
@@ -156,11 +157,12 @@ const ViewPatientDetails = () => {
   }, [token]);
 
   const preauthOrClaimListPayload = {
-    workflow_id: requestDetails?.workflowId || "",
+    workflow_id: requestDetails?.workflowId || location.state?.workflowId,
   };
 
   const coverageEligibilityPayload = {
-    mobile: location.state?.patientMobile,
+    mobile:
+      location.state?.patientMobile || localStorage.getItem("patientMobile"),
   };
 
   const getActivePlans = async () => {
@@ -204,11 +206,11 @@ const ViewPatientDetails = () => {
 
       setisLoading(false);
 
-      if (preauthOrClaimList.length === 2) {
-        setSelectedValue(false);
-      } else {
-        return;
-      }
+      // if (preauthOrClaimList.length === 2) {
+      //   setSelectedValue(false);
+      // } else {
+      //   return;
+      // }
     } catch (err) {
       setisLoading(false);
       console.log(err);
@@ -216,12 +218,12 @@ const ViewPatientDetails = () => {
   };
 
   useEffect(() => {
-    // tokenGeneration();
+    tokenGeneration();
     getActivePlans();
     getConsultation();
   }, []);
 
-  // console.log(location.state?.workflowId);
+  console.log(location.state?.workflowId);
 
   const getConsultation = async () => {
     try {
@@ -280,8 +282,21 @@ const ViewPatientDetails = () => {
     <>
       {!loading ? (
         <div className="-pt-2">
+          <div className="just relative mb-10 flex">
+            <button
+              disabled={loading}
+              onClick={(event: any) => {
+                event.preventDefault();
+                getActivePlans();
+              }}
+              className="align-center absolute right-0 flex w-20 justify-center rounded bg-primary py-1 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
+            >
+              Refresh
+            </button>
+            {loading ? "Please wait..." : ""}
+          </div>
           <div className="flex items-center justify-between">
-            <label className="mb-2.5 block text-left text-2xl font-bold text-black dark:text-white">
+            <label className="block text-left text-2xl font-bold text-black dark:text-white">
               Patient details
             </label>
             <h2 className="sm:text-title-xl1 text-end font-semibold text-success dark:text-success">
@@ -309,36 +324,41 @@ const ViewPatientDetails = () => {
                 );
               })}
             </div>
-            <label className="text-1xl mb-2.5 block text-left font-bold text-black dark:text-white">
-              Medical history
-            </label>
-            <div className="items-center justify-between"></div>
-            <div>
-              {patientDetails[0]?.medical_history?.map(
-                (ele: any, index: any) => {
-                  return (
-                    <div key={index} className="mb-2">
-                      <div className="mb-2 flex gap-2">
-                        <h2 className="text-bold text-base font-medium text-black dark:text-white">
-                          Allergies :
-                        </h2>
-                        <span className="text-base font-medium">
-                          {ele?.allergies}
-                        </span>
-                      </div>
-                      <div className="flex gap-2">
-                        <h2 className="text-bold text-base font-medium text-black dark:text-white">
-                          Blood group :
-                        </h2>
-                        <span className="text-base font-medium">
-                          {ele?.blood_group}
-                        </span>
-                      </div>
-                    </div>
-                  );
-                }
-              )}
-            </div>
+            {patientDetails[0]?.medical_history && (
+              <>
+                <label className="text-1xl mb-2.5 block text-left font-bold text-black dark:text-white">
+                  Medical history
+                </label>
+                <div className="items-center justify-between"></div>
+                <div>
+                  {patientDetails[0]?.medical_history?.map(
+                    (ele: any, index: any) => {
+                      console.log(ele)
+                      return (
+                        <div key={index} className="mb-2">
+                          <div className="mb-2 flex gap-2">
+                            <h2 className="text-bold text-base font-medium text-black dark:text-white">
+                              Allergies :
+                            </h2>
+                            <span className="text-base font-medium">
+                              {ele?.allergies}
+                            </span>
+                          </div>
+                          <div className="flex gap-2">
+                            <h2 className="text-bold text-base font-medium text-black dark:text-white">
+                              Blood group :
+                            </h2>
+                            <span className="text-base font-medium">
+                              {ele?.bloodGroup}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    }
+                  )}
+                </div>
+              </>
+            )}
             <label className="text-1xl mb-2.5 block text-left font-bold text-black dark:text-white">
               Insurance details
             </label>
@@ -412,6 +432,7 @@ const ViewPatientDetails = () => {
             </div>
           </div>
           {preauthOrClaimList.map((ele: any, index: any) => {
+            console.log(ele);
             return (
               <>
                 <div className=" flex items-center justify-between">

@@ -140,9 +140,6 @@ const PreAuthRequest = () => {
     searchUser();
   }, []);
 
-  // console.log("zero",displayedData[0]?.sender_code);
-  // console.log(displayedData[0]?.sender_code);
-  // const recipientCode = displayedData[0]?.recipient_code;
   const senderCode = displayedData[0]?.sender_code;
 
   const participantCodePayload = {
@@ -172,18 +169,6 @@ const PreAuthRequest = () => {
     },
   };
 
-  // const searchPayorName = async () => {
-  //   try {
-  //     const payorResponse = await searchParticipant(payorCodePayload, config);
-  //     console.log("payorResponse", payorResponse);
-  //     let payorname = payorResponse.data?.participants[0]?.participant_name;
-  //     // console.log(payorName);
-  //     setPayorName(payorname);
-  //   } catch (err) {
-  //     console.log(err);
-  //   }
-  // };
-
   useEffect(() => {
     const search = async () => {
       try {
@@ -203,17 +188,6 @@ const PreAuthRequest = () => {
     };
     search();
   }, [displayedData]);
-
-  // const searchProviderName = async () => {
-  //   try {
-  //     const response = await searchParticipant(participantCodePayload, config);
-  //     let providername = response.data?.participants[0]?.participant_name;
-  //     setProviderName(providername);
-  //   } catch (err) {
-  //     console.log(err);
-  //   }
-  // };
-
   useEffect(() => {
     getCoverageEligibilityRequestList();
   }, []);
@@ -228,24 +202,22 @@ const PreAuthRequest = () => {
         formData.append(`file`, file);
       });
 
-      const headers = {
-        Authorization: `Bearer ${token}`,
-      };
-
       toast.info("Uploading documents please wait...!");
       const response = await axios({
-        url: "https://dev-hcx.swasth.app/api/v0.7/upload/documents",
+        url: "https://dev-hcx.swasth.app/hcx-mock-service/v0.7/upload/documents",
         method: "POST",
-        headers: headers,
         data: formData,
       });
       let obtainedResponse = response.data;
+
+      const uploadedUrls = obtainedResponse.map((ele: any) => ele.url);
+      // Update the payload with the new URLs
+      initiateClaimRequestBody.supportingDocuments[0].urls = uploadedUrls;
       setUrlList((prevFileUrlList: any) => [
         ...prevFileUrlList,
         ...obtainedResponse,
       ]);
       toast.info("Documents uploaded successfully!");
-      setLoading(false);
     } catch (error) {
       setLoading(false);
       console.error("Error uploading file", error);
@@ -255,18 +227,22 @@ const PreAuthRequest = () => {
   const submitClaim = async () => {
     try {
       setLoading(true);
-      let response = await generateOutgoingRequest(
-        "create/preauth/submit",
-        initiateClaimRequestBody
-      );
-      // console.log(response);
-      setLoading(false);
-      navigate("/request-success", {
-        state: {
-          text: "pre-auth",
-          mobileNumber: data.mobile || initiateClaimRequestBody.mobile,
-        },
-      });
+      handleUpload();
+      setTimeout(async () => {
+        if (fileUrlList.lenght !== 0) {
+          let response = await generateOutgoingRequest(
+            "create/preauth/submit",
+            initiateClaimRequestBody
+          );
+          setLoading(false);
+          navigate("/request-success", {
+            state: {
+              text: "pre-auth",
+              mobileNumber: data.mobile || initiateClaimRequestBody.mobile,
+            },
+          });
+        }
+      }, 2000);
     } catch (err) {
       setLoading(false);
       toast.error("Faild to submit claim, try again!");
@@ -361,9 +337,6 @@ const PreAuthRequest = () => {
         <h2 className="text-1xl mb-4 font-bold text-black dark:text-white sm:text-title-xl2">
           {strings.SUPPORTING_DOCS}
         </h2>
-        {/* <label className="mb-2.5 block text-left font-medium text-black dark:text-white">
-          {strings.DOC_TYPE}
-        </label> */}
         <div className="relative z-20 mb-4 bg-white dark:bg-form-input">
           <SelectInput
             label="Document type :"
@@ -462,22 +435,6 @@ const PreAuthRequest = () => {
           <div className="mb-2.5 mt-4 block text-left text-xs text-red dark:text-red">
             {fileErrorMessage}
           </div>
-        )}
-        {!loading ? (
-          <div
-            onClick={() => {
-              if (fileUrlList !== 0) {
-                handleUpload();
-              }
-            }}
-            className="mx-auto"
-          >
-            <button className="align-center text-balck m-auto mt-4 flex w-60 justify-center rounded bg-gray font-medium disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray">
-              Click here to upload documents
-            </button>
-          </div>
-        ) : (
-          <span className="m-auto">Please wait</span>
         )}
       </div>
       <div className="mb-5 mt-4">

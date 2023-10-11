@@ -10,7 +10,7 @@ async function generateOutgoingRequest(url: any, payload: any) {
 
 async function isInitiated(payload: any) {
   const response = await axios.post(
-    `https://dev-hcx.swasth.app/hcx-mock-service/v0.7/check/communication/request`,
+    `${process.env.hcx_mock_service}/check/communication/request`,
     payload
   );
   return response;
@@ -18,7 +18,7 @@ async function isInitiated(payload: any) {
 
 async function createCommunicationOnRequest(payload: any) {
   const response = await axios.post(
-    'https://dev-hcx.swasth.app/hcx-mock-service/v0.7/create/communication/on_request',
+    `${process.env.hcx_mock_service}/create/communication/on_request`,
     payload
   );
   return response;

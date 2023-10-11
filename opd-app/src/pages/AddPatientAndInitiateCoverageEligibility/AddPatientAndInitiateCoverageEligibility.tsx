@@ -1,98 +1,118 @@
-import React, { useEffect, useState } from 'react';
-import TextInputWithLabel from '../../components/inputField';
-import SelectInput from '../../components/SelectInput';
-import CustomButton from '../../components/CustomButton';
-import { postRequest } from '../../services/registryService';
-import { toast } from 'react-toastify';
-import { Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { generateOutgoingRequest } from '../../services/hcxMockService';
-import { searchParticipant } from '../../services/hcxService';
-import * as _ from 'lodash';
-import LoadingButton from '../../components/LoadingButton';
+import React, { useEffect, useState } from "react";
+import TextInputWithLabel from "../../components/inputField";
+import SelectInput from "../../components/SelectInput";
+import CustomButton from "../../components/CustomButton";
+import { postRequest, updateRequest } from "../../services/registryService";
+import { toast } from "react-toastify";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
+import { generateOutgoingRequest } from "../../services/hcxMockService";
+import { searchParticipant } from "../../services/hcxService";
+import * as _ from "lodash";
+import LoadingButton from "../../components/LoadingButton";
 
 const AddPatientAndInitiateCoverageEligibility = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [name, setName] = useState<string>('');
-  const [mobile, setMobile] = useState<string>('');
-  const [address, setAddress] = useState<string>('');
-  const [bloodGroup, setBloodGroup] = useState<string>('');
-  const [allergies, setAllergies] = useState<string>('');
-  const [payorName, setPayorName] = useState<string>('');
-  const [insuranceID, setInsuranceID] = useState<string>('');
+  const [name, setName] = useState<string>("");
+  const [mobile, setMobile] = useState<string>("");
+  const [address, setAddress] = useState<string>("");
+  const [bloodGroup, setBloodGroup] = useState<string>("");
+  const [allergies, setAllergies] = useState<string>("");
+  const [payorName, setPayorName] = useState<string>("");
+  const [insuranceID, setInsuranceID] = useState<string>("");
   const [loading, setLoading] = useState(false);
-  const getEmailFromLocalStorage = localStorage.getItem('email');
+  const getEmailFromLocalStorage = localStorage.getItem("email");
   const [participantInfo, setParticipantInformation] = useState<any>([]);
   const [patientInfo, seetPatientInfo] = useState<any>([]);
   const [isEditable, setIsEditable] = useState<any>(false);
 
   const bloodGroupOptions = [
-    { label: 'Select', value: '' },
-    { label: 'O-positive', value: 'O-positive' },
+    {
+      label: `${patientInfo[0]?.medical_history[0]?.blood_group || "Select"}`,
+      value: `${patientInfo[0]?.medical_history[0]?.blood_group || ""}`,
+    },
+    { label: "O positive", value: "O positive" },
+    { label: "O negative", value: "O negative" },
   ];
   const allergiesOptions = [
-    { label: 'Select', value: '' },
-    { label: 'none', value: 'none' },
+    {
+      label: `${patientInfo[0]?.medical_history[0]?.allergies || "Select"}`,
+      value: `${patientInfo[0]?.medical_history[0]?.allergies || ""}`,
+    },
+    { label: "cold", value: "cold" },
+    { label: "caugh", value: "caugh" },
   ];
   const payorOptions = [
     {
-      label: `${patientInfo[0]?.payor_details[0]?.payor || 'Select'}`,
-      value: patientInfo[0]?.payor_details[0]?.payor || '',
+      label: `${patientInfo[0]?.payor_details[0]?.payor || "Select"}`,
+      value: patientInfo[0]?.payor_details[0]?.payor || "",
     },
-    // { label: 'Swasth-reference payor', value: 'Swast-reference payor' },
+    { label: "Swasth-reference payor", value: "Swast-reference payor" },
   ];
 
   const patientDataFromState: any = location.state?.obj;
 
   const payload = {
-    name: patientDataFromState?.patientName || name,
-    mobile: mobile || patientDataFromState?.mobile,
-    address: address || patientDataFromState?.address,
+    name: patientDataFromState?.patientName || name || patientInfo[0]?.name,
+    mobile: mobile || patientDataFromState?.mobile || patientInfo[0]?.mobile,
+    address:
+      address || patientDataFromState?.address || patientInfo[0]?.address,
     medical_history: [
       {
-        allergies: allergies,
-        bloodGroup: bloodGroup,
+        allergies: allergies || patientInfo[0]?.medical_history[0]?.allergies,
+        bloodGroup:
+          bloodGroup || patientInfo[0]?.medical_history[0]?.blood_group,
       },
     ],
     payor_details: [
       {
-        insurance_id: insuranceID || patientDataFromState?.payorName,
-        payor: payorName || patientDataFromState?.insuranceId,
+        insurance_id:
+          insuranceID ||
+          patientDataFromState?.payorName ||
+          patientInfo[0]?.payor_details[0]?.payor,
+        payor:
+          payorName ||
+          patientDataFromState?.insuranceId ||
+          patientInfo[0]?.payor_details[0]?.insurance_id,
       },
     ],
   };
 
+  // console.log("payload", payload);
+
   const patientDetails = [
     {
-      key: 'Name :',
+      key: "Name :",
       value: patientDataFromState?.patientName,
     },
     {
-      key: 'Mobile no. :',
+      key: "Mobile no. :",
       value: patientDataFromState?.mobile,
     },
     {
-      key: 'Address :',
+      key: "Address :",
       value: patientDataFromState?.address,
     },
     {
-      key: 'Payor name :',
+      key: "Payor name :",
       value: patientDataFromState?.payorName,
     },
     {
-      key: 'Insurance ID :',
+      key: "Insurance ID :",
       value: patientDataFromState?.insuranceId,
     },
   ];
 
   const userSearchPayload = {
-    entityType: ['Beneficiary'],
+    entityType: ["Beneficiary"],
     filters: {
-      primary_email: { eq: getEmailFromLocalStorage },
+      primary_email: {
+        eq: getEmailFromLocalStorage,
+      },
     },
   };
 
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem("token");
 
   const config = {
     headers: {
@@ -112,6 +132,7 @@ const AddPatientAndInitiateCoverageEligibility = () => {
 
   useEffect(() => {
     search();
+    patientSearch();
   }, []);
 
   // useEffect(() => {
@@ -120,48 +141,57 @@ const AddPatientAndInitiateCoverageEligibility = () => {
   // console.log(participantInfo);
 
   const patientSearchPayload = {
-    entityType: ['Beneficiary'],
+    entityType: ["Beneficiary"],
     filters: {
-      mobile: { eq: mobile },
+      mobile: { eq: mobile || patientDataFromState?.mobile },
     },
   };
 
   const registerUser = async () => {
     try {
       setLoading(true);
-      let registerResponse: any = await postRequest('invite', payload);
+      let registerResponse: any = await postRequest("invite", payload);
       // console.log(registerResponse);
       setLoading(false);
       toast.success(
-        'Patient added successfully, initiating coverage eligibility',
+        "Patient added successfully, initiating coverage eligibility",
         {
           position: toast.POSITION.TOP_CENTER,
         }
       );
     } catch (error: any) {
       // setLoading(false);
-      toast.info('Patient already exists,  initiating coverage eligibility', {
+      toast.info("Patient already exists,  initiating coverage eligibility", {
         position: toast.POSITION.TOP_CENTER,
       });
     }
   };
 
-  // const updateMedicalHistory = async () => {
-  //   try{
-  //     let registerResponse: any = await postRequest(`${participantInfo[0]?.osid}`);
-  //   }
-  //   catch(err){
+  const updateMedicalhistory = {
+    medical_history: payload?.medical_history,
+  };
 
-  //   }
-  // };
+  console.log(participantInfo[0]);
 
-  console.log(participantInfo[0]?.osid);
+  const updateMedicalHistory = async () => {
+    try {
+      let registerResponse: any = await updateRequest(
+        `${patientInfo[0]?.osid}`,
+        updateMedicalhistory
+      );
+      console.log(registerResponse);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  // console.log(participantInfo[0]?.osid);
 
   const patientSearch = async () => {
     try {
       setLoading(true);
       let registerResponse: any = await postRequest(
-        'search',
+        "search",
         patientSearchPayload
       );
       setIsEditable(true);
@@ -169,7 +199,7 @@ const AddPatientAndInitiateCoverageEligibility = () => {
       seetPatientInfo(responseData);
       setLoading(false);
       if (responseData.length === 0) {
-        toast.error('Patient not found!');
+        toast.error("Patient not found!");
         setIsEditable(false);
       }
       // toast.success('Patient added successfully!', {
@@ -178,13 +208,13 @@ const AddPatientAndInitiateCoverageEligibility = () => {
     } catch (error: any) {
       setIsEditable(false);
       setLoading(false);
-      toast.error(error.response.data.params.errmsg, {
+      toast.error("patient not found!", {
         position: toast.POSITION.TOP_CENTER,
       });
     }
   };
 
-  localStorage.setItem('patientMobile', mobile);
+  localStorage.setItem("patientMobile", mobile);
 
   // const coverageeligibilityData = location.state.obj;
   // console.log('coverageeligibilityData', coverageeligibilityData);
@@ -199,27 +229,27 @@ const AddPatientAndInitiateCoverageEligibility = () => {
       payorName ||
       patientDataFromState?.payorName ||
       patientInfo[0]?.payor_details[0]?.payor,
-    providerName: localStorage.getItem('providerName'),
+    providerName: localStorage.getItem("providerName"),
     participantCode: participantInfo[0]?.participant_code,
-    serviceType: 'OPD',
+    serviceType: "OPD",
     patientName:
       name || patientDataFromState?.patientName || patientInfo[0]?.name,
   };
 
-  console.log('coverageeligibilityPayload', coverageeligibilityPayload);
+  console.log("coverageeligibilityPayload", coverageeligibilityPayload);
 
   const sendCoverageEligibilityRequest = async () => {
     try {
       setLoading(true);
       let response = await generateOutgoingRequest(
-        'create/coverageeligibility/check',
+        "create/coverageeligibility/check",
         coverageeligibilityPayload
       );
       setLoading(false);
       console.log(response);
       if (response?.status === 202) {
-        toast.success('Coverage eligibility initiated.');
-        navigate('/add-consultation', {
+        toast.success("Coverage eligibility initiated.");
+        navigate("/add-consultation", {
           state: {
             patientMobile: patientDataFromState?.mobile,
             workflowId: response.data?.workflowId,
@@ -228,11 +258,11 @@ const AddPatientAndInitiateCoverageEligibility = () => {
       }
     } catch (error) {
       setLoading(false);
-      toast.error(_.get(error, 'response.data.error.message'));
+      toast.error(_.get(error, "response.data.error.message"));
     }
   };
 
-  // console.log(payload);
+  // console.log(patientInfo[0].medical_history);
   return (
     <div>
       <label className="mb-2.5 block text-left text-2xl font-bold text-black dark:text-white">
@@ -289,7 +319,7 @@ const AddPatientAndInitiateCoverageEligibility = () => {
             value={address || patientInfo[0]?.address}
             onChange={(e: any) => setAddress(e.target.value)}
             placeholder="Enter address"
-            disabled={false || isEditable}
+            disabled={false}
             type="text"
           />
         </div>
@@ -301,14 +331,14 @@ const AddPatientAndInitiateCoverageEligibility = () => {
           </label>
           <SelectInput
             label="Blood group :"
-            value={bloodGroup}
+            value={bloodGroup || patientInfo[0]?.medical_history?.blood_group}
             onChange={(e: any) => setBloodGroup(e.target.value)}
             disabled={false}
             options={bloodGroupOptions}
           />
           <SelectInput
             label="Allergies :"
-            value={allergies}
+            value={allergies || patientInfo[0]?.medical_history?.allergies}
             onChange={(e: any) => setAllergies(e.target.value)}
             disabled={false}
             options={allergiesOptions}
@@ -350,6 +380,7 @@ const AddPatientAndInitiateCoverageEligibility = () => {
           <CustomButton
             text="Add patient & Initiate consultation"
             onClick={() => {
+              updateMedicalHistory();
               registerUser();
               sendCoverageEligibilityRequest();
             }}

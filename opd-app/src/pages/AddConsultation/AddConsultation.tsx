@@ -1,30 +1,30 @@
-import React, { useEffect, useState } from 'react';
-import SelectInput from '../../components/SelectInput';
-import strings from '../../utils/strings';
-import { handleFileChange } from '../../utils/attachmentSizeValidation';
-import axios from 'axios';
-import { toast } from 'react-toastify';
-import CustomButton from '../../components/CustomButton';
-import { generateToken } from '../../services/hcxService';
-import { generateOutgoingRequest } from '../../services/hcxMockService';
-import LoadingButton from '../../components/LoadingButton';
-import { useLocation, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import SelectInput from "../../components/SelectInput";
+import strings from "../../utils/strings";
+import { handleFileChange } from "../../utils/attachmentSizeValidation";
+import axios from "axios";
+import { toast } from "react-toastify";
+import CustomButton from "../../components/CustomButton";
+import { generateToken } from "../../services/hcxService";
+import { generateOutgoingRequest } from "../../services/hcxMockService";
+import LoadingButton from "../../components/LoadingButton";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const AddConsultation = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [treatmentType, setTreatmentType] = useState<string>('');
-  const [serviceType, setServiceType] = useState<string>('');
-  const [symptoms, setSymptoms] = useState<string>('');
+  const [treatmentType, setTreatmentType] = useState<string>("");
+  const [serviceType, setServiceType] = useState<string>("");
+  const [symptoms, setSymptoms] = useState<string>("");
   const [selectedFile, setSelectedFile]: any = useState<FileList | undefined>(
     undefined
   );
   const [fileErrorMessage, setFileErrorMessage]: any = useState();
-  const [documentType, setDocumentType] = useState<string>('Bill/invoice');
+  const [documentType, setDocumentType] = useState<string>("Bill/invoice");
   const [isSuccess, setIsSuccess]: any = useState(false);
   const [loading, setLoading] = useState(false);
   const [fileUrlList, setUrlList] = useState<any>([]);
-  const [token, setToken] = useState<string>('');
+  const [token, setToken] = useState<string>("");
   const [loaderSubmit, setLoaderSubmit] = useState(false);
   const [activeRequests, setActiveRequests] = useState<any>([]);
   const [finalData, setFinalData] = useState<any>([]);
@@ -38,16 +38,16 @@ const AddConsultation = () => {
   }
 
   const treatmentTypeOptions = [
-    { label: 'Select', value: '' },
-    { label: 'OPD', value: 'OPD' },
+    { label: "Select", value: "" },
+    { label: "OPD", value: "OPD" },
   ];
   const serviceTypeOptions = [
-    { label: 'Select', value: '' },
-    { label: 'Consultation', value: 'consultation' },
+    { label: "Select", value: "" },
+    { label: "Consultation", value: "consultation" },
   ];
   const symptomsOptions = [
-    { label: 'Select', value: '' },
-    { label: 'Fever', value: 'fever' },
+    { label: "Select", value: "" },
+    { label: "Fever", value: "fever" },
   ];
 
   const handleDelete = (name: any) => {
@@ -60,15 +60,15 @@ const AddConsultation = () => {
   };
 
   const tokenRequestBody = {
-    username: process.env.TOKEN_GENERATION_USERNAME,
-    password: process.env.TOKEN_GENERATION_PASSWORD,
+    username: process.env.SEARCH_PARTICIPANT_USERNAME,
+    password: process.env.SEARCH_PARTICIPANT_PASSWORD,
   };
 
   const tokenGeneration = async () => {
     try {
       const tokenResponse = await generateToken(tokenRequestBody);
       console.log(tokenResponse);
-      if (tokenResponse.statusText === 'OK') {
+      if (tokenResponse.statusText === "OK") {
         let token = tokenResponse.data?.access_token;
         setToken(token);
       }
@@ -85,48 +85,60 @@ const AddConsultation = () => {
     getCoverageEligibilityRequestList();
   }, [token]);
 
+  const consultationPayload = {
+    workflow_id: location.state?.workflowId || "",
+    treatment_type: treatmentType,
+    service_type: serviceType,
+    symptoms: symptoms,
+    supporting_documents_url: fileUrlList.map((ele: any) => {
+      return ele.url;
+    }),
+  };
+
   const handleUpload = async () => {
     try {
       setLoading(true);
       const formData = new FormData();
-      formData.append('mobile', '6363062395');
+      formData.append("mobile", "6363062395");
       FileLists.forEach((file: any) => {
         formData.append(`file`, file);
       });
-      const headers = {
-        Authorization: `Bearer ${token}`,
-      };
-      console.log(headers);
-      toast.info('Uploading documents please wait...!');
+      toast.info("Uploading documents please wait...!");
       const response = await axios({
-        url: 'https://dev-hcx.swasth.app/api/v0.7/upload/documents',
-        method: 'POST',
-        headers: headers,
+        url: "https://dev-hcx.swasth.app/hcx-mock-service/v0.7/upload/documents",
+        method: "POST",
         data: formData,
       });
       let obtainedResponse = response.data;
+      const uploadedUrls: string[] = [];
+
+      // Iterate through the obtainedResponse and add each URL to the array
+      obtainedResponse.forEach((ele: any) => {
+        uploadedUrls.push(ele.url);
+      });
       setUrlList((prevFileUrlList: any) => [
         ...prevFileUrlList,
         ...obtainedResponse,
       ]);
-      toast.info('Documents uploaded successfully!');
-      setLoading(false);
+      consultationPayload.supporting_documents_url = uploadedUrls;
+      toast.info("Documents uploaded successfully!");
+      // setLoading(false);
     } catch (error) {
       setLoading(false);
-      toast.error('Faild to upload documents, please try again!');
-      console.error('Error uploading file', error);
+      toast.error("Faild to upload documents, please try again!");
+      console.error("Error uploading file", error);
     }
   };
 
   const requestPayload = {
-    sender_code: localStorage.getItem('senderCode'),
+    sender_code: localStorage.getItem("senderCode"),
   };
 
   const getCoverageEligibilityRequestList = async () => {
     try {
       setLoading(true);
       let response = await generateOutgoingRequest(
-        'bsp/request/list',
+        "bsp/request/list",
         requestPayload
       );
       const data = response.data.entries;
@@ -140,13 +152,13 @@ const AddConsultation = () => {
         const key = Object.keys(entry)[0];
         const objects = entry[key];
 
-        if (objects.length === 1 && objects[0].type === 'claim') {
+        if (objects.length === 1 && objects[0].type === "claim") {
           // If there's only one object and its type is "claim," add it to claimArray.
           claimArray.push(objects[0]);
         } else {
           // If there's more than one object or any object with type "coverageeligibility," add them to coverageArray.
           coverageArray.push(
-            ...objects.filter((obj: any) => obj.type === 'coverageeligibility')
+            ...objects.filter((obj: any) => obj.type === "coverageeligibility")
           );
         }
       }
@@ -166,36 +178,28 @@ const AddConsultation = () => {
 
   //   console.log('displayed data', displayedData);
 
-  const consultationPayload = {
-    workflow_id: location.state?.workflowId || '',
-    treatment_type: treatmentType,
-    service_type: serviceType,
-    symptoms: symptoms,
-    supporting_documents_url: fileUrlList.map((ele: any) => {
-      return ele.url;
-    }),
-    // supporting_documents_url: ['sample.txt'],
-  };
-
   console.log(consultationPayload);
 
   const addConsultation = async () => {
     try {
       setLoaderSubmit(true);
-      const response = await generateOutgoingRequest(
-        'consultation/add',
-        consultationPayload
-      );
-      setLoaderSubmit(false);
-      toast.success('Consultation added successfully!');
-      navigate('/coverage-eligibility', { state: location.state });
+      handleUpload();
+      setTimeout(async () => {
+        const response = await generateOutgoingRequest(
+          "consultation/add",
+          consultationPayload
+        );
+        setLoaderSubmit(false);
+        toast.success("Consultation added successfully!");
+        navigate("/coverage-eligibility", { state: location.state });
+      }, 2000);
     } catch (err) {
       setLoaderSubmit(false);
-      toast.error('Faild to add consultation, try again!');
+      toast.error("Faild to add consultation, try again!");
     }
   };
 
-  //   console.log(location.state)
+    console.log("fileErrorMessage",fileErrorMessage)
 
   return (
     <div>
@@ -354,7 +358,7 @@ const AddConsultation = () => {
             {fileErrorMessage}
           </div>
         )}
-        {!loading ? (
+        {/* {!loading ? (
           <div
             onClick={() => {
               if (fileUrlList !== 0) {
@@ -369,7 +373,7 @@ const AddConsultation = () => {
           </div>
         ) : (
           <span className="m-auto">Please wait</span>
-        )}
+        )} */}
       </div>
 
       {!loaderSubmit ? (
@@ -377,7 +381,9 @@ const AddConsultation = () => {
           <CustomButton
             text="Add consultation"
             onClick={() => addConsultation()}
-            disabled={false}
+            disabled={
+              treatmentType === "" || serviceType === "" || symptoms === ""
+            }
           />
         </div>
       ) : (

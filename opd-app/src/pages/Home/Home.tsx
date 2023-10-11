@@ -57,7 +57,6 @@ const Home = () => {
   const search = async () => {
     try {
       const response = await searchParticipant(userSearchPayload, config);
-      console.log(response);
       let userRes = response.data.participants;
       setParticipantInformation(userRes);
     } catch (error) {
@@ -151,9 +150,8 @@ const Home = () => {
       }
     }
   });
-
-  // console.log(displayedData)
-
+  // console.log("mobile active ", displayedData);
+  // console.log("mobile",location.state)
   return (
     <div>
       <div className="flex justify-between">
@@ -255,7 +253,7 @@ const Home = () => {
         {!loading ? (
           <div>
             {displayedData?.map((ele: any, index: any) => {
-              console.log(ele);
+              console.log(ele)
               return (
                 <div className="mt-2" key={index}>
                   <ActiveClaimCycleCard

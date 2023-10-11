@@ -164,8 +164,8 @@ const InitiateNewClaimRequest = () => {
   };
 
   const tokenRequestBody = {
-    username: process.env.TOKEN_GENERATION_USERNAME,
-    password: process.env.TOKEN_GENERATION_PASSWORD,
+    username: process.env.SEARCH_PARTICIPANT_USERNAME,
+    password: process.env.SEARCH_PARTICIPANT_PASSWORD,
   };
 
   const config = {
@@ -182,15 +182,12 @@ const InitiateNewClaimRequest = () => {
     const search = async () => {
       try {
         const tokenResponse = await generateToken(tokenRequestBody);
-        // if (tokenResponse.status === 200) {
         let token = tokenResponse.data?.access_token;
         setToken(token);
         const payorResponse = await searchParticipant(payorCodePayload, config);
         console.log("payorResponse", payorResponse);
         let payorname = payorResponse.data?.participants[0]?.participant_name;
-        // console.log(payorName);
         setPayorName(payorname);
-        // }
       } catch (err) {
         console.log("error", err);
       }
@@ -198,34 +195,32 @@ const InitiateNewClaimRequest = () => {
     search();
   }, [displayedData]);
 
+  console.log("location.state", location.state.patientMobile);
+
   const handleUpload = async () => {
     try {
       setLoading(true);
       const formData = new FormData();
-      formData.append("mobile", location.state?.mobile?.filters?.mobile?.eq);
+      formData.append("mobile", location.state?.patientMobile);
 
       FileLists.forEach((file: any) => {
         formData.append(`file`, file);
       });
-
-      const headers = {
-        Authorization: `Bearer ${token}`,
-      };
-
       toast.info("Uploading documents please wait...!");
       const response = await axios({
-        url: "https://dev-hcx.swasth.app/api/v0.7/upload/documents",
+        url: "https://dev-hcx.swasth.app/hcx-mock-service/v0.7/upload/documents",
         method: "POST",
-        headers: headers,
         data: formData,
       });
       let obtainedResponse = response.data;
+      const uploadedUrls = obtainedResponse.map((ele: any) => ele.url);
+      // Update the payload with the new URLs
+      initiateClaimRequestBody.supportingDocuments[0].urls = uploadedUrls;
       setUrlList((prevFileUrlList: any) => [
         ...prevFileUrlList,
         ...obtainedResponse,
       ]);
       toast.info("Documents uploaded successfully!");
-      setLoading(false);
     } catch (error) {
       setLoading(false);
       console.error("Error uploading file", error);
@@ -235,18 +230,20 @@ const InitiateNewClaimRequest = () => {
   const submitClaim = async () => {
     try {
       setLoading(true);
-      let getUrl = await generateOutgoingRequest(
-        "create/claim/submit",
-        initiateClaimRequestBody
-      );
-      console.log(getUrl.status);
-      setLoading(false);
-      navigate("/request-success", {
-        state: {
-          text: "claim",
-          mobileNumber: data.mobile || initiateClaimRequestBody.mobile,
-        },
-      });
+      handleUpload();
+      setTimeout(async () => {
+        let getUrl = await generateOutgoingRequest(
+          "create/claim/submit",
+          initiateClaimRequestBody
+        );
+        setLoading(false);
+        navigate("/request-success", {
+          state: {
+            text: "claim",
+            mobileNumber: data.mobile || initiateClaimRequestBody.mobile,
+          },
+        });
+      }, 2000);
     } catch (err) {
       setLoading(false);
       toast.error("Faild to submit claim, try again!");
@@ -440,7 +437,7 @@ const InitiateNewClaimRequest = () => {
             {fileErrorMessage}
           </div>
         )}
-        {!loading ? (
+        {/* {!loading ? (
           <div
             onClick={() => {
               if (fileUrlList !== 0) {
@@ -455,12 +452,12 @@ const InitiateNewClaimRequest = () => {
           </div>
         ) : (
           <span className="m-auto">Please wait</span>
-        )}
+        )} */}
       </div>
       <div className="mb-5 mt-4">
         {!loading ? (
           <button
-            disabled={amount === "" || fileUrlList.length === 0}
+            disabled={amount === ""}
             onClick={(event: any) => {
               event.preventDefault();
               submitClaim();
