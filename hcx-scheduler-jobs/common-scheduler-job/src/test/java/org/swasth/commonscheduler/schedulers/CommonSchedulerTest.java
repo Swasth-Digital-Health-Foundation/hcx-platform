@@ -3,6 +3,7 @@ package org.swasth.commonscheduler.schedulers;
 import io.zonky.test.db.postgres.embedded.EmbeddedPostgres;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
+import org.junit.Assert;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,11 +13,13 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.context.ActiveProfiles;
+import org.swasth.common.exception.ClientException;
 import org.swasth.common.helpers.EventGenerator;
 import org.swasth.common.service.RegistryService;
 import org.swasth.common.utils.Constants;
@@ -36,7 +39,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-@SpringBootTest(classes ={ ParticipantValidationScheduler.class, CommonSchedulerJob.class, BaseScheduler.class})
+@SpringBootTest(classes ={ ParticipantValidationScheduler.class, CommonSchedulerJob.class, BaseScheduler.class, UserSecretScheduler.class})
 @Import(GenericConfiguration.class)
 @ActiveProfiles("test")
 @EmbeddedKafka(
@@ -55,6 +58,8 @@ public class CommonSchedulerTest {
     private EventGenerator eventGenerator;
     @Mock
     private RetryScheduler retryScheduler;
+    @Mock
+    private UserSecretScheduler userSecretScheduler;
     @MockBean
     private RegistryService registryService;
     @MockBean
@@ -73,6 +78,9 @@ public class CommonSchedulerTest {
         retryScheduler.postgreSQLClient = postgreSQLClient;
         retryScheduler.eventGenerator = eventGenerator;
         retryScheduler.kafkaClient = kafkaClient;
+        userSecretScheduler.postgreSQLClient = postgreSQLClient;
+        userSecretScheduler.eventGenerator = eventGenerator;
+        userSecretScheduler.kafkaClient = kafkaClient;
     }
     @AfterEach
     void teardown() throws IOException, InterruptedException {
@@ -135,5 +143,31 @@ public class CommonSchedulerTest {
             } else throw new Exception("The test case failed.");
     }
 
+    @Test
+    public void testUserSecretExpired() throws Exception {
+        postgreSQLClient.execute("CREATE TABLE api_access_secrets_expiry(user_id character varying, participant_code character varying, secret_generation_date bigint, secret_expiry_date bigint, username character varying NOT NULL)");
+        postgreSQLClient.execute("INSERT INTO api_access_secrets_expiry(user_id, participant_code, secret_generation_date, secret_expiry_date, username) VALUES('mock15@gmail.com', 'hcxtest1051.yopmail@swasth-hcx-dev', '1696839989628', '1696833349003', 'hcxtest1051.yopmail@swasth-hcx-dev:mock15@gmail.com');");
+        when(eventGenerator.generateMetadataEvent(any())).thenReturn("mockedEvent");
+        lenient().doNothing().when(kafkaClient).send(anyString(), anyString(), anyString());
+        String[] args = {"UserSecret"};
+        commonSchedulerJob.run(args);
+        userSecretScheduler.processExpiredSecret();
+        String query = String.format("SELECT * FROM api_access_secrets_expiry WHERE secret_expiry_date <= %d ;",System.currentTimeMillis());
+        ResultSet result = postgreSQLClient.executeQuery(query);
+        while (result.next()) {
+            String participant =  result.getString("username");
+            Assert.assertEquals("hcxtest1051.yopmail@swasth-hcx-dev:mock15@gmail.com", participant);
+        }
+    }
+
+    @Test
+    public void testUserSecretAboutTpExpire() throws Exception {
+        postgreSQLClient.execute("CREATE TABLE api_access_secrets_expiry(user_id character varying, participant_code character varying, secret_generation_date bigint, secret_expiry_date bigint, username character varying NOT NULL)");
+        postgreSQLClient.execute("INSERT INTO api_access_secrets_expiry(user_id, participant_code, secret_generation_date, secret_expiry_date, username) VALUES('mock18@gmail.com', 'hcxtest6.yopmail@swasth-hcx', '1696839989628', '1697528269086', 'hcxtest6.yopmail@swasth-hcx:mock18@gmail.com');");
+        when(eventGenerator.generateMetadataEvent(any())).thenReturn("mockedEvent");
+        lenient().doNothing().when(kafkaClient).send(anyString(), anyString(), anyString());
+        String[] args = {"UserSecret"};
+        commonSchedulerJob.run(args);
+    }
 }
 

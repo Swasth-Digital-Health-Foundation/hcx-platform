@@ -65,7 +65,6 @@ public class UserSecretScheduler extends BaseScheduler {
             createStatement.executeBatch();
             logger.info("Job is completed");
         } catch (Exception e) {
-            logger.info("Error while processing event: " + e.getMessage());
             throw e;
         }
     }
@@ -92,7 +91,6 @@ public class UserSecretScheduler extends BaseScheduler {
             createStatement.executeBatch();
             logger.info("Job is completed");
         } catch (Exception e) {
-            logger.info("Error while processing event: " + e.getMessage());
             throw e;
         }
     }
@@ -102,7 +100,6 @@ public class UserSecretScheduler extends BaseScheduler {
         cal.add(Calendar.MILLISECOND, notificationExpiry);
         String event = eventGenerator.createNotifyEvent(topiCode, hcxParticipantCode, Constants.PARTICIPANT_CODE, participantCodes, cal.getTime().toInstant().toEpochMilli(), message, hcxPrivateKey);
         kafkaClient.send(notifyTopic, Constants.NOTIFICATION, event);
-        logger.info("Event is pushed to kafka topic " + " :: event: " + event);
     }
 
     private String getTemplateMessage(String topicCode) throws Exception {
