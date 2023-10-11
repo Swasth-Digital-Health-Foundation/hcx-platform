@@ -46,13 +46,13 @@ public class Participant {
         } else if (getRoles().stream().anyMatch(PROVIDER_SPECIFIC_ROLES::contains)) {
             for (String role : getRoles()) {
                 if (role.startsWith("provider.")) {
-                    return role.substring(9, Math.min(role.length(), 13));
+                    return role.substring(9, 13);
                 }
             }
         } else if (getRoles().contains("payor")) {
             return "payr";
         }
-        return getRoles().isEmpty() ? "" : getRoles().get(0);
+        return getRoles().get(0);
     }
 
     private String getRandomSeq(){
