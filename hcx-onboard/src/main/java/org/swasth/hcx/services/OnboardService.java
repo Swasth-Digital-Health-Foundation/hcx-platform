@@ -900,9 +900,9 @@ public class OnboardService extends BaseController {
         return freemarkerService.renderTemplate("user-invite-accepted-participant.ftl", model);
     }
 
-    private String apiAccessSecret(String username, String password, String participantCode) throws Exception {
+    private String apiAccessSecretTemplate(String user, String password, String participantCode) throws Exception {
         Map<String, Object> model = new HashMap<>();
-        model.put("USER_NAME", username);
+        model.put("USER_ID", user);
         model.put("PARTICIPANT_CODE", participantCode);
         model.put("PASSWORD", password);
         return freemarkerService.renderTemplate("api-access-secret.ftl", model);
@@ -1123,7 +1123,7 @@ public class OnboardService extends BaseController {
             userResource.resetPassword(passwordCred);
             String userId = userResource.toRepresentation().getId();
             realmResource.users().get(userId).logout();
-            logger.info("The Keycloak password for the user :" + user + " has been successfully updated, and their sessions have been invalidated.");
+            logger.info("The Keycloak password for the osOwner :" + user + " has been successfully updated, and their sessions have been invalidated.");
         } catch (Exception e) {
             throw new ClientException("Unable to set keycloak password : " + e.getMessage());
         }
@@ -1279,7 +1279,7 @@ public class OnboardService extends BaseController {
         List<UserRepresentation> existingUsers = usersResource.search(userName);
         String userId = existingUsers.get(0).getId();
         setKeycloakPassword(password, userId, keycloakApiAccessRealm);
-        kafkaClient.send(messageTopic, EMAIL, eventGenerator.getEmailMessageEvent(apiAccessSecret(userName, password, (String) participant.get(PARTICIPANT_CODE)), passwordGenerateSub, Arrays.asList((String) participant.get(PRIMARY_EMAIL)), new ArrayList<>(), new ArrayList<>()));
+        kafkaClient.send(messageTopic, EMAIL, eventGenerator.getEmailMessageEvent(apiAccessSecretTemplate((String) requestBody.get(USER_ID), password, (String) participant.get(PARTICIPANT_CODE)), passwordGenerateSub, Arrays.asList((String) requestBody.get(USER_ID)), new ArrayList<>(), new ArrayList<>()));
         return getSuccessResponse();
     }
 }
