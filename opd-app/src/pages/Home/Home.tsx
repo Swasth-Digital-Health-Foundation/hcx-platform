@@ -253,7 +253,6 @@ const Home = () => {
         {!loading ? (
           <div>
             {displayedData?.map((ele: any, index: any) => {
-              console.log(ele)
               return (
                 <div className="mt-2" key={index}>
                   <ActiveClaimCycleCard

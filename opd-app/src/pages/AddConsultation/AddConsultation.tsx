@@ -67,7 +67,6 @@ const AddConsultation = () => {
   const tokenGeneration = async () => {
     try {
       const tokenResponse = await generateToken(tokenRequestBody);
-      console.log(tokenResponse);
       if (tokenResponse.statusText === "OK") {
         let token = tokenResponse.data?.access_token;
         setToken(token);
@@ -176,10 +175,6 @@ const AddConsultation = () => {
     }
   };
 
-  //   console.log('displayed data', displayedData);
-
-  console.log(consultationPayload);
-
   const addConsultation = async () => {
     try {
       setLoaderSubmit(true);
@@ -198,9 +193,7 @@ const AddConsultation = () => {
       toast.error("Faild to add consultation, try again!");
     }
   };
-
-    console.log("fileErrorMessage",fileErrorMessage)
-
+  
   return (
     <div>
       <label className="mb-2.5 block text-left text-2xl font-bold text-black dark:text-white">

@@ -28,16 +28,16 @@ const AddPatientAndInitiateCoverageEligibility = () => {
 
   const bloodGroupOptions = [
     {
-      label: `${patientInfo[0]?.medical_history[0]?.blood_group || "Select"}`,
-      value: `${patientInfo[0]?.medical_history[0]?.blood_group || ""}`,
+      label: "Select",
+      value: "",
     },
     { label: "O positive", value: "O positive" },
     { label: "O negative", value: "O negative" },
   ];
   const allergiesOptions = [
     {
-      label: `${patientInfo[0]?.medical_history[0]?.allergies || "Select"}`,
-      value: `${patientInfo[0]?.medical_history[0]?.allergies || ""}`,
+      label: "Select",
+      value: "",
     },
     { label: "cold", value: "cold" },
     { label: "caugh", value: "caugh" },
@@ -57,11 +57,17 @@ const AddPatientAndInitiateCoverageEligibility = () => {
     mobile: mobile || patientDataFromState?.mobile || patientInfo[0]?.mobile,
     address:
       address || patientDataFromState?.address || patientInfo[0]?.address,
+    // medical_history: [
+    //   {
+    //     allergies: allergies || patientInfo[0]?.medical_history[0]?.allergies,
+    //     bloodGroup:
+    //       bloodGroup || patientInfo[0]?.medical_history[0]?.blood_group,
+    //   },
+    // ],
     medical_history: [
       {
-        allergies: allergies || patientInfo[0]?.medical_history[0]?.allergies,
-        bloodGroup:
-          bloodGroup || patientInfo[0]?.medical_history[0]?.blood_group,
+        allergies: allergies,
+        bloodGroup: bloodGroup,
       },
     ],
     payor_details: [
@@ -77,8 +83,6 @@ const AddPatientAndInitiateCoverageEligibility = () => {
       },
     ],
   };
-
-  // console.log("payload", payload);
 
   const patientDetails = [
     {
@@ -171,15 +175,12 @@ const AddPatientAndInitiateCoverageEligibility = () => {
     medical_history: payload?.medical_history,
   };
 
-  console.log(participantInfo[0]);
-
   const updateMedicalHistory = async () => {
     try {
       let registerResponse: any = await updateRequest(
         `${patientInfo[0]?.osid}`,
         updateMedicalhistory
       );
-      console.log(registerResponse);
     } catch (err) {
       console.log(err);
     }
@@ -236,8 +237,6 @@ const AddPatientAndInitiateCoverageEligibility = () => {
       name || patientDataFromState?.patientName || patientInfo[0]?.name,
   };
 
-  console.log("coverageeligibilityPayload", coverageeligibilityPayload);
-
   const sendCoverageEligibilityRequest = async () => {
     try {
       setLoading(true);
@@ -246,7 +245,6 @@ const AddPatientAndInitiateCoverageEligibility = () => {
         coverageeligibilityPayload
       );
       setLoading(false);
-      console.log(response);
       if (response?.status === 202) {
         toast.success("Coverage eligibility initiated.");
         navigate("/add-consultation", {

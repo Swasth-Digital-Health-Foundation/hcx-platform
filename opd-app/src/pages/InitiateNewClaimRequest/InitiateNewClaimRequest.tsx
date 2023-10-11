@@ -102,7 +102,9 @@ const InitiateNewClaimRequest = () => {
   let initiateClaimRequestBody: any = {
     insuranceId: data?.insuranceId || displayedData[0]?.insurance_id,
     insurancePlan: data?.insurancePlan || null,
-    mobile: localStorage.getItem("mobile") || "",
+    mobile:
+      localStorage.getItem("mobile") || localStorage.getItem("patientMobile"),
+      patientName: userInfo[0]?.name || localStorage.getItem("patientName"),
     participantCode:
       data?.participantCode || localStorage.getItem("senderCode"),
     payor: data?.payor || payorName,
@@ -110,7 +112,6 @@ const InitiateNewClaimRequest = () => {
       data?.providerName ||
       providerName ||
       localStorage.getItem("providerName"),
-    patientName: userInfo[0]?.name,
     serviceType: data?.serviceType || displayedData[0]?.claimType,
     billAmount: amount,
     workflowId: data?.workflowId,
@@ -195,7 +196,7 @@ const InitiateNewClaimRequest = () => {
     search();
   }, [displayedData]);
 
-  console.log("location.state", location.state.patientMobile);
+  console.log("location.state", location.state?.patientMobile);
 
   const handleUpload = async () => {
     try {

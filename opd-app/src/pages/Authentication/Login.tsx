@@ -53,7 +53,6 @@ const Login = () => {
     try {
       setLoading(true);
       const loginResponse = await generateToken(payload);
-      console.log(loginResponse);
       let token = loginResponse.data?.access_token;
       localStorage.setItem('token', token);
       if (loginResponse.status === 200) {

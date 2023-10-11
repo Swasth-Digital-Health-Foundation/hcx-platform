@@ -51,8 +51,6 @@ const ViewPatientDetails = () => {
     },
   };
 
-  console.log("payload", payload);
-
   const getPatientDetails = async () => {
     try {
       setisLoading(true);
@@ -68,6 +66,9 @@ const ViewPatientDetails = () => {
       });
     }
   };
+
+  localStorage.setItem("patientMobile", patientDetails[0]?.mobile);
+  localStorage.setItem("patientName", patientDetails[0]?.name);
 
   const personalDeatails = [
     {
@@ -223,12 +224,9 @@ const ViewPatientDetails = () => {
     getConsultation();
   }, []);
 
-  console.log(location.state?.workflowId);
-
   const getConsultation = async () => {
     try {
       const response = await getConsultationDetails(location.state?.workflowId);
-      console.log("consultation", response);
       let data = response.data;
       setConsultationDetails(data);
     } catch (err: any) {
@@ -333,7 +331,7 @@ const ViewPatientDetails = () => {
                 <div>
                   {patientDetails[0]?.medical_history?.map(
                     (ele: any, index: any) => {
-                      console.log(ele)
+                      console.log(ele);
                       return (
                         <div key={index} className="mb-2">
                           <div className="mb-2 flex gap-2">
