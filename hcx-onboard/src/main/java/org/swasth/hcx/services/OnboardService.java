@@ -962,10 +962,10 @@ public class OnboardService extends BaseController {
         return freemarkerService.renderTemplate("verification-status.ftl", model);
     }
 
-    private String passwordGenerate(String participantName, String password, String participantCode) throws Exception {
+    private String passwordGenerate(String participantName, String password, String username) throws Exception {
         Map<String, Object> model = new HashMap<>();
         model.put("PARTICIPANT_NAME", participantName);
-        model.put("USERNAME", participantCode);
+        model.put("USERNAME", username);
         model.put("PASSWORD", password);
         return freemarkerService.renderTemplate("password-generate.ftl", model);
     }
@@ -1189,7 +1189,11 @@ public class OnboardService extends BaseController {
         String password = generateRandomPassword(24);
         Map<String, Object> registryDetails = getParticipant(PARTICIPANT_CODE, participantCode);
         setKeycloakPassword(participantCode, password, registryDetails);
-        kafkaClient.send(messageTopic, EMAIL, eventGenerator.getEmailMessageEvent(passwordGenerate((String) registryDetails.get(PARTICIPANT_NAME),password,(String) registryDetails.get(PRIMARY_EMAIL)), passwordGenerateSub, Arrays.asList((String) registryDetails.get(PRIMARY_EMAIL)), getUserList(headers, participantCode), new ArrayList<>()));
+        ArrayList<String> osOwner = (ArrayList<String>) registryDetails.get(OS_OWNER);
+        RealmResource realmResource = keycloak.realm(keycloackParticipantRealm);
+        UserResource userResource=realmResource.users().get(osOwner.get(0));
+        String username = userResource.toRepresentation().getUsername();
+        kafkaClient.send(messageTopic, EMAIL, eventGenerator.getEmailMessageEvent(passwordGenerate((String) registryDetails.get(PARTICIPANT_NAME),password,username), passwordGenerateSub, Arrays.asList((String) registryDetails.get(PRIMARY_EMAIL)), getUserList(headers, participantCode), new ArrayList<>()));
         return getSuccessResponse();
     }
 

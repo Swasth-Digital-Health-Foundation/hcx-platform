@@ -13,7 +13,8 @@ const initialState: AppDataInterface = {
       username:'',
       sidebar:"Profile",
       linkeduser: "",
-      counter : false
+      counter : false,
+      stageRegister:"roleSelection"
     },
 }
 
