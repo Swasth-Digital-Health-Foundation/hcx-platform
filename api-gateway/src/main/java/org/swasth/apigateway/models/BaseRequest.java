@@ -214,11 +214,11 @@ public class BaseRequest {
                     validateCondition(getHcxRecipientCode().equals(audit.get(HCX_SENDER_CODE)), ErrorCodes.ERR_INVALID_FORWARD_REQ, FORWARD_REQ_ERR_MSG);
                 }
             }
-        } else if (!EXCLUDE_ENTITIES.contains(getEntity(path)) && !apiAction.contains("on_") && checkParticipantRole(allowedRolesForForward, senderRoles) && recipientRoles.contains(PROVIDER) && recipientRoles.stream().anyMatch(PROVIDER_SPECIFIC_ROLES::contains)) {
+        } else if (!EXCLUDE_ENTITIES.contains(getEntity(path)) && !apiAction.contains("on_") && checkParticipantRole(allowedRolesForForward, senderRoles) && ((recipientRoles.contains(PROVIDER)) || (recipientRoles.stream().anyMatch(PROVIDER_SPECIFIC_ROLES::contains)))) {
             throw new ClientException(ErrorCodes.ERR_ACCESS_DENIED, INVALID_API_CALL);
         }
         // validation to check if participant is forwarding the request to provider
-        if (isForwardReq && !apiAction.contains("on_") && recipientRoles.contains(PROVIDER) && recipientRoles.stream().anyMatch(PROVIDER_SPECIFIC_ROLES::contains)) {
+        if (isForwardReq && !apiAction.contains("on_") && ((recipientRoles.contains(PROVIDER)) || (recipientRoles.stream().anyMatch(PROVIDER_SPECIFIC_ROLES::contains)))) {
             throw new ClientException(ErrorCodes.ERR_INVALID_FORWARD_REQ, INVALID_FORWARD_TO_PROVIDER);
         }
     }
