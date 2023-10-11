@@ -158,6 +158,27 @@ class HCXRequestTest extends BaseSpec {
                 .expectBody(Map.class)
                 .consumeWith(result -> assertEquals(HttpStatus.BAD_REQUEST, result.getStatus()));
     }
+
+    @Test
+    void check_hcx_request_cycle_closed_for_provider_specific_roles() throws Exception {
+        server.enqueue(new MockResponse()
+                .setResponseCode(202)
+                .addHeader("Content-Type", "application/json"));
+        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
+                .thenReturn(getPayorDetails())
+                .thenReturn(getProviderDetails());
+        Mockito.when(auditService.getAuditLogs(any()))
+                .thenReturn(getAuditProviderSpecificRolesLogs())
+                .thenReturn(getAuditProviderSpecificRolesLogs())
+                .thenReturn(new ArrayList<>());
+        client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_ONCHECK)
+                .header(Constants.AUTHORIZATION, getPayorToken())
+                .header("X-jwt-sub", "20bd4228-a87f-4175-a30a-20fb28983afb")
+                .bodyValue(getOnRequestBody())
+                .exchange()
+                .expectBody(Map.class)
+                .consumeWith(result -> assertEquals(HttpStatus.BAD_REQUEST, result.getStatus()));
+    }
     @Test
     void check_hcx_request_parse_timestamp_exception() throws Exception {
         server.enqueue(new MockResponse()
