@@ -94,17 +94,20 @@ const AddConsultation = () => {
     }),
   };
 
+  const patientMobile = location.state?.patientMobile;
+  console.log(patientMobile);
+
   const handleUpload = async () => {
     try {
       setLoading(true);
       const formData = new FormData();
-      formData.append("mobile", "6363062395");
+      formData.append("mobile", patientMobile);
       FileLists.forEach((file: any) => {
         formData.append(`file`, file);
       });
       toast.info("Uploading documents please wait...!");
       const response = await axios({
-        url: "https://dev-hcx.swasth.app/hcx-mock-service/v0.7/upload/documents",
+        url: `${process.env.hcx_mock_service}/upload/documents`,
         method: "POST",
         data: formData,
       });
@@ -193,7 +196,7 @@ const AddConsultation = () => {
       toast.error("Faild to add consultation, try again!");
     }
   };
-  
+
   return (
     <div>
       <label className="mb-2.5 block text-left text-2xl font-bold text-black dark:text-white">
@@ -375,7 +378,10 @@ const AddConsultation = () => {
             text="Add consultation"
             onClick={() => addConsultation()}
             disabled={
-              treatmentType === "" || serviceType === "" || symptoms === ""
+              treatmentType === "" ||
+              serviceType === "" ||
+              symptoms === "" ||
+              selectedFile === undefined
             }
           />
         </div>

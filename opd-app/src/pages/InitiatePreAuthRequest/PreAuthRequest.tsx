@@ -205,7 +205,7 @@ const PreAuthRequest = () => {
 
       toast.info("Uploading documents please wait...!");
       const response = await axios({
-        url: "https://dev-hcx.swasth.app/hcx-mock-service/v0.7/upload/documents",
+        url: `${process.env.hcx_mock_service}/upload/documents`,
         method: "POST",
         data: formData,
       });
@@ -441,7 +441,7 @@ const PreAuthRequest = () => {
       <div className="mb-5 mt-4">
         {!loading ? (
           <button
-            disabled={amount === "" || fileUrlList.lenght === 0}
+            disabled={amount === "" || selectedFile === undefined}
             onClick={(event: any) => {
               event.preventDefault();
               submitClaim();

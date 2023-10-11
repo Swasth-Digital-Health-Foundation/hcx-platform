@@ -104,7 +104,7 @@ const InitiateNewClaimRequest = () => {
     insurancePlan: data?.insurancePlan || null,
     mobile:
       localStorage.getItem("mobile") || localStorage.getItem("patientMobile"),
-      patientName: userInfo[0]?.name || localStorage.getItem("patientName"),
+    patientName: userInfo[0]?.name || localStorage.getItem("patientName"),
     participantCode:
       data?.participantCode || localStorage.getItem("senderCode"),
     payor: data?.payor || payorName,
@@ -125,7 +125,7 @@ const InitiateNewClaimRequest = () => {
     ],
   };
 
-  console.log("claim request body", initiateClaimRequestBody);
+  // console.log("claim request body", initiateClaimRequestBody);
   // console.log('claim state', data);
   // console.log('coverage data', displayedData);
 
@@ -196,7 +196,7 @@ const InitiateNewClaimRequest = () => {
     search();
   }, [displayedData]);
 
-  console.log("location.state", location.state?.patientMobile);
+  // console.log("location.state", location.state?.patientMobile);
 
   const handleUpload = async () => {
     try {
@@ -209,7 +209,7 @@ const InitiateNewClaimRequest = () => {
       });
       toast.info("Uploading documents please wait...!");
       const response = await axios({
-        url: "https://dev-hcx.swasth.app/hcx-mock-service/v0.7/upload/documents",
+        url: `${process.env.hcx_mock_service}/upload/documents`,
         method: "POST",
         data: formData,
       });
@@ -458,7 +458,7 @@ const InitiateNewClaimRequest = () => {
       <div className="mb-5 mt-4">
         {!loading ? (
           <button
-            disabled={amount === ""}
+            disabled={amount === "" || selectedFile === undefined}
             onClick={(event: any) => {
               event.preventDefault();
               submitClaim();
