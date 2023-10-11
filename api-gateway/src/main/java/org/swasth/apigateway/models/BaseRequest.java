@@ -218,7 +218,7 @@ public class BaseRequest {
             throw new ClientException(ErrorCodes.ERR_ACCESS_DENIED, INVALID_API_CALL);
         }
         // validation to check if participant is forwarding the request to provider
-        if (isForwardReq && !apiAction.contains("on_") && ((recipientRoles.contains(PROVIDER)) || (recipientRoles.stream().anyMatch(PROVIDER_SPECIFIC_ROLES::contains)))) {
+        if (isForwardReq && !apiAction.contains("on_") && recipientRoles.contains(PROVIDER)) {
             throw new ClientException(ErrorCodes.ERR_INVALID_FORWARD_REQ, INVALID_FORWARD_TO_PROVIDER);
         }
     }
