@@ -139,7 +139,7 @@ class HCXRequestTest extends BaseSpec {
     }
 
     @Test
-    void check_hcx_request_cycle_closed() throws Exception {
+    void check_hcx_request_cycle_closed_for_provider_role() throws Exception {
         server.enqueue(new MockResponse()
                 .setResponseCode(202)
                 .addHeader("Content-Type", "application/json"));
@@ -147,8 +147,8 @@ class HCXRequestTest extends BaseSpec {
                 .thenReturn(getPayorDetails())
                 .thenReturn(getProviderDetails());
         Mockito.when(auditService.getAuditLogs(any()))
-                .thenReturn(getAuditHospitalLogs())
-                .thenReturn(getAuditHospitalLogs())
+                .thenReturn(getAuditProviderLogs())
+                .thenReturn(getAuditProviderLogs())
                 .thenReturn(new ArrayList<>());
         client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_ONCHECK)
                 .header(Constants.AUTHORIZATION, getPayorToken())
@@ -156,7 +156,7 @@ class HCXRequestTest extends BaseSpec {
                 .bodyValue(getOnRequestBody())
                 .exchange()
                 .expectBody(Map.class)
-                .consumeWith(result -> assertEquals(HttpStatus.ACCEPTED, result.getStatus()));
+                .consumeWith(result -> assertEquals(HttpStatus.BAD_REQUEST, result.getStatus()));
     }
   
     @Test
