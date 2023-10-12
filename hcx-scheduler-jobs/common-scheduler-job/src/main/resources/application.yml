@@ -65,5 +65,5 @@ notification:
 certificate:
   expiry-days: ${certificate_expiry_days:5,10,15}
 
-secret:
+api-access-secret:
   expiry-days: ${certificate_expiry_days:5,10,15}

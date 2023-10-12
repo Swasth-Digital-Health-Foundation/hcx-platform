@@ -349,7 +349,7 @@
     operating on HCX."}
   status: Active
   is_delegate: false
-- topic_code: notif-secret-expiry
+- topic_code: notif-api-access-secret-expiry
   title: Api access secret expiry
   description: >-
     Notification about the api access secret expiration for the participant in the
@@ -373,7 +373,7 @@
     ${days} days.Please reset your api access secret."}
   status: Active
   is_delegate: false
-- topic_code: notif-secret-expired
+- topic_code: notif-api-access-secret-expired
   title: Api access secret expired
   description: Notification about api access secret expired
   allowed_senders:

@@ -150,8 +150,8 @@ public class OnboardService extends BaseController {
     private String emailConfig;
     @Value("${onboard.phone}")
     private String phoneConfig;
-    @Value("${secret.expiry-time}")
-    private int secretExpiry;
+    @Value("${api-access-secret.expiry-days}")
+    private int secretExpiryDays;
     @Autowired
     private IDatabaseService postgreSQLClient;
 
@@ -1271,7 +1271,7 @@ public class OnboardService extends BaseController {
         String selectQuery = String.format("SELECT * FROM %s WHERE username = '%s';", apiAccessTable, userName);
         ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
         if (resultSet.next()) {
-            String query = String.format("UPDATE %s SET secret_generation_date=%d,secret_expiry_date=%d WHERE username='%s';", apiAccessTable, System.currentTimeMillis(), System.currentTimeMillis() + (secretExpiry * 24 * 60 * 60 * 1000), userName);
+            String query = String.format("UPDATE %s SET secret_generation_date=%d,secret_expiry_date=%d WHERE username='%s';", apiAccessTable, System.currentTimeMillis(), System.currentTimeMillis() + (secretExpiryDays * 24 * 60 * 60 * 1000), userName);
             postgreSQLClient.execute(query);
         }
         RealmResource realmResource = keycloak.realm(keycloakApiAccessRealm);

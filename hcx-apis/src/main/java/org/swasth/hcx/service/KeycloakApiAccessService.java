@@ -38,8 +38,8 @@ public class KeycloakApiAccessService {
     private String keycloakMasterRealm;
     @Value("${postgres.api-access-secrets-expiry-table}")
     private String apiAccessTable;
-    @Value("${secret.expiry-time}")
-    private int secretExpiry;
+    @Value("${api-access-secret.expiry-days}")
+    private int secretExpiryDays;
     @Value("${keycloak.protocol-access-realm}")
     private String keycloackProtocolAccessRealm;
     @Value("${keycloak.admin-client-id}")
@@ -73,7 +73,7 @@ public class KeycloakApiAccessService {
                 response.close();
                 if (response.getStatus() == 201) {
                     String query = String.format("INSERT INTO %s (user_id,participant_code,secret_generation_date,secret_expiry_date,username)VALUES ('%s','%s',%d,%d,'%s');", apiAccessTable, email,
-                            participantCode, System.currentTimeMillis(), System.currentTimeMillis() + (secretExpiry * 24 * 60 * 60 * 1000), userName);
+                            participantCode, System.currentTimeMillis(), System.currentTimeMillis() + (secretExpiryDays * 24 * 60 * 60 * 1000), userName);
                     postgreSQLClient.execute(query);
                     String message = userEmailMessage;
                     message = message.replace("NAME", name).replace("USER_ID", email).replace("PASSWORD", password).replace("PARTICIPANT_CODE", participantCode);

@@ -105,5 +105,5 @@ keycloak:
 endpoint:
   user-invite: ${user_invite_endpoint:/onboarding/user/invite}
 
-secret:
-  expiry-time: ${secret_expiry_time:90}
+api-access-secret:
+  expiry-days: ${secret_expiry_days:90}

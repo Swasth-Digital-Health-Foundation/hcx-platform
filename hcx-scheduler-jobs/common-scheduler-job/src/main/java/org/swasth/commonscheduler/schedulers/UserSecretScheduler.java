@@ -24,7 +24,7 @@ public class UserSecretScheduler extends BaseScheduler {
     @Value("${postgres.table}")
     private String postgresTable;
 
-    @Value("${secret.expiry-days}")
+    @Value("${api-access-secret.expiry-days}")
     private List<Integer> secretExpiryDays;
 
     @Value("${kafka.topic.notification}")
