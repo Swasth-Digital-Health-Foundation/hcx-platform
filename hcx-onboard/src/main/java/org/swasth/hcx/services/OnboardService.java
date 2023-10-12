@@ -294,7 +294,7 @@ public class OnboardService extends BaseController {
         body.put(MOBILE, request.getPrimaryMobile());
         body.put(APPLICANT_NAME, request.getParticipantName());
         body.put(ADDITIONALVERIFICATION, request.getAdditionalVerification());
-        body.put(ROLE, PROVIDER);
+        body.put(ROLE, request.getRoles().get(0));
         return body;
     }
 
@@ -765,8 +765,13 @@ public class OnboardService extends BaseController {
     private void addUser(HttpHeaders headers, String requestBody) throws Exception {
         HttpResponse<String> response = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_USER_ADD, requestBody, getHeadersMap(headers));
         if (response.getStatus() != 200) {
-            Response resp = new Response(JSONUtils.deserialize(response.getBody(), Map.class));
-            throw new ClientException(resp.getError().getCode(), resp.getError().getMessage());
+            Map<String, Object> result = JSONUtils.deserialize(response.getBody(), Map.class);
+            List<Map<String, Object>> errList = JSONUtils.convert(result.get("result"), ArrayList.class);
+            Map<String, Object> errorMap = new HashMap<>();
+            for (Map<String, Object> error : errList) {
+                errorMap = (Map<String, Object>) error.get("error");
+            }
+            throw new ClientException((String) errorMap.get("message"));
         }
     }
 
