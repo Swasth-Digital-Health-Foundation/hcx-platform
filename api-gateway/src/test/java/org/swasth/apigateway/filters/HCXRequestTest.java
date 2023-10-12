@@ -138,6 +138,7 @@ class HCXRequestTest extends BaseSpec {
                 .consumeWith(result -> assertEquals(HttpStatus.ACCEPTED, result.getStatus()));
     }
 
+    // The status is "response.complete," indicating that the cycle should be closed. and below testcase is failing
     @Test
     void check_hcx_request_cycle_closed_for_provider_role() throws Exception {
         server.enqueue(new MockResponse()
