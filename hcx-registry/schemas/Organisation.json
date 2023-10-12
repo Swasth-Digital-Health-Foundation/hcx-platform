@@ -35,7 +35,7 @@
                "type":"array",
                "items":{
                   "type":"string",
-                  "enum" :["provider", "payor", "agency.tpa", "agency.regulator", "research", "member.isnp", "agency.sponsor", "HIE/HIO.HCX"]
+                  "enum" :["provider", "payor", "agency.tpa", "agency.regulator", "research", "member.isnp", "agency.sponsor", "HIE/HIO.HCX", "provider.hospital", "provider.clinic", "provider.practitioner", "provider.diagnostics", "provider.pharmacy"]
                }
             },
             "linked_registry_codes":{
@@ -90,12 +90,10 @@
                ]
             },
             "signing_cert_path":{
-               "type":"string",
-               "format":"uri"
+               "type":"string"
             },
             "encryption_cert":{
-               "type":"string",
-               "format":"uri"
+               "type":"string"
             },
             "endpoint_url":{
                "type":"string",
@@ -168,12 +166,17 @@
          {
             "email": "/primary_email",
             "mobile": "/primary_mobile",
-            "userId": "/primary_email"
+            "userId": "/participant_code"
          }
       ],
       "uniqueIndexFields":[
-         "participant_code",
-         "primary_email"
+         "participant_code"
+      ],
+      "deleteRoles": ["anonymous"],
+      "inviteRoles": ["anonymous"],
+      "systemFields": [
+         "osCreatedAt",
+         "osUpdatedAt"
       ]
    }
 }
