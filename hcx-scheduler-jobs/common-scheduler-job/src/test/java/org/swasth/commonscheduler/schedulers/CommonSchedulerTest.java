@@ -163,7 +163,7 @@ public class CommonSchedulerTest {
     @Test
     void testUserSecretAboutTpExpire() throws Exception {
         postgreSQLClient.execute("CREATE TABLE api_access_secrets_expiry(user_id character varying, participant_code character varying, secret_generation_date bigint, secret_expiry_date bigint, username character varying NOT NULL)");
-        postgreSQLClient.execute("INSERT INTO api_access_secrets_expiry(user_id, participant_code, secret_generation_date, secret_expiry_date, username) VALUES('mock18@gmail.com', 'hcxtest6.yopmail@swasth-hcx', '1696839989628', '1697528269086', 'hcxtest6.yopmail@swasth-hcx:mock18@gmail.com');");
+        postgreSQLClient.execute("INSERT INTO api_access_secrets_expiry(user_id, participant_code, secret_generation_date, secret_expiry_date, username) VALUES('mock18@gmail.com', 'hcxtest6.yopmail@swasth-hcx', '1696839989628', '1698479822560', 'hcxtest6.yopmail@swasth-hcx:mock18@gmail.com');");
         when(eventGenerator.generateMetadataEvent(any())).thenReturn("mockedEvent");
         lenient().doNothing().when(kafkaClient).send(anyString(), anyString(), anyString());
         String[] args = {"UserSecret"};
