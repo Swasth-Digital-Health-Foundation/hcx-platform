@@ -45,6 +45,7 @@ const Html5QrcodePlugin = (props: any) => {
       initializeScanner();
     }
   };
+  
 
   // const stopScanner = () => {
   //   if (html5QrcodeScanner) {
