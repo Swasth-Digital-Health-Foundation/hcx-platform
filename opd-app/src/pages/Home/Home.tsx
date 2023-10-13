@@ -163,7 +163,7 @@ const Home = () => {
     <div>
       <div className="flex justify-between">
         <div className="">
-          <h1 className="text-1xl font-bold text-black dark:text-white">
+          <h1 className="text-1xl mb-3 font-bold text-black dark:text-white">
             {strings.WELCOME_TEXT} {participantInformation[0]?.participant_name}
           </h1>
         </div>

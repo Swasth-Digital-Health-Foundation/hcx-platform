@@ -66,7 +66,7 @@ const ActiveClaimCycleCard = (Props: any) => {
         <div className="flex flex-col p-4">
           {data.map((ele: any, index: any) => {
             return (
-              <div className="flex">
+              <div className="flex items-center">
                 <h2
                   key={index}
                   className="font-small mt-1 block text-left text-black dark:text-white"
@@ -80,15 +80,7 @@ const ActiveClaimCycleCard = (Props: any) => {
           <span
             className="cursor-pointer text-right underline"
             onClick={() =>
-              navigate(
-                // Props.type === 'claim'
-                //   ? '/coverage-eligibility'
-                //   : Props.type === 'coverageeligibility'
-                //   ? '/coverage-eligibility'
-                //   : '/coverage-eligibility',
-                "/coverage-eligibility",
-                { state: information }
-              )
+              navigate("/coverage-eligibility", { state: information })
             }
           >
             View

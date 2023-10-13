@@ -22,37 +22,6 @@ const createConfig = (props: any) => {
   return config;
 };
 
-// const Html5QrcodePlugin = (props: any) => {
-//   useEffect(() => {
-//     // when component mounts
-//     const config = createConfig(props);
-//     const verbose = props.verbose === true;
-//     // Suceess callback is required.
-//     if (!props.qrCodeSuccessCallback) {
-//       throw 'qrCodeSuccessCallback is required callback.';
-//     }
-//     const html5QrcodeScanner = new Html5QrcodeScanner(
-//       qrcodeRegionId,
-//       config,
-//       verbose
-//     );
-//     html5QrcodeScanner.render(
-//       props.qrCodeSuccessCallback,
-//       props.qrCodeErrorCallback
-//     );
-
-//     return () => {
-//       html5QrcodeScanner.clear().catch((error) => {
-//         console.error('Failed to clear html5QrcodeScanner. ', error);
-//       });
-//     };
-//   }, []);
-
-//   return <div id={qrcodeRegionId} />;
-// };
-
-// export default Html5QrcodePlugin;
-
 const Html5QrcodePlugin = (props: any) => {
   const [initialized, setInitialized] = useState(props.setInitialized);
   const [html5QrcodeScanner, setHtml5QrcodeScanner] = useState<any>(null);
@@ -77,22 +46,21 @@ const Html5QrcodePlugin = (props: any) => {
     }
   };
 
-  const stopScanner = () => {
-    if (html5QrcodeScanner) {
-      html5QrcodeScanner.clear().catch((error: any) => {
-        console.error("Failed to clear html5QrcodeScanner. ", error);
-      });
-    }
-  };
+  // const stopScanner = () => {
+  //   if (html5QrcodeScanner) {
+  //     html5QrcodeScanner.clear().catch((error: any) => {
+  //       console.error("Failed to clear html5QrcodeScanner. ", error);
+  //     });
+  //   }
+  // };
 
   return (
-    <div>
+    <>
       <div className="flex justify-center gap-6 text-center">
         <button onClick={startScanner}>Click here to start Scanning</button>
-        {/* <button onClick={stopScanner}>Stop Scanner</button> */}
       </div>
-        <div id={qrcodeRegionId}></div>
-    </div>
+      <div id={qrcodeRegionId} />
+    </>
   );
 };
 

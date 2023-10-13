@@ -86,8 +86,6 @@ const AddPatientAndInitiateCoverageEligibility = () => {
     ],
   };
 
-  console.log(payload?.medical_history)
-
   const patientDetails = [
     {
       key: "Name :",
