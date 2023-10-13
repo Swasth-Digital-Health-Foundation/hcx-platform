@@ -6,9 +6,10 @@ import strings from "../../utils/strings";
 import { generateOutgoingRequest } from "../../services/hcxMockService";
 import * as _ from "lodash";
 import TransparentLoader from "../../components/TransparentLoader";
-import { searchParticipant } from "../../services/hcxService";
+import { generateToken, searchParticipant } from "../../services/hcxService";
 import CustomButton from "../../components/CustomButton";
 import LoadingButton from "../../components/LoadingButton";
+import { toast } from "react-toastify";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -19,14 +20,17 @@ const Home = () => {
   const [participantInformation, setParticipantInformation] = useState<any>([]);
   const [loading, setLoading] = useState(false);
   const [mobileNumber, setMobileNumber] = useState<string>("");
+  const [initialized, setInitialized] = useState(true);
+  const [isValid, setIsValid] = useState(true);
+  const [finalData, setFinalData] = useState<any>([]);
 
   const getEmailFromLocalStorage = localStorage.getItem("email");
 
   const onNewScanResult = (decodedText: any, decodedResult: any) => {
     setQrCodeData(decodedText);
+    setInitialized(false);
   };
 
-  const [finalData, setFinalData] = useState<any>([]);
   const [displayedData, setDisplayedData] = useState<any>(
     finalData.slice(0, 5)
   );
@@ -45,17 +49,15 @@ const Home = () => {
     },
   };
 
-  const token = localStorage.getItem("token");
-
-  const config = {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  };
-
   const search = async () => {
     try {
-      const response = await searchParticipant(userSearchPayload, config);
+      const tokenResponse = await generateToken();
+      let token = tokenResponse.data?.access_token;
+      const response = await searchParticipant(userSearchPayload, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       let userRes = response.data.participants;
       setParticipantInformation(userRes);
     } catch (error) {
@@ -63,10 +65,11 @@ const Home = () => {
     }
   };
 
-  const requestPayload =
-    mobileNumber === ""
-      ? { sender_code: participantInformation[0]?.participant_code }
-      : { mobile: mobileNumber };
+  const requestPayload = {
+    sender_code: participantInformation[0]?.participant_code,
+  };
+
+  const getListUsingMobile = { mobile: mobileNumber };
 
   localStorage.setItem(
     "senderCode",
@@ -77,13 +80,10 @@ const Home = () => {
     participantInformation[0]?.participant_name
   );
 
-  const getCoverageEligibilityRequestList = async () => {
+  const getCoverageEligibilityRequestList = async (payload: any) => {
     try {
       setLoading(true);
-      let response = await generateOutgoingRequest(
-        "bsp/request/list",
-        requestPayload
-      );
+      let response = await generateOutgoingRequest("bsp/request/list", payload);
       const data = response.data.entries;
       setActiveRequests(data);
 
@@ -119,11 +119,6 @@ const Home = () => {
     }
   };
 
-  useEffect(() => {
-    search();
-    getCoverageEligibilityRequestList();
-  }, [requestPayload.sender_code]);
-
   const loadMoreData = () => {
     const nextData = finalData.slice(currentIndex, currentIndex + 5);
     setDisplayedData([...displayedData, ...nextData]);
@@ -132,7 +127,7 @@ const Home = () => {
 
   const latestStatusByEntry: Record<string, string | undefined> = {};
 
-  activeRequests.forEach((entry: any) => {
+  activeRequests.forEach((entry: Record<string, any>) => {
     for (const [key, items] of Object.entries(entry)) {
       // Find the item with the latest date
       const latestItem = items.reduce((latest: any, item: any) => {
@@ -149,6 +144,21 @@ const Home = () => {
       }
     }
   });
+
+  const handleMobileNumberChange = (e: any) => {
+    const inputValue = e.target.value;
+    // Check if the input contains exactly 10 numeric characters
+    const isValidInput = /^\d{10}$/.test(inputValue);
+    setIsValid(isValidInput);
+    setMobileNumber(inputValue);
+  };
+
+  const sender_code = localStorage.getItem("senderCode");
+  useEffect(() => {
+    search();
+    getCoverageEligibilityRequestList(requestPayload);
+  }, [sender_code]);
+
   return (
     <div>
       <div className="flex justify-between">
@@ -167,6 +177,7 @@ const Home = () => {
                 qrbox={250}
                 disableFlip={false}
                 qrCodeSuccessCallback={onNewScanResult}
+                setInitialized={initialized}
               />
             </div>
           </div>
@@ -187,22 +198,30 @@ const Home = () => {
         </div>
       </div>
       <div>
-        <label className="mb-2.5 mt-2 block text-left text-2xl font-bold text-black dark:text-white">
-          Search patient :
-        </label>
+        <div className="flex items-center justify-between">
+          <label className="mb-2.5 mt-2 block text-left text-2xl font-bold text-black dark:text-white">
+            Search patient :
+          </label>
+          <span
+            className="underline"
+            onClick={() => {
+              getCoverageEligibilityRequestList(requestPayload);
+            }}
+          >
+            View all
+          </span>
+        </div>
         <label className="mb-2.5 mt-2 block text-left font-medium text-black dark:text-white">
           Patient mobile no. :
         </label>
         <div className="relative">
           <input
-            onChange={(e: any) => {
-              setMobileNumber(e.target.value);
-            }}
+            onChange={handleMobileNumberChange}
             type="text"
             placeholder="Enter mobile no."
             className={`border ${
-              true ? "border-stroke" : "border-red"
-            } bg w-full rounded-lg py-4 pl-6 pr-10 outline-none focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary`}
+              isValid ? "border-stroke" : "border-red"
+            } w-full rounded-lg py-4 pl-6 pr-10 outline-none focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary`}
           />
         </div>
         <div>
@@ -211,8 +230,14 @@ const Home = () => {
           ) : (
             <CustomButton
               text="Search"
-              onClick={() => getCoverageEligibilityRequestList()}
-              disabled={false}
+              onClick={() => {
+                if (mobileNumber === "") {
+                  toast.info("please enter mobile number");
+                } else {
+                  getCoverageEligibilityRequestList(getListUsingMobile);
+                }
+              }}
+              disabled={!isValid}
             />
           )}
         </div>
@@ -234,7 +259,7 @@ const Home = () => {
               disabled={loading}
               onClick={(event: any) => {
                 event.preventDefault();
-                getCoverageEligibilityRequestList();
+                getCoverageEligibilityRequestList(requestPayload);
               }}
               className="align-center flex w-20 justify-center rounded py-1 font-medium text-black underline disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
             >
@@ -264,8 +289,8 @@ const Home = () => {
                     mobile={location.state}
                     billAmount={ele.billAmount}
                     workflowId={ele.workflow_id}
-                    // mobile={ele.mobile}
                     patientMobileNumber={ele.mobile || mobileNumber}
+                    patientName={ele.patientName}
                   />
                 </div>
               );

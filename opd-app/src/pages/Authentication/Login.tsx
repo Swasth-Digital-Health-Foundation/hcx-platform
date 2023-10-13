@@ -12,18 +12,13 @@ const Login = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [loading, setLoading] = useState(false);
-  let payload = {
-    username: email,
-    password: password,
-  };
+
   localStorage.setItem("email", email);
 
   const userLogin = async () => {
     try {
       setLoading(true);
-      const loginResponse = await generateToken(payload);
-      let token = loginResponse.data?.access_token;
-      localStorage.setItem("token", token);
+      const loginResponse = await generateToken();
       if (loginResponse.status === 200) {
         toast.success("Logged in successfully!");
         navigate("/home");

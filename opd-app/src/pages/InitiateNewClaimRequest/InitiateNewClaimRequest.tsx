@@ -27,10 +27,6 @@ const InitiateNewClaimRequest = () => {
   const [documentType, setDocumentType] = useState<string>("prescription");
 
   const [loading, setLoading] = useState(false);
-
-  const [token, setToken] = useState<string>("");
-
-  const [providerName, setProviderName] = useState<string>("");
   const [payorName, setPayorName] = useState<string>("");
 
   const [fileUrlList, setUrlList] = useState<any>([]);
@@ -102,10 +98,7 @@ const InitiateNewClaimRequest = () => {
     participantCode:
       data?.participantCode || localStorage.getItem("senderCode"),
     payor: data?.payor || payorName,
-    providerName:
-      data?.providerName ||
-      providerName ||
-      localStorage.getItem("providerName"),
+    providerName: data?.providerName || localStorage.getItem("providerName"),
     serviceType: data?.serviceType || displayedData[0]?.claimType,
     billAmount: amount,
     workflowId: data?.workflowId,
@@ -117,7 +110,10 @@ const InitiateNewClaimRequest = () => {
         }),
       },
     ],
+    type: "provider_app",
   };
+
+  console.log(initiateClaimRequestBody);
 
   const filter = {
     entityType: ["Beneficiary"],
@@ -138,30 +134,11 @@ const InitiateNewClaimRequest = () => {
     search();
   }, []);
 
-  const participantCodePayload = {
-    filters: {
-      participant_code: {
-        eq: location.state?.participantCode || displayedData[0]?.sender_code,
-      },
-    },
-  };
-
   const payorCodePayload = {
     filters: {
       participant_code: {
         eq: displayedData[0]?.recipient_code || location.state?.payorCode,
       },
-    },
-  };
-
-  const tokenRequestBody = {
-    username: process.env.SEARCH_PARTICIPANT_USERNAME,
-    password: process.env.SEARCH_PARTICIPANT_PASSWORD,
-  };
-
-  const config = {
-    headers: {
-      Authorization: `Bearer ${token}`,
     },
   };
 
@@ -172,10 +149,13 @@ const InitiateNewClaimRequest = () => {
   useEffect(() => {
     const search = async () => {
       try {
-        const tokenResponse = await generateToken(tokenRequestBody);
+        const tokenResponse = await generateToken();
         let token = tokenResponse.data?.access_token;
-        setToken(token);
-        const payorResponse = await searchParticipant(payorCodePayload, config);
+        const payorResponse = await searchParticipant(payorCodePayload, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         let payorname = payorResponse.data?.participants[0]?.participant_name;
         setPayorName(payorname);
       } catch (err) {
@@ -211,7 +191,7 @@ const InitiateNewClaimRequest = () => {
       toast.info("Documents uploaded successfully!");
     } catch (error) {
       setSubmitLoading(false);
-      console.error("Error uploading file", error);
+      console.error("Error in uploading file", error);
     }
   };
 

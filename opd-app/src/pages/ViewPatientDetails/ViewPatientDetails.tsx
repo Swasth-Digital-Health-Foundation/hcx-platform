@@ -69,30 +69,30 @@ const ViewPatientDetails = () => {
 
   const personalDeatails = [
     {
-      key: "Patient name :",
+      key: "Patient name",
       value: patientDetails[0]?.name,
     },
     {
-      key: "Mobile no :",
+      key: "Mobile no",
       value: patientDetails[0]?.mobile,
     },
     {
-      key: "Address :",
+      key: "Address",
       value: patientDetails[0]?.address,
     },
   ];
 
-  const consultationDetails = [
+  const consultationDetailsData = [
     {
-      key: "Treatment type :",
+      key: "Treatment type",
       value: consultationDetail?.service_type,
     },
     {
-      key: "Service type :",
+      key: "Service type",
       value: consultationDetail?.treatment_type,
     },
     {
-      key: "Symptom :",
+      key: "Symptom",
       value: consultationDetail?.symptoms,
     },
   ];
@@ -113,11 +113,6 @@ const ViewPatientDetails = () => {
     },
   };
 
-  const tokenRequestBody = {
-    username: process.env.SEARCH_PARTICIPANT_USERNAME,
-    password: process.env.SEARCH_PARTICIPANT_PASSWORD,
-  };
-
   const config = {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -126,7 +121,7 @@ const ViewPatientDetails = () => {
 
   const tokenGeneration = async () => {
     try {
-      const tokenResponse = await generateToken(tokenRequestBody);
+      const tokenResponse = await generateToken();
       if (tokenResponse.statusText === "OK") {
         setToken(tokenResponse.data.access_token);
       }
@@ -277,7 +272,7 @@ const ViewPatientDetails = () => {
                 event.preventDefault();
                 getActivePlans();
               }}
-              className="align-center absolute right-0 flex w-20 justify-center rounded bg-primary py-1 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
+              className="align-center absolute right-0 flex w-30 justify-center rounded bg-primary py-1 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
             >
               Refresh
             </button>
@@ -304,9 +299,10 @@ const ViewPatientDetails = () => {
               {personalDeatails.map((ele: any, index: any) => {
                 return (
                   <div key={index} className="mb-2 flex gap-2">
-                    <h2 className="text-bold text-base font-medium text-black dark:text-white">
+                    <h2 className="text-bold inline-block w-30 text-base font-medium text-black dark:text-white">
                       {ele.key}
                     </h2>
+                    <div className="mr-6">:</div>
                     <span className="text-base font-medium">{ele.value}</span>
                   </div>
                 );
@@ -325,17 +321,19 @@ const ViewPatientDetails = () => {
                       return (
                         <div key={index} className="mb-2">
                           <div className="mb-2 flex gap-2">
-                            <h2 className="text-bold text-base font-medium text-black dark:text-white">
-                              Allergies :
+                            <h2 className="text-bold inline-block w-30 text-base font-medium text-black dark:text-white">
+                              Allergies
                             </h2>
+                            <div className="mr-6">:</div>
                             <span className="text-base font-medium">
                               {ele?.allergies}
                             </span>
                           </div>
                           <div className="flex gap-2">
-                            <h2 className="text-bold text-base font-medium text-black dark:text-white">
-                              Blood group :
+                            <h2 className=" text-bold inline-block w-30 text-base font-medium text-black dark:text-white">
+                              Blood group
                             </h2>
+                            <div className="mr-6">:</div>
                             <span className="text-base font-medium">
                               {ele?.bloodGroup}
                             </span>
@@ -359,17 +357,19 @@ const ViewPatientDetails = () => {
                     className="mb-2 mt-4 rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark"
                   >
                     <div className="mb-2 flex gap-2">
-                      <h2 className="text-bold text-base font-medium text-black dark:text-white">
-                        Insurance ID :
+                      <h2 className="text-bold inline-block w-30 text-base font-medium text-black dark:text-white">
+                        Insurance ID
                       </h2>
+                      <div className="mr-6">:</div>
                       <span className="text-base font-medium">
                         {ele?.insurance_id}
                       </span>
                     </div>
                     <div className="flex gap-2">
-                      <h2 className="text-bold text-base font-medium text-black dark:text-white">
-                        Payor name :
+                      <h2 className="text-bold inline-block w-30 text-base font-medium text-black dark:text-white">
+                        Payor name
                       </h2>
+                      <div className="mr-6">:</div>
                       <span className="text-base font-medium">
                         {ele?.payor}
                       </span>
@@ -379,46 +379,49 @@ const ViewPatientDetails = () => {
               })}
             </div>
           </div>
-          <div className="mt-4 rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
-            <label className="text-1xl mb-2.5 block text-left font-bold text-black dark:text-white">
-              Consultation details
-            </label>
-            <div className="items-center justify-between"></div>
-            <div>
-              {consultationDetails.map((ele: any, index: any) => {
-                return (
-                  <div key={index} className="mb-2 flex gap-2">
-                    <h2 className="text-bold text-base font-medium text-black dark:text-white">
-                      {ele.key}
-                    </h2>
-                    <span className="text-base font-medium">{ele.value}</span>
-                  </div>
-                );
-              })}
-            </div>
-            <h2 className="text-bold text-base font-medium text-black dark:text-white">
-              Supporting documents :
-            </h2>
-            <div>
-              {urlArray?.map((ele: any, index: any) => {
-                const parts = ele.split("/");
-                const fileName = parts[parts.length - 1];
+          {consultationDetail && (
+            <div className="mt-4 rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
+              <label className="text-1xl mb-2.5 block text-left font-bold text-black dark:text-white">
+                Consultation details
+              </label>
+              <div className="items-center justify-between"></div>
+              <div>
+                {consultationDetailsData.map((ele: any, index: any) => {
+                  return (
+                    <div key={index} className="mb-2 flex gap-2">
+                      <h2 className="text-bold inline-block w-30 text-base font-medium text-black dark:text-white">
+                        {ele.key}
+                      </h2>
+                      <div className="mr-6">:</div>
+                      <span className="text-base font-medium">{ele.value}</span>
+                    </div>
+                  );
+                })}
+              </div>
+              <h2 className="text-bold text-base font-medium text-black dark:text-white">
+                Supporting documents :
+              </h2>
+              <div>
+                {urlArray?.map((ele: any, index: any) => {
+                  const parts = ele.split("/");
+                  const fileName = parts[parts.length - 1];
 
-                // Split the file name by dot to extract the file extension
-                const fileExtension = fileName.split(".").pop();
-                return (
-                  <>
-                    <a
-                      href={ele}
-                      className="flex text-base font-medium underline"
-                    >
-                      document {index + 1}.{fileExtension}
-                    </a>
-                  </>
-                );
-              })}
+                  // Split the file name by dot to extract the file extension
+                  const fileExtension = fileName.split(".").pop();
+                  return (
+                    <>
+                      <a
+                        href={ele}
+                        className="flex text-base font-medium underline"
+                      >
+                        document {index + 1}.{fileExtension}
+                      </a>
+                    </>
+                  );
+                })}
+              </div>
             </div>
-          </div>
+          )}
           {preauthOrClaimList.map((ele: any, index: any) => {
             console.log(ele);
             return (
@@ -447,19 +450,21 @@ const ViewPatientDetails = () => {
                   <div>
                     <div className="mb-2 ">
                       <div className="flex gap-2">
-                        <h2 className="text-bold text-base font-bold text-black dark:text-white">
-                          Service type :
+                        <h2 className="text-bold inline-block w-30 text-base font-bold text-black dark:text-white">
+                          Service type
                         </h2>
+                        <div className="mr-6">:</div>
                         <span className="text-base font-medium">
                           {ele.claimType}
                         </span>
                       </div>
                       <div className="flex gap-2">
-                        <h2 className="text-bold text-base font-bold text-black dark:text-white">
-                          Bill amount :
+                        <h2 className=" text-bold inline-block w-30 text-base font-bold text-black dark:text-white">
+                          Bill amount
                         </h2>
+                        <div className="mr-6">:</div>
                         <span className="text-base font-medium">
-                          {ele.billAmount}
+                          INR {ele.billAmount}
                         </span>
                       </div>
                     </div>

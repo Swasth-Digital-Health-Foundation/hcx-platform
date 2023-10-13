@@ -5,7 +5,6 @@ import { handleFileChange } from "../../utils/attachmentSizeValidation";
 import axios from "axios";
 import { toast } from "react-toastify";
 import CustomButton from "../../components/CustomButton";
-import { generateToken } from "../../services/hcxService";
 import { generateOutgoingRequest } from "../../services/hcxMockService";
 import LoadingButton from "../../components/LoadingButton";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -24,13 +23,7 @@ const AddConsultation = () => {
   const [isSuccess, setIsSuccess]: any = useState(false);
   const [loading, setLoading] = useState(false);
   const [fileUrlList, setUrlList] = useState<any>([]);
-  const [token, setToken] = useState<string>("");
   const [loaderSubmit, setLoaderSubmit] = useState(false);
-  const [activeRequests, setActiveRequests] = useState<any>([]);
-  const [finalData, setFinalData] = useState<any>([]);
-  const [displayedData, setDisplayedData] = useState<any>(
-    finalData.slice(0, 5)
-  );
 
   let FileLists: any;
   if (selectedFile !== undefined) {
@@ -43,11 +36,11 @@ const AddConsultation = () => {
   ];
   const serviceTypeOptions = [
     { label: "Select", value: "" },
-    { label: "Consultation", value: "consultation" },
+    { label: "Consultation", value: "Consultation" },
   ];
   const symptomsOptions = [
     { label: "Select", value: "" },
-    { label: "Fever", value: "fever" },
+    { label: "Fever", value: "Fever" },
   ];
 
   const handleDelete = (name: any) => {
@@ -58,31 +51,6 @@ const AddConsultation = () => {
       setSelectedFile(updatedFilesList);
     }
   };
-
-  const tokenRequestBody = {
-    username: process.env.SEARCH_PARTICIPANT_USERNAME,
-    password: process.env.SEARCH_PARTICIPANT_PASSWORD,
-  };
-
-  const tokenGeneration = async () => {
-    try {
-      const tokenResponse = await generateToken(tokenRequestBody);
-      if (tokenResponse.statusText === "OK") {
-        let token = tokenResponse.data?.access_token;
-        setToken(token);
-      }
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  useEffect(() => {
-    tokenGeneration();
-  }, []);
-
-  useEffect(() => {
-    getCoverageEligibilityRequestList();
-  }, [token]);
 
   const consultationPayload = {
     workflow_id: location.state?.workflowId || "",
@@ -128,52 +96,6 @@ const AddConsultation = () => {
       setLoading(false);
       toast.error("Faild to upload documents, please try again!");
       console.error("Error uploading file", error);
-    }
-  };
-
-  const requestPayload = {
-    sender_code: localStorage.getItem("senderCode"),
-  };
-
-  const getCoverageEligibilityRequestList = async () => {
-    try {
-      setLoading(true);
-      let response = await generateOutgoingRequest(
-        "bsp/request/list",
-        requestPayload
-      );
-      const data = response.data.entries;
-      setActiveRequests(data);
-
-      const coverageArray = [];
-      const claimArray = [];
-
-      for (const entry of data) {
-        // Iterate through each entry in the input data.
-        const key = Object.keys(entry)[0];
-        const objects = entry[key];
-
-        if (objects.length === 1 && objects[0].type === "claim") {
-          // If there's only one object and its type is "claim," add it to claimArray.
-          claimArray.push(objects[0]);
-        } else {
-          // If there's more than one object or any object with type "coverageeligibility," add them to coverageArray.
-          coverageArray.push(
-            ...objects.filter((obj: any) => obj.type === "coverageeligibility")
-          );
-        }
-      }
-      // Create a new array containing both claimArray and coverageArray.
-      const newArray = [...claimArray, ...coverageArray];
-      const sortedData = newArray.slice().sort((a: any, b: any) => {
-        return b.date - a.date;
-      });
-
-      setFinalData(sortedData);
-      setDisplayedData(sortedData.slice(0, 5));
-      setLoading(false);
-    } catch (err) {
-      setLoading(false);
     }
   };
 

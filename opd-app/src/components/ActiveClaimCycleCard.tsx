@@ -1,10 +1,10 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 
 const ActiveClaimCycleCard = (Props: any) => {
   const navigate = useNavigate();
   const date = new Date(parseInt(Props.date));
-  const day = date.getDate().toString().padStart(2, '0');
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day = date.getDate().toString().padStart(2, "0");
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
   const year = date.getFullYear();
 
   const formattedDate = `${day}-${month}-${year}`;
@@ -16,37 +16,42 @@ const ActiveClaimCycleCard = (Props: any) => {
     apiCallId: Props.apiCallId,
     participantCode: Props.participantCode,
     payorCode: Props.payorCode,
-    mobile: localStorage.getItem('mobile'),
+    mobile: localStorage.getItem("mobile"),
     billAmount: Props.billAmount,
     workflowId: Props.workflowId,
     patientMobile: Props.patientMobileNumber,
+    patientName: Props.patientName,
   };
-  
+
   const data: any = [
     {
-      key: 'Date :',
+      key: "PatientName",
+      value: Props.patientName,
+    },
+    {
+      key: "Date",
       value: formattedDate,
     },
     {
-      key: 'Insurance ID :',
-      value: `${Props.insurance_id || 'null'}`,
+      key: "Insurance ID",
+      value: `${Props.insurance_id || "null"}`,
     },
     {
-      key: 'Treatment/ServiceType :',
+      key: "ServiceType",
       value: `${Props.claimType}`,
     },
     {
-      key: 'API call ID :',
+      key: "API call ID",
       value: `${Props.apiCallId}`,
     },
     {
-      key: 'Status :',
+      key: "Status",
       value: (
         <span
           className={`${
-            Props.status === 'Pending'
-              ? 'mr-2 rounded bg-warning px-2.5 py-0.5 text-xs font-medium text-gray dark:bg-warning dark:text-gray'
-              : 'dark:text-green border-green mr-2 rounded bg-success px-2.5 py-0.5 text-xs font-medium text-gray'
+            Props.status === "Pending"
+              ? "mr-2 rounded bg-warning px-2.5 py-0.5 text-xs font-medium text-gray dark:bg-warning dark:text-gray"
+              : "dark:text-green border-green mr-2 rounded bg-success px-2.5 py-0.5 text-xs font-medium text-gray"
           }`}
         >
           {Props.status}
@@ -61,12 +66,15 @@ const ActiveClaimCycleCard = (Props: any) => {
         <div className="flex flex-col p-4">
           {data.map((ele: any, index: any) => {
             return (
-              <h2
-                key={index}
-                className="font-small mt-1 block text-left text-black dark:text-white"
-              >
-                <b>{ele.key}</b> <span>{ele.value}</span>
-              </h2>
+              <div className="flex">
+                <h2
+                  key={index}
+                  className="font-small mt-1 block text-left text-black dark:text-white"
+                >
+                  <b className="inline-block w-30">{ele.key}</b>{" "}
+                </h2>
+                <span>: {ele.value}</span>
+              </div>
             );
           })}
           <span
@@ -78,7 +86,7 @@ const ActiveClaimCycleCard = (Props: any) => {
                 //   : Props.type === 'coverageeligibility'
                 //   ? '/coverage-eligibility'
                 //   : '/coverage-eligibility',
-                '/coverage-eligibility',
+                "/coverage-eligibility",
                 { state: information }
               )
             }

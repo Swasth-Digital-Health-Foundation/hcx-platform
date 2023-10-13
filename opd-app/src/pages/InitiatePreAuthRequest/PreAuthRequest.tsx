@@ -131,27 +131,12 @@ const PreAuthRequest = () => {
     searchUser();
   }, []);
 
-  // const senderCode = displayedData[0]?.sender_code;
-
-  // const participantCodePayload = {
-  //   filters: {
-  //     participant_code: {
-  //       eq: location.state?.participantCode || senderCode,
-  //     },
-  //   },
-  // };
-
   const payorCodePayload = {
     filters: {
       participant_code: {
         eq: displayedData[0]?.recipient_code || location.state?.payorCode,
       },
     },
-  };
-
-  const tokenRequestBody = {
-    username: process.env.SEARCH_PARTICIPANT_USERNAME,
-    password: process.env.SEARCH_PARTICIPANT_PASSWORD,
   };
 
   const config = {
@@ -163,7 +148,7 @@ const PreAuthRequest = () => {
   useEffect(() => {
     const search = async () => {
       try {
-        const tokenResponse = await generateToken(tokenRequestBody);
+        const tokenResponse = await generateToken();
         let token = tokenResponse.data?.access_token;
         setToken(token);
         const payorResponse = await searchParticipant(payorCodePayload, config);
@@ -179,11 +164,13 @@ const PreAuthRequest = () => {
     getCoverageEligibilityRequestList();
   }, []);
 
+  console.log(location.state?.patientMobile);
+
   const handleUpload = async () => {
     try {
       setSubmitLoading(true);
       const formData = new FormData();
-      formData.append("mobile", location.state?.mobile?.filters?.mobile?.eq);
+      formData.append("mobile", location.state?.patientMobile);
 
       FileLists.forEach((file: any) => {
         formData.append(`file`, file);
@@ -207,7 +194,7 @@ const PreAuthRequest = () => {
       toast.info("Documents uploaded successfully!");
     } catch (error) {
       setSubmitLoading(false);
-      console.error("Error uploading file", error);
+      console.error("Error in uploading file", error);
     }
   };
 
@@ -316,7 +303,7 @@ const PreAuthRequest = () => {
               options={treatmentOptions}
             />
             <TextInputWithLabel
-              label="Bill amount :"
+              label="Estimated bill amount :"
               value={amount}
               onChange={(e: any) => setAmount(e.target.value)}
               placeholder="Enter amount"

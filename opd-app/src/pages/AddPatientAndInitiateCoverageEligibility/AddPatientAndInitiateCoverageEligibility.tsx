@@ -6,7 +6,7 @@ import { postRequest, updateRequest } from "../../services/registryService";
 import { toast } from "react-toastify";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { generateOutgoingRequest } from "../../services/hcxMockService";
-import { searchParticipant } from "../../services/hcxService";
+import { generateToken, searchParticipant } from "../../services/hcxService";
 import * as _ from "lodash";
 import LoadingButton from "../../components/LoadingButton";
 
@@ -25,22 +25,31 @@ const AddPatientAndInitiateCoverageEligibility = () => {
   const [participantInfo, setParticipantInformation] = useState<any>([]);
   const [patientInfo, seetPatientInfo] = useState<any>([]);
   const [isEditable, setIsEditable] = useState<any>(false);
+  const [isPatientExists, setIsPatientExists] = useState(false);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [isValid, setIsValid] = useState(true);
 
   const bloodGroupOptions = [
     {
       label: "Select",
       value: "",
     },
-    { label: "O positive", value: "O positive" },
-    { label: "O negative", value: "O negative" },
+    { label: "O+", value: "O+" },
+    { label: "O-", value: "O-" },
+    { label: "A-", value: "A-" },
+    { label: "A+", value: "A+" },
+    { label: "B-", value: "B-" },
+    { label: "B+", value: "B+" },
+    { label: "AB+", value: "AB+" },
+    { label: "AB-", value: "AB-" },
   ];
   const allergiesOptions = [
     {
       label: "Select",
       value: "",
     },
-    { label: "cold", value: "cold" },
-    { label: "caugh", value: "caugh" },
+    { label: "Cold", value: "Cold" },
+    { label: "Cough", value: "Cough" },
   ];
   const payorOptions = [
     {
@@ -77,6 +86,8 @@ const AddPatientAndInitiateCoverageEligibility = () => {
     ],
   };
 
+  console.log(payload?.medical_history)
+
   const patientDetails = [
     {
       key: "Name :",
@@ -109,17 +120,15 @@ const AddPatientAndInitiateCoverageEligibility = () => {
     },
   };
 
-  const token = localStorage.getItem("token");
-
-  const config = {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  };
-
   const search = async () => {
     try {
-      const response = await searchParticipant(userSearchPayload, config);
+      const loginResponse = await generateToken();
+      const token = loginResponse.data?.access_token;
+      const response = await searchParticipant(userSearchPayload, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       let userRes = response.data.participants;
       setParticipantInformation(userRes);
     } catch (error) {
@@ -129,13 +138,7 @@ const AddPatientAndInitiateCoverageEligibility = () => {
 
   useEffect(() => {
     search();
-    // patientSearch();
   }, []);
-
-  // useEffect(() => {
-  //   patientSearch();
-  // }, [mobile]);
-  // console.log(participantInfo);
 
   const patientSearchPayload = {
     entityType: ["Beneficiary"],
@@ -180,7 +183,7 @@ const AddPatientAndInitiateCoverageEligibility = () => {
 
   const patientSearch = async () => {
     try {
-      setLoading(true);
+      setSearchLoading(true);
       let registerResponse: any = await postRequest(
         "search",
         patientSearchPayload
@@ -188,16 +191,17 @@ const AddPatientAndInitiateCoverageEligibility = () => {
       setIsEditable(true);
       const responseData = registerResponse.data;
       seetPatientInfo(responseData);
-      setLoading(false);
+      setSearchLoading(false);
       if (responseData.length === 0) {
         toast.error("Patient not found!");
         setIsEditable(false);
       } else {
         toast.success("Patient already exists!");
+        setIsPatientExists(true);
       }
     } catch (error: any) {
       setIsEditable(false);
-      setLoading(false);
+      setSearchLoading(false);
       toast.error("patient not found!", {
         position: toast.POSITION.TOP_CENTER,
       });
@@ -217,11 +221,15 @@ const AddPatientAndInitiateCoverageEligibility = () => {
       patientDataFromState?.payorName ||
       patientInfo[0]?.payor_details[0]?.payor,
     providerName: localStorage.getItem("providerName"),
-    participantCode: participantInfo[0]?.participant_code,
+    participantCode:
+      participantInfo[0]?.participant_code ||
+      localStorage.getItem("senderCode"),
     serviceType: "OPD",
     patientName:
       name || patientDataFromState?.patientName || patientInfo[0]?.name,
   };
+
+  console.log(coverageeligibilityPayload);
 
   const sendCoverageEligibilityRequest = async () => {
     try {
@@ -246,7 +254,14 @@ const AddPatientAndInitiateCoverageEligibility = () => {
     }
   };
 
-  // console.log(patientInfo[0].medical_history);
+  const handleMobileNumberChange = (e: any) => {
+    const inputValue = e.target.value;
+    // Check if the input contains exactly 10 numeric characters
+    const isValidInput = /^\d{10}$/.test(inputValue);
+    setIsValid(isValidInput);
+    setMobile(inputValue);
+  };
+
   return (
     <div>
       <label className="mb-2.5 block text-left text-2xl font-bold text-black dark:text-white">
@@ -274,7 +289,7 @@ const AddPatientAndInitiateCoverageEligibility = () => {
             <TextInputWithLabel
               label="Mobile no. :"
               value={mobile}
-              onChange={(e: any) => setMobile(e.target.value)}
+              onChange={handleMobileNumberChange}
               placeholder="Enter mobile number"
               disabled={false}
               type="number"
@@ -282,11 +297,12 @@ const AddPatientAndInitiateCoverageEligibility = () => {
             <div className="absolute right-4 -mt-10">
               <a
                 onClick={() => {
-                  patientSearch();
+                  if (isValid && mobile !== "`") patientSearch();
+                  else toast.info("Enter 10 digit mobile number!");
                 }}
                 className="w-20 cursor-pointer py-2 font-medium text-black underline"
               >
-                Search
+                {!searchLoading ? "Search" : "searching..."}
               </a>
             </div>
           </div>
@@ -364,7 +380,9 @@ const AddPatientAndInitiateCoverageEligibility = () => {
           <CustomButton
             text="Add patient & Initiate consultation"
             onClick={() => {
-              registerUser();
+              if (isPatientExists === false) {
+                registerUser();
+              }
               updateMedicalHistory();
               sendCoverageEligibilityRequest();
             }}
