@@ -19,9 +19,14 @@ const ActiveClaimCycleCard = (Props: any) => {
     mobile: localStorage.getItem('mobile'),
     billAmount: Props.billAmount,
     workflowId: Props.workflowId,
+    patientName: Props.patientName,
   };
 
   const data: any = [
+    {
+      key: 'Patient name :',
+      value: `${Props.patientName}`,
+    },
     {
       key: 'Date :',
       value: formattedDate,

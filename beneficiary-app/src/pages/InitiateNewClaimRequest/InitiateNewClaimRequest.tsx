@@ -12,25 +12,20 @@ import { postRequest } from '../../services/registryService';
 const InitiateNewClaimRequest = () => {
   const navigate = useNavigate();
   const location = useLocation();
+
   const [selectedFile, setSelectedFile]: any = useState<FileList | undefined>(
     undefined
   );
   const [fileErrorMessage, setFileErrorMessage]: any = useState();
   const [isSuccess, setIsSuccess]: any = useState(false);
-
   const [amount, setAmount] = useState<string>('');
   const [serviceType, setServiceType] = useState<string>('Consultation');
   const [documentType, setDocumentType] = useState<string>('Bill/invoice');
-
   const [loading, setLoading] = useState(false);
-
   const [token, setToken] = useState<string>('');
-
   const [providerName, setProviderName] = useState<string>('');
   const [payorName, setPayorName] = useState<string>('');
-
   const [fileUrlList, setUrlList] = useState<any>([]);
-
   const [userInfo, setUserInformation] = useState<any>([]);
 
   let FileLists: any;
@@ -68,9 +63,10 @@ const InitiateNewClaimRequest = () => {
         }),
       },
     ],
+    type: 'OPD',
   };
 
-  // console.log(initiateClaimRequestBody);
+  console.log(initiateClaimRequestBody);
   // console.log(selectedFile)
 
   const filter = {

@@ -6,6 +6,7 @@ import { toast } from 'react-toastify';
 import * as _ from 'lodash';
 import strings from '../../utils/strings';
 import { postRequest } from '../../services/registryService';
+import useDebounce from '../../hooks/useDebounce';
 
 const NewClaim = () => {
   const navigate = useNavigate();
@@ -39,7 +40,7 @@ const NewClaim = () => {
 
   const config = {
     headers: {
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI4NTI3ODUzYy1iNDQyLTQ0ZGItYWVkYS1kYmJkY2Y0NzJkOWIiLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsImlzcyI6Imh0dHA6XC9cL2tleWNsb2FrLmtleWNsb2FrLnN2Yy5jbHVzdGVyLmxvY2FsOjgwODBcL2F1dGhcL3JlYWxtc1wvc3dhc3RoLWhjeC1wYXJ0aWNpcGFudHMiLCJ0eXAiOiJCZWFyZXIiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJ0ZXN0cHJvdmlkZXIxQGFwb2xsby5jb20iLCJhdWQiOiJhY2NvdW50IiwiYWNyIjoiMSIsInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJwcm92aWRlciIsImRlZmF1bHQtcm9sZXMtbmRlYXIiXX0sImF6cCI6InJlZ2lzdHJ5LWZyb250ZW5kIiwicGFydGljaXBhbnRfY29kZSI6InRlc3Rwcm92aWRlcjEuYXBvbGxvQHN3YXN0aC1oY3gtZGV2Iiwic2NvcGUiOiJwcm9maWxlIGVtYWlsIiwiZXhwIjoxNjk4NTc5NDcxLCJzZXNzaW9uX3N0YXRlIjoiYzQyYWU0ZmQtNGNmYy00NmY1LWE5MzItMTdkNTIxMWQxMTk5IiwiaWF0IjoxNjk2ODUxNDcxLCJqdGkiOiJiY2M2NmJmZS00NzNhLTRjMzItYjdjOC01NGNjOGE5YTlmODMiLCJlbnRpdHkiOlsiT3JnYW5pc2F0aW9uIl0sImVtYWlsIjoidGVzdHByb3ZpZGVyMUBhcG9sbG8uY29tIn0.bzJti6T8d2cVGsZpdCP1htswhVwEcsrlgZGlkWF4BK0chDDwQejoBznHTMUzqPVEbUTx_luivdE9xvAzun1JzoZiF_hlfPILuuPVEf8OnXViB0VZvq0lnv_YCECu5yGhiaFkqguh8riu2GsPmlvMf4B_ezerQVTaXCv_OdiHk7yQVr-KNzv8o-oBEfvWGOQJkwDKeCwf0vj8WK9OkifmwpOKZoDHWObW1ZoBwlaDdVZ4THemC8k13XMqXMIUC8eVRwvRQl4VsW0N8x_HBePMm9SrKH_N00-AyHo18iASIXANrFsNhYAbhGktMt1TCyM1PW9wKXZ6x8AhLmasXi-xfg`,
     },
   };
 
@@ -49,8 +50,8 @@ const NewClaim = () => {
         setSearchResults([]);
         return;
       }
-      const tokenResponse = await generateToken(tokenRequestBody);
-      setToken(tokenResponse.data.access_token);
+      // const tokenResponse = await generateToken(tokenRequestBody);
+      // setToken(tokenResponse.data.access_token);
       const response = await searchParticipant(payload, config);
       setOpenDropdown(true);
       setSearchResults(response.data?.participants);
@@ -60,9 +61,11 @@ const NewClaim = () => {
     }
   };
 
+  const debounce = useDebounce(providerName, 500);
+
   useEffect(() => {
     search();
-  }, [providerName]);
+  }, [debounce]);
 
   const handleSelect = (result: any, participantCode: any) => {
     setOpenDropdown(false);
@@ -412,7 +415,7 @@ const NewClaim = () => {
             {strings.PROCEED}
           </button>
         ) : (
-          <LoadingButton className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed"/>
+          <LoadingButton className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed" />
         )}
       </div>
     </div>

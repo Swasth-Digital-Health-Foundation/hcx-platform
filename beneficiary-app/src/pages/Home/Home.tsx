@@ -16,11 +16,12 @@ const Home = () => {
   const [currentIndex, setCurrentIndex] = useState(5);
   const [userInformation, setUserInformation] = useState<any>([]);
   const [loading, setLoading] = useState(false);
-
+  const [initialized, setInitialized] = useState(true);
   const getMobileFromLocalStorage = localStorage.getItem('mobile');
 
   const onNewScanResult = (decodedText: any, decodedResult: any) => {
     setQrCodeData(decodedText);
+    setInitialized(false);
   };
 
   const [activeRequests, setActiveRequests] = useState<any>([]);
@@ -41,6 +42,8 @@ const Home = () => {
         insuranceId: userInformation[0]?.payor_details[0]?.insurance_id,
         patientName: userInformation[0]?.name,
       };
+
+      console.log("payload",payload)
 
       const sendCoverageEligibilityRequest = async () => {
         try {
@@ -152,7 +155,7 @@ const Home = () => {
 
   const latestStatusByEntry: Record<string, string | undefined> = {};
 
-  activeRequests.forEach((entry: any) => {
+  activeRequests.forEach((entry: Record<string, any>) => {
     for (const [key, items] of Object.entries(entry)) {
       // Find the item with the latest date
       const latestItem = items.reduce((latest: any, item: any) => {
@@ -188,6 +191,7 @@ const Home = () => {
                 qrbox={250}
                 disableFlip={false}
                 qrCodeSuccessCallback={onNewScanResult}
+                setInitialized={initialized}
               />
             </div>
           </div>
@@ -255,6 +259,7 @@ const Home = () => {
                     mobile={location.state}
                     billAmount={ele.billAmount}
                     workflowId={ele.workflow_id}
+                    patientName={ele.patientName}
                   />
                 </div>
               );
