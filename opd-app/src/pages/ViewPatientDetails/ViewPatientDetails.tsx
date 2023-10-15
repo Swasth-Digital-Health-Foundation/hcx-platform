@@ -272,7 +272,7 @@ const ViewPatientDetails = () => {
                 event.preventDefault();
                 getActivePlans();
               }}
-              className="align-center absolute right-0 flex w-30 justify-center rounded bg-primary py-1 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
+              className="align-center absolute right-0 flex w-20 justify-center rounded bg-primary py-1 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
             >
               Refresh
             </button>

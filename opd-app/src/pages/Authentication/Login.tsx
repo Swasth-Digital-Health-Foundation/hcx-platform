@@ -30,9 +30,9 @@ const Login = () => {
   };
 
   return (
-    <div className="w-full border-stroke bg-white dark:border-strokedark xl:w-1/2 xl:border-l-2">
+    <div className="w-full border-stroke bg-white dark:border-strokedark">
       <div className="w-full p-4 sm:p-12.5 xl:p-17.5">
-        <Link className="mb-5.5 inline-block md:block lg:block" to="#">
+        <Link className="mb-5.5 inline-block" to="#">
           <img className="w-48 dark:hidden" src={Logo} alt="Logo" />
         </Link>
         <h1 className="mb-5 text-3xl font-bold text-black dark:text-white sm:text-title-xl2">

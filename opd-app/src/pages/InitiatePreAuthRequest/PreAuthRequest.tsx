@@ -139,19 +139,17 @@ const PreAuthRequest = () => {
     },
   };
 
-  const config = {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  };
-
   useEffect(() => {
     const search = async () => {
       try {
         const tokenResponse = await generateToken();
         let token = tokenResponse.data?.access_token;
         setToken(token);
-        const payorResponse = await searchParticipant(payorCodePayload, config);
+        const payorResponse = await searchParticipant(payorCodePayload, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         let payorname = payorResponse.data?.participants[0]?.participant_name;
         setPayorName(payorname);
       } catch (err) {
