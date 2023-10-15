@@ -3,7 +3,6 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import strings from '../../utils/strings';
 import { generateToken, searchParticipant } from '../../services/hcxService';
 import { generateOutgoingRequest } from '../../services/hcxMockService';
-import LoadingButton from '../../components/LoadingButton';
 import TransparentLoader from '../../components/TransparentLoader';
 
 const CoverageEligibility = () => {
@@ -76,11 +75,6 @@ const CoverageEligibility = () => {
     },
   };
 
-  const tokenRequestBody = {
-    username: process.env.SEARCH_PARTICIPANT_USERNAME,
-    password: process.env.SEARCH_PARTICIPANT_PASSWORD,
-  };
-
   const config = {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -89,7 +83,7 @@ const CoverageEligibility = () => {
 
   const tokenGeneration = async () => {
     try {
-      const tokenResponse = await generateToken(tokenRequestBody);
+      const tokenResponse = await generateToken();
       if (tokenResponse.statusText === 'OK') {
         setToken(tokenResponse.data.access_token);
       }

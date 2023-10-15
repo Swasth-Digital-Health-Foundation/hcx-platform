@@ -100,49 +100,26 @@ const InitiateNewClaimRequest = () => {
     },
   };
 
-  const tokenRequestBody = {
-    username: process.env.SEARCH_PARTICIPANT_USERNAME,
-    password: process.env.SEARCH_PARTICIPANT_PASSWORD,
-  };
-
-  const config = {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  };
-
-  useEffect(() => {
-    const search = async () => {
-      try {
-        const tokenResponse = await generateToken(tokenRequestBody);
-        if (tokenResponse.statusText === 'OK') {
-          setToken(tokenResponse.data.access_token);
-        }
-      } catch (err) {
-        console.log(err);
-      }
-    };
-    search();
-  }, []);
-
   useEffect(() => {
     try {
-      if (token !== undefined) {
-        const search = async () => {
-          const response = await searchParticipant(
-            participantCodePayload,
-            config
-          );
-          setProviderName(response.data?.participants[0].participant_name);
+      const search = async () => {
+        const tokenResponse = await generateToken();
+        let token = tokenResponse.data?.access_token;
+        const response = await searchParticipant(participantCodePayload, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setProviderName(response.data?.participants[0].participant_name);
 
-          const payorResponse = await searchParticipant(
-            payorCodePayload,
-            config
-          );
-          setPayorName(payorResponse.data?.participants[0].participant_name);
-        };
-        search();
-      }
+        const payorResponse = await searchParticipant(payorCodePayload, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setPayorName(payorResponse.data?.participants[0].participant_name);
+      };
+      search();
     } catch (err) {
       console.log(err);
     }

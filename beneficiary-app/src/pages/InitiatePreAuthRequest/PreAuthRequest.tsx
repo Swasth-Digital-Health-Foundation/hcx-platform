@@ -126,100 +126,32 @@ const PreAuthRequest = () => {
     },
   };
 
-  const tokenRequestBody = {
-    username: process.env.SEARCH_PARTICIPANT_USERNAME,
-    password: process.env.SEARCH_PARTICIPANT_PASSWORD,
-  };
-
-  const config = {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  };
-
-  useEffect(() => {
-    const search = async () => {
-      try {
-        const tokenResponse = await generateToken(tokenRequestBody);
-        if (tokenResponse.statusText === 'OK') {
-          setToken(tokenResponse.data.access_token);
-        }
-      } catch (err) {
-        console.log(err);
-      }
-    };
-    search();
-  }, []);
-
   useEffect(() => {
     try {
-      if (token !== undefined) {
-        const search = async () => {
-          const response = await searchParticipant(
-            participantCodePayload,
-            config
-          );
-          setProviderName(response.data?.participants[0].participant_name);
+      const search = async () => {
+        const tokenResponse = await generateToken();
+        let token = tokenResponse.data?.access_token;
+        const response = await searchParticipant(participantCodePayload, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setProviderName(response.data?.participants[0].participant_name);
 
-          const payorResponse = await searchParticipant(
-            payorCodePayload,
-            config
-          );
-          setPayorName(payorResponse.data?.participants[0].participant_name);
-        };
-        search();
-      }
+        const payorResponse = await searchParticipant(payorCodePayload, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setPayorName(payorResponse.data?.participants[0].participant_name);
+      };
+      search();
     } catch (err) {
       console.log(err);
     }
   }, [token]);
 
   const handleUpload = async () => {
-    // const mobile = localStorage.getItem('monile');
-    // try {
-    //   setLoading(true);
-    //   toast.info('Uploading documents please wait...!');
-    //   const formData = new FormData();
-    //   formData.append('mobile', `${mobile}`);
-
-    //   FileLists.forEach((file: any) => {
-    //     console.log(file);
-    //     formData.append(`file`, file);
-    //   });
-
-    //   const headers = {
-    //     Authorization: `Bearer ${token}`,
-    //   };
-
-    //   const response = await axios({
-    //     url: 'https://dev-hcx.swasth.app/api/v0.7/upload/documents',
-    //     method: 'POST',
-    //     headers: headers,
-    //     data: formData,
-    //   });
-    //   let responseData = response.data;
-    //   setUrlList(responseData);
-    //   toast.info('Documents uploaded successfully!');
-    //   if (response.status === 200) {
-    //     const submit = await generateOutgoingRequest(
-    //       'create/preauth/submit',
-    //       requestPayload
-    //     );
-    //     console.log(submit);
-    //     // if (response.status === 202) {
-    //     navigate('/request-success', {
-    //       state: {
-    //         text: 'new preauth',
-    //         mobileNumber: location.state?.mobile,
-    //       },
-    //     });
-    //     // }
-    //   }
-    //   setLoading(false);
-    // } catch (error) {
-    //   setLoading(false);
-    //   console.error('Error uploading file', error);
-    // }
     let mobile = localStorage.getItem('mobile');
     try {
       setLoading(true);
@@ -447,7 +379,7 @@ const PreAuthRequest = () => {
             />
           </div>
         </div>
-        
+
         {isSuccess ? (
           <div>
             {FileLists.map((file: any) => {
@@ -487,7 +419,7 @@ const PreAuthRequest = () => {
             )}
           </div>
         ) : (
-          <span className='m-auto'>Please wait</span>
+          <span className="m-auto">Please wait</span>
         )}
       </div>
       <div className="mb-5 mt-4">
@@ -504,7 +436,7 @@ const PreAuthRequest = () => {
             {strings.SUBMIT_CLAIM}
           </button>
         ) : (
-          <LoadingButton className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed"/>
+          <LoadingButton className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed" />
         )}
       </div>
     </div>
