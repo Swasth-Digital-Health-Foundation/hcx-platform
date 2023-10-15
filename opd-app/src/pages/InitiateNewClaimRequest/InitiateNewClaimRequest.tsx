@@ -113,8 +113,6 @@ const InitiateNewClaimRequest = () => {
     type: "provider_app",
   };
 
-  console.log(initiateClaimRequestBody);
-
   const filter = {
     entityType: ["Beneficiary"],
     filters: {

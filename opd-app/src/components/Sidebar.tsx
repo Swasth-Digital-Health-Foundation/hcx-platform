@@ -1,7 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { NavLink, useLocation, useNavigate } from 'react-router-dom';
-import Logo from '../images/swasth_logo.png';
-import SidebarLinkGroup from './SidebarLinkGroup';
+import React, { useEffect, useRef, useState } from "react";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import Logo from "../images/swasth_logo.png";
+import SidebarLinkGroup from "./SidebarLinkGroup";
 
 interface SidebarProps {
   sidebarOpen: boolean;
@@ -15,9 +15,9 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
   const trigger = useRef<any>(null);
   const sidebar = useRef<any>(null);
 
-  const storedSidebarExpanded = localStorage.getItem('sidebar-expanded');
+  const storedSidebarExpanded = localStorage.getItem("sidebar-expanded");
   const [sidebarExpanded, setSidebarExpanded] = useState(
-    storedSidebarExpanded === null ? false : storedSidebarExpanded === 'true'
+    storedSidebarExpanded === null ? false : storedSidebarExpanded === "true"
   );
 
   // close on click outside
@@ -32,8 +32,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
         return;
       setSidebarOpen(false);
     };
-    document.addEventListener('click', clickHandler);
-    return () => document.removeEventListener('click', clickHandler);
+    document.addEventListener("click", clickHandler);
+    return () => document.removeEventListener("click", clickHandler);
   });
 
   // close if the esc key is pressed
@@ -42,16 +42,16 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
       if (!sidebarOpen || keyCode !== 27) return;
       setSidebarOpen(false);
     };
-    document.addEventListener('keydown', keyHandler);
-    return () => document.removeEventListener('keydown', keyHandler);
+    document.addEventListener("keydown", keyHandler);
+    return () => document.removeEventListener("keydown", keyHandler);
   });
 
   useEffect(() => {
-    localStorage.setItem('sidebar-expanded', sidebarExpanded.toString());
+    localStorage.setItem("sidebar-expanded", sidebarExpanded.toString());
     if (sidebarExpanded) {
-      document.querySelector('body')?.classList.add('sidebar-expanded');
+      document.querySelector("body")?.classList.add("sidebar-expanded");
     } else {
-      document.querySelector('body')?.classList.remove('sidebar-expanded');
+      document.querySelector("body")?.classList.remove("sidebar-expanded");
     }
   }, [sidebarExpanded]);
 
@@ -61,7 +61,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
     <aside
       ref={sidebar}
       className={`absolute left-0 top-0 z-9999 flex h-screen w-72.5 flex-col overflow-y-hidden bg-black duration-300 ease-linear dark:bg-boxdark lg:static lg:translate-x-0 ${
-        sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        sidebarOpen ? "translate-x-0" : "-translate-x-full"
       }`}
     >
       {/* <!-- SIDEBAR HEADER --> */}
@@ -108,7 +108,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               {/* <!-- Menu Item Dashboard --> */}
               <SidebarLinkGroup
                 activeCondition={
-                  pathname === '/home' || pathname.includes('home')
+                  pathname === "/home" || pathname.includes("home")
                 }
               >
                 {() => {
@@ -116,13 +116,13 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                     <React.Fragment>
                       <div
                         className={`group relative flex items-center gap-2.5 rounded-sm px-4 py-2 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
-                          (pathname === '/home' || pathname.includes('home')) &&
-                          'bg-graydark dark:bg-meta-4'
+                          (pathname === "/home" || pathname.includes("home")) &&
+                          "bg-graydark dark:bg-meta-4"
                         }`}
                         onClick={(e) => {
                           e.preventDefault();
                           sidebarExpanded
-                            ? navigate('/home')
+                            ? navigate("/home")
                             : setSidebarExpanded(true);
                         }}
                       >
@@ -154,14 +154,13 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                     <React.Fragment>
                       <div
                         className={`group relative flex items-center gap-2.5 rounded-sm px-4 py-2 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
-                          (pathname === '/logout' ||
-                            pathname.includes('logout')) &&
-                          'bg-graydark dark:bg-meta-4'
+                          (pathname === "/" || pathname.includes("")) &&
+                          "bg-graydark dark:bg-meta-4"
                         }`}
                         onClick={(e) => {
                           e.preventDefault();
                           sidebarExpanded
-                            ? navigate('/')
+                            ? navigate("/")
                             : setSidebarExpanded(true);
                         }}
                       >
