@@ -66,9 +66,6 @@ const InitiateNewClaimRequest = () => {
     type: 'OPD',
   };
 
-  console.log(initiateClaimRequestBody);
-  // console.log(selectedFile)
-
   const filter = {
     entityType: ['Beneficiary'],
     filters: {
@@ -129,14 +126,12 @@ const InitiateNewClaimRequest = () => {
 
   const handleUpload = async () => {
     try {
-      setLoading(true);
       const formData = new FormData();
       formData.append('mobile', mobileNumber);
 
       FileLists.forEach((file: any) => {
         formData.append(`file`, file);
       });
-
       toast.info('Uploading documents please wait...!');
       const response = await axios({
         url: `${process.env.hcx_mock_service}/upload/documents`,
@@ -144,15 +139,16 @@ const InitiateNewClaimRequest = () => {
         data: formData,
       });
       let obtainedResponse = response.data;
+      const uploadedUrls = obtainedResponse.map((ele: any) => ele.url);
+      // Update the payload with the new URLs
+      initiateClaimRequestBody.supportingDocuments[0].urls = uploadedUrls;
       setUrlList((prevFileUrlList: any) => [
         ...prevFileUrlList,
         ...obtainedResponse,
       ]);
       toast.info('Documents uploaded successfully!');
-      setLoading(false);
     } catch (error) {
-      setLoading(false);
-      console.error('Error uploading file', error);
+      console.error('Error in uploading file', error);
     }
   };
 
@@ -182,23 +178,28 @@ const InitiateNewClaimRequest = () => {
   const submitClaim = async () => {
     try {
       setLoading(true);
-      let getUrl = await generateOutgoingRequest(
-        'create/claim/submit',
-        initiateClaimRequestBody
-      );
-      console.log(getUrl);
-      setLoading(false);
-      navigate('/request-success', {
-        state: {
-          text: 'claim',
-          mobileNumber: data.mobile || initiateClaimRequestBody.mobile,
-        },
-      });
+      handleUpload();
+      setTimeout(async () => {
+        let submitClaim = await generateOutgoingRequest(
+          'create/claim/submit',
+          initiateClaimRequestBody
+        );
+        console.log(submitClaim);
+        setLoading(false);
+        navigate('/request-success', {
+          state: {
+            text: 'claim',
+            mobileNumber: data.mobile || initiateClaimRequestBody.mobile,
+          },
+        });
+      }, 2000);
     } catch (err) {
       setLoading(false);
       toast.error('Faild to submit claim, try again!');
     }
   };
+
+  console.log(initiateClaimRequestBody);
 
   return (
     <div className="w-full">
@@ -395,11 +396,11 @@ const InitiateNewClaimRequest = () => {
             {fileErrorMessage}
           </div>
         )}
-        {!loading ? (
+        {/* {!loading ? (
           <div
             onClick={() => {
               if (fileUrlList !== 0) {
-                handleUpload();
+                // handleUpload();
               }
             }}
             className="mx-auto"
@@ -412,12 +413,12 @@ const InitiateNewClaimRequest = () => {
           </div>
         ) : (
           <span className="m-auto">Please wait</span>
-        )}
+        )} */}
       </div>
       <div className="mb-5 mt-4">
         {!loading ? (
           <button
-            disabled={amount === '' || fileUrlList.length === 0}
+            disabled={amount === '' || selectedFile === undefined}
             onClick={(event: any) => {
               event.preventDefault();
               submitClaim();

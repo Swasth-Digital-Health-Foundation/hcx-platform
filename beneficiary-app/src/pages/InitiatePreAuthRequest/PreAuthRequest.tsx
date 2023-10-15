@@ -152,16 +152,14 @@ const PreAuthRequest = () => {
   }, [token]);
 
   const handleUpload = async () => {
-    let mobile = localStorage.getItem('mobile');
+    let mobile: any = localStorage.getItem('mobile');
     try {
-      setLoading(true);
       const formData = new FormData();
-      formData.append('mobile', `${mobile}`);
+      formData.append('mobile', mobile);
 
       FileLists.forEach((file: any) => {
         formData.append(`file`, file);
       });
-
       toast.info('Uploading documents please wait...!');
       const response = await axios({
         url: `${process.env.hcx_mock_service}/upload/documents`,
@@ -169,32 +167,36 @@ const PreAuthRequest = () => {
         data: formData,
       });
       let obtainedResponse = response.data;
+      const uploadedUrls = obtainedResponse.map((ele: any) => ele.url);
+      // Update the payload with the new URLs
+      requestPayload.supportingDocuments[0].urls = uploadedUrls;
       setUrlList((prevFileUrlList: any) => [
         ...prevFileUrlList,
         ...obtainedResponse,
       ]);
       toast.info('Documents uploaded successfully!');
-      setLoading(false);
     } catch (error) {
-      setLoading(false);
-      console.error('Error uploading file', error);
+      console.error('Error in uploading file', error);
     }
   };
 
   const submitPreauth = async () => {
     try {
       setLoading(true);
-      let getUrl = await generateOutgoingRequest(
-        'create/preauth/submit',
-        requestPayload
-      );
-      setLoading(false);
-      navigate('/request-success', {
-        state: {
-          text: 'preauth',
-          mobileNumber: localStorage.getItem('mobile'),
-        },
-      });
+      handleUpload();
+      setTimeout(async () => {
+        let submitPreauth = await generateOutgoingRequest(
+          'create/preauth/submit',
+          requestPayload
+        );
+        setLoading(false);
+        navigate('/request-success', {
+          state: {
+            text: 'preauth',
+            mobileNumber: localStorage.getItem('mobile'),
+          },
+        });
+      }, 2000);
     } catch (err) {
       setLoading(false);
       toast.error('Faild to submit claim, try again!');
@@ -403,29 +405,11 @@ const PreAuthRequest = () => {
             {fileErrorMessage}
           </div>
         )}
-        {!loading ? (
-          <div
-            onClick={() => {
-              if (fileUrlList !== 0) {
-                handleUpload();
-              }
-            }}
-            className="mx-auto"
-          >
-            {!fileErrorMessage && (
-              <button className="align-center text-balck m-auto mt-4 flex w-60 justify-center rounded bg-gray font-medium disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray">
-                Click here to upload documents
-              </button>
-            )}
-          </div>
-        ) : (
-          <span className="m-auto">Please wait</span>
-        )}
       </div>
       <div className="mb-5 mt-4">
         {!loading ? (
           <button
-            disabled={estimatedAmount === '' || fileUrlList.length === 0}
+            disabled={estimatedAmount === '' || selectedFile === undefined}
             onClick={(event: any) => {
               event.preventDefault();
               submitPreauth();
