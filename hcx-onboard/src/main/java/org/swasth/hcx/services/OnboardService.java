@@ -205,6 +205,7 @@ public class OnboardService extends BaseController {
             updateConfig(participantCode, onboardValidations);
         }
         participant.put(USER_ID, userId);
+        participant.put("channel",Arrays.asList(EMAIL,MOBILE));
         sendVerificationLink(participant);
         updateResponse(output, identityVerified, participantCode, userId, isUserExists);
         auditIndexer.createDocument(eventGenerator.getOnboardVerifyEvent(request, participantCode));
@@ -301,7 +302,7 @@ public class OnboardService extends BaseController {
 
     public ResponseEntity<Object> sendVerificationLink(Map<String, Object> requestBody) throws Exception {
         if (!requestBody.containsKey(ROLES)) {
-            requestBody = getParticipant(PARTICIPANT_CODE, (String) requestBody.get(PARTICIPANT_CODE));
+            requestBody.putAll(getParticipant(PARTICIPANT_CODE, (String) requestBody.get(PARTICIPANT_CODE)));
         }
         String query = String.format("SELECT regenerate_count, last_regenerate_date, email_verified, phone_verified FROM %s WHERE participant_code='%s'", onboardVerificationTable, requestBody.get(PARTICIPANT_CODE));
         ResultSet result = (ResultSet) postgreSQLClient.executeQuery(query);
@@ -321,13 +322,15 @@ public class OnboardService extends BaseController {
         }
         String shortUrl = null;
         String longUrl = null;
-        if (!phoneVerified && requestBody.containsKey(PRIMARY_MOBILE)) {
+        List<String> channel = Optional.ofNullable((List<String>) requestBody.get("channel"))
+                .orElse(new ArrayList<>());
+        if (!phoneVerified && channel.contains(MOBILE)) {
             shortUrl = hcxURL + "/api/url/" + generateRandomPassword(10);
             longUrl = generateURL(requestBody, PHONE, (String) requestBody.get(PRIMARY_MOBILE)).toString();
             String phoneMessage = String.format("Dear %s,\n\nTo verify your mobile number as part of the HCX onboarding process, " + "click on %s and proceed as directed.\n\nLink validity: 7 days.", requestBody.getOrDefault(PARTICIPANT_NAME,"user"), shortUrl);
             kafkaClient.send(messageTopic, SMS, eventGenerator.getSMSMessageEvent(phoneMessage, Arrays.asList((String) requestBody.get(PRIMARY_MOBILE))));
         }
-        if (!emailVerified && requestBody.containsKey(PRIMARY_EMAIL)) {
+        if (!emailVerified && channel.contains(EMAIL)) {
             if (regenerateCount > 0) {
                 kafkaClient.send(messageTopic, EMAIL, eventGenerator.getEmailMessageEvent(regenerateLinkTemplate((String) requestBody.get(PARTICIPANT_NAME), generateURL(requestBody, EMAIL, (String) requestBody.get(PRIMARY_EMAIL)), linkExpiry / 86400000), regenerateLinkSub, Arrays.asList((String) requestBody.get(PRIMARY_EMAIL)), new ArrayList<>(), new ArrayList<>()));
             } else {
