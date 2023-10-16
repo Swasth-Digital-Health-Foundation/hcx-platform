@@ -41,9 +41,6 @@ public class AuditValidationFilter extends AbstractGatewayFilterFactory<AuditVal
     @Autowired
     RequestHandler requestHandler;
 
-    @Value("${provider-specific.roles}")
-    private List<String> providerSpecificRoles;
-
     public AuditValidationFilter() {
         super(Config.class);
     }
@@ -64,7 +61,7 @@ public class AuditValidationFilter extends AbstractGatewayFilterFactory<AuditVal
                     ArrayList<String> roles = (ArrayList<String>) participant.get("roles");
                     String code = (String) participant.get(Constants.PARTICIPANT_CODE);
                     Map<String, String> filters = (Map<String, String>) filterMap.get("filters");
-                    if (roles.contains("payor") || roles.contains("provider") || roles.stream().anyMatch(providerSpecificRoles::contains)) {
+                    if (roles.contains("payor") || roles.contains("provider") || roles.stream().anyMatch(Constants.PROVIDER_SPECIFIC_ROLES::contains)) {
                         filters.put("x-hcx-sender_code", code);
                         filterMap.put("filters", filters);
                         logger.debug("updated filters: {}", filterMap);

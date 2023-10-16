@@ -109,9 +109,6 @@ audit:
   index: ${audit_index:hcx_audit}
   alias: ${audit_alias:hcx_audit}
 
-provider-specific:
-  roles: ${provider_specific_roles:provider.hospital,provider.clinic,provider.practitioner,provider.diagnostics,provider.pharmacy}
-
 spring:
   main:
     web-application-type: reactive
