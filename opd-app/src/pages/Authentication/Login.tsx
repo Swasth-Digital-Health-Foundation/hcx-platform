@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import LoadingButton from "../../components/LoadingButton";
 import * as _ from "lodash";
 import strings from "../../utils/strings";
-import { generateToken } from "../../services/hcxService";
+import { generateToken, login } from "../../services/hcxService";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -15,10 +15,15 @@ const Login = () => {
 
   localStorage.setItem("email", email);
 
+  const loginCredentials = {
+    username: email,
+    password: password,
+  };
+
   const userLogin = async () => {
     try {
       setLoading(true);
-      const loginResponse = await generateToken();
+      const loginResponse = await login(loginCredentials);
       if (loginResponse.status === 200) {
         toast.success("Logged in successfully!");
         navigate("/home");
