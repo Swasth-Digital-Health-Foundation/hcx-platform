@@ -239,13 +239,14 @@ public class OnboardService extends BaseController {
         return (String) JSONUtils.deserialize(createResponse.getBody(), Map.class).get(id);
     }
 
-    private void addParticipantDetails(Map<String,Object> participant, OnboardRequest request) {
+    private void addParticipantDetails(Map<String, Object> participant, OnboardRequest request) {
         participant.put(ENDPOINT_URL, "http://testurl/v0.7");
         participant.put(ENCRYPTION_CERT, "https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/hcx-platform/main/hcx-apis/src/test/resources/examples/test-keys/public-key.pem");
         participant.put(REGISTRY_STATUS, CREATED);
-        if (((ArrayList<String>) participant.get(ROLES)).contains(PAYOR))
+        ArrayList<String> roles = (ArrayList<String>) participant.get(ROLES);
+        if (roles.contains(PAYOR))
             participant.put(SCHEME_CODE, "default");
-        if (((ArrayList<String>) participant.get(ROLES)).contains(PROVIDER))
+        if (roles.contains(PROVIDER) || roles.stream().anyMatch(PROVIDER_SPECIFIC_ROLES::contains))
             participant.put(APPLICANT_CODE, request.getApplicantCode());
     }
 
