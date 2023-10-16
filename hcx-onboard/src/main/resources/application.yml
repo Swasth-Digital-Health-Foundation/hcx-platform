@@ -102,5 +102,3 @@ keycloak:
 
 endpoint:
   user-invite: ${user_invite_endpoint:/onboarding/user/invite}
-
-provider-specific-roles: ${provider_specific_roles:provider.hospital,provider.clinic,provider.practitioner,provider.diagnostics,provider.pharmacy}
