@@ -1101,7 +1101,7 @@ public class OnboardService extends BaseController {
         return mockParticipantDetails;
     }
 
-    private void setKeycloakPassword(String participantCode, String password , Map<String,Object> registryDetails) throws ClientException {
+    public void setKeycloakPassword(String participantCode, String password , Map<String,Object> registryDetails) throws ClientException {
         try {
             ArrayList<String> osOwner = (ArrayList<String>) registryDetails.get(OS_OWNER);
             RealmResource realmResource = keycloak.realm(keycloackParticipantRealm);
