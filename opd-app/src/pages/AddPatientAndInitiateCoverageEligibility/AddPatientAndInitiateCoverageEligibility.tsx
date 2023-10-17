@@ -60,6 +60,7 @@ const AddPatientAndInitiateCoverageEligibility = () => {
   ];
 
   const patientDataFromState: any = location.state?.obj;
+  // console.log(location.state?.obj)
 
   const payload = {
     name: patientDataFromState?.patientName || name || patientInfo[0]?.name,
@@ -166,6 +167,8 @@ const AddPatientAndInitiateCoverageEligibility = () => {
     medical_history: payload?.medical_history,
   };
 
+  console.log("patientInfo", patientInfo);
+
   const updateMedicalHistory = async () => {
     try {
       let registerResponse: any = await updateRequest(
@@ -228,7 +231,7 @@ const AddPatientAndInitiateCoverageEligibility = () => {
     app: "OPD",
   };
 
-  console.log(coverageeligibilityPayload);
+  // console.log(coverageeligibilityPayload);
 
   const sendCoverageEligibilityRequest = async () => {
     try {
@@ -260,6 +263,10 @@ const AddPatientAndInitiateCoverageEligibility = () => {
     setIsValid(isValidInput);
     setMobile(inputValue);
   };
+
+  useEffect(() => {
+    patientSearch();
+  }, [patientDataFromState?.mobile]);
 
   return (
     <div>
@@ -296,7 +303,7 @@ const AddPatientAndInitiateCoverageEligibility = () => {
             <div className="absolute right-4 -mt-10">
               <a
                 onClick={() => {
-                  if (isValid && mobile !== "`") patientSearch();
+                  if (isValid && mobile !== "") patientSearch();
                   else toast.info("Enter 10 digit mobile number!");
                 }}
                 className="w-20 cursor-pointer py-2 font-medium text-black underline"
