@@ -284,7 +284,8 @@ const AddConsultation = () => {
               treatmentType === "" ||
               serviceType === "" ||
               symptoms === "" ||
-              selectedFile === undefined
+              selectedFile === undefined ||
+              fileErrorMessage
             }
           />
         </div>

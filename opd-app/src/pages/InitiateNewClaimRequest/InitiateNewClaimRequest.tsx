@@ -409,7 +409,7 @@ const InitiateNewClaimRequest = () => {
           <div className="mb-5 mt-4">
             {!submitLoading ? (
               <button
-                disabled={amount === "" || selectedFile === undefined}
+                disabled={amount === "" || selectedFile === undefined || fileErrorMessage}
                 onClick={(event: any) => {
                   event.preventDefault();
                   submitClaim();

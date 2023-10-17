@@ -110,10 +110,10 @@ const PreAuthRequest = () => {
         }),
       },
     ],
-    type:"provider_app"
+    type: "provider_app",
   };
 
-  console.log(initiateClaimRequestBody)
+  console.log(initiateClaimRequestBody);
 
   const filter = {
     entityType: ["Beneficiary"],
@@ -226,7 +226,7 @@ const PreAuthRequest = () => {
 
   const requestPayload = {
     sender_code: localStorage.getItem("senderCode"),
-    app:"OPD"
+    app: "OPD",
   };
 
   const getCoverageEligibilityRequestList = async () => {
@@ -417,7 +417,11 @@ const PreAuthRequest = () => {
           <div className="mb-5 mt-4">
             {!submitLoading ? (
               <button
-                disabled={amount === "" || selectedFile === undefined}
+                disabled={
+                  amount === "" ||
+                  selectedFile === undefined ||
+                  fileErrorMessage
+                }
                 onClick={(event: any) => {
                   event.preventDefault();
                   submitClaim();
