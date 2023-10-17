@@ -395,29 +395,11 @@ const InitiateNewClaimRequest = () => {
             {fileErrorMessage}
           </div>
         )}
-        {/* {!loading ? (
-          <div
-            onClick={() => {
-              if (fileUrlList !== 0) {
-                // handleUpload();
-              }
-            }}
-            className="mx-auto"
-          >
-            {!fileErrorMessage && (
-              <button className="align-center text-balck m-auto mt-4 flex w-60 justify-center rounded bg-gray font-medium disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray">
-                Click here to upload documents
-              </button>
-            )}
-          </div>
-        ) : (
-          <span className="m-auto">Please wait</span>
-        )} */}
       </div>
       <div className="mb-5 mt-4">
         {!loading ? (
           <button
-            disabled={amount === '' || selectedFile === undefined}
+            disabled={amount === '' || selectedFile === undefined || fileErrorMessage}
             onClick={(event: any) => {
               event.preventDefault();
               submitClaim();

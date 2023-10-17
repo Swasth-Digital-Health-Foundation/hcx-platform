@@ -410,7 +410,7 @@ const PreAuthRequest = () => {
       <div className="mb-5 mt-4">
         {!loading ? (
           <button
-            disabled={estimatedAmount === '' || selectedFile === undefined}
+            disabled={estimatedAmount === '' || selectedFile === undefined || fileErrorMessage}
             onClick={(event: any) => {
               event.preventDefault();
               submitPreauth();
