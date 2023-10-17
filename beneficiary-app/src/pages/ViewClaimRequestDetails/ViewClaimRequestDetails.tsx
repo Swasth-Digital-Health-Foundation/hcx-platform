@@ -43,12 +43,7 @@ const ViewClaimRequestDetails = () => {
       participant_code: { eq: location.state?.payorCode },
     },
   };
-
-  const tokenRequestBody = {
-    username: process.env.SEARCH_PARTICIPANT_USERNAME,
-    password: process.env.SEARCH_PARTICIPANT_PASSWORD,
-  };
-
+  
   const config = {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -64,7 +59,7 @@ const ViewClaimRequestDetails = () => {
   useEffect(() => {
     const search = async () => {
       try {
-        const tokenResponse = await generateToken(tokenRequestBody);
+        const tokenResponse = await generateToken();
         if (tokenResponse.statusText === 'OK') {
           setToken(tokenResponse.data.access_token);
         }
@@ -179,6 +174,7 @@ const ViewClaimRequestDetails = () => {
 
   const preauthOrClaimListPayload = {
     workflow_id: details?.workflowId || '',
+    app:"BSP"
   };
 
   const getSupportingDocsFromList = async () => {

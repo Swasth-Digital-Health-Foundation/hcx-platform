@@ -46,7 +46,6 @@ const InitiateNewClaimRequest = () => {
 
   let initiateClaimRequestBody: any = {
     insuranceId: data?.insuranceId || '',
-    // insurancePlan: data?.insurancePlan || null,
     mobile: localStorage.getItem('mobile') || '',
     participantCode: data?.participantCode || '',
     payor: data?.payor || payorName,

@@ -8,7 +8,7 @@ import TransparentLoader from '../../components/TransparentLoader';
 const CoverageEligibility = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [selectedValue, setSelectedValue] = useState<any>();
+  const [selectedValue, setSelectedValue] = useState<string>('');
   const [token, setToken] = useState<string>();
   const [providerName, setProviderName] = useState<string>();
   const [payorName, setPayorName] = useState<string>('');
@@ -112,10 +112,12 @@ const CoverageEligibility = () => {
 
   const preauthOrClaimListPayload = {
     workflow_id: requestDetails?.workflowId || '',
+    app: 'BSP',
   };
 
   const coverageEligibilityPayload = {
     mobile: localStorage.getItem('mobile'),
+    app: 'BSP',
   };
 
   const getActivePlans = async () => {
@@ -159,11 +161,11 @@ const CoverageEligibility = () => {
 
       setisLoading(false);
 
-      if (preauthOrClaimList.length === 2) {
-        setSelectedValue(false);
-      } else {
-        return;
-      }
+      // if (preauthOrClaimList.length === 2) {
+      //   setSelectedValue(false);
+      // } else {
+      //   return;
+      // }
     } catch (err) {
       setisLoading(false);
       console.log(err);
@@ -220,7 +222,6 @@ const CoverageEligibility = () => {
             <button
               disabled={loading}
               onClick={(event: any) => {
-                event.preventDefault();
                 getActivePlans();
               }}
               className="align-center absolute right-0 flex w-20 justify-center rounded bg-primary py-1 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
@@ -336,22 +337,7 @@ const CoverageEligibility = () => {
                 <h2 className="text-bold text-1xl mt-3 font-bold text-black dark:text-white">
                   {strings.NEXT_STEP}
                 </h2>
-                <div className="mt-2 mb-2 flex items-center">
-                  <input
-                    onChange={handleRadioChange}
-                    id="default-radio-1"
-                    type="radio"
-                    value="Initiate new claim request"
-                    name="default-radio"
-                    className="text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600 h-4 w-4 focus:ring-2"
-                  />
-                  <label
-                    htmlFor="default-radio-1"
-                    className="text-gray-900 dark:text-gray-300 ml-2 text-sm font-medium"
-                  >
-                    {strings.INITIATE_NEW_CLAIM_REQUEST}
-                  </label>
-                </div>
+                
                 <div className="mt-2 mb-2 flex items-center">
                   <input
                     onChange={handleRadioChange}
@@ -366,6 +352,22 @@ const CoverageEligibility = () => {
                     className="text-gray-900 dark:text-gray-300 ml-2 text-sm font-medium"
                   >
                     {strings.INITIATE_PREAUTH_REQUEST}
+                  </label>
+                </div>
+                <div className="mt-2 mb-2 flex items-center">
+                  <input
+                    onChange={handleRadioChange}
+                    id="default-radio-1"
+                    type="radio"
+                    value="Initiate new claim request"
+                    name="default-radio"
+                    className="text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600 h-4 w-4 focus:ring-2"
+                  />
+                  <label
+                    htmlFor="default-radio-1"
+                    className="text-gray-900 dark:text-gray-300 ml-2 text-sm font-medium"
+                  >
+                    {strings.INITIATE_NEW_CLAIM_REQUEST}
                   </label>
                 </div>
               </>
@@ -398,10 +400,10 @@ const CoverageEligibility = () => {
             ) : null}
           </div>
 
-          <div className="mb-5 mt-5">
-            {!hasClaimApproved ? (
+          {!hasClaimApproved ? (
+            <div className="mb-5 mt-5">
               <button
-                disabled={selectedValue === ''}
+                disabled={false}
                 onClick={(event: any) => {
                   event.preventDefault();
                   if (selectedValue === 'Initiate new claim request') {
@@ -422,15 +424,15 @@ const CoverageEligibility = () => {
               >
                 {strings.PROCEED}
               </button>
-            ) : (
-              <button
-                onClick={() => navigate('/home')}
-                className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
-              >
-                Home
-              </button>
-            )}
-          </div>
+            </div>
+          ) : (
+            <button
+              onClick={() => navigate('/home')}
+              className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
+            >
+              Home
+            </button>
+          )}
         </div>
       ) : (
         <TransparentLoader />

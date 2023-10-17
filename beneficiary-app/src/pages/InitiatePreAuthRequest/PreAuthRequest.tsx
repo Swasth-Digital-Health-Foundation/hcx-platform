@@ -112,6 +112,7 @@ const PreAuthRequest = () => {
         }),
       },
     ],
+    type:"OPD"
   };
 
   const participantCodePayload = {

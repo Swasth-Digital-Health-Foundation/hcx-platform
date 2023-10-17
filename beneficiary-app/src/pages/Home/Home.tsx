@@ -41,6 +41,7 @@ const Home = () => {
         payor: userInformation[0]?.payor_details[0]?.payor,
         insuranceId: userInformation[0]?.payor_details[0]?.insurance_id,
         patientName: userInformation[0]?.name,
+        app:"BSP"
       };
 
       console.log("payload",payload)
@@ -82,6 +83,7 @@ const Home = () => {
 
   const requestPayload = {
     mobile: getMobileFromLocalStorage,
+    app:"BSP"
   };
 
   const filter = {
