@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import LoadingButton from "../../components/LoadingButton";
 import * as _ from "lodash";
 import strings from "../../utils/strings";
-import { generateToken, login } from "../../services/hcxService";
+import { login } from "../../services/hcxService";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -80,7 +80,6 @@ const Login = () => {
               <button
                 type="submit"
                 className="align-center flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
-                // onClick={formSubmit}
                 disabled={email === "" || password === ""}
                 onClick={(e: any) => {
                   e.preventDefault();

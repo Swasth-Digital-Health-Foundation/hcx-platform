@@ -147,7 +147,6 @@ const AddPatientAndInitiateCoverageEligibility = () => {
 
   const registerUser = async () => {
     try {
-      // setLoading(true);
       let registerResponse: any = await postRequest("invite", payload);
       setLoading(false);
       toast.success(
@@ -157,7 +156,6 @@ const AddPatientAndInitiateCoverageEligibility = () => {
         }
       );
     } catch (error: any) {
-      // setLoading(false);
       toast.info("Patient already exists,  initiating coverage eligibility", {
         position: toast.POSITION.TOP_CENTER,
       });
@@ -175,7 +173,9 @@ const AddPatientAndInitiateCoverageEligibility = () => {
         updateMedicalhistory
       );
     } catch (err) {
-      console.log(err);
+      toast.error("Faild to update medical history!", {
+        position: toast.POSITION.TOP_CENTER,
+      });
     }
   };
 
@@ -225,6 +225,7 @@ const AddPatientAndInitiateCoverageEligibility = () => {
     serviceType: "OPD",
     patientName:
       name || patientDataFromState?.patientName || patientInfo[0]?.name,
+    app: "OPD",
   };
 
   console.log(coverageeligibilityPayload);
@@ -384,18 +385,7 @@ const AddPatientAndInitiateCoverageEligibility = () => {
               updateMedicalHistory();
               sendCoverageEligibilityRequest();
             }}
-            disabled={
-              false
-              // patientDataFromState
-              //   ? allergies === '' || bloodGroup === ''
-              //   : name === '' ||
-              //     mobile === '' ||
-              //     address === '' ||
-              //     bloodGroup === '' ||
-              //     allergies === '' ||
-              //     payorName === '' ||
-              //     insuranceID === ''
-            }
+            disabled={false}
           />
         </div>
       )}

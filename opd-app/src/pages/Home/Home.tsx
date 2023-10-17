@@ -67,9 +67,10 @@ const Home = () => {
 
   const requestPayload = {
     sender_code: participantInformation[0]?.participant_code,
+    app: "OPD",
   };
 
-  const getListUsingMobile = { mobile: mobileNumber };
+  const getListUsingMobile = { mobile: mobileNumber, app: "OPD" };
 
   localStorage.setItem(
     "senderCode",
@@ -114,8 +115,9 @@ const Home = () => {
       setFinalData(sortedData);
       setDisplayedData(sortedData.slice(0, 5));
       setLoading(false);
-    } catch (err) {
+    } catch (err: any) {
       setLoading(false);
+      // toast.error(`${err.response.data}`);
     }
   };
 

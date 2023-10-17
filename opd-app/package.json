@@ -8,11 +8,6 @@
     "build": "vite build",
     "preview": "vite preview"
   },
-  "author": {
-    "name": "TailAdmin",
-    "email": "hello@tailadmin.com",
-    "url": "https://tailadmin.com"
-  },
   "dependencies": {
     "-": "^0.0.1",
     "apexcharts": "^3.37.0",

@@ -21,8 +21,8 @@ export const handleFileChange: any = (
   });
   setErrorMsg(
     hasInvalidFileSize
-      ? 'File size is greater than the maximum limit (4MB)'
-      : ''
+      ? "File size is greater than the maximum limit (1MB)"
+      : ""
   );
   setIsSuccess(!hasInvalidFileSize);
 };

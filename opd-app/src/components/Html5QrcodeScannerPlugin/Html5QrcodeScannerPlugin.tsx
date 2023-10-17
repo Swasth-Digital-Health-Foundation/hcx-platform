@@ -1,6 +1,5 @@
-// file = Html5QrcodePlugin.jsx
 import { Html5QrcodeScanner } from "html5-qrcode";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const qrcodeRegionId = "html5qr-code-full-region";
 
@@ -45,15 +44,6 @@ const Html5QrcodePlugin = (props: any) => {
       initializeScanner();
     }
   };
-  
-
-  // const stopScanner = () => {
-  //   if (html5QrcodeScanner) {
-  //     html5QrcodeScanner.clear().catch((error: any) => {
-  //       console.error("Failed to clear html5QrcodeScanner. ", error);
-  //     });
-  //   }
-  // };
 
   return (
     <>

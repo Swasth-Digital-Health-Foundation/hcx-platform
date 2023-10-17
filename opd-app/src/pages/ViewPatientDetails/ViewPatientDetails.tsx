@@ -6,7 +6,6 @@ import {
   generateOutgoingRequest,
   getConsultationDetails,
 } from "../../services/hcxMockService";
-import LoadingButton from "../../components/LoadingButton";
 import TransparentLoader from "../../components/TransparentLoader";
 import { toast } from "react-toastify";
 import { postRequest } from "../../services/registryService";
@@ -150,11 +149,13 @@ const ViewPatientDetails = () => {
 
   const preauthOrClaimListPayload = {
     workflow_id: requestDetails?.workflowId || location.state?.workflowId,
+    app: "OPD",
   };
 
   const coverageEligibilityPayload = {
     mobile:
       location.state?.patientMobile || localStorage.getItem("patientMobile"),
+    app: "OPD",
   };
 
   const getActivePlans = async () => {
@@ -504,22 +505,6 @@ const ViewPatientDetails = () => {
                 <div className="mt-2 mb-2 flex items-center">
                   <input
                     onChange={handleRadioChange}
-                    id="default-radio-1"
-                    type="radio"
-                    value="Initiate new claim request"
-                    name="default-radio"
-                    className="text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600 h-4 w-4 focus:ring-2"
-                  />
-                  <label
-                    htmlFor="default-radio-1"
-                    className="text-gray-900 dark:text-gray-300 ml-2 text-sm font-medium"
-                  >
-                    {strings.INITIATE_NEW_CLAIM_REQUEST}
-                  </label>
-                </div>
-                <div className="mt-2 mb-2 flex items-center">
-                  <input
-                    onChange={handleRadioChange}
                     id="default-radio-2"
                     type="radio"
                     value="Initiate pre-auth request"
@@ -531,6 +516,22 @@ const ViewPatientDetails = () => {
                     className="text-gray-900 dark:text-gray-300 ml-2 text-sm font-medium"
                   >
                     {strings.INITIATE_PREAUTH_REQUEST}
+                  </label>
+                </div>
+                <div className="mt-2 mb-2 flex items-center">
+                  <input
+                    onChange={handleRadioChange}
+                    id="default-radio-1"
+                    type="radio"
+                    value="Initiate new claim request"
+                    name="default-radio"
+                    className="text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600 h-4 w-4 focus:ring-2"
+                  />
+                  <label
+                    htmlFor="default-radio-1"
+                    className="text-gray-900 dark:text-gray-300 ml-2 text-sm font-medium"
+                  >
+                    {strings.INITIATE_NEW_CLAIM_REQUEST}
                   </label>
                 </div>
               </>

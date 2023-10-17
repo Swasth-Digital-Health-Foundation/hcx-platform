@@ -26,11 +26,8 @@ const DefaultLayout = () => {
               <Outlet />
             </div>
           </main>
-          {/* <!-- ===== Main Content End ===== --> */}
         </div>
-        {/* <!-- ===== Content Area End ===== --> */}
       </div>
-      {/* <!-- ===== Page Wrapper End ===== --> */}
     </div>
   );
 };

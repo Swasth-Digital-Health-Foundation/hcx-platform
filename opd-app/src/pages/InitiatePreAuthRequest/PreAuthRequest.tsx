@@ -110,7 +110,10 @@ const PreAuthRequest = () => {
         }),
       },
     ],
+    type:"provider_app"
   };
+
+  console.log(initiateClaimRequestBody)
 
   const filter = {
     entityType: ["Beneficiary"],
@@ -223,6 +226,7 @@ const PreAuthRequest = () => {
 
   const requestPayload = {
     sender_code: localStorage.getItem("senderCode"),
+    app:"OPD"
   };
 
   const getCoverageEligibilityRequestList = async () => {
@@ -289,7 +293,6 @@ const PreAuthRequest = () => {
             <SelectInput
               label="Service type :"
               value={displayedData[0]?.claimType || serviceType}
-              // disabled={true}
               onChange={(e: any) => setServiceType(e.target.value)}
               options={serviceTypeOptions}
             />
@@ -297,7 +300,6 @@ const PreAuthRequest = () => {
               label="Service/Treatment given :"
               value={"consultation"}
               onChange={(e: any) => setAmount(e.target.value)}
-              // disabled={true}
               options={treatmentOptions}
             />
             <TextInputWithLabel
@@ -316,7 +318,6 @@ const PreAuthRequest = () => {
             <div className="relative z-20 mb-4 bg-white dark:bg-form-input">
               <SelectInput
                 label="Document type :"
-                // value={treatmentType}
                 onChange={(e: any) => setDocumentType(e.target.value)}
                 disabled={false}
                 options={documentTypeOptions}

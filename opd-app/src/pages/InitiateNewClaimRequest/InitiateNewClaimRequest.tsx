@@ -218,6 +218,7 @@ const InitiateNewClaimRequest = () => {
 
   const requestPayload = {
     sender_code: localStorage.getItem("senderCode"),
+    app: "OPD",
   };
 
   const getCoverageEligibilityRequestList = async () => {
@@ -309,7 +310,6 @@ const InitiateNewClaimRequest = () => {
             <div className="relative z-20 mb-4 bg-white dark:bg-form-input">
               <SelectInput
                 label="Document type :"
-                // value={treatmentType}
                 onChange={(e: any) => setDocumentType(e.target.value)}
                 disabled={false}
                 options={documentTypeOptions}

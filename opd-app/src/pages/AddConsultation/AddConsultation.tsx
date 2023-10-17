@@ -91,11 +91,9 @@ const AddConsultation = () => {
       ]);
       consultationPayload.supporting_documents_url = uploadedUrls;
       toast.info("Documents uploaded successfully!");
-      // setLoading(false);
     } catch (error) {
       setLoading(false);
       toast.error("Faild to upload documents, please try again!");
-      console.error("Error uploading file", error);
     }
   };
 
