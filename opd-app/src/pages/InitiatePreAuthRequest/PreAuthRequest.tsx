@@ -87,7 +87,10 @@ const PreAuthRequest = () => {
     },
   ];
 
-  const treatmentOptions = [{ label: "Consultation", value: "Consultation" }];
+  const treatmentOptions = [{ label: "Consultation", value: "Consultation" },
+  { label: "Drugs", value: "Drugs" },
+  { label: "Wellness", value: "Wellness" },
+  { label: "Diagnostics", value: "Diagnostics" },];
 
   let initiateClaimRequestBody: any = {
     insuranceId: data?.insuranceId || displayedData[0]?.insurance_id,
@@ -169,7 +172,6 @@ const PreAuthRequest = () => {
 
   const handleUpload = async () => {
     try {
-      setSubmitLoading(true);
       const formData = new FormData();
       formData.append("mobile", location.state?.patientMobile);
 
@@ -194,7 +196,6 @@ const PreAuthRequest = () => {
       ]);
       toast.info("Documents uploaded successfully!");
     } catch (error) {
-      setSubmitLoading(false);
       console.error("Error in uploading file", error);
     }
   };
@@ -281,25 +282,22 @@ const PreAuthRequest = () => {
             {strings.NEW_PREAUTH_REQUEST}
           </h2>
           <div className="rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
-            <SelectInput
+            <TextInputWithLabel
               label="Selected insurance :"
               value={selectedInsurance || displayedData[0]?.insurance_id}
-              disabled={false}
-              options={insuranceOptions}
-              onChange={(e: any) => {
-                setSelectedInsurance(e.target.value);
-              }}
+              disabled={true}
+              type="text"
             />
-            <SelectInput
+            <TextInputWithLabel
               label="Service type :"
               value={displayedData[0]?.claimType || serviceType}
-              onChange={(e: any) => setServiceType(e.target.value)}
-              options={serviceTypeOptions}
+              disabled={true}
+              type="text"
             />
             <SelectInput
               label="Service/Treatment given :"
               value={"consultation"}
-              onChange={(e: any) => setAmount(e.target.value)}
+              onChange={(e: any) => setServiceType(e.target.value)}
               options={treatmentOptions}
             />
             <TextInputWithLabel
@@ -312,7 +310,7 @@ const PreAuthRequest = () => {
             />
           </div>
           <div className="mt-4 rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
-            <h2 className="text-1xl mb-4 font-bold text-black dark:text-white sm:text-title-xl2">
+            <h2 className="text-1xl mb-4 font-bold text-black dark:text-white sm:text-title-xl1">
               {strings.SUPPORTING_DOCS}
             </h2>
             <div className="relative z-20 mb-4 bg-white dark:bg-form-input">
@@ -419,7 +417,6 @@ const PreAuthRequest = () => {
               <button
                 disabled={
                   amount === "" ||
-                  selectedFile === undefined ||
                   fileErrorMessage
                 }
                 onClick={(event: any) => {

@@ -48,8 +48,10 @@ const AddPatientAndInitiateCoverageEligibility = () => {
       label: "Select",
       value: "",
     },
-    { label: "Cold", value: "Cold" },
-    { label: "Cough", value: "Cough" },
+    { label: "Food", value: "Food" },
+    { label: "Dust", value: "Dust" },
+    { label: "Medication", value: "Medication" },
+    { label: "Cosmatic", value: "Cosmatic" },
   ];
   const payorOptions = [
     {
@@ -167,8 +169,6 @@ const AddPatientAndInitiateCoverageEligibility = () => {
     medical_history: payload?.medical_history,
   };
 
-  console.log("patientInfo", patientInfo);
-
   const updateMedicalHistory = async () => {
     try {
       let registerResponse: any = await updateRequest(
@@ -231,8 +231,6 @@ const AddPatientAndInitiateCoverageEligibility = () => {
     app: "OPD",
   };
 
-  // console.log(coverageeligibilityPayload);
-
   const sendCoverageEligibilityRequest = async () => {
     try {
       setLoading(true);
@@ -263,10 +261,6 @@ const AddPatientAndInitiateCoverageEligibility = () => {
     setIsValid(isValidInput);
     setMobile(inputValue);
   };
-
-  useEffect(() => {
-    patientSearch();
-  }, [patientDataFromState?.mobile]);
 
   return (
     <div>
@@ -333,7 +327,7 @@ const AddPatientAndInitiateCoverageEligibility = () => {
       <div className="mt-3">
         <div className="rounded-sm border border-stroke bg-white px-3 pb-3 shadow-default dark:border-strokedark dark:bg-boxdark">
           <label className="text-1xl mb-2.5 mt-2 block text-left font-bold text-black dark:text-white">
-            Medical history : *
+            Medical history :
           </label>
           <SelectInput
             label="Blood group :"
@@ -363,7 +357,6 @@ const AddPatientAndInitiateCoverageEligibility = () => {
               label="Payor Name :"
               value={payorName || patientInfo[0]?.payor_details[0]?.payor}
               onChange={(e: any) => setPayorName(e.target.value)}
-              disabled={false || isEditable}
               options={payorOptions}
             />
             <TextInputWithLabel
@@ -389,7 +382,9 @@ const AddPatientAndInitiateCoverageEligibility = () => {
               if (isPatientExists === false) {
                 registerUser();
               }
-              updateMedicalHistory();
+              if (payload.medical_history[0]?.allergies !== '' || payload.medical_history[0]?.bloodGroup !== '') {
+                updateMedicalHistory();
+              }
               sendCoverageEligibilityRequest();
             }}
             disabled={false}

@@ -165,7 +165,6 @@ const InitiateNewClaimRequest = () => {
 
   const handleUpload = async () => {
     try {
-      setSubmitLoading(true);
       const formData = new FormData();
       formData.append("mobile", location.state?.patientMobile);
 
@@ -188,7 +187,6 @@ const InitiateNewClaimRequest = () => {
       ]);
       toast.info("Documents uploaded successfully!");
     } catch (error) {
-      setSubmitLoading(false);
       console.error("Error in uploading file", error);
     }
   };
@@ -273,25 +271,22 @@ const InitiateNewClaimRequest = () => {
             {strings.NEW_CLAIM_REQUEST}
           </h2>
           <div className="rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
-            <SelectInput
+            <TextInputWithLabel
               label="Selected insurance :"
               value={selectedInsurance || displayedData[0]?.insurance_id}
-              onChange={(e: any) => setSelectedInsurance(e.target.value)}
-              options={insuranceOptions}
-              disabled={false}
+              disabled={true}
+              type="text"
             />
-            <SelectInput
+            <TextInputWithLabel
               label="Service type :"
               value={displayedData[0]?.claimType || serviceType}
-              // disabled={true}
-              onChange={(e: any) => setServiceType(e.target.value)}
-              options={serviceTypeOptions}
+              disabled={true}
+              type="text"
             />
             <SelectInput
               label="Service/Treatment given :"
               value={"consultation"}
-              onChange={(e: any) => setAmount(e.target.value)}
-              // disabled={true}
+              onChange={(e: any) => setServiceType(e.target.value)}
               options={treatmentOptions}
             />
             <TextInputWithLabel
@@ -304,7 +299,7 @@ const InitiateNewClaimRequest = () => {
             />
           </div>
           <div className="mt-4 rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
-            <h2 className="text-1xl mb-4 font-bold text-black dark:text-white sm:text-title-xl2">
+            <h2 className="text-1xl mb-4 font-bold text-black dark:text-white sm:text-title-xl1">
               {strings.SUPPORTING_DOCS}
             </h2>
             <div className="relative z-20 mb-4 bg-white dark:bg-form-input">
@@ -409,7 +404,7 @@ const InitiateNewClaimRequest = () => {
           <div className="mb-5 mt-4">
             {!submitLoading ? (
               <button
-                disabled={amount === "" || selectedFile === undefined || fileErrorMessage}
+                disabled={amount === "" || fileErrorMessage}
                 onClick={(event: any) => {
                   event.preventDefault();
                   submitClaim();

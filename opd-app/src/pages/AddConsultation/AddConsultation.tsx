@@ -8,13 +8,14 @@ import CustomButton from "../../components/CustomButton";
 import { generateOutgoingRequest } from "../../services/hcxMockService";
 import LoadingButton from "../../components/LoadingButton";
 import { useLocation, useNavigate } from "react-router-dom";
+import TextInputWithLabel from "../../components/inputField";
 
 const AddConsultation = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [treatmentType, setTreatmentType] = useState<string>("");
-  const [serviceType, setServiceType] = useState<string>("");
-  const [symptoms, setSymptoms] = useState<string>("");
+  const [treatmentType, setTreatmentType] = useState<string>("OPD");
+  const [serviceType, setServiceType] = useState<string>("Consultation");
+  const [symptoms, setSymptoms] = useState<string>("Fever");
   const [selectedFile, setSelectedFile]: any = useState<FileList | undefined>(
     undefined
   );
@@ -30,17 +31,18 @@ const AddConsultation = () => {
     FileLists = Array.from(selectedFile);
   }
 
-  const treatmentTypeOptions = [
-    { label: "Select", value: "" },
-    { label: "OPD", value: "OPD" },
-  ];
   const serviceTypeOptions = [
     { label: "Select", value: "" },
     { label: "Consultation", value: "Consultation" },
+    { label: "Drugs", value: "Drugs" },
+    { label: "Wellness", value: "Wellness" },
+    { label: "Diagnostics", value: "Diagnostics" },
   ];
   const symptomsOptions = [
     { label: "Select", value: "" },
     { label: "Fever", value: "Fever" },
+    { label: "Cold/caugh", value: "Cold/caugh" },
+    { label: "Skin rashes", value: "Skin rashes" }
   ];
 
   const handleDelete = (name: any) => {
@@ -57,10 +59,12 @@ const AddConsultation = () => {
     treatment_type: treatmentType,
     service_type: serviceType,
     symptoms: symptoms,
-    supporting_documents_url: fileUrlList.map((ele: any) => {
-      return ele.url;
-    }),
+    ...(selectedFile !== undefined
+      ? { supporting_documents_url: fileUrlList.map((ele: any) => ele.url) }
+      : {})
   };
+
+  console.log(consultationPayload)
 
   const patientMobile = location.state?.patientMobile;
 
@@ -125,12 +129,13 @@ const AddConsultation = () => {
         Treatment details : *
       </label>
       <div className='dark:bg-boxdark" rounded-sm border border-stroke bg-white px-3 pb-3 shadow-default dark:border-strokedark'>
-        <SelectInput
+        <TextInputWithLabel
           label="Treatment type :"
-          value={treatmentType}
+          value={"OPD"}
           onChange={(e: any) => setTreatmentType(e.target.value)}
-          disabled={false}
-          options={treatmentTypeOptions}
+          // placeholder="Enter mobile number"
+          disabled={true}
+          type="text"
         />
         <SelectInput
           label="Service type :"
@@ -148,7 +153,7 @@ const AddConsultation = () => {
         />
       </div>
       <label className="text-1xl block pt-3 text-left font-bold text-black dark:text-white">
-        {strings.SUPPORTING_DOCS}
+        Supporting documents : *
       </label>
       <div className="mt-4 rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
         <label className="mb-2.5 block text-left font-medium text-black dark:text-white">
@@ -160,8 +165,6 @@ const AddConsultation = () => {
             onChange={(e: any) => setDocumentType(e.target.value)}
             className="relative z-20 w-full appearance-none rounded border border-stroke bg-transparent bg-transparent py-4 px-6 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark"
           >
-            <option value="Bill/invoice">Medical Bill/invoice</option>
-            <option value="Payment Receipt">Payment Receipt</option>
             <option value="Prescription">Prescription</option>
           </select>
           <span className="absolute top-1/2 right-4 z-10 -translate-y-1/2">
@@ -287,7 +290,7 @@ const AddConsultation = () => {
               selectedFile === undefined ||
               fileErrorMessage
             }
-          />
+          />  
         </div>
       ) : (
         <LoadingButton className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed" />

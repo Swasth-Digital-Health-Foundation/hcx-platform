@@ -9,6 +9,7 @@ import {
 import TransparentLoader from "../../components/TransparentLoader";
 import { toast } from "react-toastify";
 import { postRequest } from "../../services/registryService";
+import { isEmpty } from "lodash";
 
 const ViewPatientDetails = () => {
   const navigate = useNavigate();
@@ -43,9 +44,8 @@ const ViewPatientDetails = () => {
     entityType: ["Beneficiary"],
     filters: {
       mobile: {
-        eq: `${
-          location.state?.patientMobile || localStorage.getItem("patientMobile")
-        }`,
+        eq: `${location.state?.patientMobile || localStorage.getItem("patientMobile")
+          }`,
       },
     },
   };
@@ -351,33 +351,32 @@ const ViewPatientDetails = () => {
             </label>
             <div className="items-center justify-between"></div>
             <div>
-              {patientDetails[0]?.payor_details?.map((ele: any, index: any) => {
-                return (
-                  <div
-                    key={index}
-                    className="mb-2 mt-4 rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark"
-                  >
-                    <div className="mb-2 flex gap-2">
-                      <h2 className="text-bold inline-block w-30 text-base font-medium text-black dark:text-white">
-                        Insurance ID
-                      </h2>
-                      <div className="mr-6">:</div>
-                      <span className="text-base font-medium">
-                        {ele?.insurance_id}
-                      </span>
-                    </div>
-                    <div className="flex gap-2">
-                      <h2 className="text-bold inline-block w-30 text-base font-medium text-black dark:text-white">
-                        Payor name
-                      </h2>
-                      <div className="mr-6">:</div>
-                      <span className="text-base font-medium">
-                        {ele?.payor}
-                      </span>
-                    </div>
-                  </div>
-                );
-              })}
+              {/* {patientDetails[0]?.payor_details?.map((ele: any, index: any) => {
+                return ( */}
+              <div
+                className="mb-2 mt-4 rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark"
+              >
+                <div className="mb-2 flex gap-2">
+                  <h2 className="text-bold inline-block w-30 text-base font-medium text-black dark:text-white">
+                    Insurance ID
+                  </h2>
+                  <div className="mr-6">:</div>
+                  <span className="text-base font-medium">
+                    {patientDetails[0]?.payor_details[0]?.insurance_id}
+                  </span>
+                </div>
+                <div className="flex gap-2">
+                  <h2 className="text-bold inline-block w-30 text-base font-medium text-black dark:text-white">
+                    Payor name
+                  </h2>
+                  <div className="mr-6">:</div>
+                  <span className="text-base font-medium">
+                    {patientDetails[0]?.payor_details[0]?.payor}
+                  </span>
+                </div>
+              </div>
+              {/* );
+              })} */}
             </div>
           </div>
           {consultationDetail && (
@@ -399,32 +398,32 @@ const ViewPatientDetails = () => {
                   );
                 })}
               </div>
-              <h2 className="text-bold text-base font-medium text-black dark:text-white">
-                Supporting documents :
-              </h2>
-              <div>
-                {urlArray?.map((ele: any, index: any) => {
-                  const parts = ele.split("/");
-                  const fileName = parts[parts.length - 1];
+              {!isEmpty(urls) ? <>
+                <h2 className="text-bold text-base font-medium text-black dark:text-white">
+                  Supporting documents :
+                </h2>
+                <div>
+                  {urlArray?.map((ele: any, index: any) => {
+                    const parts = ele.split("/");
+                    const fileName = parts[parts.length - 1];
 
-                  // Split the file name by dot to extract the file extension
-                  const fileExtension = fileName.split(".").pop();
-                  return (
-                    <>
-                      <a
-                        href={ele}
-                        className="flex text-base font-medium underline"
-                      >
-                        document {index + 1}.{fileExtension}
-                      </a>
-                    </>
-                  );
-                })}
-              </div>
+                    // Split the file name by dot to extract the file extension
+                    const fileExtension = fileName.split(".").pop();
+                    return (
+                      <>
+                        <a
+                          href={ele}
+                          className="flex text-base font-medium underline"
+                        >
+                          document {index + 1}.{fileExtension}
+                        </a>
+                      </>
+                    );
+                  })}
+                </div></> : null}
             </div>
           )}
           {preauthOrClaimList.map((ele: any, index: any) => {
-            console.log(ele);
             return (
               <>
                 <div className=" flex items-center justify-between">
@@ -470,27 +469,29 @@ const ViewPatientDetails = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="border-gray-300 my-4 border-t"></div>
-                  <h2 className="text-bold mb-3 text-base font-bold text-black dark:text-white">
-                    Supporting documents :
-                  </h2>
-                  {ele.supportingDocuments.map((ele: any, index: any) => {
-                    const parts = ele.split("/");
-                    const fileName = parts[parts.length - 1];
+                  {ele.supportingDocuments.length === 0 ? null : <>
+                    <div className="border-gray-300 my-4 border-t"></div>
+                    <h2 className="text-bold mb-3 text-base font-bold text-black dark:text-white">
+                      Supporting documents :
+                    </h2>
+                    {ele.supportingDocuments.map((ele: any, index: any) => {
+                      const parts = ele.split("/");
+                      const fileName = parts[parts.length - 1];
 
-                    // Split the file name by dot to extract the file extension
-                    const fileExtension = fileName.split(".").pop();
-                    return (
-                      <>
-                        <a
-                          href={ele}
-                          className="flex text-base font-medium underline"
-                        >
-                          document {index + 1}.{fileExtension}
-                        </a>
-                      </>
-                    );
-                  })}
+                      // Split the file name by dot to extract the file extension
+                      const fileExtension = fileName.split(".").pop();
+                      return (
+                        <>
+                          <a
+                            href={ele}
+                            className="flex text-base font-medium underline"
+                          >
+                            document {index + 1}.{fileExtension}
+                          </a>
+                        </>
+                      );
+                    })}
+                  </>}
                 </div>
               </>
             );
