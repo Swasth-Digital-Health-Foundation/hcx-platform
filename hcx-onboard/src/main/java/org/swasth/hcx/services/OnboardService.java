@@ -296,7 +296,7 @@ public class OnboardService extends BaseController {
         body.put(MOBILE, request.getPrimaryMobile());
         body.put(APPLICANT_NAME, request.getParticipantName());
         body.put(ADDITIONALVERIFICATION, request.getAdditionalVerification());
-        body.put(ROLE, request.getRoles().get(0));
+        body.put(ROLE, request.getRoles());
         return body;
     }
 
