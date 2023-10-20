@@ -1,14 +1,15 @@
 package org.swasth.dp.core.util
 
-import java.lang.reflect.{ParameterizedType, Type}
-
 import com.fasterxml.jackson.annotation.JsonInclude.Include
 import com.fasterxml.jackson.core.JsonGenerator.Feature
-import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper, SerializationFeature}
-import scala.collection.JavaConverters._
+import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.core.`type`.TypeReference
+import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper, SerializationFeature}
+
+import java.lang.reflect.{ParameterizedType, Type}
 import java.util
 import java.util.Base64
+import scala.collection.JavaConverters._
 
 object JSONUtil {
 
@@ -22,6 +23,9 @@ object JSONUtil {
   def serialize(obj: AnyRef): String = {
     mapper.writeValueAsString(obj)
   }
+
+  @throws[JsonProcessingException]
+  def serializeToBytes(obj: Any): Array[Byte] = mapper.writeValueAsBytes(obj)
 
   def deserialize[T: Manifest](json: String): T = {
     mapper.readValue(json, typeReference[T])

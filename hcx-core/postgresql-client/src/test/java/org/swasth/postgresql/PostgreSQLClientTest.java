@@ -33,6 +33,7 @@ public class PostgreSQLClientTest {
 
     @Test
     public void testQueryExecute() throws ClientException, SQLException {
+        postgreSQLClient.execute("DROP TABLE IF EXISTS payload");
         postgreSQLClient.execute("CREATE TABLE payload(mid text PRIMARY KEY, data text)");
         postgreSQLClient.execute("INSERT INTO payload(mid,data)  VALUES('12345','eyJlbmMiOiJBMjU2R')");
         postgreSQLClient.close();
@@ -50,10 +51,6 @@ public class PostgreSQLClientTest {
         postgreSQLClient.addBatch(str);
     }
 
-    @Test(expected = Exception.class)
-    public void testConnectionException() throws ClientException {
-        invalidPostgreSQLClient = new PostgreSQLClient("jdbc:postgresql://localhost:5400/postgres", "postgres", "postgres");
-    }
 
     @Test(expected = Exception.class)
     public void testExecuteException() throws ClientException {

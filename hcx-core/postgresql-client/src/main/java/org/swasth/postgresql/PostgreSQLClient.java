@@ -15,7 +15,6 @@ public class PostgreSQLClient implements IDatabaseService {
         this.url = url;
         this.user = user;
         this.password = password;
-        initializeConnection();
     }
 
     private void initializeConnection() throws ClientException {

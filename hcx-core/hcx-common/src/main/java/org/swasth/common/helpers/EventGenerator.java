@@ -6,6 +6,7 @@ import org.swasth.common.dto.Request;
 import org.swasth.common.dto.Response;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.utils.JWTUtils;
+import org.swasth.common.utils.UUIDUtils;
 
 import java.util.*;
 
@@ -155,54 +156,6 @@ public class EventGenerator {
         return JSONUtils.serialize(event);
     }
 
-    public String createNotifyEvent(String topicCode, String senderCode, String recipientType, List<String> recipients, long expiry, String message, String privateKey) throws Exception {
-        Map<String, Object> notificationHeaders = new HashMap<>();
-        notificationHeaders.put(SENDER_CODE, senderCode);
-        notificationHeaders.put(NOTIFICATION_TIMESTAMP, System.currentTimeMillis());
-        notificationHeaders.put(RECIPIENT_TYPE, recipientType);
-        notificationHeaders.put(RECIPIENTS, recipients);
-        notificationHeaders.put(NOTIFICATION_CORRELATION_ID, UUID.randomUUID().toString());
-        notificationHeaders.put(EXPIRY, expiry);
-
-        Map<String, Object> protocolHeaders = new HashMap<>();
-        protocolHeaders.put(ALG, RS256);
-        protocolHeaders.put(NOTIFICATION_HEADERS, notificationHeaders);
-
-        Map<String, Object> payload = new HashMap<>();
-        payload.put(TOPIC_CODE, topicCode);
-        payload.put(MESSAGE, message);
-
-        Map<String, Object> event = new HashMap<>();
-        event.put(MID, UUID.randomUUID().toString());
-        event.put(ETS, System.currentTimeMillis());
-        event.put(ACTION, NOTIFICATION_NOTIFY);
-        event.put(TOPIC_CODE, topicCode);
-        event.put(MESSAGE, message);
-        event.put(PAYLOAD, jwtUtils.generateJWS(protocolHeaders, payload, privateKey));
-        event.put(HEADERS, Collections.singletonMap(PROTOCOL, protocolHeaders));
-
-        return JSONUtils.serialize(event);
-    }
-
-    public Map<String,Object> createNotifyAuditEvent(Request request){
-        Map<String,Object> audit = new HashMap<>();
-        audit.put(EID, AUDIT);
-        audit.put(MID, UUID.randomUUID().toString());
-        audit.put(ACTION, NOTIFICATION_NOTIFY);
-        audit.put(ETS, System.currentTimeMillis());
-        audit.put(TOPIC_CODE, request.getTopicCode());
-        audit.put(SENDER_CODE, request.getHcxSenderCode() );
-        audit.put(NOTIFICATION_CORRELATION_ID, request.getCorrelationId());
-        audit.put(NOTIFICATION_TIMESTAMP, System.currentTimeMillis());
-        audit.put(STATUS, request.getStatus());
-        audit.put(RECIPIENT_TYPE,request.getRecipientType());
-        audit.put(RECIPIENTS,request.getRecipients());
-        audit.put(MESSAGE,request.getNotificationMessage());
-        audit.put(ERROR_DETAILS, request.getErrorDetails());
-        audit.put(DEBUG_DETAILS, request.getDebugDetails());
-        return audit;
-    }
-
     public String generateOnSubscriptionEvent(String apiAction, String recipientCode, String senderCode, String subscriptionId, String status) throws JsonProcessingException {
         Map<String, Object> event = new HashMap<>();
         event.put(MID, UUID.randomUUID().toString());
@@ -298,5 +251,68 @@ public class EventGenerator {
         if(!tags.isEmpty()) {
             event.put(TAGS, tags);
         }
+    }
+
+    public String getEmailMessageEvent(String message, String subject, List<String> to, List<String> cc, List<String> bcc) throws JsonProcessingException {
+        Map<String,Object> event = new HashMap<>();
+        event.put(EID, "MESSAGE");
+        event.put(MID, UUIDUtils.getUUID());
+        event.put(ETS, System.currentTimeMillis());
+        event.put(CHANNEL, EMAIL);
+        event.put(SUBJECT, subject);
+        event.put(MESSAGE, message);
+        Map<String,Object> recipients = new HashMap<>();
+        recipients.put(TO, to);
+        recipients.put(CC, cc);
+        recipients.put(BCC, bcc);
+        event.put(RECIPIENTS, recipients);
+        return JSONUtils.serialize(event);
+    }
+    public String createNotifyEvent(String topicCode, String senderCode, String recipientType, List<String> recipients, long expiry, String message, String privateKey) throws Exception {
+        Map<String, Object> notificationHeaders = new HashMap<>();
+        notificationHeaders.put(SENDER_CODE, senderCode);
+        notificationHeaders.put(NOTIFICATION_TIMESTAMP, System.currentTimeMillis());
+        notificationHeaders.put(RECIPIENT_TYPE, recipientType);
+        notificationHeaders.put(RECIPIENTS, recipients);
+        notificationHeaders.put(NOTIFICATION_CORRELATION_ID, UUID.randomUUID().toString());
+        notificationHeaders.put(EXPIRY, expiry);
+
+        Map<String, Object> protocolHeaders = new HashMap<>();
+        protocolHeaders.put(ALG, RS256);
+        protocolHeaders.put(NOTIFICATION_HEADERS, notificationHeaders);
+
+        Map<String, Object> payload = new HashMap<>();
+        payload.put(TOPIC_CODE, topicCode);
+        payload.put(MESSAGE, message);
+
+        Map<String, Object> event = new HashMap<>();
+        event.put(MID, UUID.randomUUID().toString());
+        event.put(ETS, System.currentTimeMillis());
+        event.put(ACTION, NOTIFICATION_NOTIFY);
+        event.put(TOPIC_CODE, topicCode);
+        event.put(MESSAGE, message);
+        event.put(PAYLOAD, jwtUtils.generateJWS(protocolHeaders, payload, privateKey));
+        event.put(HEADERS, Collections.singletonMap(PROTOCOL, protocolHeaders));
+
+        return JSONUtils.serialize(event);
+    }
+
+    public Map<String,Object> createNotifyAuditEvent(Request request){
+        Map<String,Object> audit = new HashMap<>();
+        audit.put(EID, AUDIT);
+        audit.put(MID, UUID.randomUUID().toString());
+        audit.put(ACTION, NOTIFICATION_NOTIFY);
+        audit.put(ETS, System.currentTimeMillis());
+        audit.put(TOPIC_CODE, request.getTopicCode());
+        audit.put(SENDER_CODE, request.getHcxSenderCode() );
+        audit.put(NOTIFICATION_CORRELATION_ID, request.getCorrelationId());
+        audit.put(NOTIFICATION_TIMESTAMP, System.currentTimeMillis());
+        audit.put(STATUS, request.getStatus());
+        audit.put(RECIPIENT_TYPE,request.getRecipientType());
+        audit.put(RECIPIENTS,request.getRecipients());
+        audit.put(MESSAGE,request.getNotificationMessage());
+        audit.put(ERROR_DETAILS, request.getErrorDetails());
+        audit.put(DEBUG_DETAILS, request.getDebugDetails());
+        return audit;
     }
 }
