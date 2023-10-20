@@ -46,6 +46,12 @@ const SignIn: React.FC = () => {
           if( res["data"]["participants"].length !== 0){
             console.log("came in if")
            dispatch(addParticipantDetails(res["data"]["participants"][0]));
+           navigate("/onboarding/profile");
+           if(res["data"]["participants"].length == 1){
+            navigate("/onboarding/profile");
+          }else{
+            navigate("/onboarding/participants");
+          }
           }else{
             console.log("came in else");
             serachUser(username).then((res: any) => {
@@ -57,11 +63,7 @@ const SignIn: React.FC = () => {
                   console.log("participant info", res);
                   dispatch(addParticipantDetails(res["data"]["participants"][0]));
                 })
-                if(index == 0){
-                  navigate("/onboarding/profile");
-                }else{
-                  navigate("/onboarding/participants");
-                }
+                navigate("/onboarding/participants");
               })
             });
           }
