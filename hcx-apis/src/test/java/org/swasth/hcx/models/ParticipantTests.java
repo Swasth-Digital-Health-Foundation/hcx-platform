@@ -20,7 +20,7 @@ public class ParticipantTests {
     void generate_participant_code_with_provider_role() {
         Participant participant = new Participant(getProviderRequestBody());
         String code = participant.generateCode("_", "swasth-hcx");
-        Assertions.assertEquals("hosp_rakshi_012345@swasth-hcx", code);
+        Assertions.assertEquals("provider_rakshi_012345@swasth-hcx", code);
     }
 
     @Test

@@ -366,18 +366,16 @@ public class BaseRequest {
                 .filter(map -> COMPLETE_STATUS.equals(map.get(STATUS)))
                 .filter(map -> {
                     try {
-                        return isWithinLastDays((String) map.get(TIMESTAMP), days);
+                        return isWithinLastDays((Long) map.get(UPDATED_TIME), days);
                     } catch (ParseException e) {
                         throw new RuntimeException(e);
                     }
                 }).collect(Collectors.toList());
     }
 
-    private boolean isWithinLastDays(String timestamp,int days) throws ParseException {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+    private boolean isWithinLastDays(long timestamp ,int days) throws ParseException {
         Date currentDate = new Date();
-        Date date = sdf.parse(timestamp);
-        long differenceInMillis = currentDate.getTime() - date.getTime();
+        long differenceInMillis = currentDate.getTime() - timestamp;
         long daysDifference = TimeUnit.DAYS.convert(differenceInMillis, TimeUnit.MILLISECONDS);
         return daysDifference > days;
     }
