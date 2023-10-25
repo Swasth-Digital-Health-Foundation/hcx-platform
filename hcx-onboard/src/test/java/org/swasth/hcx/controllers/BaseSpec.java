@@ -32,10 +32,10 @@ import org.swasth.postgresql.PostgreSQLClient;
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
+import static org.swasth.common.utils.Constants.EMAIL;
+import static org.swasth.common.utils.Constants.MOBILE;
 
 
 @RunWith(SpringRunner.class)
@@ -126,6 +126,66 @@ public class BaseSpec {
         participantData.put("encryption_cert", "https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/jwe-helper/main/src/test/resources/x509-self-signed-certificate.pem");
         participantData.put("signing_cert_path", "https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/jwe-helper/main/src/test/resources/x509-self-signed-certificate.pem");
         participant.put("participant", participantData);
+        return JSONUtils.serialize(participant);
+    }
+
+    protected String verifyIdentityRequestBody() throws JsonProcessingException {
+        Map<String,Object> participant =  new HashMap<>();
+        participant.put("participant_code","test_user_52.yopmail@swasth-hcx");
+        participant.put("status","accepted");
+        return JSONUtils.serialize(participant);
+    }
+
+    protected String verificationLinkRequestBody() throws JsonProcessingException {
+        Map<String , Object> participant = new HashMap<>();
+        participant.put("participant_code","test_user_52.yopmail@swasth-hcx");
+        participant.put("channel", Arrays.asList(EMAIL,MOBILE)); participant.put("channel",Arrays.asList(EMAIL,MOBILE));
+        return JSONUtils.serialize(participant);
+    }
+
+    protected String applicantVerifyRequestBody() throws JsonProcessingException {
+        Map<String , Object> participant = new HashMap<>();
+        participant.put("applicant_code","test_user_55.yopmail@swasth-hcx");
+        participant.put("verifier_code","testpayor1.icici@swasth-hcx-dev");
+        participant.put("email","test_user_555@yopmail.com");
+        participant.put("mobile","9899912323");
+        participant.put("applicant_name", "olly");
+        participant.put("role","payer");
+        return JSONUtils.serialize(participant);
+    }
+
+    protected String applicantGetInfoRequestBody() throws JsonProcessingException {
+        Map<String , Object> participant = new HashMap<>();
+        participant.put("applicant_code","test_user_95.yopmail@swasth-hcx");
+        participant.put("verifier_code","testpayor1.icici@swasth-hcx-dev");
+        return JSONUtils.serialize(participant);
+    }
+
+    protected String applicantSearchRequestBody() throws JsonProcessingException {
+        Map<String , Object> participant = new HashMap<>();
+        Map<String , Object> filters = new HashMap<>();
+        Map<String ,Object> participantCode = new HashMap<>();
+        participantCode.put("eq","provider-swasth-mock-provider-dev");
+        filters.put("participant_code" ,participantCode);
+        participant.put("filters",filters);
+        return JSONUtils.serialize(participant);
+    }
+
+    protected String onboardUserInviteRequestBody() throws JsonProcessingException {
+        Map<String , Object> participant = new HashMap<>();
+        participant.put("participant_code","testprovider1.apollo@swasth-hcx-dev");
+        participant.put("email","mock-invite@yopmail.com");
+        participant.put("role","admin");
+        participant.put("invited_by","mock42@gmail.com");
+        return JSONUtils.serialize(participant);
+    }
+
+    protected String userInviteRejectException() throws JsonProcessingException {
+        Map<String , Object> participant = new HashMap<>();
+        participant.put("jwt_token","eyJ0eXBlIjoiand0IiwiYWxnIjoiUlMyNTYifQ.eyJyb2xlIjoidmlld2VyIiwicGFydGljaXBhbnRfY29kZSI6InRlc3Rwcm92aWRlcjEuYXBvbGxvQHN3YXN0aC1oY3gtZGV2IiwiaXNzIjoiaGN4Z2F0ZXdheS5zd2FzdGhAc3dhc3RoLWhjeC1kZXYiLCJ0eXAiOiJpbnZpdGUiLCJpbnZpdGVkX2J5IjoibW9jazQyQGdtYWlsLmNvbSIsImV4cCI6MTY4NzQyMDE0NzY3OCwiaWF0IjoxNjg3MzMzNzQ3Njc4LCJqdGkiOiI4YzM0MWEzNS04MDFhLTQwYjQtYjRjYi1mZGQ1ZjcwZDAxZTciLCJlbWFpbCI6Im1vY2staW52aXRlQHlvcG1haWwuY29tIn0.MqyBWyS0sQSHRlXHaWTlb9hJZyqjICOc0oSwviHKQ0wDQ3xNmpBjLKu2naOzfozPIdRHtfYkxb_5fca_cOPV5zyQeyqIH6prcaDKPnPDJIwY2VxvsR2njJnAPK5xRuSaqahTgYfzoVF7PI4nAPCSRYCJqdMXMrBIrY10uoN7EWY9VjfbrYiIgwvEBFCqAI-V0SHziyKh8ufNGT3ueKocm4ittFI3qUMP7i0AYx29CV84kBNPB2-fz_TJY_WmWDRnrSQR536PROlv3MASOsHR3iVa2HSOj9VwDQFwV1MpF8p9VY-gz2K6JOxyJvhw_1iJnmjWKjERlqOjy0KdBl2B5A");
+        Map<String , Object> user = new HashMap<>();
+        user.put("email","mock41@gmail.com");
+        participant.put("user",user);
         return JSONUtils.serialize(participant);
     }
 }
