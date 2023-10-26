@@ -118,6 +118,21 @@ public class BaseSpec {
         return JSONUtils.serialize(data);
     }
 
+    protected String verifyPayorRequestBody() throws JsonProcessingException {
+        List<Map<String , Object>> data = new ArrayList<>();
+        Map<String,Object> body = new HashMap<>();
+        body.put("type", "onboard-through-verifier");
+        body.put("verifier_code","wemeanhospital+mock_payor.yopmail@swasth-hcx-dev");
+        Map<String , Object> participant = new HashMap<>();
+        participant.put(Constants.PRIMARY_EMAIL,"obama02@yopmail.com");
+        participant.put(Constants.PRIMARY_MOBILE,"9620499129");
+        participant.put(Constants.PARTICIPANT_NAME,"test_user_12");
+        participant.put("roles",List.of(Constants.PAYOR));
+        body.put("participant",participant);
+        data.add(body);
+        return JSONUtils.serialize(data);
+    }
+
     protected String updateRequestBody() throws JsonProcessingException {
         Map<String, Object> participant = new HashMap<>();
         Map<String, Object> participantData = new HashMap<>();
@@ -133,6 +148,20 @@ public class BaseSpec {
         Map<String,Object> participant =  new HashMap<>();
         participant.put("participant_code","test_user_52.yopmail@swasth-hcx");
         participant.put("status","accepted");
+        return JSONUtils.serialize(participant);
+    }
+
+    protected String verifyIdentityRejectRequestBody() throws JsonProcessingException {
+        Map<String,Object> participant =  new HashMap<>();
+        participant.put("participant_code","test_user_52.yopmail@swasth-hcx");
+        participant.put("status","rejected");
+        return JSONUtils.serialize(participant);
+    }
+
+    protected String verifyIdentityOtherThanAllowedStatus() throws JsonProcessingException {
+        Map<String,Object> participant =  new HashMap<>();
+        participant.put("participant_code","test_user_52.yopmail@swasth-hcx");
+        participant.put("status","marked");
         return JSONUtils.serialize(participant);
     }
 
@@ -186,6 +215,18 @@ public class BaseSpec {
         Map<String , Object> user = new HashMap<>();
         user.put("email","mock41@gmail.com");
         participant.put("user",user);
+        return JSONUtils.serialize(participant);
+    }
+
+    protected String getInfoExceptionBody() throws JsonProcessingException {
+        Map<String , Object> participant = new HashMap<>();
+        participant.put("verification_token","eyJ0eXAiOiJqd3QiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJwYXlvci10ZXN0LXVzZXItMyIsImlzcyI6InRlc3RwYXlvcjEuaWNpY2lAc3dhc3RoLWhjeC1kZXYiLCJleHAiOjE2NzU5MzE4NTYzOTIsImlhdCI6MTY3NTg0NTQ1NjM5MiwianRpIjoiNzY4MjlmYjctMjgzOS00YTFkLTgxOTYtMmY4MTU4MjQyYjdiIn0.HJ9Sd_u209oSoSH-CIBAkr3L6wlTCFWyzLslnQaxRYi-8uTuT9naurfKUMmljYkmsznUwuKsMvOKRJI7Q3caSEn6Y0kXwmvrAcvv8oX7TULncXZFXV3DiBD0KCvpYsm_VadfwPKEl55Giyt_sAi0lSfKtWcTPG7t8HRuRYs3PI86blZVWeiYZaQoFnmcGZbwc5H7U70fWL5Fr_Gwu4DjNlD-Wx63PIBmlMq6UjvfoF0ss-LU0ELimTFFzqw-4tCbJ1pP8YhPmDPaEykiDMeLMuzyC_Vp0gLYBa18YjJPqiQdK4jEBLjhOzawRKwGvVFC5--ccOr8AoR6kK2jKPIGmw");
+        return JSONUtils.serialize(participant);
+    }
+
+    protected String applicantPasswordRequestBody() throws JsonProcessingException {
+        Map<String , Object> participant = new HashMap<>();
+        participant.put("participant_code","hcxtestprovider9000.yopmail@swasth-hcx-dev");
         return JSONUtils.serialize(participant);
     }
 }
