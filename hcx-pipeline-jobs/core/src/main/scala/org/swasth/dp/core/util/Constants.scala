@@ -135,7 +135,7 @@ object Constants {
   val RECIPIENTS = "recipients"
   val CORRELATIONID = "correlation_id"
   val COMPLETE_RESPONSE = "response.complete"
-  val ALLOWED_STATUS_UPDATE = List(QUEUED_STATUS, DISPATCH_STATUS, ERROR_STATUS,COMPLETE_RESPONSE)
+  val ALLOWED_STATUS_UPDATE = List(QUEUED_STATUS, DISPATCH_STATUS, ERROR_STATUS)
 
   // Notification topic codes
   val PARTICIPANT_ONBOARD = "notif-participant-onboarded"
