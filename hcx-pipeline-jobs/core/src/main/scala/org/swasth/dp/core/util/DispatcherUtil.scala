@@ -33,9 +33,7 @@ class DispatcherUtil(config: BaseJobConfig) extends Serializable {
         Console.println("HCX Token: " + token)
         httpPost.setHeader("Authorization", "Bearer "+ token)
         response = httpClient.execute(httpPost);
-        Console.println("------------------response ---------------" + response)
         val statusCode = response.getStatusLine().getStatusCode();
-        Console.println("--------------status code -------------" + statusCode);
         val responseBody = EntityUtils.toString(response.getEntity, StandardCharsets.UTF_8)
         Console.println("Status code: " + statusCode + " :: Response body: " + responseBody);
         if (config.successCodes.contains(statusCode)) {
