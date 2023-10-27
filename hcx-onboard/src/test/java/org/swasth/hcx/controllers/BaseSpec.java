@@ -75,9 +75,8 @@ public class BaseSpec {
 
     @MockBean
     protected PostgreSQLClient postgreSQLClient;
-//    @Resource(name = "postgresClientMockService")
-//    @MockBean
-//    protected PostgreSQLClient postgresClientMockService;
+    @Resource
+    protected PostgreSQLClient postgresClientMockService;
     @MockBean
     protected KafkaClient kafkaClient;
     private EmbeddedPostgres embeddedPostgres;
@@ -88,7 +87,7 @@ public class BaseSpec {
         hcxApiServer.start(InetAddress.getByName("localhost"),8080);
         embeddedPostgres = EmbeddedPostgres.builder().setPort(5432).start();
         postgreSQLClient = new PostgreSQLClient("jdbc:postgresql://localhost:5432/postgres", "postgres", "postgres");
-//        postgresClientMockService = new PostgreSQLClient("jdbc:postgresql://localhost:5432/mock_service", "postgres", "postgres");
+        postgresClientMockService = new PostgreSQLClient("jdbc:postgresql://localhost:5432/mock_service", "postgres", "postgres");
         MockitoAnnotations.initMocks(this);
         this.mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
     }
@@ -227,6 +226,13 @@ public class BaseSpec {
     protected String applicantPasswordRequestBody() throws JsonProcessingException {
         Map<String , Object> participant = new HashMap<>();
         participant.put("participant_code","hcxtestprovider9000.yopmail@swasth-hcx-dev");
+        return JSONUtils.serialize(participant);
+    }
+
+    protected String applicantVerifyWithJwtToken() throws JsonProcessingException {
+        Map<String , Object> participant = new HashMap<>();
+        participant.put("jwt_token", "eyJ0eXBlIjoiand0IiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJ0ZXN0aGN0ZXMxM0B5b3BtYWlsLmNvbSIsInBhcnRpY2lwYW50X25hbWUiOiJ0ZXN0LXBheW9yIiwicGFydGljaXBhbnRfY29kZSI6InRlc3RoY3RlczEzLnlvcG1haWxAc3dhc3RoLWhjeCIsImlzcyI6ImhjeGdhdGV3YXkuc3dhc3RoQHN3YXN0aC1oY3gtZGV2IiwidHlwIjoiZW1haWwiLCJpYXQiOjE2OTA1MjU3ODc3NzUsImp0aSI6Ijg5ZThjYWQ5LTNjZDMtNDcxNS1iODkzLTU5NzMzNGMyODBmZiJ9.NNL_BI9f1mMejUZZXzk8ltNo4-m9R5p23Rbj96QdUxQN-78jl1G6P2nMuDeD57RCDZ1GcQAdNdvTr4XrohaZerXE4aX9UBymfga6wGa2U8s2SXXc0UyQWMrM1bNP_Aw28UocHuM10gzW0hWCXW6UnPGYQudUlGJCA1Jkd3FeD6H2FBnPIQdZphmIrL6KlTiF6anEDAhuQGI0A5mfilRg2ewCjU5LQn6iik-Jtc_4aMqZJ-WbT_oy7rqYkbuzxFJrn3LjBrwjtIdi_mwKZowrObyWBLEwVFnC0ve0SjhNncxmOV3kDMoNIaQTMf7GDohXHtFijU7SomDeuqF1zIGfmw");
+        participant.put("status", "successful");
         return JSONUtils.serialize(participant);
     }
 }
