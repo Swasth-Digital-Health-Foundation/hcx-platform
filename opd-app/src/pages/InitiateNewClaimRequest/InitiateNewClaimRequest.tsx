@@ -201,12 +201,8 @@ const InitiateNewClaimRequest = () => {
           initiateClaimRequestBody
         );
         setSubmitLoading(false);
-        navigate("/request-success", {
-          state: {
-            text: "claim",
-            mobileNumber: data.mobile || initiateClaimRequestBody.mobile,
-          },
-        });
+        toast.success("Claim request initiated successfully!")
+        navigate("/home");
       }, 2000);
     } catch (err) {
       setSubmitLoading(false);

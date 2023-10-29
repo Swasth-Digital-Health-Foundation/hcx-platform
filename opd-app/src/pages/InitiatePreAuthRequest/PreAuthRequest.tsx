@@ -211,12 +211,8 @@ const PreAuthRequest = () => {
             initiateClaimRequestBody
           );
           setSubmitLoading(false);
-          navigate("/request-success", {
-            state: {
-              text: "pre-auth",
-              mobileNumber: data.mobile || initiateClaimRequestBody.mobile,
-            },
-          });
+          toast.success("Pre-auth request initiated successfully!")
+          navigate("/home");
         }
       }, 2000);
     } catch (err) {

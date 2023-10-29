@@ -10,6 +10,8 @@ import TransparentLoader from "../../components/TransparentLoader";
 import { toast } from "react-toastify";
 import { postRequest } from "../../services/registryService";
 import { isEmpty } from "lodash";
+import { ArrowDownTrayIcon } from "@heroicons/react/24/outline";
+import thumbnail from "../../images/pngwing.com.png"
 
 const ViewPatientDetails = () => {
   const navigate = useNavigate();
@@ -208,7 +210,7 @@ const ViewPatientDetails = () => {
     tokenGeneration();
     getActivePlans();
     getConsultation();
-  }, []);
+  }, [preauthOrClaimListPayload.workflow_id]);
 
   const getConsultation = async () => {
     try {
@@ -318,7 +320,6 @@ const ViewPatientDetails = () => {
                 <div>
                   {patientDetails[0]?.medical_history?.map(
                     (ele: any, index: any) => {
-                      console.log(ele);
                       return (
                         <div key={index} className="mb-2">
                           <div className="mb-2 flex gap-2">
@@ -402,20 +403,23 @@ const ViewPatientDetails = () => {
                 <h2 className="text-bold text-base font-medium text-black dark:text-white">
                   Supporting documents :
                 </h2>
-                <div>
+                <div className="flex flex-wrap gap-2">
                   {urlArray?.map((ele: any, index: any) => {
-                    const parts = ele.split("/");
+                    const parts = ele.split('%2F');
                     const fileName = parts[parts.length - 1];
-
-                    // Split the file name by dot to extract the file extension
-                    const fileExtension = fileName.split(".").pop();
                     return (
                       <>
                         <a
                           href={ele}
-                          className="flex text-base font-medium underline"
+                          download
+                          className="flex flex-col mt-3 w-45 shadow-sm border border-gray-300 hover:border-gray-400 rounded-md px-3 py-1 font-medium text-gray-700 hover:text-black"
                         >
-                          document {index + 1}.{fileExtension}
+                          <span className="text-center">{fileName}</span>
+                          <img src={ele} alt="" height="100px" />
+                          <div className="flex items-center justify-center">
+                            <ArrowDownTrayIcon className="h-5 w-5 flex-shrink-0 mr-2 text-indigo-400" />
+                            <span>Download</span>
+                          </div>
                         </a>
                       </>
                     );
@@ -467,30 +471,44 @@ const ViewPatientDetails = () => {
                           INR {ele.billAmount}
                         </span>
                       </div>
+                      {hasClaimApproved && ele?.status === 'Approved' ?
+                        <div className="flex gap-2">
+                          <h2 className=" text-bold inline-block w-30 text-base font-bold text-black dark:text-white">
+                            Approved amount
+                          </h2>
+                          <div className="mr-6">:</div>
+                          <span className="text-base font-medium">
+                            INR {ele.billAmount}
+                          </span>
+                        </div> : null}
                     </div>
                   </div>
                   {ele.supportingDocuments.length === 0 ? null : <>
-                    <div className="border-gray-300 my-4 border-t"></div>
                     <h2 className="text-bold mb-3 text-base font-bold text-black dark:text-white">
                       Supporting documents :
                     </h2>
-                    {ele.supportingDocuments.map((ele: any, index: any) => {
-                      const parts = ele.split("/");
-                      const fileName = parts[parts.length - 1];
-
-                      // Split the file name by dot to extract the file extension
-                      const fileExtension = fileName.split(".").pop();
-                      return (
-                        <>
-                          <a
-                            href={ele}
-                            className="flex text-base font-medium underline"
-                          >
-                            document {index + 1}.{fileExtension}
-                          </a>
-                        </>
-                      );
-                    })}
+                    <div className="flex flex-wrap gap-2">
+                      {ele.supportingDocuments.map((ele: any, index: any) => {
+                        const parts = ele.split('%2F');
+                        const fileName = parts[parts.length - 1];
+                        return (
+                          <>
+                            <a
+                              href={ele}
+                              download
+                              className="flex flex-col w-50 shadow-sm border border-gray-300 hover:border-gray-400 rounded-md px-3 py-1 font-medium text-gray-700 hover:text-black"
+                            >
+                              <span className="text-center">{fileName}</span>
+                              <img src={ele} alt="" />
+                              <div className="flex items-center justify-center">
+                                <ArrowDownTrayIcon className="h-5 w-5 flex-shrink-0 mr-2 text-indigo-400" />
+                                <span>Download</span>
+                              </div>
+                            </a>
+                          </>
+                        );
+                      })}
+                    </div>
                   </>}
                 </div>
               </>
@@ -503,38 +521,25 @@ const ViewPatientDetails = () => {
                 <h2 className="text-bold text-1xl mt-3 font-bold text-black dark:text-white">
                   {strings.NEXT_STEP}
                 </h2>
-                <div className="mt-2 mb-2 flex items-center">
-                  <input
-                    onChange={handleRadioChange}
-                    id="default-radio-2"
-                    type="radio"
-                    value="Initiate pre-auth request"
-                    name="default-radio"
-                    className="text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600 h-4 w-4 focus:ring-2"
-                  />
-                  <label
-                    htmlFor="default-radio-2"
-                    className="text-gray-900 dark:text-gray-300 ml-2 text-sm font-medium"
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => navigate("/initiate-preauth-request", {
+                      state: requestDetails,
+                    })}
+                    className="align-center mt-4 flex w-full justify-center rounded bg-secondary py-4 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
                   >
-                    {strings.INITIATE_PREAUTH_REQUEST}
-                  </label>
-                </div>
-                <div className="mt-2 mb-2 flex items-center">
-                  <input
-                    onChange={handleRadioChange}
-                    id="default-radio-1"
-                    type="radio"
-                    value="Initiate new claim request"
-                    name="default-radio"
-                    className="text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600 h-4 w-4 focus:ring-2"
-                  />
-                  <label
-                    htmlFor="default-radio-1"
-                    className="text-gray-900 dark:text-gray-300 ml-2 text-sm font-medium"
+                    Initiate pre-auth request
+                  </button>
+                  <button
+                    onClick={() => navigate("/initiate-claim-request", {
+                      state: requestDetails,
+                    })}
+                    className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
                   >
-                    {strings.INITIATE_NEW_CLAIM_REQUEST}
-                  </label>
+                    Initiate new claim request
+                  </button>
                 </div>
+
               </>
             )}
 
@@ -545,51 +550,20 @@ const ViewPatientDetails = () => {
                 <h2 className="text-bold text-1xl mt-3 font-bold text-black dark:text-white">
                   {strings.NEXT_STEP}
                 </h2>
-                <div className="mt-2 mb-2 flex items-center">
-                  <input
-                    onChange={handleRadioChange}
-                    id="default-radio-2"
-                    type="radio"
-                    value="Initiate new claim request"
-                    name="default-radio"
-                    className="text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600 h-4 w-4 focus:ring-2"
-                  />
-                  <label
-                    htmlFor="default-radio-2"
-                    className="text-gray-900 dark:text-gray-300 ml-2 text-sm font-medium"
-                  >
-                    {strings.INITIATE_NEW_CLAIM_REQUEST}
-                  </label>
-                </div>
+                <button
+                  onClick={() => navigate("/initiate-claim-request", {
+                    state: requestDetails,
+                  })}
+                  className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
+                >
+                  Initiate new claim request
+                </button>
               </>
             ) : null}
           </div>
 
           {!hasClaimApproved ? (
-            <div className="mb-5 mt-5">
-              <button
-                disabled={selectedValue === ""}
-                onClick={(event: any) => {
-                  event.preventDefault();
-                  if (selectedValue === "Initiate new claim request") {
-                    navigate("/initiate-claim-request", {
-                      state: requestDetails,
-                    });
-                  } else if (selectedValue === "Initiate pre-auth request") {
-                    navigate("/initiate-preauth-request", {
-                      state: requestDetails,
-                    });
-                  } else {
-                    navigate("/view-active-request", {
-                      state: requestDetails,
-                    });
-                  }
-                }}
-                className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
-              >
-                {strings.PROCEED}
-              </button>
-            </div>
+            null
           ) : (
             <button
               onClick={() => navigate("/home")}
