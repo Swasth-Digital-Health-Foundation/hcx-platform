@@ -188,7 +188,7 @@ public class BaseRequest {
         }
         String actionEntity = getEntity(jweRequest.getApiAction());
         if (!OPERATIONAL_ENTITIES.contains(actionEntity)) {
-            if (!correlationFilteredData.isEmpty() && !OPERATIONAL_ENTITIES.contains(getEntity((String) correlationFilteredData.get(0).get(ACTION)))) {
+            if (!correlationFilteredData.isEmpty()) {
                 List<Map<String, Object>> filteredList = filteredList(correlationFilteredData, correlationDataCloseDays);
                 // validating correlation id at sender context
                 if (filteredList.isEmpty() && correlationFilteredData.get(0).get(HCX_SENDER_CODE).toString().equals(jweRequest.getHcxSenderCode()) && correlationAuditData.get(0).get(CORRELATION_ID).toString().contains(jweRequest.getCorrelationId())) {
