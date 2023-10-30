@@ -10,8 +10,8 @@ import axios from "axios";
 import { postRequest } from "../../services/registryService";
 import SelectInput from "../../components/SelectInput";
 import TextInputWithLabel from "../../components/inputField";
-import Loader from "../../common/Loader";
 import TransparentLoader from "../../components/TransparentLoader";
+import * as _ from "lodash";
 
 const InitiateNewClaimRequest = () => {
   const navigate = useNavigate();
@@ -375,7 +375,7 @@ const InitiateNewClaimRequest = () => {
             </div>
             {isSuccess ? (
               <div>
-                {FileLists.map((file: any) => {
+                {_.map(FileLists, (file: any) => {
                   return (
                     <div className="flex items-center justify-between">
                       <div className="mb-2.5 mt-4 block text-left text-sm text-black dark:text-white">

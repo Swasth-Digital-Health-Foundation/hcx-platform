@@ -9,6 +9,7 @@ import { generateOutgoingRequest } from "../../services/hcxMockService";
 import LoadingButton from "../../components/LoadingButton";
 import { useLocation, useNavigate } from "react-router-dom";
 import TextInputWithLabel from "../../components/inputField";
+import * as _ from "lodash";
 
 const AddConsultation = () => {
   const navigate = useNavigate();
@@ -60,13 +61,12 @@ const AddConsultation = () => {
     service_type: serviceType,
     symptoms: symptoms,
     ...(selectedFile !== undefined
-      ? { supporting_documents_url: fileUrlList.map((ele: any) => ele.url) }
+      ? { supporting_documents_url: _.map(fileUrlList, (ele: any) => ele.url) }
       : {})
   };
 
-  console.log(consultationPayload)
-
-  const patientMobile = location.state?.patientMobile;
+  localStorage.setItem("patientMobile",location.state?.patientMobile);
+  const patientMobile = location.state?.patientMobile || localStorage.getItem("patientMobile");
 
   const handleUpload = async () => {
     try {
@@ -255,7 +255,7 @@ const AddConsultation = () => {
         </div>
         {isSuccess ? (
           <div>
-            {FileLists.map((file: any) => {
+            {_.map(FileLists, (file: any) => {
               return (
                 <div className="flex items-center justify-between">
                   <div className="mb-2.5 mt-4 block text-left text-sm text-black dark:text-white">
@@ -290,7 +290,7 @@ const AddConsultation = () => {
               selectedFile === undefined ||
               fileErrorMessage
             }
-          />  
+          />
         </div>
       ) : (
         <LoadingButton className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed" />

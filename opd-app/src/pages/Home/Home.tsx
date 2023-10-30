@@ -80,6 +80,10 @@ const Home = () => {
     "providerName",
     participantInformation[0]?.participant_name
   );
+  localStorage.setItem(
+    "patientMobile",
+    mobileNumber
+  );
 
   const getCoverageEligibilityRequestList = async (payload: any) => {
     try {
@@ -276,7 +280,7 @@ const Home = () => {
         <div className="border-gray-300 my-4 border-t"></div>
         {!loading ? (
           <div>
-            {displayedData?.map((ele: any, index: any) => {
+            {_.map(displayedData, (ele: any, index: number) => {
               return (
                 <div className="mt-2" key={index}>
                   <ActiveClaimCycleCard

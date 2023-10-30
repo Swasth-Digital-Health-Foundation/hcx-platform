@@ -11,7 +11,7 @@ import { toast } from "react-toastify";
 import { postRequest } from "../../services/registryService";
 import { isEmpty } from "lodash";
 import { ArrowDownTrayIcon } from "@heroicons/react/24/outline";
-import thumbnail from "../../images/pngwing.com.png"
+import * as _ from "lodash";
 
 const ViewPatientDetails = () => {
   const navigate = useNavigate();
@@ -65,7 +65,7 @@ const ViewPatientDetails = () => {
     }
   };
 
-  localStorage.setItem("patientMobile", patientDetails[0]?.mobile);
+  // localStorage.setItem("patientMobile", patientDetails[0]?.mobile);
   localStorage.setItem("patientName", patientDetails[0]?.name);
 
   const personalDeatails = [
@@ -299,7 +299,7 @@ const ViewPatientDetails = () => {
             </label>
             <div className="items-center justify-between"></div>
             <div>
-              {personalDeatails.map((ele: any, index: any) => {
+              {_.map(personalDeatails, (ele: any, index: any) => {
                 return (
                   <div key={index} className="mb-2 flex gap-2">
                     <h2 className="text-bold inline-block w-30 text-base font-medium text-black dark:text-white">
@@ -318,7 +318,7 @@ const ViewPatientDetails = () => {
                 </label>
                 <div className="items-center justify-between"></div>
                 <div>
-                  {patientDetails[0]?.medical_history?.map(
+                  {_.map(patientDetails[0]?.medical_history,
                     (ele: any, index: any) => {
                       return (
                         <div key={index} className="mb-2">
@@ -352,8 +352,6 @@ const ViewPatientDetails = () => {
             </label>
             <div className="items-center justify-between"></div>
             <div>
-              {/* {patientDetails[0]?.payor_details?.map((ele: any, index: any) => {
-                return ( */}
               <div
                 className="mb-2 mt-4 rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark"
               >
@@ -376,8 +374,6 @@ const ViewPatientDetails = () => {
                   </span>
                 </div>
               </div>
-              {/* );
-              })} */}
             </div>
           </div>
           {consultationDetail && (
@@ -387,7 +383,7 @@ const ViewPatientDetails = () => {
               </label>
               <div className="items-center justify-between"></div>
               <div>
-                {consultationDetailsData.map((ele: any, index: any) => {
+                {_.map(consultationDetailsData, (ele: any, index: number) => {
                   return (
                     <div key={index} className="mb-2 flex gap-2">
                       <h2 className="text-bold inline-block w-30 text-base font-medium text-black dark:text-white">
@@ -404,8 +400,8 @@ const ViewPatientDetails = () => {
                   Supporting documents :
                 </h2>
                 <div className="flex flex-wrap gap-2">
-                  {urlArray?.map((ele: any, index: any) => {
-                    const parts = ele.split('%2F');
+                  {_.map(urlArray, (ele: string, index: number) => {
+                    const parts = ele.split('/');
                     const fileName = parts[parts.length - 1];
                     return (
                       <>
@@ -427,7 +423,7 @@ const ViewPatientDetails = () => {
                 </div></> : null}
             </div>
           )}
-          {preauthOrClaimList.map((ele: any, index: any) => {
+          {_.map(preauthOrClaimList, (ele: any, index: any) => {
             return (
               <>
                 <div className=" flex items-center justify-between">
@@ -488,9 +484,9 @@ const ViewPatientDetails = () => {
                       Supporting documents :
                     </h2>
                     <div className="flex flex-wrap gap-2">
-                      {ele.supportingDocuments.map((ele: any, index: any) => {
-                        const parts = ele.split('%2F');
-                        const fileName = parts[parts.length - 1];
+                      {_.map(ele.supportingDocuments, (ele: string, index: number) => {
+                         const parts = ele.split('/');
+                         const fileName = parts[parts.length - 1];
                         return (
                           <>
                             <a
@@ -518,15 +514,12 @@ const ViewPatientDetails = () => {
           <div>
             {preauthOrClaimList.length === 0 && (
               <>
-                <h2 className="text-bold text-1xl mt-3 font-bold text-black dark:text-white">
-                  {strings.NEXT_STEP}
-                </h2>
                 <div className="flex gap-3">
                   <button
                     onClick={() => navigate("/initiate-preauth-request", {
                       state: requestDetails,
                     })}
-                    className="align-center mt-4 flex w-full justify-center rounded bg-secondary py-4 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
+                    className="align-center mt-4 flex w-full justify-center rounded bg-lightBlue py-4 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
                   >
                     Initiate pre-auth request
                   </button>
@@ -547,9 +540,6 @@ const ViewPatientDetails = () => {
               <></>
             ) : type.includes("preauth") ? (
               <>
-                <h2 className="text-bold text-1xl mt-3 font-bold text-black dark:text-white">
-                  {strings.NEXT_STEP}
-                </h2>
                 <button
                   onClick={() => navigate("/initiate-claim-request", {
                     state: requestDetails,
