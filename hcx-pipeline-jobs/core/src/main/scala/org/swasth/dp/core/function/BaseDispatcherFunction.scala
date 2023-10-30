@@ -150,6 +150,7 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
             setStatus(event, Constants.DISPATCH_STATUS)
             metrics.incCounter(metric = config.dispatcherSuccessCount)
             generateSuccessMetrics(event, metrics)
+            Console.println("-------------It is at the success event--------------")
             audit(event, context, metrics)
           }
           if (result.retry) {
@@ -158,6 +159,7 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
               retryCount = event.get(Constants.RETRY_INDEX).asInstanceOf[Int]
             if (!config.allowedEntitiesForRetry.contains(getEntity(event.get(Constants.ACTION).asInstanceOf[String])) || retryCount == config.maxRetry) {
               dispatchError(payloadRefId, event, result, correlationId, senderCtx, context, metrics)
+              Console.println("---------it wenr allowed entitties for retry -----------")
             } else if (retryCount < config.maxRetry) {
               updateDBStatus(payloadRefId, Constants.REQ_RETRY)
               setStatus(event, Constants.QUEUED_STATUS)
@@ -165,10 +167,12 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
               generateRetryMetrics(event, metrics)
               Console.println("Event is updated for retrying..")
             }
+            Console.println("---------it is at the retry event -------------------")
             audit(event, context, metrics)
           }
           if (!result.retry && !result.success) {
             dispatchError(payloadRefId, event, result, correlationId, senderCtx, context, metrics)
+            Console.println("------------it is at the error event --------------")
             audit(event, context, metrics)
           }
         }

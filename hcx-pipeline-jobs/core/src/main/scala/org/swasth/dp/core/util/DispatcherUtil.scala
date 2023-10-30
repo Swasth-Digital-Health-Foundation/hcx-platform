@@ -39,6 +39,7 @@ class DispatcherUtil(config: BaseJobConfig) extends Serializable {
         if (config.successCodes.contains(statusCode)) {
           DispatcherResult(true, statusCode, null, false)
         } else if (config.errorCodes.contains(statusCode)) {
+          Console.println("--------it is going inside the errorcodes----------")
           val errorResponse: ErrorResponse = errorMessageProcess(responseBody)
           DispatcherResult(false, statusCode, Option(errorResponse), false)
         } else {
