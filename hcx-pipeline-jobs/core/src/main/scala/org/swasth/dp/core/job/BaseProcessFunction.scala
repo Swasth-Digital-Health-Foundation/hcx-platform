@@ -80,6 +80,11 @@ abstract class BaseProcessFunction[T, R](config: BaseJobConfig) extends ProcessF
       event.get(Constants.HEADERS).asInstanceOf[util.Map[String, AnyRef]].get(Constants.PROTOCOL).asInstanceOf[util.Map[String, AnyRef]].put(Constants.HCX_STATUS, status)
   }
 
+  def setErrorStatus(event: util.Map[String, AnyRef], status: String): Unit = {
+    Console.println("---it came in errors map ------")
+    event.get(Constants.HEADERS).asInstanceOf[util.Map[String, AnyRef]].get(Constants.PROTOCOL).asInstanceOf[util.Map[String, AnyRef]].put(Constants.HCX_STATUS, status)
+  }
+
   def setErrorDetails(event: util.Map[String, AnyRef], errorDetails: util.Map[String, AnyRef]): Unit ={
     event.get(Constants.HEADERS).asInstanceOf[util.Map[String, AnyRef]].get(Constants.PROTOCOL).asInstanceOf[util.Map[String, AnyRef]].put(Constants.ERROR_DETAILS, errorDetails)
   }
