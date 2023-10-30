@@ -165,8 +165,12 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
               Console.println("Event is updated for retrying..")
             }
           }
+          Console.println("! result.retry-----"  + !result.retry)
+          Console.println("! result.succes----------" + !result.success)
+          Console.println("-------result.eroor ---------" + result.error)
           if (!result.retry && !result.success) {
             dispatchError(payloadRefId, event, result, correlationId, senderCtx, context, metrics)
+            Console.println("----------event -------------" + event)
           }
           Console.println("-----The event going to updated -----------------------------------")
           Console.println("event ---------" + event)
