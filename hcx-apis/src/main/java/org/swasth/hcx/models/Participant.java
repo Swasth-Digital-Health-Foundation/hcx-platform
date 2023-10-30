@@ -43,14 +43,14 @@ public class Participant {
     private String getRoleAppender() {
         if (getRoles().stream().anyMatch(PROVIDER_SPECIFIC_ROLES::contains)) {
             for (String role : getRoles()) {
-                if (role.startsWith("provider.")) {
-                    return role.substring(9, 13);
-                }
+                return role.substring(9, 13);
             }
         } else if (getRoles().contains("payor")) {
             return "payr";
-        } else if(getRoles().contains("bsp")){
+        } else if (getRoles().contains("bsp")) {
             return "bsp";
+        } else if (getRoles().contains("provider")){
+            return "hosp";
         }
         return getRoles().get(0);
     }
