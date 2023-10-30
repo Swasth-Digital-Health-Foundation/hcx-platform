@@ -29,7 +29,6 @@ import org.swasth.hcx.services.FreemarkerService;
 import org.swasth.kafka.client.KafkaClient;
 import org.swasth.postgresql.PostgreSQLClient;
 
-import javax.annotation.Resource;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.*;
@@ -75,8 +74,8 @@ public class BaseSpec {
 
     @MockBean
     protected PostgreSQLClient postgreSQLClient;
-    @Resource
-    protected PostgreSQLClient postgresClientMockService;
+//    @Resource
+//    protected PostgreSQLClient postgresClientMockService;
     @MockBean
     protected KafkaClient kafkaClient;
     private EmbeddedPostgres embeddedPostgres;
@@ -85,9 +84,15 @@ public class BaseSpec {
      void setup() throws Exception {
         registryServer.start(InetAddress.getByName("localhost"),8082);
         hcxApiServer.start(InetAddress.getByName("localhost"),8080);
+//        embeddedPostgres = EmbeddedPostgres.builder().setPort(5432).start();
+//        postgreSQLClient = new PostgreSQLClient("jdbc:postgresql://localhost:5432/postgres", "postgres", "postgres");
+//        postgresClientMockService = new PostgreSQLClient("jdbc:postgresql://localhost:5432/mock_service", "postgres", "postgres");
         embeddedPostgres = EmbeddedPostgres.builder().setPort(5432).start();
-        postgreSQLClient = new PostgreSQLClient("jdbc:postgresql://localhost:5432/postgres", "postgres", "postgres");
-        postgresClientMockService = new PostgreSQLClient("jdbc:postgresql://localhost:5432/mock_service", "postgres", "postgres");
+        String jdbcUrl = embeddedPostgres.getJdbcUrl("postgres", "postgres");
+        postgreSQLClient = new PostgreSQLClient(jdbcUrl, "postgres", "postgres");
+        jdbcUrl = embeddedPostgres.getJdbcUrl("postgres", "postgres");
+        postgreSQLClient = new PostgreSQLClient(jdbcUrl, "postgres", "postgres");
+
         MockitoAnnotations.initMocks(this);
         this.mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
     }
@@ -208,6 +213,41 @@ public class BaseSpec {
         return JSONUtils.serialize(participant);
     }
 
+    protected String onboardUserInviteJwtTokenException() throws JsonProcessingException {
+        Map<String , Object> participant = new HashMap<>();
+        participant.put("jwt_token", "eyJhbGciOiJSUzI1NiJ9.eyJyb2xlIjoiYWRtaW4iLCJwYXJ0aWNpcGFudF9jb2RlIjoidGVzdHByb3ZpZGVyMS5hcG9sbG9Ac3dhc3RoLWhjeC1kZXYiLCJpc3MiOiJoY3hnYXRld2F5LnN3YXN0aEBzd2FzdGgtaGN4LWRldiIsInR5cCI6Imludml0ZSIsImludml0ZWRfYnkiOiJtb2NrNDJAZ21haWwuY29tIiwiZXhwIjoiMTY5MTQyNDMxOTYzMCIsImlhdCI6IjE2OTEzMzc5MTk2MzAiLCJqdGkiOiJkYWUwMzU5YS0yMmFjLTQzZTAtYjZjMy1kOWFiZTRjYzU1NDIiLCJlbWFpbCI6Im1vY2staW52aXRlQHlvcG1haWwuY29tIn0.gq1ZJSXwr-SH_1Ib22R-d8G1X5MmmYpBwiUYBbRJDjbm-yCkpUtGHvWvmlV6GkT-PxxRQmiIlizqZJeyUEuTXs4FMvNDmnkzcrz6zb9xAUQVK7jQXmqLwZ14aDWz0L2470r7M1C4Uo6vd2mg67FmY6wHFiib-vfjwYKRXSv_73PxN5c4xs38JBCi8sz8Z3BKmcOhhkL6oPwvB1rC2QKRceXtDYIWQrU6N_uMqigdQeUqTTXVW_zACdgKaG2aWb1pac3ov-jzTnFS_ls7FpBvuDsfkQ7FqCIHBQyoT5aBBDUSxJxNqlzV8xVX8Yxuk2rjmKVHZmvSlVCohShJFvyhrw");
+        Map<String , Object> users = new HashMap<>();
+        users.put( "user_name", "test_user");
+        users.put("email","mock-invite@yopmail.com");
+        users.put("mobile", "9620499129");
+        List<Map<String, Object>> tenant_roles = new ArrayList<>();
+        Map<String, Object> participants = new HashMap<>();
+        participants.put("participant_code","testprovider1.apollo@swasth-hcx-dev");
+        participants.put( "role", "admin");
+        tenant_roles.add(participants);
+        users.put("tenant_roles",tenant_roles);
+        users.put( "created_by","testprovider1.apollo@swasth-hcx-dev");
+        return JSONUtils.serialize(participant);
+    }
+
+    protected String onboardUserInviteJwtToken() throws JsonProcessingException {
+        Map<String , Object> participant = new HashMap<>();
+        participant.put("jwt_token", "eyJ0eXBlIjoiand0IiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJ0ZXN0aGN0ZXMxM0B5b3BtYWlsLmNvbSIsInBhcnRpY2lwYW50X25hbWUiOiJ0ZXN0LXBheW9yIiwicGFydGljaXBhbnRfY29kZSI6InRlc3RoY3RlczEzLnlvcG1haWxAc3dhc3RoLWhjeCIsImlzcyI6ImhjeGdhdGV3YXkuc3dhc3RoQHN3YXN0aC1oY3gtZGV2IiwidHlwIjoiZW1haWwiLCJpYXQiOjE2OTA1MjU3ODc3NzUsImp0aSI6Ijg5ZThjYWQ5LTNjZDMtNDcxNS1iODkzLTU5NzMzNGMyODBmZiJ9.NNL_BI9f1mMejUZZXzk8ltNo4-m9R5p23Rbj96QdUxQN-78jl1G6P2nMuDeD57RCDZ1GcQAdNdvTr4XrohaZerXE4aX9UBymfga6wGa2U8s2SXXc0UyQWMrM1bNP_Aw28UocHuM10gzW0hWCXW6UnPGYQudUlGJCA1Jkd3FeD6H2FBnPIQdZphmIrL6KlTiF6anEDAhuQGI0A5mfilRg2ewCjU5LQn6iik-Jtc_4aMqZJ-WbT_oy7rqYkbuzxFJrn3LjBrwjtIdi_mwKZowrObyWBLEwVFnC0ve0SjhNncxmOV3kDMoNIaQTMf7GDohXHtFijU7SomDeuqF1zIGfmw");
+        Map<String , Object> users = new HashMap<>();
+        users.put( "user_name", "Abhishek");
+        users.put("email","mock-invite@yopmail.com");
+        users.put("mobile", "9620499129");
+        List<Map<String, Object>> tenant_roles = new ArrayList<>();
+        Map<String, Object> participants = new HashMap<>();
+        participants.put("participant_code","testprovider1.apollo@swasth-hcx-dev");
+        participants.put( "role", "admin");
+        tenant_roles.add(participants);
+        users.put("tenant_roles",tenant_roles);
+        users.put( "created_by","testprovider1.apollo@swasth-hcx-dev");
+        participant.put("user",users);
+        return JSONUtils.serialize(participant);
+    }
+
     protected String userInviteRejectException() throws JsonProcessingException {
         Map<String , Object> participant = new HashMap<>();
         participant.put("jwt_token","eyJ0eXBlIjoiand0IiwiYWxnIjoiUlMyNTYifQ.eyJyb2xlIjoidmlld2VyIiwicGFydGljaXBhbnRfY29kZSI6InRlc3Rwcm92aWRlcjEuYXBvbGxvQHN3YXN0aC1oY3gtZGV2IiwiaXNzIjoiaGN4Z2F0ZXdheS5zd2FzdGhAc3dhc3RoLWhjeC1kZXYiLCJ0eXAiOiJpbnZpdGUiLCJpbnZpdGVkX2J5IjoibW9jazQyQGdtYWlsLmNvbSIsImV4cCI6MTY4NzQyMDE0NzY3OCwiaWF0IjoxNjg3MzMzNzQ3Njc4LCJqdGkiOiI4YzM0MWEzNS04MDFhLTQwYjQtYjRjYi1mZGQ1ZjcwZDAxZTciLCJlbWFpbCI6Im1vY2staW52aXRlQHlvcG1haWwuY29tIn0.MqyBWyS0sQSHRlXHaWTlb9hJZyqjICOc0oSwviHKQ0wDQ3xNmpBjLKu2naOzfozPIdRHtfYkxb_5fca_cOPV5zyQeyqIH6prcaDKPnPDJIwY2VxvsR2njJnAPK5xRuSaqahTgYfzoVF7PI4nAPCSRYCJqdMXMrBIrY10uoN7EWY9VjfbrYiIgwvEBFCqAI-V0SHziyKh8ufNGT3ueKocm4ittFI3qUMP7i0AYx29CV84kBNPB2-fz_TJY_WmWDRnrSQR536PROlv3MASOsHR3iVa2HSOj9VwDQFwV1MpF8p9VY-gz2K6JOxyJvhw_1iJnmjWKjERlqOjy0KdBl2B5A");
@@ -233,6 +273,36 @@ public class BaseSpec {
         Map<String , Object> participant = new HashMap<>();
         participant.put("jwt_token", "eyJ0eXBlIjoiand0IiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJ0ZXN0aGN0ZXMxM0B5b3BtYWlsLmNvbSIsInBhcnRpY2lwYW50X25hbWUiOiJ0ZXN0LXBheW9yIiwicGFydGljaXBhbnRfY29kZSI6InRlc3RoY3RlczEzLnlvcG1haWxAc3dhc3RoLWhjeCIsImlzcyI6ImhjeGdhdGV3YXkuc3dhc3RoQHN3YXN0aC1oY3gtZGV2IiwidHlwIjoiZW1haWwiLCJpYXQiOjE2OTA1MjU3ODc3NzUsImp0aSI6Ijg5ZThjYWQ5LTNjZDMtNDcxNS1iODkzLTU5NzMzNGMyODBmZiJ9.NNL_BI9f1mMejUZZXzk8ltNo4-m9R5p23Rbj96QdUxQN-78jl1G6P2nMuDeD57RCDZ1GcQAdNdvTr4XrohaZerXE4aX9UBymfga6wGa2U8s2SXXc0UyQWMrM1bNP_Aw28UocHuM10gzW0hWCXW6UnPGYQudUlGJCA1Jkd3FeD6H2FBnPIQdZphmIrL6KlTiF6anEDAhuQGI0A5mfilRg2ewCjU5LQn6iik-Jtc_4aMqZJ-WbT_oy7rqYkbuzxFJrn3LjBrwjtIdi_mwKZowrObyWBLEwVFnC0ve0SjhNncxmOV3kDMoNIaQTMf7GDohXHtFijU7SomDeuqF1zIGfmw");
         participant.put("status", "successful");
+        return JSONUtils.serialize(participant);
+    }
+
+    protected String applicantVerifyWithJwtTokenFail() throws JsonProcessingException {
+        Map<String , Object> participant = new HashMap<>();
+        participant.put("jwt_token", "eyJ0eXBlIjoiand0IiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJ0ZXN0aGN0ZXMxM0B5b3BtYWlsLmNvbSIsInBhcnRpY2lwYW50X25hbWUiOiJ0ZXN0LXBheW9yIiwicGFydGljaXBhbnRfY29kZSI6InRlc3RoY3RlczEzLnlvcG1haWxAc3dhc3RoLWhjeCIsImlzcyI6ImhjeGdhdGV3YXkuc3dhc3RoQHN3YXN0aC1oY3gtZGV2IiwidHlwIjoiZW1haWwiLCJpYXQiOjE2OTA1MjU3ODc3NzUsImp0aSI6Ijg5ZThjYWQ5LTNjZDMtNDcxNS1iODkzLTU5NzMzNGMyODBmZiJ9.NNL_BI9f1mMejUZZXzk8ltNo4-m9R5p23Rbj96QdUxQN-78jl1G6P2nMuDeD57RCDZ1GcQAdNdvTr4XrohaZerXE4aX9UBymfga6wGa2U8s2SXXc0UyQWMrM1bNP_Aw28UocHuM10gzW0hWCXW6UnPGYQudUlGJCA1Jkd3FeD6H2FBnPIQdZphmIrL6KlTiF6anEDAhuQGI0A5mfilRg2ewCjU5LQn6iik-Jtc_4aMqZJ-WbT_oy7rqYkbuzxFJrn3LjBrwjtIdi_mwKZowrObyWBLEwVFnC0ve0SjhNncxmOV3kDMoNIaQTMf7GDohXHtFijU7SomDeuqF1zIGfmw");
+        participant.put("status", "failed");
+        return JSONUtils.serialize(participant);
+    }
+
+    protected  String applicantVerifyJwtTokenMobile() throws JsonProcessingException {
+        Map<String , Object> participant = new HashMap<>();
+        participant.put("jwt_token","eyJ0eXBlIjoiand0IiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiI5NjIwNDk5MTI5IiwicGFydGljaXBhbnRfbmFtZSI6ImhjeHB5cjgwIiwicGFydGljaXBhbnRfY29kZSI6InBheXJfaGN4cHlyXzU5ODg4MUBzd2FzdGgtaGN4LWRldiIsImlzcyI6ImhjeGdhdGV3YXkuc3dhc3RoQHN3YXN0aC1oY3gtZGV2IiwidHlwIjoicGhvbmUiLCJpYXQiOjE2OTg2NTU5NzEwNjAsImp0aSI6ImIyMGY3MjRjLThkZmQtNDJhMy05ZmMxLWUxZjFjZTlkMTgwMiJ9.hg6EoIL-IbgKh8-Jb1dRcL98DY1ASC1JoW4_Fmgb4EbZvvjbYALm_RZyxMrdhDgaES_jNiyqC_oeE81YUgtu5s-9NIxxthNomi_LZCITheJMK0BoHQ9QfvbQ2eawOpFHFnXDC5d_VVzOEliEG06TRoouahjtgVoTJkdMOj5AfX0pF2aThCo13HgTHUp6BmP06MpAwuANCjlh23eUonpOCLDMMbNf3uehFsiwvFFLgJQioh2mKnniiu77Hus4Cm_4WvbB_03FIlr3zD9dMjYwEc6nD1WXNUSL7cEaFbLS6xB6xwTHzgrv0IIlWbiVHkH2IdHiwAbaivYgVyWYtKrC6w");
+        participant.put("status","successful");
+        return JSONUtils.serialize(participant);
+    }
+
+    protected String applicantVerifyInvalidJwtToken() throws JsonProcessingException {
+        Map<String , Object> participant = new HashMap<>();
+        participant.put("jwt_token", "eyJhbGciOiJSUzI1NiJ9.eyJyb2xlIjoiYWRtaW4iLCJwYXJ0aWNpcGFudF9jb2RlIjoidGVzdHByb3ZpZGVyMS5hcG9sbG9Ac3dhc3RoLWhjeC1kZXYiLCJpc3MiOiJoY3hnYXRld2F5LnN3YXN0aEBzd2FzdGgtaGN4LWRldiIsInR5cCI6Imludml0ZSIsImludml0ZWRfYnkiOiJtb2NrNDJAZ21haWwuY29tIiwiZXhwIjoiMTY5MTQyNDMxOTYzMCIsImlhdCI6IjE2OTEzMzc5MTk2MzAiLCJqdGkiOiJkYWUwMzU5YS0yMmFjLTQzZTAtYjZjMy1kOWFiZTRjYzU1NDIiLCJlbWFpbCI6Im1vY2staW52aXRlQHlvcG1haWwuY29tIn0.gq1ZJSXwr-SH_1Ib22R-d8G1X5MmmYpBwiUYBbRJDjbm-yCkpUtGHvWvmlV6GkT-PxxRQmiIlizqZJeyUEuTXs4FMvNDmnkzcrz6zb9xAUQVK7jQXmqLwZ14aDWz0L2470r7M1C4Uo6vd2mg67FmY6wHFiib-vfjwYKRXSv_73PxN5c4xs38JBCi8sz8Z3BKmcOhhkL6oPwvB1rC2QKRceXtDYIWQrU6N_uMqigdQeUqTTXVW_zACdgKaG2aWb1pac3ov-jzTnFS_ls7FpBvuDsfkQ7FqCIHBQyoT5aBBDUSxJxNqlzV8xVX8Yxuk2rjmKVHZmvSlVCohShJFvyhrw");
+        participant.put("status", "successful");
+        return JSONUtils.serialize(participant);
+    }
+
+    protected String userInviteReject() throws JsonProcessingException {
+        Map<String ,Object> participant = new HashMap<>();
+        participant.put("jwt_token","eyJ0eXBlIjoiand0IiwiYWxnIjoiUlMyNTYifQ.eyJyb2xlIjoidmlld2VyIiwicGFydGljaXBhbnRfY29kZSI6InRlc3Rwcm92aWRlcjEuYXBvbGxvQHN3YXN0aC1oY3gtZGV2IiwiaXNzIjoiaGN4Z2F0ZXdheS5zd2FzdGhAc3dhc3RoLWhjeC1kZXYiLCJ0eXAiOiJpbnZpdGUiLCJpbnZpdGVkX2J5IjoibW9jazQyQGdtYWlsLmNvbSIsImV4cCI6MTY4NzQyMDE0NzY3OCwiaWF0IjoxNjg3MzMzNzQ3Njc4LCJqdGkiOiI4YzM0MWEzNS04MDFhLTQwYjQtYjRjYi1mZGQ1ZjcwZDAxZTciLCJlbWFpbCI6Im1vY2staW52aXRlQHlvcG1haWwuY29tIn0.MqyBWyS0sQSHRlXHaWTlb9hJZyqjICOc0oSwviHKQ0wDQ3xNmpBjLKu2naOzfozPIdRHtfYkxb_5fca_cOPV5zyQeyqIH6prcaDKPnPDJIwY2VxvsR2njJnAPK5xRuSaqahTgYfzoVF7PI4nAPCSRYCJqdMXMrBIrY10uoN7EWY9VjfbrYiIgwvEBFCqAI-V0SHziyKh8ufNGT3ueKocm4ittFI3qUMP7i0AYx29CV84kBNPB2-fz_TJY_WmWDRnrSQR536PROlv3MASOsHR3iVa2HSOj9VwDQFwV1MpF8p9VY-gz2K6JOxyJvhw_1iJnmjWKjERlqOjy0KdBl2B5A");
+        Map<String , Object> user = new HashMap<>();
+        user.put("email","mock41@gmail.com");
+        participant.put("user",user);
         return JSONUtils.serialize(participant);
     }
 }

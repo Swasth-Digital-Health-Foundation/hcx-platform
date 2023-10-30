@@ -383,6 +383,7 @@ public class OnboardService extends BaseController {
                                 if (type.equals(EMAIL)) {
                                     emailVerified = true;
                                 } else if (type.equals(PHONE)) {
+                                    System.out.println("-PHONE");
                                     phoneVerified = true;
                                 }
                                 if (phoneVerified && emailVerified) {
@@ -532,13 +533,17 @@ public class OnboardService extends BaseController {
             logger.info("Participant details are updated successfully :: participant code : " + participant.get(PARTICIPANT_CODE));
             if (commStatus.equals(SUCCESSFUL) && identityStatus.equals(ACCEPTED)) {
                 if (mockParticipantAllowedEnv.contains(env)) {
+                    System.out.println("MOCK PARTICIPANT");
                     String searchQuery = String.format("SELECT * FROM %s WHERE parent_participant_code = '%s'", mockParticipantsTable, participant.get(PARTICIPANT_CODE));
                     ResultSet result = (ResultSet) postgresClientMockService.executeQuery(searchQuery);
                     if (!result.next()) {
+                        System.out.println("MOCK SERVICE");
                         mockProviderDetails = createMockParticipant(headers, PROVIDER, participantDetails);
+                        System.out.println("create mock");
                         mockPayorDetails = createMockParticipant(headers, PAYOR, participantDetails);
                     }
                     if (participantDetails.getOrDefault("status", "").equals(CREATED)) {
+                        System.out.println("CREATED");
                         kafkaClient.send(messageTopic, EMAIL, eventGenerator.getEmailMessageEvent(successTemplate((String) participant.get(PARTICIPANT_NAME), mockProviderDetails, mockPayorDetails), onboardingSuccessSub, Arrays.asList(email), new ArrayList<>(), new ArrayList<>()));
                     }
                 } else if (participantDetails.getOrDefault("status", "").equals(CREATED)) {
@@ -553,6 +558,7 @@ public class OnboardService extends BaseController {
             response.put(COMMUNICATION_VERIFICATION, commStatus);
             if (emailEnabled) response.put(EMAIL_VERIFIED, emailVerified);
             if (phoneEnabled) response.put(PHONE_VERIFIED, phoneVerified);
+            System.out.println("response");
             return getSuccessResponse(response);
         } else {
             return new ResponseEntity<>(httpResponse.getBody(), HttpStatus.valueOf(httpResponse.getStatus()));
@@ -757,9 +763,9 @@ public class OnboardService extends BaseController {
         updateInviteStatus(user.getEmail(), "accepted");
         Map<String,Object> participantDetails = getParticipant(PARTICIPANT_CODE, token.getParticipantCode());
         // user
-        kafkaClient.send(messageTopic, EMAIL, eventGenerator.getEmailMessageEvent(userInviteAcceptTemplate(user.getUserId(), (String) participantDetails.get(PARTICIPANT_NAME), user.getUsername(),(String) user.getTenantRoles().get(0).getOrDefault(ROLE, "")), userInviteAcceptSub, Arrays.asList(user.getEmail()), Arrays.asList(token.getInvitedBy()), new ArrayList<>()));
+        kafkaClient.send(messageTopic, EMAIL, eventGenerator.getEmailMessageEvent(userInviteAcceptTemplate(user.getUserId(), (String) participantDetails.get(PARTICIPANT_NAME), user.getUsername(),token.getRole()), userInviteAcceptSub, Arrays.asList(user.getEmail()), Arrays.asList(token.getInvitedBy()), new ArrayList<>()));
         // participant
-        kafkaClient.send(messageTopic, EMAIL, eventGenerator.getEmailMessageEvent(userInviteAcceptParticipantTemplate((String) participantDetails.get(PARTICIPANT_NAME),user.getUsername(),(String) user.getTenantRoles().get(0).getOrDefault(ROLE, "")), userInviteAcceptSub, Arrays.asList((String) participantDetails.get(PRIMARY_EMAIL)), Arrays.asList(token.getInvitedBy()), new ArrayList<>()));
+        kafkaClient.send(messageTopic, EMAIL, eventGenerator.getEmailMessageEvent(userInviteAcceptParticipantTemplate((String) participantDetails.get(PARTICIPANT_NAME),user.getUsername(),token.getRole()), userInviteAcceptSub, Arrays.asList((String) participantDetails.get(PRIMARY_EMAIL)), Arrays.asList(token.getInvitedBy()), new ArrayList<>()));
         auditIndexer.createDocument(eventGenerator.getOnboardUserInviteAccepted(user,participantDetails));
         Thread.sleep(2000);
         return getSuccessResponse();

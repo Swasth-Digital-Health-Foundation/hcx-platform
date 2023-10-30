@@ -64,7 +64,7 @@ mock-service:
     endpoint-url: ${mock_service_endpoint_url_provider:http://test-mock-payor-url}
   provider:
     endpoint-url: ${mock_service_endpoint_url_payor:http://test-mock-provider-url}
-  allowed-env: ${mock_service_allowed_env:}
+  allowed-env: ${mock_service_allowed_env:local}
 
 #postgres config
 postgres:
@@ -76,7 +76,7 @@ postgres:
     onboard-verifier: ${onboard_verifier_table:onboard_verifier}
     onboard-user-invite: ${onboard_user_invite_table:onboard_user_invite_details}
   mock-service:
-    url: ${mock_service_db_url:jdbc:postgresql://localhost:5432/mock_service}
+    url: ${mock_service_db_url:jdbc:postgresql://localhost:5432/postgres}
     table:
       mock-participant: ${mock_participant_table:mock_participant}
 
