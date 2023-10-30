@@ -209,7 +209,7 @@ const AddPatientAndInitiateCoverageEligibility = () => {
     }
   };
 
-  localStorage.setItem("patientMobile", mobile);
+  localStorage.setItem("patientMobile", mobile || patientDataFromState?.mobile);
 
   const coverageeligibilityPayload = {
     insuranceId:

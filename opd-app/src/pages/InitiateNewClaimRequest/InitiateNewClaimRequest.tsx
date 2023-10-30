@@ -112,7 +112,7 @@ const InitiateNewClaimRequest = () => {
     ],
     type: "provider_app",
   };
-
+  
   const filter = {
     entityType: ["Beneficiary"],
     filters: {

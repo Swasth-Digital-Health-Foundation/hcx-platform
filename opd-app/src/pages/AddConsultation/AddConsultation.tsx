@@ -65,7 +65,8 @@ const AddConsultation = () => {
       : {})
   };
 
-  localStorage.setItem("patientMobile",location.state?.patientMobile);
+  // localStorage.setItem("patientMobile",location.state?.patientMobile);
+
   const patientMobile = location.state?.patientMobile || localStorage.getItem("patientMobile");
 
   const handleUpload = async () => {

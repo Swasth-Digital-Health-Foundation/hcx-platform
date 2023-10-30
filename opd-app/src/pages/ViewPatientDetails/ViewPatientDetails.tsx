@@ -65,7 +65,7 @@ const ViewPatientDetails = () => {
     }
   };
 
-  // localStorage.setItem("patientMobile", patientDetails[0]?.mobile);
+  localStorage.setItem("patientMobile", patientDetails[0]?.mobile);
   localStorage.setItem("patientName", patientDetails[0]?.name);
 
   const personalDeatails = [
