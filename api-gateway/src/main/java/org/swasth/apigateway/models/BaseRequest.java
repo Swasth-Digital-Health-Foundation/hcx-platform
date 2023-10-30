@@ -362,16 +362,10 @@ public class BaseRequest {
     private List<Map<String, Object>> filteredList(List<Map<String, Object>> correlationFilteredData, int days) {
         return correlationFilteredData.stream()
                 .filter(map -> COMPLETE_STATUS.equals(map.get(STATUS)))
-                .filter(map -> {
-                    try {
-                        return isWithinLastDays((Long) map.get(UPDATED_TIME), days);
-                    } catch (ParseException e) {
-                        throw new RuntimeException(e);
-                    }
-                }).collect(Collectors.toList());
+                .filter(map -> isWithinLastDays((Long) map.get(UPDATED_TIME), days)).collect(Collectors.toList());
     }
 
-    private boolean isWithinLastDays(long timestamp ,int days) throws ParseException {
+    private boolean isWithinLastDays(long timestamp ,int days) {
         Date currentDate = new Date();
         long differenceInMillis = currentDate.getTime() - timestamp;
         long daysDifference = TimeUnit.DAYS.convert(differenceInMillis, TimeUnit.MILLISECONDS);
