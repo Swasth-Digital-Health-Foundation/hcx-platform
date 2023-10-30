@@ -150,6 +150,7 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
             setStatus(event, Constants.DISPATCH_STATUS)
             metrics.incCounter(metric = config.dispatcherSuccessCount)
             generateSuccessMetrics(event, metrics)
+            audit(event, context, metrics)
           }
           if (result.retry) {
             var retryCount: Int = 0
@@ -164,17 +165,12 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
               generateRetryMetrics(event, metrics)
               Console.println("Event is updated for retrying..")
             }
+            audit(event, context, metrics)
           }
-          Console.println("! result.retry-----"  + !result.retry)
-          Console.println("! result.succes----------" + !result.success)
-          Console.println("-------result.eroor ---------" + result.error)
           if (!result.retry && !result.success) {
             dispatchError(payloadRefId, event, result, correlationId, senderCtx, context, metrics)
-            Console.println("----------event -------------" + event)
+            audit(event, context, metrics)
           }
-          Console.println("-----The event going to updated -----------------------------------")
-          Console.println("event ---------" + event)
-          audit(event, context, metrics)
         }
       }
     } catch {
