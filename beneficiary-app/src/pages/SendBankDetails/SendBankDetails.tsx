@@ -7,6 +7,7 @@ import {
 } from '../../services/hcxMockService';
 import { toast } from 'react-toastify';
 import LoadingButton from '../../components/LoadingButton';
+import * as _ from "lodash";
 
 const SendBankDetails = () => {
   const location = useLocation();
@@ -60,13 +61,10 @@ const SendBankDetails = () => {
     request_id: details?.apiCallId,
   };
 
-  console.log(getVerificationPayloadForBank);
-
   const getVerificationForBank = async () => {
     try {
       setRefresh(true);
       let res = await isInitiated(getVerificationPayloadForBank);
-      console.log(res.status);
       setRefresh(false);
       if (res.status === 200) {
         setBankDetails(true);
@@ -86,17 +84,14 @@ const SendBankDetails = () => {
     ifsc_code: ifscCode,
   };
 
-  console.log(bankDetailsPayload);
-
   const submit = async () => {
     try {
       setLoading(true);
       let res = await createCommunicationOnRequest(bankDetailsPayload);
-      console.log(res);
       setLoading(false);
       if (res.status === 202) {
         toast.success('Bank deatils submitted successfully!');
-        navigate('/success');
+        navigate('/home');
       }
     } catch (err) {
       setLoading(false);
@@ -114,7 +109,7 @@ const SendBankDetails = () => {
       </div>
       <div className="rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
         <div>
-          {claimRequestDetails.map((ele: any, index: any) => {
+          {_.map(claimRequestDetails, (ele: any, index: any) => {
             return (
               <div key={index}>
                 <h2 className="text-bold text-base font-bold text-black dark:text-white">
@@ -133,7 +128,7 @@ const SendBankDetails = () => {
           </h2>
         </div>
         <div>
-          {treatmentDetails.map((ele: any) => {
+          {_.map(treatmentDetails, (ele: any) => {
             return (
               <div className="flex gap-2">
                 <h2 className="text-bold text-base font-bold text-black dark:text-white">

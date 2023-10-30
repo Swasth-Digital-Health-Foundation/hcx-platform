@@ -37,7 +37,7 @@ export default {
   NEW_CLAIM_REQUEST: 'New claim request',
   TREATMENT_AND_BILLING_DETAILS: 'Treatment & billing details : *',
   BILL_AMOUNT: 'Bill amount : *',
-  SUPPORTING_DOCS: 'Supporting documents : *',
+  SUPPORTING_DOCS: 'Supporting documents : ',
   DOC_TYPE: 'Document type :',
   UPLOAD_DOCS: 'Select documents',
   DELETE: 'Delete',

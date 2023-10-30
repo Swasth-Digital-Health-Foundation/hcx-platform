@@ -20,7 +20,7 @@ const PreAuthRequest = () => {
   const [fileErrorMessage, setFileErrorMessage]: any = useState();
   const [isSuccess, setIsSuccess]: any = useState(false);
 
-  const [estimatedAmount, setAmount] = useState<any>();
+  const [estimatedAmount, setAmount] = useState<string>('');
   const [serviceType, setServiceType] = useState<string>('Consultation');
   const [documentType, setDocumentType] = useState<string>('Prescription');
 
@@ -191,7 +191,8 @@ const PreAuthRequest = () => {
           requestPayload
         );
         setLoading(false);
-        navigate('/request-success', {
+        toast.success("Pre-auth request initiated successfully!")
+        navigate('/home', {
           state: {
             text: 'preauth',
             mobileNumber: localStorage.getItem('mobile'),
@@ -385,7 +386,7 @@ const PreAuthRequest = () => {
 
         {isSuccess ? (
           <div>
-            {FileLists.map((file: any) => {
+            {_.map(FileLists,(file: any) => {
               return (
                 <div className="flex items-center justify-between">
                   <div className="mb-2.5 mt-4 block text-left text-sm text-black dark:text-white">
@@ -410,7 +411,7 @@ const PreAuthRequest = () => {
       <div className="mb-5 mt-4">
         {!loading ? (
           <button
-            disabled={estimatedAmount === '' || selectedFile === undefined || fileErrorMessage}
+            disabled={estimatedAmount === '' || fileErrorMessage}
             onClick={(event: any) => {
               event.preventDefault();
               submitPreauth();

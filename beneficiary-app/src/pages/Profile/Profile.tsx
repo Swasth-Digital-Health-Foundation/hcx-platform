@@ -40,22 +40,6 @@ const Profile = () => {
     },
   ];
 
-  // const insuranceDetails = [
-  //   {
-  //     key: 'Insurance ID :',
-  //     value: userInfo[0]?.payor_details.map((ele: any) => {
-  //       return ele.insurance_id;
-  //     }),
-  //   },
-  //   {
-  //     key: 'Payor :',
-  //     value: userInfo[0]?.payor_details.map((ele: any) => {
-  //       return ele.payor;
-  //     }),
-  //   },
-  // ];
-  console.log(userInfo);
-
   return (
     <>
       <h2 className="text-bold mb-3 text-2xl font-bold text-black dark:text-white">

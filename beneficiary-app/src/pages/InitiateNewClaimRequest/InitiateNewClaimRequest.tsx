@@ -8,6 +8,7 @@ import strings from '../../utils/strings';
 import { generateToken, searchParticipant } from '../../services/hcxService';
 import axios from 'axios';
 import { postRequest } from '../../services/registryService';
+import * as _ from "lodash";
 
 const InitiateNewClaimRequest = () => {
   const navigate = useNavigate();
@@ -31,7 +32,6 @@ const InitiateNewClaimRequest = () => {
   let FileLists: any;
   if (selectedFile !== undefined) {
     FileLists = Array.from(selectedFile);
-    console.log('new', FileLists);
   }
 
   const data = location.state;
@@ -57,7 +57,7 @@ const InitiateNewClaimRequest = () => {
     supportingDocuments: [
       {
         documentType: documentType,
-        urls: fileUrlList.map((ele: any) => {
+        urls: _.map(fileUrlList, (ele: any) => {
           return ele.url;
         }),
       },
@@ -138,7 +138,7 @@ const InitiateNewClaimRequest = () => {
         data: formData,
       });
       let obtainedResponse = response.data;
-      const uploadedUrls = obtainedResponse.map((ele: any) => ele.url);
+      const uploadedUrls = _.map(obtainedResponse,(ele: any) => ele.url);
       // Update the payload with the new URLs
       initiateClaimRequestBody.supportingDocuments[0].urls = uploadedUrls;
       setUrlList((prevFileUrlList: any) => [
@@ -183,14 +183,9 @@ const InitiateNewClaimRequest = () => {
           'create/claim/submit',
           initiateClaimRequestBody
         );
-        console.log(submitClaim);
         setLoading(false);
-        navigate('/request-success', {
-          state: {
-            text: 'claim',
-            mobileNumber: data.mobile || initiateClaimRequestBody.mobile,
-          },
-        });
+        toast.success("Claim request initiated successfully!")
+        navigate('/home');
       }, 2000);
     } catch (err) {
       setLoading(false);
@@ -198,15 +193,13 @@ const InitiateNewClaimRequest = () => {
     }
   };
 
-  console.log(initiateClaimRequestBody);
-
   return (
     <div className="w-full">
       <h2 className="mb-4 text-2xl font-bold text-black dark:text-white sm:text-title-xl2">
         {strings.NEW_CLAIM_REQUEST}
       </h2>
       <div className="rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
-        {claimRequestDetails.map((ele: any, index: any) => {
+        {_.map(claimRequestDetails,(ele: any, index: any) => {
           return (
             <div key={index} className="mb-2">
               <h2 className="text-bold mt-1 text-base font-bold text-black dark:text-white">
@@ -374,7 +367,7 @@ const InitiateNewClaimRequest = () => {
         </div>
         {isSuccess ? (
           <div>
-            {FileLists.map((file: any) => {
+            {_.map(FileLists,(file: any) => {
               return (
                 <div className="flex items-center justify-between">
                   <div className="mb-2.5 mt-4 block text-left text-sm text-black dark:text-white">
@@ -399,7 +392,7 @@ const InitiateNewClaimRequest = () => {
       <div className="mb-5 mt-4">
         {!loading ? (
           <button
-            disabled={amount === '' || selectedFile === undefined || fileErrorMessage}
+            disabled={amount === '' || fileErrorMessage}
             onClick={(event: any) => {
               event.preventDefault();
               submitClaim();

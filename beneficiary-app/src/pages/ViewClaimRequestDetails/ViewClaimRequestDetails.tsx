@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import strings from '../../utils/strings';
 import { generateToken, searchParticipant } from '../../services/hcxService';
-import axios from 'axios';
 import {
   createCommunicationOnRequest,
   generateOutgoingRequest,
@@ -10,6 +9,8 @@ import {
 } from '../../services/hcxMockService';
 import { toast } from 'react-toastify';
 import LoadingButton from '../../components/LoadingButton';
+import * as _ from "lodash";
+import { ArrowDownTrayIcon } from "@heroicons/react/24/outline";
 
 const ViewClaimRequestDetails = () => {
   const location = useLocation();
@@ -43,7 +44,7 @@ const ViewClaimRequestDetails = () => {
       participant_code: { eq: location.state?.payorCode },
     },
   };
-  
+
   const config = {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -137,7 +138,6 @@ const ViewClaimRequestDetails = () => {
     try {
       setRefresh(true);
       let res = await isInitiated(getVerificationPayload);
-      console.log(res);
       setRefresh(false);
       if (res.status === 200) {
         setInitiated(true);
@@ -160,7 +160,6 @@ const ViewClaimRequestDetails = () => {
     try {
       setLoading(true);
       const res = await createCommunicationOnRequest(payload);
-      console.log(res);
       setLoading(false);
       setInitiated(false);
       toast.success(res.data?.message);
@@ -174,7 +173,7 @@ const ViewClaimRequestDetails = () => {
 
   const preauthOrClaimListPayload = {
     workflow_id: details?.workflowId || '',
-    app:"BSP"
+    app: "BSP"
   };
 
   const getSupportingDocsFromList = async () => {
@@ -190,9 +189,9 @@ const ViewClaimRequestDetails = () => {
     );
 
     // Extract supporting documents from the filtered entries
-    const supportingDocumentsArray = claimAndPreauthEntries
-      .map((entry: any) => entry.supportingDocuments)
-      .flat();
+    const supportingDocumentsArray =
+      _.map(claimAndPreauthEntries, (entry: any) => entry.supportingDocuments)
+        .flat();
 
     setSupportingDocs(supportingDocumentsArray);
   };
@@ -222,7 +221,7 @@ const ViewClaimRequestDetails = () => {
       </div>
       <div className="rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
         <div>
-          {claimRequestDetails.map((ele: any, index: any) => {
+          {_.map(claimRequestDetails, (ele: any, index: any) => {
             return (
               <div key={index} className="mb-2">
                 <h2 className="text-bold text-base font-bold text-black dark:text-white">
@@ -241,7 +240,7 @@ const ViewClaimRequestDetails = () => {
           </h2>
         </div>
         <div>
-          {treatmentDetails.map((ele: any) => {
+          {_.map(treatmentDetails, (ele: any) => {
             return (
               <div className="flex gap-2">
                 <h2 className="text-bold text-base font-bold text-black dark:text-white">
@@ -253,28 +252,37 @@ const ViewClaimRequestDetails = () => {
           })}
         </div>
       </div>
-      <div className="mt-3 rounded-sm border border-stroke bg-white px-3 pb-3 shadow-default dark:border-strokedark dark:bg-boxdark">
-        <div className="flex items-center justify-between">
-          <h2 className="sm:text-title-xl1 text-1xl mt-2 mb-2 font-semibold text-black dark:text-white">
-            {strings.SUPPORTING_DOCS}
-          </h2>
+      {docs.length === 0 ? null : <>
+        <div className="mt-3 rounded-sm border border-stroke bg-white px-3 pb-3 shadow-default dark:border-strokedark dark:bg-boxdark">
+          <div className="flex items-center justify-between">
+            <h2 className="sm:text-title-xl1 text-1xl mt-2 mb-2 font-semibold text-black dark:text-white">
+              {strings.SUPPORTING_DOCS}
+            </h2>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {_.map(docs, (ele: any, index: any) => {
+              const parts = ele.split('/');
+              const fileName = parts[parts.length - 1];
+              return (
+                <div>
+                  <a
+                    href={ele}
+                    download
+                    className="flex flex-col w-50 shadow-sm border border-gray-300 hover:border-gray-400 rounded-md px-3 py-1 font-medium text-gray-700 hover:text-black"
+                  >
+                    <span className="text-center">{fileName}</span>
+                    <img src={ele} alt="" />
+                    <div className="flex items-center justify-center">
+                      <ArrowDownTrayIcon className="h-5 w-5 flex-shrink-0 mr-2 text-indigo-400" />
+                      <span>Download</span>
+                    </div>
+                  </a>
+                </div>
+              );
+            })}
+          </div>
         </div>
-        <div>
-          {docs.map((ele: any, index: any) => {
-            const parts = ele.split('/');
-            const fileName = parts[parts.length - 1];
-
-            const fileExtension = fileName.split('.').pop();
-            return (
-              <>
-                <a href={ele} className="flex text-base font-medium underline">
-                  document {index + 1}.{fileExtension}
-                </a>
-              </>
-            );
-          })}
-        </div>
-      </div>
+      </>}
 
       {!hasClaimApproved ? (
         <div

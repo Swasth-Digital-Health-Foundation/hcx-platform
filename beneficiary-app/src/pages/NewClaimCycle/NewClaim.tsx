@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { generateToken, searchParticipant } from '../../services/hcxService';
 import LoadingButton from '../../components/LoadingButton';
-import { toast } from 'react-toastify';
 import * as _ from 'lodash';
 import strings from '../../utils/strings';
 import { postRequest } from '../../services/registryService';
@@ -21,7 +20,6 @@ const NewClaim = () => {
   const [payor, setPayor] = useState<string>('');
   const [insuranceId, setInsuranceId] = useState<string>('');
 
-  const [token, setToken] = useState<string>('');
   const [searchResults, setSearchResults] = useState<any>([]);
 
   const [openDropdown, setOpenDropdown] = useState(false);
@@ -38,21 +36,19 @@ const NewClaim = () => {
     password: process.env.SEARCH_PARTICIPANT_PASSWORD,
   };
 
-  const config = {
-    headers: {
-      Authorization: `Bearer eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI4NTI3ODUzYy1iNDQyLTQ0ZGItYWVkYS1kYmJkY2Y0NzJkOWIiLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsImlzcyI6Imh0dHA6XC9cL2tleWNsb2FrLmtleWNsb2FrLnN2Yy5jbHVzdGVyLmxvY2FsOjgwODBcL2F1dGhcL3JlYWxtc1wvc3dhc3RoLWhjeC1wYXJ0aWNpcGFudHMiLCJ0eXAiOiJCZWFyZXIiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJ0ZXN0cHJvdmlkZXIxQGFwb2xsby5jb20iLCJhdWQiOiJhY2NvdW50IiwiYWNyIjoiMSIsInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJwcm92aWRlciIsImRlZmF1bHQtcm9sZXMtbmRlYXIiXX0sImF6cCI6InJlZ2lzdHJ5LWZyb250ZW5kIiwicGFydGljaXBhbnRfY29kZSI6InRlc3Rwcm92aWRlcjEuYXBvbGxvQHN3YXN0aC1oY3gtZGV2Iiwic2NvcGUiOiJwcm9maWxlIGVtYWlsIiwiZXhwIjoxNjk4NTc5NDcxLCJzZXNzaW9uX3N0YXRlIjoiYzQyYWU0ZmQtNGNmYy00NmY1LWE5MzItMTdkNTIxMWQxMTk5IiwiaWF0IjoxNjk2ODUxNDcxLCJqdGkiOiJiY2M2NmJmZS00NzNhLTRjMzItYjdjOC01NGNjOGE5YTlmODMiLCJlbnRpdHkiOlsiT3JnYW5pc2F0aW9uIl0sImVtYWlsIjoidGVzdHByb3ZpZGVyMUBhcG9sbG8uY29tIn0.bzJti6T8d2cVGsZpdCP1htswhVwEcsrlgZGlkWF4BK0chDDwQejoBznHTMUzqPVEbUTx_luivdE9xvAzun1JzoZiF_hlfPILuuPVEf8OnXViB0VZvq0lnv_YCECu5yGhiaFkqguh8riu2GsPmlvMf4B_ezerQVTaXCv_OdiHk7yQVr-KNzv8o-oBEfvWGOQJkwDKeCwf0vj8WK9OkifmwpOKZoDHWObW1ZoBwlaDdVZ4THemC8k13XMqXMIUC8eVRwvRQl4VsW0N8x_HBePMm9SrKH_N00-AyHo18iASIXANrFsNhYAbhGktMt1TCyM1PW9wKXZ6x8AhLmasXi-xfg`,
-    },
-  };
-
   let search = async () => {
     try {
       if (providerName.trim() === '') {
         setSearchResults([]);
         return;
       }
-      // const tokenResponse = await generateToken(tokenRequestBody);
-      // setToken(tokenResponse.data.access_token);
-      const response = await searchParticipant(payload, config);
+      const tokenResponse = await generateToken();
+      const token = tokenResponse.data.access_token;
+      const response = await searchParticipant(payload, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setOpenDropdown(true);
       setSearchResults(response.data?.participants);
     } catch (error: any) {
@@ -122,54 +118,6 @@ const NewClaim = () => {
     getPayorName();
   }, [insurancePlanInputRef]);
 
-  // const getUserPayorDetails: any = userInfo[0]?.payor_details;
-  // // console.log(getUserPayorDetails);
-
-  // const [test, setTest] = useState<any>(getUserPayorDetails);
-  // console.log(test)
-
-  // const updatePayload = {
-  //   insurance_id:
-  //     insurancePlanInputRef === 'add another' ? payor : payorFromInsuranceId,
-  //   payor:
-  //     insurancePlanInputRef === 'add another'
-  //       ? insuranceId
-  //       : insurancePlanInputRef,
-  // };
-
-  // test.push(updatePayload);
-  // console.log(getUserPayorDetails);
-  // console.log(userInfo[0]?.payor_details);
-
-  //   // console.log(existingInsuranceDetails)
-
-  //   const updateUserDetailsPayload = {
-  //     ...userInfo[0]?.payor_details,
-  //     payor_details: { ...updatePayload},
-  //   };
-
-  //   console.log(updateUserDetailsPayload);
-
-  //   const updatedPayorDetails = [...getUserPayorDetails.payor_details];
-
-  // // Create a new object with the desired values
-  // const newPayorObject = {
-  //   insurance_id: insurancePlanInputRef === 'add another' ? payor : payorFromInsuranceId,,
-  //   payor: insurancePlanInputRef === 'add another'
-  //   ? insuranceId
-  //   : insurancePlanInputRef,
-  // };
-  // };
-
-  // // Push the new object into the cloned array
-  // updatedPayorDetails.push(newPayorObject);
-
-  // // Update the existingData with the updated payor_details array
-  // existingData.payor_details = updatedPayorDetails;
-
-  // // Now, existingData contains the updated payor_details array
-  // console.log(existingData);
-
   return (
     <div className="w-full pt-2 sm:p-12.5 xl:p-1 ">
       <h2 className="mb-4 -mt-4 text-3xl font-bold text-black dark:text-white sm:text-title-xl2">
@@ -214,7 +162,7 @@ const NewClaim = () => {
               {openDropdown && searchResults.length !== 0 ? (
                 <div className="max-h-40 overflow-y-auto overflow-x-hidden">
                   <ul className="border-gray-300 left-0 w-full rounded-lg bg-gray px-2 text-black">
-                    {searchResults.map((result: any, index: any) => (
+                    {_.map(searchResults, (result: any, index: any) => (
                       <li
                         key={index}
                         onClick={() =>
@@ -302,9 +250,9 @@ const NewClaim = () => {
               className="relative z-20 w-full appearance-none rounded border border-stroke bg-transparent bg-transparent py-4 px-6 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark"
             >
               <option value="">select</option>
-              {userInfo[0]?.payor_details.map((ele: any) => {
+              {_.map(userInfo[0]?.payor_details, (ele: any,index:any) => {
                 return (
-                  <option value={ele?.insurance_id}>{ele?.insurance_id}</option>
+                  <option key={index} value={ele?.insurance_id}>{ele?.insurance_id}</option>
                 );
               })}
               <option value="add another">add another</option>

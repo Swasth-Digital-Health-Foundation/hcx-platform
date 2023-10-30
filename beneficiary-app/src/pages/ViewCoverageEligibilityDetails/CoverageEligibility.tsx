@@ -4,6 +4,8 @@ import strings from '../../utils/strings';
 import { generateToken, searchParticipant } from '../../services/hcxService';
 import { generateOutgoingRequest } from '../../services/hcxMockService';
 import TransparentLoader from '../../components/TransparentLoader';
+import * as _ from "lodash";
+import { ArrowDownTrayIcon } from "@heroicons/react/24/outline";
 
 const CoverageEligibility = () => {
   const navigate = useNavigate();
@@ -160,12 +162,6 @@ const CoverageEligibility = () => {
       setapicallIds(apicallIds);
 
       setisLoading(false);
-
-      // if (preauthOrClaimList.length === 2) {
-      //   setSelectedValue(false);
-      // } else {
-      //   return;
-      // }
     } catch (err) {
       setisLoading(false);
       console.log(err);
@@ -305,27 +301,33 @@ const CoverageEligibility = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="border-gray-300 my-4 border-t"></div>
-                  <h2 className="text-bold mb-3 text-base font-bold text-black dark:text-white">
-                    Supporting documents :
-                  </h2>
-                  {ele.supportingDocuments.map((ele: any, index: any) => {
-                    const parts = ele.split('/');
-                    const fileName = parts[parts.length - 1];
-
-                    // Split the file name by dot to extract the file extension
-                    const fileExtension = fileName.split('.').pop();
-                    return (
-                      <>
-                        <a
-                          href={ele}
-                          className="flex text-base font-medium underline"
-                        >
-                          document {index + 1}.{fileExtension}
-                        </a>
-                      </>
-                    );
-                  })}
+                  {ele.supportingDocuments.length === 0 ? null : <>
+                    <h2 className="text-bold mb-3 text-base font-bold text-black dark:text-white">
+                      Supporting documents :
+                    </h2>
+                    <div className="flex flex-wrap gap-2">
+                      {_.map(ele.supportingDocuments, (ele: string) => {
+                        const parts = ele.split('/');
+                        const fileName = parts[parts.length - 1];
+                        return (
+                          <>
+                            <a
+                              href={ele}
+                              download
+                              className="flex flex-col w-50 shadow-sm border border-gray-300 hover:border-gray-400 rounded-md px-3 py-1 font-medium text-gray-700 hover:text-black"
+                            >
+                              <span className="text-center">{fileName}</span>
+                              <img src={ele} alt="" />
+                              <div className="flex items-center justify-center">
+                                <ArrowDownTrayIcon className="h-5 w-5 flex-shrink-0 mr-2 text-indigo-400" />
+                                <span>Download</span>
+                              </div>
+                            </a>
+                          </>
+                        );
+                      })}
+                    </div>
+                  </>}
                 </div>
               </>
             );
@@ -337,7 +339,7 @@ const CoverageEligibility = () => {
                 <h2 className="text-bold text-1xl mt-3 font-bold text-black dark:text-white">
                   {strings.NEXT_STEP}
                 </h2>
-                
+
                 <div className="mt-2 mb-2 flex items-center">
                   <input
                     onChange={handleRadioChange}

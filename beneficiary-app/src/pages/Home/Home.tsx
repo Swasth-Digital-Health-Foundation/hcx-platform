@@ -41,10 +41,8 @@ const Home = () => {
         payor: userInformation[0]?.payor_details[0]?.payor,
         insuranceId: userInformation[0]?.payor_details[0]?.insurance_id,
         patientName: userInformation[0]?.name,
-        app:"BSP"
+        app: "BSP"
       };
-
-      console.log("payload",payload)
 
       const sendCoverageEligibilityRequest = async () => {
         try {
@@ -57,8 +55,8 @@ const Home = () => {
             setLoading(true);
             setTimeout(() => {
               setLoading(true);
+              toast.success("Coverage eligibility initiated successfully")
               getCoverageEligibilityRequestList();
-              navigate('/coverage-eligibility-success-page');
             }, 3000);
           }
         } catch (error) {
@@ -83,7 +81,7 @@ const Home = () => {
 
   const requestPayload = {
     mobile: getMobileFromLocalStorage,
-    app:"BSP"
+    app: "BSP"
   };
 
   const filter = {
@@ -245,8 +243,7 @@ const Home = () => {
         <div className="border-gray-300 my-4 border-t"></div>
         {!loading ? (
           <div>
-            {coverageAndClaimData?.map((ele: any, index: any) => {
-              // console.log(ele)
+            {_.map(coverageAndClaimData, (ele: any, index: any) => {
               return (
                 <div className="mt-2" key={index}>
                   <ActiveClaimCycleCard
