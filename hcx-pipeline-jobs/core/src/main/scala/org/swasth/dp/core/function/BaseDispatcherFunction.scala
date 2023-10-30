@@ -168,6 +168,8 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
           if (!result.retry && !result.success) {
             dispatchError(payloadRefId, event, result, correlationId, senderCtx, context, metrics)
           }
+          Console.println("-----The event going to updated -----------------------------------")
+          Console.println("event ---------" + event)
           audit(event, context, metrics)
         }
       }
