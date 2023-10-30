@@ -105,7 +105,7 @@ public class ParticipantTests {
         obj.put("participant_name", "Rakshith Hospital");
         obj.put("primary_mobile", "9493347239");
         obj.put("primary_email", "rakshith123@gmail.com");
-        obj.put("roles", new ArrayList<>(Collections.singleton("provider.hospital")));
+        obj.put("roles", Arrays.asList("provider.hospital","provider.clinic"));
         obj.put("applicant_code", "012345");
         obj.put("address", new HashMap<>() {{
             put("plot", "5-4-199");
