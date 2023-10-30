@@ -11,6 +11,7 @@ import { postRequest } from "../../services/registryService";
 import SelectInput from "../../components/SelectInput";
 import TextInputWithLabel from "../../components/inputField";
 import TransparentLoader from "../../components/TransparentLoader";
+import * as _ from "lodash";
 
 const PreAuthRequest = () => {
   const navigate = useNavigate();
@@ -87,7 +88,10 @@ const PreAuthRequest = () => {
     },
   ];
 
-  const treatmentOptions = [{ label: "Consultation", value: "Consultation" }];
+  const treatmentOptions = [{ label: "Consultation", value: "Consultation" },
+  { label: "Drugs", value: "Drugs" },
+  { label: "Wellness", value: "Wellness" },
+  { label: "Diagnostics", value: "Diagnostics" },];
 
   let initiateClaimRequestBody: any = {
     insuranceId: data?.insuranceId || displayedData[0]?.insurance_id,
@@ -105,7 +109,7 @@ const PreAuthRequest = () => {
     supportingDocuments: [
       {
         documentType: documentType,
-        urls: fileUrlList.map((ele: any) => {
+        urls: _.map(fileUrlList, (ele: any) => {
           return ele.url;
         }),
       },
@@ -165,13 +169,13 @@ const PreAuthRequest = () => {
     getCoverageEligibilityRequestList();
   }, []);
 
-  console.log(location.state?.patientMobile);
+  // console.log(location.state?.patientMobile);
+  const mobile = localStorage.getItem("patientMobile")
 
   const handleUpload = async () => {
     try {
-      setSubmitLoading(true);
       const formData = new FormData();
-      formData.append("mobile", location.state?.patientMobile);
+      formData.append("mobile", `${mobile}`);
 
       FileLists.forEach((file: any) => {
         formData.append(`file`, file);
@@ -185,7 +189,7 @@ const PreAuthRequest = () => {
       });
       let obtainedResponse = response.data;
 
-      const uploadedUrls = obtainedResponse.map((ele: any) => ele.url);
+      const uploadedUrls = _.map(obtainedResponse, (ele: any) => ele.url);
       // Update the payload with the new URLs
       initiateClaimRequestBody.supportingDocuments[0].urls = uploadedUrls;
       setUrlList((prevFileUrlList: any) => [
@@ -194,7 +198,6 @@ const PreAuthRequest = () => {
       ]);
       toast.info("Documents uploaded successfully!");
     } catch (error) {
-      setSubmitLoading(false);
       console.error("Error in uploading file", error);
     }
   };
@@ -210,12 +213,8 @@ const PreAuthRequest = () => {
             initiateClaimRequestBody
           );
           setSubmitLoading(false);
-          navigate("/request-success", {
-            state: {
-              text: "pre-auth",
-              mobileNumber: data.mobile || initiateClaimRequestBody.mobile,
-            },
-          });
+          toast.success("Pre-auth request initiated successfully!")
+          navigate("/home");
         }
       }, 2000);
     } catch (err) {
@@ -281,25 +280,22 @@ const PreAuthRequest = () => {
             {strings.NEW_PREAUTH_REQUEST}
           </h2>
           <div className="rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
-            <SelectInput
+            <TextInputWithLabel
               label="Selected insurance :"
               value={selectedInsurance || displayedData[0]?.insurance_id}
-              disabled={false}
-              options={insuranceOptions}
-              onChange={(e: any) => {
-                setSelectedInsurance(e.target.value);
-              }}
+              disabled={true}
+              type="text"
             />
-            <SelectInput
+            <TextInputWithLabel
               label="Service type :"
               value={displayedData[0]?.claimType || serviceType}
-              onChange={(e: any) => setServiceType(e.target.value)}
-              options={serviceTypeOptions}
+              disabled={true}
+              type="text"
             />
             <SelectInput
               label="Service/Treatment given :"
               value={"consultation"}
-              onChange={(e: any) => setAmount(e.target.value)}
+              onChange={(e: any) => setServiceType(e.target.value)}
               options={treatmentOptions}
             />
             <TextInputWithLabel
@@ -312,7 +308,7 @@ const PreAuthRequest = () => {
             />
           </div>
           <div className="mt-4 rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
-            <h2 className="text-1xl mb-4 font-bold text-black dark:text-white sm:text-title-xl2">
+            <h2 className="text-1xl mb-4 font-bold text-black dark:text-white sm:text-title-xl1">
               {strings.SUPPORTING_DOCS}
             </h2>
             <div className="relative z-20 mb-4 bg-white dark:bg-form-input">
@@ -392,7 +388,7 @@ const PreAuthRequest = () => {
             </div>
             {isSuccess ? (
               <div>
-                {FileLists.map((file: any) => {
+                {_.map(FileLists, (file: any) => {
                   return (
                     <div className="flex items-center justify-between">
                       <div className="mb-2.5 mt-4 block text-left text-sm text-black dark:text-white">
@@ -419,7 +415,6 @@ const PreAuthRequest = () => {
               <button
                 disabled={
                   amount === "" ||
-                  selectedFile === undefined ||
                   fileErrorMessage
                 }
                 onClick={(event: any) => {

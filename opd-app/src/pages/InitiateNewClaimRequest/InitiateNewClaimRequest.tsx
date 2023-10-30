@@ -10,8 +10,8 @@ import axios from "axios";
 import { postRequest } from "../../services/registryService";
 import SelectInput from "../../components/SelectInput";
 import TextInputWithLabel from "../../components/inputField";
-import Loader from "../../common/Loader";
 import TransparentLoader from "../../components/TransparentLoader";
+import * as _ from "lodash";
 
 const InitiateNewClaimRequest = () => {
   const navigate = useNavigate();
@@ -112,7 +112,7 @@ const InitiateNewClaimRequest = () => {
     ],
     type: "provider_app",
   };
-
+  
   const filter = {
     entityType: ["Beneficiary"],
     filters: {
@@ -165,7 +165,6 @@ const InitiateNewClaimRequest = () => {
 
   const handleUpload = async () => {
     try {
-      setSubmitLoading(true);
       const formData = new FormData();
       formData.append("mobile", location.state?.patientMobile);
 
@@ -188,7 +187,6 @@ const InitiateNewClaimRequest = () => {
       ]);
       toast.info("Documents uploaded successfully!");
     } catch (error) {
-      setSubmitLoading(false);
       console.error("Error in uploading file", error);
     }
   };
@@ -203,12 +201,8 @@ const InitiateNewClaimRequest = () => {
           initiateClaimRequestBody
         );
         setSubmitLoading(false);
-        navigate("/request-success", {
-          state: {
-            text: "claim",
-            mobileNumber: data.mobile || initiateClaimRequestBody.mobile,
-          },
-        });
+        toast.success("Claim request initiated successfully!")
+        navigate("/home");
       }, 2000);
     } catch (err) {
       setSubmitLoading(false);
@@ -273,25 +267,22 @@ const InitiateNewClaimRequest = () => {
             {strings.NEW_CLAIM_REQUEST}
           </h2>
           <div className="rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
-            <SelectInput
+            <TextInputWithLabel
               label="Selected insurance :"
               value={selectedInsurance || displayedData[0]?.insurance_id}
-              onChange={(e: any) => setSelectedInsurance(e.target.value)}
-              options={insuranceOptions}
-              disabled={false}
+              disabled={true}
+              type="text"
             />
-            <SelectInput
+            <TextInputWithLabel
               label="Service type :"
               value={displayedData[0]?.claimType || serviceType}
-              // disabled={true}
-              onChange={(e: any) => setServiceType(e.target.value)}
-              options={serviceTypeOptions}
+              disabled={true}
+              type="text"
             />
             <SelectInput
               label="Service/Treatment given :"
               value={"consultation"}
-              onChange={(e: any) => setAmount(e.target.value)}
-              // disabled={true}
+              onChange={(e: any) => setServiceType(e.target.value)}
               options={treatmentOptions}
             />
             <TextInputWithLabel
@@ -304,7 +295,7 @@ const InitiateNewClaimRequest = () => {
             />
           </div>
           <div className="mt-4 rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
-            <h2 className="text-1xl mb-4 font-bold text-black dark:text-white sm:text-title-xl2">
+            <h2 className="text-1xl mb-4 font-bold text-black dark:text-white sm:text-title-xl1">
               {strings.SUPPORTING_DOCS}
             </h2>
             <div className="relative z-20 mb-4 bg-white dark:bg-form-input">
@@ -384,7 +375,7 @@ const InitiateNewClaimRequest = () => {
             </div>
             {isSuccess ? (
               <div>
-                {FileLists.map((file: any) => {
+                {_.map(FileLists, (file: any) => {
                   return (
                     <div className="flex items-center justify-between">
                       <div className="mb-2.5 mt-4 block text-left text-sm text-black dark:text-white">
@@ -409,7 +400,7 @@ const InitiateNewClaimRequest = () => {
           <div className="mb-5 mt-4">
             {!submitLoading ? (
               <button
-                disabled={amount === "" || selectedFile === undefined || fileErrorMessage}
+                disabled={amount === "" || fileErrorMessage}
                 onClick={(event: any) => {
                   event.preventDefault();
                   submitClaim();
