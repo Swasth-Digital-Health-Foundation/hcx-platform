@@ -157,6 +157,7 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
             var retryCount: Int = 0
             if (event.containsKey(Constants.RETRY_INDEX))
               retryCount = event.get(Constants.RETRY_INDEX).asInstanceOf[Int]
+            Console.println(getEntity(event.get(Constants.ACTION).asInstanceOf[String]))
             if (!config.allowedEntitiesForRetry.contains(getEntity(event.get(Constants.ACTION).asInstanceOf[String])) || retryCount == config.maxRetry) {
               dispatchError(payloadRefId, event, result, correlationId, senderCtx, context, metrics)
               Console.println("---------it wenr allowed entitties for retry -----------")
