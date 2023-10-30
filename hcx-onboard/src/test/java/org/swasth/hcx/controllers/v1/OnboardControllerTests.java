@@ -583,7 +583,7 @@ class OnboardControllerTests extends BaseSpec{
     }
 
     @Test
-    public void test_onboard_update_withEnvfd() throws Exception {
+    public void test_onboard_update_withEnv_Exception() throws Exception {
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("{\n" +
