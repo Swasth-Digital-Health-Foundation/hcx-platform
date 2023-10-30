@@ -181,7 +181,7 @@ public class EventGeneratorTests {
         List<String> to = List.of("user1@example.com", "user2@example.com");
         List<String> cc = List.of("cc1@example.com", "cc2@example.com");
         List<String> bcc = List.of("bcc1@example.com", "bcc2@example.com");
-case        String eventString = eventGenerator.getEmailMessageEvent(message, subject, to, cc, bcc);
+        String eventString = eventGenerator.getEmailMessageEvent(message, subject, to, cc, bcc);
         assertNotNull(eventString);
         assertFalse(eventString.isEmpty());
     }
