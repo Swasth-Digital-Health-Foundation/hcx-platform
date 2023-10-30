@@ -160,16 +160,16 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
             Console.println(getEntity(event.get(Constants.ACTION).asInstanceOf[String]))
             if (!config.allowedEntitiesForRetry.contains(getEntity(event.get(Constants.ACTION).asInstanceOf[String])) || retryCount == config.maxRetry) {
               dispatchError(payloadRefId, event, result, correlationId, senderCtx, context, metrics)
-              Console.println("---------it wenr allowed entitties for retry -----------")
+              Console.println(event)
+              audit(event, context, metrics)
             } else if (retryCount < config.maxRetry) {
               updateDBStatus(payloadRefId, Constants.REQ_RETRY)
               setStatus(event, Constants.QUEUED_STATUS)
               metrics.incCounter(metric = config.dispatcherRetryCount)
               generateRetryMetrics(event, metrics)
               Console.println("Event is updated for retrying..")
+              audit(event, context, metrics)
             }
-            Console.println("---------it is at the retry event -------------------")
-            audit(event, context, metrics)
           }
           if (!result.retry && !result.success) {
             dispatchError(payloadRefId, event, result, correlationId, senderCtx, context, metrics)
