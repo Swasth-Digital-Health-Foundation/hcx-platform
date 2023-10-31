@@ -53,19 +53,23 @@ public class ApiGatewayApplication {
 		List<Map> rbacs = (List) obj.get("rbac");
 
 		Map<String, Acl> aclMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-		for(Map rbac : rbacs){
+		for (Map rbac : rbacs) {
 			Acl acl = new Acl();
-			if(rbac.get("paths") != null){
-				acl.setPaths(new HashSet((List) rbac.get("paths")));
+			if (rbac.get("role") != null) {
+				String[] roles = ((String) rbac.get("role")).split(",");
+				for (String role : roles) {
+					role = role.trim();
+					if (rbac.get("paths") != null) {
+						acl.setPaths(new HashSet((List) rbac.get("paths")));
+					}
+					if (rbac.get("regexPaths") != null) {
+						acl.setRegexPaths((List) rbac.get("regexPaths"));
+					}
+					aclMap.put(role, acl);
+				}
 			}
-			if(rbac.get("regexPaths") != null){
-				acl.setRegexPaths((List) rbac.get("regexPaths"));
-			}
-			aclMap.put((String) rbac.get("role"), acl);
 		}
-
 		return aclMap;
-
 	}
 
 	public static void main(String[] args) {

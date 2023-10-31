@@ -240,13 +240,14 @@ public class OnboardService extends BaseController {
         return (String) JSONUtils.deserialize(createResponse.getBody(), Map.class).get(id);
     }
 
-    private void addParticipantDetails(Map<String,Object> participant, OnboardRequest request) {
+    private void addParticipantDetails(Map<String, Object> participant, OnboardRequest request) {
         participant.put(ENDPOINT_URL, "http://testurl/v0.7");
         participant.put(ENCRYPTION_CERT, "https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/hcx-platform/main/hcx-apis/src/test/resources/examples/test-keys/public-key.pem");
         participant.put(REGISTRY_STATUS, CREATED);
-        if (((ArrayList<String>) participant.get(ROLES)).contains(PAYOR))
+        ArrayList<String> roles = (ArrayList<String>) participant.get(ROLES);
+        if (roles.contains(PAYOR))
             participant.put(SCHEME_CODE, "default");
-        if (((ArrayList<String>) participant.get(ROLES)).contains(PROVIDER))
+        if (roles.contains(PROVIDER) || roles.stream().anyMatch(PROVIDER_SPECIFIC_ROLES::contains))
             participant.put(APPLICANT_CODE, request.getApplicantCode());
     }
 
@@ -295,7 +296,7 @@ public class OnboardService extends BaseController {
         body.put(MOBILE, request.getPrimaryMobile());
         body.put(APPLICANT_NAME, request.getParticipantName());
         body.put(ADDITIONALVERIFICATION, request.getAdditionalVerification());
-        body.put(ROLE, PROVIDER);
+        body.put(ROLE, request.getRoles());
         return body;
     }
 
@@ -770,8 +771,13 @@ public class OnboardService extends BaseController {
     private void addUser(HttpHeaders headers, String requestBody) throws Exception {
         HttpResponse<String> response = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_USER_ADD, requestBody, getHeadersMap(headers));
         if (response.getStatus() != 200) {
-            Response resp = new Response(JSONUtils.deserialize(response.getBody(), Map.class));
-            throw new ClientException(resp.getError().getCode(), resp.getError().getMessage());
+            Map<String, Object> result = JSONUtils.deserialize(response.getBody(), Map.class);
+            List<Map<String, Object>> errList = JSONUtils.convert(result.get("result"), ArrayList.class);
+            Map<String, Object> errorMap = new HashMap<>();
+            for (Map<String, Object> error : errList) {
+                errorMap = (Map<String, Object>) error.get("error");
+            }
+            throw new ClientException((String) errorMap.get("message"));
         }
     }
 

@@ -10,7 +10,7 @@ rbac:
       - /url/**
       - /auth/**
   - role: AUTHENTICATED
-  - role: provider
+  - role: provider,provider.hospital,provider.clinic,provider.practitioner,provider.diagnostics,provider.pharmacy
     paths:
       - /v0.7/coverageeligibility/check
       - /v0.7/predetermination/submit
