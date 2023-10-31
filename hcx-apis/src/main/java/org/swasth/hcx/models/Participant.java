@@ -41,8 +41,16 @@ public class Participant {
     }
 
     private String getRoleAppender() {
-        if (getRoles().stream().anyMatch(PROVIDER_SPECIFIC_ROLES::contains)) {
-            return getRoles().get(0).substring(9, 13);
+        if (getRoles().contains("provider.hospital")) {
+            return "hosp";
+        } else if (getRoles().contains("provider.clinic")) {
+            return "clinic";
+        } else if (getRoles().contains("provider.practitioner")) {
+            return "prac";
+        } else if (getRoles().contains("provider.diagnostics")) {
+            return "diag";
+        } else if (getRoles().contains("provider.pharmacy")) {
+            return "pharm";
         } else if (getRoles().contains("payor")) {
             return "payr";
         } else if (getRoles().contains("bsp")) {
