@@ -13,6 +13,7 @@ import ParticipantList from './pages/Participants/ParticipantsList';
 import UsersInvite from './pages/Users/UsersInvite';
 import ResetPassword from './pages/Authentication/ResetPassword';
 import Terminology from './pages/Terminology';
+import AdminPayorApproveList from './pages/AdminPayorApproveList';
 
 const DefaultLayout = lazy(() => import('./layout/DefaultLayout'));
 
@@ -98,6 +99,15 @@ function App() {
               <>
                 <PageTitle title="Terminology" />
                 <Terminology />
+              </>
+            }
+          />
+          <Route
+            path="/onboarding/adminconsole"
+            element={
+              <>
+                <PageTitle title="Admin Console" />
+                <AdminPayorApproveList />
               </>
             }
           />

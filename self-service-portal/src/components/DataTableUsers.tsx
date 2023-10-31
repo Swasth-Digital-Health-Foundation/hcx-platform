@@ -342,7 +342,7 @@ const DataTableUsers: React.FC = () => {
                   {adminRoleParticipants.find(element => element == _.get(value, "participant_code")) !== undefined &&  _.get(appData,"username") != _.get(value, "email")?
                   <>
                   <button className="hover:text-primary"
-                  onClick={(event) => { event.preventDefault(); userDetailsShow(value); setShowDeleteModal(true); console.log("i amc delete");  }}>
+                    onClick={(event) => { event.preventDefault(); userDetailsShow(value); setShowDeleteModal(true); console.log("i amc delete");  }}>
                     <svg
                       className="fill-danger"
                       width="18"
