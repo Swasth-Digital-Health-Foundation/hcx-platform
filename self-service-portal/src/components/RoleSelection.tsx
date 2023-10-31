@@ -100,7 +100,7 @@ const RoleSelection: React.FC<RoleSelectionProps> = ({ payorList, onRoleSubmit }
             <label className="mb-2.5 block font-medium text-black dark:text-white">
               Select Provider Roles
             </label>
-            <MultiSelectDropdown options={["provider","Provider.hospital","Provider.clinic","Provider.practitioner","Provider.diagnostics","Provider.pharmacy"]} onSelect={function (selected: string[]): void {
+            <MultiSelectDropdown options={["provider","provider.hospital","provider.clinic","provider.practitioner","provider.diagnostics","provider.pharmacy"]} onSelect={function (selected: string[]): void {
                 setProviderOptions(selected); console.log(selected);
             } }></MultiSelectDropdown>
           </div>

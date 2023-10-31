@@ -41,3 +41,12 @@ export const generateAPIKey = async (user:string, participant:string, token="") 
     return post("/api-access/secret/generate", payload, {}, token);
 }
 
+export const approvePayorList = async(token = "") => {
+    var payload = {"filter" : {}}
+    return post('applicant/search?fields=identity_verification', payload, {} , token);
+}
+
+export const approvePayor = async(participant_code: string, status: string ,token = "") => {
+    var payload = {"participant_code":participant_code, "status":status}
+    return post('participant/verify/identity', payload, {} , token);
+}
