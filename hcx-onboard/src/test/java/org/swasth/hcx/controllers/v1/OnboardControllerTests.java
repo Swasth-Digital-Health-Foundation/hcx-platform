@@ -28,7 +28,7 @@ class OnboardControllerTests extends BaseSpec{
     private OnboardService onboardService;
 
     @Test
-    public void testVerify() throws Exception {
+    void testVerify() throws Exception {
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("{\n" +
@@ -107,7 +107,7 @@ class OnboardControllerTests extends BaseSpec{
     }
 
     @Test
-    public void testVerify_user_exists() throws Exception {
+    void testVerify_user_exists() throws Exception {
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("{\n" +
@@ -291,7 +291,7 @@ class OnboardControllerTests extends BaseSpec{
         Assertions.assertEquals(200, status);
     }
     @Test
-    public void testVerifyPayor() throws Exception {
+    void testVerifyPayor() throws Exception {
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("{\n" +
@@ -370,7 +370,7 @@ class OnboardControllerTests extends BaseSpec{
     }
 
     @Test
-    public void test_sendVerification_link_moreThan1count() throws Exception {
+    void test_sendVerification_link_moreThan1count() throws Exception {
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("{\n" +
@@ -411,7 +411,7 @@ class OnboardControllerTests extends BaseSpec{
     }
 
     @Test
-    public void test_verify_exception() throws Exception {
+    void test_verify_exception() throws Exception {
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("{\"participant_code\": \"provider.clinic_test_u_312076@swasth-hcx-dev\"}")
@@ -458,7 +458,7 @@ class OnboardControllerTests extends BaseSpec{
         Assertions.assertEquals(500, status);
     }
     @Test
-    public void test_onboard_update_withEnv() throws Exception {
+    void test_onboard_update_withEnv() throws Exception {
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("{\n" +
@@ -569,8 +569,7 @@ class OnboardControllerTests extends BaseSpec{
         postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verification");
         postgreSQLClient.execute("DROP TABLE IF EXISTS mock_participant");
         postgreSQLClient.execute("CREATE TABLE onboard_verification(participant_code character varying NOT NULL PRIMARY KEY,   primary_email character varying,   primary_mobile character varying, createdon bigInt,updatedon bigInt,  expiry bigInt,  phone_verified boolean NOT NULL,email_verified boolean NOT NULL,status character varying,  regenerate_count int,last_regenerate_date date, attempt_count bigInt, comments character varying, phone_short_url character varying, phone_long_url character varying, onboard_validation_properties json, participant_validation_properties json)");
-        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " +
-                " VALUES('test_user_54.yopmail@swasth-hcx','test_user_54@yopmail.com','9620499129','169719173417','169719173417','1666612517000',true,true,'successful',0,'2023-10-12T13:37:12.533Z','1666612517000','','','','{\"email\": \"activation\",\"phone\": \"verification\"}',' {\"email\": \"activation\",\"phone\": \"verification\"}')");
+        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " + " VALUES('test_user_54.yopmail@swasth-hcx','test_user_54@yopmail.com','9620499129','169719173417','169719173417','1666612517000',true,true,'successful',0,'2023-10-12T13:37:12.533Z','1666612517000','','','','{\"email\": \"activation\",\"phone\": \"verification\"}',' {\"email\": \"activation\",\"phone\": \"verification\"}')");
         postgreSQLClient.execute("CREATE TABLE onboard_verifier( applicant_email character varying NOT NULL,applicant_code character varying NOT NULL,  verifier_code character varying, status character varying, createdon bigInt,   updatedon bigInt,participant_code character varying)");
         postgreSQLClient.execute("INSERT INTO onboard_verifier(applicant_email,applicant_code,verifier_code,status,createdon,updatedon,participant_code)"+"VALUES ('test_user_54@yopmail.com','123445','987655','accepted','1666612517000','1666612517000','test_user_54.yopmail@swasth-hcx')");
         postgreSQLClient.execute("CREATE TABLE  mock_participant(parent_participant_code character varying,  child_participant_code character varying NOT NULL PRIMARY KEY ,primary_email character varying, password character varying,private_key character varying)");
@@ -583,7 +582,7 @@ class OnboardControllerTests extends BaseSpec{
     }
 
     @Test
-    public void test_onboard_update_withEnv_Exception() throws Exception {
+    void test_onboard_update_withEnv_Exception() throws Exception {
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("{\n" +
@@ -702,8 +701,7 @@ class OnboardControllerTests extends BaseSpec{
         postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verification");
         postgreSQLClient.execute("DROP TABLE IF EXISTS mock_participant");
         postgreSQLClient.execute("CREATE TABLE onboard_verification(participant_code character varying NOT NULL PRIMARY KEY,   primary_email character varying,   primary_mobile character varying, createdon bigInt,updatedon bigInt,  expiry bigInt,  phone_verified boolean NOT NULL,email_verified boolean NOT NULL,status character varying,  regenerate_count int,last_regenerate_date date, attempt_count bigInt, comments character varying, phone_short_url character varying, phone_long_url character varying, onboard_validation_properties json, participant_validation_properties json)");
-        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " +
-                " VALUES('test_user_54.yopmail@swasth-hcx','test_user_54@yopmail.com','9620499129','169719173417','169719173417','1666612517000',true,true,'successful',0,'2023-10-12T13:37:12.533Z','1666612517000','','','','{\"email\": \"activation\",\"phone\": \"verification\"}',' {\"email\": \"activation\",\"phone\": \"verification\"}')");
+        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " + " VALUES('test_user_54.yopmail@swasth-hcx','test_user_54@yopmail.com','9620499129','169719173417','169719173417','1666612517000',true,true,'successful',0,'2023-10-12T13:37:12.533Z','1666612517000','','','','{\"email\": \"activation\",\"phone\": \"verification\"}',' {\"email\": \"activation\",\"phone\": \"verification\"}')");
         postgreSQLClient.execute("CREATE TABLE onboard_verifier( applicant_email character varying NOT NULL,applicant_code character varying NOT NULL,  verifier_code character varying, status character varying, createdon bigInt,   updatedon bigInt,participant_code character varying)");
         postgreSQLClient.execute("INSERT INTO onboard_verifier(applicant_email,applicant_code,verifier_code,status,createdon,updatedon,participant_code)"+"VALUES ('test_user_54@yopmail.com','123445','987655','accepted','1666612517000','1666612517000','test_user_54.yopmail@swasth-hcx')");
         postgreSQLClient.execute("CREATE TABLE  mock_participant(parent_participant_code character varying,  child_participant_code character varying NOT NULL PRIMARY KEY ,primary_email character varying, password character varying,private_key character varying)");
@@ -760,7 +758,7 @@ class OnboardControllerTests extends BaseSpec{
     }
 
     @Test
-    public void test_verify_identity() throws Exception {
+    void test_verify_identity() throws Exception {
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("{\n" +
@@ -833,8 +831,7 @@ class OnboardControllerTests extends BaseSpec{
         postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verifier");
         postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verification");
         postgreSQLClient.execute("CREATE TABLE onboard_verification(participant_code character varying NOT NULL PRIMARY KEY,   primary_email character varying,   primary_mobile character varying, createdon bigInt,updatedon bigInt,  expiry bigInt,  phone_verified boolean NOT NULL,email_verified boolean NOT NULL,status character varying,  regenerate_count int,last_regenerate_date date, attempt_count bigInt, comments character varying, phone_short_url character varying, phone_long_url character varying, onboard_validation_properties json, participant_validation_properties json)");
-        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " +
-                " VALUES('test_user_52.yopmail@swasth-hcx','test_user_52@yopmail.com','9620499129','169719173417','169719173417','1666612517000',true,true,'successful',0,'2023-10-12T13:37:12.533Z','1666612517000','','','','{\"email\": \"activation\",\"phone\": \"verification\"}',' {\"email\": \"activation\",\"phone\": \"verification\"}')");
+        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " + " VALUES('test_user_52.yopmail@swasth-hcx','test_user_52@yopmail.com','9620499129','169719173417','169719173417','1666612517000',true,true,'successful',0,'2023-10-12T13:37:12.533Z','1666612517000','','','','{\"email\": \"activation\",\"phone\": \"verification\"}',' {\"email\": \"activation\",\"phone\": \"verification\"}')");
         postgreSQLClient.execute("CREATE TABLE onboard_verifier( applicant_email character varying NOT NULL,applicant_code character varying NOT NULL,  verifier_code character varying, status character varying, createdon bigInt,   updatedon bigInt,participant_code character varying)");
         postgreSQLClient.execute("INSERT INTO onboard_verifier(applicant_email,applicant_code,verifier_code,status,createdon,updatedon,participant_code)"+"VALUES ('test_user_52@yopmail.com','123445','987655','accepted','1666612517000','1666612517000','test_user_52.yopmail@swasth-hcx')");
         String requestBodyJson = verifyIdentityRequestBody();
@@ -845,7 +842,7 @@ class OnboardControllerTests extends BaseSpec{
     }
 
     @Test
-    public void test_verify_identity_reject() throws Exception {
+    void test_verify_identity_reject() throws Exception {
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("{\n" +
@@ -883,8 +880,7 @@ class OnboardControllerTests extends BaseSpec{
         postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verifier");
         postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verification");
         postgreSQLClient.execute("CREATE TABLE onboard_verification(participant_code character varying NOT NULL PRIMARY KEY,   primary_email character varying,   primary_mobile character varying, createdon bigInt,updatedon bigInt,  expiry bigInt,  phone_verified boolean NOT NULL,email_verified boolean NOT NULL,status character varying,  regenerate_count int,last_regenerate_date date, attempt_count bigInt, comments character varying, phone_short_url character varying, phone_long_url character varying, onboard_validation_properties json, participant_validation_properties json)");
-        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " +
-                " VALUES('test_user_52.yopmail@swasth-hcx','test_user_52@yopmail.com','9620499129','169719173417','169719173417','1666612517000',true,true,'successful',0,'2023-10-12T13:37:12.533Z','1666612517000','','','','{\"email\": \"activation\",\"phone\": \"verification\"}',' {\"email\": \"activation\",\"phone\": \"verification\"}')");
+        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " + " VALUES('test_user_52.yopmail@swasth-hcx','test_user_52@yopmail.com','9620499129','169719173417','169719173417','1666612517000',true,true,'successful',0,'2023-10-12T13:37:12.533Z','1666612517000','','','','{\"email\": \"activation\",\"phone\": \"verification\"}',' {\"email\": \"activation\",\"phone\": \"verification\"}')");
         postgreSQLClient.execute("CREATE TABLE onboard_verifier( applicant_email character varying NOT NULL,applicant_code character varying NOT NULL,  verifier_code character varying, status character varying, createdon bigInt,   updatedon bigInt,participant_code character varying)");
         postgreSQLClient.execute("INSERT INTO onboard_verifier(applicant_email,applicant_code,verifier_code,status,createdon,updatedon,participant_code)"+"VALUES ('test_user_52@yopmail.com','123445','987655','accepted','1666612517000','1666612517000','test_user_52.yopmail@swasth-hcx')");
         String requestBodyJson = verifyIdentityRejectRequestBody();
@@ -895,7 +891,7 @@ class OnboardControllerTests extends BaseSpec{
     }
 
     @Test
-    public void test_verify_identity_invalid_status() throws Exception {
+    void test_verify_identity_invalid_status() throws Exception {
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("{\n" +
@@ -933,8 +929,7 @@ class OnboardControllerTests extends BaseSpec{
         postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verifier");
         postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verification");
         postgreSQLClient.execute("CREATE TABLE onboard_verification(participant_code character varying NOT NULL PRIMARY KEY,   primary_email character varying,   primary_mobile character varying, createdon bigInt,updatedon bigInt,  expiry bigInt,  phone_verified boolean NOT NULL,email_verified boolean NOT NULL,status character varying,  regenerate_count int,last_regenerate_date date, attempt_count bigInt, comments character varying, phone_short_url character varying, phone_long_url character varying, onboard_validation_properties json, participant_validation_properties json)");
-        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " +
-                " VALUES('test_user_52.yopmail@swasth-hcx','test_user_52@yopmail.com','9620499129','169719173417','169719173417','1666612517000',true,true,'successful',0,'2023-10-12T13:37:12.533Z','1666612517000','','','','{\"email\": \"activation\",\"phone\": \"verification\"}',' {\"email\": \"activation\",\"phone\": \"verification\"}')");
+        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " + " VALUES('test_user_52.yopmail@swasth-hcx','test_user_52@yopmail.com','9620499129','169719173417','169719173417','1666612517000',true,true,'successful',0,'2023-10-12T13:37:12.533Z','1666612517000','','','','{\"email\": \"activation\",\"phone\": \"verification\"}',' {\"email\": \"activation\",\"phone\": \"verification\"}')");
         postgreSQLClient.execute("CREATE TABLE onboard_verifier( applicant_email character varying NOT NULL,applicant_code character varying NOT NULL,  verifier_code character varying, status character varying, createdon bigInt,   updatedon bigInt,participant_code character varying)");
         postgreSQLClient.execute("INSERT INTO onboard_verifier(applicant_email,applicant_code,verifier_code,status,createdon,updatedon,participant_code)"+"VALUES ('test_user_52@yopmail.com','123445','987655','accepted','1666612517000','1666612517000','test_user_52.yopmail@swasth-hcx')");
         String requestBodyJson = verifyIdentityOtherThanAllowedStatus();
@@ -945,7 +940,7 @@ class OnboardControllerTests extends BaseSpec{
     }
 
     @Test
-    public void test_verify_identity_exception() throws Exception {
+    void test_verify_identity_exception() throws Exception {
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("{\n" +
@@ -966,8 +961,7 @@ class OnboardControllerTests extends BaseSpec{
         postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verifier");
         postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verification");
         postgreSQLClient.execute("CREATE TABLE onboard_verification(participant_code character varying NOT NULL PRIMARY KEY,   primary_email character varying,   primary_mobile character varying, createdon bigInt,updatedon bigInt,  expiry bigInt,  phone_verified boolean NOT NULL,email_verified boolean NOT NULL,status character varying,  regenerate_count int,last_regenerate_date date, attempt_count bigInt, comments character varying, phone_short_url character varying, phone_long_url character varying, onboard_validation_properties json, participant_validation_properties json)");
-        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " +
-                " VALUES('test_user_52.yopmail@swasth-hcx','test_user_52@yopmail.com','9620499129','169719173417','169719173417','1666612517000',true,true,'successful',0,'2023-10-12T13:37:12.533Z','1666612517000','','','','{\"email\": \"activation\",\"phone\": \"verification\"}',' {\"email\": \"activation\",\"phone\": \"verification\"}')");
+        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " + " VALUES('test_user_52.yopmail@swasth-hcx','test_user_52@yopmail.com','9620499129','169719173417','169719173417','1666612517000',true,true,'successful',0,'2023-10-12T13:37:12.533Z','1666612517000','','','','{\"email\": \"activation\",\"phone\": \"verification\"}',' {\"email\": \"activation\",\"phone\": \"verification\"}')");
         postgreSQLClient.execute("CREATE TABLE onboard_verifier( applicant_email character varying NOT NULL,applicant_code character varying NOT NULL,  verifier_code character varying, status character varying, createdon bigInt,   updatedon bigInt,participant_code character varying)");
         postgreSQLClient.execute("INSERT INTO onboard_verifier(applicant_email,applicant_code,verifier_code,status,createdon,updatedon,participant_code)"+"VALUES ('test_user_52@yopmail.com','123445','987655','accepted','1666612517000','1666612517000','test_user_52.yopmail@swasth-hcx')");
         String requestBodyJson = verifyIdentityRequestBody();
@@ -978,7 +972,7 @@ class OnboardControllerTests extends BaseSpec{
     }
 
     @Test
-    public void test_sendVerification_link() throws Exception {
+    void test_sendVerification_link() throws Exception {
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("{\n" +
@@ -1009,8 +1003,7 @@ class OnboardControllerTests extends BaseSpec{
                 .addHeader("Content-Type", "application/json"));
         postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verification");
         postgreSQLClient.execute("CREATE TABLE onboard_verification(participant_code character varying NOT NULL PRIMARY KEY,   primary_email character varying,   primary_mobile character varying, createdon bigInt,updatedon bigInt,  expiry bigInt,  phone_verified boolean NOT NULL,email_verified boolean NOT NULL,status character varying,  regenerate_count int,last_regenerate_date date, attempt_count bigInt, comments character varying, phone_short_url character varying, phone_long_url character varying, onboard_validation_properties json, participant_validation_properties json)");
-        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " +
-                " VALUES('test_user_52.yopmail@swasth-hcx','test_user_52@yopmail.com','9620499129','169719173417','169719173417','1666612517000',false,false,'successful',0,'2023-10-12T13:37:12.533Z','1666612517000','','','','{\"email\": \"activation\",\"phone\": \"verification\"}',' {\"email\": \"activation\",\"phone\": \"verification\"}')");
+        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " + " VALUES('test_user_52.yopmail@swasth-hcx','test_user_52@yopmail.com','9620499129','169719173417','169719173417','1666612517000',false,false,'successful',0,'2023-10-12T13:37:12.533Z','1666612517000','','','','{\"email\": \"activation\",\"phone\": \"verification\"}',' {\"email\": \"activation\",\"phone\": \"verification\"}')");
         String requestBodyJson = verificationLinkRequestBody();
         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_VERIFICATION_LINK_SEND).content(requestBodyJson).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -1019,7 +1012,7 @@ class OnboardControllerTests extends BaseSpec{
     }
 
     @Test
-    public void test_sendVerification_link_maxCount_exception() throws Exception {
+    void test_sendVerification_link_maxCount_exception() throws Exception {
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("{\n" +
@@ -1052,8 +1045,7 @@ class OnboardControllerTests extends BaseSpec{
         postgreSQLClient.execute("CREATE TABLE onboard_verification(participant_code character varying NOT NULL PRIMARY KEY,   primary_email character varying,   primary_mobile character varying, createdon bigInt,updatedon bigInt,  expiry bigInt,  phone_verified boolean NOT NULL,email_verified boolean NOT NULL,status character varying,  regenerate_count int,last_regenerate_date date, attempt_count bigInt, comments character varying, phone_short_url character varying, phone_long_url character varying, onboard_validation_properties json, participant_validation_properties json)");
         LocalDateTime localDateTime = LocalDateTime.now();
         System.out.println(localDateTime);
-        String query = String.format("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " +
-                " VALUES('test_user_52.yopmail@swasth-hcx','test_user_52@yopmail.com','9620499129','169719173417','169719173417','1666612517000',false,false,'successful',11,'%s','1666612517000','','','','{\"email\": \"activation\",\"phone\": \"verification\"}',' {\"email\": \"activation\",\"phone\": \"verification\"}')",localDateTime);
+        String query = String.format("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " +  " VALUES('test_user_52.yopmail@swasth-hcx','test_user_52@yopmail.com','9620499129','169719173417','169719173417','1666612517000',false,false,'successful',11,'%s','1666612517000','','','','{\"email\": \"activation\",\"phone\": \"verification\"}',' {\"email\": \"activation\",\"phone\": \"verification\"}')",localDateTime);
         postgreSQLClient.execute(query);
         String requestBodyJson = verificationLinkRequestBody();
         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_VERIFICATION_LINK_SEND).content(requestBodyJson).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
@@ -1102,15 +1094,14 @@ class OnboardControllerTests extends BaseSpec{
     }
 
     @Test
-    public void test_sendVerification_link_exception() throws Exception {
+    void test_sendVerification_link_exception() throws Exception {
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("")
                 .addHeader("Content-Type", "application/json"));
         postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verification");
         postgreSQLClient.execute("CREATE TABLE onboard_verification(participant_code character varying NOT NULL PRIMARY KEY,   primary_email character varying,   primary_mobile character varying, createdon bigInt,updatedon bigInt,  expiry bigInt,  phone_verified boolean NOT NULL,email_verified boolean NOT NULL,status character varying,  regenerate_count int,last_regenerate_date date, attempt_count bigInt, comments character varying, phone_short_url character varying, phone_long_url character varying, onboard_validation_properties json, participant_validation_properties json)");
-        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " +
-                " VALUES('test_user_52.yopmail@swasth-hcx','test_user_52@yopmail.com','9620499129','169719173417','169719173417','1666612517000',false,false,'successful',0,'2023-10-12T13:37:12.533Z','1666612517000','','','','{\"email\": \"activation\",\"phone\": \"verification\"}',' {\"email\": \"activation\",\"phone\": \"verification\"}')");
+        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " + " VALUES('test_user_52.yopmail@swasth-hcx','test_user_52@yopmail.com','9620499129','169719173417','169719173417','1666612517000',false,false,'successful',0,'2023-10-12T13:37:12.533Z','1666612517000','','','','{\"email\": \"activation\",\"phone\": \"verification\"}',' {\"email\": \"activation\",\"phone\": \"verification\"}')");
         String requestBodyJson = verificationLinkRequestBody();
         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_VERIFICATION_LINK_SEND).content(requestBodyJson).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -1118,7 +1109,7 @@ class OnboardControllerTests extends BaseSpec{
         Assertions.assertEquals(500, status);
     }
     @Test
-    public void test_applicant_verify() throws Exception {
+    void test_applicant_verify() throws Exception {
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("{\n" +
@@ -1174,7 +1165,7 @@ class OnboardControllerTests extends BaseSpec{
         Assertions.assertEquals(200, status);
     }
     @Test
-    public void test_applicant_verify_exception() throws Exception {
+    void test_applicant_verify_exception() throws Exception {
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("")
@@ -1187,7 +1178,7 @@ class OnboardControllerTests extends BaseSpec{
     }
 
     @Test
-    public void test_applicant_verify_using_jwt_exception() throws Exception {
+    void test_applicant_verify_using_jwt_exception() throws Exception {
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("{\n" +
@@ -1223,8 +1214,7 @@ class OnboardControllerTests extends BaseSpec{
                 .addHeader("Content-Type", "application/json"));
         postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verification");
         postgreSQLClient.execute("CREATE TABLE onboard_verification(participant_code character varying NOT NULL PRIMARY KEY,   primary_email character varying,   primary_mobile character varying, createdon bigInt,updatedon bigInt,  expiry bigInt,  phone_verified boolean NOT NULL,email_verified boolean NOT NULL,status character varying,  regenerate_count int,last_regenerate_date date, attempt_count bigInt, comments character varying, phone_short_url character varying, phone_long_url character varying, onboard_validation_properties json, participant_validation_properties json)");
-        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " +
-                " VALUES('testhctes13.yopmail@swasth-hcx','testhctes13@yopmail.com','9620499129','169719173417','169719173417','1666612517000',true,true,'successful',0,'2023-10-12T13:37:12.533Z','1666612517000','','','','{\"email\": \"activation\",\"phone\": \"verification\"}',' {\"email\": \"activation\",\"phone\": \"verification\"}')");
+        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " + " VALUES('testhctes13.yopmail@swasth-hcx','testhctes13@yopmail.com','9620499129','169719173417','169719173417','1666612517000',true,true,'successful',0,'2023-10-12T13:37:12.533Z','1666612517000','','','','{\"email\": \"activation\",\"phone\": \"verification\"}',' {\"email\": \"activation\",\"phone\": \"verification\"}')");
         String requestBodyJson = applicantVerifyWithJwtToken();
         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.APPLICANT_VERIFY).content(requestBodyJson).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -1233,7 +1223,7 @@ class OnboardControllerTests extends BaseSpec{
     }
 
     @Test
-    public void test_applicant_verify_link_expired() throws Exception {
+    void test_applicant_verify_link_expired() throws Exception {
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("{\n" +
@@ -1269,8 +1259,7 @@ class OnboardControllerTests extends BaseSpec{
                 .addHeader("Content-Type", "application/json"));
         postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verification");
         postgreSQLClient.execute("CREATE TABLE onboard_verification(participant_code character varying NOT NULL PRIMARY KEY,   primary_email character varying,   primary_mobile character varying, createdon bigInt,updatedon bigInt,  expiry bigInt,  phone_verified boolean NOT NULL,email_verified boolean NOT NULL,status character varying,  regenerate_count int,last_regenerate_date date, attempt_count int, comments character varying, phone_short_url character varying, phone_long_url character varying, onboard_validation_properties json, participant_validation_properties json)");
-        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " +
-                " VALUES('testhctes13.yopmail@swasth-hcx','testhctes13@yopmail.com','9620499129','169719173417','169719173417','10',false,true,'failed',0,'2023-10-12T13:37:12.533Z','5','','','','{\"email\": \"activation\",\"phone\": \"verification\"}',' {\"email\": \"activation\",\"phone\": \"verification\"}')");
+        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " + " VALUES('testhctes13.yopmail@swasth-hcx','testhctes13@yopmail.com','9620499129','169719173417','169719173417','10',false,true,'failed',0,'2023-10-12T13:37:12.533Z','5','','','','{\"email\": \"activation\",\"phone\": \"verification\"}',' {\"email\": \"activation\",\"phone\": \"verification\"}')");
         String requestBodyJson = applicantVerifyWithJwtToken();
         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.APPLICANT_VERIFY).content(requestBodyJson).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -1279,7 +1268,7 @@ class OnboardControllerTests extends BaseSpec{
     }
 
     @Test
-    public void test_applicant_verify_record_doesnot_exists() throws Exception {
+    void test_applicant_verify_record_doesnot_exists() throws Exception {
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("{\n" +
@@ -1323,7 +1312,7 @@ class OnboardControllerTests extends BaseSpec{
     }
 
     @Test
-    public void test_applicant_verify_link_verified1() throws Exception {
+    void test_applicant_verify_link_verified1() throws Exception {
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("{\n" +
@@ -1453,8 +1442,7 @@ class OnboardControllerTests extends BaseSpec{
         postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verification");
         postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verifier");
         postgreSQLClient.execute("CREATE TABLE onboard_verification(participant_code character varying NOT NULL PRIMARY KEY,   primary_email character varying,   primary_mobile character varying, createdon bigInt,updatedon bigInt,  expiry bigInt,  phone_verified boolean NOT NULL,email_verified boolean NOT NULL,status character varying,  regenerate_count int,last_regenerate_date date, attempt_count int, comments character varying, phone_short_url character varying, phone_long_url character varying, onboard_validation_properties json, participant_validation_properties json)");
-        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " +
-                " VALUES('testhctes13.yopmail@swasth-hcx','testhctes13@yopmail.com','9620499129','169719173417','169719173417','2555824693417',true,false,'failed',0,'2023-10-12T13:37:12.533Z','5','','','','{\"email\": \"activation\",\"phone\": \"verification\"}',' {\"email\": \"activation\",\"phone\": \"verification\"}')");
+        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " + " VALUES('testhctes13.yopmail@swasth-hcx','testhctes13@yopmail.com','9620499129','169719173417','169719173417','2555824693417',true,false,'failed',0,'2023-10-12T13:37:12.533Z','5','','','','{\"email\": \"activation\",\"phone\": \"verification\"}',' {\"email\": \"activation\",\"phone\": \"verification\"}')");
         postgreSQLClient.execute("CREATE TABLE onboard_verifier( applicant_email character varying NOT NULL,applicant_code character varying NOT NULL,  verifier_code character varying, status character varying, createdon bigInt,   updatedon bigInt,participant_code character varying)");
         postgreSQLClient.execute("INSERT INTO onboard_verifier(applicant_email,applicant_code,verifier_code,status,createdon,updatedon,participant_code)"+"VALUES ('testhctes13@yopmail.com','123445','987655','accepted','1666612517000','1666612517000','testhctes13.yopmail@swasth-hcx')");
         String requestBodyJson = applicantVerifyWithJwtToken();
@@ -1465,7 +1453,7 @@ class OnboardControllerTests extends BaseSpec{
     }
 
     @Test
-    public void test_applicant_verify_link_verified2() throws Exception {
+    void test_applicant_verify_link_verified2() throws Exception {
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("{\n" +
@@ -1595,8 +1583,7 @@ class OnboardControllerTests extends BaseSpec{
         postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verification");
         postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verifier");
         postgreSQLClient.execute("CREATE TABLE onboard_verification(participant_code character varying NOT NULL PRIMARY KEY,   primary_email character varying,   primary_mobile character varying, createdon bigInt,updatedon bigInt,  expiry bigInt,  phone_verified boolean NOT NULL,email_verified boolean NOT NULL,status character varying,  regenerate_count int,last_regenerate_date date, attempt_count int, comments character varying, phone_short_url character varying, phone_long_url character varying, onboard_validation_properties json, participant_validation_properties json)");
-        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " +
-                " VALUES('testhctes13.yopmail@swasth-hcx','testhctes13@yopmail.com','9620499129','169719173417','169719173417','2555824693417',false,false,'failed',0,'2023-10-12T13:37:12.533Z','5','','','','{\"email\": \"verification\",\"phone\": \"verification\"}',' {\"email\": \"verification\",\"phone\": \"verification\"}')");
+        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " + " VALUES('testhctes13.yopmail@swasth-hcx','testhctes13@yopmail.com','9620499129','169719173417','169719173417','2555824693417',false,false,'failed',0,'2023-10-12T13:37:12.533Z','5','','','','{\"email\": \"verification\",\"phone\": \"verification\"}',' {\"email\": \"verification\",\"phone\": \"verification\"}')");
         postgreSQLClient.execute("CREATE TABLE onboard_verifier( applicant_email character varying NOT NULL,applicant_code character varying NOT NULL,  verifier_code character varying, status character varying, createdon bigInt,   updatedon bigInt,participant_code character varying)");
         postgreSQLClient.execute("INSERT INTO onboard_verifier(applicant_email,applicant_code,verifier_code,status,createdon,updatedon,participant_code)"+"VALUES ('testhctes13@yopmail.com','123445','987655','accepted','1666612517000','1666612517000','testhctes13.yopmail@swasth-hcx')");
         String requestBodyJson = applicantVerifyWithJwtToken();
@@ -1606,7 +1593,7 @@ class OnboardControllerTests extends BaseSpec{
         Assertions.assertEquals(200, status);
     }
     @Test
-    public void test_applicant_verify_link_verified3() throws Exception {
+    void test_applicant_verify_link_verified3() throws Exception {
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("{\n" +
@@ -1736,150 +1723,7 @@ class OnboardControllerTests extends BaseSpec{
         postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verification");
         postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verifier");
         postgreSQLClient.execute("CREATE TABLE onboard_verification(participant_code character varying NOT NULL PRIMARY KEY,   primary_email character varying,   primary_mobile character varying, createdon bigInt,updatedon bigInt,  expiry bigInt,  phone_verified boolean NOT NULL,email_verified boolean NOT NULL,status character varying,  regenerate_count int,last_regenerate_date date, attempt_count int, comments character varying, phone_short_url character varying, phone_long_url character varying, onboard_validation_properties json, participant_validation_properties json)");
-        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " +
-                " VALUES('testhctes13.yopmail@swasth-hcx','testhctes13@yopmail.com','9620499129','169719173417','169719173417','2555824693417',true,true,'failed',0,'2023-10-12T13:37:12.533Z','5','','','','{\"email\": \"activation\",\"phone\": \"activation\"}',' {\"email\": \"activation\",\"phone\": \"activation\"}')");
-        postgreSQLClient.execute("CREATE TABLE onboard_verifier( applicant_email character varying NOT NULL,applicant_code character varying NOT NULL,  verifier_code character varying, status character varying, createdon bigInt,   updatedon bigInt,participant_code character varying)");
-        postgreSQLClient.execute("INSERT INTO onboard_verifier(applicant_email,applicant_code,verifier_code,status,createdon,updatedon,participant_code)"+"VALUES ('testhctes13@yopmail.com','123445','987655','accepted','1666612517000','1666612517000','testhctes13.yopmail@swasth-hcx')");
-        String requestBodyJson = applicantVerifyWithJwtToken();
-        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.APPLICANT_VERIFY).content(requestBodyJson).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
-        MockHttpServletResponse response = mvcResult.getResponse();
-        int status = response.getStatus();
-        Assertions.assertEquals(200, status);
-    }
-
-    @Test
-    public void test_applicant_verify_link_verified4() throws Exception {
-        hcxApiServer.enqueue(new MockResponse()
-                .setResponseCode(200)
-                .setBody("{\n" +
-                        "    \"timestamp\": 1698386158436,\n" +
-                        "    \"participants\": [\n" +
-                        "        {\n" +
-                        "            \"status\": \"Active\",\n" +
-                        "            \"participant_name\": \"Health Claims Exchange Gateway\",\n" +
-                        "            \"endpoint_url\": \"http://dev-hcx.swasth.app/\",\n" +
-                        "            \"roles\": [\n" +
-                        "                \"HIE/HIO.HCX\"\n" +
-                        "            ],\n" +
-                        "            \"primary_email\": \"hcxgateway@swasth.org\",\n" +
-                        "            \"primary_mobile\": \"\",\n" +
-                        "            \"encryption_cert\": \"https://dev-hcx-certificates.s3.ap-south-1.amazonaws.com/hcxgateway.swasth%40swasth-hcx-dev/encryption_cert.pem\",\n" +
-                        "            \"signing_cert_path\": \"https://dev-hcx-certificates.s3.ap-south-1.amazonaws.com/hcxgateway.swasth%40swasth-hcx-dev/signing_cert_path.pem\",\n" +
-                        "            \"linked_registry_codes\": [\n" +
-                        "                12345\n" +
-                        "            ],\n" +
-                        "            \"participant_code\": \"hcxgateway.swasth@swasth-hcx-dev\",\n" +
-                        "            \"sigining_cert_expiry\": 1993808205000,\n" +
-                        "            \"encryption_cert_expiry\": 1993808205000,\n" +
-                        "            \"osOwner\": [\n" +
-                        "                \"59d43f9b-42e7-4480-9ec2-aa6bd95ccb5f\"\n" +
-                        "            ],\n" +
-                        "            \"osCreatedAt\": \"2023-03-10T12:05:37.736Z\",\n" +
-                        "            \"osUpdatedAt\": \"2023-10-25T05:42:08.924Z\",\n" +
-                        "            \"osid\": \"c776b615-b6cb-481c-8a78-de0c0c80f38a\",\n" +
-                        "            \"@type\": \"Organisation\"\n" +
-                        "        }\n" +
-                        "    ]\n" +
-                        "}")
-                .addHeader("Content-Type", "application/json"));
-        hcxApiServer.enqueue(new MockResponse()
-                .setResponseCode(200)
-                .setBody("{\n" +
-                        "    \"timestamp\": 1698391335312,\n" +
-                        "    \"participants\": [\n" +
-                        "        {\n" +
-                        "            \"primary_email\": \"testhctes13@yopmail.com\",\n" +
-                        "            \"primary_mobile\": \"9620499129\",\n" +
-                        "            \"roles\": [\n" +
-                        "                \"payor\"\n" +
-                        "            ],\n" +
-                        "            \"participant_name\": \"test-payor\",\n" +
-                        "            \"endpoint_url\": \"http://testurl/v0.7\",\n" +
-                        "            \"encryption_cert\": \"https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/hcx-platform/main/hcx-apis/src/test/resources/examples/test-keys/public-key.pem\",\n" +
-                        "            \"status\": \"Created\",\n" +
-                        "            \"scheme_code\": \"default\",\n" +
-                        "            \"participant_code\": \"testhctes13.yopmail@swasth-hcx\",\n" +
-                        "            \"encryption_cert_expiry\": 1840270798000,\n" +
-                        "            \"osOwner\": [\n" +
-                        "                \"24a0835a-42b7-40e1-ab9c-f704e0e9da1b\"\n" +
-                        "            ],\n" +
-                        "            \"osCreatedAt\": \"2023-07-28T06:29:43.893Z\",\n" +
-                        "            \"osUpdatedAt\": \"2023-07-28T06:29:43.893Z\",\n" +
-                        "            \"osid\": \"358ec012-c448-4f4c-9513-40ff8ea20fa9\"\n" +
-                        "        }\n" +
-                        "    ]\n" +
-                        "}")
-                .addHeader("Content-Type", "application/json"));
-        hcxApiServer.enqueue(new MockResponse()
-                .setResponseCode(200)
-                .setBody("{\n" +
-                        "    \"participant_code\": \"testprovider1.apollo@swasth-hcx-dev\"\n" +
-                        "}")
-                .addHeader("Content-Type", "application/json"));
-        hcxApiServer.enqueue(new MockResponse()
-                .setResponseCode(200)
-                .setBody("{\n" +
-                        "    \"timestamp\": 1698391335312,\n" +
-                        "    \"participants\": [\n" +
-                        "        {\n" +
-                        "            \"primary_email\": \"testhctes13@yopmail.com\",\n" +
-                        "            \"primary_mobile\": \"9620499129\",\n" +
-                        "            \"roles\": [\n" +
-                        "                \"payor\"\n" +
-                        "            ],\n" +
-                        "            \"participant_name\": \"test-payor\",\n" +
-                        "            \"endpoint_url\": \"http://testurl/v0.7\",\n" +
-                        "            \"encryption_cert\": \"https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/hcx-platform/main/hcx-apis/src/test/resources/examples/test-keys/public-key.pem\",\n" +
-                        "            \"status\": \"Created\",\n" +
-                        "            \"scheme_code\": \"default\",\n" +
-                        "            \"participant_code\": \"testhctes13.yopmail@swasth-hcx\",\n" +
-                        "            \"encryption_cert_expiry\": 1840270798000,\n" +
-                        "            \"osOwner\": [\n" +
-                        "                \"24a0835a-42b7-40e1-ab9c-f704e0e9da1b\"\n" +
-                        "            ],\n" +
-                        "            \"osCreatedAt\": \"2023-07-28T06:29:43.893Z\",\n" +
-                        "            \"osUpdatedAt\": \"2023-07-28T06:29:43.893Z\",\n" +
-                        "            \"osid\": \"358ec012-c448-4f4c-9513-40ff8ea20fa9\"\n" +
-                        "        }\n" +
-                        "    ]\n" +
-                        "}")
-                .addHeader("Content-Type", "application/json"));
-        hcxApiServer.enqueue(new MockResponse()
-                .setResponseCode(200)
-                .setBody("{\n" +
-                        "    \"timestamp\": 1698301336850,\n" +
-                        "    \"users\": [\n" +
-                        "        {\n" +
-                        "            \"email\": \"mock-invite@yopmail.com\",\n" +
-                        "            \"mobile\": \"8522875773\",\n" +
-                        "            \"username\": \"MockUser 43\",\n" +
-                        "            \"user_name\": \"MockUser 43\",\n" +
-                        "            \"user_id\": \"mock-invite@yopmail.com\",\n" +
-                        "            \"tenant_roles\": [\n" +
-                        "                {\n" +
-                        "                    \"participant_code\": \"testprovider1.apollo@swasth-hcx-dev\",\n" +
-                        "                    \"role\": \"admin\",\n" +
-                        "                    \"osCreatedAt\": \"2023-06-21T07:45:54.100Z\",\n" +
-                        "                    \"osUpdatedAt\": \"2023-06-21T07:45:54.100Z\",\n" +
-                        "                    \"osid\": \"87f4fa26-bd88-4710-a296-0d580df2bd4b\"\n" +
-                        "                }\n" +
-                        "            ],\n" +
-                        "            \"created_by\": \"mock42@yopmail.com\",\n" +
-                        "            \"osOwner\": [\n" +
-                        "                \"f2ed8ea2-27ca-4f42-83c5-6ecdb3c735fc\"\n" +
-                        "            ],\n" +
-                        "            \"osCreatedAt\": \"2023-06-21T07:45:54.100Z\",\n" +
-                        "            \"osUpdatedAt\": \"2023-06-21T07:45:54.100Z\",\n" +
-                        "            \"osid\": \"3ae89acd-21ab-4cab-a6e5-faf03587f3c2\"\n" +
-                        "        }\n" +
-                        "    ]\n" +
-                        "}")
-                .addHeader("Content-Type", "application/json"));
-        postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verification");
-        postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verifier");
-        postgreSQLClient.execute("CREATE TABLE onboard_verification(participant_code character varying NOT NULL PRIMARY KEY,   primary_email character varying,   primary_mobile character varying, createdon bigInt,updatedon bigInt,  expiry bigInt,  phone_verified boolean NOT NULL,email_verified boolean NOT NULL,status character varying,  regenerate_count int,last_regenerate_date date, attempt_count int, comments character varying, phone_short_url character varying, phone_long_url character varying, onboard_validation_properties json, participant_validation_properties json)");
-        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " +
-                " VALUES('testhctes13.yopmail@swasth-hcx','testhctes13@yopmail.com','9620499129','169719173417','169719173417','2555824693417',false,true,'failed',0,'2023-10-12T13:37:12.533Z','5','','','','{\"email\": \"verification\",\"phone\": \"activation\"}',' {\"email\": \"verification\",\"phone\": \"activation\"}')");
+        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " + " VALUES('testhctes13.yopmail@swasth-hcx','testhctes13@yopmail.com','9620499129','169719173417','169719173417','2555824693417',true,true,'failed',0,'2023-10-12T13:37:12.533Z','5','','','','{\"email\": \"activation\",\"phone\": \"activation\"}',' {\"email\": \"activation\",\"phone\": \"activation\"}')");
         postgreSQLClient.execute("CREATE TABLE onboard_verifier( applicant_email character varying NOT NULL,applicant_code character varying NOT NULL,  verifier_code character varying, status character varying, createdon bigInt,   updatedon bigInt,participant_code character varying)");
         postgreSQLClient.execute("INSERT INTO onboard_verifier(applicant_email,applicant_code,verifier_code,status,createdon,updatedon,participant_code)"+"VALUES ('testhctes13@yopmail.com','123445','987655','accepted','1666612517000','1666612517000','testhctes13.yopmail@swasth-hcx')");
         String requestBodyJson = applicantVerifyWithJwtToken();
@@ -1890,7 +1734,7 @@ class OnboardControllerTests extends BaseSpec{
     }
 
     @Test
-    public void test_applicant_verify_link_verified_failed() throws Exception {
+    void test_applicant_verify_link_verified4() throws Exception {
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("{\n" +
@@ -2020,8 +1864,148 @@ class OnboardControllerTests extends BaseSpec{
         postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verification");
         postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verifier");
         postgreSQLClient.execute("CREATE TABLE onboard_verification(participant_code character varying NOT NULL PRIMARY KEY,   primary_email character varying,   primary_mobile character varying, createdon bigInt,updatedon bigInt,  expiry bigInt,  phone_verified boolean NOT NULL,email_verified boolean NOT NULL,status character varying,  regenerate_count int,last_regenerate_date date, attempt_count int, comments character varying, phone_short_url character varying, phone_long_url character varying, onboard_validation_properties json, participant_validation_properties json)");
-        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " +
-                " VALUES('testhctes13.yopmail@swasth-hcx','testhctes13@yopmail.com','9620499129','169719173417','169719173417','2555824693417',false,true,'failed',0,'2023-10-12T13:37:12.533Z','5','','','','{\"email\": \"verification\",\"phone\": \"activation\"}',' {\"email\": \"verification\",\"phone\": \"activation\"}')");
+        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " + " VALUES('testhctes13.yopmail@swasth-hcx','testhctes13@yopmail.com','9620499129','169719173417','169719173417','2555824693417',false,true,'failed',0,'2023-10-12T13:37:12.533Z','5','','','','{\"email\": \"verification\",\"phone\": \"activation\"}',' {\"email\": \"verification\",\"phone\": \"activation\"}')");
+        postgreSQLClient.execute("CREATE TABLE onboard_verifier( applicant_email character varying NOT NULL,applicant_code character varying NOT NULL,  verifier_code character varying, status character varying, createdon bigInt,   updatedon bigInt,participant_code character varying)");
+        postgreSQLClient.execute("INSERT INTO onboard_verifier(applicant_email,applicant_code,verifier_code,status,createdon,updatedon,participant_code)"+"VALUES ('testhctes13@yopmail.com','123445','987655','accepted','1666612517000','1666612517000','testhctes13.yopmail@swasth-hcx')");
+        String requestBodyJson = applicantVerifyWithJwtToken();
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.APPLICANT_VERIFY).content(requestBodyJson).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        Assertions.assertEquals(200, status);
+    }
+
+    @Test
+    void test_applicant_verify_link_verified_failed() throws Exception {
+        hcxApiServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{\n" +
+                        "    \"timestamp\": 1698386158436,\n" +
+                        "    \"participants\": [\n" +
+                        "        {\n" +
+                        "            \"status\": \"Active\",\n" +
+                        "            \"participant_name\": \"Health Claims Exchange Gateway\",\n" +
+                        "            \"endpoint_url\": \"http://dev-hcx.swasth.app/\",\n" +
+                        "            \"roles\": [\n" +
+                        "                \"HIE/HIO.HCX\"\n" +
+                        "            ],\n" +
+                        "            \"primary_email\": \"hcxgateway@swasth.org\",\n" +
+                        "            \"primary_mobile\": \"\",\n" +
+                        "            \"encryption_cert\": \"https://dev-hcx-certificates.s3.ap-south-1.amazonaws.com/hcxgateway.swasth%40swasth-hcx-dev/encryption_cert.pem\",\n" +
+                        "            \"signing_cert_path\": \"https://dev-hcx-certificates.s3.ap-south-1.amazonaws.com/hcxgateway.swasth%40swasth-hcx-dev/signing_cert_path.pem\",\n" +
+                        "            \"linked_registry_codes\": [\n" +
+                        "                12345\n" +
+                        "            ],\n" +
+                        "            \"participant_code\": \"hcxgateway.swasth@swasth-hcx-dev\",\n" +
+                        "            \"sigining_cert_expiry\": 1993808205000,\n" +
+                        "            \"encryption_cert_expiry\": 1993808205000,\n" +
+                        "            \"osOwner\": [\n" +
+                        "                \"59d43f9b-42e7-4480-9ec2-aa6bd95ccb5f\"\n" +
+                        "            ],\n" +
+                        "            \"osCreatedAt\": \"2023-03-10T12:05:37.736Z\",\n" +
+                        "            \"osUpdatedAt\": \"2023-10-25T05:42:08.924Z\",\n" +
+                        "            \"osid\": \"c776b615-b6cb-481c-8a78-de0c0c80f38a\",\n" +
+                        "            \"@type\": \"Organisation\"\n" +
+                        "        }\n" +
+                        "    ]\n" +
+                        "}")
+                .addHeader("Content-Type", "application/json"));
+        hcxApiServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{\n" +
+                        "    \"timestamp\": 1698391335312,\n" +
+                        "    \"participants\": [\n" +
+                        "        {\n" +
+                        "            \"primary_email\": \"testhctes13@yopmail.com\",\n" +
+                        "            \"primary_mobile\": \"9620499129\",\n" +
+                        "            \"roles\": [\n" +
+                        "                \"payor\"\n" +
+                        "            ],\n" +
+                        "            \"participant_name\": \"test-payor\",\n" +
+                        "            \"endpoint_url\": \"http://testurl/v0.7\",\n" +
+                        "            \"encryption_cert\": \"https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/hcx-platform/main/hcx-apis/src/test/resources/examples/test-keys/public-key.pem\",\n" +
+                        "            \"status\": \"Created\",\n" +
+                        "            \"scheme_code\": \"default\",\n" +
+                        "            \"participant_code\": \"testhctes13.yopmail@swasth-hcx\",\n" +
+                        "            \"encryption_cert_expiry\": 1840270798000,\n" +
+                        "            \"osOwner\": [\n" +
+                        "                \"24a0835a-42b7-40e1-ab9c-f704e0e9da1b\"\n" +
+                        "            ],\n" +
+                        "            \"osCreatedAt\": \"2023-07-28T06:29:43.893Z\",\n" +
+                        "            \"osUpdatedAt\": \"2023-07-28T06:29:43.893Z\",\n" +
+                        "            \"osid\": \"358ec012-c448-4f4c-9513-40ff8ea20fa9\"\n" +
+                        "        }\n" +
+                        "    ]\n" +
+                        "}")
+                .addHeader("Content-Type", "application/json"));
+        hcxApiServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{\n" +
+                        "    \"participant_code\": \"testprovider1.apollo@swasth-hcx-dev\"\n" +
+                        "}")
+                .addHeader("Content-Type", "application/json"));
+        hcxApiServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{\n" +
+                        "    \"timestamp\": 1698391335312,\n" +
+                        "    \"participants\": [\n" +
+                        "        {\n" +
+                        "            \"primary_email\": \"testhctes13@yopmail.com\",\n" +
+                        "            \"primary_mobile\": \"9620499129\",\n" +
+                        "            \"roles\": [\n" +
+                        "                \"payor\"\n" +
+                        "            ],\n" +
+                        "            \"participant_name\": \"test-payor\",\n" +
+                        "            \"endpoint_url\": \"http://testurl/v0.7\",\n" +
+                        "            \"encryption_cert\": \"https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/hcx-platform/main/hcx-apis/src/test/resources/examples/test-keys/public-key.pem\",\n" +
+                        "            \"status\": \"Created\",\n" +
+                        "            \"scheme_code\": \"default\",\n" +
+                        "            \"participant_code\": \"testhctes13.yopmail@swasth-hcx\",\n" +
+                        "            \"encryption_cert_expiry\": 1840270798000,\n" +
+                        "            \"osOwner\": [\n" +
+                        "                \"24a0835a-42b7-40e1-ab9c-f704e0e9da1b\"\n" +
+                        "            ],\n" +
+                        "            \"osCreatedAt\": \"2023-07-28T06:29:43.893Z\",\n" +
+                        "            \"osUpdatedAt\": \"2023-07-28T06:29:43.893Z\",\n" +
+                        "            \"osid\": \"358ec012-c448-4f4c-9513-40ff8ea20fa9\"\n" +
+                        "        }\n" +
+                        "    ]\n" +
+                        "}")
+                .addHeader("Content-Type", "application/json"));
+        hcxApiServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{\n" +
+                        "    \"timestamp\": 1698301336850,\n" +
+                        "    \"users\": [\n" +
+                        "        {\n" +
+                        "            \"email\": \"mock-invite@yopmail.com\",\n" +
+                        "            \"mobile\": \"8522875773\",\n" +
+                        "            \"username\": \"MockUser 43\",\n" +
+                        "            \"user_name\": \"MockUser 43\",\n" +
+                        "            \"user_id\": \"mock-invite@yopmail.com\",\n" +
+                        "            \"tenant_roles\": [\n" +
+                        "                {\n" +
+                        "                    \"participant_code\": \"testprovider1.apollo@swasth-hcx-dev\",\n" +
+                        "                    \"role\": \"admin\",\n" +
+                        "                    \"osCreatedAt\": \"2023-06-21T07:45:54.100Z\",\n" +
+                        "                    \"osUpdatedAt\": \"2023-06-21T07:45:54.100Z\",\n" +
+                        "                    \"osid\": \"87f4fa26-bd88-4710-a296-0d580df2bd4b\"\n" +
+                        "                }\n" +
+                        "            ],\n" +
+                        "            \"created_by\": \"mock42@yopmail.com\",\n" +
+                        "            \"osOwner\": [\n" +
+                        "                \"f2ed8ea2-27ca-4f42-83c5-6ecdb3c735fc\"\n" +
+                        "            ],\n" +
+                        "            \"osCreatedAt\": \"2023-06-21T07:45:54.100Z\",\n" +
+                        "            \"osUpdatedAt\": \"2023-06-21T07:45:54.100Z\",\n" +
+                        "            \"osid\": \"3ae89acd-21ab-4cab-a6e5-faf03587f3c2\"\n" +
+                        "        }\n" +
+                        "    ]\n" +
+                        "}")
+                .addHeader("Content-Type", "application/json"));
+        postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verification");
+        postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verifier");
+        postgreSQLClient.execute("CREATE TABLE onboard_verification(participant_code character varying NOT NULL PRIMARY KEY,   primary_email character varying,   primary_mobile character varying, createdon bigInt,updatedon bigInt,  expiry bigInt,  phone_verified boolean NOT NULL,email_verified boolean NOT NULL,status character varying,  regenerate_count int,last_regenerate_date date, attempt_count int, comments character varying, phone_short_url character varying, phone_long_url character varying, onboard_validation_properties json, participant_validation_properties json)");
+        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " + " VALUES('testhctes13.yopmail@swasth-hcx','testhctes13@yopmail.com','9620499129','169719173417','169719173417','2555824693417',false,true,'failed',0,'2023-10-12T13:37:12.533Z','5','','','','{\"email\": \"verification\",\"phone\": \"activation\"}',' {\"email\": \"verification\",\"phone\": \"activation\"}')");
         postgreSQLClient.execute("CREATE TABLE onboard_verifier( applicant_email character varying NOT NULL,applicant_code character varying NOT NULL,  verifier_code character varying, status character varying, createdon bigInt,   updatedon bigInt,participant_code character varying)");
         postgreSQLClient.execute("INSERT INTO onboard_verifier(applicant_email,applicant_code,verifier_code,status,createdon,updatedon,participant_code)"+"VALUES ('testhctes13@yopmail.com','123445','987655','successful','1666612517000','1666612517000','testhctes13.yopmail@swasth-hcx')");
         String requestBodyJson = applicantVerifyWithJwtTokenFail();
@@ -2032,7 +2016,7 @@ class OnboardControllerTests extends BaseSpec{
     }
 
     @Test
-    public void test_applicant_verify_link_mobile1() throws Exception {
+    void test_applicant_verify_link_mobile1() throws Exception {
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("{\n" +
@@ -2162,10 +2146,8 @@ class OnboardControllerTests extends BaseSpec{
         postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verification");
         postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verifier");
         postgreSQLClient.execute("CREATE TABLE onboard_verification(participant_code character varying NOT NULL PRIMARY KEY,   primary_email character varying,   primary_mobile character varying, createdon bigInt,updatedon bigInt,  expiry bigInt,  phone_verified boolean NOT NULL,email_verified boolean NOT NULL,status character varying,  regenerate_count int,last_regenerate_date date, attempt_count int, comments character varying, phone_short_url character varying, phone_long_url character varying, onboard_validation_properties json, participant_validation_properties json)");
-        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " +
-                " VALUES('testhctes13.yopmail@swasth-hcx','testhctes13@yopmail.com','9620499129','169719173417','169719173417','2555824693417',false,true,'failed',0,'2023-10-12T13:37:12.533Z','5','','','','{\"email\": \"verification\",\"phone\": \"activation\"}',' {\"email\": \"verification\",\"phone\": \"activation\"}')");
-        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " +
-                " VALUES('payr_hcxpyr_598881@swasth-hcx-dev','hcxpyr80@yopmail.com','9620499129','169719173417','169719173417','2555824693417',false,true,'failed',0,'2023-10-12T13:37:12.533Z','5','','','','{\"email\": \"verification\",\"phone\": \"activation\"}',' {\"email\": \"verification\",\"phone\": \"activation\"}')");
+        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " + " VALUES('testhctes13.yopmail@swasth-hcx','testhctes13@yopmail.com','9620499129','169719173417','169719173417','2555824693417',false,true,'failed',0,'2023-10-12T13:37:12.533Z','5','','','','{\"email\": \"verification\",\"phone\": \"activation\"}',' {\"email\": \"verification\",\"phone\": \"activation\"}')");
+        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " + " VALUES('payr_hcxpyr_598881@swasth-hcx-dev','hcxpyr80@yopmail.com','9620499129','169719173417','169719173417','2555824693417',false,true,'failed',0,'2023-10-12T13:37:12.533Z','5','','','','{\"email\": \"verification\",\"phone\": \"activation\"}',' {\"email\": \"verification\",\"phone\": \"activation\"}')");
         postgreSQLClient.execute("CREATE TABLE onboard_verifier( applicant_email character varying NOT NULL,applicant_code character varying NOT NULL,  verifier_code character varying, status character varying, createdon bigInt,   updatedon bigInt,participant_code character varying)");
         postgreSQLClient.execute("INSERT INTO onboard_verifier(applicant_email,applicant_code,verifier_code,status,createdon,updatedon,participant_code)"+"VALUES ('testhctes13@yopmail.com','123445','987655','accepted','1666612517000','1666612517000','testhctes13.yopmail@swasth-hcx')");
         String requestBodyJson = applicantVerifyJwtTokenMobile();
@@ -2176,7 +2158,7 @@ class OnboardControllerTests extends BaseSpec{
     }
 
     @Test
-    public void test_applicant_verify_link_mobile2() throws Exception {
+    void test_applicant_verify_link_mobile2() throws Exception {
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("{\n" +
@@ -2306,10 +2288,8 @@ class OnboardControllerTests extends BaseSpec{
         postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verification");
         postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verifier");
         postgreSQLClient.execute("CREATE TABLE onboard_verification(participant_code character varying NOT NULL PRIMARY KEY,   primary_email character varying,   primary_mobile character varying, createdon bigInt,updatedon bigInt,  expiry bigInt,  phone_verified boolean NOT NULL,email_verified boolean NOT NULL,status character varying,  regenerate_count int,last_regenerate_date date, attempt_count int, comments character varying, phone_short_url character varying, phone_long_url character varying, onboard_validation_properties json, participant_validation_properties json)");
-        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " +
-                " VALUES('testhctes13.yopmail@swasth-hcx','testhctes13@yopmail.com','9620499129','169719173417','169719173417','2555824693417',false,true,'failed',0,'2023-10-12T13:37:12.533Z','5','','','','{\"email\": \"verification\",\"phone\": \"activation\"}',' {\"email\": \"verification\",\"phone\": \"activation\"}')");
-        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " +
-                " VALUES('payr_hcxpyr_598881@swasth-hcx-dev','hcxpyr80@yopmail.com','9620499129','169719173417','169719173417','2555824693417',true,true,'failed',0,'2023-10-12T13:37:12.533Z','5','','','','{\"email\": \"verification\",\"phone\": \"activation\"}',' {\"email\": \"activation\",\"phone\": \"verification\"}')");
+        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " + " VALUES('testhctes13.yopmail@swasth-hcx','testhctes13@yopmail.com','9620499129','169719173417','169719173417','2555824693417',false,true,'failed',0,'2023-10-12T13:37:12.533Z','5','','','','{\"email\": \"verification\",\"phone\": \"activation\"}',' {\"email\": \"verification\",\"phone\": \"activation\"}')");
+        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " + " VALUES('payr_hcxpyr_598881@swasth-hcx-dev','hcxpyr80@yopmail.com','9620499129','169719173417','169719173417','2555824693417',true,true,'failed',0,'2023-10-12T13:37:12.533Z','5','','','','{\"email\": \"verification\",\"phone\": \"activation\"}',' {\"email\": \"activation\",\"phone\": \"verification\"}')");
         postgreSQLClient.execute("CREATE TABLE onboard_verifier( applicant_email character varying NOT NULL,applicant_code character varying NOT NULL,  verifier_code character varying, status character varying, createdon bigInt,   updatedon bigInt,participant_code character varying)");
         postgreSQLClient.execute("INSERT INTO onboard_verifier(applicant_email,applicant_code,verifier_code,status,createdon,updatedon,participant_code)"+"VALUES ('testhctes13@yopmail.com','123445','987655','accepted','1666612517000','1666612517000','testhctes13.yopmail@swasth-hcx')");
         String requestBodyJson = applicantVerifyJwtTokenMobile();
@@ -2320,7 +2300,7 @@ class OnboardControllerTests extends BaseSpec{
     }
 
     @Test
-    public void test_applicant_verify_link_mobile3() throws Exception {
+    void test_applicant_verify_link_mobile3() throws Exception {
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("{\n" +
@@ -2450,10 +2430,8 @@ class OnboardControllerTests extends BaseSpec{
         postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verification");
         postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verifier");
         postgreSQLClient.execute("CREATE TABLE onboard_verification(participant_code character varying NOT NULL PRIMARY KEY,   primary_email character varying,   primary_mobile character varying, createdon bigInt,updatedon bigInt,  expiry bigInt,  phone_verified boolean NOT NULL,email_verified boolean NOT NULL,status character varying,  regenerate_count int,last_regenerate_date date, attempt_count int, comments character varying, phone_short_url character varying, phone_long_url character varying, onboard_validation_properties json, participant_validation_properties json)");
-        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " +
-                " VALUES('testhctes13.yopmail@swasth-hcx','testhctes13@yopmail.com','9620499129','169719173417','169719173417','2555824693417',false,true,'failed',0,'2023-10-12T13:37:12.533Z','5','','','','{\"email\": \"verification\",\"phone\": \"activation\"}',' {\"email\": \"verification\",\"phone\": \"activation\"}')");
-        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " +
-                " VALUES('payr_hcxpyr_598881@swasth-hcx-dev','hcxpyr80@yopmail.com','9620499129','169719173417','169719173417','2555824693417',false,true,'failed',0,'2023-10-12T13:37:12.533Z','5','','','','{\"email\": \"verification\",\"phone\": \"activation\"}',' {\"email\": \"activation\",\"phone\": \"activation\"}')");
+        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " + " VALUES('testhctes13.yopmail@swasth-hcx','testhctes13@yopmail.com','9620499129','169719173417','169719173417','2555824693417',false,true,'failed',0,'2023-10-12T13:37:12.533Z','5','','','','{\"email\": \"verification\",\"phone\": \"activation\"}',' {\"email\": \"verification\",\"phone\": \"activation\"}')");
+        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " + " VALUES('payr_hcxpyr_598881@swasth-hcx-dev','hcxpyr80@yopmail.com','9620499129','169719173417','169719173417','2555824693417',false,true,'failed',0,'2023-10-12T13:37:12.533Z','5','','','','{\"email\": \"verification\",\"phone\": \"activation\"}',' {\"email\": \"activation\",\"phone\": \"activation\"}')");
         postgreSQLClient.execute("CREATE TABLE onboard_verifier( applicant_email character varying NOT NULL,applicant_code character varying NOT NULL,  verifier_code character varying, status character varying, createdon bigInt,   updatedon bigInt,participant_code character varying)");
         postgreSQLClient.execute("INSERT INTO onboard_verifier(applicant_email,applicant_code,verifier_code,status,createdon,updatedon,participant_code)"+"VALUES ('testhctes13@yopmail.com','123445','987655','accepted','1666612517000','1666612517000','testhctes13.yopmail@swasth-hcx')");
         String requestBodyJson = applicantVerifyJwtTokenMobile();
@@ -2464,7 +2442,7 @@ class OnboardControllerTests extends BaseSpec{
     }
 
     @Test
-    public void test_applicant_verify_invalid_jwtToken() throws Exception {
+    void test_applicant_verify_invalid_jwtToken() throws Exception {
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("{\n" +
@@ -2563,10 +2541,8 @@ class OnboardControllerTests extends BaseSpec{
         postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verification");
         postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verifier");
         postgreSQLClient.execute("CREATE TABLE onboard_verification(participant_code character varying NOT NULL PRIMARY KEY,   primary_email character varying,   primary_mobile character varying, createdon bigInt,updatedon bigInt,  expiry bigInt,  phone_verified boolean NOT NULL,email_verified boolean NOT NULL,status character varying,  regenerate_count int,last_regenerate_date date, attempt_count int, comments character varying, phone_short_url character varying, phone_long_url character varying, onboard_validation_properties json, participant_validation_properties json)");
-        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " +
-                " VALUES('testhctes13.yopmail@swasth-hcx','testhctes13@yopmail.com','9620499129','169719173417','169719173417','2555824693417',false,true,'failed',0,'2023-10-12T13:37:12.533Z','5','','','','{\"email\": \"verification\",\"phone\": \"activation\"}',' {\"email\": \"verification\",\"phone\": \"activation\"}')");
-        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " +
-                " VALUES('payr_hcxpyr_598881@swasth-hcx-dev','hcxpyr80@yopmail.com','9620499129','169719173417','169719173417','2555824693417',false,true,'failed',0,'2023-10-12T13:37:12.533Z','5','','','','{\"email\": \"verification\",\"phone\": \"activation\"}',' {\"email\": \"activation\",\"phone\": \"activation\"}')");
+        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " + " VALUES('testhctes13.yopmail@swasth-hcx','testhctes13@yopmail.com','9620499129','169719173417','169719173417','2555824693417',false,true,'failed',0,'2023-10-12T13:37:12.533Z','5','','','','{\"email\": \"verification\",\"phone\": \"activation\"}',' {\"email\": \"verification\",\"phone\": \"activation\"}')");
+        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " + " VALUES('payr_hcxpyr_598881@swasth-hcx-dev','hcxpyr80@yopmail.com','9620499129','169719173417','169719173417','2555824693417',false,true,'failed',0,'2023-10-12T13:37:12.533Z','5','','','','{\"email\": \"verification\",\"phone\": \"activation\"}',' {\"email\": \"activation\",\"phone\": \"activation\"}')");
         postgreSQLClient.execute("CREATE TABLE onboard_verifier( applicant_email character varying NOT NULL,applicant_code character varying NOT NULL,  verifier_code character varying, status character varying, createdon bigInt,   updatedon bigInt,participant_code character varying)");
         postgreSQLClient.execute("INSERT INTO onboard_verifier(applicant_email,applicant_code,verifier_code,status,createdon,updatedon,participant_code)"+"VALUES ('testhctes13@yopmail.com','123445','987655','accepted','1666612517000','1666612517000','testhctes13.yopmail@swasth-hcx')");
         String requestBodyJson = applicantVerifyInvalidJwtToken();
@@ -2577,7 +2553,7 @@ class OnboardControllerTests extends BaseSpec{
     }
 
     @Test
-    public void test_applicant_verify_maxretry_exception() throws Exception {
+    void test_applicant_verify_maxretry_exception() throws Exception {
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("{\n" +
@@ -2614,10 +2590,8 @@ class OnboardControllerTests extends BaseSpec{
         postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verification");
         postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verifier");
         postgreSQLClient.execute("CREATE TABLE onboard_verification(participant_code character varying NOT NULL PRIMARY KEY,   primary_email character varying,   primary_mobile character varying, createdon bigInt,updatedon bigInt,  expiry bigInt,  phone_verified boolean NOT NULL,email_verified boolean NOT NULL,status character varying,  regenerate_count int,last_regenerate_date date, attempt_count int, comments character varying, phone_short_url character varying, phone_long_url character varying, onboard_validation_properties json, participant_validation_properties json)");
-        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " +
-                " VALUES('testhctes13.yopmail@swasth-hcx','testhctes13@yopmail.com','9620499129','169719173417','169719173417','2555824693417',false,true,'failed',0,'2023-10-12T13:37:12.533Z','11','','','','{\"email\": \"verification\",\"phone\": \"activation\"}',' {\"email\": \"verification\",\"phone\": \"activation\"}')");
-        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " +
-                " VALUES('payr_hcxpyr_598881@swasth-hcx-dev','hcxpyr80@yopmail.com','9620499129','169719173417','169719173417','2555824693417',false,true,'failed',0,'2023-10-12T13:37:12.533Z','11','','','','{\"email\": \"verification\",\"phone\": \"activation\"}',' {\"email\": \"activation\",\"phone\": \"activation\"}')");
+        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " + " VALUES('testhctes13.yopmail@swasth-hcx','testhctes13@yopmail.com','9620499129','169719173417','169719173417','2555824693417',false,true,'failed',0,'2023-10-12T13:37:12.533Z','11','','','','{\"email\": \"verification\",\"phone\": \"activation\"}',' {\"email\": \"verification\",\"phone\": \"activation\"}')");
+        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " + " VALUES('payr_hcxpyr_598881@swasth-hcx-dev','hcxpyr80@yopmail.com','9620499129','169719173417','169719173417','2555824693417',false,true,'failed',0,'2023-10-12T13:37:12.533Z','11','','','','{\"email\": \"verification\",\"phone\": \"activation\"}',' {\"email\": \"activation\",\"phone\": \"activation\"}')");
         postgreSQLClient.execute("CREATE TABLE onboard_verifier( applicant_email character varying NOT NULL,applicant_code character varying NOT NULL,  verifier_code character varying, status character varying, createdon bigInt,   updatedon bigInt,participant_code character varying)");
         postgreSQLClient.execute("INSERT INTO onboard_verifier(applicant_email,applicant_code,verifier_code,status,createdon,updatedon,participant_code)"+"VALUES ('testhctes13@yopmail.com','123445','987655','accepted','1666612517000','1666612517000','testhctes13.yopmail@swasth-hcx')");
         String requestBodyJson = applicantVerifyJwtTokenMobile();
@@ -2627,7 +2601,7 @@ class OnboardControllerTests extends BaseSpec{
         Assertions.assertEquals(400, status);
     }
     @Test
-    public void test_applicant_verify_link_verified_exception() throws Exception {
+    void test_applicant_verify_link_verified_exception() throws Exception {
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("{\n" +
@@ -2664,8 +2638,7 @@ class OnboardControllerTests extends BaseSpec{
         postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verification");
         postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verifier");
         postgreSQLClient.execute("CREATE TABLE onboard_verification(participant_code character varying NOT NULL PRIMARY KEY,   primary_email character varying,   primary_mobile character varying, createdon bigInt,updatedon bigInt,  expiry bigInt,  phone_verified boolean NOT NULL,email_verified boolean NOT NULL,status character varying,  regenerate_count int,last_regenerate_date date, attempt_count int, comments character varying, phone_short_url character varying, phone_long_url character varying, onboard_validation_properties json, participant_validation_properties json)");
-        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " +
-                " VALUES('testhctes13.yopmail@swasth-hcx','testhctes13@yopmail.com','9620499129','169719173417','169719173417','2555824693417',true,true,'successful',0,'2023-10-12T13:37:12.533Z','5','','','','{\"email\": \"activation\",\"phone\": \"verification\"}',' {\"email\": \"activation\",\"phone\": \"verification\"}')");
+        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " + " VALUES('testhctes13.yopmail@swasth-hcx','testhctes13@yopmail.com','9620499129','169719173417','169719173417','2555824693417',true,true,'successful',0,'2023-10-12T13:37:12.533Z','5','','','','{\"email\": \"activation\",\"phone\": \"verification\"}',' {\"email\": \"activation\",\"phone\": \"verification\"}')");
         postgreSQLClient.execute("CREATE TABLE onboard_verifier( applicant_email character varying NOT NULL,applicant_code character varying NOT NULL,  verifier_code character varying, status character varying, createdon bigInt,   updatedon bigInt,participant_code character varying)");
         postgreSQLClient.execute("INSERT INTO onboard_verifier(applicant_email,applicant_code,verifier_code,status,createdon,updatedon,participant_code)"+"VALUES ('testhctes13@yopmail.com','123445','987655','accepted','1666612517000','1666612517000','testhctes13.yopmail@swasth-hcx')");
         String requestBodyJson = applicantVerifyWithJwtToken();
@@ -2675,7 +2648,7 @@ class OnboardControllerTests extends BaseSpec{
         Assertions.assertEquals(400, status);
     }
     @Test
-    public void test_applicant_get_info() throws Exception {
+    void test_applicant_get_info() throws Exception {
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("{\n" +
@@ -2732,7 +2705,7 @@ class OnboardControllerTests extends BaseSpec{
     }
 
     @Test
-    public void test_applicant_get_info_exception() throws Exception {
+    void test_applicant_get_info_exception() throws Exception {
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("{\n" +
@@ -2830,7 +2803,7 @@ class OnboardControllerTests extends BaseSpec{
     }
 
     @Test
-    public void test_onboard_invite_with_jwtToken_exception() throws Exception {
+    void test_onboard_invite_with_jwtToken_exception() throws Exception {
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("{\n" +
@@ -2874,7 +2847,7 @@ class OnboardControllerTests extends BaseSpec{
     }
 
     @Test
-    public void test_onboard_invite_with_jwtToken() throws Exception {
+    void test_onboard_invite_with_jwtToken() throws Exception {
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("{\n" +
@@ -2976,7 +2949,7 @@ class OnboardControllerTests extends BaseSpec{
     }
 
     @Test
-    public void test_onboard_user_invite_user_exists_exception() throws Exception {
+    void test_onboard_user_invite_user_exists_exception() throws Exception {
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("{\n" +
@@ -3018,7 +2991,7 @@ class OnboardControllerTests extends BaseSpec{
     }
 
     @Test
-    public void test_onboard_user_invite_exception() throws Exception {
+    void test_onboard_user_invite_exception() throws Exception {
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("{\n" +
@@ -3036,7 +3009,7 @@ class OnboardControllerTests extends BaseSpec{
     }
 
     @Test
-    public void test_applicant_search() throws Exception {
+    void test_applicant_search() throws Exception {
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("{\n" +
@@ -3095,8 +3068,7 @@ class OnboardControllerTests extends BaseSpec{
         postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verifier");
         postgreSQLClient.execute("DROP TABLE IF EXISTS mock_participant");
         postgreSQLClient.execute("CREATE TABLE onboard_verification(participant_code character varying NOT NULL PRIMARY KEY,   primary_email character varying,   primary_mobile character varying, createdon bigInt,updatedon bigInt,  expiry bigInt,  phone_verified boolean NOT NULL,email_verified boolean NOT NULL,status character varying,  regenerate_count int,last_regenerate_date date, attempt_count int, comments character varying, phone_short_url character varying, phone_long_url character varying, onboard_validation_properties json, participant_validation_properties json)");
-        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " +
-                " VALUES('provider-swasth-mock-provider-dev','swasthmockproviderdev@gmail.com','9620499129','169719173417','169719173417','2555824693417',true,false,'successful',0,'2023-10-12T13:37:12.533Z','5','','','','{\"email\": \"activation\",\"phone\": \"verification\"}',' {\"email\": \"activation\",\"phone\": \"verification\"}')");
+        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " + " VALUES('provider-swasth-mock-provider-dev','swasthmockproviderdev@gmail.com','9620499129','169719173417','169719173417','2555824693417',true,false,'successful',0,'2023-10-12T13:37:12.533Z','5','','','','{\"email\": \"activation\",\"phone\": \"verification\"}',' {\"email\": \"activation\",\"phone\": \"verification\"}')");
         postgreSQLClient.execute("CREATE TABLE onboard_verifier( applicant_email character varying NOT NULL,applicant_code character varying NOT NULL,  verifier_code character varying, status character varying, createdon bigInt,   updatedon bigInt,participant_code character varying)");
         postgreSQLClient.execute("INSERT INTO onboard_verifier(applicant_email,applicant_code,verifier_code,status,createdon,updatedon,participant_code)"+"VALUES ('swasthmockproviderdev@gmail.com','123445','987655','accepted','1666612517000','1666612517000','provider-swasth-mock-provider-dev')");
         postgreSQLClient.execute("CREATE TABLE  mock_participant(parent_participant_code character varying,  child_participant_code character varying NOT NULL PRIMARY KEY ,primary_email character varying, password character varying,private_key character varying)");
@@ -3109,7 +3081,7 @@ class OnboardControllerTests extends BaseSpec{
     }
 
     @Test
-    public void test_applicant_search_exception() throws Exception {
+    void test_applicant_search_exception() throws Exception {
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("{\n" +
@@ -3168,8 +3140,7 @@ class OnboardControllerTests extends BaseSpec{
         postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verifier");
         postgreSQLClient.execute("DROP TABLE IF EXISTS mock_participant");
         postgreSQLClient.execute("CREATE TABLE onboard_verification(participant_code character varying NOT NULL PRIMARY KEY,   primary_email character varying,   primary_mobile character varying, createdon bigInt,updatedon bigInt,  expiry bigInt,  phone_verified boolean NOT NULL,email_verified boolean NOT NULL,status character varying,  regenerate_count int,last_regenerate_date date, attempt_count int, comments character varying, phone_short_url character varying, phone_long_url character varying, onboard_validation_properties json, participant_validation_properties json)");
-        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " +
-                " VALUES('provider-swasth-mock-provider-dev','swasthmockproviderdev@gmail.com','9620499129','169719173417','169719173417','2555824693417',true,false,'successful',0,'2023-10-12T13:37:12.533Z','5','','','','{\"email\": \"activation\",\"phone\": \"verification\"}',' {\"email\": \"activation\",\"phone\": \"verification\"}')");
+        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " + " VALUES('provider-swasth-mock-provider-dev','swasthmockproviderdev@gmail.com','9620499129','169719173417','169719173417','2555824693417',true,false,'successful',0,'2023-10-12T13:37:12.533Z','5','','','','{\"email\": \"activation\",\"phone\": \"verification\"}',' {\"email\": \"activation\",\"phone\": \"verification\"}')");
         postgreSQLClient.execute("CREATE TABLE onboard_verifier( applicant_email character varying NOT NULL,applicant_code character varying NOT NULL,  verifier_code character varying, status character varying, createdon bigInt,   updatedon bigInt,participant_code character varying)");
         postgreSQLClient.execute("INSERT INTO onboard_verifier(applicant_email,applicant_code,verifier_code,status,createdon,updatedon,participant_code)"+"VALUES ('swasthmockproviderdev@gmail.com','123445','987655','accepted','1666612517000','1666612517000','provider-swasth-mock-provider-dev')");
         String requestBodyJson = applicantSearchRequestBody();
@@ -3179,7 +3150,7 @@ class OnboardControllerTests extends BaseSpec{
         Assertions.assertEquals(400, status);
     }
     @Test
-    public void test_invite_reject_exception() throws Exception {
+    void test_invite_reject_exception() throws Exception {
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("{\n" +
@@ -3246,7 +3217,7 @@ class OnboardControllerTests extends BaseSpec{
     }
 
     @Test
-    public void onboard_applicant_password_generate_exception() throws Exception {
+    void onboard_applicant_password_generate_exception() throws Exception {
         String requestBodyJson = applicantPasswordRequestBody();
         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.ONBOARD_APPLICANT_PASSWORD_GENERATE).content(requestBodyJson).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -3255,7 +3226,7 @@ class OnboardControllerTests extends BaseSpec{
     }
 
     @Test
-    public void user_invite_reject() throws Exception {
+    void user_invite_reject() throws Exception {
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("{\n" +
@@ -3358,6 +3329,82 @@ class OnboardControllerTests extends BaseSpec{
         postgreSQLClient.execute("CREATE TABLE onboard_user_invite_details(participant_code character varying,user_email character varying,invited_by character varying,invite_status character varying ,created_on bigInt , updated_on bigInt)");
         String requestBodyJson = userInviteReject();
         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.ONBOARD_USER_INVITE_REJECT).content(requestBodyJson).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        Assertions.assertEquals(200, status);
+    }
+
+    @Test
+    void onboard_applicant_password_generate() throws Exception {
+        hcxApiServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{\n" +
+                        "    \"timestamp\": 1698733663581,\n" +
+                        "    \"participants\": [\n" +
+                        "        {\n" +
+                        "            \"participant_name\": \"hcx test\",\n" +
+                        "            \"primary_email\": \"hcxtestprovider9000@yopmail.com\",\n" +
+                        "            \"primary_mobile\": \"8522875773\",\n" +
+                        "            \"roles\": [\n" +
+                        "                \"payor\"\n" +
+                        "            ],\n" +
+                        "            \"endpoint_url\": \"http://testurl/v0.7\",\n" +
+                        "            \"encryption_cert\": \"https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/hcx-platform/main/hcx-apis/src/test/resources/examples/test-keys/public-key.pem\",\n" +
+                        "            \"status\": \"Active\",\n" +
+                        "            \"scheme_code\": \"default\",\n" +
+                        "            \"participant_code\": \"hcxtestprovider9000.yopmail@swasth-hcx-dev\",\n" +
+                        "            \"encryption_cert_expiry\": 1840270798000,\n" +
+                        "            \"osOwner\": [\n" +
+                        "                \"a9f33168-a004-4486-9c18-b3edb8f96317\"\n" +
+                        "            ],\n" +
+                        "            \"osCreatedAt\": \"2023-08-06T13:20:33.819Z\",\n" +
+                        "            \"osUpdatedAt\": \"2023-08-06T13:26:05.043Z\",\n" +
+                        "            \"osid\": \"a4583d62-7ed2-4a8c-93cc-b2f94f9205eb\",\n" +
+                        "            \"@type\": \"Organisation\"\n" +
+                        "        }\n" +
+                        "    ]\n" +
+                        "}")
+                .addHeader("Content-Type", "application/json"));
+        hcxApiServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{\n" +
+                        "    \"timestamp\": 1698733290848,\n" +
+                        "    \"users\": [\n" +
+                        "        {\n" +
+                        "            \"email\": \"hcxtestprovider9000@yopmail.com\",\n" +
+                        "            \"mobile\": \"8522875773\",\n" +
+                        "            \"user_name\": \"hcx test Admin\",\n" +
+                        "            \"user_id\": \"hcxtestprovider9000@yopmail.com\",\n" +
+                        "            \"tenant_roles\": [\n" +
+                        "                {\n" +
+                        "                    \"osUpdatedAt\": \"2023-08-06T13:56:26.729Z\",\n" +
+                        "                    \"role\": \"config-manager\",\n" +
+                        "                    \"participant_code\": \"hcxtestprovider9000.yopmail@swasth-hcx-dev\",\n" +
+                        "                    \"osid\": \"6919f2d7-0842-46f6-a38f-3d5b798c978d\"\n" +
+                        "                }\n" +
+                        "            ],\n" +
+                        "            \"created_by\": \"hcxtestprovider9000.yopmail@swasth-hcx-dev\",\n" +
+                        "            \"osOwner\": [\n" +
+                        "                \"732c64c7-f549-4910-8615-a161697baaf9\"\n" +
+                        "            ],\n" +
+                        "            \"osCreatedAt\": \"2023-08-06T13:20:34.035Z\",\n" +
+                        "            \"osUpdatedAt\": \"2023-08-06T13:56:26.855Z\",\n" +
+                        "            \"osid\": \"3ae8554b-6a99-4b5c-b317-6cdcbcfc4a68\",\n" +
+                        "            \"@type\": \"User\",\n" +
+                        "            \"tenant\": [\n" +
+                        "                {\n" +
+                        "                    \"osUpdatedAt\": \"2023-08-06T13:56:26.855Z\",\n" +
+                        "                    \"role\": \"config-manager\",\n" +
+                        "                    \"participant_code\": \"hcxtestprovider9000.yopmail@swasth-hcx-dev\",\n" +
+                        "                    \"osid\": \"6919f2d7-0842-46f6-a38f-3d5b798c978d\"\n" +
+                        "                }\n" +
+                        "            ]\n" +
+                        "        }\n" +
+                        "    ]\n" +
+                        "}")
+                .addHeader("Content-Type", "application/json"));
+        String requestBodyJson = applicantPasswordRequestBody();
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.ONBOARD_APPLICANT_PASSWORD_GENERATE).content(requestBodyJson).header(HttpHeaders.AUTHORIZATION,authorizationHeaderForGeneratePassword()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         Assertions.assertEquals(200, status);

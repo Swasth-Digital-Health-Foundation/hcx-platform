@@ -15,6 +15,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import org.swasth.common.dto.OnboardRequest;
 import org.swasth.common.dto.ResponseError;
 import org.swasth.common.dto.User;
 import org.swasth.hcx.config.GenericConfiguration;
@@ -33,7 +34,7 @@ import static org.swasth.common.exception.ErrorCodes.INTERNAL_SERVER_ERROR;
 @SpringBootTest
 @ActiveProfiles("test")
 @Import(GenericConfiguration.class)
-public class EventGeneratorTests {
+class EventGeneratorTests {
     @Autowired
     protected WebApplicationContext wac;
     protected MockMvc mockMvc;
@@ -49,7 +50,7 @@ public class EventGeneratorTests {
 
     @Test
     @Category(EventGenerator.class)
-    public void testGetVerifyLinkEvent() {
+    void testGetVerifyLinkEvent() {
         Map<String, Object> request = new HashMap<>();
         request.put("PARTICIPANT_CODE", "SampleParticipantCode");
         int attemptCount = 2;
@@ -184,5 +185,17 @@ public class EventGeneratorTests {
         String eventString = eventGenerator.getEmailMessageEvent(message, subject, to, cc, bcc);
         assertNotNull(eventString);
         assertFalse(eventString.isEmpty());
+    }
+
+    @Test
+    void testGetOnboardVerifyEvent() throws JsonProcessingException {
+        List<Map<String , Object>> details = new ArrayList<>();
+        Map<String , Object> data = new HashMap<>();
+        data.put("id","");
+        details.add(data);
+        OnboardRequest onboardRequest = new OnboardRequest(details);
+        String participantCode = "hcx-swasth";
+        Map<String , Object> event = eventGenerator.getOnboardVerifyEvent(onboardRequest,participantCode);
+        assertNotNull(event);
     }
 }

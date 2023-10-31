@@ -74,8 +74,7 @@ public class BaseSpec {
 
     @MockBean
     protected PostgreSQLClient postgreSQLClient;
-//    @Resource
-//    protected PostgreSQLClient postgresClientMockService;
+
     @MockBean
     protected KafkaClient kafkaClient;
     private EmbeddedPostgres embeddedPostgres;
@@ -84,9 +83,6 @@ public class BaseSpec {
      void setup() throws Exception {
         registryServer.start(InetAddress.getByName("localhost"),8082);
         hcxApiServer.start(InetAddress.getByName("localhost"),8080);
-//        embeddedPostgres = EmbeddedPostgres.builder().setPort(5432).start();
-//        postgreSQLClient = new PostgreSQLClient("jdbc:postgresql://localhost:5432/postgres", "postgres", "postgres");
-//        postgresClientMockService = new PostgreSQLClient("jdbc:postgresql://localhost:5432/mock_service", "postgres", "postgres");
         embeddedPostgres = EmbeddedPostgres.builder().setPort(5432).start();
         String jdbcUrl = embeddedPostgres.getJdbcUrl("postgres", "postgres");
         postgreSQLClient = new PostgreSQLClient(jdbcUrl, "postgres", "postgres");
@@ -101,10 +97,13 @@ public class BaseSpec {
     void teardown() throws IOException, InterruptedException {
         registryServer.shutdown();
         hcxApiServer.shutdown();
-        Thread.sleep(2000);
     }
     protected String getAuthorizationHeader() {
         return "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICI3Q1l0Z2VYMzA2NEQ3VUU0czdCQWlJZmUzN3hxczBtNEVSQnpmdzVuMzdNIn0.eyJleHAiOjE2ODE2MjcyNDQsImlhdCI6MTY3OTg5OTI0NCwianRpIjoiZmMyNjBlNjQtZDhkYy00OGY1LWIzMDMtOTZmZmU4MmVlNjNmIiwiaXNzIjoiaHR0cDovL2Rldi1oY3guc3dhc3RoLmFwcC9hdXRoL3JlYWxtcy9zd2FzdGgtaGVhbHRoLWNsYWltLWV4Y2hhbmdlIiwic3ViIjoiMjljZWNlMjAtMThlZi00YmM4LThlYTQtYzMxZDZmOTM4NDljIiwidHlwIjoiQmVhcmVyIiwiYXpwIjoicmVnaXN0cnktZnJvbnRlbmQiLCJzZXNzaW9uX3N0YXRlIjoiYWYzMDdjM2UtMmU5ZS00YzY3LWI0MDYtNzQyZmJhMTBjYjAzIiwiYWNyIjoiMSIsInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJISUUvSElPLkhDWCIsImRlZmF1bHQtcm9sZXMtbmRlYXIiXX0sInNjb3BlIjoicHJvZmlsZSBlbWFpbCIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwibmFtZSI6ImhjeC1hZG1pbiIsInByZWZlcnJlZF91c2VybmFtZSI6ImhjeC1hZG1pbiIsImdpdmVuX25hbWUiOiJoY3gtYWRtaW4iLCJlbWFpbCI6ImhjeC1hZG1pbkBnbWFpbC5jb20ifQ.IBrmoA0m6QZEYQyv0ggfxV2VZMbPSMPs8JYB7XKK16HRhqaxCpqvc8GWazO8lpOBhLbPQZahaLM75ua9MxYqu5nrk1np3WbeKHpewjuScRbvXTSus2Z4vdy-XcA-Q3sLH6ABqyTwwrhGMD--1x9AqYk3PsCaSDItaulYc3IwC1NivBn60Wwc3o-QYWry5SP1atzii4LTTwgsqi1XHlg1125hV419aHqVJRmU79kXqVqdGtKyyro5QUMAE9YHotKHoPWO3sXgRjTow7QfLyB7PeYYZs9ganfTKa4sH9DWfh52c1Tf2uBjw2boBqbUK4iBv5uxV_DosdTfityVD32E8w";
+    }
+
+    protected String authorizationHeaderForGeneratePassword(){
+        return "Bearer eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiIzYjU1MGM5Mi00MzY0LTRkOGUtOGFmMS0yY2EyN2Q0MDlhM2IiLCJyZXNvdXJjZV9hY2Nlc3MiOnsiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwiZW1haWxfdmVyaWZpZWQiOmZhbHNlLCJpc3MiOiJodHRwOlwvXC9rZXljbG9hay5rZXljbG9hay5zdmMuY2x1c3Rlci5sb2NhbDo4MDgwXC9hdXRoXC9yZWFsbXNcL3N3YXN0aC1oY3gtdXNlcnMiLCJ0eXAiOiJCZWFyZXIiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJoY3h0ZXN0cHJvdmlkZXI5MDAxQHlvcG1haWwuY29tIiwiYXVkIjoiYWNjb3VudCIsImFjciI6IjEiLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsiZGVmYXVsdC1yb2xlcy1zd2FzdGgtaGVhbHRoLWNsYWltLWV4Y2hhbmdlLXVzZXIiLCJvZmZsaW5lX2FjY2VzcyIsInVtYV9hdXRob3JpemF0aW9uIl0sInRlbmFudF9yb2xlcyI6W3sicm9sZSI6ImFkbWluIiwicGFydGljaXBhbnRfY29kZSI6ImhjeHRlc3Rwcm92aWRlcjkwMDAueW9wbWFpbEBzd2FzdGgtaGN4LWRldiJ9XX0sInVzZXJfaWQiOiJoY3h0ZXN0cHJvdmlkZXI5MDAxQHlvcG1haWwuY29tIiwiYXpwIjoicmVnaXN0cnktZnJvbnRlbmQiLCJzY29wZSI6ImVtYWlsIHByb2ZpbGUiLCJleHAiOjE2OTg3NjgzMDYsInNlc3Npb25fc3RhdGUiOiJiODkxODk3YS0xMTI5LTQ3NTEtOTc1Mi03NzA3NjhmOGFhYjkiLCJpYXQiOjE2OTg3MzIzMDYsImp0aSI6ImY2MmFhYzI1LTM2YWItNGQ1My1hOWExLWY1MWY1ODI3ZDBiZSIsImVtYWlsIjoiaGN4dGVzdHByb3ZpZGVyOTAwMUB5b3BtYWlsLmNvbSIsImVudGl0eSI6WyJVc2VyIl19.wMsZUzbopJuru2nSrGaEc_aaQQnF7WV4TLF5vc84ohrFY9GvPX_ngqvdNvYbfcUEksxMn7DR1kDIbA9yQrg26uoBowb4pFsGFT2_Ht9Se7me4PHvOft98HBL3BxoO_2I-h8z4a0gflT8a9tej4KIPTuxoUlMxC1nZVP6HFKdP0x0d2oVgDcBl8yFVj9bwSDNfM1nrkULnkSQY2vfaMpuZQJHrcJvjvL__rvCH1-citkPQtRwNL9i1UOHSe_Ge8uOalbnixcK6zBLXTWOCWpapzQACtbKF8k2doTvGuQayjaUf4rOgwfO975qgzlQDgfdeNLn-B3ai3MJtyRtxfWf0g";
     }
 
     protected String verifyRequestBody() throws JsonProcessingException {
