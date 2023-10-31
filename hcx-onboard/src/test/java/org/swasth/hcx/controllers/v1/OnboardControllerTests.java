@@ -1055,6 +1055,49 @@ class OnboardControllerTests extends BaseSpec{
     }
 
     @Test
+    void test_sendVerification_link_maxCount() throws Exception {
+        hcxApiServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{\n" +
+                        "    \"timestamp\": 1698217240571,\n" +
+                        "    \"participants\": [\n" +
+                        "        {\n" +
+                        "            \"primary_email\": \"test_user_52@yopmail.com\",\n" +
+                        "            \"primary_mobile\": \"9620499129\",\n" +
+                        "            \"roles\": [\n" +
+                        "                \"payor\"\n" +
+                        "            ],\n" +
+                        "            \"participant_name\": \"Abhishek\",\n" +
+                        "            \"endpoint_url\": \"http://testurl/v0.7\",\n" +
+                        "            \"encryption_cert\": \"https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/hcx-platform/sprint-27/hcx-apis/src/test/resources/examples/x509-self-signed-certificate.pem\",\n" +
+                        "            \"status\": \"Created\",\n" +
+                        "            \"scheme_code\": \"default\",\n" +
+                        "            \"participant_code\": \"test_user_52.yopmail@swasth-hcx\",\n" +
+                        "            \"encryption_cert_expiry\": 1666612517000,\n" +
+                        "            \"osOwner\": [\n" +
+                        "                \"15765255-aea0-4151-ab47-d575de172857\"\n" +
+                        "            ],\n" +
+                        "            \"osCreatedAt\": \"2023-03-16T10:09:03.826Z\",\n" +
+                        "            \"osUpdatedAt\": \"2023-03-16T10:09:03.826Z\",\n" +
+                        "            \"osid\": \"89e2b4ab-490f-4eb5-9fb2-1222ceb7c42c\"\n" +
+                        "        }\n" +
+                        "    ]\n" +
+                        "}")
+                .addHeader("Content-Type", "application/json"));
+        postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verification");
+        postgreSQLClient.execute("CREATE TABLE onboard_verification(participant_code character varying NOT NULL PRIMARY KEY,   primary_email character varying,   primary_mobile character varying, createdon bigInt,updatedon bigInt,  expiry bigInt,  phone_verified boolean NOT NULL,email_verified boolean NOT NULL,status character varying,  regenerate_count int,last_regenerate_date date, attempt_count bigInt, comments character varying, phone_short_url character varying, phone_long_url character varying, onboard_validation_properties json, participant_validation_properties json)");
+        LocalDateTime localDateTime = LocalDateTime.now();
+        System.out.println(localDateTime);
+        String query = String.format("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " +  " VALUES('test_user_52.yopmail@swasth-hcx','test_user_52@yopmail.com','9620499129','169719173417','169719173417','1666612517000',false,false,'successful',4,'%s','1666612517000','','','','{\"email\": \"activation\",\"phone\": \"verification\"}',' {\"email\": \"activation\",\"phone\": \"verification\"}')",localDateTime);
+        postgreSQLClient.execute(query);
+        String requestBodyJson = verificationLinkRequestBody();
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_VERIFICATION_LINK_SEND).content(requestBodyJson).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        Assertions.assertEquals(200, status);
+    }
+
+    @Test
     public void test_sendVerification_link_invalid_request_exception() throws Exception {
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
