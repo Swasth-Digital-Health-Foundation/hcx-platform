@@ -220,6 +220,7 @@ public class Constants {
     public static final String ENCRYPTION_CERT = "encryption_cert";
     public static final String ENCRYPTION_CERT_EXPIRY = "encryption_cert_expiry";
     public static final String SIGNING_CERT_PATH_EXPIRY = "sigining_cert_expiry";
+    public static final String API_ACCESS_SECRET_GENERATE = "/api-access/secret/generate";
     public static final String PUBLIC_KEY = "public_key";
     public static final String PRIVATE_KEY = "private_key";
     public static final String PASSWORD = "password";
