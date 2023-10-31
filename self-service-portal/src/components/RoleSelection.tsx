@@ -6,6 +6,7 @@ import { toast } from 'react-toastify';
 import _ from 'lodash';
 import { RootState } from '../store';
 import TermsOfUse from './TermsOfUse';
+import MultiSelectDropdown from './MultiSelectDropdown';
 
 type Payor = {
   participant_code: string,
@@ -26,6 +27,7 @@ const RoleSelection: React.FC<RoleSelectionProps> = ({ payorList, onRoleSubmit }
   const [payorSelected, setPayorSelected] = useState(process.env.REACT_APP_MOCK_PAYOR_CODE);
   const [applicantCode, setApplicantCode] = useState('');
   const [applicantError, setApplicantError] = useState(false);
+  const [providerOptions, setProviderOptions] = useState<Array<string>>([]);
 
   useEffect(() => {
     dispatch(addAppData({ "roleSelectedRegister":"provider"}));
@@ -37,6 +39,7 @@ const RoleSelection: React.FC<RoleSelectionProps> = ({ payorList, onRoleSubmit }
     window.console.log("applicant missing", radioRole, payorSelected, applicantCode);
     if(radioRole == "provider" && payorSelected == process.env.REACT_APP_MOCK_PAYOR_CODE){
       dispatch(addAppData({ "payorSelectedCodeRegister": "" }))
+      dispatch(addAppData({"providerOptions" : providerOptions}));
       setApplicantCode("");
       return onRoleSubmit();
     }
@@ -66,6 +69,9 @@ const RoleSelection: React.FC<RoleSelectionProps> = ({ payorList, onRoleSubmit }
             onChange={(event) => { setRadioRole(event.target.value); dispatch(addAppData({ "roleSelectedRegister": event.target.value })) }}>
             <option selected value="provider">Provider</option>
             <option value="payor">Payor</option>
+            <option value="bsp">BSP</option>
+            <option value="member.isnp">Member ISNP</option>
+        
           </select>
           <span className="absolute top-1/2 right-4 z-30 -translate-y-1/2">
             <svg
@@ -87,10 +93,17 @@ const RoleSelection: React.FC<RoleSelectionProps> = ({ payorList, onRoleSubmit }
             </svg>
           </span>
         </div>
-
       </div>
       {radioRole == "provider" ?
         <>
+        <div className="mb-4">
+            <label className="mb-2.5 block font-medium text-black dark:text-white">
+              Select Provider Roles
+            </label>
+            <MultiSelectDropdown options={["provider","Provider.hospital","Provider.clinic","Provider.practitioner","Provider.diagnostics","Provider.pharmacy"]} onSelect={function (selected: string[]): void {
+                setProviderOptions(selected); console.log(selected);
+            } }></MultiSelectDropdown>
+          </div>
           <div className="mb-4">
             <label className="mb-2.5 block font-medium text-black dark:text-white">
               Select Payor

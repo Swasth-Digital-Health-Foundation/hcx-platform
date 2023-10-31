@@ -12,6 +12,7 @@ import UserList from './pages/Users/UsersList';
 import ParticipantList from './pages/Participants/ParticipantsList';
 import UsersInvite from './pages/Users/UsersInvite';
 import ResetPassword from './pages/Authentication/ResetPassword';
+import Terminology from './pages/Terminology';
 
 const DefaultLayout = lazy(() => import('./layout/DefaultLayout'));
 
@@ -91,7 +92,17 @@ function App() {
               </>
             }
           />
+          <Route
+            path="/onboarding/terminology"
+            element={
+              <>
+                <PageTitle title="Terminology" />
+                <Terminology />
+              </>
+            }
+          />
         </Route>
+        
       </Routes>
     </>
   );

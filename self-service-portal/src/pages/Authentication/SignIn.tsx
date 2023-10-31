@@ -24,8 +24,11 @@ const SignIn: React.FC = () => {
   const [showLoader, setShowLoader] = useState(false);
   const [userError, setUserError ] = useState(false);
   const [passError, setPassError ] = useState(false);
+  let sessionToken = sessionStorage.getItem("hcx_user_token");
 
-   useEffect(() => {
+  useEffect(() => {
+     console.log("session token", sessionToken);
+     sessionStorage.removeItem("hcx_user_token");
      dispatch(addAppData({"sidebar":"Profile"}));
    },[])
 
@@ -34,17 +37,13 @@ const SignIn: React.FC = () => {
       if(username == "") setUserError(true);
       if(password == "") setPassError(true);
     }else{
-      console.log("i am here")
       dispatch(addAppData({"username":username}));
       generateTokenUser(username,password).then((res) => {
-        window.console.log("res", res);
         sessionStorage.setItem('hcx_user_token', res as string);
         sessionStorage.setItem('hcx_user_name', username);
         dispatch(addParticipantToken(res as string));
         getParticipant(userName).then((res :any) => {
-          console.log("we are in inside get par", res, res["data"]["participants"].length);
           if( res["data"]["participants"].length !== 0){
-            console.log("came in if")
            dispatch(addParticipantDetails(res["data"]["participants"][0]));
            navigate("/onboarding/profile");
            if(res["data"]["participants"].length == 1){
@@ -53,14 +52,11 @@ const SignIn: React.FC = () => {
             navigate("/onboarding/participants");
           }
           }else{
-            console.log("came in else");
             serachUser(username).then((res: any) => {
-              console.log("search user res", res);
               let osOwner = res["data"]["users"][0]["osOwner"];
               let participant = res["data"]["users"][0]["tenant_roles"];
               participant.map((value: any,index: any) => {
                 getParticipantByCode(value.participant_code).then(res => {
-                  console.log("participant info", res);
                   dispatch(addParticipantDetails(res["data"]["participants"][0]));
                 })
                 navigate("/onboarding/participants");
