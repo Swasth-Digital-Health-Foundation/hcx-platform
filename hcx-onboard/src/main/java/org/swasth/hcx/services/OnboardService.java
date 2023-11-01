@@ -547,6 +547,7 @@ public class OnboardService extends BaseController {
                         kafkaClient.send(messageTopic, EMAIL, eventGenerator.getEmailMessageEvent(successTemplate((String) participant.get(PARTICIPANT_NAME), mockProviderDetails, mockPayorDetails), onboardingSuccessSub, Arrays.asList(email), new ArrayList<>(), new ArrayList<>()));
                     }
                 } else if (participantDetails.getOrDefault("status", "").equals(CREATED)) {
+                    System.out.println("oiuyuyy");
                     kafkaClient.send(messageTopic, EMAIL, eventGenerator.getEmailMessageEvent(pocSuccessTemplate((String) participant.get(PARTICIPANT_NAME)), onboardingSuccessSub, Arrays.asList(email), new ArrayList<>(), new ArrayList<>()));
                 }
             }
@@ -558,9 +559,9 @@ public class OnboardService extends BaseController {
             response.put(COMMUNICATION_VERIFICATION, commStatus);
             if (emailEnabled) response.put(EMAIL_VERIFIED, emailVerified);
             if (phoneEnabled) response.put(PHONE_VERIFIED, phoneVerified);
-            System.out.println("response");
             return getSuccessResponse(response);
         } else {
+            System.out.println("exception");
             return new ResponseEntity<>(httpResponse.getBody(), HttpStatus.valueOf(httpResponse.getStatus()));
         }
     }
