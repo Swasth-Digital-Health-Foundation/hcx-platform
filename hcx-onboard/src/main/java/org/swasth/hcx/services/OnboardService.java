@@ -47,6 +47,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -55,7 +56,7 @@ import static org.swasth.common.utils.Constants.*;
 
 @Service
 public class OnboardService extends BaseController {
-    private static final Logger logger = LoggerFactory.getLogger(BaseController.class);
+    private static final Logger logger = LoggerFactory.getLogger(OnboardService.class);
     @Value("${email.send-link-sub}")
     private String linkSub;
     @Value("${email.regenerate-link-sub}")
@@ -145,26 +146,34 @@ public class OnboardService extends BaseController {
     private String emailConfig;
     @Value("${onboard.phone}")
     private String phoneConfig;
-
-    @Autowired
-    private IDatabaseService postgreSQLClient;
-
+    private final IDatabaseService postgreSQLClient;
     @Resource(name = "postgresClientMockService")
-    @Autowired
     private IDatabaseService postgresClientMockService;
-
-    @Autowired
     private JWTUtils jwtUtils;
-
-    @Autowired
-    protected AuditIndexer auditIndexer;
-    @Autowired
-    protected EventGenerator eventGenerator;
-    @Autowired
+    private AuditIndexer auditIndexer;
+    private EventGenerator eventGenerator;
     private FreemarkerService freemarkerService;
-
-    @Autowired
     private IEventService kafkaClient;
+//    @Autowired
+//    private IDatabaseService postgreSQLClient;
+
+//    @Resource(name = "postgresClientMockService")
+//    @Autowired
+//    private IDatabaseService postgresClientMockService;
+
+
+//    @Autowired
+//    private JWTUtils jwtUtils;
+
+//    @Autowired
+//    protected AuditIndexer auditIndexer;
+//    @Autowired
+//    protected EventGenerator eventGenerator;
+//    @Autowired
+//    private FreemarkerService freemarkerService;
+
+//    @Autowired
+//    private IEventService kafkaClient;
 
     private Keycloak keycloak;
 
@@ -173,14 +182,25 @@ public class OnboardService extends BaseController {
 
     @Value("${email.failed-identity-sub}")
     private String failedIdentitySub;
+    @Autowired
+    public OnboardService(IDatabaseService postgresClientMockService, IDatabaseService iDatabaseService, JWTUtils jwtUtils, AuditIndexer auditIndexer, EventGenerator eventGenerator, FreemarkerService freemarkerService,IEventService kafkaClient) {
+        this.postgresClientMockService=postgresClientMockService;
+        this.postgreSQLClient=iDatabaseService;
+        this.jwtUtils = jwtUtils;
+        this.auditIndexer = auditIndexer;
+        this.eventGenerator = eventGenerator;
+        this.freemarkerService = freemarkerService;
+        this.kafkaClient=kafkaClient;
+    }
 
     @PostConstruct()
     public void init(){
         keycloak = Keycloak.getInstance(keycloakURL, keycloakMasterRealm, keycloakAdminUserName, keycloakAdminPassword, keycloackClientId);
     }
-    public ResponseEntity<Object> verify(HttpHeaders header, ArrayList<Map<String, Object>> body) throws Exception {
+    public ResponseEntity<Object> verify(HttpHeaders header, List<Map<String, Object>> body) throws Exception {
         OnboardRequest request = new OnboardRequest(body);
-        logger.info("Participant verification :: participant name" + request.getParticipantName());
+        String participantName = request.getParticipantName();
+        logger.info("Participant verification :: participant name" + participantName);
         Map<String, Object> output = new HashMap<>();
         onboardProcess(header, request, output);
         return getSuccessResponse(new Response(output));
@@ -230,7 +250,7 @@ public class OnboardService extends BaseController {
         return identityVerified;
     }
 
-    private String createEntity(String api, String participant, Map<String, String> headers, ErrorCodes errCode, String id) throws Exception {
+    private String createEntity(String api, String participant, Map<String, String> headers, ErrorCodes errCode, String id) throws ClientException, JsonProcessingException {
         HttpResponse<String> createResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + api, participant, headers);
         RegistryResponse response = JSONUtils.deserialize(createResponse.getBody(), RegistryResponse.class);
         logger.debug("Registry response :: status: " + createResponse.getStatus() + " :: body: " + createResponse.getBody());
@@ -432,7 +452,6 @@ public class OnboardService extends BaseController {
             }
             return communicationStatus;
         } catch (Exception e) {
-            e.printStackTrace();
             updateOtpStatus(emailVerified, phoneVerified, attemptCount, FAILED, participantCode, (String) requestBody.getOrDefault(COMMENTS, ""));
             throw new VerificationException(e.getMessage());
         } finally {
@@ -489,7 +508,8 @@ public class OnboardService extends BaseController {
     }
 
     public ResponseEntity<Object> onboardUpdate(HttpHeaders headers, Map<String, Object> requestBody) throws Exception {
-        logger.info("Onboard update: " + requestBody.get(PARTICIPANT_CODE));
+        String participantCode = (String) requestBody.get(PARTICIPANT_CODE);
+        logger.info("Onboard update: " + participantCode);
         boolean emailVerified = false;
         boolean phoneVerified = false;
         String commStatus = PENDING;
@@ -530,24 +550,20 @@ public class OnboardService extends BaseController {
         HttpResponse<String> httpResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_UPDATE, JSONUtils.serialize(participant), getHeadersMap(headers));
 
         if (httpResponse.getStatus() == 200) {
-            logger.info("Participant details are updated successfully :: participant code : " + participant.get(PARTICIPANT_CODE));
+            String participant_code = (String) participant.get(PARTICIPANT_CODE);
+            logger.info("Participant details are updated successfully :: participant code : " + participant_code);
             if (commStatus.equals(SUCCESSFUL) && identityStatus.equals(ACCEPTED)) {
                 if (mockParticipantAllowedEnv.contains(env)) {
-                    System.out.println("MOCK PARTICIPANT");
                     String searchQuery = String.format("SELECT * FROM %s WHERE parent_participant_code = '%s'", mockParticipantsTable, participant.get(PARTICIPANT_CODE));
                     ResultSet result = (ResultSet) postgresClientMockService.executeQuery(searchQuery);
                     if (!result.next()) {
-                        System.out.println("MOCK SERVICE");
-                        mockProviderDetails = createMockParticipant(headers, PROVIDER, participantDetails);
-                        System.out.println("create mock");
-                        mockPayorDetails = createMockParticipant(headers, PAYOR, participantDetails);
+                        mockProviderDetails = (Map<String, Object>) createMockParticipant(headers, PROVIDER, participantDetails);
+                        mockPayorDetails = (Map<String, Object>) createMockParticipant(headers, PAYOR, participantDetails);
                     }
                     if (participantDetails.getOrDefault("status", "").equals(CREATED)) {
-                        System.out.println("CREATED");
                         kafkaClient.send(messageTopic, EMAIL, eventGenerator.getEmailMessageEvent(successTemplate((String) participant.get(PARTICIPANT_NAME), mockProviderDetails, mockPayorDetails), onboardingSuccessSub, Arrays.asList(email), new ArrayList<>(), new ArrayList<>()));
                     }
                 } else if (participantDetails.getOrDefault("status", "").equals(CREATED)) {
-                    System.out.println("oiuyuyy");
                     kafkaClient.send(messageTopic, EMAIL, eventGenerator.getEmailMessageEvent(pocSuccessTemplate((String) participant.get(PARTICIPANT_NAME)), onboardingSuccessSub, Arrays.asList(email), new ArrayList<>(), new ArrayList<>()));
                 }
             }
@@ -678,7 +694,8 @@ public class OnboardService extends BaseController {
     }
 
     private String identityVerify(Map<String, Object> requestBody) throws Exception {
-        logger.info("Identity verification :: request: {}", requestBody);
+        String participantCode = (String) requestBody.get(PARTICIPANT_CODE);
+        logger.info("Identity verification :: request: {}", participantCode);
         String verifierCode = (String) requestBody.get(VERIFIER_CODE);
         Map<String, Object> verifierDetails = getParticipant(PARTICIPANT_CODE, verifierCode);
         String result = REJECTED;
@@ -712,7 +729,8 @@ public class OnboardService extends BaseController {
     }
 
     public Response userInvite(Map<String, Object> requestBody, HttpHeaders headers) throws Exception {
-        logger.info("User invite: " + requestBody.get(PARTICIPANT_CODE));
+        String participantCode = (String) requestBody.get(PARTICIPANT_CODE);
+        logger.info("User invite: " + participantCode);
         String email = (String) requestBody.getOrDefault(EMAIL, "");
         String role = (String) requestBody.getOrDefault(ROLE, "");
         String code = (String) requestBody.getOrDefault(PARTICIPANT_CODE, "");
@@ -753,7 +771,8 @@ public class OnboardService extends BaseController {
     }
 
     public Response userInviteAccept(HttpHeaders headers, Map<String, Object> body) throws Exception {
-        logger.info("User invite accepted: " + body);
+        String participantCode = (String) body.get(PARTICIPANT_CODE);
+        logger.info("User invite accepted: " + participantCode);
         Token token = new Token((String) body.getOrDefault(JWT_TOKEN, ""));
         Map<String, Object> hcxDetails = getParticipant(PARTICIPANT_CODE, hcxCode);
         if (!jwtUtils.isValidSignature(token.getToken(), (String) hcxDetails.get(ENCRYPTION_CERT))) {
@@ -825,7 +844,8 @@ public class OnboardService extends BaseController {
     }
 
     public Response userInviteReject(Map<String, Object> body) throws Exception {
-        logger.info("User invite rejected: " + body);
+        String participantCode = (String) body.get(PARTICIPANT_CODE);
+        logger.info("User invite rejected: " + participantCode);
         Token token = new Token((String) body.getOrDefault(JWT_TOKEN, ""));
         Map<String, Object> hcxDetails = getParticipant(PARTICIPANT_CODE, hcxCode);
         if (!jwtUtils.isValidSignature(token.getToken(), (String) hcxDetails.get(ENCRYPTION_CERT))) {
@@ -1054,14 +1074,14 @@ public class OnboardService extends BaseController {
     }
 
     @Async
-    private Map<String, Object> createMockParticipant(HttpHeaders headers, String role, Map<String, Object> participantDetails) throws Exception {
+    public Future<Map<String,Object>> createMockParticipant(HttpHeaders headers, String role, Map<String, Object> participantDetails) throws Exception {
         String parentParticipantCode = (String) participantDetails.getOrDefault(PARTICIPANT_CODE, "");
         logger.info("creating Mock participant for :: parent participant code : " + parentParticipantCode + " :: Role: " + role);
         Map<String, Object> mockParticipant = getMockParticipantBody(participantDetails, role, parentParticipantCode);
         String privateKey = (String) mockParticipant.getOrDefault(PRIVATE_KEY, "");
         mockParticipant.remove(PRIVATE_KEY);
         String childParticipantCode = createEntity(PARTICIPANT_CREATE, JSONUtils.serialize(mockParticipant), getHeadersMap(headers), ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, PARTICIPANT_CODE);
-        return updateMockDetails(mockParticipant, parentParticipantCode, childParticipantCode, privateKey);
+        return (Future<Map<String, Object>>) updateMockDetails(mockParticipant, parentParticipantCode, childParticipantCode, privateKey);
     }
 
     private void getEmailAndName(String role, Map<String, Object> mockParticipant, Map<String, Object> participantDetails, String name) {
@@ -1192,6 +1212,9 @@ public class OnboardService extends BaseController {
 
     private String generateRandomPassword(int length){
         String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&*";
+        SecureRandom random = new SecureRandom(); // Compliant for security-sensitive use cases
+        byte bytes[] = new byte[20];
+        random.nextBytes(bytes);
         return RandomStringUtils.random(length, characters);
     }
 

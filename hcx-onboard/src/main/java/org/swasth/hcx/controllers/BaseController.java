@@ -23,13 +23,13 @@ public class BaseController {
     private static final Logger logger = LoggerFactory.getLogger(BaseController.class);
 
     @Autowired
-    protected Environment env;
+    protected Environment environment;
 
     @Autowired
-    protected AuditIndexer auditIndexer;
+    protected AuditIndexer indexer;
 
     @Autowired
-    protected EventGenerator eventGenerator;
+    protected EventGenerator generator;
 
     protected Response errorResponse(Response response, ErrorCodes code, Exception e) {
         response.setError(new ResponseError(code, e.getMessage(), e.getCause()));
@@ -63,7 +63,7 @@ public class BaseController {
             status = HttpStatus.NOT_FOUND;
         }
         if(StringUtils.isEmpty(email))
-            auditIndexer.createDocument(eventGenerator.getOnboardErrorEvent(email, action, new ResponseError(errorCode, e.getMessage(), e.getCause())));
+            indexer.createDocument(generator.getOnboardErrorEvent(email, action, new ResponseError(errorCode, e.getMessage(), e.getCause())));
         return new ResponseEntity<>(errorResponse(response, errorCode, e), status);
     }
 }
