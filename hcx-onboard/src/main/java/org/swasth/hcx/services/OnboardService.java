@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -146,7 +147,7 @@ public class OnboardService extends BaseController {
     private String emailConfig;
     @Value("${onboard.phone}")
     private String phoneConfig;
-    private final IDatabaseService postgreSQLClient;
+    private IDatabaseService postgreSQLClient;
     @Resource(name = "postgresClientMockService")
     private IDatabaseService postgresClientMockService;
     private JWTUtils jwtUtils;
@@ -164,7 +165,7 @@ public class OnboardService extends BaseController {
     private String failedIdentitySub;
     @Autowired
     public OnboardService(IDatabaseService postgresClientMockService, IDatabaseService iDatabaseService, JWTUtils jwtUtils, AuditIndexer auditIndexer, EventGenerator eventGenerator, FreemarkerService freemarkerService,IEventService kafkaClient) {
-        super();
+        this();
         this.postgresClientMockService=postgresClientMockService;
         this.postgreSQLClient=iDatabaseService;
         this.jwtUtils = jwtUtils;
@@ -172,6 +173,10 @@ public class OnboardService extends BaseController {
         this.eventGenerator = eventGenerator;
         this.freemarkerService = freemarkerService;
         this.kafkaClient=kafkaClient;
+    }
+
+    public OnboardService() {
+        super();
     }
 
     @PostConstruct()

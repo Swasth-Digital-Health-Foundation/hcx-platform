@@ -22,18 +22,15 @@ public class BaseController {
     private static final Logger logger = LoggerFactory.getLogger(BaseController.class);
 
     protected Environment environment;
-    protected AuditIndexer indexer;
-    protected EventGenerator generator;
     @Autowired
-    public BaseController(Environment environment,AuditIndexer indexer,EventGenerator generator){
-        this.environment=environment;
-        this.indexer=indexer;
-        this.generator=generator;
-    }
+    protected AuditIndexer indexer;
+    @Autowired
+    protected EventGenerator generator;
 
     public BaseController() {
 
     }
+
 
     protected Response errorResponse(Response response, ErrorCodes code, Exception e) {
         response.setError(new ResponseError(code, e.getMessage(), e.getCause()));

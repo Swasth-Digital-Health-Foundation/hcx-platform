@@ -29,10 +29,6 @@ public class OnboardController extends BaseController {
         this.service=service;
     }
 
-    public OnboardController(Environment environment, AuditIndexer indexer, EventGenerator generator) {
-        super(environment, indexer, generator);
-    }
-
     @PostMapping(PARTICIPANT_VERIFY)
     public ResponseEntity<Object> verify(@RequestHeader HttpHeaders header, @RequestBody List<Map<String, Object>> body) throws Exception {
         try {
