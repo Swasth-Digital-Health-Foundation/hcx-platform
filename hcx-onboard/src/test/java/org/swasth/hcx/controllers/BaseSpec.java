@@ -320,4 +320,14 @@ public class BaseSpec {
         participant.put("user",user);
         return JSONUtils.serialize(participant);
     }
+
+    protected String applicantVerifyOnboardVerificationTableData(){
+        String query = "INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " + " VALUES('testhctes13.yopmail@swasth-hcx','testhctes13@yopmail.com','9620499129','169719173417','169719173417','2555824693417',true,false,'failed',0,'2023-10-12T13:37:12.533Z','5','','','','{\"email\": \"activation\",\"phone\": \"verification\"}',' {\"email\": \"activation\",\"phone\": \"verification\"}')";
+        return query;
+    }
+
+    protected String applicantVerifyOnboardVerificationTable(){
+        String query = "INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " + " VALUES('testhctes13.yopmail@swasth-hcx','testhctes13@yopmail.com','9620499129','169719173417','169719173417','2555824693417',false,true,'failed',0,'2023-10-12T13:37:12.533Z','5','','','','{\"email\": \"verification\",\"phone\": \"activation\"}',' {\"email\": \"verification\",\"phone\": \"activation\"}')";
+        return query;
+    }
 }
