@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import { DataTable } from 'simple-datatables';
 import { approvePayor } from '../api/RegistryService';
@@ -11,6 +11,20 @@ interface AdminPayorApproveProps {
 
 const AdminPayorApproveList : React.FC<AdminPayorApproveProps> = ({ payorList } : AdminPayorApproveProps ) =>  {
   console.log("payorList", payorList);
+
+  const handleButtonClick = (event:any) => {
+    const index = String(event.target.id).replace("buttonApprove","");
+    onActivate(payorList[index].participant_code);
+  };
+
+  useEffect(()=> {
+    payorList.map((value:any,index:any) => {
+      const button = document.getElementById('buttonApprove' + index);
+      // Define an event listener function
+      // Attach the event listener to the button element
+       if(button) button.addEventListener('click', handleButtonClick);  
+    })
+  },[])
   
   const onActivate = (participant_code:string) => {
     console.log("i am about to activate");
@@ -288,7 +302,7 @@ const AdminPayorApproveList : React.FC<AdminPayorApproveProps> = ({ payorList } 
                   <td>{value.primary_email}</td>
                   <td>{value.primary_mobile}</td>
                   <td>{value.status}</td>
-                  <td><button key={index} className="text-meta-5 underline" onClick={(event) => {event.preventDefault(); onActivate(value.participant_code)}}>Activate</button></td>
+                  <td><button id={"buttonApprove"+index} key={index} className="text-meta-5 underline" onClick={(event) => {event.preventDefault(); onActivate(value.participant_code)}}>Activate</button></td>
                 </tr>
               );
             })}
