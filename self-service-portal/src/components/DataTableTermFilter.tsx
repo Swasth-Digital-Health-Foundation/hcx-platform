@@ -18,7 +18,7 @@ interface TerminologyFilterProps {
     termList : any
   }
 
-const DataTableTermFilter = ({ termList } : TerminologyFilterProps ) => {
+const DataTableTermFilter : React.FC<TerminologyFilterProps> = ({ termList } : TerminologyFilterProps ) => {
   const [terminologyList, setTerminologyList] = useState<TerminologyFilter[]>(termList);  
   const appData: Object = useSelector((state: RootState) => state.appDataReducer.appData);
   const [text, setText] = useState('');
@@ -101,7 +101,7 @@ const DataTableTermFilter = ({ termList } : TerminologyFilterProps ) => {
     if(flag == false){
         setFlag(true);
     }
-    },[flag])
+  },[flag])
 
   
   return (<>
