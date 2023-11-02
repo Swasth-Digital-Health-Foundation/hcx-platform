@@ -8,8 +8,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
-import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -19,7 +19,9 @@ import org.swasth.common.dto.OnboardRequest;
 import org.swasth.common.dto.ResponseError;
 import org.swasth.common.dto.User;
 import org.swasth.hcx.config.GenericConfiguration;
+import org.swasth.hcx.controllers.v1.OnboardController;
 import org.swasth.hcx.helpers.EventGenerator;
+import org.swasth.hcx.services.OnboardService;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -37,6 +39,10 @@ import static org.swasth.common.exception.ErrorCodes.INTERNAL_SERVER_ERROR;
 class EventGeneratorTests {
     @Autowired
     protected WebApplicationContext wac;
+    @MockBean
+    OnboardService onboardService;
+    @MockBean
+    OnboardController onboardController;
     protected MockMvc mockMvc;
 
     @BeforeEach

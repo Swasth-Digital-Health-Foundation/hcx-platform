@@ -163,8 +163,7 @@ public class OnboardService extends BaseController {
     private Keycloak keycloak;
 
     @Autowired
-    public OnboardService(String env, IDatabaseService postgreSQLClient,IEventService kafkaClient, IDatabaseService postgresClientMockService, JWTUtils jwtUtils, AuditIndexer auditIndexer, EventGenerator eventGenerator, FreemarkerService freemarkerService) {
-        this.env = env;
+    public OnboardService( IDatabaseService postgreSQLClient,IEventService kafkaClient, IDatabaseService postgresClientMockService, JWTUtils jwtUtils, AuditIndexer auditIndexer, EventGenerator eventGenerator, FreemarkerService freemarkerService) {
         this.postgreSQLClient = postgreSQLClient;
         this.postgresClientMockService = postgresClientMockService;
         this.jwtUtils = jwtUtils;
