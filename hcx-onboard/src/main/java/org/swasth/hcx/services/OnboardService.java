@@ -666,7 +666,7 @@ public class OnboardService extends BaseController {
     private String identityVerify(Map<String, Object> requestBody) throws Exception {
         String verifierCode = (String) requestBody.get(VERIFIER_CODE);
         Map<String, Object> verifierDetails = getParticipant(PARTICIPANT_CODE, verifierCode);
-        String result;
+        String result = REJECTED;
         Response response = new Response();
         HttpResponse<String> httpResp = HttpUtils.post(verifierDetails.get(ENDPOINT_URL) + APPLICANT_VERIFY, JSONUtils.serialize(requestBody), headers(verifierCode));
         if (httpResp.getStatus() == 200) {
