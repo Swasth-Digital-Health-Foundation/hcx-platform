@@ -1,7 +1,6 @@
 package org.swasth.hcx.controllers;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +24,7 @@ public class BaseController {
     protected Environment environment;
     protected AuditIndexer indexer;
     protected EventGenerator generator;
-
+    @Autowired
     public BaseController(Environment environment,AuditIndexer indexer,EventGenerator generator){
         this.environment=environment;
         this.indexer=indexer;
@@ -47,7 +46,6 @@ public class BaseController {
     }
 
     protected ResponseEntity<Object> exceptionHandler(String email, String action, Response response, Exception e) throws Exception {
-        logger.error("Exception: {} :: Trace: {}", e.getMessage());
         response.setStatus(FAILED.toUpperCase());
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         ErrorCodes errorCode = ErrorCodes.INTERNAL_SERVER_ERROR;

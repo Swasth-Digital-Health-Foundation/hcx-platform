@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.Gson;
 import freemarker.template.TemplateException;
 import kong.unirest.HttpResponse;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.CharacterPredicates;
 import org.apache.commons.text.RandomStringGenerator;
@@ -39,6 +38,7 @@ import org.swasth.postgresql.IDatabaseService;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -180,8 +180,6 @@ public class OnboardService extends BaseController {
     }
     public ResponseEntity<Object> verify(HttpHeaders header, List<Map<String, Object>> body) throws Exception {
         OnboardRequest request = new OnboardRequest(body);
-        String participantName = request.getParticipantName();
-        logger.info("Participant verification :: participant name" + participantName);
         Map<String, Object> output = new HashMap<>();
         onboardProcess(header, request, output);
         return getSuccessResponse(new Response(output));
@@ -234,8 +232,7 @@ public class OnboardService extends BaseController {
     private String createEntity(String api, String participant, Map<String, String> headers, ErrorCodes errCode, String id) throws ClientException, JsonProcessingException {
         HttpResponse<String> createResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + api, participant, headers);
         RegistryResponse response = JSONUtils.deserialize(createResponse.getBody(), RegistryResponse.class);
-        logger.debug("Registry response :: status: " + createResponse.getStatus() + " :: body: " + createResponse.getBody());
-        if (createResponse.getStatus() != 200) {
+            if (createResponse.getStatus() != 200) {
             throw new ClientException(response.getError().getCode() == null ? errCode : response.getError().getCode(), response.getError().getMessage());
         }
         return (String) JSONUtils.deserialize(createResponse.getBody(), Map.class).get(id);
@@ -259,7 +256,6 @@ public class OnboardService extends BaseController {
         } else {
             user.setTenantRoles(new ArrayList<>());
             userId = createEntity(USER_CREATE, JSONUtils.serialize(user), getHeadersMap(headers), ErrorCodes.ERR_INVALID_USER_DETAILS, USER_ID);
-            logger.info("Created user: " + userId);
             Thread.sleep(3000);
             if (roles.isEmpty()) {
                 addUser(headers, createTenantRequest(userId, participantCode)); //adding record to keycloak
@@ -527,7 +523,6 @@ public class OnboardService extends BaseController {
         HttpResponse<String> httpResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_UPDATE, JSONUtils.serialize(participant), getHeadersMap(headers));
 
         if (httpResponse.getStatus() == 200) {
-            String participant_code = (String) participant.get(PARTICIPANT_CODE);
             if (commStatus.equals(SUCCESSFUL) && identityStatus.equals(ACCEPTED)) {
                 if (mockParticipantAllowedEnv.contains(env)) {
                     String searchQuery = String.format("SELECT * FROM %s WHERE parent_participant_code = '%s'", mockParticipantsTable, participant.get(PARTICIPANT_CODE));
@@ -671,7 +666,7 @@ public class OnboardService extends BaseController {
     private String identityVerify(Map<String, Object> requestBody) throws Exception {
         String verifierCode = (String) requestBody.get(VERIFIER_CODE);
         Map<String, Object> verifierDetails = getParticipant(PARTICIPANT_CODE, verifierCode);
-        String result = REJECTED;
+        String result;
         Response response = new Response();
         HttpResponse<String> httpResp = HttpUtils.post(verifierDetails.get(ENDPOINT_URL) + APPLICANT_VERIFY, JSONUtils.serialize(requestBody), headers(verifierCode));
         if (httpResp.getStatus() == 200) {
@@ -760,7 +755,7 @@ public class OnboardService extends BaseController {
         return getSuccessResponse();
     }
 
-    private void addUser(HttpHeaders headers, String requestBody) throws Exception {
+    private void addUser(HttpHeaders headers, String requestBody) throws JsonProcessingException, ClientException {
         HttpResponse<String> response = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_USER_ADD, requestBody, getHeadersMap(headers));
         if (response.getStatus() != 200) {
             Response resp = new Response(JSONUtils.deserialize(response.getBody(), Map.class));
@@ -789,13 +784,13 @@ public class OnboardService extends BaseController {
         return JSONUtils.serialize(body);
     }
 
-    private boolean isUserExistsInOrg(String userEmail, String userRole, String participantCode, HttpHeaders headers) throws Exception {
+    private boolean isUserExistsInOrg(String userEmail, String userRole, String participantCode, HttpHeaders headers) throws JsonProcessingException {
         String body = "{ \"filters\": { \"email\": { \"eq\": \"" + userEmail + "\" }, \"tenant_roles.participant_code\": { \"eq\": \"" + participantCode + "\" }, \"tenant_roles.role\": { \"eq\": \"" + userRole + "\" } } }";
         List<Map<String, Object>> userSearchResult = userSearch(body, headers);
         return !userSearchResult.isEmpty() && !userSearchResult.get(0).isEmpty();
     }
 
-    private boolean isUserExists(User user, HttpHeaders headers) throws Exception {
+    private boolean isUserExists(User user, HttpHeaders headers) throws JsonProcessingException {
         String body = "{ \"filters\": { \"email\": { \"eq\": \"" + user.getEmail() + "\" } } }";
         List<Map<String, Object>> userSearchResult = userSearch(body, headers);
         if (userSearchResult.isEmpty()) {
@@ -844,7 +839,7 @@ public class OnboardService extends BaseController {
         }
     }
 
-    private URL generateURL(Map<String, Object> participant, String type, String sub) throws Exception {
+    private URL generateURL(Map<String, Object> participant, String type, String sub) throws NoSuchAlgorithmException, InvalidKeySpecException, MalformedURLException {
         String token = generateToken(sub, type, (String) participant.get(PARTICIPANT_NAME), (String) participant.get(PARTICIPANT_CODE));
         String url = String.format("%s/onboarding/verify?%s=%s&jwt_token=%s", hcxURL, type, sub, token);
         return new URL(url);
@@ -883,7 +878,7 @@ public class OnboardService extends BaseController {
         return freemarkerService.renderTemplate("user-invite-accepted-user.ftl", model);
     }
 
-    private String userInviteAcceptParticipantTemplate(String participantName, String username, String role) throws Exception {
+    private String userInviteAcceptParticipantTemplate(String participantName, String username, String role) throws TemplateException, IOException {
         Map<String, Object> model = new HashMap<>();
         model.put("PARTICIPANT_NAME", participantName);
         model.put("USER_NAME", username);
@@ -892,7 +887,7 @@ public class OnboardService extends BaseController {
     }
 
 
-    private String userInviteUserTemplate(String email, String name, String role, URL signedURL) throws Exception {
+    private String userInviteUserTemplate(String email, String name, String role, URL signedURL) throws TemplateException, IOException {
         Map<String, Object> model = new HashMap<>();
         model.put("USER_EMAIL", email);
         model.put("PARTICIPANT_NAME", name);
@@ -1130,7 +1125,7 @@ public class OnboardService extends BaseController {
         filterMockParticipants(mockDetails, participantsList);
     }
 
-    private void validateRole(HttpHeaders headers) throws Exception {
+    private void validateRole(HttpHeaders headers) throws JsonProcessingException, ClientException {
         String jwtToken = Objects.requireNonNull(headers.get(AUTHORIZATION)).get(0);
         Map<String, Object> token = JSONUtils.decodeBase64String(jwtToken.split("\\.")[1], Map.class);
         Map<String, Object> realmAccess = (Map<String, Object>) token.get("realm_access");
@@ -1200,7 +1195,7 @@ public class OnboardService extends BaseController {
         return getSuccessResponse();
     }
 
-    public void validateAdminRole(HttpHeaders headers, String participantCode) throws Exception {
+    public void validateAdminRole(HttpHeaders headers, String participantCode) throws JsonProcessingException, ClientException {
         boolean result = false;
         String jwtToken = Objects.requireNonNull(headers.get(AUTHORIZATION)).get(0);
         Token token = new Token(jwtToken);
@@ -1237,7 +1232,7 @@ public class OnboardService extends BaseController {
         return user;
     }
 
-    private List<String> getUserList(HttpHeaders headers, String participantCode) throws Exception {
+    private List<String> getUserList(HttpHeaders headers, String participantCode) throws JsonProcessingException {
         List<Map<String, Object>> userSearch = userSearch(JSONUtils.serialize(Map.of(FILTERS, new HashMap<>())), headers);
         if (!userSearch.isEmpty() && !userSearch.get(0).isEmpty()) {
             List<String> emailList = new ArrayList<>();
