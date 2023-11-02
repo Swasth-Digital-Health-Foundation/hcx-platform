@@ -383,7 +383,6 @@ public class OnboardService extends BaseController {
                                 if (type.equals(EMAIL)) {
                                     emailVerified = true;
                                 } else if (type.equals(PHONE)) {
-                                    System.out.println("-PHONE");
                                     phoneVerified = true;
                                 }
                                 if (phoneVerified && emailVerified) {
@@ -488,8 +487,6 @@ public class OnboardService extends BaseController {
     }
 
     public ResponseEntity<Object> onboardUpdate(HttpHeaders headers, Map<String, Object> requestBody) throws Exception {
-        String participantCode = (String) requestBody.get(PARTICIPANT_CODE);
-        logger.info("Onboard update: " + participantCode);
         boolean emailVerified = false;
         boolean phoneVerified = false;
         String commStatus = PENDING;
@@ -531,7 +528,6 @@ public class OnboardService extends BaseController {
 
         if (httpResponse.getStatus() == 200) {
             String participant_code = (String) participant.get(PARTICIPANT_CODE);
-            logger.info("Participant details are updated successfully :: participant code : " + participant_code);
             if (commStatus.equals(SUCCESSFUL) && identityStatus.equals(ACCEPTED)) {
                 if (mockParticipantAllowedEnv.contains(env)) {
                     String searchQuery = String.format("SELECT * FROM %s WHERE parent_participant_code = '%s'", mockParticipantsTable, participant.get(PARTICIPANT_CODE));
@@ -557,7 +553,6 @@ public class OnboardService extends BaseController {
             if (phoneEnabled) response.put(PHONE_VERIFIED, phoneVerified);
             return getSuccessResponse(response);
         } else {
-            System.out.println("exception");
             return new ResponseEntity<>(httpResponse.getBody(), HttpStatus.valueOf(httpResponse.getStatus()));
         }
     }
@@ -674,8 +669,6 @@ public class OnboardService extends BaseController {
     }
 
     private String identityVerify(Map<String, Object> requestBody) throws Exception {
-        String participantCode = (String) requestBody.get(PARTICIPANT_CODE);
-        logger.info("Identity verification :: request: {}", participantCode);
         String verifierCode = (String) requestBody.get(VERIFIER_CODE);
         Map<String, Object> verifierDetails = getParticipant(PARTICIPANT_CODE, verifierCode);
         String result = REJECTED;
@@ -709,8 +702,6 @@ public class OnboardService extends BaseController {
     }
 
     public Response userInvite(Map<String, Object> requestBody, HttpHeaders headers) throws Exception {
-        String participantCode = (String) requestBody.get(PARTICIPANT_CODE);
-        logger.info("User invite: " + participantCode);
         String email = (String) requestBody.getOrDefault(EMAIL, "");
         String role = (String) requestBody.getOrDefault(ROLE, "");
         String code = (String) requestBody.getOrDefault(PARTICIPANT_CODE, "");
@@ -751,8 +742,6 @@ public class OnboardService extends BaseController {
     }
 
     public Response userInviteAccept(HttpHeaders headers, Map<String, Object> body) throws Exception {
-        String participantCode = (String) body.get(PARTICIPANT_CODE);
-        logger.info("User invite accepted: " + participantCode);
         Token token = new Token((String) body.getOrDefault(JWT_TOKEN, ""));
         Map<String, Object> hcxDetails = getParticipant(PARTICIPANT_CODE, hcxCode);
         if (!jwtUtils.isValidSignature(token.getToken(), (String) hcxDetails.get(ENCRYPTION_CERT))) {
@@ -824,8 +813,6 @@ public class OnboardService extends BaseController {
     }
 
     public Response userInviteReject(Map<String, Object> body) throws Exception {
-        String participantCode = (String) body.get(PARTICIPANT_CODE);
-        logger.info("User invite rejected: " + participantCode);
         Token token = new Token((String) body.getOrDefault(JWT_TOKEN, ""));
         Map<String, Object> hcxDetails = getParticipant(PARTICIPANT_CODE, hcxCode);
         if (!jwtUtils.isValidSignature(token.getToken(), (String) hcxDetails.get(ENCRYPTION_CERT))) {
