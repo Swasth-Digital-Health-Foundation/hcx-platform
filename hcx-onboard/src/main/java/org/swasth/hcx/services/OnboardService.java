@@ -147,27 +147,32 @@ public class OnboardService extends BaseController {
     @Value("${onboard.phone}")
     private String phoneConfig;
 
-    @Autowired
     private IDatabaseService postgreSQLClient;
 
     @Resource(name = "postgresClientMockService")
-    @Autowired
     private IDatabaseService postgresClientMockService;
 
-    @Autowired
     private JWTUtils jwtUtils;
 
-    @Autowired
     protected AuditIndexer auditIndexer;
-    @Autowired
     protected EventGenerator eventGenerator;
-    @Autowired
     private FreemarkerService freemarkerService;
 
-    @Autowired
     private IEventService kafkaClient;
 
     private Keycloak keycloak;
+
+    @Autowired
+    public OnboardService(String env, IDatabaseService postgreSQLClient,IEventService kafkaClient, IDatabaseService postgresClientMockService, JWTUtils jwtUtils, AuditIndexer auditIndexer, EventGenerator eventGenerator, FreemarkerService freemarkerService) {
+        this.env = env;
+        this.postgreSQLClient = postgreSQLClient;
+        this.postgresClientMockService = postgresClientMockService;
+        this.jwtUtils = jwtUtils;
+        this.auditIndexer = auditIndexer;
+        this.eventGenerator = eventGenerator;
+        this.freemarkerService = freemarkerService;
+        this.kafkaClient=kafkaClient;
+    }
 
     @Value("${kafka.topic.message}")
     private String messageTopic;
