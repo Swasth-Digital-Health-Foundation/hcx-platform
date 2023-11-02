@@ -572,6 +572,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                   Explore Terminology
                 </NavLink>
               </li>
+              {process.env.REACT_APP_HCX_ADMIN_USERNAME ==_.get(appData, "username")?
               <li>
                 <NavLink
                   to="/onboarding/adminconsole"
@@ -593,7 +594,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                   </svg>
                   Admin Console
                 </NavLink>
-              </li>
+              </li> : null}
               {/* <!-- Menu Item Dashboard --> */}
 
               {/* <!-- Menu Item Calendar --> */}

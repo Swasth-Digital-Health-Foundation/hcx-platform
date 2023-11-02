@@ -3,6 +3,8 @@ import DropdownDefault from './DropdownDefault';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
 import _ from 'lodash';
+import { reverifyLink } from '../api/UserService';
+import { toast } from 'react-toastify';
 
 
 
@@ -22,7 +24,31 @@ const CardDataStatsProfile: React.FC = () => {
     setOrg(_.get(participantDetails, "participant_name") || "Organization")
   },[participantDetails])
   
-
+  const verifyResend = (type: any) => {
+    let payload = {};
+    if (type == "email") {
+      payload = {
+        "primary_email": _.get(participantDetails, "primary_email"),
+        "participant_code": _.get(participantDetails, "participant_code"),
+        "participant_name": _.get(participantDetails, "participant_name")
+      }
+    } else {
+      payload = {
+        "primary_mobile": _.get(participantDetails, "primary_mobile"),
+        "participant_code": _.get(participantDetails, "participant_code"),
+        "participant_name": _.get(participantDetails, "participant_name")
+      }
+    }
+    reverifyLink(payload).then((res: any) => {
+      toast.success(`Re-verification link successfully sent to ${type}`, {
+        position: toast.POSITION.TOP_CENTER
+      });
+    }).catch(err => {
+      toast.error(_.get(err, 'response.data.error.message') || "Internal Server Error", {
+        position: toast.POSITION.TOP_CENTER
+      });
+    });
+  }
   
   return (
     <div>
@@ -107,7 +133,7 @@ const CardDataStatsProfile: React.FC = () => {
             <span className="text-meta-3">Active</span> :
             <>
             <span className="text-red">Inactive</span> 
-            <span className="text-meta-5 underline">Verify Link</span>
+            <button onClick={() => verifyResend("email")} className="text-meta-5 underline">Verify Link</button>
             </>}
 
             
@@ -144,7 +170,7 @@ const CardDataStatsProfile: React.FC = () => {
             <span className="text-meta-3">Active</span>:
             <>
             <span className="text-red">Inactive</span> 
-            <span className="text-meta-5 underline">Verify Link</span>
+            <button onClick={() => verifyResend("phone")} className="text-meta-5 underline">Verify Link</button>
             </>
             }
           </p>

@@ -14,7 +14,9 @@ const AdminPayorApprove: React.FC  = () => {
             let user = res["data"]["participants"];
             let dataUser: any = [];
             user.map((val: any, index: any) => {
-                dataUser.push({"participant_code": val.participant_code, "participant_name": val.participant_name, "role": val.roles[0], "primary_email": val.primary_email, "primary_mobile": val.primary_mobile, "status": val.status});
+            if(val.identity_verification){
+                dataUser.push({"participant_code": val.participant_code, "participant_name": val.participant_name, "role": val.roles[0], "primary_email": val.primary_email, "primary_mobile": val.primary_mobile, "status": val.identity_verification});
+            }
             });
             setPayorList(dataUser);
             setFlag(true);
