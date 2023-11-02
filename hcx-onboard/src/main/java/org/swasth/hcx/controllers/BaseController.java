@@ -22,14 +22,19 @@ public class BaseController {
 
     private static final Logger logger = LoggerFactory.getLogger(BaseController.class);
 
-    @Autowired
     protected Environment environment;
-
-    @Autowired
     protected AuditIndexer indexer;
-
-    @Autowired
     protected EventGenerator generator;
+
+    public BaseController(Environment environment,AuditIndexer indexer,EventGenerator generator){
+        this.environment=environment;
+        this.indexer=indexer;
+        this.generator=generator;
+    }
+
+    public BaseController() {
+
+    }
 
     protected Response errorResponse(Response response, ErrorCodes code, Exception e) {
         response.setError(new ResponseError(code, e.getMessage(), e.getCause()));
@@ -42,7 +47,7 @@ public class BaseController {
     }
 
     protected ResponseEntity<Object> exceptionHandler(String email, String action, Response response, Exception e) throws Exception {
-        logger.error("Exception: {} :: Trace: {}", e.getMessage(), ExceptionUtils.getStackTrace(e));
+        logger.error("Exception: {} :: Trace: {}", e.getMessage());
         response.setStatus(FAILED.toUpperCase());
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         ErrorCodes errorCode = ErrorCodes.INTERNAL_SERVER_ERROR;

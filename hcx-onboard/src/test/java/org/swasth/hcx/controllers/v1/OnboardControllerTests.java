@@ -837,7 +837,7 @@ class OnboardControllerTests extends BaseSpec{
     }
 
     @Test
-    public void test_onboard_update_exception() throws Exception {
+     void test_onboard_update_exception() throws Exception {
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("{\n" +
@@ -1222,7 +1222,7 @@ class OnboardControllerTests extends BaseSpec{
     }
 
     @Test
-    public void test_sendVerification_link_invalid_request_exception() throws Exception {
+    void test_sendVerification_link_invalid_request_exception() throws Exception {
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("{\n" +
@@ -1620,7 +1620,7 @@ class OnboardControllerTests extends BaseSpec{
     }
 
     @Test
-    void test_applicant_verify_link_verified_emailPhone_not_enabled() throws Exception {
+    void test_applicant_verify_emailPhone_not_enabled_success() throws Exception {
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("{\n" +
@@ -1760,7 +1760,7 @@ class OnboardControllerTests extends BaseSpec{
         Assertions.assertEquals(200, status);
     }
     @Test
-    void test_applicant_verify_link_verified_emailPhone_enabled() throws Exception {
+    void test_applicant_verify_link_verified_emailPhone_enabled_success() throws Exception {
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("{\n" +
@@ -1901,7 +1901,7 @@ class OnboardControllerTests extends BaseSpec{
     }
 
     @Test
-    void test_applicant_verify_link_verified_email_not_enabled() throws Exception {
+    void test_applicant_verify_email_not_enabled_success() throws Exception {
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("{\n" +
@@ -2042,7 +2042,7 @@ class OnboardControllerTests extends BaseSpec{
     }
 
     @Test
-    void test_applicant_verify_link_verified_failed() throws Exception {
+    void test_applicant_verify_link_verified_success() throws Exception {
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("{\n" +
@@ -2325,7 +2325,7 @@ class OnboardControllerTests extends BaseSpec{
     }
 
     @Test
-    void test_applicant_verify_link_mobile_not_enabled_success() throws Exception {
+    void test_applicant_verify_mobile_not_enabled_success() throws Exception {
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("{\n" +
@@ -2944,7 +2944,7 @@ class OnboardControllerTests extends BaseSpec{
         Assertions.assertEquals(400, status);
     }
     @Test
-    public void test_onboard_user_invite_success() throws Exception {
+     void test_onboard_user_invite_success() throws Exception {
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("{\n" +

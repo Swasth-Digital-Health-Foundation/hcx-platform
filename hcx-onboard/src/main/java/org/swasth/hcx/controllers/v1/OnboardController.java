@@ -1,12 +1,15 @@
 package org.swasth.hcx.controllers.v1;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.swasth.auditindexer.function.AuditIndexer;
 import org.swasth.common.dto.Response;
 import org.swasth.common.utils.Constants;
 import org.swasth.hcx.controllers.BaseController;
+import org.swasth.hcx.helpers.EventGenerator;
 import org.swasth.hcx.services.OnboardService;
 
 import java.util.ArrayList;
@@ -22,6 +25,10 @@ public class OnboardController extends BaseController {
 
     @Autowired
     private OnboardService service;
+
+    public OnboardController(Environment environment, AuditIndexer indexer, EventGenerator generator) {
+        super(environment, indexer, generator);
+    }
 
     @PostMapping(PARTICIPANT_VERIFY)
     public ResponseEntity<Object> verify(@RequestHeader HttpHeaders header, @RequestBody ArrayList<Map<String, Object>> body) throws Exception {

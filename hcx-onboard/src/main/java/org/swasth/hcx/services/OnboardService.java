@@ -154,26 +154,6 @@ public class OnboardService extends BaseController {
     private EventGenerator eventGenerator;
     private FreemarkerService freemarkerService;
     private IEventService kafkaClient;
-//    @Autowired
-//    private IDatabaseService postgreSQLClient;
-
-//    @Resource(name = "postgresClientMockService")
-//    @Autowired
-//    private IDatabaseService postgresClientMockService;
-
-
-//    @Autowired
-//    private JWTUtils jwtUtils;
-
-//    @Autowired
-//    protected AuditIndexer auditIndexer;
-//    @Autowired
-//    protected EventGenerator eventGenerator;
-//    @Autowired
-//    private FreemarkerService freemarkerService;
-
-//    @Autowired
-//    private IEventService kafkaClient;
 
     private Keycloak keycloak;
 
@@ -184,6 +164,7 @@ public class OnboardService extends BaseController {
     private String failedIdentitySub;
     @Autowired
     public OnboardService(IDatabaseService postgresClientMockService, IDatabaseService iDatabaseService, JWTUtils jwtUtils, AuditIndexer auditIndexer, EventGenerator eventGenerator, FreemarkerService freemarkerService,IEventService kafkaClient) {
+        super();
         this.postgresClientMockService=postgresClientMockService;
         this.postgreSQLClient=iDatabaseService;
         this.jwtUtils = jwtUtils;
@@ -306,7 +287,6 @@ public class OnboardService extends BaseController {
         output.put(IS_USER_EXISTS, isUserExists);
     }
 
-    // TODO: change request body to pojo
     private Map<String, Object> getApplicantBody(OnboardRequest request) {
         Map<String, Object> body = new HashMap<>();
         body.put(APPLICANT_CODE, request.getApplicantCode());
@@ -358,7 +338,7 @@ public class OnboardService extends BaseController {
         }
         regenerateCount++;
         String updateQuery = String.format("UPDATE %s SET updatedOn=%d, expiry=%d, regenerate_count=%d, last_regenerate_date='%s', phone_short_url='%s', phone_long_url='%s' WHERE participant_code='%s'",
-                onboardVerificationTable, System.currentTimeMillis(), System.currentTimeMillis() + linkExpiry, regenerateCount, currentDate, shortUrl, longUrl, (String) requestBody.get(PARTICIPANT_CODE));
+                onboardVerificationTable, System.currentTimeMillis(), System.currentTimeMillis() + linkExpiry, regenerateCount, currentDate, shortUrl, longUrl, requestBody.get(PARTICIPANT_CODE));
         postgreSQLClient.execute(updateQuery);
         auditIndexer.createDocument(eventGenerator.getSendLinkEvent(requestBody, regenerateCount, currentDate));
         return getSuccessResponse(new Response());
@@ -487,7 +467,7 @@ public class OnboardService extends BaseController {
         postgreSQLClient.execute(updateOtpQuery);
     }
 
-    private Map<String, Object> getParticipant(String key, String value) throws Exception {
+    private Map<String, Object> getParticipant(String key, String value) throws JsonProcessingException, ClientException {
         HttpResponse<String> searchResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_SEARCH, "{ \"filters\": { \"" + key + "\": { \"eq\": \" " + value + "\" } } }", new HashMap<>());
         RegistryResponse registryResponse = JSONUtils.deserialize(searchResponse.getBody(), RegistryResponse.class);
         if (registryResponse.getParticipants().isEmpty())
@@ -495,7 +475,7 @@ public class OnboardService extends BaseController {
         return (Map<String, Object>) registryResponse.getParticipants().get(0);
     }
 
-    private List<Map<String,Object>> userSearch(String requestBody, HttpHeaders headers) throws Exception {
+    private List<Map<String,Object>> userSearch(String requestBody, HttpHeaders headers) throws JsonProcessingException {
         Map<String,String> headersMap = new HashMap<>();
         Token token = new Token(Objects.requireNonNull(headers.get(AUTHORIZATION)).get(0));
         headersMap.put(AUTHORIZATION,"Bearer " + token.getToken());
@@ -899,14 +879,14 @@ public class OnboardService extends BaseController {
         return jwtUtils.generateJWS(headers, payload, privatekey);
     }
 
-    private String userInviteRejectTemplate(String email, String participantName) throws Exception {
+    private String userInviteRejectTemplate(String email, String participantName) throws TemplateException, IOException {
         Map<String, Object> model = new HashMap<>();
         model.put("PARTICIPANT_NAME", participantName);
         model.put("EMAIL", email);
         return freemarkerService.renderTemplate("user-invite-reject-participant.ftl", model);
     }
 
-    private String userInviteAcceptTemplate(String userId, String participantName, String username, String role) throws Exception {
+    private String userInviteAcceptTemplate(String userId, String participantName, String username, String role) throws TemplateException, IOException {
         Map<String, Object> model = new HashMap<>();
         model.put("USER_NAME", username);
         model.put("USER_ID", userId);
@@ -934,7 +914,7 @@ public class OnboardService extends BaseController {
         return freemarkerService.renderTemplate("user-invite-request-user.ftl", model);
     }
 
-    private String userInviteParticipantTemplate(String name, String role, String userEmail) throws Exception {
+    private String userInviteParticipantTemplate(String name, String role, String userEmail) throws TemplateException, IOException {
         Map<String, Object> model = new HashMap<>();
         model.put("PARTICIPANT_NAME", name);
         model.put("USER_ROLE", role);
@@ -943,7 +923,7 @@ public class OnboardService extends BaseController {
     }
 
 
-    private String linkTemplate(String name, String code, URL signedURL, int day, ArrayList<String> role, String userId) throws Exception {
+    private String linkTemplate(String name, String code, URL signedURL, int day, ArrayList<String> role, String userId) throws TemplateException, IOException {
         Map<String, Object> model = new HashMap<>();
         model.put("USER_NAME", name);
         model.put("PARTICIPANT_CODE", code);
@@ -962,7 +942,7 @@ public class OnboardService extends BaseController {
         return freemarkerService.renderTemplate("regenerate-send-link.ftl", model);
     }
 
-    private String successTemplate(String participantName, Map<String, Object> mockProviderDetails, Map<String, Object> mockPayorDetails) throws Exception {
+    private String successTemplate(String participantName, Map<String, Object> mockProviderDetails, Map<String, Object> mockPayorDetails) throws TemplateException, IOException {
         Map<String, Object> model = new HashMap<>();
         model.put("USER_NAME", participantName);
         model.put("MOCK_PROVIDER_CODE", mockProviderDetails.getOrDefault(PARTICIPANT_CODE, ""));
@@ -981,18 +961,18 @@ public class OnboardService extends BaseController {
         return freemarkerService.renderTemplate("onboard-poc-success.ftl", model);
     }
 
-    public String commonTemplate(String templateName) throws Exception {
+    public String commonTemplate(String templateName) throws TemplateException, IOException {
         return freemarkerService.renderTemplate(templateName, new HashMap<>());
     }
 
-    private String verificationStatus(String name, String status) throws Exception {
+    private String verificationStatus(String name, String status) throws TemplateException, IOException {
         Map<String, Object> model = new HashMap<>();
         model.put("USER_NAME", name);
         model.put("STATUS", status);
         return freemarkerService.renderTemplate("verification-status.ftl", model);
     }
 
-    private String passwordGenerate(String participantName, String password, String username) throws Exception {
+    private String passwordGenerate(String participantName, String password, String username) throws TemplateException, IOException {
         Map<String, Object> model = new HashMap<>();
         model.put("PARTICIPANT_NAME", participantName);
         model.put("USERNAME", username);
@@ -1211,11 +1191,14 @@ public class OnboardService extends BaseController {
     }
 
     private String generateRandomPassword(int length){
-        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&*";
-        SecureRandom random = new SecureRandom(); // Compliant for security-sensitive use cases
-        byte bytes[] = new byte[20];
-        random.nextBytes(bytes);
-        return RandomStringUtils.random(length, characters);
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#&*";
+        SecureRandom secureRandom = new SecureRandom();
+        StringBuilder password = new StringBuilder(length);
+        for (int i = 0; i < length; i++) {
+            int randomIndex = secureRandom.nextInt(characters.length());
+            password.append(characters.charAt(randomIndex));
+        }
+        return password.toString();
     }
 
     public Response generateAndSetPassword(HttpHeaders headers, String participantCode) throws Exception {
