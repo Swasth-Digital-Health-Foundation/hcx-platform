@@ -366,7 +366,7 @@ public class OnboardService extends BaseController {
             name = (String) jwtPayload.get(PARTICIPANT_NAME);
             participantDetails = getParticipant(PARTICIPANT_CODE, hcxCode);
             if (!jwtPayload.isEmpty() && !jwtUtils.isValidSignature(jwtToken, (String) participantDetails.get(ENCRYPTION_CERT))) {
-                throw new ClientException(ErrorCodes.ERR_INVALID_JWT, "Invalid JWT token signature");
+                throw new ClientException(ErrorCodes.ERR_INVALID_JWT, INVALID_JWT_TOKEN_SIGNATURE);
             }
             String selectQuery = String.format("SELECT * FROM %s WHERE participant_code='%s'", onboardVerificationTable, participantCode);
             resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
@@ -644,7 +644,7 @@ public class OnboardService extends BaseController {
             applicantCode = (String) jwtPayload.get(SUB);
             verifierDetails = getParticipant(PARTICIPANT_CODE, verifierCode);
             if (!token.isEmpty() && !jwtUtils.isValidSignature(token, (String) verifierDetails.get(SIGNING_CERT_PATH)))
-                throw new ClientException(ErrorCodes.ERR_INVALID_JWT, "Invalid JWT token signature");
+                throw new ClientException(ErrorCodes.ERR_INVALID_JWT, INVALID_JWT_TOKEN_SIGNATURE);
         } else {
             verifierCode = (String) requestBody.getOrDefault(VERIFIER_CODE, "");
             applicantCode = (String) requestBody.getOrDefault(APPLICANT_CODE, "");
@@ -744,7 +744,7 @@ public class OnboardService extends BaseController {
         Token token = new Token((String) body.getOrDefault(JWT_TOKEN, ""));
         Map<String, Object> hcxDetails = getParticipant(PARTICIPANT_CODE, hcxCode);
         if (!jwtUtils.isValidSignature(token.getToken(), (String) hcxDetails.get(ENCRYPTION_CERT))) {
-            throw new ClientException(ErrorCodes.ERR_INVALID_JWT, "Invalid JWT token signature");
+            throw new ClientException(ErrorCodes.ERR_INVALID_JWT, INVALID_JWT_TOKEN_SIGNATURE);
         }
         User user = JSONUtils.deserialize(body.get("user"), User.class);
         user.setUserId(createOrAddUser(headers, user, token.getParticipantCode(), Collections.singletonList(token.getRole())));
@@ -815,7 +815,7 @@ public class OnboardService extends BaseController {
         Token token = new Token((String) body.getOrDefault(JWT_TOKEN, ""));
         Map<String, Object> hcxDetails = getParticipant(PARTICIPANT_CODE, hcxCode);
         if (!jwtUtils.isValidSignature(token.getToken(), (String) hcxDetails.get(ENCRYPTION_CERT))) {
-            throw new ClientException(ErrorCodes.ERR_INVALID_JWT, "Invalid JWT token signature");
+            throw new ClientException(ErrorCodes.ERR_INVALID_JWT, INVALID_JWT_TOKEN_SIGNATURE);
         }
         User user = JSONUtils.deserialize(body.get("user"), User.class);
         updateInviteStatus(user.getEmail(), "rejected");
