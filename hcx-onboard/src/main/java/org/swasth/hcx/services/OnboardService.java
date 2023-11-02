@@ -486,7 +486,6 @@ public class OnboardService extends BaseController {
     }
 
     public ResponseEntity<Object> onboardUpdate(HttpHeaders headers, Map<String, Object> requestBody) throws Exception {
-        logger.info("Onboard update: " + requestBody.get(PARTICIPANT_CODE));
         boolean emailVerified = false;
         boolean phoneVerified = false;
         String commStatus = PENDING;
@@ -527,7 +526,6 @@ public class OnboardService extends BaseController {
         HttpResponse<String> httpResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_UPDATE, JSONUtils.serialize(participant), getHeadersMap(headers));
 
         if (httpResponse.getStatus() == 200) {
-        logger.info("Participant details are updated successfully :: participant code : " + participant.get(PARTICIPANT_CODE));
             if (commStatus.equals(SUCCESSFUL) && identityStatus.equals(ACCEPTED)) {
                 if (mockParticipantAllowedEnv.contains(env)) {
                     String searchQuery = String.format("SELECT * FROM %s WHERE parent_participant_code = '%s'", mockParticipantsTable, participant.get(PARTICIPANT_CODE));
@@ -669,7 +667,6 @@ public class OnboardService extends BaseController {
     }
 
     private String identityVerify(Map<String, Object> requestBody) throws Exception {
-        logger.info("Identity verification :: request: {}", requestBody);
         String verifierCode = (String) requestBody.get(VERIFIER_CODE);
         Map<String, Object> verifierDetails = getParticipant(PARTICIPANT_CODE, verifierCode);
         String result = REJECTED;
@@ -703,7 +700,6 @@ public class OnboardService extends BaseController {
     }
 
     public Response userInvite(Map<String, Object> requestBody, HttpHeaders headers) throws Exception {
-        logger.info("User invite: " + requestBody.get(PARTICIPANT_CODE));
         String email = (String) requestBody.getOrDefault(EMAIL, "");
         String role = (String) requestBody.getOrDefault(ROLE, "");
         String code = (String) requestBody.getOrDefault(PARTICIPANT_CODE, "");
@@ -744,7 +740,6 @@ public class OnboardService extends BaseController {
     }
 
     public Response userInviteAccept(HttpHeaders headers, Map<String, Object> body) throws Exception {
-        logger.info("User invite accepted: " + body);
         Token token = new Token((String) body.getOrDefault(JWT_TOKEN, ""));
         Map<String, Object> hcxDetails = getParticipant(PARTICIPANT_CODE, hcxCode);
         if (!jwtUtils.isValidSignature(token.getToken(), (String) hcxDetails.get(ENCRYPTION_CERT))) {
@@ -816,7 +811,6 @@ public class OnboardService extends BaseController {
     }
 
     public Response userInviteReject(Map<String, Object> body) throws Exception {
-        logger.info("User invite rejected: " + body);
         Token token = new Token((String) body.getOrDefault(JWT_TOKEN, ""));
         Map<String, Object> hcxDetails = getParticipant(PARTICIPANT_CODE, hcxCode);
         if (!jwtUtils.isValidSignature(token.getToken(), (String) hcxDetails.get(ENCRYPTION_CERT))) {
