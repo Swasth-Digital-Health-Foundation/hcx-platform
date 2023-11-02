@@ -15,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -147,13 +146,25 @@ public class OnboardService extends BaseController {
     private String emailConfig;
     @Value("${onboard.phone}")
     private String phoneConfig;
+
+    @Autowired
     private IDatabaseService postgreSQLClient;
+
     @Resource(name = "postgresClientMockService")
+    @Autowired
     private IDatabaseService postgresClientMockService;
+
+    @Autowired
     private JWTUtils jwtUtils;
-    private AuditIndexer auditIndexer;
-    private EventGenerator eventGenerator;
+
+    @Autowired
+    protected AuditIndexer auditIndexer;
+    @Autowired
+    protected EventGenerator eventGenerator;
+    @Autowired
     private FreemarkerService freemarkerService;
+
+    @Autowired
     private IEventService kafkaClient;
 
     private Keycloak keycloak;
@@ -163,21 +174,7 @@ public class OnboardService extends BaseController {
 
     @Value("${email.failed-identity-sub}")
     private String failedIdentitySub;
-    @Autowired
-    public OnboardService(IDatabaseService postgresClientMockService, IDatabaseService iDatabaseService, JWTUtils jwtUtils, AuditIndexer auditIndexer, EventGenerator eventGenerator, FreemarkerService freemarkerService,IEventService kafkaClient) {
-        this();
-        this.postgresClientMockService=postgresClientMockService;
-        this.postgreSQLClient=iDatabaseService;
-        this.jwtUtils = jwtUtils;
-        this.auditIndexer = auditIndexer;
-        this.eventGenerator = eventGenerator;
-        this.freemarkerService = freemarkerService;
-        this.kafkaClient=kafkaClient;
-    }
 
-    public OnboardService() {
-        super();
-    }
 
     @PostConstruct()
     public void init(){
@@ -185,6 +182,7 @@ public class OnboardService extends BaseController {
     }
     public ResponseEntity<Object> verify(HttpHeaders header, List<Map<String, Object>> body) throws Exception {
         OnboardRequest request = new OnboardRequest(body);
+        logger.info("Participant verification :: participant name" + request.getParticipantName());
         Map<String, Object> output = new HashMap<>();
         onboardProcess(header, request, output);
         return getSuccessResponse(new Response(output));
@@ -488,6 +486,7 @@ public class OnboardService extends BaseController {
     }
 
     public ResponseEntity<Object> onboardUpdate(HttpHeaders headers, Map<String, Object> requestBody) throws Exception {
+        logger.info("Onboard update: " + requestBody.get(PARTICIPANT_CODE));
         boolean emailVerified = false;
         boolean phoneVerified = false;
         String commStatus = PENDING;
@@ -528,6 +527,7 @@ public class OnboardService extends BaseController {
         HttpResponse<String> httpResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_UPDATE, JSONUtils.serialize(participant), getHeadersMap(headers));
 
         if (httpResponse.getStatus() == 200) {
+        logger.info("Participant details are updated successfully :: participant code : " + participant.get(PARTICIPANT_CODE));
             if (commStatus.equals(SUCCESSFUL) && identityStatus.equals(ACCEPTED)) {
                 if (mockParticipantAllowedEnv.contains(env)) {
                     String searchQuery = String.format("SELECT * FROM %s WHERE parent_participant_code = '%s'", mockParticipantsTable, participant.get(PARTICIPANT_CODE));
@@ -669,6 +669,7 @@ public class OnboardService extends BaseController {
     }
 
     private String identityVerify(Map<String, Object> requestBody) throws Exception {
+        logger.info("Identity verification :: request: {}", requestBody);
         String verifierCode = (String) requestBody.get(VERIFIER_CODE);
         Map<String, Object> verifierDetails = getParticipant(PARTICIPANT_CODE, verifierCode);
         String result = REJECTED;
@@ -702,6 +703,7 @@ public class OnboardService extends BaseController {
     }
 
     public Response userInvite(Map<String, Object> requestBody, HttpHeaders headers) throws Exception {
+        logger.info("User invite: " + requestBody.get(PARTICIPANT_CODE));
         String email = (String) requestBody.getOrDefault(EMAIL, "");
         String role = (String) requestBody.getOrDefault(ROLE, "");
         String code = (String) requestBody.getOrDefault(PARTICIPANT_CODE, "");
@@ -742,6 +744,7 @@ public class OnboardService extends BaseController {
     }
 
     public Response userInviteAccept(HttpHeaders headers, Map<String, Object> body) throws Exception {
+        logger.info("User invite accepted: " + body);
         Token token = new Token((String) body.getOrDefault(JWT_TOKEN, ""));
         Map<String, Object> hcxDetails = getParticipant(PARTICIPANT_CODE, hcxCode);
         if (!jwtUtils.isValidSignature(token.getToken(), (String) hcxDetails.get(ENCRYPTION_CERT))) {
@@ -813,6 +816,7 @@ public class OnboardService extends BaseController {
     }
 
     public Response userInviteReject(Map<String, Object> body) throws Exception {
+        logger.info("User invite rejected: " + body);
         Token token = new Token((String) body.getOrDefault(JWT_TOKEN, ""));
         Map<String, Object> hcxDetails = getParticipant(PARTICIPANT_CODE, hcxCode);
         if (!jwtUtils.isValidSignature(token.getToken(), (String) hcxDetails.get(ENCRYPTION_CERT))) {

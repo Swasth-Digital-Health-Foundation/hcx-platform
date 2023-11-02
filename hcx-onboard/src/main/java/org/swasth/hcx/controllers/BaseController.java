@@ -18,19 +18,11 @@ import static org.swasth.common.utils.Constants.SUCCESSFUL;
 
 
 public class BaseController {
-
-    private static final Logger logger = LoggerFactory.getLogger(BaseController.class);
-
     protected Environment environment;
     @Autowired
     protected AuditIndexer indexer;
     @Autowired
     protected EventGenerator generator;
-
-    public BaseController() {
-
-    }
-
 
     protected Response errorResponse(Response response, ErrorCodes code, Exception e) {
         response.setError(new ResponseError(code, e.getMessage(), e.getCause()));
