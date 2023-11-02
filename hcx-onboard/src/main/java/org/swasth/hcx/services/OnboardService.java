@@ -440,16 +440,20 @@ public class OnboardService extends BaseController {
         }
     }
 
+    private String query(String table,String participantCode){
+        String query = String.format("SELECT * FROM %s WHERE participant_code = '%s'", table, participantCode);
+        return query;
+    }
+
     private void updateParticipant(String participantCode, HttpHeaders headers, String communicationStatus) throws Exception{
         Map<String,Object> participantDetails = getParticipant(PARTICIPANT_CODE, participantCode);
         String identityStatus = "";
-        String onboardingQuery = String.format("SELECT * FROM %s WHERE participant_code = '%s'", onboardingVerifierTable, participantCode);
-        ResultSet resultSet1 = (ResultSet) postgreSQLClient.executeQuery(onboardingQuery);
+        ResultSet resultSet1 = (ResultSet) postgreSQLClient.executeQuery(query(onboardingVerifierTable,participantCode));
         if (resultSet1.next()) {
             identityStatus = resultSet1.getString(STATUS_DB);
         }
         if (communicationStatus.equals(SUCCESSFUL) && identityStatus.equals(ACCEPTED)) {
-            Map<String,Object> requestBody = new HashMap();
+            Map<String,Object> requestBody = new HashMap<>();
             requestBody.put(REGISTRY_STATUS, ACTIVE);
             requestBody.put(PARTICIPANT_CODE, participantDetails.get(PARTICIPANT_CODE));
             HttpResponse<String> httpResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_UPDATE, JSONUtils.serialize(requestBody), getHeadersMap(headers));
@@ -503,16 +507,13 @@ public class OnboardService extends BaseController {
         boolean phoneEnabled = validations.isPhoneEnabled();
         List<String> roles = (List<String>) participantDetails.get(ROLES);
         setOnboardValidations(participant, roles);
-        String otpQuery = String.format("SELECT * FROM %s WHERE participant_code = '%s'", onboardVerificationTable, participant.get(PARTICIPANT_CODE));
-        ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(otpQuery);
+        ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(query(onboardVerificationTable, (String) participant.get(PARTICIPANT_CODE)));
         if (resultSet.next()) {
             emailVerified = resultSet.getBoolean(EMAIL_VERIFIED);
             phoneVerified = resultSet.getBoolean(PHONE_VERIFIED);
             commStatus = resultSet.getString(STATUS_DB);
         }
-
-        String onboardingQuery = String.format("SELECT * FROM %s WHERE participant_code = '%s'", onboardingVerifierTable, participant.get(PARTICIPANT_CODE));
-        ResultSet resultSet1 = (ResultSet) postgreSQLClient.executeQuery(onboardingQuery);
+        ResultSet resultSet1 = (ResultSet) postgreSQLClient.executeQuery(query(onboardingVerifierTable, (String) participant.get(PARTICIPANT_CODE)));
         if (resultSet1.next()) {
             identityStatus = resultSet1.getString(STATUS_DB);
         }
@@ -618,7 +619,7 @@ public class OnboardService extends BaseController {
         }
 
         if (communicationStatus.equals(SUCCESSFUL) && identityStatus.equals(ACCEPTED)) {
-            Map<String,Object> requestBody = new HashMap();
+            Map<String,Object> requestBody = new HashMap<>();
             requestBody.put(REGISTRY_STATUS, ACTIVE);
             requestBody.put(PARTICIPANT_CODE, participantDetails.get(PARTICIPANT_CODE));
 
@@ -650,7 +651,7 @@ public class OnboardService extends BaseController {
             applicantCode = (String) requestBody.getOrDefault(APPLICANT_CODE, "");
             verifierDetails = getParticipant(PARTICIPANT_CODE, verifierCode);
         }
-        HttpResponse<String> response = HttpUtils.post(verifierDetails.get(ENDPOINT_URL) + APPLICANT_GET_INFO, JSONUtils.serialize(requestBody), headers(verifierCode));
+        HttpResponse<String> response = HttpUtils.post(verifierDetails.get(ENDPOINT_URL) + APPLICANT_GET_INFO, JSONUtils.serialize(requestBody), headers());
         auditIndexer.createDocument(eventGenerator.getApplicantGetInfoEvent(requestBody, applicantCode, verifierCode, JSONUtils.deserialize(response.getBody(), Map.class), response.getStatus()));
         return new ResponseEntity<>(response.getBody(), HttpStatus.valueOf(response.getStatus()));
     }
@@ -670,9 +671,9 @@ public class OnboardService extends BaseController {
     private String identityVerify(Map<String, Object> requestBody) throws Exception {
         String verifierCode = (String) requestBody.get(VERIFIER_CODE);
         Map<String, Object> verifierDetails = getParticipant(PARTICIPANT_CODE, verifierCode);
-        String result = REJECTED;
+        String result ;
         Response response = new Response();
-        HttpResponse<String> httpResp = HttpUtils.post(verifierDetails.get(ENDPOINT_URL) + APPLICANT_VERIFY, JSONUtils.serialize(requestBody), headers(verifierCode));
+        HttpResponse<String> httpResp = HttpUtils.post(verifierDetails.get(ENDPOINT_URL) + APPLICANT_VERIFY, JSONUtils.serialize(requestBody), headers());
         if (httpResp.getStatus() == 200) {
             Map<String, Object> payorResp = JSONUtils.deserialize(httpResp.getBody(), Map.class);
             result = (String) payorResp.get(RESULT);
@@ -826,7 +827,7 @@ public class OnboardService extends BaseController {
     }
 
 
-    private Map<String, String> headers(String verifierCode) throws NoSuchAlgorithmException, InvalidKeySpecException {
+    private Map<String, String> headers() throws NoSuchAlgorithmException, InvalidKeySpecException {
         Map<String, String> headers = new HashMap<>();
         headers.put(AUTHORIZATION, "Bearer " + jwtUtils.generateAuthToken(privatekey, hcxCode, expiryTime));
         return headers;
@@ -1042,7 +1043,7 @@ public class OnboardService extends BaseController {
     @Async
     public Future<Map<String,Object>> createMockParticipant(HttpHeaders headers, String role, Map<String, Object> participantDetails) throws Exception {
         String parentParticipantCode = (String) participantDetails.getOrDefault(PARTICIPANT_CODE, "");
-        logger.info("creating Mock participant for :: parent participant code : {} :: Role: {}".format(parentParticipantCode, role));
+        logger.info("creating Mock participant for :: parent participant code : {} :: Role: {}",parentParticipantCode, role);
         Map<String, Object> mockParticipant = getMockParticipantBody(participantDetails, role, parentParticipantCode);
         String privateKey = (String) mockParticipant.getOrDefault(PRIVATE_KEY, "");
         mockParticipant.remove(PRIVATE_KEY);
@@ -1089,12 +1090,12 @@ public class OnboardService extends BaseController {
         mockParticipantDetails.put(PASSWORD, password);
         TimeUnit.SECONDS.sleep(3); // After creating participant, elasticsearch will retrieve data after one second hence added two seconds delay for search API.
         Map<String,Object> registryDetails = getParticipant(PARTICIPANT_CODE,childParticipantCode);
-        setKeycloakPassword(childParticipantCode, password ,registryDetails);
-        logger.info("created Mock participant for :: parent participant code  : {} :: child participant code  : {}".format(parentParticipantCode, childParticipantCode));
+        setKeycloakPassword( password ,registryDetails);
+        logger.info("created Mock participant for :: parent participant code  : {} :: child participant code  : {}",parentParticipantCode, childParticipantCode);
         return mockParticipantDetails;
     }
 
-    public void setKeycloakPassword(String participantCode, String password , Map<String,Object> registryDetails) throws ClientException {
+    public void setKeycloakPassword( String password , Map<String,Object> registryDetails) throws ClientException {
         try {
             ArrayList<String> osOwner = (ArrayList<String>) registryDetails.get(OS_OWNER);
             RealmResource realmResource = keycloak.realm(keycloackParticipantRealm);
@@ -1104,7 +1105,7 @@ public class OnboardService extends BaseController {
             passwordCred.setType(CredentialRepresentation.PASSWORD);
             passwordCred.setValue(password);
             userResource.resetPassword(passwordCred);
-            logger.info("The Keycloak password for the os_owner: {} has been successfully updated".format(osOwner.get(0)));
+            logger.info("The Keycloak password for the os_owner: {} has been successfully updated",osOwner.get(0));
         } catch (Exception e) {
             throw new ClientException("Unable to set keycloak password : " + e.getMessage());
         }
@@ -1190,7 +1191,7 @@ public class OnboardService extends BaseController {
     public Response generateAndSetPassword(HttpHeaders headers, String participantCode) throws Exception {
         String password = generateRandomPassword(24);
         Map<String, Object> registryDetails = getParticipant(PARTICIPANT_CODE, participantCode);
-        setKeycloakPassword(participantCode, password, registryDetails);
+        setKeycloakPassword( password, registryDetails);
         ArrayList<String> osOwner = (ArrayList<String>) registryDetails.get(OS_OWNER);
         RealmResource realmResource = keycloak.realm(keycloackParticipantRealm);
         UserResource userResource=realmResource.users().get(osOwner.get(0));
