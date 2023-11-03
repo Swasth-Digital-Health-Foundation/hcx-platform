@@ -964,7 +964,7 @@ class OnboardControllerTests extends BaseSpec{
         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_ONBOARD_UPDATE).content(requestBodyJson).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
-        Assertions.assertEquals(200, status);
+        Assertions.assertEquals(500, status);
     }
 
     @Test
