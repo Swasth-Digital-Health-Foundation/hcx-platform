@@ -748,6 +748,30 @@ class OnboardControllerTests extends BaseSpec{
                         "    \"status\": \"SUCCESSFUL\"\n" +
                         "}")
                 .addHeader("Content-Type", "application/json"));
+        Mockito.doNothing().when(kafkaClient).send(anyString(),anyString(),anyString());
+        Mockito.when(mockEventGenerator.getEmailMessageEvent(anyString(),anyString(),anyList(),anyList(),anyList())).thenReturn("mocked-event");
+        Mockito.when(freemarkerService.renderTemplate(any(),anyMap())).thenReturn("freemarker");
+        Response resp = new Response();
+        resp.setStatus(SUCCESSFUL);
+        Mockito.when(onboardService.generateAndSetPassword(any(),anyString())).thenReturn(resp);
+        Mockito.doNothing().when(onboardService).setKeycloakPassword(anyString(),anyMap());
+        postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verifier");
+        postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verification");
+        postgreSQLClient.execute("DROP TABLE IF EXISTS mock_participant");
+        postgreSQLClient.execute("CREATE TABLE onboard_verification(participant_code character varying NOT NULL PRIMARY KEY,   primary_email character varying,   primary_mobile character varying, createdon bigInt,updatedon bigInt,  expiry bigInt,  phone_verified boolean NOT NULL,email_verified boolean NOT NULL,status character varying,  regenerate_count int,last_regenerate_date date, attempt_count bigInt, comments character varying, phone_short_url character varying, phone_long_url character varying, onboard_validation_properties json, participant_validation_properties json)");
+        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " + " VALUES('test_user_54.yopmail@swasth-hcx','test_user_54@yopmail.com','9620499129','169719173417','169719173417','1666612517000',true,true,'successful',0,'2023-10-12T13:37:12.533Z','1666612517000','','','','{\"email\": \"activation\",\"phone\": \"verification\"}',' {\"email\": \"activation\",\"phone\": \"verification\"}')");
+        postgreSQLClient.execute("CREATE TABLE onboard_verifier( applicant_email character varying NOT NULL,applicant_code character varying NOT NULL,  verifier_code character varying, status character varying, createdon bigInt,   updatedon bigInt,participant_code character varying)");
+        postgreSQLClient.execute("INSERT INTO onboard_verifier(applicant_email,applicant_code,verifier_code,status,createdon,updatedon,participant_code)"+"VALUES ('test_user_54@yopmail.com','123445','987655','accepted','1666612517000','1666612517000','test_user_54.yopmail@swasth-hcx')");
+        postgreSQLClient.execute("CREATE TABLE  mock_participant(parent_participant_code character varying,  child_participant_code character varying NOT NULL PRIMARY KEY ,primary_email character varying, password character varying,private_key character varying)");
+        String requestBodyJson = updateRequestBody();
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_ONBOARD_UPDATE).content(requestBodyJson).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        Assertions.assertEquals(500, status);
+    }
+
+    @Test
+    void test_onboard_update_withEnv_exceptionc() throws Exception {
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("{\n" +
@@ -771,6 +795,121 @@ class OnboardControllerTests extends BaseSpec{
                         "                \"9306930e-ac74-4d52-9f75-bfd5ca4db867\"\n" +
                         "            ],\n" +
                         "            \"osid\": \"3cb8233d-01d9-4e29-af0c-d00c2f28d353\"\n" +
+                        "        }\n" +
+                        "    ]\n" +
+                        "}")
+                .addHeader("Content-Type", "application/json"));
+        hcxApiServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{\n" +
+                        "    \"timestamp\": 1697524745246,\n" +
+                        "    \"result\": {\n" +
+                        "        \"identity_verification\": \"rejected\",\n" +
+                        "        \"email_verified\": true,\n" +
+                        "        \"phone_verified\": true,\n" +
+                        "        \"participant_code\": \"test_user_54.yopmail@swasth-hcx\",\n" +
+                        "        \"communication_verification\": \"successful\"\n" +
+                        "    },\n" +
+                        "    \"status\": \"SUCCESSFUL\"\n" +
+                        "}")
+                .addHeader("Content-Type", "application/json"));
+        hcxApiServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{\"participant_code\": \"wemeanhospital+mock_payor.yopmail@swasth-hcx-dev\"}")
+                .addHeader("Content-Type", "application/json"));
+        hcxApiServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{\n" +
+                        "    \"timestamp\": 1698928410091,\n" +
+                        "    \"participants\": [\n" +
+                        "        {\n" +
+                        "            \"signing_cert_path\": \"https://dev-hcx-certificates.s3.ap-south-1.amazonaws.com/wemeanhospital%2Bmock_payor.yopmail%40swasth-hcx-dev/signing_cert_path.pem\",\n" +
+                        "            \"participant_name\": \"wemeanhospital Mock Payor\",\n" +
+                        "            \"endpoint_url\": \"http://a6a5d9138995a45b2bf9fd3f72b84367-915129339.ap-south-1.elb.amazonaws.com:8080/v0.7\",\n" +
+                        "            \"roles\": [\n" +
+                        "                \"payor\"\n" +
+                        "            ],\n" +
+                        "            \"scheme_code\": \"default\",\n" +
+                        "            \"primary_email\": \"wemeanhospital+mock_payor@yopmail.com\",\n" +
+                        "            \"encryption_cert\": \"https://dev-hcx-certificates.s3.ap-south-1.amazonaws.com/wemeanhospital%2Bmock_payor.yopmail%40swasth-hcx-dev/encryption_cert.pem\",\n" +
+                        "            \"status\": \"Active\",\n" +
+                        "            \"participant_code\": \"wemeanhospital+mock_payor.yopmail@swasth-hcx-dev\",\n" +
+                        "            \"sigining_cert_expiry\": 1779007885000,\n" +
+                        "            \"encryption_cert_expiry\": 1779007885000,\n" +
+                        "            \"osOwner\": [\n" +
+                        "                \"62c12021-eb1a-49ff-9496-d7a65a616930\"\n" +
+                        "            ],\n" +
+                        "            \"osCreatedAt\": \"2023-05-18T08:51:30.271Z\",\n" +
+                        "            \"osUpdatedAt\": \"2023-09-14T05:34:07.932Z\",\n" +
+                        "            \"osid\": \"93dac853-9089-4df6-9cbe-6b4b9acdc27e\",\n" +
+                        "            \"@type\": \"Organisation\",\n" +
+                        "            \"primary_mobile\": \"\"\n" +
+                        "        }\n" +
+                        "    ]\n" +
+                        "}")
+                .addHeader("Content-Type", "application/json"));
+        hcxApiServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{\"participant_code\": \"wemeanhospital+mock_provider.yopmail@swasth-hcx-dev\"}")
+                .addHeader("Content-Type", "application/json"));
+        hcxApiServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{\n" +
+                        "    \"timestamp\": 1698928410091,\n" +
+                        "    \"participants\": [\n" +
+                        "        {\n" +
+                        "            \"signing_cert_path\": \"https://dev-hcx-certificates.s3.ap-south-1.amazonaws.com/wemeanhospital%2Bmock_payor.yopmail%40swasth-hcx-dev/signing_cert_path.pem\",\n" +
+                        "            \"participant_name\": \"wemeanhospital Mock Payor\",\n" +
+                        "            \"endpoint_url\": \"http://a6a5d9138995a45b2bf9fd3f72b84367-915129339.ap-south-1.elb.amazonaws.com:8080/v0.7\",\n" +
+                        "            \"roles\": [\n" +
+                        "                \"payor\"\n" +
+                        "            ],\n" +
+                        "            \"scheme_code\": \"default\",\n" +
+                        "            \"primary_email\": \"wemeanhospital+mock_payor@yopmail.com\",\n" +
+                        "            \"encryption_cert\": \"https://dev-hcx-certificates.s3.ap-south-1.amazonaws.com/wemeanhospital%2Bmock_payor.yopmail%40swasth-hcx-dev/encryption_cert.pem\",\n" +
+                        "            \"status\": \"Active\",\n" +
+                        "            \"participant_code\": \"wemeanhospital+mock_payor.yopmail@swasth-hcx-dev\",\n" +
+                        "            \"sigining_cert_expiry\": 1779007885000,\n" +
+                        "            \"encryption_cert_expiry\": 1779007885000,\n" +
+                        "            \"osOwner\": [\n" +
+                        "                \"62c12021-eb1a-49ff-9496-d7a65a616930\"\n" +
+                        "            ],\n" +
+                        "            \"osCreatedAt\": \"2023-05-18T08:51:30.271Z\",\n" +
+                        "            \"osUpdatedAt\": \"2023-09-14T05:34:07.932Z\",\n" +
+                        "            \"osid\": \"93dac853-9089-4df6-9cbe-6b4b9acdc27e\",\n" +
+                        "            \"@type\": \"Organisation\",\n" +
+                        "            \"primary_mobile\": \"\"\n" +
+                        "        }\n" +
+                        "    ]\n" +
+                        "}")
+                .addHeader("Content-Type", "application/json"));
+        hcxApiServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{\n" +
+                        "    \"timestamp\": 1698992466034,\n" +
+                        "    \"participants\": [\n" +
+                        "        {\n" +
+                        "            \"primary_email\": \"test_user_54@yopmail.com\",\n" +
+                        "            \"primary_mobile\": \"9620499129\",\n" +
+                        "            \"roles\": [\n" +
+                        "                \"payor\"\n" +
+                        "            ],\n" +
+                        "            \"participant_name\": \"Abhishek\",\n" +
+                        "            \"endpoint_url\": \"http://a07c089412c1b46f2b49946c59267d03-2070772031.ap-south-1.elb.amazonaws.com:8080/v0.7\",\n" +
+                        "            \"encryption_cert\": \"https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/jwe-helper/main/src/test/resources/x509-self-signed-certificate.pem\",\n" +
+                        "            \"status\": \"Created\",\n" +
+                        "            \"scheme_code\": \"default\",\n" +
+                        "            \"participant_code\": \"test_user_54.yopmail@swasth-hcx\",\n" +
+                        "            \"encryption_cert_expiry\": 1666612517000,\n" +
+                        "            \"osOwner\": [\n" +
+                        "                \"69e7c049-912b-4cde-a08c-14e15c37f7c3\"\n" +
+                        "            ],\n" +
+                        "            \"osCreatedAt\": \"2023-03-16T10:44:14.160Z\",\n" +
+                        "            \"osUpdatedAt\": \"2023-10-30T12:24:53.179Z\",\n" +
+                        "            \"osid\": \"21277299-aa8c-46e7-8f1b-06b1c483376f\",\n" +
+                        "            \"signing_cert_path\": \"https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/jwe-helper/main/src/test/resources/x509-self-signed-certificate.pem\",\n" +
+                        "            \"@type\": \"Organisation\",\n" +
+                        "            \"sigining_cert_expiry\": 1666612517000\n" +
                         "        }\n" +
                         "    ]\n" +
                         "}")
@@ -806,14 +945,6 @@ class OnboardControllerTests extends BaseSpec{
                         "    ]\n" +
                         "}")
                 .addHeader("Content-Type", "application/json"));
-        hcxApiServer.enqueue(new MockResponse()
-                .setResponseCode(200)
-                .setBody("{\n" +
-                        "    \"timestamp\": 1698675989528,\n" +
-                        "    \"participants\": [\n" +
-                                         " ]\n" +
-                        "}")
-                .addHeader("Content-Type", "application/json"));
         Mockito.doNothing().when(kafkaClient).send(anyString(),anyString(),anyString());
         Mockito.when(mockEventGenerator.getEmailMessageEvent(anyString(),anyString(),anyList(),anyList(),anyList())).thenReturn("mocked-event");
         Mockito.when(freemarkerService.renderTemplate(any(),anyMap())).thenReturn("freemarker");
@@ -833,7 +964,7 @@ class OnboardControllerTests extends BaseSpec{
         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_ONBOARD_UPDATE).content(requestBodyJson).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
-        Assertions.assertEquals(500, status);
+        Assertions.assertEquals(200, status);
     }
 
     @Test
@@ -3233,7 +3364,7 @@ class OnboardControllerTests extends BaseSpec{
     }
 
     @Test
-    void test_applicant_search_success() throws Exception {
+    void test_applicant_search_with_filters_success() throws Exception {
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("{\n" +
@@ -3296,9 +3427,73 @@ class OnboardControllerTests extends BaseSpec{
         postgreSQLClient.execute("CREATE TABLE onboard_verifier( applicant_email character varying NOT NULL,applicant_code character varying NOT NULL,  verifier_code character varying, status character varying, createdon bigInt,   updatedon bigInt,participant_code character varying)");
         postgreSQLClient.execute("INSERT INTO onboard_verifier(applicant_email,applicant_code,verifier_code,status,createdon,updatedon,participant_code)"+"VALUES ('swasthmockproviderdev@gmail.com','123445','987655','accepted','1666612517000','1666612517000','provider-swasth-mock-provider-dev')");
         postgreSQLClient.execute("CREATE TABLE  mock_participant(parent_participant_code character varying,  child_participant_code character varying NOT NULL PRIMARY KEY ,primary_email character varying, password character varying,private_key character varying)");
-        postgreSQLClient.execute("INSERT INTO mock_participant(parent_participant_code,child_participant_code,primary_email,password,private_key)"+"VALUES ('provider-swasth-mock-provider-dev','testprovider1.apollo@swasth-hcx-dev','swasthmockproviderdev@gmail.com','Fgkt#54kfgkN','MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDX8KLtg3R9jiqy0GHNdPgo7Kb+eOQlBeWFHAKXY/1TG3m6CaVwtQzof3akE457WFtGR1bP41/0AzDIvmKTVXQCwer9wB2GYuQfrUjvPbFgECcBOC3Dv0Ak/3+T05ntnVrwxYLowEQl53IQt7IWOUCLIBNYjn3B6Wx99PPY4UcHSL6HoWN4/KnAKJiHcUtMSuIUfAG4BMtWDt1yKTRBPNwZpwhka0NTTnPnfVP5z3amtC1o6jWsNNntXPqyR5CNQn8BLbaMtnzQG4K8wfY7rPIgr7mYCteIoEpEMkPu4viBAGUlO047ybugbSRSP28D79AP9QlgI3Qn4bB9wmzTi9UtAgMBAAECggEBAJfrYQTOdfcbPOj+d8BPKYPJMpdXP9LYOiiSkzQlEYUVkGcVAEKx7XnoqvQ2GginGdfwup+ZLNmEIR8p6joTZYHHIecR8POpwSqUA/rkoVSfKIHQH0pW0+7znbLHrMSh7ufzXO0YzxkHopUmV3ERKFp434NvBASXj09yNNgBbbIt7WKTqjuNA/lOY+VfhkSxoxVMnRJYtq3vbm8x/+QU1qthUpt6UbbGHTOHMl2MsS/MRPLZUbG00E/nhyH5/w+ZOApHCQc2ZTuXCqhRqTDkeWvgdnfX/pxsVvhBAq5MltlyhBiKUGB90PRISJ/Wu6462ywiiK9zUozCyDXtWQJ8QkECgYEA9FhyEY8Sp9tKPQECIRCFXIYpv8kAuTbw+1sgi10SBcDPSLY1HEO7RZu94+G3CygnD3bEaCzaWLQ0FlbPB4wKl1bBoAY735LoAcZR0nc8zTbm4nLl0ibu2NUzRfpW6X1dgFmuHUpcbAr2SWLoec1y5OvwScplOcBQXK7r6vPfPdECgYEA4j1ZNpFDwHxxxSAs1tNZlhAz1DFPw+LRb+Ap34UaMWA18ZGtvKwzZfFrtbGSYhu05SO+sYZbk4Z1s84gCtj8HqiUFFvI8v0ozwPRPEzFaipGcVNFRCornoxcv6EC3x1CFhlowHt2MphADfRQA7zlJk/HIq65DD9weXzMr4aTLJ0CgYEAkueiHSBxzO2w4qB6kTqHk6st6pqEjtaTZ+vP0zovnbngZgz2PXoTW7RZJGsOS+zmHwv+5cshs3cUYeHrMtRlgbutSfK1iKOgTYDYrLr3mUHK6pa9ye2SaFc2LnpmSpcO4h4I6p9MlcC5dkG7F5AH5c5cd2DyHxiauD6KpIXe0CECgYAxCXUV08SoqxCJ1qCBa8wGL7rcKlgMsFQO+Lp6vUHhI+ZtVtMeiwCU/xAGkNeWtkSuSeIiXmno/wLyFyJw13lGN+now8A5k')");
+        postgreSQLClient.execute("INSERT INTO mock_participant(parent_participant_code,child_participant_code,primary_email,password,private_key)"+"VALUES ('provider-swasth-mock-provider-dev','test-mock-99+mock_payor@yopmail.com','swasthmockproviderdev@gmail.com','Fgkt#54kfgkN','MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDX8KLtg3R9jiqy0GHNdPgo7Kb+eOQlBeWFHAKXY/1TG3m6CaVwtQzof3akE457WFtGR1bP41/0AzDIvmKTVXQCwer9wB2GYuQfrUjvPbFgECcBOC3Dv0Ak/3+T05ntnVrwxYLowEQl53IQt7IWOUCLIBNYjn3B6Wx99PPY4UcHSL6HoWN4/KnAKJiHcUtMSuIUfAG4BMtWDt1yKTRBPNwZpwhka0NTTnPnfVP5z3amtC1o6jWsNNntXPqyR5CNQn8BLbaMtnzQG4K8wfY7rPIgr7mYCteIoEpEMkPu4viBAGUlO047ybugbSRSP28D79AP9QlgI3Qn4bB9wmzTi9UtAgMBAAECggEBAJfrYQTOdfcbPOj+d8BPKYPJMpdXP9LYOiiSkzQlEYUVkGcVAEKx7XnoqvQ2GginGdfwup+ZLNmEIR8p6joTZYHHIecR8POpwSqUA/rkoVSfKIHQH0pW0+7znbLHrMSh7ufzXO0YzxkHopUmV3ERKFp434NvBASXj09yNNgBbbIt7WKTqjuNA/lOY+VfhkSxoxVMnRJYtq3vbm8x/+QU1qthUpt6UbbGHTOHMl2MsS/MRPLZUbG00E/nhyH5/w+ZOApHCQc2ZTuXCqhRqTDkeWvgdnfX/pxsVvhBAq5MltlyhBiKUGB90PRISJ/Wu6462ywiiK9zUozCyDXtWQJ8QkECgYEA9FhyEY8Sp9tKPQECIRCFXIYpv8kAuTbw+1sgi10SBcDPSLY1HEO7RZu94+G3CygnD3bEaCzaWLQ0FlbPB4wKl1bBoAY735LoAcZR0nc8zTbm4nLl0ibu2NUzRfpW6X1dgFmuHUpcbAr2SWLoec1y5OvwScplOcBQXK7r6vPfPdECgYEA4j1ZNpFDwHxxxSAs1tNZlhAz1DFPw+LRb+Ap34UaMWA18ZGtvKwzZfFrtbGSYhu05SO+sYZbk4Z1s84gCtj8HqiUFFvI8v0ozwPRPEzFaipGcVNFRCornoxcv6EC3x1CFhlowHt2MphADfRQA7zlJk/HIq65DD9weXzMr4aTLJ0CgYEAkueiHSBxzO2w4qB6kTqHk6st6pqEjtaTZ+vP0zovnbngZgz2PXoTW7RZJGsOS+zmHwv+5cshs3cUYeHrMtRlgbutSfK1iKOgTYDYrLr3mUHK6pa9ye2SaFc2LnpmSpcO4h4I6p9MlcC5dkG7F5AH5c5cd2DyHxiauD6KpIXe0CECgYAxCXUV08SoqxCJ1qCBa8wGL7rcKlgMsFQO+Lp6vUHhI+ZtVtMeiwCU/xAGkNeWtkSuSeIiXmno/wLyFyJw13lGN+now8A5k')");
+        postgreSQLClient.execute("INSERT INTO mock_participant(parent_participant_code,child_participant_code,primary_email,password,private_key)"+"VALUES ('provider-swasth-mock-provider-dev','test-mock-06+mock_provider@yopmail.com','swasthmockproviderdev@gmail.com','Fgkt#54kfgkN','MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDX8KLtg3R9jiqy0GHNdPgo7Kb+eOQlBeWFHAKXY/1TG3m6CaVwtQzof3akE457WFtGR1bP41/0AzDIvmKTVXQCwer9wB2GYuQfrUjvPbFgECcBOC3Dv0Ak/3+T05ntnVrwxYLowEQl53IQt7IWOUCLIBNYjn3B6Wx99PPY4UcHSL6HoWN4/KnAKJiHcUtMSuIUfAG4BMtWDt1yKTRBPNwZpwhka0NTTnPnfVP5z3amtC1o6jWsNNntXPqyR5CNQn8BLbaMtnzQG4K8wfY7rPIgr7mYCteIoEpEMkPu4viBAGUlO047ybugbSRSP28D79AP9QlgI3Qn4bB9wmzTi9UtAgMBAAECggEBAJfrYQTOdfcbPOj+d8BPKYPJMpdXP9LYOiiSkzQlEYUVkGcVAEKx7XnoqvQ2GginGdfwup+ZLNmEIR8p6joTZYHHIecR8POpwSqUA/rkoVSfKIHQH0pW0+7znbLHrMSh7ufzXO0YzxkHopUmV3ERKFp434NvBASXj09yNNgBbbIt7WKTqjuNA/lOY+VfhkSxoxVMnRJYtq3vbm8x/+QU1qthUpt6UbbGHTOHMl2MsS/MRPLZUbG00E/nhyH5/w+ZOApHCQc2ZTuXCqhRqTDkeWvgdnfX/pxsVvhBAq5MltlyhBiKUGB90PRISJ/Wu6462ywiiK9zUozCyDXtWQJ8QkECgYEA9FhyEY8Sp9tKPQECIRCFXIYpv8kAuTbw+1sgi10SBcDPSLY1HEO7RZu94+G3CygnD3bEaCzaWLQ0FlbPB4wKl1bBoAY735LoAcZR0nc8zTbm4nLl0ibu2NUzRfpW6X1dgFmuHUpcbAr2SWLoec1y5OvwScplOcBQXK7r6vPfPdECgYEA4j1ZNpFDwHxxxSAs1tNZlhAz1DFPw+LRb+Ap34UaMWA18ZGtvKwzZfFrtbGSYhu05SO+sYZbk4Z1s84gCtj8HqiUFFvI8v0ozwPRPEzFaipGcVNFRCornoxcv6EC3x1CFhlowHt2MphADfRQA7zlJk/HIq65DD9weXzMr4aTLJ0CgYEAkueiHSBxzO2w4qB6kTqHk6st6pqEjtaTZ+vP0zovnbngZgz2PXoTW7RZJGsOS+zmHwv+5cshs3cUYeHrMtRlgbutSfK1iKOgTYDYrLr3mUHK6pa9ye2SaFc2LnpmSpcO4h4I6p9MlcC5dkG7F5AH5c5cd2DyHxiauD6KpIXe0CECgYAxCXUV08SoqxCJ1qCBa8wGL7rcKlgMsFQO+Lp6vUHhI+ZtVtMeiwCU/xAGkNeWtkSuSeIiXmno/wLyFyJw13lGN+now8A5k')");
         String requestBodyJson = applicantSearchRequestBody();
         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.APPLICANT_SEARCH +"?fields=communication,sponsors,onboard_validation_properties,mockparticipants").content(requestBodyJson).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        Assertions.assertEquals(200, status);
+    }
+
+    @Test
+    void test_applicant_search_success() throws Exception {
+        hcxApiServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{\n" +
+                        "    \"timestamp\": 1698382273219,\n" +
+                        "    \"participants\": [\n" +
+                        "        {\n" +
+                        "            \"participant_name\": \"swasth mock provider dev\",\n" +
+                        "            \"primary_mobile\": \"9493347198\",\n" +
+                        "            \"primary_email\": \"swasthmockproviderdev@gmail.com\",\n" +
+                        "            \"roles\": [\n" +
+                        "                \"provider\"\n" +
+                        "            ],\n" +
+                        "            \"address\": {\n" +
+                        "                \"plot\": \"5-4-199\",\n" +
+                        "                \"street\": \"road no 12\",\n" +
+                        "                \"landmark\": \"Jawaharlal Nehru Road\",\n" +
+                        "                \"village\": \"Nampally\",\n" +
+                        "                \"district\": \"Hyderabad\",\n" +
+                        "                \"state\": \"Telangana\",\n" +
+                        "                \"pincode\": \"500805\",\n" +
+                        "                \"osid\": \"df17d5bd-33da-4b20-a3c3-f159617d17d2\",\n" +
+                        "                \"@type\": \"address\"\n" +
+                        "            },\n" +
+                        "            \"phone\": [\n" +
+                        "                \"040-387658992\"\n" +
+                        "            ],\n" +
+                        "            \"status\": \"Created\",\n" +
+                        "            \"endpoint_url\": \"http://ad3438079870f497093baf41fd7bd763-1439847685.ap-south-1.elb.amazonaws.com:8000/v1\",\n" +
+                        "            \"payment_details\": {\n" +
+                        "                \"account_number\": \"4707890099809809\",\n" +
+                        "                \"ifsc_code\": \"ICICI\",\n" +
+                        "                \"osid\": \"6dae8930-d30d-474e-b0a8-d3c43e050a1e\"\n" +
+                        "            },\n" +
+                        "            \"signing_cert_path\": \"urn:isbn:0-476-27557-4\",\n" +
+                        "            \"linked_registry_codes\": [\n" +
+                        "                \"22344\"\n" +
+                        "            ],\n" +
+                        "            \"encryption_cert\": \"urn:isbn:0-4234\",\n" +
+                        "            \"participant_code\": \"provider-swasth-mock-provider-dev\",\n" +
+                        "            \"osOwner\": [\n" +
+                        "                \"ebadaf81-3517-4545-9fb2-8cf0aa9723b3\"\n" +
+                        "            ],\n" +
+                        "            \"osid\": \"provider-swasth-mock-provider-dev\",\n" +
+                        "            \"@type\": \"Organisation\",\n" +
+                        "            \"payment\": {\n" +
+                        "                \"ifsc_code\": \"ICICI\",\n" +
+                        "                \"account_number\": \"4707890099809809\",\n" +
+                        "                \"@type\": \"payment_details\",\n" +
+                        "                \"osid\": \"6dae8930-d30d-474e-b0a8-d3c43e050a1e\"\n" +
+                        "            }\n" +
+                        "        }\n" +
+                        "    ]\n" +
+                        "}")
+                .addHeader("Content-Type", "application/json"));
+        String requestBodyJson = applicantSearchRequestBody();
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.APPLICANT_SEARCH ).content(requestBodyJson).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         Assertions.assertEquals(200, status);
