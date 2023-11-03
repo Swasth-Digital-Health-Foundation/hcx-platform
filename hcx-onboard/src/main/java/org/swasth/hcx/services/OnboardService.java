@@ -471,7 +471,6 @@ public class OnboardService extends BaseController {
     }
 
     private Map<String, Object> getParticipant(String key, String value) throws JsonProcessingException, ClientException {
-        System.out.println(value);
         HttpResponse<String> searchResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_SEARCH, "{ \"filters\": { \"" + key + "\": { \"eq\": \" " + value + "\" } } }", new HashMap<>());
         RegistryResponse registryResponse = JSONUtils.deserialize(searchResponse.getBody(), RegistryResponse.class);
         if (registryResponse.getParticipants().isEmpty())
