@@ -191,7 +191,7 @@ const ProfilePage: React.FC = () => {
 
   const secretGenerateApproved = () => {
     setShowConfirmModal(false);
-    generateClientSecret(_.get(participantDetails, "participant_code")).then((res:any) => {
+    generateClientSecret(_.get(participantDetails, "participant_code"), authToken).then((res:any) => {
       toast.success(`Client Secret has been successfully generated. An email has been sent to all users`, {
         position: toast.POSITION.TOP_CENTER
       });

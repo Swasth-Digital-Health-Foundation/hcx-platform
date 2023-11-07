@@ -27,7 +27,7 @@ const RoleSelection: React.FC<RoleSelectionProps> = ({ payorList, onRoleSubmit }
   const [payorSelected, setPayorSelected] = useState(process.env.REACT_APP_MOCK_PAYOR_CODE);
   const [applicantCode, setApplicantCode] = useState('');
   const [applicantError, setApplicantError] = useState(false);
-  const [providerOptions, setProviderOptions] = useState<Array<string>>([]);
+  const [providerOptions, setProviderOptions] = useState<Array<string>>(["provider.hospital"]);
 
   useEffect(() => {
     dispatch(addAppData({ "roleSelectedRegister":"provider"}));
