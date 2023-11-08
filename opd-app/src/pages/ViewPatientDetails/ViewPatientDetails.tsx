@@ -292,7 +292,7 @@ const ViewPatientDetails = () => {
               )}
             </h2>
           </div>
-          <div className="mt-4 rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
+          <div className="mt-4 rounded-lg border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
             <label className="text-1xl mb-2.5 block text-left font-bold text-black dark:text-white">
               Personal details
             </label>
@@ -352,7 +352,7 @@ const ViewPatientDetails = () => {
             <div className="items-center justify-between"></div>
             <div>
               <div
-                className="mb-2 mt-4 rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark"
+                className="mb-2 mt-4 rounded-lg border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark"
               >
                 <div className="mb-2 flex gap-2">
                   <h2 className="text-bold inline-block w-30 text-base font-medium text-black dark:text-white">
@@ -376,7 +376,7 @@ const ViewPatientDetails = () => {
             </div>
           </div>
           {consultationDetail && (
-            <div className="mt-4 rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
+            <div className="mt-4 rounded-lg border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
               <label className="text-1xl mb-2.5 block text-left font-bold text-black dark:text-white">
                 Consultation details
               </label>
@@ -440,7 +440,7 @@ const ViewPatientDetails = () => {
                     </div>
                   )}
                 </div>
-                <div className="mt-4 rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
+                <div className="mt-4 rounded-lg border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
                   <div className="flex items-center justify-between">
                     <h2 className="sm:text-title-xl1 text-1xl mt-2 mb-4 font-semibold text-black dark:text-white">
                       {strings.TREATMENT_AND_BILLING_DETAILS}

@@ -279,7 +279,7 @@ const PreAuthRequest = () => {
           <h2 className="mb-4 text-2xl font-bold text-black dark:text-white sm:text-title-xl2">
             {strings.NEW_PREAUTH_REQUEST}
           </h2>
-          <div className="rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
+          <div className="rounded-lg border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
             <TextInputWithLabel
               label="Selected insurance :"
               value={selectedInsurance || displayedData[0]?.insurance_id}
@@ -307,7 +307,7 @@ const PreAuthRequest = () => {
               type="number"
             />
           </div>
-          <div className="mt-4 rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
+          <div className="mt-4 rounded-lg border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
             <h2 className="text-1xl mb-4 font-bold text-black dark:text-white sm:text-title-xl1">
               {strings.SUPPORTING_DOCS}
             </h2>

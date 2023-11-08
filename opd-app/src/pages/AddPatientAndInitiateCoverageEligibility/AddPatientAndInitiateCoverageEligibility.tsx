@@ -268,7 +268,7 @@ const AddPatientAndInitiateCoverageEligibility = () => {
         New patient details
       </label>
       {patientDataFromState ? (
-        <div className='dark:bg-boxdark" rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark'>
+        <div className='dark:bg-boxdark" rounded-lg border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark'>
           {patientDetails.map((ele: any) => {
             return (
               <div className="mb-2 flex gap-2">
@@ -281,7 +281,7 @@ const AddPatientAndInitiateCoverageEligibility = () => {
           })}
         </div>
       ) : (
-        <div className="rounded-sm border border-stroke bg-white px-3 pb-3 shadow-default dark:border-strokedark dark:bg-boxdark">
+        <div className="rounded-lg border border-stroke bg-white px-3 pb-3 shadow-default dark:border-strokedark dark:bg-boxdark">
           <label className="text-1xl mb-2.5 mt-2 block text-left font-bold text-black dark:text-white">
             Personal details : *
           </label>
@@ -325,7 +325,7 @@ const AddPatientAndInitiateCoverageEligibility = () => {
         </div>
       )}
       <div className="mt-3">
-        <div className="rounded-sm border border-stroke bg-white px-3 pb-3 shadow-default dark:border-strokedark dark:bg-boxdark">
+        <div className="rounded-lg border border-stroke bg-white px-3 pb-3 shadow-default dark:border-strokedark dark:bg-boxdark">
           <label className="text-1xl mb-2.5 mt-2 block text-left font-bold text-black dark:text-white">
             Medical history :
           </label>
@@ -349,7 +349,7 @@ const AddPatientAndInitiateCoverageEligibility = () => {
         <></>
       ) : (
         <div className="mt-3">
-          <div className="rounded-sm border border-stroke bg-white px-3 pb-3 shadow-default dark:border-strokedark dark:bg-boxdark">
+          <div className="rounded-lg border border-stroke bg-white px-3 pb-3 shadow-default dark:border-strokedark dark:bg-boxdark">
             <label className="text-1xl mb-2.5 mt-2 block text-left font-bold text-black dark:text-white">
               Insurance details : *
             </label>

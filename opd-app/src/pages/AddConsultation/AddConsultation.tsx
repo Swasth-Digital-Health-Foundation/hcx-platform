@@ -129,7 +129,7 @@ const AddConsultation = () => {
       <label className="text-1xl mb-2.5 block text-left font-bold text-black dark:text-white">
         Treatment details : *
       </label>
-      <div className='dark:bg-boxdark" rounded-sm border border-stroke bg-white px-3 pb-3 shadow-default dark:border-strokedark'>
+      <div className='dark:bg-boxdark" rounded-lg border border-stroke bg-white px-3 pb-3 shadow-default dark:border-strokedark'>
         <TextInputWithLabel
           label="Treatment type :"
           value={"OPD"}
@@ -156,7 +156,7 @@ const AddConsultation = () => {
       <label className="text-1xl block pt-3 text-left font-bold text-black dark:text-white">
         Supporting documents : *
       </label>
-      <div className="mt-4 rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
+      <div className="mt-4 rounded-lg border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
         <label className="mb-2.5 block text-left font-medium text-black dark:text-white">
           {strings.DOC_TYPE}
         </label>
