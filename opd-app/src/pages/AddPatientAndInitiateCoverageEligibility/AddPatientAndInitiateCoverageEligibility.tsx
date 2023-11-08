@@ -9,6 +9,7 @@ import { generateOutgoingRequest } from "../../services/hcxMockService";
 import { generateToken, searchParticipant } from "../../services/hcxService";
 import * as _ from "lodash";
 import LoadingButton from "../../components/LoadingButton";
+import Accordion from "../../components/Accordion";
 
 const AddPatientAndInitiateCoverageEligibility = () => {
   const location = useLocation();
@@ -120,6 +121,35 @@ const AddPatientAndInitiateCoverageEligibility = () => {
       },
     },
   };
+
+  const medicalHistoryComponent = () => {
+    return (<div className="rounded-lg border border-stroke bg-white px-3 pb-3 shadow-default dark:border-strokedark dark:bg-boxdark">
+      <SelectInput
+        label="Blood group :"
+        value={bloodGroup || patientInfo[0]?.medical_history?.blood_group}
+        onChange={(e: any) => setBloodGroup(e.target.value)}
+        disabled={false}
+        options={bloodGroupOptions}
+      />
+      <SelectInput
+        label="Allergies :"
+        value={allergies || patientInfo[0]?.medical_history?.allergies}
+        onChange={(e: any) => setAllergies(e.target.value)}
+        disabled={false}
+        options={allergiesOptions}
+      />
+    </div>)
+  }
+
+  const medicalHistory: any = [
+    {
+      id: 1,
+      header: `Medical history`,
+      text: medicalHistoryComponent(),
+    }
+  ];
+
+
 
   const search = async () => {
     try {
@@ -262,6 +292,15 @@ const AddPatientAndInitiateCoverageEligibility = () => {
     setMobile(inputValue);
   };
 
+  const [active, setActive] = useState<number | null>(null);
+  const handleToggle = (index: number) => {
+    if (active === index) {
+      setActive(null);
+    } else {
+      setActive(index);
+    }
+  };
+
   return (
     <div>
       <label className="mb-2.5 block text-left text-2xl font-bold text-black dark:text-white">
@@ -325,7 +364,7 @@ const AddPatientAndInitiateCoverageEligibility = () => {
         </div>
       )}
       <div className="mt-3">
-        <div className="rounded-lg border border-stroke bg-white px-3 pb-3 shadow-default dark:border-strokedark dark:bg-boxdark">
+        {/* <div className="rounded-lg border border-stroke bg-white px-3 pb-3 shadow-default dark:border-strokedark dark:bg-boxdark">
           <label className="text-1xl mb-2.5 mt-2 block text-left font-bold text-black dark:text-white">
             Medical history :
           </label>
@@ -343,7 +382,17 @@ const AddPatientAndInitiateCoverageEligibility = () => {
             disabled={false}
             options={allergiesOptions}
           />
-        </div>
+        </div> */}
+        {medicalHistory.map((item: any) => {
+          return (
+            <Accordion
+              key={item.id}
+              active={active}
+              handleToggle={handleToggle}
+              faq={item}
+            />
+          );
+        })}
       </div>
       {patientDataFromState ? (
         <></>
