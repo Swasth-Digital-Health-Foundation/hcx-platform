@@ -54,7 +54,7 @@ const Html5QrcodePlugin = (props: any) => {
       <button
         disabled={false}
         onClick={startScanner}
-        className={`align-center m-auto mb-2 mt-1 flex w-20 h-10 justify-center rounded pt-1 font-medium text-gray
+        className={`align-center m-auto mb-2 mt-1 flex w-20 h-10 justify-center rounded pt-1.5 font-medium text-gray
             cursor-pointer bg-primary text-white`}
       >
         Scan
