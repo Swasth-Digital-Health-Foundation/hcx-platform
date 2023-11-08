@@ -87,7 +87,7 @@ const ActiveClaimCycleCard = (Props: any) => {
               )
             }
           >
-            View
+            View details
           </span>
         </div>
         <div className='absolute top-2 right-2' onClick={() => setPopup(!popup)}>

@@ -25,6 +25,7 @@ const createConfig = (props: any) => {
 const Html5QrcodePlugin = (props: any) => {
   const [initialized, setInitialized] = useState(props.setInitialized);
   const [html5QrcodeScanner, setHtml5QrcodeScanner] = useState<any>(null);
+  const [scan, setScan] = useState(false)
 
   const initializeScanner = async () => {
     try {
@@ -43,17 +44,19 @@ const Html5QrcodePlugin = (props: any) => {
   const startScanner = () => {
     if (initialized) {
       initializeScanner();
+      setScan(!scan)
     }
   };
 
 
-  // const stopScanner = () => {
-  //   if (html5QrcodeScanner) {
-  //     html5QrcodeScanner.clear().catch((error: any) => {
-  //       console.error("Failed to clear html5QrcodeScanner. ", error);
-  //     });
-  //   }
-  // };
+  const stopScanner = () => {
+    if (html5QrcodeScanner) {
+      html5QrcodeScanner.clear().catch((error: any) => {
+        console.error("Failed to clear html5QrcodeScanner. ", error);
+      });
+      setScan(!scan)
+    }
+  };
 
   return (
     <>
@@ -62,11 +65,11 @@ const Html5QrcodePlugin = (props: any) => {
       </div>
       <button
         disabled={false}
-        onClick={startScanner}
+        onClick={!scan ? startScanner : stopScanner}
         className={`align-center m-auto mb-2 mt-1 flex w-20 h-10 justify-center rounded pt-1.5 font-medium text-gray
             cursor-pointer bg-primary text-white`}
       >
-        Scan
+        {!scan ? "scan" : "stop scanning"}
       </button>
       <div id={qrcodeRegionId} />
     </>
