@@ -184,23 +184,13 @@ const NewClaim = () => {
               )}
             </div>
           </h2>
-          <h2 className="text-bold mt-1 text-base font-bold text-black dark:text-white">
-            {strings.PARTICIPANT_CODE}{' '}
-            <div>
-              <input
-                onChange={(e) => {
-                  setParticipantCode(e.target.value);
-                }}
-                value={providerName ? participantCode : ''}
-                disabled
-                type="text"
-                placeholder="Participant code"
-                className="mt-2 w-full rounded-lg border-[1.5px] border-stroke bg-white py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
-              />
-            </div>
-          </h2>
+          <div className='flex gap-2 items-center'>
+            <h2 className="text-bold mt-3 text-base font-bold text-black dark:text-white">
+              {strings.PARTICIPANT_CODE}
+            </h2>
+            <span className='mt-3'>{providerName ? participantCode : 'Search above for participant'}</span>
+          </div>
         </div>
-        <div className="border-gray-300 my-4 border-t "></div>
         <div className="mt-4">
           <label className="mb-2.5 block text-left font-medium text-black dark:text-white">
             Treatment/Service Type: *
@@ -250,7 +240,7 @@ const NewClaim = () => {
               className="relative z-20 w-full appearance-none rounded border border-stroke bg-transparent bg-transparent py-4 px-6 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark"
             >
               <option value="">select</option>
-              {_.map(userInfo[0]?.payor_details, (ele: any,index:any) => {
+              {_.map(userInfo[0]?.payor_details, (ele: any, index: any) => {
                 return (
                   <option key={index} value={ele?.insurance_id}>{ele?.insurance_id}</option>
                 );

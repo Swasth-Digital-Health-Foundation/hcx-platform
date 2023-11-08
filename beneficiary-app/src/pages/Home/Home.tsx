@@ -8,6 +8,8 @@ import { postRequest } from '../../services/registryService';
 import * as _ from 'lodash';
 import TransparentLoader from '../../components/TransparentLoader';
 import { toast } from 'react-toastify';
+import { ArrowPathIcon, FunnelIcon } from "@heroicons/react/24/outline";
+
 
 const Home = () => {
   const navigate = useNavigate();
@@ -18,6 +20,7 @@ const Home = () => {
   const [loading, setLoading] = useState(false);
   const [initialized, setInitialized] = useState(true);
   const getMobileFromLocalStorage = localStorage.getItem('mobile');
+  const [refresh, setRefresh] = useState(false)
 
   const onNewScanResult = (decodedText: any, decodedResult: any) => {
     setQrCodeData(decodedText);
@@ -176,13 +179,13 @@ const Home = () => {
   return (
     <div>
       <div className="flex justify-between">
-        <div className="">
-          <h1 className="text-1xl font-bold text-black dark:text-white">
+        <div>
+          <h1 className="text-1xl mb-3 font-bold text-black dark:text-white">
             {strings.WELCOME_TEXT} {userInformation[0]?.name || '...'}
           </h1>
         </div>
       </div>
-      <div className="rounded-sm border border-stroke bg-white p-2 shadow-default dark:border-strokedark dark:bg-boxdark">
+      <div className="rounded-lg border border-stroke bg-white p-2 shadow-default dark:border-strokedark dark:bg-boxdark">
         <div className="mt-2">
           <div className="qr-code p-1">
             <div id="reader" className="px-1">
@@ -195,11 +198,11 @@ const Home = () => {
               />
             </div>
           </div>
-          <p className="mt-1 text-center">{strings.SCAN_QRCODE}</p>
-          <p className="mt-3 text-center font-bold text-black dark:text-gray">
+          {/* <p className="mt-1 text-center">{strings.SCAN_QRCODE}</p> */}
+          <p className="mt-2 text-center font-bold text-black dark:text-gray">
             OR
           </p>
-          <div className="mt-3 text-center">
+          <div className="mt-2 text-center">
             <a
               className="cursor-pointer underline"
               onClick={() => {
@@ -211,7 +214,7 @@ const Home = () => {
           </div>
         </div>
       </div>
-      <div className="mt-3">
+      <div className="mt-10">
         {loading ? (
           <div className="flex items-center gap-4">
             <h1 className="px-1 text-2xl font-bold text-black dark:text-white">
@@ -225,22 +228,22 @@ const Home = () => {
           </h1>
         ) : (
           <div className="flex justify-between">
-            <h1 className="px-1 text-2xl font-bold text-black dark:text-white">
+            <h1 className="px-1 mb-1 text-2xl font-bold text-black dark:text-white">
               {strings.YOUR_ACTIVE_CYCLE} ({activeRequests.length})
             </h1>
-            <button
-              disabled={loading}
-              onClick={(event: any) => {
-                event.preventDefault();
-                getCoverageEligibilityRequestList();
-              }}
-              className="align-center flex w-20 justify-center rounded py-1 font-medium text-black underline disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
-            >
-              Refresh
-            </button>
+            <>
+              <ArrowPathIcon
+                onClick={() => {
+                  getCoverageEligibilityRequestList();
+                }}
+                className={
+                  loading ? "animate-spin h-7 w-7" : "h-7 w-7"
+                }
+                aria-hidden="true"
+              />
+            </>
           </div>
         )}
-        <div className="border-gray-300 my-4 border-t"></div>
         {!loading ? (
           <div>
             {_.map(coverageAndClaimData, (ele: any, index: any) => {

@@ -6,6 +6,7 @@ import { postRequest } from '../../services/registryService';
 import LoadingButton from '../../components/LoadingButton';
 import { sendOTP, verifyOTP } from '../../services/hcxMockService';
 import strings from '../../utils/strings';
+import maskMobileNumber from '../../utils/maskMobileNumber';
 
 const VerifyOTP = () => {
   const navigate = useNavigate();
@@ -116,32 +117,18 @@ const VerifyOTP = () => {
           <div className="mb-6">
             <div>
               <label className="mb-2.5 block text-left font-medium text-black dark:text-white">
-                {strings.OTP_SENT}
+                {/* {strings.OTP_SENT} */}
+                Please enter the 6-digit OTP sent to your mobile no. {maskMobileNumber(location.state)} below :
               </label>
-              <div className="relative">
-                <input
-                  type="number"
-                  value={location.state}
-                  placeholder={strings.TEN_DIGIT}
-                  disabled
-                  className={
-                    'w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
-                  }
-                />
-              </div>
             </div>
             <div className="mt-5">
-              <label className="mb-2.5 block text-left font-medium text-black dark:text-white">
-                {strings.ENTER_OTP}
-              </label>
               <div className="relative">
                 <input
                   onChange={handleOTPchange}
                   type="number"
                   placeholder={strings.SIX_DIGIT}
-                  className={`border ${
-                    isValid ? 'border-stroke' : 'border-red'
-                  } w-full rounded-lg bg-transparent py-4 pl-6 pr-10 outline-none focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary`}
+                  className={`border ${isValid ? 'border-stroke' : 'border-red'
+                    } w-full rounded-lg bg-transparent py-4 pl-6 pr-10 outline-none focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary`}
                 />
               </div>
             </div>
@@ -164,7 +151,7 @@ const VerifyOTP = () => {
               <LoadingButton className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed" />
             )}
           </div>
-          <p className="mt-2 text-center underline">
+          <p className="mt-2 text-end underline">
             <a
               onClick={() => {
                 resendOTP();

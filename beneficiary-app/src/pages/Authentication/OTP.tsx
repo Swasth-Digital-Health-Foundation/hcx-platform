@@ -79,7 +79,7 @@ const OTP = () => {
             {!loading ? (
               <button
                 type="submit"
-                className="align-center flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
+                className="align-end flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
                 onClick={formSubmit}
                 disabled={!isValid || mobileNumber === undefined}
               >

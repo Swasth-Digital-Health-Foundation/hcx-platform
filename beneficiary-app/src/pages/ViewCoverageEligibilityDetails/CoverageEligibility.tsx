@@ -5,7 +5,7 @@ import { generateToken, searchParticipant } from '../../services/hcxService';
 import { generateOutgoingRequest } from '../../services/hcxMockService';
 import TransparentLoader from '../../components/TransparentLoader';
 import * as _ from "lodash";
-import { ArrowDownTrayIcon } from "@heroicons/react/24/outline";
+import { ArrowDownTrayIcon, ArrowPathIcon } from "@heroicons/react/24/outline";
 
 const CoverageEligibility = () => {
   const navigate = useNavigate();
@@ -215,15 +215,15 @@ const CoverageEligibility = () => {
       {!loading ? (
         <div className="-pt-2">
           <div className="relative flex pb-5">
-            <button
-              disabled={loading}
-              onClick={(event: any) => {
+            <ArrowPathIcon
+              onClick={() => {
                 getActivePlans();
               }}
-              className="align-center absolute right-0 flex w-20 justify-center rounded bg-primary py-1 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
-            >
-              Refresh
-            </button>
+              className={
+                loading ? "animate-spin h-7 w-7 absolute right-0 " : "h-7 w-7 absolute right-0 "
+              }
+              aria-hidden="true"
+            />
             {loading ? 'Please wait...' : ''}
           </div>
           <div className="mt-4 flex items-center justify-between">

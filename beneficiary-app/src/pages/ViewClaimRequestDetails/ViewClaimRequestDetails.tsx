@@ -10,7 +10,7 @@ import {
 import { toast } from 'react-toastify';
 import LoadingButton from '../../components/LoadingButton';
 import * as _ from "lodash";
-import { ArrowDownTrayIcon } from "@heroicons/react/24/outline";
+import { ArrowDownTrayIcon, ArrowPathIcon } from "@heroicons/react/24/outline";
 
 const ViewClaimRequestDetails = () => {
   const location = useLocation();

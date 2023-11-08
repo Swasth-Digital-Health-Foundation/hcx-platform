@@ -1,7 +1,7 @@
 export default {
   WELCOME: 'Welcome to the HCX beneficiary app',
   SIGNIN: 'Please sign in to your account.',
-  ENTER_MOBILE_NUMBER: 'Enter your mobile no. to sign in :',
+  ENTER_MOBILE_NUMBER: 'Please enter your mobile no.',
   TEN_DIGIT: '10-digit mobile no.',
   SEND_OTP: 'Send OTP',
   OTP_SENT: 'OTP sent to below mobile number',
@@ -22,7 +22,7 @@ export default {
   ADD_ANOTHER: '+ Add another',
   SAVE_PROFILE_DETAILS: 'Save profile details',
   WELCOME_TEXT: 'Welcome,',
-  SCAN_QRCODE: 'Scan provider QR code to initiate claim request',
+  SCAN_QRCODE: 'Scan the provider QR code to initiate claim cycle',
   SUBMIT_NEW_CLAIM: 'Click here to submit a new claim',
   YOUR_ACTIVE_CYCLE: 'Your Active Requests',
   COVERAGE_ELIGIBILITY_REQUEST_HEADING: 'New coverage eligibility request',

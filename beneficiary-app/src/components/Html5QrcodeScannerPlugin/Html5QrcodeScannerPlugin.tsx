@@ -1,6 +1,6 @@
 // file = Html5QrcodePlugin.jsx
 import { Html5QrcodeScanner } from "html5-qrcode";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const qrcodeRegionId = "html5qr-code-full-region";
 
@@ -45,7 +45,7 @@ const Html5QrcodePlugin = (props: any) => {
       initializeScanner();
     }
   };
-  
+
 
   // const stopScanner = () => {
   //   if (html5QrcodeScanner) {
@@ -58,8 +58,16 @@ const Html5QrcodePlugin = (props: any) => {
   return (
     <>
       <div className="flex justify-center gap-6 text-center">
-        <button onClick={startScanner}>Click here to start Scanning</button>
+        <button onClick={startScanner}>Scan the provider QR code to initiate claim cycle</button>
       </div>
+      <button
+        disabled={false}
+        onClick={startScanner}
+        className={`align-center m-auto mb-2 mt-1 flex w-20 h-10 justify-center rounded pt-1 font-medium text-gray
+            cursor-pointer bg-primary text-white`}
+      >
+        Scan
+      </button>
       <div id={qrcodeRegionId} />
     </>
   );
