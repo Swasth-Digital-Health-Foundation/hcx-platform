@@ -75,7 +75,7 @@ const ActiveClaimCycleCard = (Props: any) => {
             );
           })}
           <span
-            className="cursor-pointer text-right underline"
+            className="cursor-pointer text-right"
             onClick={() =>
               navigate(
                 Props.type === 'claim'
@@ -87,7 +87,12 @@ const ActiveClaimCycleCard = (Props: any) => {
               )
             }
           >
-            View details
+            <div className="flex items-center justify-end gap-2">
+              <p>View details</p>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-4 h-4">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+              </svg>
+            </div>
           </span>
         </div>
         <div className='absolute top-2 right-2' onClick={() => setPopup(!popup)}>
