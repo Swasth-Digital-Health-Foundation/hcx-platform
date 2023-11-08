@@ -10,6 +10,7 @@ import { generateToken, searchParticipant } from "../../services/hcxService";
 import CustomButton from "../../components/CustomButton";
 import LoadingButton from "../../components/LoadingButton";
 import { toast } from "react-toastify";
+import { ArrowPathIcon } from "@heroicons/react/24/outline";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -174,10 +175,10 @@ const Home = () => {
           </h1>
         </div>
       </div>
-      <div className="rounded-sm border border-stroke bg-white p-2 shadow-default dark:border-strokedark dark:bg-boxdark">
+      <div className="rounded-lg border border-stroke bg-white p-2 shadow-default dark:border-strokedark dark:bg-boxdark">
         <div className="mt-2">
           <div className="qr-code p-1">
-            <div id="reader" className="px-1">
+            <div id="reader" className="px-1 ">
               <Html5QrcodePlugin
                 fps={60}
                 qrbox={250}
@@ -187,7 +188,7 @@ const Home = () => {
               />
             </div>
           </div>
-          <p className="mt-1 text-center">{strings.SCAN_QRCODE}</p>
+          {/* <p className="mt-1 text-center">{strings.SCAN_QRCODE}</p> */}
           <p className="mt-3 text-center font-bold text-black dark:text-gray">
             OR
           </p>
@@ -204,18 +205,19 @@ const Home = () => {
         </div>
       </div>
       <div>
-        <div className="flex items-center justify-between">
-          <label className="mb-2.5 mt-2 block text-left text-2xl font-bold text-black dark:text-white">
+        <div className="mt-5 flex items-center justify-between">
+          <label className="block text-left text-2xl font-bold text-black dark:text-white">
             Search patient :
           </label>
-          <span
-            className="underline"
+          <ArrowPathIcon
             onClick={() => {
               getCoverageEligibilityRequestList(requestPayload);
             }}
-          >
-            View all
-          </span>
+            className={
+              loading ? "animate-spin h-7 w-7" : "h-7 w-7"
+            }
+            aria-hidden="true"
+          />
         </div>
         <label className="mb-2.5 mt-2 block text-left font-medium text-black dark:text-white">
           Patient mobile no. :
@@ -225,9 +227,8 @@ const Home = () => {
             onChange={handleMobileNumberChange}
             type="text"
             placeholder="Enter mobile no."
-            className={`border ${
-              isValid ? "border-stroke" : "border-red"
-            } w-full rounded-lg py-4 pl-6 pr-10 outline-none focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary`}
+            className={`border ${isValid ? "border-stroke" : "border-red"
+              } w-full rounded-lg py-4 pl-6 pr-10 outline-none focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary`}
           />
         </div>
         <div>
@@ -248,7 +249,7 @@ const Home = () => {
           )}
         </div>
       </div>
-      <div className="mt-3">
+      <div className="mt-8">
         {loading ? (
           <div className="flex items-center gap-4">
             <h1 className="px-1 text-2xl font-bold text-black dark:text-white">
@@ -277,7 +278,6 @@ const Home = () => {
             Recent active patients : ({activeRequests.length})
           </h1>
         )}
-        <div className="border-gray-300 my-4 border-t"></div>
         {!loading ? (
           <div>
             {_.map(displayedData, (ele: any, index: number) => {

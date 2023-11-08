@@ -10,7 +10,7 @@ import TransparentLoader from "../../components/TransparentLoader";
 import { toast } from "react-toastify";
 import { postRequest } from "../../services/registryService";
 import { isEmpty } from "lodash";
-import { ArrowDownTrayIcon } from "@heroicons/react/24/outline";
+import { ArrowDownTrayIcon, ArrowPathIcon } from "@heroicons/react/24/outline";
 import * as _ from "lodash";
 
 const ViewPatientDetails = () => {
@@ -269,16 +269,15 @@ const ViewPatientDetails = () => {
       {!loading ? (
         <div className="-pt-2">
           <div className="relative flex pb-8">
-            <button
-              disabled={loading}
-              onClick={(event: any) => {
-                event.preventDefault();
+            <ArrowPathIcon
+              onClick={() => {
                 getActivePlans();
               }}
-              className="align-center absolute right-0 flex w-20 justify-center rounded bg-primary py-1 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
-            >
-              Refresh
-            </button>
+              className={
+                loading ? "animate-spin h-7 w-7 absolute right-0" : "h-7 w-7 absolute right-0"
+              }
+              aria-hidden="true"
+            />
             {loading ? "Please wait..." : ""}
           </div>
           <div className="flex items-center justify-between">
@@ -485,8 +484,8 @@ const ViewPatientDetails = () => {
                     </h2>
                     <div className="flex flex-wrap gap-2">
                       {_.map(ele.supportingDocuments, (ele: string, index: number) => {
-                         const parts = ele.split('/');
-                         const fileName = parts[parts.length - 1];
+                        const parts = ele.split('/');
+                        const fileName = parts[parts.length - 1];
                         return (
                           <>
                             <a

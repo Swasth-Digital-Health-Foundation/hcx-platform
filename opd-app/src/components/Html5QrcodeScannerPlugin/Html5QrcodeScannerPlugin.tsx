@@ -48,8 +48,17 @@ const Html5QrcodePlugin = (props: any) => {
   return (
     <>
       <div className="flex justify-center gap-6 text-center">
-        <button onClick={startScanner}>Click here to start Scanning</button>
+        <button>Scan provider QR code to capture patient details</button>
+        {/* <CustomButton disabled={false} onClick={startScanner} text={"Scan"} className="py-2 px-1 w-20"/> */}
       </div>
+      <button
+        disabled={false}
+        onClick={startScanner}
+        className={`align-center m-auto mb-2 mt-1 flex w-20 h-10 justify-center rounded pt-1 font-medium text-gray
+            cursor-pointer bg-primary text-white`}
+      >
+        Scan
+      </button>
       <div id={qrcodeRegionId} />
     </>
   );
