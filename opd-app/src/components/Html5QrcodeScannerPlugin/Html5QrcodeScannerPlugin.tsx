@@ -47,13 +47,14 @@ const Html5QrcodePlugin = (props: any) => {
     }
   };
 
-  // const stopScanner = () => {
-  //   if (html5QrcodeScanner) {
-  //     html5QrcodeScanner.clear().catch((error: any) => {
-  //       console.error("Failed to clear html5QrcodeScanner. ", error);
-  //     });
-  //   }
-  // };
+  const stopScanner = () => {
+    if (html5QrcodeScanner) {
+      html5QrcodeScanner.clear().catch((error: any) => {
+        console.error("Failed to clear html5QrcodeScanner. ", error);
+      });
+      setScan(!scan)
+    }
+  };
 
   return (
     <>
@@ -63,13 +64,13 @@ const Html5QrcodePlugin = (props: any) => {
       </div>
       <button
         disabled={false}
-        onClick={startScanner}
+        onClick={!scan ? startScanner : stopScanner}
         className={`align-center m-auto mb-2 mt-1 flex w-auto px-5 h-10 justify-center rounded pt-1.5 font-medium text-gray
             cursor-pointer bg-primary text-white`}
       >
         {!scan ? "scan" : "stop scanning"}
       </button>
-      <div id={qrcodeRegionId} className={scan ? "block" : "hidden"} />
+      <div id={qrcodeRegionId} />
     </>
   );
 };
