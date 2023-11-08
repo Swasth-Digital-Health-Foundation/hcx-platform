@@ -242,7 +242,7 @@ const CoverageEligibility = () => {
             {requestDetails.workflowId || ''}
           </span>
 
-          <div className="mt-4 rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
+          <div className="mt-4 rounded-lg border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
             <div className="items-center justify-between"></div>
             <div>
               {claimRequestDetails.map((ele: any, index: any) => {
@@ -275,7 +275,7 @@ const CoverageEligibility = () => {
                     </div>
                   )}
                 </div>
-                <div className="mt-4 rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
+                <div className="mt-4 rounded-lg border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
                   <div className="flex items-center justify-between">
                     <h2 className="sm:text-title-xl1 text-1xl mt-2 mb-4 font-semibold text-black dark:text-white">
                       {strings.TREATMENT_AND_BILLING_DETAILS}

@@ -5,7 +5,7 @@ const PayorDetailsCard = ({ onInputChange, cardKey }: any) => {
     onInputChange({ [name]: value });
   };
   return (
-    <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+    <div className="rounded-lg border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
       <div className="flex flex-col gap-5.5 p-4">
         <div>
           <label className="mb-2.5 block text-left font-medium text-black dark:text-white">

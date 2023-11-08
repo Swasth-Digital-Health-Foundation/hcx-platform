@@ -100,7 +100,7 @@ const CoverageEligibilityRequest = () => {
       <h2 className="mb-4 -mt-4 text-3xl font-bold text-black dark:text-white sm:text-title-xl2">
         {strings.COVERAGE_ELIGIBILITY_REQUEST_HEADING}
       </h2>
-      <div className="rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
+      <div className="rounded-lg border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
         <div>
           <div>
             <h2 className="text-bold text-base font-bold text-black dark:text-white">

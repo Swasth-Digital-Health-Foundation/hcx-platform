@@ -123,7 +123,7 @@ const NewClaim = () => {
       <h2 className="mb-4 -mt-4 text-3xl font-bold text-black dark:text-white sm:text-title-xl2">
         {strings.PROVIDE_DETAILS_FOR_NEW_CLAIM}
       </h2>
-      <div className="rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
+      <div className="rounded-lg border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
         <div>
           <h2 className="text-bold text-base font-bold text-black dark:text-white">
             {strings.PROVIDER_NAME}{' '}
@@ -184,17 +184,17 @@ const NewClaim = () => {
               )}
             </div>
           </h2>
-          <div className='flex gap-2 items-center'>
+          <div className='items-center'>
             <h2 className="text-bold mt-3 text-base font-bold text-black dark:text-white">
               {strings.PARTICIPANT_CODE}
             </h2>
-            <span className='mt-3'>{providerName ? participantCode : 'Search above for participant'}</span>
+            <span className='mt-3'>{providerName ? participantCode : 'Search above for participant code'}</span>
           </div>
         </div>
         <div className="mt-4">
           <label className="mb-2.5 block text-left font-medium text-black dark:text-white">
             Treatment/Service Type: *
-          </label>
+          </label>  
           <div className="relative z-20 bg-white dark:bg-form-input">
             <select
               onChange={(e) => {

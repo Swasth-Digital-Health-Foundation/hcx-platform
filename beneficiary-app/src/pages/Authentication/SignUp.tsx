@@ -121,7 +121,7 @@ const SignUp = () => {
       <h2 className="sm:text-title-xl1 mb-4 text-2xl font-bold text-black dark:text-white">
         {strings.ADD_PROFILE_DETAILS}
       </h2>
-      <div className="w-full rounded-sm border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark sm:p-12.5 xl:p-17.5">
+      <div className="w-full rounded-lg border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark sm:p-12.5 xl:p-17.5">
         <form>
           <div className="mb-6">
             <div>
@@ -175,7 +175,7 @@ const SignUp = () => {
             {strings.ADD_INSURANCE_PLAN}
           </h2>
 
-          <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+          <div className="rounded-lg border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
             <div className="flex flex-col gap-5.5 p-4">
               <div>
                 <label className="mb-2.5 block text-left font-medium text-black dark:text-white">

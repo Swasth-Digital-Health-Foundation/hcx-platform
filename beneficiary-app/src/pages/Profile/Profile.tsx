@@ -45,7 +45,7 @@ const Profile = () => {
       <h2 className="text-bold mb-3 text-2xl font-bold text-black dark:text-white">
         User profile
       </h2>
-      <div className="rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
+      <div className="rounded-lg border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
         {userProfileCard.map((ele: any) => {
           return (
             <div className="mb-2 flex gap-2">
@@ -61,7 +61,7 @@ const Profile = () => {
         </h2>
         {userInfo[0]?.payor_details.map((ele: any) => {
           return (
-            <div className="mt-5 rounded-sm border border-stroke bg-white p-2 shadow-default dark:border-strokedark dark:bg-boxdark">
+            <div className="mt-5 rounded-lg border border-stroke bg-white p-2 shadow-default dark:border-strokedark dark:bg-boxdark">
               <div className="mb-2">
                 <div className="flex gap-2">
                   <h2 className="text-bold text-base font-bold text-black dark:text-white">

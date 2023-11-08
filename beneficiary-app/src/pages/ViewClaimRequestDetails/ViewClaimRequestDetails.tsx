@@ -219,7 +219,7 @@ const ViewClaimRequestDetails = () => {
         </h2>
         <span>{details?.workflowId}</span>
       </div>
-      <div className="rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
+      <div className="rounded-lg border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
         <div>
           {_.map(claimRequestDetails, (ele: any, index: any) => {
             return (
@@ -233,7 +233,7 @@ const ViewClaimRequestDetails = () => {
           })}
         </div>
       </div>
-      <div className="mt-3 rounded-sm border border-stroke bg-white px-3 pb-3 shadow-default dark:border-strokedark dark:bg-boxdark">
+      <div className="mt-3 rounded-lg border border-stroke bg-white px-3 pb-3 shadow-default dark:border-strokedark dark:bg-boxdark">
         <div className="flex items-center justify-between">
           <h2 className="sm:text-title-xl1 text-1xl mt-2 mb-2 font-semibold text-black dark:text-white">
             {strings.TREATMENT_AND_BILLING_DETAILS}
@@ -253,7 +253,7 @@ const ViewClaimRequestDetails = () => {
         </div>
       </div>
       {docs.length === 0 ? null : <>
-        <div className="mt-3 rounded-sm border border-stroke bg-white px-3 pb-3 shadow-default dark:border-strokedark dark:bg-boxdark">
+        <div className="mt-3 rounded-lg border border-stroke bg-white px-3 pb-3 shadow-default dark:border-strokedark dark:bg-boxdark">
           <div className="flex items-center justify-between">
             <h2 className="sm:text-title-xl1 text-1xl mt-2 mb-2 font-semibold text-black dark:text-white">
               {strings.SUPPORTING_DOCS}
@@ -317,7 +317,7 @@ const ViewClaimRequestDetails = () => {
               {strings.NEXT_STEP}
             </h2>
           </div>
-          <div className="rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
+          <div className="rounded-lg border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
             <div>
               <h2 className="text-bold text-base font-bold text-black dark:text-white">
                 {strings.POLICYHOLDER_CONSENT}

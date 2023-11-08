@@ -198,7 +198,7 @@ const InitiateNewClaimRequest = () => {
       <h2 className="mb-4 text-2xl font-bold text-black dark:text-white sm:text-title-xl2">
         {strings.NEW_CLAIM_REQUEST}
       </h2>
-      <div className="rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
+      <div className="rounded-lg border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
         {_.map(claimRequestDetails,(ele: any, index: any) => {
           return (
             <div key={index} className="mb-2">
@@ -210,7 +210,7 @@ const InitiateNewClaimRequest = () => {
           );
         })}
       </div>
-      <div className="mt-4 rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
+      <div className="mt-4 rounded-lg border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
         <h2 className="text-bold text-base font-bold text-black dark:text-white">
           {strings.TREATMENT_AND_BILLING_DETAILS}
         </h2>
@@ -262,7 +262,7 @@ const InitiateNewClaimRequest = () => {
           />
         </div>
       </div>
-      <div className="mt-4 rounded-sm border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
+      <div className="mt-4 rounded-lg border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
         <h2 className="text-1xl mb-4 font-bold text-black dark:text-white sm:text-title-xl2">
           {strings.SUPPORTING_DOCS}
         </h2>
