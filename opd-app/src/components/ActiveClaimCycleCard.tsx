@@ -81,7 +81,7 @@ const ActiveClaimCycleCard = (Props: any) => {
               navigate("/coverage-eligibility", { state: information })
             }
           >
-            View
+            View details
           </span>
         </div>
         <div className='absolute top-2 right-2' onClick={() => setPopup(!popup)}>
