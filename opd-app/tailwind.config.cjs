@@ -311,5 +311,4 @@ module.exports = {
       },
     },
   },
-  plugins: [],
 };
