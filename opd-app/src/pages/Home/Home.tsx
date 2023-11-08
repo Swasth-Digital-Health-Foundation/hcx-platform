@@ -24,7 +24,8 @@ const Home = () => {
   const [initialized, setInitialized] = useState(true);
   const [isValid, setIsValid] = useState(true);
   const [finalData, setFinalData] = useState<any>([]);
-
+  const [activeStep, setActiveStep] = useState(0);
+  const sender_code = localStorage.getItem("senderCode");
   const getEmailFromLocalStorage = localStorage.getItem("email");
 
   const onNewScanResult = (decodedText: any, decodedResult: any) => {
@@ -160,7 +161,6 @@ const Home = () => {
     setMobileNumber(inputValue);
   };
 
-  const sender_code = localStorage.getItem("senderCode");
   useEffect(() => {
     search();
     getCoverageEligibilityRequestList(requestPayload);
@@ -297,6 +297,7 @@ const Home = () => {
                     workflowId={ele.workflow_id}
                     patientMobileNumber={ele.mobile || mobileNumber}
                     patientName={ele.patientName}
+                    activeStep={activeStep}
                   />
                 </div>
               );

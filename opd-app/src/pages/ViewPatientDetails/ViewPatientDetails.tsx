@@ -16,7 +16,6 @@ import * as _ from "lodash";
 const ViewPatientDetails = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [selectedValue, setSelectedValue] = useState<string>("");
   const [token, setToken] = useState<string>();
   const [providerName, setProviderName] = useState<string>();
   const [payorName, setPayorName] = useState<string>("");
@@ -28,10 +27,6 @@ const ViewPatientDetails = () => {
   const [apicallIdForClaim, setApicallID] = useState<any>();
   const [patientDetails, setPatientDetails] = useState<any>([]);
   const [consultationDetail, setConsultationDetails] = useState<any>();
-
-  const handleRadioChange = (event: any) => {
-    setSelectedValue(event.target.value);
-  };
 
   const requestDetails = {
     providerName: providerName,
