@@ -324,6 +324,14 @@ input[type="search"]::-webkit-search-cancel-button {
   display: none !important;
 }
 
+#html5-qrcode-button-camera-start{
+  display: none !important;
+}
+
+#html5-qrcode-button-camera-stop{
+  display: none !important;
+}
+
 .upload {
   padding: 0.5rem;
   font-family: sans-serif;
