@@ -336,41 +336,26 @@ const CoverageEligibility = () => {
           <div>
             {preauthOrClaimList.length === 0 && (
               <>
-                <h2 className="text-bold text-1xl mt-3 font-bold text-black dark:text-white">
+                {/* <h2 className="text-bold text-1xl mt-3 font-bold text-black dark:text-white">
                   {strings.NEXT_STEP}
-                </h2>
-
-                <div className="mt-2 mb-2 flex items-center">
-                  <input
-                    onChange={handleRadioChange}
-                    id="default-radio-2"
-                    type="radio"
-                    value="Initiate pre-auth request"
-                    name="default-radio"
-                    className="text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600 h-4 w-4 focus:ring-2"
-                  />
-                  <label
-                    htmlFor="default-radio-2"
-                    className="text-gray-900 dark:text-gray-300 ml-2 text-sm font-medium"
+                </h2> */}
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => navigate("/initiate-preauth-request", {
+                      state: requestDetails,
+                    })}
+                    className="align-center mt-4 flex w-full justify-center rounded bg-lightBlue py-4 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
                   >
-                    {strings.INITIATE_PREAUTH_REQUEST}
-                  </label>
-                </div>
-                <div className="mt-2 mb-2 flex items-center">
-                  <input
-                    onChange={handleRadioChange}
-                    id="default-radio-1"
-                    type="radio"
-                    value="Initiate new claim request"
-                    name="default-radio"
-                    className="text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600 h-4 w-4 focus:ring-2"
-                  />
-                  <label
-                    htmlFor="default-radio-1"
-                    className="text-gray-900 dark:text-gray-300 ml-2 text-sm font-medium"
+                    Initiate pre-auth request
+                  </button>
+                  <button
+                    onClick={() => navigate("/initiate-claim-request", {
+                      state: requestDetails,
+                    })}
+                    className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
                   >
-                    {strings.INITIATE_NEW_CLAIM_REQUEST}
-                  </label>
+                    Initiate new claim request
+                  </button>
                 </div>
               </>
             )}
@@ -379,11 +364,11 @@ const CoverageEligibility = () => {
               <></>
             ) : type.includes('preauth') ? (
               <>
-                <h2 className="text-bold text-1xl mt-3 font-bold text-black dark:text-white">
+                {/* <h2 className="text-bold text-1xl mt-3 font-bold text-black dark:text-white">
                   {strings.NEXT_STEP}
-                </h2>
+                </h2> */}
                 <div className="mt-2 mb-2 flex items-center">
-                  <input
+                  {/* <input
                     onChange={handleRadioChange}
                     id="default-radio-2"
                     type="radio"
@@ -396,13 +381,21 @@ const CoverageEligibility = () => {
                     className="text-gray-900 dark:text-gray-300 ml-2 text-sm font-medium"
                   >
                     {strings.INITIATE_NEW_CLAIM_REQUEST}
-                  </label>
+                  </label> */}
+                  <button
+                    onClick={() => navigate("/initiate-claim-request", {
+                      state: requestDetails,
+                    })}
+                    className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
+                  >
+                    Initiate new claim request
+                  </button>
                 </div>
               </>
             ) : null}
           </div>
 
-          {!hasClaimApproved ? (
+          {type.includes('preauth') && type.includes('claim') && !hasClaimApproved ? (
             <div className="mb-5 mt-5">
               <button
                 disabled={false}
@@ -427,14 +420,14 @@ const CoverageEligibility = () => {
                 {strings.PROCEED}
               </button>
             </div>
-          ) : (
+          ) : hasClaimApproved ? (
             <button
               onClick={() => navigate('/home')}
               className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
             >
               Home
             </button>
-          )}
+          ) : <></>}
         </div>
       ) : (
         <TransparentLoader />

@@ -3,12 +3,12 @@ import Html5QrcodePlugin from '../../components/Html5QrcodeScannerPlugin/Html5Qr
 import { useEffect, useState } from 'react';
 import ActiveClaimCycleCard from '../../components/ActiveClaimCycleCard';
 import strings from '../../utils/strings';
-import { generateOutgoingRequest } from '../../services/hcxMockService';
+import { generateOutgoingRequest, getCoverageEligibilityRequestList } from '../../services/hcxMockService';
 import { postRequest } from '../../services/registryService';
 import * as _ from 'lodash';
 import TransparentLoader from '../../components/TransparentLoader';
 import { toast } from 'react-toastify';
-import { ArrowPathIcon, FunnelIcon } from "@heroicons/react/24/outline";
+import { ArrowPathIcon } from "@heroicons/react/24/outline";
 
 
 const Home = () => {
@@ -20,7 +20,6 @@ const Home = () => {
   const [loading, setLoading] = useState(false);
   const [initialized, setInitialized] = useState(true);
   const getMobileFromLocalStorage = localStorage.getItem('mobile');
-  const [refresh, setRefresh] = useState(false)
 
   const onNewScanResult = (decodedText: any, decodedResult: any) => {
     setQrCodeData(decodedText);
@@ -59,7 +58,7 @@ const Home = () => {
             setTimeout(() => {
               setLoading(true);
               toast.success("Coverage eligibility initiated successfully")
-              getCoverageEligibilityRequestList();
+              getCoverageEligibilityRequestList(setLoading, requestPayload, setActiveRequests, setFinalData, setDisplayedData);
             }, 3000);
           }
         } catch (error) {
@@ -71,16 +70,6 @@ const Home = () => {
       setLoading(false);
     }
   }, [qrCodeData]);
-
-  // const getPatientName = async () => {
-  //   try {
-  //     let response = await postRequest('/search', filter);
-  //     setPatientName(response.data[0]?.name);
-  //     setUserInformation(response.data);
-  //   } catch (error) {
-  //     toast.error(_.get(error, 'response.data.error.message'));
-  //   }
-  // };
 
   const requestPayload = {
     mobile: getMobileFromLocalStorage,
@@ -103,51 +92,9 @@ const Home = () => {
     }
   };
 
-  const getCoverageEligibilityRequestList = async () => {
-    try {
-      setLoading(true);
-      let response = await generateOutgoingRequest(
-        'bsp/request/list',
-        requestPayload
-      );
-      const data = response.data.entries;
-      setActiveRequests(data);
-
-      const coverageArray = [];
-      const claimArray = [];
-
-      for (const entry of data) {
-        // Iterate through each entry in the input data.
-        const key = Object.keys(entry)[0];
-        const objects = entry[key];
-
-        if (objects.length === 1 && objects[0].type === 'claim') {
-          // If there's only one object and its type is "claim," add it to claimArray.
-          claimArray.push(objects[0]);
-        } else {
-          // If there's more than one object or any object with type "coverageeligibility," add them to coverageArray.
-          coverageArray.push(
-            ...objects.filter((obj: any) => obj.type === 'coverageeligibility')
-          );
-        }
-      }
-      // Create a new array containing both claim and coverage requests.
-      const newArray = [...claimArray, ...coverageArray];
-      const sortedData = newArray.slice().sort((a: any, b: any) => {
-        return b.date - a.date;
-      });
-
-      setFinalData(sortedData);
-      setDisplayedData(sortedData.slice(0, 5));
-      setLoading(false);
-    } catch (err) {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
     search();
-    getCoverageEligibilityRequestList();
+    getCoverageEligibilityRequestList(setLoading, requestPayload, setActiveRequests, setFinalData, setDisplayedData);
   }, []);
 
   const loadMoreData = () => {
@@ -234,7 +181,7 @@ const Home = () => {
             <>
               <ArrowPathIcon
                 onClick={() => {
-                  getCoverageEligibilityRequestList();
+                  getCoverageEligibilityRequestList(setLoading, requestPayload, setActiveRequests, setFinalData, setDisplayedData);
                 }}
                 className={
                   loading ? "animate-spin h-7 w-7" : "h-7 w-7"
