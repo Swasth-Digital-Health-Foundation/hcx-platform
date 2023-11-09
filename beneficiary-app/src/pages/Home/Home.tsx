@@ -21,16 +21,17 @@ const Home = () => {
   const [initialized, setInitialized] = useState(true);
   const getMobileFromLocalStorage = localStorage.getItem('mobile');
 
-  const onNewScanResult = (decodedText: any, decodedResult: any) => {
-    setQrCodeData(decodedText);
-    setInitialized(false);
-  };
-
   const [activeRequests, setActiveRequests] = useState<any>([]);
   const [finalData, setFinalData] = useState<any>([]);
   const [coverageAndClaimData, setDisplayedData] = useState<any>(
     finalData.slice(0, 5)
   );
+
+  const onNewScanResult = (decodedText: any, decodedResult: any) => {
+    setQrCodeData(decodedText);
+    setInitialized(false);
+  };
+
 
   useEffect(() => {
     if (qrCodeData !== undefined) {
@@ -58,6 +59,7 @@ const Home = () => {
             setTimeout(() => {
               setLoading(true);
               toast.success("Coverage eligibility initiated successfully")
+              setQrCodeData(undefined)
               getCoverageEligibilityRequestList(setLoading, requestPayload, setActiveRequests, setFinalData, setDisplayedData);
             }, 3000);
           }
@@ -92,17 +94,13 @@ const Home = () => {
     }
   };
 
-  useEffect(() => {
-    search();
-    getCoverageEligibilityRequestList(setLoading, requestPayload, setActiveRequests, setFinalData, setDisplayedData);
-  }, []);
-
+  
   const loadMoreData = () => {
     const nextData = finalData.slice(currentIndex, currentIndex + 5);
     setDisplayedData([...coverageAndClaimData, ...nextData]);
     setCurrentIndex(currentIndex + 5);
   };
-
+  
   const latestStatusByEntry: Record<string, string | undefined> = {};
 
   activeRequests.forEach((entry: Record<string, any>) => {
@@ -115,13 +113,18 @@ const Home = () => {
         }
         return latest;
       }, null);
-
+      
       // Extract the status of the latest item
       if (latestItem) {
         latestStatusByEntry[key] = latestItem.status;
       }
     }
   });
+  
+  useEffect(() => {
+    search();
+    getCoverageEligibilityRequestList(setLoading, requestPayload, setActiveRequests, setFinalData, setDisplayedData);
+  }, []);
 
   return (
     <div>
@@ -145,7 +148,6 @@ const Home = () => {
               />
             </div>
           </div>
-          {/* <p className="mt-1 text-center">{strings.SCAN_QRCODE}</p> */}
           <p className="mt-2 text-center font-bold text-black dark:text-gray">
             OR
           </p>
@@ -161,7 +163,7 @@ const Home = () => {
           </div>
         </div>
       </div>
-      <div className="mt-10">
+      <div className="mt-6">
         {loading ? (
           <div className="flex items-center gap-4">
             <h1 className="px-1 text-2xl font-bold text-black dark:text-white">

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { generateToken, searchParticipant } from '../../services/hcxService';
 import LoadingButton from '../../components/LoadingButton';
 import * as _ from 'lodash';
@@ -9,19 +9,15 @@ import useDebounce from '../../hooks/useDebounce';
 
 const NewClaim = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const [insurancePlanInputRef, setInsurancePlanInputRef] =
     useState<string>('');
   const [treatmentInputRef, setTreatmentInputRef] = useState<string>('');
   const [providerName, setProviderName] = useState<string>('');
   const [participantCode, setParticipantCode] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
-
   const [payor, setPayor] = useState<string>('');
   const [insuranceId, setInsuranceId] = useState<string>('');
-
   const [searchResults, setSearchResults] = useState<any>([]);
-
   const [openDropdown, setOpenDropdown] = useState(false);
   const [payorFromInsuranceId, setpayorFromInsuranceId] = useState<string>('');
 
@@ -29,11 +25,6 @@ const NewClaim = () => {
     filters: {
       participant_name: { eq: providerName },
     },
-  };
-
-  const tokenRequestBody = {
-    username: process.env.SEARCH_PARTICIPANT_USERNAME,
-    password: process.env.SEARCH_PARTICIPANT_PASSWORD,
   };
 
   let search = async () => {
@@ -119,8 +110,8 @@ const NewClaim = () => {
   }, [insurancePlanInputRef]);
 
   return (
-    <div className="w-full pt-2 sm:p-12.5 xl:p-1 ">
-      <h2 className="mb-4 -mt-4 text-3xl font-bold text-black dark:text-white sm:text-title-xl2">
+    <div className="w-full">
+      <h2 className="mb-4 text-2xl font-bold text-black dark:text-white">
         {strings.PROVIDE_DETAILS_FOR_NEW_CLAIM}
       </h2>
       <div className="rounded-lg border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">

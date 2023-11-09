@@ -1,4 +1,6 @@
 import axios from 'axios';
+import { toast } from 'react-toastify';
+import * as _ from "lodash";
 
 async function generateOutgoingRequest(url: any, payload: any) {
   const response = await axios.post(
@@ -87,10 +89,40 @@ const getCoverageEligibilityRequestList = async (setLoading: any, requestPayload
   }
 };
 
+const handleUpload = async (mobileNumber: any, FileLists: any, requestBody: any, setUrlList: any) => {
+  try {
+    const formData = new FormData();
+    formData.append('mobile', mobileNumber);
+
+    FileLists.forEach((file: any) => {
+      formData.append(`file`, file);
+    });
+    toast.info('Uploading documents please wait...!');
+    const response = await axios({
+      url: `${process.env.hcx_mock_service}/upload/documents`,
+      method: 'POST',
+      data: formData,
+    });
+    let obtainedResponse = response.data;
+    const uploadedUrls = _.map(obtainedResponse, (ele: any) => ele.url);
+    // Update the payload with the new URLs
+    requestBody.supportingDocuments[0].urls = uploadedUrls;
+    setUrlList((prevFileUrlList: any) => [
+      ...prevFileUrlList,
+      ...obtainedResponse,
+    ]);
+    toast.info('Documents uploaded successfully!');
+  } catch (error) {
+    console.error('Error in uploading file', error);
+  }
+};
+
 export {
   generateOutgoingRequest,
   sendOTP,
   verifyOTP,
   isInitiated,
-  createCommunicationOnRequest, getCoverageEligibilityRequestList,
+  createCommunicationOnRequest,
+  getCoverageEligibilityRequestList,
+  handleUpload
 };

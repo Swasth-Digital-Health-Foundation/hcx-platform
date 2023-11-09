@@ -15,6 +15,9 @@ const SignUp = () => {
   const [email, setEmail] = useState();
   const [isValid, setIsValid] = useState(true);
   const [loading, setLoading] = useState(false);
+  const getMobileFromLocalStorage: any = localStorage.getItem('mobile');
+  const [payor, setPayor] = useState<string>('wemeanhospital Mock Payor');
+  const [insuranceId, setInsuranceId] = useState<string>('');
 
   // Function to update card data
   const updateCardData = (cardKey: any, newData: any) => {
@@ -23,8 +26,6 @@ const SignUp = () => {
     );
     setCards(updatedCards);
   };
-
-  const getMobileFromLocalStorage: any = localStorage.getItem('mobile');
 
   const addCard = () => {
     const cardKey = cards.length + 1;
@@ -43,12 +44,10 @@ const SignUp = () => {
     setCards(updatedCards);
   };
 
-  const [payor, setPayor] = useState<string>('wemeanhospital Mock Payor');
   const handlePayorChange = (e: any) => {
     setPayor(e.target.value);
   };
 
-  const [insuranceId, setInsuranceId] = useState<string>('');
   const handleInsuranceIdChange = (e: any) => {
     setInsuranceId(e.target.value);
   };
@@ -87,14 +86,6 @@ const SignUp = () => {
     }
   };
 
-  const handleMobileNumberChange = (e: any) => {
-    const inputValue = e.target.value;
-    // Check if the input contains exactly 10 numeric characters
-    const isValidInput = /^\d{10}$/.test(inputValue);
-    setIsValid(isValidInput);
-    setMobileNumber(inputValue);
-  };
-
   const handleUserNameChange = (e: any) => {
     setUserName(e.target.value);
   };
@@ -105,7 +96,6 @@ const SignUp = () => {
 
   const insuranceCheck = insuranceId === '';
   const payorCheck = payor === ('' || 'none' || null);
-  const numberCheck = mobileNumber?.length !== 10;
   const handleDisable = () => {
     if (insuranceCheck || payorCheck) {
       return true;
@@ -148,9 +138,8 @@ const SignUp = () => {
                   disabled
                   value={getMobileFromLocalStorage}
                   placeholder={strings.ENTER_MOBILE_NUMBER}
-                  className={`border ${
-                    isValid ? 'border-stroke' : 'border-red'
-                  } w-full rounded-lg bg-transparent py-4 pl-6 pr-10 outline-none focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary`}
+                  className={`border ${isValid ? 'border-stroke' : 'border-red'
+                    } w-full rounded-lg bg-transparent py-4 pl-6 pr-10 outline-none focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary`}
                 />
               </div>
             </div>

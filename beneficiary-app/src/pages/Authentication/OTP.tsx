@@ -12,12 +12,11 @@ const OTP = () => {
   const [mobileNumber, setMobileNumber] = useState<any>();
   const [isValid, setIsValid] = useState(true);
   const [loading, setLoading] = useState(false);
+  localStorage.setItem('mobile', mobileNumber);
 
   const payload = {
     mobile: mobileNumber,
   };
-
-  localStorage.setItem('mobile', mobileNumber);
 
   const formSubmit = async () => {
     try {

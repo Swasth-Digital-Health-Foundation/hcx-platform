@@ -48,7 +48,6 @@ const Html5QrcodePlugin = (props: any) => {
     }
   };
 
-
   const stopScanner = () => {
     if (html5QrcodeScanner) {
       html5QrcodeScanner.clear().catch((error: any) => {

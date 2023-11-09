@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import strings from '../../utils/strings';
 import { generateToken, searchParticipant } from '../../services/hcxService';
@@ -10,20 +10,14 @@ import { ArrowDownTrayIcon, ArrowPathIcon } from "@heroicons/react/24/outline";
 const CoverageEligibility = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [selectedValue, setSelectedValue] = useState<string>('');
   const [token, setToken] = useState<string>();
   const [providerName, setProviderName] = useState<string>();
   const [payorName, setPayorName] = useState<string>('');
   const [preauthOrClaimList, setpreauthOrClaimList] = useState<any>([]);
   const [loading, setisLoading] = useState(false);
   const [coverageDetails, setCoverageDetails] = useState<any>([]);
-  const [apicallIds, setapicallIds] = useState<any>([]);
   const [coverageEligibilityStatus, setcoverageStatus] = useState<any>([]);
   const [apicallIdForClaim, setApicallID] = useState<any>();
-
-  const handleRadioChange = (event: any) => {
-    setSelectedValue(event.target.value);
-  };
 
   const requestDetails = {
     ...location.state,
@@ -146,21 +140,8 @@ const CoverageEligibility = () => {
           return ele.type;
         })
       );
-
       let coverageData = statusCheckCoverageEligibility.data?.entries;
       setCoverageDetails(coverageData);
-
-      const entryKey = Object?.keys(coverageDetails[0])[0];
-
-      // Filter the objects with type "claim"
-      const claimObjects = coverageDetails[0][entryKey].filter(
-        (obj: any) => obj.type === 'claim'
-      );
-
-      // Extract the apicallId values from the "claim" objects
-      const apicallIds = claimObjects.map((obj: any) => obj.apiCallId);
-      setapicallIds(apicallIds);
-
       setisLoading(false);
     } catch (err) {
       setisLoading(false);
@@ -245,9 +226,9 @@ const CoverageEligibility = () => {
           <div className="mt-4 rounded-lg border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
             <div className="items-center justify-between"></div>
             <div>
-              {claimRequestDetails.map((ele: any, index: any) => {
+              {_.map(claimRequestDetails, (ele: any) => {
                 return (
-                  <div key={index} className="mb-2">
+                  <div className="mb-2">
                     <h2 className="text-bold text-base font-bold text-black dark:text-white">
                       {ele.key}
                     </h2>
@@ -257,7 +238,7 @@ const CoverageEligibility = () => {
               })}
             </div>
           </div>
-          {preauthOrClaimList.map((ele: any, index: any) => {
+          {_.map(preauthOrClaimList, (ele: any) => {
             return (
               <>
                 <div className=" flex items-center justify-between">
@@ -336,9 +317,6 @@ const CoverageEligibility = () => {
           <div>
             {preauthOrClaimList.length === 0 && (
               <>
-                {/* <h2 className="text-bold text-1xl mt-3 font-bold text-black dark:text-white">
-                  {strings.NEXT_STEP}
-                </h2> */}
                 <div className="flex gap-3">
                   <button
                     onClick={() => navigate("/initiate-preauth-request", {
@@ -364,24 +342,7 @@ const CoverageEligibility = () => {
               <></>
             ) : type.includes('preauth') ? (
               <>
-                {/* <h2 className="text-bold text-1xl mt-3 font-bold text-black dark:text-white">
-                  {strings.NEXT_STEP}
-                </h2> */}
                 <div className="mt-2 mb-2 flex items-center">
-                  {/* <input
-                    onChange={handleRadioChange}
-                    id="default-radio-2"
-                    type="radio"
-                    value="Initiate new claim request"
-                    name="default-radio"
-                    className="text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600 h-4 w-4 focus:ring-2"
-                  />
-                  <label
-                    htmlFor="default-radio-2"
-                    className="text-gray-900 dark:text-gray-300 ml-2 text-sm font-medium"
-                  >
-                    {strings.INITIATE_NEW_CLAIM_REQUEST}
-                  </label> */}
                   <button
                     onClick={() => navigate("/initiate-claim-request", {
                       state: requestDetails,
@@ -399,21 +360,10 @@ const CoverageEligibility = () => {
             <div className="mb-5 mt-5">
               <button
                 disabled={false}
-                onClick={(event: any) => {
-                  event.preventDefault();
-                  if (selectedValue === 'Initiate new claim request') {
-                    navigate('/initiate-claim-request', {
-                      state: requestDetails,
-                    });
-                  } else if (selectedValue === 'Initiate pre-auth request') {
-                    navigate('/initiate-preauth-request', {
-                      state: requestDetails,
-                    });
-                  } else {
-                    navigate('/view-active-request', {
-                      state: requestDetails,
-                    });
-                  }
+                onClick={() => {
+                  navigate('/view-active-request', {
+                    state: requestDetails,
+                  });
                 }}
                 className="align-center mt-4 flex w-full justify-center rounded bg-primary py-4 font-medium text-gray disabled:cursor-not-allowed disabled:bg-secondary disabled:text-gray"
               >
