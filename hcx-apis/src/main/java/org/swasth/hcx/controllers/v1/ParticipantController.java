@@ -41,10 +41,8 @@ public class ParticipantController extends BaseController {
 
     @Value("${certificates.bucketName}")
     private String bucketName;
-
-    @Value("${postgres.onboardingOtpTable}")
-    private String onboardOtpTable;
-
+    @Value("${certificate.validation-enabled}")
+    private boolean certificateValidationEnabled;
     @Autowired
     private ParticipantService service;
 
@@ -56,6 +54,9 @@ public class ParticipantController extends BaseController {
             service.validate(requestBody, true);
             requestBody.put(PRIMARY_EMAIL, participant.getprimaryEmail().toLowerCase());
             String code = participant.generateCode(fieldSeparator, hcxInstanceName);
+            if (requestBody.containsKey(ENCRYPTION_CERT) && certificateValidationEnabled) {
+                service.certificateValidations((String) requestBody.getOrDefault(ENCRYPTION_CERT, ""));
+            }
             service.getCertificatesUrl(requestBody, code);
             service.validateCertificates(requestBody);
             return getSuccessResponse(service.create(requestBody, header, code));

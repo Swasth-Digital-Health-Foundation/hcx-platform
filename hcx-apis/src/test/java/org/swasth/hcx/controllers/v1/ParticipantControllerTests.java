@@ -92,6 +92,111 @@ class ParticipantControllerTests extends BaseSpec{
     }
 
     @Test
+    void participant_create_success_scenario_with_begin_certificate() throws Exception {
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("[{\"paticipant_name\":\"test user\"}]")
+                .addHeader("Content-Type", "application/json"));
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("[]")
+                .addHeader("Content-Type", "application/json"));
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{ \"id\": \"open-saber.registry.invite\", \"ver\": \"1.0\", \"ets\": 1637227738534, \"params\": { \"resmsgid\": \"\", \"msgid\": \"bb355e26-cc12-4aeb-8295-03347c428c62\", \"err\": \"\", \"status\": \"SUCCESSFUL\", \"errmsg\": \"\" }, \"responseCode\": \"OK\", \"result\": { \"Organisation\": { \"osid\": \"1-17f02101-b560-4bc1-b3ab-2dac04668fd2\" } } }")
+                .addHeader("Content-Type", "application/json"));
+        doReturn(getParticipantCreateAuditLog()).when(mockEventGenerator).createAuditLog(anyString(), anyString(), anyMap(), anyMap());
+        doReturn(getUrl()).when(cloudStorageClient).getUrl(anyString(), anyString());
+        doNothing().when(cloudStorageClient).putObject(anyString(), anyString());
+        doNothing().when(cloudStorageClient).putObject(anyString(), anyString(), anyString());
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_CREATE).content(getParticipantCreateBodyWithBeginCertificate()).header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        assertEquals(200, status);
+    }
+
+    @Test
+    void participant_create_invalidKeySizeThrowsValidationException() throws Exception {
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("[{\"paticipant_name\":\"test user\"}]")
+                .addHeader("Content-Type", "application/json"));
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("[]")
+                .addHeader("Content-Type", "application/json"));
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{ \"id\": \"open-saber.registry.invite\", \"ver\": \"1.0\", \"ets\": 1637227738534, \"params\": { \"resmsgid\": \"\", \"msgid\": \"bb355e26-cc12-4aeb-8295-03347c428c62\", \"err\": \"\", \"status\": \"SUCCESSFUL\", \"errmsg\": \"\" }, \"responseCode\": \"OK\", \"result\": { \"Organisation\": { \"osid\": \"1-17f02101-b560-4bc1-b3ab-2dac04668fd2\" } } }")
+                .addHeader("Content-Type", "application/json"));
+        doReturn(getParticipantCreateAuditLog()).when(mockEventGenerator).createAuditLog(anyString(), anyString(), anyMap(), anyMap());
+        doReturn(getUrl()).when(cloudStorageClient).getUrl(anyString(), anyString());
+        doNothing().when(cloudStorageClient).putObject(anyString(), anyString());
+        doNothing().when(cloudStorageClient).putObject(anyString(), anyString(), anyString());
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_CREATE).content(getParticipantCreateBodyWithInvalidKeySize()).header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        Map<String,Object> responseBody = JSONUtils.deserialize(response.getContentAsString(), Map.class);
+        int status = response.getStatus();
+        assertEquals(400, status);
+        assertEquals(ErrorCodes.ERR_INVALID_CERTIFICATE.name(), getResponseErrorCode(responseBody));
+        assertEquals("Certificate must have a minimum key size of 2048 bits. Current key size: 1024 bits.", getResponseErrorMessage(responseBody));
+    }
+
+    @Test
+    void participant_create_certificate_untrustedCertificateAuthorityThrowsException() throws Exception {
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("[{\"paticipant_name\":\"test user\"}]")
+                .addHeader("Content-Type", "application/json"));
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("[]")
+                .addHeader("Content-Type", "application/json"));
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{ \"id\": \"open-saber.registry.invite\", \"ver\": \"1.0\", \"ets\": 1637227738534, \"params\": { \"resmsgid\": \"\", \"msgid\": \"bb355e26-cc12-4aeb-8295-03347c428c62\", \"err\": \"\", \"status\": \"SUCCESSFUL\", \"errmsg\": \"\" }, \"responseCode\": \"OK\", \"result\": { \"Organisation\": { \"osid\": \"1-17f02101-b560-4bc1-b3ab-2dac04668fd2\" } } }")
+                .addHeader("Content-Type", "application/json"));
+        doReturn(getParticipantCreateAuditLog()).when(mockEventGenerator).createAuditLog(anyString(), anyString(), anyMap(), anyMap());
+        doReturn(getUrl()).when(cloudStorageClient).getUrl(anyString(), anyString());
+        doNothing().when(cloudStorageClient).putObject(anyString(), anyString());
+        doNothing().when(cloudStorageClient).putObject(anyString(), anyString(), anyString());
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_CREATE).content(getParticipantCreateBodyWithUntrustedCertificate()).header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        Map<String,Object> responseBody = JSONUtils.deserialize(response.getContentAsString(), Map.class);
+        int status = response.getStatus();
+        assertEquals(400, status);
+        assertEquals(ErrorCodes.ERR_INVALID_CERTIFICATE.name(), getResponseErrorCode(responseBody));
+        assertEquals("The issuing certificate authority should be trusted", getResponseErrorMessage(responseBody));
+    }
+
+    @Test
+    void participant_create_certificate_invalid_url_scenario() throws Exception {
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("[{\"paticipant_name\":\"test user\"}]")
+                .addHeader("Content-Type", "application/json"));
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("[]")
+                .addHeader("Content-Type", "application/json"));
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{ \"id\": \"open-saber.registry.invite\", \"ver\": \"1.0\", \"ets\": 1637227738534, \"params\": { \"resmsgid\": \"\", \"msgid\": \"bb355e26-cc12-4aeb-8295-03347c428c62\", \"err\": \"\", \"status\": \"SUCCESSFUL\", \"errmsg\": \"\" }, \"responseCode\": \"OK\", \"result\": { \"Organisation\": { \"osid\": \"1-17f02101-b560-4bc1-b3ab-2dac04668fd2\" } } }")
+                .addHeader("Content-Type", "application/json"));
+        doReturn(getParticipantCreateAuditLog()).when(mockEventGenerator).createAuditLog(anyString(), anyString(), anyMap(), anyMap());
+        doReturn(getUrl()).when(cloudStorageClient).getUrl(anyString(), anyString());
+        doNothing().when(cloudStorageClient).putObject(anyString(), anyString());
+        doNothing().when(cloudStorageClient).putObject(anyString(), anyString(), anyString());
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_CREATE).content(getParticipantCreateBodyWithInCorrectUrl()).header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        Map<String,Object> responseBody = JSONUtils.deserialize(response.getContentAsString(), Map.class);
+        int status = response.getStatus();
+        assertEquals(400, status);
+        assertEquals(ErrorCodes.ERR_INVALID_CERTIFICATE.name(), getResponseErrorCode(responseBody));
+        assertEquals("Error parsing certificate from the URL", getResponseErrorMessage(responseBody));
+    }
+
+    @Test
     void participant_create_invalid_encryption_cert() throws Exception {
         registryServer.enqueue(new MockResponse()
                 .setResponseCode(200)

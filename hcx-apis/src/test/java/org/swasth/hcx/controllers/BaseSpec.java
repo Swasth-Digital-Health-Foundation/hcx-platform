@@ -224,7 +224,119 @@ public class BaseSpec {
         }});
         obj.put("signing_cert_path", "urn:isbn:0-476-27557-4");
         obj.put("linked_registry_codes", new ArrayList<>(Collections.singleton("22344")));
-        obj.put("encryption_cert", "-----BEGIN CERTIFICATE-----\nMIIC6jCCAdKgAwIBAgIGAX4A5QsDMA0GCSqGSIb3DQEBCwUAMDYxNDAyBgNVBAMM K0hpYmx5bXRVSXl2ZVU4cDVSODZZdzVsMVVYdjQ2SU1GYjByMjkyMENWdHcwHhcN MjExMjI4MTE1NTE3WhcNMjIxMDI0MTE1NTE3WjA2MTQwMgYDVQQDDCtIaWJseW10 VUl5dmVVOHA1Ujg2WXc1bDFVWHY0NklNRmIwcjI5MjBDVnR3MIIBIjANBgkqhkiG 9w0BAQEFAAOCAQ8AMIIBCgKCAQEAhvlyz2Igsa2au9SF/sO7qAxsRiO6su12g2y9 wSRN947u643az+8LADlkbzPASMlrkWWYZfcRvru5f+zrGQMxqKiO6ft9sfq/SCVc 26Cw2o5OrafzT4NXLHO39jOQbuq5CxL6yi893YMt0PdvKzLA960pswS3pXyk6Pmg 17wjosNXTFrGWXZBKQkycR9/TW9iuEufZDv0dhrUlP0DC6uuZt+F3DGaQ7WrQNbt UvCXWTTXjAjvjbhSgcyH711AkPI5H+4etdvlD9QGIaMgjBac1GfW+5YkBfU2KV9T Mq/7U++VirkZZBZXAC1K7VbJC/CgNMOrANJ1+XzkVbLlXoVXgwIDAQABMA0GCSqG SIb3DQEBCwUAA4IBAQBnLAUhz56DZC28byQz0GS/GdgGMiobkxFvtHNCutb9cFOp PXc3mX4/69B8vfu0dncjLKiMOv/S+IzoUjqSiJpackA84oODZb7baBH/Ogqa9ZkY vxA2O1DsbANQrbfiBjKRIiCGCTzWCCD2vPJdjoJiActL3gbGaENKM6Ft0FO5D7sp kaFOBvIjfXvxvfFrS/BwivoKWESpD4ZmlcafQweGfSJVECRZ5Oc+T0lg+0S20NlP vmlozyceiVTXAqpPngK8Jc3VuDeG4xRLI9J0DwDV0rtUbPzdVBzAO9KgrnsxYzRQ 8LmmugWhh4L+QwIJe+1NWmULmPG+he+/lBiFD0Jg\n-----END CERTIFICATE-----");
+        obj.put("encryption_cert", "https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/hcx-platform/main/hcx-apis/src/test/resources/examples/test-keys/public-key.pem");
+        return JSONUtils.serialize(obj);
+    }
+
+    public String getParticipantCreateBodyWithBeginCertificate() throws JsonProcessingException {
+        Map<String, Object> obj = new HashMap<>();
+        obj.put("participant_name", "test user");
+        obj.put("primary_mobile", "9493347239");
+        obj.put("primary_email", "testuser@gmail.com");
+        obj.put("roles", new ArrayList<>(Collections.singleton("provider")));
+        obj.put("address", new HashMap<>() {{
+            put("plot", "5-4-199");
+            put("street", "road no 12");
+            put("landmark", "");
+            put("village", "Nampally");
+            put("district", "Hyd");
+            put("state", "Telangana");
+            put("pincode", "500805");
+        }});
+        obj.put("phone", new ArrayList<>(Collections.singleton("040-387658992")));
+        obj.put("status", "Created");
+        obj.put("endpoint_url", "http://a4a175528daf949a2af3cd141af93de2-1466580421.ap-south-1.elb.amazonaws.com:8080");
+        obj.put("payment_details", new HashMap<>() {{
+            put("account_number", "4707890099809809");
+            put("ifsc_code", "ICICLE");
+        }});
+        obj.put("signing_cert_path", "urn:isbn:0-476-27557-4");
+        obj.put("linked_registry_codes", new ArrayList<>(Collections.singleton("22344")));
+        obj.put("encryption_cert", "-----BEGIN CERTIFICATE----- MIIEDzCCAvegAwIBAgIUWbTXVhflZ4OqSgYRHQze59LKav0wDQYJKoZIhvcNAQEL BQAwgZYxCzAJBgNVBAYTAklOMRIwEAYDVQQIDAlLYXJuYXRha2ExEjAQBgNVBAcM CUJlbmdhbHVydTEPMA0GA1UECgwGc3dhc3RoMQwwCgYDVQQLDANIQ1gxDDAKBgNV BAMMA2hjeDEyMDAGCSqGSIb3DQEJARYjT3BlcmF0aW9uc19hZG1pbkBzd2FzdGhh bGxpYW5jZS5vcmcwHhcNMjMwNDI3MTAxOTU4WhcNMjgwNDI1MTAxOTU4WjCBljEL MAkGA1UEBhMCSU4xEjAQBgNVBAgMCUthcm5hdGFrYTESMBAGA1UEBwwJQmVuZ2Fs dXJ1MQ8wDQYDVQQKDAZzd2FzdGgxDDAKBgNVBAsMA0hDWDEMMAoGA1UEAwwDaGN4 MTIwMAYJKoZIhvcNAQkBFiNPcGVyYXRpb25zX2FkbWluQHN3YXN0aGFsbGlhbmNl Lm9yZzCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAIrqhMBGwEdYPUzw pN4wOvOQw+SWYuKVSrGpReCMp8AJ0Cxktm0yXEuBa+IVHFGCUCALfeBLk6foMgSm iIroNCfaC6yFJwmXptGUDi8YKZgD5w7Z3w7SumSQnFYarQrksZvu6YGRI07SHIYO CeAe+IfyliSqf0PVfsW4ba33XZfiqD91vkWnc25LxlFYn22Tt+BbMu942LOw9Leb xurGKQn9Ekv2DQQdRG3MlZzaWIFgZO2qE7mh4zaSi+Zo6ftr/8CGdNw5mfb9455a I6Y9HFKOMXK6BEQr5sAZNJ9WrzfTTcIlD6QeD5x86oFsJP7QnQvAtAB4uIqss9LT sdWezdMCAwEAAaNTMFEwHQYDVR0OBBYEFP2lzZCUx2grfZ4V1PfaigEMzykVMB8G A1UdIwQYMBaAFP2lzZCUx2grfZ4V1PfaigEMzykVMA8GA1UdEwEB/wQFMAMBAf8w DQYJKoZIhvcNAQELBQADggEBAFw3pwReHpjlc2/6DG2WsAq0qCfuK8bI3dqqZKZm 5MvWy843Uc1Qg2kWoA0rZ2ZFJPTJ5DbiiDG/TdsIzZV+CX1JAjBtoLRowYXHxaci p+BzuEOugYsI0hUQvWyab8Wtm0vqd5noz+0xF9URCwpUizT+CaP5K0RXojbYnLcB FUjxvZXhZm2K1VF/ndQTXPXBgTEGUQBdFfzgzd2D0DxIqmTT3dAfyweQj9mZGAQ7 xggydF/3f5+MEr239NczBVVHSuZ32ZpVW3y06ptWSu9Wc2sQvU2lM05tHbz0HOSc Xv2SZJJe9fYPoIT8RfQ1/CsFZ09uZL1DMx9s+h2rhtXIRtE= -----END CERTIFICATE-----");
+        return JSONUtils.serialize(obj);
+    }
+
+    public String getParticipantCreateBodyWithInvalidKeySize() throws JsonProcessingException {
+        Map<String, Object> obj = new HashMap<>();
+        obj.put("participant_name", "test user");
+        obj.put("primary_mobile", "9493347239");
+        obj.put("primary_email", "testuser@gmail.com");
+        obj.put("roles", new ArrayList<>(Collections.singleton("provider")));
+        obj.put("address", new HashMap<>() {{
+            put("plot", "5-4-199");
+            put("street", "road no 12");
+            put("landmark", "");
+            put("village", "Nampally");
+            put("district", "Hyd");
+            put("state", "Telangana");
+            put("pincode", "500805");
+        }});
+        obj.put("phone", new ArrayList<>(Collections.singleton("040-387658992")));
+        obj.put("status", "Created");
+        obj.put("endpoint_url", "http://a4a175528daf949a2af3cd141af93de2-1466580421.ap-south-1.elb.amazonaws.com:8080");
+        obj.put("payment_details", new HashMap<>() {{
+            put("account_number", "4707890099809809");
+            put("ifsc_code", "ICICLE");
+        }});
+        obj.put("signing_cert_path", "urn:isbn:0-476-27557-4");
+        obj.put("linked_registry_codes", new ArrayList<>(Collections.singleton("22344")));
+        obj.put("encryption_cert", "-----BEGIN CERTIFICATE----- MIIC9DCCAl2gAwIBAgIUXqMA2TL7OdJccEZifz24nVWtufMwDQYJKoZIhvcNAQEL BQAwgYsxCzAJBgNVBAYTAklOMRIwEAYDVQQIDAlLYXJuYXRha2ExEjAQBgNVBAcM CUJlbmdhbHVydTEPMA0GA1UECgwGc3dhc3RoMQ8wDQYDVQQLDAZzd2FzdGgxDDAK BgNVBAMMA2hjeDEkMCIGCSqGSIb3DQEJARYVb3BlcmF0aW9ubEBzd2FzdGgub3Jn MB4XDTIzMTExMDExMjAyNVoXDTI0MTEwOTExMjAyNVowgYsxCzAJBgNVBAYTAklO MRIwEAYDVQQIDAlLYXJuYXRha2ExEjAQBgNVBAcMCUJlbmdhbHVydTEPMA0GA1UE CgwGc3dhc3RoMQ8wDQYDVQQLDAZzd2FzdGgxDDAKBgNVBAMMA2hjeDEkMCIGCSqG SIb3DQEJARYVb3BlcmF0aW9ubEBzd2FzdGgub3JnMIGfMA0GCSqGSIb3DQEBAQUA A4GNADCBiQKBgQDEQ+PVu0sP6IwpFKI6+QpqkMlreDVDkoCrdbSKwEXY9AnHn+oL n3QPzlmAPXfkv+DDatewEcxlLgl+dBdWpQ9NaZ7vUS3TLYNAljs8oA8wc58uyizx 7ie7Y3JA5UUlVFsNzFkOPsp8yjlM9Jg/wp+nRB9426LvkBhz9uzvz1MwjwIDAQAB o1MwUTAdBgNVHQ4EFgQUk2QrPJNXDqUbUQPXj0YmsmECRqMwHwYDVR0jBBgwFoAU k2QrPJNXDqUbUQPXj0YmsmECRqMwDwYDVR0TAQH/BAUwAwEB/zANBgkqhkiG9w0B AQsFAAOBgQBa+SKSwcWNp5Pq9aqODuXhIbdZ1mujTPT1jGGvnKuRTvhf6t4VLX5Q T7cjbKtrO3CeC159bpjcIrDl2o3kH53pBzTbW8VzJK9ijSmTP1LaNBAsDF/HthLb BDRijqbpCrTwxHpHBNDlyvErCe+IFEp1tlFSjj/2T9qgKYnNkV9QLw== -----END CERTIFICATE-----");
+        return JSONUtils.serialize(obj);
+    }
+
+    public String getParticipantCreateBodyWithUntrustedCertificate() throws JsonProcessingException {
+        Map<String, Object> obj = new HashMap<>();
+        obj.put("participant_name", "test user");
+        obj.put("primary_mobile", "9493347239");
+        obj.put("primary_email", "testuser@gmail.com");
+        obj.put("roles", new ArrayList<>(Collections.singleton("provider")));
+        obj.put("address", new HashMap<>() {{
+            put("plot", "5-4-199");
+            put("street", "road no 12");
+            put("landmark", "");
+            put("village", "Nampally");
+            put("district", "Hyd");
+            put("state", "Telangana");
+            put("pincode", "500805");
+        }});
+        obj.put("phone", new ArrayList<>(Collections.singleton("040-387658992")));
+        obj.put("status", "Created");
+        obj.put("endpoint_url", "http://a4a175528daf949a2af3cd141af93de2-1466580421.ap-south-1.elb.amazonaws.com:8080");
+        obj.put("payment_details", new HashMap<>() {{
+            put("account_number", "4707890099809809");
+            put("ifsc_code", "ICICLE");
+        }});
+        obj.put("signing_cert_path", "urn:isbn:0-476-27557-4");
+        obj.put("linked_registry_codes", new ArrayList<>(Collections.singleton("22344")));
+        obj.put("encryption_cert", "-----BEGIN CERTIFICATE----- MIIDnzCCAoegAwIBAgIUUBAz6Fi5a8wVSrqCWgaMjsBIj4UwDQYJKoZIhvcNAQEL BQAwXzELMAkGA1UEBhMCSU4xEjAQBgNVBAgMCWthcm5hdGFrYTESMBAGA1UEBwwJ QmVuZ2FsdXJ1MQwwCgYDVQQKDANIQ1gxDDAKBgNVBAsMA0hDWDEMMAoGA1UEAwwD SENYMB4XDTIzMTExMDExMzAwOFoXDTI1MTEwOTExMzAwOFowXzELMAkGA1UEBhMC SU4xEjAQBgNVBAgMCWthcm5hdGFrYTESMBAGA1UEBwwJQmVuZ2FsdXJ1MQwwCgYD VQQKDANIQ1gxDDAKBgNVBAsMA0hDWDEMMAoGA1UEAwwDSENYMIIBIjANBgkqhkiG 9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqsqJEUB0i8vEl5DJkj9lHgEunk/oV/dOdP/+ GzaPcOGzmNebh4GumiP6odC+MFKUy4N7xRXmdpnWGlsxH9y9NKmhz2Emjod5PgmE 7LxAd9vlw4WyebHi1yurS4hb8TI22bT0RGRQGWdx8lUnZjOeQIZ0xWKyCNFy5H3z /hNlMSBpoPQUhcyFPu64ctvqfBRcWoP7x/gj6zYinjZhAg+SPLHcMRK21uo8CkPv +DElOxLSBjB7/R5FIAyhtdyLrgXbITgJ82sr74yCjQzRJLaaSImhhsWYKeVYSgrM hz/x58Ohu4RiEFP1xj1dC8j3N6gbf2TTikU5EF06Mb30a4NQZwIDAQABo1MwUTAd BgNVHQ4EFgQUZfuGpmFyky2839erj7bxF3zetsMwHwYDVR0jBBgwFoAUZfuGpmFy ky2839erj7bxF3zetsMwDwYDVR0TAQH/BAUwAwEB/zANBgkqhkiG9w0BAQsFAAOC AQEATBVrBUfhDv+t0Vq8VN9KO4qnXLvEfCogULkKyPsRAMzRiPl1ioQbDmlIHnuk /idHNcwLpI7OwUN2CMY08XhjqEWKCoAAgR5pugJW7bBEidh6/7QTwXdeo7pbadm7 mtGxvDQGt6NBILAJUEoHPmZwytbwFm9WeT/93Vhq1jCBUpUckPfYDNXIFCzkn40v O9AJaFdaby8iuePKMyxx+qHYwID38rehdj9YWGFRdgrPJsPR2NAUlk5O0q4RAZub QUkOj1/zL20bkZWiWJKGpmgJlk67LtIpumVwCKtRPDx9Kqj2xf8EvyjUWtPT/FYR 5zN5J3hDAVzh2HfMtvBn4JIJvw== -----END CERTIFICATE-----");
+        return JSONUtils.serialize(obj);
+    }
+
+    public String getParticipantCreateBodyWithInCorrectUrl() throws JsonProcessingException {
+        Map<String, Object> obj = new HashMap<>();
+        obj.put("participant_name", "test user");
+        obj.put("primary_mobile", "9493347239");
+        obj.put("primary_email", "testuser@gmail.com");
+        obj.put("roles", new ArrayList<>(Collections.singleton("provider")));
+        obj.put("address", new HashMap<>() {{
+            put("plot", "5-4-199");
+            put("street", "road no 12");
+            put("landmark", "");
+            put("village", "Nampally");
+            put("district", "Hyd");
+            put("state", "Telangana");
+            put("pincode", "500805");
+        }});
+        obj.put("phone", new ArrayList<>(Collections.singleton("040-387658992")));
+        obj.put("status", "Created");
+        obj.put("endpoint_url", "http://a4a175528daf949a2af3cd141af93de2-1466580421.ap-south-1.elb.amazonaws.com:8080");
+        obj.put("payment_details", new HashMap<>() {{
+            put("account_number", "4707890099809809");
+            put("ifsc_code", "ICICLE");
+        }});
+        obj.put("signing_cert_path", "urn:isbn:0-476-27557-4");
+        obj.put("linked_registry_codes", new ArrayList<>(Collections.singleton("22344")));
+        obj.put("encryption_cert", "http://a4a175528daf949a2af3cd141af93de2.com");
         return JSONUtils.serialize(obj);
     }
 
