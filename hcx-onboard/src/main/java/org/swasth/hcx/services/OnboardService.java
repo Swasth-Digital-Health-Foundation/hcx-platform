@@ -314,7 +314,7 @@ public class OnboardService extends BaseController {
         ResultSet result = (ResultSet) postgreSQLClient.executeQuery(query);
         boolean hasResult = result.next();
         if (!hasResult) {
-            throw new ClientException(ErrorCodes.ERR_INVALID_REQUEST, INVALID_EMAIL);
+            throw new ClientException(ErrorCodes.ERR_INVALID_REQUEST, String.format("The participant information corresponding to this %s is not present in the database.", requestBody.get(PARTICIPANT_CODE)));
         }
         int regenerateCount = result.getInt("regenerate_count");
         LocalDate lastRegenerateDate = result.getObject("last_regenerate_date", LocalDate.class);
