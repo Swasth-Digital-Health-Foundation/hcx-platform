@@ -24,6 +24,7 @@
                 <module>hcx-core</module>
                 <module>api-gateway</module>
                 <module>hcx-scheduler-jobs</module>
+                <module>hcx-onboard</module>
             </modules>
         </profile>
         <profile>

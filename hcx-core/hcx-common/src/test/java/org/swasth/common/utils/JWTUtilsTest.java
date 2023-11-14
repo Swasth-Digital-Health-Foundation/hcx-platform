@@ -38,5 +38,4 @@ public class JWTUtilsTest {
         String token = jwtUtils.generateAuthToken(privateKey,iss,expiryTime);
         assertTrue(jwtUtils.isValidSignature(token,"https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/hcx-platform/main/hcx-apis/src/test/resources/examples/test-keys/public-key.pem"));
     }
-    
 }
