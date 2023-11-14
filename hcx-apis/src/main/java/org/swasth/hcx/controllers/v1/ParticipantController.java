@@ -54,8 +54,9 @@ public class ParticipantController extends BaseController {
             service.validate(requestBody, true);
             requestBody.put(PRIMARY_EMAIL, participant.getprimaryEmail().toLowerCase());
             String code = participant.generateCode(fieldSeparator, hcxInstanceName);
-            if (requestBody.containsKey(ENCRYPTION_CERT) && certificateValidationEnabled) {
-                service.certificateValidations((String) requestBody.getOrDefault(ENCRYPTION_CERT, ""));
+            if (certificateValidationEnabled) {
+                service.validateAndProcessCertificate(requestBody, ENCRYPTION_CERT);
+                service.validateAndProcessCertificate(requestBody, SIGNING_CERT_PATH);
             }
             service.getCertificatesUrl(requestBody, code);
             service.validateCertificates(requestBody);
@@ -73,6 +74,10 @@ public class ParticipantController extends BaseController {
             String code = participant.getParticipantCode();
             service.getCertificatesUrl(requestBody, code);
             service.validate(requestBody, false);
+            if (certificateValidationEnabled) {
+                service.validateAndProcessCertificate(requestBody, ENCRYPTION_CERT);
+                service.validateAndProcessCertificate(requestBody, SIGNING_CERT_PATH);
+            }
             Map<String, Object> details = service.getParticipant(code);
             service.authorizeEntity(Objects.requireNonNull(header.get(AUTHORIZATION)).get(0).split(" ")[1], participant.getParticipantCode(), ((List<String>) details.get(OS_OWNER)).get(0));
             return getSuccessResponse(service.update(requestBody, details, header, code));

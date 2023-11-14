@@ -226,6 +226,12 @@ public class ParticipantService extends BaseRegistryService {
         return new ArrayList<>(differentEntries.keySet());
     }
 
+    public void validateAndProcessCertificate(Map<String, Object> requestBody, String certKey) throws ClientException {
+        if (requestBody.containsKey(certKey)) {
+            certificateValidations((String) requestBody.get(certKey));
+        }
+    }
+
     public void certificateValidations(String certificate) throws ClientException {
         try {
             X509Certificate x509Certificate;
