@@ -39,8 +39,8 @@ public class OnboardController extends BaseController {
         try {
             return service.sendVerificationLink(requestBody);
         } catch (Exception e) {
-            String email =  requestBody.getOrDefault(PRIMARY_EMAIL, "").toString();
-            return exceptionHandler(email, PARTICIPANT_VERIFICATION_LINK_SEND, new Response(), e);
+            String participantCode = requestBody.getOrDefault(PARTICIPANT_CODE, "").toString();
+            return exceptionHandler(participantCode, PARTICIPANT_VERIFICATION_LINK_SEND, new Response(), e);
         }
     }
 

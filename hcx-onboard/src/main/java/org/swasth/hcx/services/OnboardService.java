@@ -312,7 +312,8 @@ public class OnboardService extends BaseController {
         }
         String query = String.format("SELECT regenerate_count, last_regenerate_date, email_verified, phone_verified FROM %s WHERE participant_code='%s'", onboardVerificationTable, requestBody.get(PARTICIPANT_CODE));
         ResultSet result = (ResultSet) postgreSQLClient.executeQuery(query);
-        if (!result.next()) {
+        boolean hasResult = result.next();
+        if (!hasResult) {
             throw new ClientException(ErrorCodes.ERR_INVALID_REQUEST, INVALID_EMAIL);
         }
         int regenerateCount = result.getInt("regenerate_count");
