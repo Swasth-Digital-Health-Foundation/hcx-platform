@@ -10,7 +10,9 @@ import org.apache.commons.text.RandomStringGenerator;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.admin.client.resource.UserResource;
+import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
+import org.keycloak.representations.idm.UserRepresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -132,7 +134,10 @@ public class OnboardService extends BaseController {
     private String keycloackParticipantRealm;
     @Value("${keycloak.client-id}")
     private String keycloackClientId;
-
+    @Value("${keycloak.api-access-realm}")
+    private String keycloakApiAccessRealm;
+    @Value("${postgres.table.api-access-secrets-expiry}")
+    private String apiAccessTable;
     @Value("${endpoint.user-invite}")
     private String userInviteEndpoint;
     @Value("${email.user-invite-sub}")
@@ -146,6 +151,10 @@ public class OnboardService extends BaseController {
     @Value("${onboard.phone}")
     private String phoneConfig;
 
+    @Value("${api-access-secret.expiry-days}")
+    private int secretExpiryDays;
+
+    @Autowired
     private IDatabaseService postgreSQLClient;
 
     @Resource(name = "postgresClientMockService")
@@ -243,13 +252,14 @@ public class OnboardService extends BaseController {
         return (String) JSONUtils.deserialize(createResponse.getBody(), Map.class).get(id);
     }
 
-    private void addParticipantDetails(Map<String,Object> participant, OnboardRequest request) {
+    private void addParticipantDetails(Map<String, Object> participant, OnboardRequest request) {
         participant.put(ENDPOINT_URL, "http://testurl/v0.7");
         participant.put(ENCRYPTION_CERT, "https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/hcx-platform/main/hcx-apis/src/test/resources/examples/test-keys/public-key.pem");
         participant.put(REGISTRY_STATUS, CREATED);
-        if (((ArrayList<String>) participant.get(ROLES)).contains(PAYOR))
+        ArrayList<String> roles = (ArrayList<String>) participant.get(ROLES);
+        if (roles.contains(PAYOR))
             participant.put(SCHEME_CODE, "default");
-        if (((ArrayList<String>) participant.get(ROLES)).contains(PROVIDER))
+        if (roles.contains(PROVIDER) || roles.stream().anyMatch(PROVIDER_SPECIFIC_ROLES::contains))
             participant.put(APPLICANT_CODE, request.getApplicantCode());
     }
 
@@ -296,7 +306,7 @@ public class OnboardService extends BaseController {
         body.put(MOBILE, request.getPrimaryMobile());
         body.put(APPLICANT_NAME, request.getParticipantName());
         body.put(ADDITIONALVERIFICATION, request.getAdditionalVerification());
-        body.put(ROLE, PROVIDER);
+        body.put(ROLE, request.getRoles());
         return body;
     }
 
@@ -306,8 +316,9 @@ public class OnboardService extends BaseController {
         }
         String query = String.format("SELECT regenerate_count, last_regenerate_date, email_verified, phone_verified FROM %s WHERE participant_code='%s'", onboardVerificationTable, requestBody.get(PARTICIPANT_CODE));
         ResultSet result = (ResultSet) postgreSQLClient.executeQuery(query);
-        if (!result.next()) {
-            throw new ClientException(ErrorCodes.ERR_INVALID_REQUEST, INVALID_EMAIL);
+        boolean hasResult = result.next();
+        if (!hasResult) {
+            throw new ClientException(ErrorCodes.ERR_INVALID_REQUEST, String.format("The participant information corresponding to this %s is not present in the database.", requestBody.get(PARTICIPANT_CODE)));
         }
         int regenerateCount = result.getInt("regenerate_count");
         LocalDate lastRegenerateDate = result.getObject("last_regenerate_date", LocalDate.class);
@@ -696,6 +707,8 @@ public class OnboardService extends BaseController {
             getMockParticipant(participantList, headers);
         if (fields != null && fields.toLowerCase().contains(ONBOARD_VALIDATION_PROPERTIES))
             getOnboardValidations(participantList);
+        if (fields != null && fields.toLowerCase().contains(IDENTITY_VERIFICATION))
+            addIdentityVerification(participantList);
         return new ResponseEntity<>(new RegistryResponse(participantList, ORGANISATION), HttpStatus.OK);
     }
 
@@ -761,8 +774,13 @@ public class OnboardService extends BaseController {
     private void addUser(HttpHeaders headers, String requestBody) throws JsonProcessingException, ClientException {
         HttpResponse<String> response = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_USER_ADD, requestBody, getHeadersMap(headers));
         if (response.getStatus() != 200) {
-            Response resp = new Response(JSONUtils.deserialize(response.getBody(), Map.class));
-            throw new ClientException(resp.getError().getCode(), resp.getError().getMessage());
+            Map<String, Object> result = JSONUtils.deserialize(response.getBody(), Map.class);
+            List<Map<String, Object>> errList = JSONUtils.convert(result.get("result"), ArrayList.class);
+            Map<String, Object> errorMap = new HashMap<>();
+            for (Map<String, Object> error : errList) {
+                errorMap = (Map<String, Object>) error.get("error");
+            }
+            throw new ClientException((String) errorMap.get("message"));
         }
     }
 
@@ -889,6 +907,13 @@ public class OnboardService extends BaseController {
         return freemarkerService.renderTemplate("user-invite-accepted-participant.ftl", model);
     }
 
+    private String apiAccessSecretTemplate(String user, String password, String participantCode) throws Exception {
+        Map<String, Object> model = new HashMap<>();
+        model.put("USER_ID", user);
+        model.put("PARTICIPANT_CODE", participantCode);
+        model.put("PASSWORD", password);
+        return freemarkerService.renderTemplate("api-access-secret.ftl", model);
+    }
 
     private String userInviteUserTemplate(String email, String name, String role, URL signedURL) throws TemplateException, IOException {
         Map<String, Object> model = new HashMap<>();
@@ -974,6 +999,16 @@ public class OnboardService extends BaseController {
             sponsorMap.put(resultSet.getString(PARTICIPANT_CODE), sponsorResponse);
         }
         filterSponsors(sponsorMap, participantsList);
+    }
+
+    private void addIdentityVerification(List<Map<String, Object>> participantsList) throws Exception {
+        String selectQuery = String.format("SELECT * FROM %S WHERE participant_code IN (%s)", onboardingVerifierTable, getParticipantCodeList(participantsList, PARTICIPANT_CODE));
+        ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
+        Map<String, Object> identityVerification = new HashMap<>();
+        while (resultSet.next()) {
+            identityVerification.put(resultSet.getString(PARTICIPANT_CODE), resultSet.getString("status"));
+        }
+        filterDetails(identityVerification, participantsList, IDENTITY_VERIFICATION);
     }
 
     private void addCommunicationStatus(List<Map<String, Object>> participantsList) throws Exception {
@@ -1088,22 +1123,24 @@ public class OnboardService extends BaseController {
         mockParticipantDetails.put(PASSWORD, password);
         TimeUnit.SECONDS.sleep(3); // After creating participant, elasticsearch will retrieve data after one second hence added two seconds delay for search API.
         Map<String,Object> registryDetails = getParticipant(PARTICIPANT_CODE,childParticipantCode);
-        setKeycloakPassword( password ,registryDetails);
-        logger.info("created Mock participant for :: parent participant code  : {} :: child participant code  : {}",parentParticipantCode, childParticipantCode);
+        ArrayList<String> osOwner = (ArrayList<String>) registryDetails.get(OS_OWNER);
+        setKeycloakPassword(password, osOwner.get(0), keycloackParticipantRealm);
+        logger.info("created Mock participant for :: parent participant code  : " + parentParticipantCode + " :: child participant code  : " + childParticipantCode);
         return mockParticipantDetails;
     }
 
-    public void setKeycloakPassword( String password , Map<String,Object> registryDetails) throws ClientException {
+    private void setKeycloakPassword(String password, String user, String realm) throws ClientException {
         try {
-            ArrayList<String> osOwner = (ArrayList<String>) registryDetails.get(OS_OWNER);
-            RealmResource realmResource = keycloak.realm(keycloackParticipantRealm);
-            UserResource userResource = realmResource.users().get(osOwner.get(0));
+            RealmResource realmResource = keycloak.realm(realm);
+            UserResource userResource = realmResource.users().get(user);
             CredentialRepresentation passwordCred = new CredentialRepresentation();
             passwordCred.setTemporary(false);
             passwordCred.setType(CredentialRepresentation.PASSWORD);
             passwordCred.setValue(password);
             userResource.resetPassword(passwordCred);
-            logger.info("The Keycloak password for the os_owner: {} has been successfully updated",osOwner.get(0));
+            String userId = userResource.toRepresentation().getId();
+            realmResource.users().get(userId).logout();
+            logger.info("The Keycloak password for the osOwner :" + user + " has been successfully updated, and their sessions have been invalidated.");
         } catch (Exception e) {
             throw new ClientException("Unable to set keycloak password : " + e.getMessage());
         }
@@ -1189,12 +1226,9 @@ public class OnboardService extends BaseController {
     public Response generateAndSetPassword(HttpHeaders headers, String participantCode) throws Exception {
         String password = generateRandomPassword(24);
         Map<String, Object> registryDetails = getParticipant(PARTICIPANT_CODE, participantCode);
-        setKeycloakPassword( password, registryDetails);
         ArrayList<String> osOwner = (ArrayList<String>) registryDetails.get(OS_OWNER);
-        RealmResource realmResource = keycloak.realm(keycloackParticipantRealm);
-        UserResource userResource=realmResource.users().get(osOwner.get(0));
-        String username = userResource.toRepresentation().getUsername();
-        kafkaClient.send(messageTopic, EMAIL, eventGenerator.getEmailMessageEvent(passwordGenerate((String) registryDetails.get(PARTICIPANT_NAME),password,username), passwordGenerateSub, Arrays.asList((String) registryDetails.get(PRIMARY_EMAIL)), getUserList(headers, participantCode), new ArrayList<>()));
+        setKeycloakPassword(password, osOwner.get(0), keycloackParticipantRealm);
+        kafkaClient.send(messageTopic, EMAIL, eventGenerator.getEmailMessageEvent(passwordGenerate((String) registryDetails.get(PARTICIPANT_NAME), password, (String) registryDetails.get(PRIMARY_EMAIL)), passwordGenerateSub, Collections.singletonList((String) registryDetails.get(PRIMARY_EMAIL)), getUserList(headers, participantCode), new ArrayList<>()));
         return getSuccessResponse();
     }
 
@@ -1251,5 +1285,24 @@ public class OnboardService extends BaseController {
         } else {
             return new ArrayList<>();
         }
+    }
+
+    public Response generateAndSetUserSecret(Map<String , Object> requestBody) throws Exception {
+        String password = generateRandomPassword(24);
+        Map<String , Object> participant = getParticipant(PARTICIPANT_CODE, (String) requestBody.get(PARTICIPANT_CODE));
+        String userName = String.format("%s:%s", requestBody.get(PARTICIPANT_CODE), requestBody.get(USER_ID));
+        String selectQuery = String.format("SELECT * FROM %s WHERE username = '%s';", apiAccessTable, userName);
+        ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
+        if (resultSet.next()) {
+            String query = String.format("UPDATE %s SET secret_generation_date=%d,secret_expiry_date=%d WHERE username='%s';", apiAccessTable, System.currentTimeMillis(), System.currentTimeMillis() + (secretExpiryDays * 24 * 60 * 60 * 1000), userName);
+            postgreSQLClient.execute(query);
+        }
+        RealmResource realmResource = keycloak.realm(keycloakApiAccessRealm);
+        UsersResource usersResource = realmResource.users();
+        List<UserRepresentation> existingUsers = usersResource.search(userName);
+        String userId = existingUsers.get(0).getId();
+        setKeycloakPassword(password, userId, keycloakApiAccessRealm);
+        kafkaClient.send(messageTopic, EMAIL, eventGenerator.getEmailMessageEvent(apiAccessSecretTemplate((String) requestBody.get(USER_ID), password, (String) participant.get(PARTICIPANT_CODE)), passwordGenerateSub, Arrays.asList((String) requestBody.get(USER_ID)), new ArrayList<>(), new ArrayList<>()));
+        return getSuccessResponse();
     }
 }

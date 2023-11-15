@@ -41,8 +41,13 @@ public class ParticipantController extends BaseController {
 
     @Value("${certificates.bucketName}")
     private String bucketName;
-    @Value("${certificate.validation-enabled}")
+
+  @Value("${certificate.validation-enabled}")
     private boolean certificateValidationEnabled;
+
+    @Value("${postgres.onboardingOtpTable}")
+    private String onboardOtpTable;
+  
     @Autowired
     private ParticipantService service;
 

@@ -148,6 +148,7 @@ public class Constants {
     public static final String AUDIT_TIMESTAMP = "auditTimeStamp";
     public static final String UPDATED_TIME = "updatedTimestamp";
     public static final String REQUEST_TIME = "requestTimeStamp";
+    public static final List<String> PROVIDER_SPECIFIC_ROLES = Arrays.asList("provider.hospital", "provider.clinic", "provider.practitioner", "provider.diagnostics", "provider.pharmacy");
     public static  final String OBJECT = "object";
     public static  final String CDATA = "cdata";
     public static  final String EDATA = "edata";
@@ -219,6 +220,7 @@ public class Constants {
     public static final String ENCRYPTION_CERT = "encryption_cert";
     public static final String ENCRYPTION_CERT_EXPIRY = "encryption_cert_expiry";
     public static final String SIGNING_CERT_PATH_EXPIRY = "sigining_cert_expiry";
+    public static final String API_ACCESS_SECRET_GENERATE = "/api-access/secret/generate";
     public static final String PUBLIC_KEY = "public_key";
     public static final String PRIVATE_KEY = "private_key";
     public static final String PASSWORD = "password";
@@ -372,7 +374,7 @@ public class Constants {
    public static final String OTP_REGENERATE_COUNT = "otp_regenerate_count";
    public static final String LAST_REGENERATE_DATE = "last_regenerate_date";
    public static final String RESPONSE_OBJ = "response_obj";
-   public static final List<String> PARTICIPANT_ROLES = Arrays.asList(PROVIDER,PAYOR,AGENCY_TPA,"agency.regulator", "research",MEMBER_ISNP, "agency.sponsor",ADMIN_ROLE);
+   public static final List<String> PARTICIPANT_ROLES = Arrays.asList(PROVIDER, PAYOR, AGENCY_TPA, "agency.regulator", "research", MEMBER_ISNP, "agency.sponsor", ADMIN_ROLE, "provider.hospital", "provider.clinic", "provider.practitioner", "provider.diagnostics", "provider.pharmacy");
    public static final String USER_NAME = "user_name";
    public static final String CREATED_BY = "created_by";
    public static final List<String> ALLOWED_DELEGATED_TOPICS = Arrays.asList("notif-workflow-update");

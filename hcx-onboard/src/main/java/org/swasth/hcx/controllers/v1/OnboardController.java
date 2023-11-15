@@ -5,6 +5,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.swasth.common.dto.Response;
+import org.swasth.common.exception.ClientException;
 import org.swasth.common.utils.Constants;
 import org.swasth.hcx.controllers.BaseController;
 import org.swasth.hcx.services.OnboardService;
@@ -41,8 +42,8 @@ public class OnboardController extends BaseController {
         try {
             return service.sendVerificationLink(requestBody);
         } catch (Exception e) {
-            String email =  requestBody.getOrDefault(PRIMARY_EMAIL, "").toString();
-            return exceptionHandler(email, PARTICIPANT_VERIFICATION_LINK_SEND, new Response(), e);
+            String participantCode = requestBody.getOrDefault(PARTICIPANT_CODE, "").toString();
+            return exceptionHandler(participantCode, PARTICIPANT_VERIFICATION_LINK_SEND, new Response(), e);
         }
     }
 
@@ -127,6 +128,17 @@ public class OnboardController extends BaseController {
             return getSuccessResponse(service.generateAndSetPassword(headers, participantCode));
         } catch (Exception e) {
             return exceptionHandler("", ONBOARD_APPLICANT_PASSWORD_GENERATE, new Response(), e);
+        }
+    }
+    @PostMapping(API_ACCESS_SECRET_GENERATE)
+    public ResponseEntity<Object> apiAccessSecretGenerate(@RequestBody Map<String, Object> requestBody, @RequestHeader HttpHeaders headers) throws Exception {
+        try {
+            if(!requestBody.containsKey(USER_ID) || !requestBody.containsKey(PARTICIPANT_CODE)){
+                throw new ClientException("user id or participant code is missing");
+            }
+            return getSuccessResponse(service.generateAndSetUserSecret(requestBody));
+        } catch (Exception e) {
+            return exceptionHandler((String) requestBody.getOrDefault(USER_ID, ""), API_ACCESS_SECRET_GENERATE, new Response(), e);
         }
     }
 }
