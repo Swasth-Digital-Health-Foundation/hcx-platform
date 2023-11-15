@@ -3510,7 +3510,6 @@ class OnboardControllerTests extends BaseSpec{
         String requestBodyJson = applicantSearchRequestBody();
         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.APPLICANT_SEARCH +"?fields=identity_verification").content(requestBodyJson).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
-        System.out.println("Response of output ----" + response.getContentAsString());
         int status = response.getStatus();
         Assertions.assertEquals(200, status);
     }
