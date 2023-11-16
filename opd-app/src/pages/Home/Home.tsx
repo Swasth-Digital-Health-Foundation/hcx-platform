@@ -74,6 +74,7 @@ const Home = () => {
 
   const search = async () => {
     try {
+      setLoading(true)
       const tokenResponse = await generateToken();
       let token = tokenResponse.data?.access_token;
       const response = await searchParticipant(userSearchPayload, {
@@ -89,12 +90,14 @@ const Home = () => {
         app: "OPD",
       };
 
-      if (response.status === 200) {
-        getCoverageEligibilityRequestList(setLoading, requestPayload, setActiveRequests, setFinalData, setDisplayedData);
-      }
+      setTimeout(() => {
+        if (response.status === 200) {
+          getCoverageEligibilityRequestList(setLoading, requestPayload, setActiveRequests, setFinalData, setDisplayedData);
+        }
+      }, 1000);
     } catch (error) {
-      // console.log(error);
-      getCoverageEligibilityRequestList(setLoading, requestPayload, setActiveRequests, setFinalData, setDisplayedData);
+      console.log(error);
+      setLoading(false)
     }
   };
 

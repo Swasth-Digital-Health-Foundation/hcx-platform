@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { handleFileChange } from "../../utils/attachmentSizeValidation";
-import { generateOutgoingRequest, getCoverageEligibilityRequestList } from "../../services/hcxMockService";
+import { generateOutgoingRequest, getCoverageEligibilityRequestList, handleUpload } from "../../services/hcxMockService";
 import LoadingButton from "../../components/LoadingButton";
 import { toast } from "react-toastify";
 import strings from "../../utils/strings";
@@ -140,9 +140,16 @@ const InitiateNewClaimRequest = () => {
     },
   };
 
+  const requestPayload = {
+    sender_code: localStorage.getItem("senderCode"),
+    app: "OPD",
+  };
+
   useEffect(() => {
     getCoverageEligibilityRequestList(setLoading, requestPayload, setActiveRequests, setFinalData, setDisplayedData)
   }, []);
+
+  const mobile = localStorage.getItem("patientMobile")
 
   useEffect(() => {
     const search = async () => {
@@ -163,57 +170,34 @@ const InitiateNewClaimRequest = () => {
     search();
   }, [displayedData]);
 
-  const handleUpload = async () => {
-    try {
-      const formData = new FormData();
-      formData.append("mobile", location.state?.patientMobile);
-
-      FileLists.forEach((file: any) => {
-        formData.append(`file`, file);
-      });
-      toast.info("Uploading documents please wait...!");
-      const response = await axios({
-        url: `${process.env.hcx_mock_service}/upload/documents`,
-        method: "POST",
-        data: formData,
-      });
-      let obtainedResponse = response.data;
-      const uploadedUrls = obtainedResponse.map((ele: any) => ele.url);
-      // Update the payload with the new URLs
-      initiateClaimRequestBody.supportingDocuments[0].urls = uploadedUrls;
-      setUrlList((prevFileUrlList: any) => [
-        ...prevFileUrlList,
-        ...obtainedResponse,
-      ]);
-      toast.info("Documents uploaded successfully!");
-    } catch (error) {
-      console.error("Error in uploading file", error);
-    }
+  const handlePreAuthRequest = async () => {
+    const response = await generateOutgoingRequest("create/claim/submit", initiateClaimRequestBody);
   };
 
   const submitClaim = async () => {
     try {
       setSubmitLoading(true);
-      handleUpload();
-      setTimeout(async () => {
-        let getUrl = await generateOutgoingRequest(
-          "create/claim/submit",
-          initiateClaimRequestBody
-        );
-        setSubmitLoading(false);
+      if (!_.isEmpty(selectedFile)) {
+        const response = await handleUpload(mobile, FileLists, initiateClaimRequestBody, setUrlList);
+        if (response?.status === 200) {
+          handlePreAuthRequest()
+          setSubmitLoading(false);
+          toast.success("Claim request initiated successfully!")
+        }
+      }
+      else {
+        handlePreAuthRequest()
         toast.success("Claim request initiated successfully!")
-        navigate("/home");
-      }, 2000);
+      }
+      setSubmitLoading(false);
+      navigate("/home");
     } catch (err) {
       setSubmitLoading(false);
       toast.error("Faild to submit claim, try again!");
     }
   };
 
-  const requestPayload = {
-    sender_code: localStorage.getItem("senderCode"),
-    app: "OPD",
-  };
+
 
   return (
     <>
@@ -359,8 +343,7 @@ const InitiateNewClaimRequest = () => {
             {!submitLoading ? (
               <button
                 disabled={amount === "" || fileErrorMessage}
-                onClick={(event: any) => {
-                  event.preventDefault();
+                onClick={() => {
                   submitClaim();
                 }}
                 type="submit"

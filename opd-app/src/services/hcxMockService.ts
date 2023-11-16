@@ -119,6 +119,7 @@ const handleUpload = async (mobileNumber: any, FileLists: any, requestBody: any,
       ...obtainedResponse,
     ]);
     toast.info('Documents uploaded successfully!');
+    return response;
   } catch (error) {
     console.error('Error in uploading file', error);
   }

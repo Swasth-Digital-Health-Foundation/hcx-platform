@@ -148,67 +148,42 @@ const PreAuthRequest = () => {
     search();
   }, [displayedData]);
 
+  const requestPayload = {
+    sender_code: localStorage.getItem("senderCode"),
+    app: "OPD",
+  };
+
   useEffect(() => {
     getCoverageEligibilityRequestList(setLoading, requestPayload, setActiveRequests, setFinalData, setDisplayedData)
   }, []);
 
-  // console.log(location.state?.patientMobile);
   const mobile = localStorage.getItem("patientMobile")
 
-  // const handleUpload = async () => {
-  //   try {
-  //     const formData = new FormData();
-  //     formData.append("mobile", `${mobile}`);
-
-  //     FileLists.forEach((file: any) => {
-  //       formData.append(`file`, file);
-  //     });
-
-  //     toast.info("Uploading documents please wait...!");
-  //     const response = await axios({
-  //       url: `${process.env.hcx_mock_service}/upload/documents`,
-  //       method: "POST",
-  //       data: formData,
-  //     });
-  //     let obtainedResponse = response.data;
-
-  //     const uploadedUrls = _.map(obtainedResponse, (ele: any) => ele.url);
-  //     // Update the payload with the new URLs
-  //     initiateClaimRequestBody.supportingDocuments[0].urls = uploadedUrls;
-  //     setUrlList((prevFileUrlList: any) => [
-  //       ...prevFileUrlList,
-  //       ...obtainedResponse,
-  //     ]);
-  //     toast.info("Documents uploaded successfully!");
-  //   } catch (error) {
-  //     console.error("Error in uploading file", error);
-  //   }
-  // };
+  const handlePreAuthRequest = async () => {
+    const response = await generateOutgoingRequest("create/preauth/submit", initiateClaimRequestBody);
+  };
 
   const submitClaim = async () => {
     try {
       setSubmitLoading(true);
-      handleUpload(mobile, FileLists, initiateClaimRequestBody, setUrlList);
-      setTimeout(async () => {
-        if (fileUrlList.lenght !== 0) {
-          let response = await generateOutgoingRequest(
-            "create/preauth/submit",
-            initiateClaimRequestBody
-          );
+      if (!_.isEmpty(selectedFile)) {
+        const response = await handleUpload(mobile, FileLists, initiateClaimRequestBody, setUrlList);
+        if (response?.status === 200) {
+          handlePreAuthRequest()
           setSubmitLoading(false);
           toast.success("Pre-auth request initiated successfully!")
-          navigate("/home");
         }
-      }, 2000);
+      }
+      else {
+        handlePreAuthRequest()
+        toast.success("Pre-auth request initiated successfully!")
+      }
+      setSubmitLoading(false);
+      navigate("/home");
     } catch (err) {
       setSubmitLoading(false);
       toast.error("Faild to submit claim, try again!");
     }
-  };
-
-  const requestPayload = {
-    sender_code: localStorage.getItem("senderCode"),
-    app: "OPD",
   };
 
   return (

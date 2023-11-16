@@ -68,6 +68,20 @@ const AddConsultation = () => {
   // localStorage.setItem("patientMobile",location.state?.patientMobile);
 
   const patientMobile = location.state?.patientMobile || localStorage.getItem("patientMobile");
+  const addConsultation = async () => {
+    try {
+      setLoaderSubmit(true);
+      const response = await generateOutgoingRequest(
+        "consultation/add",
+        consultationPayload)
+      setLoaderSubmit(false);
+      toast.success("Consultation added successfully!");
+      navigate("/coverage-eligibility", { state: location.state });
+    } catch (err) {
+      setLoaderSubmit(false);
+      toast.error("Faild to add consultation, try again!");
+    }
+  };
 
   const handleUpload = async () => {
     try {
@@ -96,30 +110,18 @@ const AddConsultation = () => {
       ]);
       consultationPayload.supporting_documents_url = uploadedUrls;
       toast.info("Documents uploaded successfully!");
+      // addConsultation()
+      // console.log(response)
+      if (response.status === 200) {
+        addConsultation()
+      }
     } catch (error) {
       setLoading(false);
       toast.error("Faild to upload documents, please try again!");
     }
   };
 
-  const addConsultation = async () => {
-    try {
-      setLoaderSubmit(true);
-      handleUpload();
-      setTimeout(async () => {
-        const response = await generateOutgoingRequest(
-          "consultation/add",
-          consultationPayload
-        );
-        setLoaderSubmit(false);
-        toast.success("Consultation added successfully!");
-        navigate("/coverage-eligibility", { state: location.state });
-      }, 2000);
-    } catch (err) {
-      setLoaderSubmit(false);
-      toast.error("Faild to add consultation, try again!");
-    }
-  };
+
 
   return (
     <div>
@@ -283,7 +285,7 @@ const AddConsultation = () => {
         <div>
           <CustomButton
             text="Add consultation"
-            onClick={() => addConsultation()}
+            onClick={() => handleUpload()}
             disabled={
               treatmentType === "" ||
               serviceType === "" ||
