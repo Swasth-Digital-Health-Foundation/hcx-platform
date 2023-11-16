@@ -240,6 +240,8 @@ public class ParticipantService extends BaseRegistryService {
             } else {
                 x509Certificate = parseCertificateFromURL(certificate);
             }
+            // Validate Certificate Dates
+            x509Certificate.checkValidity();
             X509CertificateHolder certHolder = new X509CertificateHolder(x509Certificate.getEncoded());
             String organizationName = certHolder.getSubject().getRDNs(org.bouncycastle.asn1.x500.X500Name.getDefaultStyle().attrNameToOID("O"))[0].getFirst().getValue().toString();
             // Validate that the issuing certificate authority is in the trusted CA list
@@ -251,8 +253,6 @@ public class ParticipantService extends BaseRegistryService {
             if (!allowedCertificateKeySize.contains(keySize)) {
                 throw new ClientException(ErrorCodes.ERR_INVALID_CERTIFICATE, String.format("Certificate must have a minimum key size of 2048 bits. Current key size: %d bits.", keySize));
             }
-            // Validate Certificate Dates
-            x509Certificate.checkValidity();
         } catch (Exception e) {
             throw new ClientException(ErrorCodes.ERR_INVALID_CERTIFICATE, e.getMessage());
         }
