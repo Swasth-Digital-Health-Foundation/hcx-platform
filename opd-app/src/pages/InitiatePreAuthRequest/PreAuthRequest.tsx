@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { handleFileChange } from "../../utils/attachmentSizeValidation";
-import { generateOutgoingRequest, getCoverageEligibilityRequestList } from "../../services/hcxMockService";
+import { generateOutgoingRequest, getCoverageEligibilityRequestList, handleUpload } from "../../services/hcxMockService";
 import LoadingButton from "../../components/LoadingButton";
 import { toast } from "react-toastify";
 import strings from "../../utils/strings";
@@ -100,7 +100,7 @@ const PreAuthRequest = () => {
     ],
     type: "provider_app",
   };
-  
+
   const filter = {
     entityType: ["Beneficiary"],
     filters: {
@@ -155,40 +155,40 @@ const PreAuthRequest = () => {
   // console.log(location.state?.patientMobile);
   const mobile = localStorage.getItem("patientMobile")
 
-  const handleUpload = async () => {
-    try {
-      const formData = new FormData();
-      formData.append("mobile", `${mobile}`);
+  // const handleUpload = async () => {
+  //   try {
+  //     const formData = new FormData();
+  //     formData.append("mobile", `${mobile}`);
 
-      FileLists.forEach((file: any) => {
-        formData.append(`file`, file);
-      });
+  //     FileLists.forEach((file: any) => {
+  //       formData.append(`file`, file);
+  //     });
 
-      toast.info("Uploading documents please wait...!");
-      const response = await axios({
-        url: `${process.env.hcx_mock_service}/upload/documents`,
-        method: "POST",
-        data: formData,
-      });
-      let obtainedResponse = response.data;
+  //     toast.info("Uploading documents please wait...!");
+  //     const response = await axios({
+  //       url: `${process.env.hcx_mock_service}/upload/documents`,
+  //       method: "POST",
+  //       data: formData,
+  //     });
+  //     let obtainedResponse = response.data;
 
-      const uploadedUrls = _.map(obtainedResponse, (ele: any) => ele.url);
-      // Update the payload with the new URLs
-      initiateClaimRequestBody.supportingDocuments[0].urls = uploadedUrls;
-      setUrlList((prevFileUrlList: any) => [
-        ...prevFileUrlList,
-        ...obtainedResponse,
-      ]);
-      toast.info("Documents uploaded successfully!");
-    } catch (error) {
-      console.error("Error in uploading file", error);
-    }
-  };
+  //     const uploadedUrls = _.map(obtainedResponse, (ele: any) => ele.url);
+  //     // Update the payload with the new URLs
+  //     initiateClaimRequestBody.supportingDocuments[0].urls = uploadedUrls;
+  //     setUrlList((prevFileUrlList: any) => [
+  //       ...prevFileUrlList,
+  //       ...obtainedResponse,
+  //     ]);
+  //     toast.info("Documents uploaded successfully!");
+  //   } catch (error) {
+  //     console.error("Error in uploading file", error);
+  //   }
+  // };
 
   const submitClaim = async () => {
     try {
       setSubmitLoading(true);
-      handleUpload();
+      handleUpload(mobile, FileLists, initiateClaimRequestBody, setUrlList);
       setTimeout(async () => {
         if (fileUrlList.lenght !== 0) {
           let response = await generateOutgoingRequest(

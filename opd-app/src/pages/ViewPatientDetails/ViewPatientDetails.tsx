@@ -149,9 +149,10 @@ const ViewPatientDetails = () => {
     app: "OPD",
   };
 
+  const patientMobile = localStorage.getItem("patientMobile");
   const coverageEligibilityPayload = {
     mobile:
-      location.state?.patientMobile || localStorage.getItem("patientMobile"),
+      location.state?.patientMobile || patientMobile,
     app: "OPD",
   };
 
@@ -204,8 +205,7 @@ const ViewPatientDetails = () => {
   useEffect(() => {
     tokenGeneration();
     getActivePlans();
-    getConsultation();
-  }, [preauthOrClaimListPayload.workflow_id]);
+  }, [preauthOrClaimListPayload.workflow_id,patientMobile]);
 
   const getConsultation = async () => {
     try {
@@ -225,21 +225,24 @@ const ViewPatientDetails = () => {
         break;
       }
     }
+    getConsultation();
   }, []);
 
+
+  const workflowId = location.state?.workflowId;
   let coverageStatus = coverageDetails.find(
-    (entryObj: any) => Object.keys(entryObj)[0] === location.state?.workflowId
+    (entryObj: any) => Object.keys(entryObj)[0] === workflowId
   );
 
   useEffect(() => {
     if (
       coverageStatus &&
-      coverageStatus[location.state?.workflowId].some(
+      coverageStatus[workflowId].some(
         (obj: any) => obj.type === "coverageeligibility"
       )
     ) {
       // If it exists, find the object with type "coverageeligibility" and return its status
-      const eligibilityObject = coverageStatus[location.state?.workflowId].find(
+      const eligibilityObject = coverageStatus[workflowId].find(
         (obj: any) => obj.type === "coverageeligibility"
       );
       const status = eligibilityObject.status;
@@ -249,7 +252,7 @@ const ViewPatientDetails = () => {
         "Object with type 'coverageeligibility' not found for the given ID."
       );
     }
-  }, [coverageStatus]);
+  }, [coverageStatus,patientMobile]);
 
   useEffect(() => {
     getPatientDetails();
@@ -545,7 +548,6 @@ const ViewPatientDetails = () => {
               </>
             ) : null}
           </div>
-
           {!hasClaimApproved ? (
             null
           ) : (

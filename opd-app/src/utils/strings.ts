@@ -53,4 +53,9 @@ export default {
   INITIATE_PREAUTH_REQUEST: 'Initiate pre-auth request',
   INITIATE_NEW_CLAIM_REQUEST: 'Initiate new claim request',
   PROCEED: 'Proceed',
+  ADD_NEW_PATIENT:"+ Add new patient",
+  SEARCH_PATIENT:"Search patient :",
+  PATIENT_MOBILE:"Patient mobile no. :",
+  VIEW_MORE:"View More",
+  ACTIVE_LIST:"Recent active patients :"
 };
