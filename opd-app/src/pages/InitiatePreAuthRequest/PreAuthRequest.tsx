@@ -222,25 +222,25 @@ const PreAuthRequest = () => {
           </h2>
           <div className="rounded-lg border border-stroke bg-white p-2 px-3 shadow-default dark:border-strokedark dark:bg-boxdark">
             <TextInputWithLabel
-              label="Selected insurance :"
+              label="Selected insurance : *"
               value={selectedInsurance || displayedData[0]?.insurance_id}
               disabled={true}
               type="text"
             />
             <TextInputWithLabel
-              label="Service type :"
+              label="Service type : *"
               value={displayedData[0]?.claimType || serviceType}
               disabled={true}
               type="text"
             />
             <SelectInput
-              label="Service/Treatment given :"
+              label="Service/Treatment given : *"
               value={"consultation"}
               onChange={(e: any) => setServiceType(e.target.value)}
               options={treatmentOptions}
             />
             <TextInputWithLabel
-              label="Estimated bill amount :"
+              label="Estimated bill amount : *"
               value={amount}
               onChange={(e: any) => setAmount(e.target.value)}
               placeholder="Enter amount"
