@@ -347,6 +347,7 @@ public class Constants {
     public static final String OVER_ALL_STATUS = "overallStatus";
     public static final String PARTIAL = "partial";
     public static final String FAILED = "failed";
+    public static final String STATUS_DB = "status";
     public static final String ATTEMPT_COUNT = "attempt_count";
     public static final String REJECTED = "rejected";
     public static final String ACCEPTED = "accepted";

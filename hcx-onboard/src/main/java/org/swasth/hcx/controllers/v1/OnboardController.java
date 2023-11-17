@@ -10,8 +10,8 @@ import org.swasth.common.utils.Constants;
 import org.swasth.hcx.controllers.BaseController;
 import org.swasth.hcx.services.OnboardService;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.swasth.common.utils.Constants.*;
@@ -20,12 +20,15 @@ import static org.swasth.common.utils.Constants.*;
 @RequestMapping(Constants.VERSION_PREFIX)
 public class OnboardController extends BaseController {
 
-
-    @Autowired
     private OnboardService service;
 
+    @Autowired
+    public OnboardController(OnboardService service){
+        this.service=service;
+    }
+
     @PostMapping(PARTICIPANT_VERIFY)
-    public ResponseEntity<Object> verify(@RequestHeader HttpHeaders header, @RequestBody ArrayList<Map<String, Object>> body) throws Exception {
+    public ResponseEntity<Object> verify(@RequestHeader HttpHeaders header, @RequestBody List<Map<String, Object>> body) throws Exception {
         try {
             return service.verify(header, body);
         } catch (Exception e) {
