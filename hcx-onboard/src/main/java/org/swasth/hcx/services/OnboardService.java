@@ -697,8 +697,6 @@ public class OnboardService extends BaseController {
             getMockParticipant(participantList, headers);
         if (fields != null && fields.toLowerCase().contains(ONBOARD_VALIDATION_PROPERTIES))
             getOnboardValidations(participantList);
-        if (fields != null && fields.toLowerCase().contains(IDENTITY_VERIFICATION))
-            addIdentityVerification(participantList);
         return new ResponseEntity<>(new RegistryResponse(participantList, ORGANISATION), HttpStatus.OK);
     }
 
@@ -983,17 +981,6 @@ public class OnboardService extends BaseController {
         }
         filterSponsors(sponsorMap, participantsList);
     }
-
-    private void addIdentityVerification(List<Map<String, Object>> participantsList) throws Exception {
-        String selectQuery = String.format("SELECT * FROM %S WHERE participant_code IN (%s)", onboardingVerifierTable, getParticipantCodeList(participantsList, PARTICIPANT_CODE));
-        ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
-        Map<String, Object> identityVerification = new HashMap<>();
-        while (resultSet.next()) {
-            identityVerification.put(resultSet.getString(PARTICIPANT_CODE), resultSet.getString("status"));
-        }
-        filterDetails(identityVerification, participantsList, IDENTITY_VERIFICATION);
-    }
-
     private void addCommunicationStatus(List<Map<String, Object>> participantsList) throws Exception {
         String selectQuery = String.format("SELECT * FROM %s WHERE participant_code IN (%s)", onboardVerificationTable, getParticipantCodeList(participantsList, PARTICIPANT_CODE));
         ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
