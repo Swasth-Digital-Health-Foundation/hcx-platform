@@ -564,7 +564,7 @@ class OnboardControllerTests extends BaseSpec{
         Response resp = new Response();
         resp.setStatus(SUCCESSFUL);
         Mockito.when(onboardService.generateAndSetPassword(any(),anyString())).thenReturn(resp);
-        Mockito.doNothing().when(onboardService).setKeycloakPassword(anyString(),anyMap());
+        Mockito.doNothing().when(onboardService).setKeycloakPassword(anyString(),anyString(),anyString());
         postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verifier");
         postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verification");
         postgreSQLClient.execute("DROP TABLE IF EXISTS mock_participant");
@@ -688,7 +688,7 @@ class OnboardControllerTests extends BaseSpec{
         Response resp = new Response();
         resp.setStatus(SUCCESSFUL);
         Mockito.when(onboardService.generateAndSetPassword(any(),anyString())).thenReturn(resp);
-        Mockito.doNothing().when(onboardService).setKeycloakPassword(anyString(),anyMap());
+        Mockito.doNothing().when(onboardService).setKeycloakPassword(anyString(),anyString(),anyString());
         postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verifier");
         postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verification");
         postgreSQLClient.execute("DROP TABLE IF EXISTS mock_participant");
@@ -754,7 +754,7 @@ class OnboardControllerTests extends BaseSpec{
         Response resp = new Response();
         resp.setStatus(SUCCESSFUL);
         Mockito.when(onboardService.generateAndSetPassword(any(),anyString())).thenReturn(resp);
-        Mockito.doNothing().when(onboardService).setKeycloakPassword(anyString(),anyMap());
+        Mockito.doNothing().when(onboardService).setKeycloakPassword(anyString(),anyString(),anyString());
         postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verifier");
         postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verification");
         postgreSQLClient.execute("DROP TABLE IF EXISTS mock_participant");
@@ -951,7 +951,7 @@ class OnboardControllerTests extends BaseSpec{
         Response resp = new Response();
         resp.setStatus(SUCCESSFUL);
         Mockito.when(onboardService.generateAndSetPassword(any(),anyString())).thenReturn(resp);
-        Mockito.doNothing().when(onboardService).setKeycloakPassword(anyString(),anyMap());
+        Mockito.doNothing().when(onboardService).setKeycloakPassword(anyString(),anyString(),anyString());
         postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verifier");
         postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verification");
         postgreSQLClient.execute("DROP TABLE IF EXISTS mock_participant");
@@ -997,7 +997,7 @@ class OnboardControllerTests extends BaseSpec{
         Response resp = new Response();
         resp.setStatus(SUCCESSFUL);
         Mockito.when(onboardService.generateAndSetPassword(any(),anyString())).thenReturn(resp);
-        Mockito.doNothing().when(onboardService).setKeycloakPassword(anyString(),anyMap());
+        Mockito.doNothing().when(onboardService).setKeycloakPassword(anyString(),anyString(),anyString());
         postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verifier");
         postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verification");
         postgreSQLClient.execute("CREATE TABLE onboard_verification(participant_code character varying NOT NULL PRIMARY KEY,   primary_email character varying,   primary_mobile character varying, createdon bigInt,updatedon bigInt,  expiry bigInt,  phone_verified boolean NOT NULL,email_verified boolean NOT NULL,status character varying,  regenerate_count int,last_regenerate_date date, attempt_count bigInt, comments character varying, phone_short_url character varying, phone_long_url character varying, onboard_validation_properties json, participant_validation_properties json)");
