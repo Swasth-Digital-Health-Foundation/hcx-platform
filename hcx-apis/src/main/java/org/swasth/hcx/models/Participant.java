@@ -40,17 +40,14 @@ public class Participant {
         return code;
     }
 
-    private String getRoleAppender() {
-        if (getRoles().stream().anyMatch(PROVIDER_SPECIFIC_ROLES::contains)) {
-            return getRoles().get(0).substring(9, 13);
-        } else if (getRoles().contains("payor")) {
-            return "payr";
-        } else if (getRoles().contains("bsp")) {
-            return "bsp";
-        } else if (getRoles().contains("provider")) {
+    private String getRoleAppender(){
+        if (getRoles().contains(PROVIDER)){
             return "hosp";
+        } else if (getRoles().contains(PAYOR)){
+            return "payr";
+        } else {
+            return getRoles().get(0);
         }
-        return getRoles().get(0);
     }
 
     private String getRandomSeq(){

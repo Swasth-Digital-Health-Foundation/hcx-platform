@@ -190,7 +190,7 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
 
   private def dispatchError(payloadRefId: String, event: util.Map[String, AnyRef], result: DispatcherResult, correlationId: String, senderCtx: util.Map[String, AnyRef], context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
     updateDBStatus(payloadRefId, Constants.ERROR_STATUS)
-    setErrorStatus(event, Constants.ERROR_STATUS)
+    setStatus(event, Constants.ERROR_STATUS)
     setErrorDetails(event, createErrorMap(result.error))
     metrics.incCounter(metric = config.dispatcherFailedCount)
     generateFailedMetrics(event, metrics)

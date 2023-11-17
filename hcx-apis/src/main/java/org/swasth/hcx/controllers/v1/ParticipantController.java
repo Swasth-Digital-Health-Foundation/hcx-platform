@@ -44,6 +44,7 @@ public class ParticipantController extends BaseController {
 
     @Value("${postgres.onboardingOtpTable}")
     private String onboardOtpTable;
+
     @Autowired
     private ParticipantService service;
 

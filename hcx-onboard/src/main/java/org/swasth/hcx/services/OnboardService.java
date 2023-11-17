@@ -246,14 +246,13 @@ public class OnboardService extends BaseController {
         return (String) JSONUtils.deserialize(createResponse.getBody(), Map.class).get(id);
     }
 
-    private void addParticipantDetails(Map<String, Object> participant, OnboardRequest request) {
+    private void addParticipantDetails(Map<String,Object> participant, OnboardRequest request) {
         participant.put(ENDPOINT_URL, "http://testurl/v0.7");
         participant.put(ENCRYPTION_CERT, "https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/hcx-platform/main/hcx-apis/src/test/resources/examples/test-keys/public-key.pem");
         participant.put(REGISTRY_STATUS, CREATED);
-        ArrayList<String> roles = (ArrayList<String>) participant.get(ROLES);
-        if (roles.contains(PAYOR))
+        if (((ArrayList<String>) participant.get(ROLES)).contains(PAYOR))
             participant.put(SCHEME_CODE, "default");
-        if (roles.contains(PROVIDER) || roles.stream().anyMatch(PROVIDER_SPECIFIC_ROLES::contains))
+        if (((ArrayList<String>) participant.get(ROLES)).contains(PROVIDER))
             participant.put(APPLICANT_CODE, request.getApplicantCode());
     }
 
@@ -302,7 +301,7 @@ public class OnboardService extends BaseController {
         body.put(MOBILE, request.getPrimaryMobile());
         body.put(APPLICANT_NAME, request.getParticipantName());
         body.put(ADDITIONALVERIFICATION, request.getAdditionalVerification());
-        body.put(ROLE, request.getRoles());
+        body.put(ROLE, PROVIDER);
         return body;
     }
 
@@ -708,8 +707,6 @@ public class OnboardService extends BaseController {
             getMockParticipant(participantList, headers);
         if (fields != null && fields.toLowerCase().contains(ONBOARD_VALIDATION_PROPERTIES))
             getOnboardValidations(participantList);
-        if (fields != null && fields.toLowerCase().contains(IDENTITY_VERIFICATION))
-            addIdentityVerification(participantList);
         return new ResponseEntity<>(new RegistryResponse(participantList, ORGANISATION), HttpStatus.OK);
     }
 
@@ -777,13 +774,8 @@ public class OnboardService extends BaseController {
     private void addUser(HttpHeaders headers, String requestBody) throws Exception {
         HttpResponse<String> response = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_USER_ADD, requestBody, getHeadersMap(headers));
         if (response.getStatus() != 200) {
-            Map<String, Object> result = JSONUtils.deserialize(response.getBody(), Map.class);
-            List<Map<String, Object>> errList = JSONUtils.convert(result.get("result"), ArrayList.class);
-            Map<String, Object> errorMap = new HashMap<>();
-            for (Map<String, Object> error : errList) {
-                errorMap = (Map<String, Object>) error.get("error");
-            }
-            throw new ClientException((String) errorMap.get("message"));
+            Response resp = new Response(JSONUtils.deserialize(response.getBody(), Map.class));
+            throw new ClientException(resp.getError().getCode(), resp.getError().getMessage());
         }
     }
 
@@ -1003,16 +995,6 @@ public class OnboardService extends BaseController {
             sponsorMap.put(resultSet.getString(PARTICIPANT_CODE), sponsorResponse);
         }
         filterSponsors(sponsorMap, participantsList);
-    }
-
-    private void addIdentityVerification(List<Map<String, Object>> participantsList) throws Exception {
-        String selectQuery = String.format("SELECT * FROM %S WHERE participant_code IN (%s)", onboardingVerifierTable, getParticipantCodeList(participantsList, PARTICIPANT_CODE));
-        ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
-        Map<String, Object> identityVerification = new HashMap<>();
-        while (resultSet.next()) {
-            identityVerification.put(resultSet.getString(PARTICIPANT_CODE), resultSet.getString("status"));
-        }
-        filterDetails(identityVerification, participantsList, IDENTITY_VERIFICATION);
     }
 
     private void addCommunicationStatus(List<Map<String, Object>> participantsList) throws Exception {

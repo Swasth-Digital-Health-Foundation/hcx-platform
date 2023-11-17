@@ -155,4 +155,3 @@ email:
 
 api-access-secret:
   expiry-days: ${secret_expiry_days:90}
-
