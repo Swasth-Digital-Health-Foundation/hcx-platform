@@ -134,7 +134,6 @@ object Constants {
   val PARTICIPANT_ROLE = "participant_role"
   val RECIPIENTS = "recipients"
   val CORRELATIONID = "correlation_id"
-  val COMPLETE_RESPONSE = "response.complete"
   val ALLOWED_STATUS_UPDATE = List(QUEUED_STATUS, DISPATCH_STATUS, ERROR_STATUS)
 
   // Notification topic codes
@@ -151,6 +150,7 @@ object Constants {
   val SEARCH_COUNT = "count"
   val SEARCH_ENTITY_COUNT = "entity_counts"
   val PARTIAL_RESPONSE = "response.partial"
+  val COMPLETE_RESPONSE = "response.complete"
   val REQUEST_INITIATED = "request.initiated"
 
 

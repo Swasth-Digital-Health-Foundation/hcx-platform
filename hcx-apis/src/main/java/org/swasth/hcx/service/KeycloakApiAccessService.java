@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.swasth.common.exception.ClientException;
 import org.swasth.common.helpers.EventGenerator;
 import org.swasth.kafka.client.KafkaClient;
-import org.swasth.postgresql.IDatabaseService;
 
 import javax.ws.rs.core.Response;
 import java.security.SecureRandom;
@@ -36,10 +35,6 @@ public class KeycloakApiAccessService {
     private String keycloakAdminUserName;
     @Value("${keycloak.master-realm}")
     private String keycloakMasterRealm;
-    @Value("${postgres.api-access-secrets-expiry-table}")
-    private String apiAccessTable;
-    @Value("${api-access-secret.expiry-days}")
-    private int secretExpiryDays;
     @Value("${keycloak.protocol-access-realm}")
     private String keycloackProtocolAccessRealm;
     @Value("${keycloak.admin-client-id}")
@@ -52,8 +47,6 @@ public class KeycloakApiAccessService {
     private String messageTopic;
     @Autowired
     private KafkaClient kafkaClient;
-    @Autowired
-    private IDatabaseService postgreSQLClient;
     @Autowired
     protected EventGenerator eventGenerator;
 
@@ -72,9 +65,6 @@ public class KeycloakApiAccessService {
                 response = usersResource.create(user);
                 response.close();
                 if (response.getStatus() == 201) {
-                    String query = String.format("INSERT INTO %s (user_id,participant_code,secret_generation_date,secret_expiry_date,username)VALUES ('%s','%s',%d,%d,'%s');", apiAccessTable, email,
-                            participantCode, System.currentTimeMillis(), System.currentTimeMillis() + (secretExpiryDays * 24 * 60 * 60 * 1000), userName);
-                    postgreSQLClient.execute(query);
                     String message = userEmailMessage;
                     message = message.replace("NAME", name).replace("USER_ID", email).replace("PASSWORD", password).replace("PARTICIPANT_CODE", participantCode);
                     kafkaClient.send(messageTopic, EMAIL, eventGenerator.getEmailMessageEvent(message, emailSub, List.of(email), new ArrayList<>(), new ArrayList<>()));
@@ -105,7 +95,7 @@ public class KeycloakApiAccessService {
         return user;
     }
 
-    private String generateRandomPassword() {
+    private String generateRandomPassword(){
         String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#&*";
         SecureRandom secureRandom = new SecureRandom();
         StringBuilder password = new StringBuilder(16);

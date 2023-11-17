@@ -40,25 +40,14 @@ public class Participant {
         return code;
     }
 
-    private String getRoleAppender() {
-        if (getRoles().contains("provider.hospital")) {
+    private String getRoleAppender(){
+        if (getRoles().contains(PROVIDER)){
             return "hosp";
-        } else if (getRoles().contains("provider.clinic")) {
-            return "clinic";
-        } else if (getRoles().contains("provider.practitioner")) {
-            return "prac";
-        } else if (getRoles().contains("provider.diagnostics")) {
-            return "diag";
-        } else if (getRoles().contains("provider.pharmacy")) {
-            return "pharm";
-        } else if (getRoles().contains("payor")) {
+        } else if (getRoles().contains(PAYOR)){
             return "payr";
-        } else if (getRoles().contains("bsp")) {
-            return "bsp";
-        } else if (getRoles().contains("provider")) {
-            return "hosp";
+        } else {
+            return getRoles().get(0);
         }
-        return getRoles().get(0);
     }
 
     private String getRandomSeq(){
