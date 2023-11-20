@@ -30,6 +30,7 @@ import org.swasth.postgresql.PostgreSQLClient;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.sql.ResultSet;
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -161,9 +162,12 @@ public class CommonSchedulerTest {
     }
 
     @Test
-    void testUserSecretAboutTpExpire() throws Exception {
+    void testUserSecretAboutToExpire() throws Exception {
+        long secret_generation_date = System.currentTimeMillis();
+        long secret_expiry_date = System.currentTimeMillis() + (6) * 24L * 60 * 60 * 1000;
         postgreSQLClient.execute("CREATE TABLE api_access_secrets_expiry(user_id character varying, participant_code character varying, secret_generation_date bigint, secret_expiry_date bigint, username character varying NOT NULL)");
-        postgreSQLClient.execute("INSERT INTO api_access_secrets_expiry(user_id, participant_code, secret_generation_date, secret_expiry_date, username) VALUES('mock18@gmail.com', 'hcxtest6.yopmail@swasth-hcx', '1696839989628', '1698479822560', 'hcxtest6.yopmail@swasth-hcx:mock18@gmail.com');");
+        String query = String.format("INSERT INTO api_access_secrets_expiry(user_id, participant_code, secret_generation_date, secret_expiry_date, username) VALUES('mock18@gmail.com', 'hcxtest6.yopmail@swasth-hcx',%s, %s, 'hcxtest6.yopmail@swasth-hcx:mock18@gmail.com');",secret_generation_date,secret_expiry_date);
+        postgreSQLClient.execute(query);
         when(eventGenerator.generateMetadataEvent(any())).thenReturn("mockedEvent");
         lenient().doNothing().when(kafkaClient).send(anyString(), anyString(), anyString());
         String[] args = {"UserSecret"};
