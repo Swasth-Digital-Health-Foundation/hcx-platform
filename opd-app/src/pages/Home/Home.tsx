@@ -158,7 +158,7 @@ const Home = () => {
                 qrbox={250}
                 disableFlip={false}
                 qrCodeSuccessCallback={onNewScanResult}
-                setInitialized={initialized}
+                // setInitialized={initialized}
               />
             </div>
           </div>
