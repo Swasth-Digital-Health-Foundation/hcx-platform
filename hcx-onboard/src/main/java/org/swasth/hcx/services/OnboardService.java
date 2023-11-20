@@ -867,26 +867,26 @@ public class OnboardService extends BaseController {
 
     private String userInviteRejectTemplate(String email, String participantName) throws TemplateException, IOException {
         Map<String, Object> model = new HashMap<>();
-        model.put(PARTICIPANT_NAME, participantName);
+        model.put("PARTICIPANT_NAME", participantName);
         model.put("EMAIL", email);
         return freemarkerService.renderTemplate("user-invite-reject-participant.ftl", model);
     }
 
     private String userInviteAcceptTemplate(String userId, String participantName, String username, String role) throws TemplateException, IOException {
         Map<String, Object> model = new HashMap<>();
-        model.put(USER_NAME, username);
-        model.put(USER_ID, userId);
-        model.put(PARTICIPANT_NAME, participantName);
+        model.put("USER_NAME", username);
+        model.put("USER_ID", userId);
+        model.put("PARTICIPANT_NAME", participantName);
         model.put("ENV", env);
-        model.put(ROLE, role);
+        model.put("ROLE", role);
         return freemarkerService.renderTemplate("user-invite-accepted-user.ftl", model);
     }
 
     private String userInviteAcceptParticipantTemplate(String participantName, String username, String role) throws TemplateException, IOException {
         Map<String, Object> model = new HashMap<>();
-        model.put(PARTICIPANT_NAME, participantName);
-        model.put(USER_NAME, username);
-        model.put(ROLE, role);
+        model.put("PARTICIPANT_NAME", participantName);
+        model.put("USER_NAME", username);
+        model.put("ROLE", role);
         return freemarkerService.renderTemplate("user-invite-accepted-participant.ftl", model);
     }
 
@@ -894,7 +894,7 @@ public class OnboardService extends BaseController {
     private String userInviteUserTemplate(String email, String name, String role, URL signedURL) throws TemplateException, IOException {
         Map<String, Object> model = new HashMap<>();
         model.put("USER_EMAIL", email);
-        model.put(PARTICIPANT_NAME, name);
+        model.put("PARTICIPANT_NAME", name);
         model.put("USER_ROLE", role);
         model.put("USER_INVITE_URL", signedURL);
         return freemarkerService.renderTemplate("user-invite-request-user.ftl", model);
@@ -902,17 +902,17 @@ public class OnboardService extends BaseController {
 
     private String userInviteParticipantTemplate(String name, String role, String userEmail) throws TemplateException, IOException {
         Map<String, Object> model = new HashMap<>();
-        model.put(PARTICIPANT_NAME, name);
+        model.put("PARTICIPANT_NAME", name);
         model.put("USER_ROLE", role);
-        model.put(EMAIL, userEmail);
+        model.put("EMAIL", userEmail);
         return freemarkerService.renderTemplate("user-invite-request-participant.ftl", model);
     }
 
 
     private String linkTemplate(String name, String code, URL signedURL, int day, ArrayList<String> role, String userId) throws TemplateException, IOException {
         Map<String, Object> model = new HashMap<>();
-        model.put(USER_NAME, name);
-        model.put(PARTICIPANT_CODE, code);
+        model.put("USER_NAME", name);
+        model.put("PARTICIPANT_CODE", code);
         model.put("URL", signedURL);
         model.put("role", role.get(0));
         model.put("DAY", day);
@@ -922,7 +922,7 @@ public class OnboardService extends BaseController {
 
     private String regenerateLinkTemplate(String name, URL signedURL, int day) throws TemplateException, IOException {
         Map<String, Object> model = new HashMap<>();
-        model.put(USER_NAME, name);
+        model.put("USER_NAME", name);
         model.put("URL", signedURL);
         model.put("DAY", day);
         return freemarkerService.renderTemplate("regenerate-send-link.ftl", model);
@@ -942,7 +942,7 @@ public class OnboardService extends BaseController {
 
     private String pocSuccessTemplate(String name) throws TemplateException, IOException {
         Map<String, Object> model = new HashMap<>();
-        model.put(USER_NAME, name);
+        model.put("USER_NAME", name);
         model.put("ONBOARDING_SUCCESS_URL", onboardingSuccessURL);
         return freemarkerService.renderTemplate("onboard-poc-success.ftl", model);
     }
@@ -953,15 +953,15 @@ public class OnboardService extends BaseController {
 
     private String verificationStatus(String name, String status) throws TemplateException, IOException {
         Map<String, Object> model = new HashMap<>();
-        model.put(USER_NAME, name);
+        model.put("USER_NAME", name);
         model.put("STATUS", status);
         return freemarkerService.renderTemplate("verification-status.ftl", model);
     }
 
     private String passwordGenerate(String participantName, String password, String username) throws TemplateException, IOException {
         Map<String, Object> model = new HashMap<>();
-        model.put(PARTICIPANT_NAME, participantName);
-        model.put(USERNAME, username);
+        model.put("PARTICIPANT_NAME", participantName);
+        model.put("USERNAME", username);
         model.put("PASSWORD", password);
         return freemarkerService.renderTemplate("password-generate.ftl", model);
     }
