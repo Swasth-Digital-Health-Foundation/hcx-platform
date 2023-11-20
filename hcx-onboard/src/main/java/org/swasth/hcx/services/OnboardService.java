@@ -896,7 +896,7 @@ public class OnboardService extends BaseController {
         return freemarkerService.renderTemplate("user-invite-accepted-participant.ftl", model);
     }
 
-    private String apiAccessSecretTemplate(String user, String password, String participantCode) throws Exception {
+    private String apiAccessSecretTemplate(String user, String password, String participantCode) throws TemplateException, IOException {
         Map<String, Object> model = new HashMap<>();
         model.put("USER_ID", user);
         model.put("PARTICIPANT_CODE", participantCode);
@@ -1104,7 +1104,7 @@ public class OnboardService extends BaseController {
         Map<String,Object> registryDetails = getParticipant(PARTICIPANT_CODE,childParticipantCode);
         ArrayList<String> osOwner = (ArrayList<String>) registryDetails.get(OS_OWNER);
         setKeycloakPassword(password, osOwner.get(0), keycloackParticipantRealm);
-        logger.info("created Mock participant for :: parent participant code  : " + parentParticipantCode + " :: child participant code  : " + childParticipantCode);
+        logger.info("created Mock participant for :: parent participant code  : {} :: child participant code  : {} " ,parentParticipantCode, childParticipantCode);
         return mockParticipantDetails;
     }
 
@@ -1119,7 +1119,7 @@ public class OnboardService extends BaseController {
             userResource.resetPassword(passwordCred);
             String userId = userResource.toRepresentation().getId();
             realmResource.users().get(userId).logout();
-            logger.info("The Keycloak password for the osOwner :" + user + " has been successfully updated, and their sessions have been invalidated.");
+            logger.info("The Keycloak password for the osOwner : {} has been successfully updated, and their sessions have been invalidated.", user);
         } catch (Exception e) {
             throw new ClientException("Unable to set keycloak password : " + e.getMessage());
         }
