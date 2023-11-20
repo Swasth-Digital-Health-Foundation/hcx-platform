@@ -338,6 +338,23 @@ public class BaseSpec {
         return JSONUtils.serialize(participant);
     }
 
+    protected String apiAccessSecretBody() throws JsonProcessingException {
+        Map<String , Object> participant = new HashMap<>();
+        participant.put("participant_code","payr_test1234@swasth-hcx");
+        return JSONUtils.serialize(participant);
+    }
+
+    protected String apiAccessSecretRequest() throws JsonProcessingException {
+        Map<String , Object> participant = new HashMap<>();
+        participant.put("user_id","hcxtest477@yopmail.com");
+        return JSONUtils.serialize(participant);
+    }
+
+    protected String apiAccessSecretRequestbdy() throws JsonProcessingException {
+        Map<String , Object> participant = new HashMap<>();
+        return JSONUtils.serialize(participant);
+    }
+
     protected String apiAccessSecret() throws JsonProcessingException {
         Map<String , Object> participant = new HashMap<>();
         participant.put("user_id","hcxtest477@yopmail.com");

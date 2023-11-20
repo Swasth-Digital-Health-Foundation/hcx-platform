@@ -3982,6 +3982,37 @@ class OnboardControllerTests extends BaseSpec{
     }
 
     @Test
+    void api_access_secret_generate_exception_() throws Exception {
+        postgreSQLClient.execute("DROP TABLE IF EXISTS api_access_secrets_expiry");
+        postgreSQLClient.execute("CREATE TABLE api_access_secrets_expiry(user_id character varying,participant_code character varying,secret_generation_date character varying,secret_expiry_date character varying ,username character varying NOT NULL PRIMARY KEY)");
+        String requestBodyJson = apiAccessSecretBody();
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.API_ACCESS_SECRET_GENERATE).content(requestBodyJson).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        Assertions.assertEquals(400, status);
+    }
+
+    @Test
+    void api_access_secret_generate_error() throws Exception {
+        postgreSQLClient.execute("DROP TABLE IF EXISTS api_access_secrets_expiry");
+        postgreSQLClient.execute("CREATE TABLE api_access_secrets_expiry(user_id character varying,participant_code character varying,secret_generation_date character varying,secret_expiry_date character varying ,username character varying NOT NULL PRIMARY KEY)");
+        String requestBodyJson = apiAccessSecretRequest();
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.API_ACCESS_SECRET_GENERATE).content(requestBodyJson).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        Assertions.assertEquals(400, status);
+    }
+    @Test
+    void api_access_secret_generate_error_exception() throws Exception {
+        postgreSQLClient.execute("DROP TABLE IF EXISTS api_access_secrets_expiry");
+        postgreSQLClient.execute("CREATE TABLE api_access_secrets_expiry(user_id character varying,participant_code character varying,secret_generation_date character varying,secret_expiry_date character varying ,username character varying NOT NULL PRIMARY KEY)");
+        String requestBodyJson = apiAccessSecretRequestbdy();
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.API_ACCESS_SECRET_GENERATE).content(requestBodyJson).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        Assertions.assertEquals(400, status);
+    }
+    @Test
     void api_access_secret_generate() throws Exception {
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
