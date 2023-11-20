@@ -3828,4 +3828,31 @@ class OnboardControllerTests extends BaseSpec{
         int status = response.getStatus();
         Assertions.assertEquals(200, status);
     }
+
+    @Test
+    void api_access_secret_generate_exception() throws Exception {
+        postgreSQLClient.execute("DROP TABLE IF EXISTS api_access_secrets_expiry");
+        postgreSQLClient.execute("CREATE TABLE api_access_secrets_expiry(user_id character varying,participant_code character varying,secret_generation_date character varying,secret_expiry_date character varying ,username character varying NOT NULL PRIMARY KEY)");
+        String requestBodyJson = apiAccessSecretRequestBody();
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.API_ACCESS_SECRET_GENERATE).content(requestBodyJson).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        Assertions.assertEquals(400, status);
+    }
+
+    @Test
+    void api_access_secret_generate() throws Exception {
+        hcxApiServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{ \"timestamp\": 1700457933732, \"participants\": [ { \"primary_email\": \"hcxtest477@yopmail.com\", \"primary_mobile\": \"9620499129\", \"roles\": [ \"payor\" ], \"participant_name\": \"Abhishek\", \"endpoint_url\": \"http://testurl/v0.7\", \"encryption_cert\": \"https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/hcx-platform/main/hcx-apis/src/test/resources/examples/test-keys/public-key.pem\", \"status\": \"Created\", \"scheme_code\": \"default\", \"participant_code\": \"hcxtest477.yopmail@swasth-hcx\", \"encryption_cert_expiry\": 1840270798000, \"osOwner\": [ \"4e996906-e796-4025-93e3-588ad7dbb90e\" ], \"osCreatedAt\": \"2023-08-06T10:02:43.111Z\", \"osUpdatedAt\": \"2023-08-06T10:02:43.111Z\", \"osid\": \"98c36d89-5e86-435c-a4d0-1e5f82bad632\" } ] }")
+                .addHeader("Content-Type", "application/json"));
+        postgreSQLClient.execute("DROP TABLE IF EXISTS api_access_secrets_expiry");
+        postgreSQLClient.execute("CREATE TABLE api_access_secrets_expiry(user_id character varying,participant_code character varying,secret_generation_date character varying,secret_expiry_date character varying ,username character varying NOT NULL PRIMARY KEY)");
+        postgreSQLClient.execute("INSERT INTO api_access_secrets_expiry(user_id,participant_code,secret_generation_date,secret_expiry_date,username)"+ " VALUES('hcxtest477@yopmail.com','hcxtest477.yopmail@swasth-hcx',1695187120004,1703049520033,'hcxtest477.yopmail@swasth-hcx:hcxtest477@yopmail.com')");
+        String requestBodyJson = apiAccessSecret();
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.API_ACCESS_SECRET_GENERATE).content(requestBodyJson).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        Assertions.assertEquals(200, status);
+    }
 }
