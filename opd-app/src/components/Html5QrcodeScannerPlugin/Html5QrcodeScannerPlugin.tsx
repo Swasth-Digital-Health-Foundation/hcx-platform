@@ -30,7 +30,11 @@ const Html5QrcodePlugin = (props: any) => {
     try {
       const config = createConfig(props);
       const verbose = props.verbose === true;
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: 'environment',
+        },
+      });
       const scanner = new Html5QrcodeScanner(qrcodeRegionId, config, verbose);
       scanner.render(props.qrCodeSuccessCallback, props.qrCodeErrorCallback);
       setHtml5QrcodeScanner(scanner);
