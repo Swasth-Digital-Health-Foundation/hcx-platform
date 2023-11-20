@@ -2456,6 +2456,43 @@ class OnboardControllerTests extends BaseSpec{
     }
 
     @Test
+    void test_applicant_verify_email_link_verified_success() throws Exception {
+        hcxApiServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{\n" +"\"timestamp\": 1698386158436,\n" +"\"participants\": [\n" +"{\n" +"\"status\":\"Active\",n\" +\"participant_name\":\"Health Claims Exchange Gateway\",\n" +"\"endpoint_url\":\"http://dev-hcx.swasth.app/\",\n" +"\"roles\": [\n" +"\"HIE/HIO.HCX\"\n" +"],\n" +"\"primary_email\":\"hcxgateway@swasth.org\",\n" +"\"primary_mobile\":\",\n" +"\"encryption_cert\":\"https://dev-hcx-certificates.s3.ap-south-1.amazonaws.com/hcxgateway.swasth%40swasth-hcx-dev/encryption_cert.pem\",\n" +"\"signing_cert_path\":\"https://dev-hcx-certificates.s3.ap-south-1.amazonaws.com/hcxgateway.swasth%40swasth-hcx-dev/signing_cert_path.pem\",\n" +"\"linked_registry_codes\": [\n" +"12345\n" +"],\n" +"\"participant_code\":\"hcxgateway.swasth@swasth-hcx-dev\",\n" +"\"sigining_cert_expiry\": 1993808205000,\n" +"\"encryption_cert_expiry\": 1993808205000,\n" +"\"osOwner\": [\n" +"\"59d43f9b-42e7-4480-9ec2-aa6bd95ccb5f\"\n" +"],\n" +"\"osCreatedAt\":\"2023-03-10T12:05:37.736Z\",\n" +"\"osUpdatedAt\":\"2023-10-25T05:42:08.924Z\",\n" +"\"osid\":\"c776b615-b6cb-481c-8a78-de0c0c80f38a\",\n" +"\"@type\":\"Organisation\"\n" +"}\n" +"]\n"+"}")
+                .addHeader("Content-Type", "application/json"));
+        hcxApiServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{\n" +"\"timestamp\": 1698391335312,\n" +"\"participants\": [\n" +"{\n" +"\"primary_email\":\"testhctes13@yopmail.com\",\n" +"\"primary_mobile\":\"9620499129\",\n" +"\"roles\": [\n" +"\"payor\"\n" +"],\n" +"\"participant_name\":\"test-payor\",\n" +"\"endpoint_url\":\"http://testurl/v0.7\",\n"+ "\"encryption_cert\": \"https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/hcx-platform/main/hcx-apis/src/test/resources/examples/test-keys/public-key.pem\",\n" +"\"status\":\"Created\",\n" +"\"scheme_code\":\"default\",\n" +"\"participant_code\":\"testhctes13.yopmail@swasth-hcx\",\n" +"\"encryption_cert_expiry\": 1840270798000,\n" +"\"osOwner\": [\n" +"\"24a0835a-42b7-40e1-ab9c-f704e0e9da1b\"\n" +"],\n" +"\"osCreatedAt\":\"2023-07-28T06:29:43.893Z\",\n" +"\"osUpdatedAt\":\"2023-07-28T06:29:43.893Z\",\n" +"\"osid\":\"358ec012-c448-4f4c-9513-40ff8ea20fa9\"\n" +"}\n" +"]\n" +"}")
+                .addHeader("Content-Type", "application/json"));
+        hcxApiServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{\n" +
+                        "    \"participant_code\": \"testprovider1.apollo@swasth-hcx-dev\"\n" +
+                        "}")
+                .addHeader("Content-Type", "application/json"));
+        hcxApiServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{\n" + "\"timestamp\": 1698391335312,\n" +"\"participants\": [\n" + "{\n" + "\"primary_email\": \"testhctes13@yopmail.com\",\n" + "\"primary_mobile\": \"9620499129\",\n" + "\"roles\": [\n" + "\"payor\"\n" + "],\n" + "\"participant_name\": \"test-payor\",\n" + "\"endpoint_url\": \"http://testurl/v0.7\",\n" + "\"encryption_cert\": \"https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/hcx-platform/main/hcx-apis/src/test/resources/examples/test-keys/public-key.pem\",\n" + "\"status\": \"Created\",\n" + "\"scheme_code\": \"default\",\n" + "\"participant_code\": \"testhctes13.yopmail@swasth-hcx\",\n" + "\"encryption_cert_expiry\": 1840270798000,\n" + "\"osOwner\": [\n" + "\"24a0835a-42b7-40e1-ab9c-f704e0e9da1b\"\n" + "],\n" + "\"osCreatedAt\": \"2023-07-28T06:29:43.893Z\",\n" + "\"osUpdatedAt\": \"2023-07-28T06:29:43.893Z\",\n" + "\"osid\": \"358ec012-c448-4f4c-9513-40ff8ea20fa9\"\n" + "}\n" + "]\n" + "}")
+                .addHeader("Content-Type", "application/json"));
+        hcxApiServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{\n" + "\"timestamp\": 1698301336850,\n" + "\"users\": [\n" + "{\n" + "\"email\": \"mock-invite@yopmail.com\",\n" + "\"mobile\": \"8522875773\",\n" + "\"username\": \"MockUser 43\",\n" + "\"user_name\": \"MockUser 43\",\n" + "\"user_id\": \"mock-invite@yopmail.com\",\n" + "\"tenant_roles\": [\n" + "{\n" + "\"participant_code\": \"testprovider1.apollo@swasth-hcx-dev\",\n" + "\"role\": \"admin\",\n" + "\"osCreatedAt\": \"2023-06-21T07:45:54.100Z\",\n" + "\"osUpdatedAt\": \"2023-06-21T07:45:54.100Z\",\n" + "\"osid\": \"87f4fa26-bd88-4710-a296-0d580df2bd4b\"\n" + "}\n" + "],\n" + "\"created_by\": \"mock42@yopmail.com\",\n" + "\"osOwner\": [\n" + "\"f2ed8ea2-27ca-4f42-83c5-6ecdb3c735fc\"\n" + "],\n" + "\"osCreatedAt\": \"2023-06-21T07:45:54.100Z\",\n" + "\"osUpdatedAt\": \"2023-06-21T07:45:54.100Z\",\n" + "\"osid\": \"3ae89acd-21ab-4cab-a6e5-faf03587f3c2\"\n" + "}\n" + "]\n" + "}")
+                .addHeader("Content-Type", "application/json"));
+        postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verification");
+        postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verifier");
+        postgreSQLClient.execute("CREATE TABLE onboard_verification(participant_code character varying NOT NULL PRIMARY KEY,   primary_email character varying,   primary_mobile character varying, createdon bigInt,updatedon bigInt,  expiry bigInt,  phone_verified boolean NOT NULL,email_verified boolean NOT NULL,status character varying,  regenerate_count int,last_regenerate_date date, attempt_count int, comments character varying, phone_short_url character varying, phone_long_url character varying, onboard_validation_properties json, participant_validation_properties json)");
+        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " + " VALUES('testhctes13.yopmail@swasth-hcx','testhctes13@yopmail.com','9620499129','169719173417','169719173417','2555824693417',true,true,'failed',0,'2023-10-12T13:37:12.533Z','5','','','','{\"email\": \"activation\",\"phone\": \"activation\"}',' {\"email\": \"activation\",\"phone\": \"activation\"}')");
+        postgreSQLClient.execute("CREATE TABLE onboard_verifier( applicant_email character varying NOT NULL,applicant_code character varying NOT NULL,  verifier_code character varying, status character varying, createdon bigInt,   updatedon bigInt,participant_code character varying)");
+        postgreSQLClient.execute("INSERT INTO onboard_verifier(applicant_email,applicant_code,verifier_code,status,createdon,updatedon,participant_code)"+"VALUES ('testhctes13@yopmail.com','123445','987655','successful','1666612517000','1666612517000','testhctes13.yopmail@swasth-hcx')");
+        String requestBodyJson = applicantVerifyWithJwtToken();
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.APPLICANT_VERIFY).content(requestBodyJson).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        Assertions.assertEquals(200, status);
+    }
+
+    @Test
     void test_applicant_verify_mobile_not_enabled_success() throws Exception {
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
@@ -3851,6 +3888,43 @@ class OnboardControllerTests extends BaseSpec{
         postgreSQLClient.execute("INSERT INTO api_access_secrets_expiry(user_id,participant_code,secret_generation_date,secret_expiry_date,username)"+ " VALUES('hcxtest477@yopmail.com','hcxtest477.yopmail@swasth-hcx',1695187120004,1703049520033,'hcxtest477.yopmail@swasth-hcx:hcxtest477@yopmail.com')");
         String requestBodyJson = apiAccessSecret();
         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.API_ACCESS_SECRET_GENERATE).content(requestBodyJson).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        Assertions.assertEquals(200, status);
+    }
+
+    @Test
+    void test_applicant_verify_email_link_verified() throws Exception {
+        hcxApiServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{\n" + "\"timestamp\": 1698386158436,\n + \"participants\": [\n\" + \"{\n" +"\"status\": \"Active\",\n" + "\"participant_name\": \"Health Claims Exchange Gateway\",\n" +"\"endpoint_url\": \"http://dev-hcx.swasth.app/\",\n" + "\"roles\": [\n" + "\"HIE/HIO.HCX\"\n" + "],\n" + "\"primary_email\": \"hcxgateway@swasth.org\",\n" +"\"primary_mobile\":\",\n" +"\"encryption_cert\": \"https://dev-hcx-certificates.s3.ap-south-1.amazonaws.com/hcxgateway.swasth%40swasth-hcx-dev/encryption_cert.pem\",\n" +"\"signing_cert_path\": \"https://dev-hcx-certificates.s3.ap-south-1.amazonaws.com/hcxgateway.swasth%40swasth-hcx-dev/signing_cert_path.pem\",\n" +"\"linked_registry_codes\": [\n" +"12345\n" + "],\n" +" \"participant_code\":\"hcxgateway.swasth@swasth-hcx-dev\",\n" + " \"sigining_cert_expiry\": 1993808205000,\n" + "\"encryption_cert_expiry\": 1993808205000,\n" +"\"osOwner\": [\n" + "\"59d43f9b-42e7-4480-9ec2-aa6bd95ccb5f\"\n" + "],\n" + " \"osCreatedAt\":\"2023-03-10T12:05:37.736Z\",\n" +"\"osUpdatedAt\": \"2023-10-25T05:42:08.924Z\",\n" + "\"osid\": \"c776b615-b6cb-481c-8a78-de0c0c80f38a\",\n" + "\"@type\": \"Organisation\"\n" + "}\n" + "]\n" +"}")
+                .addHeader("Content-Type", "application/json"));
+        hcxApiServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{\n" +"\"timestamp\": 1698391335312,\n" + "\"participants\": [\n" + "{\n" +"\"primary_email\": \"testhctes13@yopmail.com\",\n" +"\"primary_mobile\": \"9620499129\",\n" + "\"roles\": [\n" + "\"payor\"\n" + "],\n" + "\"participant_name\": \"test-payor\",\n" + "\"endpoint_url\":\"http://testurl/v0.7\",\n" + "\"encryption_cert\":\"https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/hcx-platform/main/hcx-apis/src/test/resources/examples/test-keys/public-key.pem\",\n" + "\"status\": \"Created\",\n" +"\"scheme_code\": \"default\",\n" + "\"participant_code\":\"testhctes13.yopmail@swasth-hcx\",\n" +"\"encryption_cert_expiry\": 1840270798000,\n" +"\"osOwner\": [\n" +" \"24a0835a-42b7-40e1-ab9c-f704e0e9da1b\"\n" + "],\n" +"\"osCreatedAt\":\"2023-07-28T06:29:43.893Z\",\n" +"\"osUpdatedAt\":\"2023-07-28T06:29:43.893Z\",\n" +"\"osid\":\"358ec012-c448-4f4c-9513-40ff8ea20fa9\"\n" + "}\n" + "]\n" +"}")
+                .addHeader("Content-Type", "application/json"));
+        hcxApiServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{\n" +
+                        "    \"participant_code\": \"testprovider1.apollo@swasth-hcx-dev\"\n" +
+                        "}")
+                .addHeader("Content-Type", "application/json"));
+        hcxApiServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{\n" + "\"timestamp\": 1698391335312,\n" +"\"participants\": [\n" +"{\n" +"\"primary_email\":\"testhctes13@yopmail.com\",\n" + "\"primary_mobile\":\"9620499129\",\n" +"\"roles\": [\n" +"\"payor\"\n" +"],\n" +"\"participant_name\": \"test-payor\",\n" +"\"endpoint_url\":\"http://testurl/v0.7\",\n" +" \"encryption_cert\": \"https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/hcx-platform/main/hcx-apis/src/test/resources/examples/test-keys/public-key.pem\",\n" +"\"status\": \"Created\",\n" +"\"scheme_code\": \"default\",\n" + "\"participant_code\":\"testhctes13.yopmail@swasth-hcx\",\n" +"\"encryption_cert_expiry\": 1840270798000,\n" +"\"osOwner\": [\n" +"\"24a0835a-42b7-40e1-ab9c-f704e0e9da1b\"\n" + "],\n" +"\"osCreatedAt\": \"2023-07-28T06:29:43.893Z\",\n" +"\"osUpdatedAt\":\"2023-07-28T06:29:43.893Z\",\n" +"\"osid\":\"358ec012-c448-4f4c-9513-40ff8ea20fa9\"\n" + "}\n" +"]\n" +"}")
+                .addHeader("Content-Type", "application/json"));
+        hcxApiServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{\n" +"\"timestamp\": 1698301336850,\n" +"\"users\": [\n" +"{\n" +"\"email\":\"mock-invite@yopmail.com\",\n" +"\"mobile\":\"8522875773\",\n" +"\"username\":\"MockUser 43\",\n" +"\"user_name\":\"MockUser 43\",\n" +"\"user_id\":\"mock-invite@yopmail.com\",\n" +"\"tenant_roles\": [\n" +"{\n" +"\"participant_code\": \"testprovider1.apollo@swasth-hcx-dev\",\n" +"\"role\":\"admin\",\n" +"\"osCreatedAt\":\"2023-06-21T07:45:54.100Z\",\n" +"\"osUpdatedAt\":\"2023-06-21T07:45:54.100Z\",\n" +"\"osid\":\"87f4fa26-bd88-4710-a296-0d580df2bd4b\"\n" +"}\n" +"\"],\n" +"\"created_by\":\"mock42@yopmail.com\",\n" +"\"osOwner\": [\n" +"\"f2ed8ea2-27ca-4f42-83c5-6ecdb3c735fc\"\n" +"],\n" +"\"osCreatedAt\":\"2023-06-21T07:45:54.100Z\",\n" +"\"osUpdatedAt\":\"2023-06-21T07:45:54.100Z\",\n" +"\"osid\":\"3ae89acd-21ab-4cab-a6e5-faf03587f3c2\"\n" +"}\n" +"]\n" +"}")
+                .addHeader("Content-Type", "application/json"));
+        postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verification");
+        postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verifier");
+        postgreSQLClient.execute("CREATE TABLE onboard_verification(participant_code character varying NOT NULL PRIMARY KEY,   primary_email character varying,   primary_mobile character varying, createdon bigInt,updatedon bigInt,  expiry bigInt,  phone_verified boolean NOT NULL,email_verified boolean NOT NULL,status character varying,  regenerate_count int,last_regenerate_date date, attempt_count int, comments character varying, phone_short_url character varying, phone_long_url character varying, onboard_validation_properties json, participant_validation_properties json)");
+        postgreSQLClient.execute("INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " + " VALUES('testhctes13.yopmail@swasth-hcx','testhctes13@yopmail.com','9620499129','169719173417','169719173417','2555824693417',false,true,'failed',0,'2023-10-12T13:37:12.533Z','5','','','','{\"email\": \"activation\",\"phone\": \"activation\"}',' {\"email\": \"verification\",\"phone\": \"activation\"}')");
+        postgreSQLClient.execute("CREATE TABLE onboard_verifier( applicant_email character varying NOT NULL,applicant_code character varying NOT NULL,  verifier_code character varying, status character varying, createdon bigInt,   updatedon bigInt,participant_code character varying)");
+        postgreSQLClient.execute("INSERT INTO onboard_verifier(applicant_email,applicant_code,verifier_code,status,createdon,updatedon,participant_code)"+"VALUES ('testhctes13@yopmail.com','123445','987655','successful','1666612517000','1666612517000','testhctes13.yopmail@swasth-hcx')");
+        String requestBodyJson = applicantVerifyWithJwtToken();
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.APPLICANT_VERIFY).content(requestBodyJson).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         Assertions.assertEquals(200, status);
