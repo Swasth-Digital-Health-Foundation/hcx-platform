@@ -3998,7 +3998,7 @@ class OnboardControllerTests extends BaseSpec{
     }
 
     @Test
-    void test_applicant_verify_email_link_verified() throws Exception {
+    void test_applicant_verify_email_link_verify() throws Exception {
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("{\n" +
