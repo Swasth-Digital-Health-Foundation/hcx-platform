@@ -533,8 +533,8 @@ public class OnboardService extends BaseController {
                     String searchQuery = String.format("SELECT * FROM %s WHERE parent_participant_code = '%s'", mockParticipantsTable, participant.get(PARTICIPANT_CODE));
                     ResultSet result = (ResultSet) postgresClientMockService.executeQuery(searchQuery);
                     if (!result.next()) {
-                        mockProviderDetails = (Map<String, Object>) createMockParticipant(headers, PROVIDER, participantDetails);
-                        mockPayorDetails = (Map<String, Object>) createMockParticipant(headers, PAYOR, participantDetails);
+                        mockProviderDetails =  createMockParticipant(headers, PROVIDER, participantDetails);
+                        mockPayorDetails = createMockParticipant(headers, PAYOR, participantDetails);
                         kafkaClient.send(messageTopic, EMAIL, eventGenerator.getEmailMessageEvent(successTemplate((String) participant.get(PARTICIPANT_NAME), mockProviderDetails, mockPayorDetails), onboardingSuccessSub, Arrays.asList(email), new ArrayList<>(), new ArrayList<>()));
                     }
 //                    if (participantDetails.getOrDefault(STATUS_DB, "").equals(CREATED)) {
@@ -1040,14 +1040,14 @@ public class OnboardService extends BaseController {
     }
 
     @Async
-    public Future<Map<String,Object>> createMockParticipant(HttpHeaders headers, String role, Map<String, Object> participantDetails) throws Exception {
+    public Map<String,Object> createMockParticipant(HttpHeaders headers, String role, Map<String, Object> participantDetails) throws Exception {
         String parentParticipantCode = (String) participantDetails.getOrDefault(PARTICIPANT_CODE, "");
         logger.info("creating Mock participant for :: parent participant code : {} :: Role: {}",parentParticipantCode, role);
         Map<String, Object> mockParticipant = getMockParticipantBody(participantDetails, role, parentParticipantCode);
         String privateKey = (String) mockParticipant.getOrDefault(PRIVATE_KEY, "");
         mockParticipant.remove(PRIVATE_KEY);
         String childParticipantCode = createEntity(PARTICIPANT_CREATE, JSONUtils.serialize(mockParticipant), getHeadersMap(headers), ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, PARTICIPANT_CODE);
-        return (Future<Map<String, Object>>) updateMockDetails(mockParticipant, parentParticipantCode, childParticipantCode, privateKey);
+        return updateMockDetails(mockParticipant, parentParticipantCode, childParticipantCode, privateKey);
     }
 
     private void getEmailAndName(String role, Map<String, Object> mockParticipant, Map<String, Object> participantDetails, String name) {
