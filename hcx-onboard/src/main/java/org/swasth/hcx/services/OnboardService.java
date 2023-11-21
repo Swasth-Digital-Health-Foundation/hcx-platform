@@ -1040,7 +1040,7 @@ public class OnboardService extends BaseController {
     }
 
     @Async
-    public Map<String,Object> createMockParticipant(HttpHeaders headers, String role, Map<String, Object> participantDetails) throws Exception {
+    private Map<String, Object> createMockParticipant(HttpHeaders headers, String role, Map<String, Object> participantDetails) throws Exception {
         String parentParticipantCode = (String) participantDetails.getOrDefault(PARTICIPANT_CODE, "");
         logger.info("creating Mock participant for :: parent participant code : {} :: Role: {}",parentParticipantCode, role);
         Map<String, Object> mockParticipant = getMockParticipantBody(participantDetails, role, parentParticipantCode);
