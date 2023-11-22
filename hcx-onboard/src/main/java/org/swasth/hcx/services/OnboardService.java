@@ -696,6 +696,8 @@ public class OnboardService extends BaseController {
             getMockParticipant(participantList, headers);
         if (fields != null && fields.toLowerCase().contains(ONBOARD_VALIDATION_PROPERTIES))
             getOnboardValidations(participantList);
+        if (fields != null && fields.toLowerCase().contains(IDENTITY_VERIFICATION))
+            addIdentityVerification(participantList);
         return new ResponseEntity<>(new RegistryResponse(participantList, ORGANISATION), HttpStatus.OK);
     }
 
@@ -1008,6 +1010,16 @@ public class OnboardService extends BaseController {
         filterDetails(validationsMap, participantsList, ONBOARD_VALIDATION_PROPERTIES);
     }
 
+    private void addIdentityVerification(List<Map<String, Object>> participantsList) throws Exception {
+        String selectQuery = String.format("SELECT * FROM %S WHERE participant_code IN (%s)", onboardingVerifierTable, getParticipantCodeList(participantsList, PARTICIPANT_CODE));
+        ResultSet resultSet = (ResultSet) postgreSQLClient.executeQuery(selectQuery);
+        Map<String, Object> identityVerification = new HashMap<>();
+        while (resultSet.next()) {
+            identityVerification.put(resultSet.getString(PARTICIPANT_CODE), resultSet.getString("status"));
+        }
+        filterDetails(identityVerification, participantsList, IDENTITY_VERIFICATION);
+    }
+
     private void addDefaultConfig(ArrayList<Map<String,Object>> participantList, Map<String, Object> onboardValidations, Map<String,Object> validationMap, String code) {
         for (Map<String, Object> roleMap : participantList) {
             List<String> roles = (List<String>) roleMap.get(ROLES);
@@ -1240,7 +1252,7 @@ public class OnboardService extends BaseController {
         if (!userSearch.isEmpty() && !userSearch.get(0).isEmpty()) {
             List<String> emailList = new ArrayList<>();
             for (Map<String, Object> userMap : userSearch) {
-                List<Map<String, Object>> tenantRoles = JSONUtils.deserialize(userMap.get(TENANT_ROLES), ArrayList.class);
+                List<Map<String, Object>> tenantRoles = JSONUtils.deserialize(userMap.getOrDefault(TENANT_ROLES, new ArrayList<>()), ArrayList.class);
                 for (Map<String, Object> tenantMap : tenantRoles) {
                     if (StringUtils.equals((String) tenantMap.get(ROLE), ADMIN) && StringUtils.equals((String) tenantMap.get(PARTICIPANT_CODE), participantCode)) {
                         emailList.add((String) userMap.get(EMAIL));
