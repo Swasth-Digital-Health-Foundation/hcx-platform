@@ -1035,9 +1035,7 @@ public class OnboardService extends BaseController {
                 responseList.put(type, verificationMap.get(code));
         }
     }
-
-    @Async
-    public Map<String, Object> createMockParticipant(HttpHeaders headers, String role, Map<String, Object> participantDetails) throws Exception {
+    private Map<String, Object> createMockParticipant(HttpHeaders headers, String role, Map<String, Object> participantDetails) throws Exception {
         String parentParticipantCode = (String) participantDetails.getOrDefault(PARTICIPANT_CODE, "");
         logger.info("creating Mock participant for :: parent participant code : {} :: Role: {}",parentParticipantCode, role);
         Map<String, Object> mockParticipant = getMockParticipantBody(participantDetails, role, parentParticipantCode);
@@ -1115,10 +1113,11 @@ public class OnboardService extends BaseController {
         while (resultSet.next()) {
             String childParticipantCode = resultSet.getString(CHILD_PARTICIPANT_CODE);
             String parentParticipantCode = resultSet.getString(PARENT_PARTICIPANT_CODE);
+            String primaryEmail =  resultSet.getString(PRIMARY_EMAIL);
             Map<String, Object> mockUsers = (Map<String, Object>) mockDetails.getOrDefault(parentParticipantCode, new HashMap<>());
-            if (childParticipantCode.contains(MOCK_PROVIDER)) {
+            if (primaryEmail.contains(MOCK_PROVIDER)) {
                 addDetails(resultSet, mockUsers, childParticipantCode, MOCK_PROVIDER);
-            } else if (childParticipantCode.contains(MOCK_PAYOR)) {
+            } else if (primaryEmail.contains(MOCK_PAYOR)) {
                 addDetails(resultSet, mockUsers, childParticipantCode, MOCK_PAYOR);
             }
             mockDetails.put(parentParticipantCode, mockUsers);
