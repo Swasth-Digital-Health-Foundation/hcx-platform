@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import kong.unirest.HttpResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
+import org.bouncycastle.cert.X509CertificateHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,8 +23,14 @@ import org.swasth.common.utils.JWTUtils;
 import org.swasth.postgresql.IDatabaseService;
 import org.swasth.redis.cache.RedisCache;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.security.interfaces.RSAPublicKey;
 import java.util.*;
 
 import static org.swasth.common.response.ResponseMessage.*;
@@ -43,7 +50,10 @@ public class ParticipantService extends BaseRegistryService {
     private String onboardingTable;
     @Value("${registry.organisation-api-path}")
     private String registryOrgnisationPath;
-    
+    @Value("${certificate.trusted-cas}")
+    private List<String> trustedCAs ;
+    @Value("${certificate.key-size}")
+    private List<Integer> allowedCertificateKeySize;
 
     @Autowired
     protected IDatabaseService postgreSQLClient;
@@ -55,9 +65,6 @@ public class ParticipantService extends BaseRegistryService {
     private RedisCache redisCache;
     @Autowired
     private Environment env;
-    @Autowired
-    private UserService userService;
-
 
     public RegistryResponse create(Map<String, Object> requestBody, HttpHeaders header, String code) throws Exception {
         HttpResponse<String> response = invite(requestBody, registryOrgnisationPath);
@@ -173,7 +180,7 @@ public class ParticipantService extends BaseRegistryService {
     }
     private void generateUpdateAudit(String code, String action, Map<String, Object> requestBody, String prevStatus, String currentStatus, List<String> props, String updatedBy) throws Exception {
         Map<String,Object> event = eventGenerator.createAuditLog(code, PARTICIPANT, getCData(action, requestBody), getEData(currentStatus, prevStatus, props, updatedBy));
-        eventHandler.createParticipantAudit(event);      
+        eventHandler.createParticipantAudit(event);
     }
 
     public void authorizeEntity(String authToken, String participantCode, String sub) throws ClientException, JsonProcessingException {
@@ -207,7 +214,6 @@ public class ParticipantService extends BaseRegistryService {
 
     private static <K, V> List<K> getUpdatedProps(Map<K, V> map1, Map<K, V> map2) {
         Map<K, V> differentEntries = new HashMap<>();
-        
         for (Map.Entry<K, V> entry : map1.entrySet()) {
             K key = entry.getKey();
             V value1 = entry.getValue();
@@ -217,7 +223,60 @@ public class ParticipantService extends BaseRegistryService {
                 differentEntries.put(key, value1);
             }
         }
-
         return new ArrayList<>(differentEntries.keySet());
     }
+
+    public void validateAndProcessCertificate(Map<String, Object> requestBody, String certKey) throws ClientException {
+        if (requestBody.containsKey(certKey)) {
+            certificateValidations((String) requestBody.get(certKey));
+        }
+    }
+
+    public void certificateValidations(String certificate) throws ClientException {
+        try {
+            X509Certificate x509Certificate;
+            if (certificate.startsWith("-----BEGIN CERTIFICATE-----") && certificate.endsWith("-----END CERTIFICATE-----")) {
+                x509Certificate = parseCertificateFromString(certificate);
+            } else {
+                x509Certificate = parseCertificateFromURL(certificate);
+            }
+            // Validate Certificate Dates
+            x509Certificate.checkValidity();
+            X509CertificateHolder certHolder = new X509CertificateHolder(x509Certificate.getEncoded());
+            String organizationName = certHolder.getSubject().getRDNs(org.bouncycastle.asn1.x500.X500Name.getDefaultStyle().attrNameToOID("O"))[0].getFirst().getValue().toString();
+            // Validate that the issuing certificate authority is in the trusted CA list
+            if (!trustedCAs.contains(organizationName)) {
+                throw new ClientException(ErrorCodes.ERR_INVALID_CERTIFICATE, "The issuing certificate authority should be trusted");
+            }
+            // Validate that the certificate key size is above 2048 bits
+            int keySize = ((RSAPublicKey) x509Certificate.getPublicKey()).getModulus().bitLength();
+            if (!allowedCertificateKeySize.contains(keySize)) {
+                throw new ClientException(ErrorCodes.ERR_INVALID_CERTIFICATE, String.format("Certificate must have a minimum key size of 2048 bits. Current key size: %d bits.", keySize));
+            }
+        } catch (Exception e) {
+            throw new ClientException(ErrorCodes.ERR_INVALID_CERTIFICATE, e.getMessage());
+        }
+    }
+
+    private X509Certificate parseCertificateFromString(String certificate) throws CertificateException {
+        String cleanedCertificate = certificate
+                .replaceAll("-----BEGIN CERTIFICATE-----", "")
+                .replaceAll("-----END CERTIFICATE-----", "")
+                .replaceAll("\\s", "");
+        byte[] certificateBytes = Base64.getDecoder().decode(cleanedCertificate);
+        CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
+        InputStream inputStream = new ByteArrayInputStream(certificateBytes);
+        return (X509Certificate) certificateFactory.generateCertificate(inputStream);
+    }
+
+    private X509Certificate parseCertificateFromURL(String urlString) throws IOException, ClientException {
+        URL url = new URL(urlString);
+        try (InputStream inputStream = url.openStream()) {
+            CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
+            return (X509Certificate) certificateFactory.generateCertificate(inputStream);
+        } catch (Exception e) {
+            throw new ClientException(ErrorCodes.ERR_INVALID_CERTIFICATE, "Error parsing certificate from the URL");
+        }
+    }
+
 }
