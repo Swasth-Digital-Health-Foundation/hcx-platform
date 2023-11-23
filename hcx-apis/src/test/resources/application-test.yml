@@ -75,8 +75,3 @@ keycloak:
   participant-realm-private-key-path: ${keycloak_participant_realm_private_key_path:${user.dir}/src/test/resources/participant_realm_private_key.der}
   base-url: ${keycloak_base_url:https://dev-hcx.swasth.app/auth}
   protocol-api-access-private-key-path: ${keycloak_protocol_api_access_realm_private_key_path:${user.dir}/src/test/resources/api_access_realm_private_key.der}
-
-certificate:
-  validation-enabled: ${certificate_validations_enabled:true}
-  key-size: ${certificate_validations_key_size:2048,4096}
-  trusted-cas: ${trusted_cas:DigiCert Inc, Let's Encrypt, GoDaddy.com , Sectigo Limited , Amazon,swasth}
