@@ -74,26 +74,24 @@ const ViewClaimRequestDetails = () => {
 
   useEffect(() => {
     try {
-      if (token !== undefined) {
-        const search = async () => {
-          const response = await searchParticipant(
-            participantCodePayload,
-            config
-          );
-          setProviderName(response.data?.participants[0].participant_name);
+      const search = async () => {
+        const response = await searchParticipant(
+          participantCodePayload,
+          config
+        );
+        setProviderName(response.data?.participants[0].participant_name);
 
-          const payorResponse = await searchParticipant(
-            payorCodePayload,
-            config
-          );
-          setPayorName(payorResponse.data?.participants[0].participant_name);
-        };
-        search();
-      }
+        const payorResponse = await searchParticipant(
+          payorCodePayload,
+          config
+        );
+        setPayorName(payorResponse.data?.participants[0].participant_name);
+      };
+      search();
     } catch (err) {
       console.log(err);
     }
-  }, [token]);
+  }, []);
 
   const claimRequestDetails: any = [
     {

@@ -325,11 +325,19 @@ input[type='search']::-webkit-search-cancel-button {
 }
 
 #html5-qrcode-button-camera-start{
-  display: none !important;
+  /* display: none !important; */
+  padding: 0.7rem;
+  background-color: #3c50e0;
+  border-radius: 0.5rem;
+  color: #eff4fb;
 }
 
 #html5-qrcode-button-camera-stop{
-  display: none !important;
+  /* display: none !important; */
+  padding: 0.7rem;
+  background-color: #3c50e0;
+  border-radius: 0.5rem;
+  color: #eff4fb; 
 }
 
 .upload {

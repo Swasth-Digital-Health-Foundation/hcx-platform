@@ -1,12 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { handleFileChange } from '../../utils/attachmentSizeValidation';
 import { generateOutgoingRequest, handleUpload } from '../../services/hcxMockService';
 import LoadingButton from '../../components/LoadingButton';
 import { toast } from 'react-toastify';
 import strings from '../../utils/strings';
 import { generateToken, searchParticipant } from '../../services/hcxService';
-import axios from 'axios';
 import { postRequest } from '../../services/registryService';
 import * as _ from "lodash";
 import SupportingDocuments from '../../components/SupportingDocuments';
@@ -99,35 +97,6 @@ const InitiateNewClaimRequest = () => {
   };
 
   const mobileNumber: any = localStorage.getItem('mobile');
-
-  // const handleUpload = async () => {
-  //   try {
-  //     const formData = new FormData();
-  //     formData.append('mobile', mobileNumber);
-
-  //     FileLists.forEach((file: any) => {
-  //       formData.append(`file`, file);
-  //     });
-  //     toast.info('Uploading documents please wait...!');
-  //     const response = await axios({
-  //       url: `${process.env.hcx_mock_service}/upload/documents`,
-  //       method: 'POST',
-  //       data: formData,
-  //     });
-  //     let obtainedResponse = response.data;
-  //     const uploadedUrls = _.map(obtainedResponse, (ele: any) => ele.url);
-  //     // Update the payload with the new URLs
-  //     requestBody.supportingDocuments[0].urls = uploadedUrls;
-  //     setUrlList((prevFileUrlList: any) => [
-  //       ...prevFileUrlList,
-  //       ...obtainedResponse,
-  //     ]);
-  //     toast.info('Documents uploaded successfully!');
-  //   } catch (error) {
-  //     console.error('Error in uploading file', error);
-  //   }
-  // };
-
   const submitClaim = async () => {
     try {
       setLoading(true);
