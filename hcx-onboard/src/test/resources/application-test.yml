@@ -1,7 +1,21 @@
-#registry
-registry:
-  basePath: ${registry_basePath:http://localhost:8082}
-  hcxcode: ${registry_hcxcode:hcx-registry-code}
+server:
+  port: ${SERVER_PORT:8082}
+
+logging:
+  level:
+    root: ${LOGGING_LEVEL_ROOT:INFO}
+
+env: ${ENV:local}
+
+hcx-url: ${hcx_url:https://dev-hcx.swasth.app}
+api-version: ${api_version:v0.7}
+
+#kafka config
+bootstrap-servers: ${bootstrap_servers:localhost:9092}
+
+kafka:
+  topic:
+    message: ${kafka_message_topic:${env}.hcx.request.message}
 
 #elasticsearch config
 es:
@@ -10,16 +24,81 @@ es:
 
 #Audit config
 audit:
-  index: ${audit_index:hcx_audit}
-  alias: ${audit_alias:hcx_audit}
-
-#hcx config
-hcx:
-  instanceName: ${hcx_instance_name:swasth-hcx}
-  urls:
-    notallowed: ${not_allowed_urls:http://localhost:8095}
+  index: ${audit_index:onboard_audit}
+  alias: ${audit_alias:onboard_audit}
 
 aws:
-  accessKey: ${aws_accessKey:testAccessKey}
-  accessSecret: ${aws_accessSecret:testAccessSecret}
-  region: ${aws_region:ap-southeast-1}
+  access-key: ${aws_accessKey:}
+  access-secret: ${aws_accessSecret:}
+  region: ${aws_region:}
+
+onboard:
+  terms-and-conditions-url: ${onboarding_terms_and_conditions_url:https://${env}-hcx.s3.ap-south-1.amazonaws.com/terms-and-conditions/1.0.pdf}
+  success-url: ${onboarding_success_url:${hcx-url}/onboarding/success}
+  email: ${email_validation:activation}
+  phone: ${phone_validation:activation}
+
+
+email:
+  id: ${email_id:}
+  pwd: ${email_pwd:}
+  send-link-sub: ${send-link-sub:HCX - Onboarding details and Email verification}
+  regenerate-link-sub: ${regenerate-link-sub:HCX - Regenerate Email Link}
+  success-identity-sub: ${success_identity_sub:HCX - Identity Verified}
+  failed-identity-sub: ${failed_identity_sub:HCX - Identity Verification Failed}
+  onboarding-success-sub: ${onboarding_success_sub:HCX - Onboarding Successful}
+  verification-sub: ${verification_success:HCX - Verification Status}
+  user-invite-sub: ${user_invite_sub:HCX - User Invitation}
+  user-invite-accept-sub: ${user_invite_accept_sub:HCX - User Details}
+  user-invite-reject-sub: ${user_invite_reject_sub:HCX - User Rejected Invitation}
+  password-generate-sub: ${password_generate_sub:HCX - Participant Client Secret}
+
+phone:
+  verification-msg: ${phone_verification_msg:Your phone verification is STATUS.}
+
+hcx-api:
+  base-path: ${HCX_API_BASEPATH:http://localhost:8080}
+
+mock-service:
+  payor:
+    endpoint-url: ${mock_service_endpoint_url_provider:http://test-mock-payor-url}
+  provider:
+    endpoint-url: ${mock_service_endpoint_url_payor:http://test-mock-provider-url}
+  allowed-env: ${mock_service_allowed_env:local}
+
+#postgres config
+postgres:
+  url: ${postgres_url:jdbc:postgresql://localhost:5432/postgres}
+  user: ${postgres_user:postgres}
+  password: ${postgres_password:postgres}
+  table:
+    onboard-verification: ${onboard_verification_table:onboard_verification}
+    onboard-verifier: ${onboard_verifier_table:onboard_verifier}
+    onboard-user-invite: ${onboard_user_invite_table:onboard_user_invite_details}
+  mock-service:
+    url: ${mock_service_db_url:jdbc:postgresql://localhost:5432/postgres}
+    table:
+      mock-participant: ${mock_participant_table:mock_participant}
+
+verification-link:
+  expiry: ${link_expiry:604800000}
+  max-attempt: ${link_max_attempt:10}
+  max-regenerate: ${link_max_regenerate:10}
+
+registry:
+  hcx-code: ${registry_hcx_code:hcxgateway.swasth@swasth-hcx-dev}
+
+jwt-token:
+  private-key : ${hcx_private_key:MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCG+XLPYiCxrZq71IX+w7uoDGxGI7qy7XaDbL3BJE33ju7rjdrP7wsAOWRvM8BIyWuRZZhl9xG+u7l/7OsZAzGoqI7p+32x+r9IJVzboLDajk6tp/NPg1csc7f2M5Bu6rkLEvrKLz3dgy3Q928rMsD3rSmzBLelfKTo+aDXvCOiw1dMWsZZdkEpCTJxH39Nb2K4S59kO/R2GtSU/QMLq65m34XcMZpDtatA1u1S8JdZNNeMCO+NuFKBzIfvXUCQ8jkf7h612+UP1AYhoyCMFpzUZ9b7liQF9TYpX1Myr/tT75WKuRlkFlcALUrtVskL8KA0w6sA0nX5fORVsuVehVeDAgMBAAECggEAX1n1y5/M7PhxqWO3zYTFGzC7hMlU6XZsFOhLHRjio5KsImgyPlbm9J+W3iA3JLR2c17MTKxAMvg3UbIzW5YwDLAXViC+aW90like8mEQzzVdS7ysXG2ytcqCGUHQNStI0hP0a8T39XbodQl31ZKjU9VW8grRGe12Kse+4ukcW6yRVES+CkyO5BQB+vs3voZavodRGsk/YSt00PtIrFPJgkDuyzzcybKJD9zeJk5W3OGVK1z0on+NXKekRti5FBx/uEkT3+knkz7ZlTDNcyexyeiv7zSL/L6tcszV0Fe0g9vJktqnenEyh4BgbqABPzQR++DaCgW5zsFiQuD0hMadoQKBgQC+rekgpBHsPnbjQ2Ptog9cFzGY6LRGXxVcY7hKBtAZOKAKus5RmMi7Uv7aYJgtX2jt6QJMuE90JLEgdO2vxYG5V7H6Tx+HqH7ftCGZq70A9jFBaba04QAp0r4TnD6v/LM+PGVT8FKtggp+o7gZqXYlSVFm6YzI37G08w43t2j2aQKBgQC1Nluxop8w6pmHxabaFXYomNckziBNMML5GjXW6b0xrzlnZo0p0lTuDtUy2xjaRWRYxb/1lu//LIrWqSGtzu+1mdmV2RbOd26PArKw0pYpXhKFu/W7r6n64/iCisoMJGWSRJVK9X3D4AjPaWOtE+jUTBLOk0lqPJP8K6yiCA6ZCwKBgDLtgDaXm7HdfSN1/Fqbzj5qc3TDsmKZQrtKZw5eg3Y5CYXUHwbsJ7DgmfD5m6uCsCPa+CJFl/MNWcGxeUpZFizKn16bg3BYMIrPMao5lGGNX9p4wbPN5J1HDD1wnc2jULxupSGmLm7pLKRmVeWEvWl4C6XQ+ykrlesef82hzwcBAoGBAKGY3v4y4jlSDCXaqadzWhJr8ffdZUrQwB46NGb5vADxnIRMHHh+G8TLL26RmcET/p93gW518oGg7BLvcpw3nOZaU4HgvQjT0qDvrAApW0V6oZPnAQUlarTU1Uk8kV9wma9tP6E/+K5TPCgSeJPg3FFtoZvcFq0JZoKLRACepL3vAoGAMAUHmNHvDI+v0eyQjQxlmeAscuW0KVAQQR3OdwEwTwdFhp9Il7/mslN1DLBddhj6WtVKLXu85RIGY8I2NhMXLFMgl+q+mvKMFmcTLSJb5bJHyMz/foenGA/3Yl50h9dJRFItApGuEJo/30cG+VmYo2rjtEifktX4mDfbgLsNwsI=}
+  expiry-time : ${expiry_time:86400000}
+
+keycloak:
+  base-url: ${keycloak_base_url:${hcx-url}/auth}
+  admin-user: ${keycloack_admin_user_name:admin}
+  admin-password: ${keycloak_admin_password:fcf615eb80ce6dbd0634}
+  master-realm: ${keycloak_master_realm:master}
+  client-id: ${keycloack_client_id:admin-cli}
+  participant-realm: ${keycloack_users_realm:swasth-hcx-participants}
+
+endpoint:
+  user-invite: ${user_invite_endpoint:/onboarding/user/invite}

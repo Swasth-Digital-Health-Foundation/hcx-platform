@@ -92,6 +92,111 @@ class ParticipantControllerTests extends BaseSpec{
     }
 
     @Test
+    void participant_create_success_scenario_with_begin_certificate() throws Exception {
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("[{\"paticipant_name\":\"test user\"}]")
+                .addHeader("Content-Type", "application/json"));
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("[]")
+                .addHeader("Content-Type", "application/json"));
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{ \"id\": \"open-saber.registry.invite\", \"ver\": \"1.0\", \"ets\": 1637227738534, \"params\": { \"resmsgid\": \"\", \"msgid\": \"bb355e26-cc12-4aeb-8295-03347c428c62\", \"err\": \"\", \"status\": \"SUCCESSFUL\", \"errmsg\": \"\" }, \"responseCode\": \"OK\", \"result\": { \"Organisation\": { \"osid\": \"1-17f02101-b560-4bc1-b3ab-2dac04668fd2\" } } }")
+                .addHeader("Content-Type", "application/json"));
+        doReturn(getParticipantCreateAuditLog()).when(mockEventGenerator).createAuditLog(anyString(), anyString(), anyMap(), anyMap());
+        doReturn(getUrl()).when(cloudStorageClient).getUrl(anyString(), anyString());
+        doNothing().when(cloudStorageClient).putObject(anyString(), anyString());
+        doNothing().when(cloudStorageClient).putObject(anyString(), anyString(), anyString());
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_CREATE).content(getParticipantCreateBodyWithBeginCertificate()).header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        assertEquals(200, status);
+    }
+
+    @Test
+    void participant_create_invalidKeySizeThrowsValidationException() throws Exception {
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("[{\"paticipant_name\":\"test user\"}]")
+                .addHeader("Content-Type", "application/json"));
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("[]")
+                .addHeader("Content-Type", "application/json"));
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{ \"id\": \"open-saber.registry.invite\", \"ver\": \"1.0\", \"ets\": 1637227738534, \"params\": { \"resmsgid\": \"\", \"msgid\": \"bb355e26-cc12-4aeb-8295-03347c428c62\", \"err\": \"\", \"status\": \"SUCCESSFUL\", \"errmsg\": \"\" }, \"responseCode\": \"OK\", \"result\": { \"Organisation\": { \"osid\": \"1-17f02101-b560-4bc1-b3ab-2dac04668fd2\" } } }")
+                .addHeader("Content-Type", "application/json"));
+        doReturn(getParticipantCreateAuditLog()).when(mockEventGenerator).createAuditLog(anyString(), anyString(), anyMap(), anyMap());
+        doReturn(getUrl()).when(cloudStorageClient).getUrl(anyString(), anyString());
+        doNothing().when(cloudStorageClient).putObject(anyString(), anyString());
+        doNothing().when(cloudStorageClient).putObject(anyString(), anyString(), anyString());
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_CREATE).content(getParticipantCreateBodyWithInvalidKeySize()).header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        Map<String,Object> responseBody = JSONUtils.deserialize(response.getContentAsString(), Map.class);
+        int status = response.getStatus();
+        assertEquals(400, status);
+        assertEquals(ErrorCodes.ERR_INVALID_CERTIFICATE.name(), getResponseErrorCode(responseBody));
+        assertEquals("Certificate must have a minimum key size of 2048 bits. Current key size: 1024 bits.", getResponseErrorMessage(responseBody));
+    }
+
+    @Test
+    void participant_create_certificate_untrustedCertificateAuthorityThrowsException() throws Exception {
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("[{\"paticipant_name\":\"test user\"}]")
+                .addHeader("Content-Type", "application/json"));
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("[]")
+                .addHeader("Content-Type", "application/json"));
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{ \"id\": \"open-saber.registry.invite\", \"ver\": \"1.0\", \"ets\": 1637227738534, \"params\": { \"resmsgid\": \"\", \"msgid\": \"bb355e26-cc12-4aeb-8295-03347c428c62\", \"err\": \"\", \"status\": \"SUCCESSFUL\", \"errmsg\": \"\" }, \"responseCode\": \"OK\", \"result\": { \"Organisation\": { \"osid\": \"1-17f02101-b560-4bc1-b3ab-2dac04668fd2\" } } }")
+                .addHeader("Content-Type", "application/json"));
+        doReturn(getParticipantCreateAuditLog()).when(mockEventGenerator).createAuditLog(anyString(), anyString(), anyMap(), anyMap());
+        doReturn(getUrl()).when(cloudStorageClient).getUrl(anyString(), anyString());
+        doNothing().when(cloudStorageClient).putObject(anyString(), anyString());
+        doNothing().when(cloudStorageClient).putObject(anyString(), anyString(), anyString());
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_CREATE).content(getParticipantCreateBodyWithUntrustedCertificate()).header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        Map<String,Object> responseBody = JSONUtils.deserialize(response.getContentAsString(), Map.class);
+        int status = response.getStatus();
+        assertEquals(400, status);
+        assertEquals(ErrorCodes.ERR_INVALID_CERTIFICATE.name(), getResponseErrorCode(responseBody));
+        assertEquals("The issuing certificate authority should be trusted", getResponseErrorMessage(responseBody));
+    }
+
+    @Test
+    void participant_create_certificate_invalid_url_scenario() throws Exception {
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("[{\"paticipant_name\":\"test user\"}]")
+                .addHeader("Content-Type", "application/json"));
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("[]")
+                .addHeader("Content-Type", "application/json"));
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{ \"id\": \"open-saber.registry.invite\", \"ver\": \"1.0\", \"ets\": 1637227738534, \"params\": { \"resmsgid\": \"\", \"msgid\": \"bb355e26-cc12-4aeb-8295-03347c428c62\", \"err\": \"\", \"status\": \"SUCCESSFUL\", \"errmsg\": \"\" }, \"responseCode\": \"OK\", \"result\": { \"Organisation\": { \"osid\": \"1-17f02101-b560-4bc1-b3ab-2dac04668fd2\" } } }")
+                .addHeader("Content-Type", "application/json"));
+        doReturn(getParticipantCreateAuditLog()).when(mockEventGenerator).createAuditLog(anyString(), anyString(), anyMap(), anyMap());
+        doReturn(getUrl()).when(cloudStorageClient).getUrl(anyString(), anyString());
+        doNothing().when(cloudStorageClient).putObject(anyString(), anyString());
+        doNothing().when(cloudStorageClient).putObject(anyString(), anyString(), anyString());
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_CREATE).content(getParticipantCreateBodyWithInCorrectUrl()).header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        Map<String,Object> responseBody = JSONUtils.deserialize(response.getContentAsString(), Map.class);
+        int status = response.getStatus();
+        assertEquals(400, status);
+        assertEquals(ErrorCodes.ERR_INVALID_CERTIFICATE.name(), getResponseErrorCode(responseBody));
+        assertEquals("Error parsing certificate from the URL", getResponseErrorMessage(responseBody));
+    }
+
+    @Test
     void participant_create_invalid_encryption_cert() throws Exception {
         registryServer.enqueue(new MockResponse()
                 .setResponseCode(200)
@@ -100,11 +205,12 @@ class ParticipantControllerTests extends BaseSpec{
         doNothing().when(cloudStorageClient).putObject(anyString(),anyString());
         doNothing().when(cloudStorageClient).putObject(anyString(),anyString(),anyString());
         doReturn(getUrl()).when(cloudStorageClient).getUrl(anyString(),anyString());
-        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_CREATE).content("{ \"participant_name\": \"Apollo Hospital\", \"primary_mobile\": \"6300009626\", \"primary_email\": \"Apollohospital@gmail.com\", \"roles\": [\"provider\"], \"address\": { \"plot\": \"5-4-199\", \"street\": \"road no 12\", \"landmark\": \"Jawaharlal Nehru Road\", \"locality\": \"Nampally\", \"village\": \"Nampally\", \"district\": \"Hyderabad\", \"state\": \"Telangana\", \"pincode\": \"500805\" }, \"phone\": [ \"040-387658992\" ], \"status\": \"Created\", \"endpoint_url\": \"https://677e6fd9-57cc-466c-80f6-ae0462762872.mock.pstmn.io\", \"payment_details\": { \"account_number\": \"4707890099809809\", \"ifsc_code\": \"ICICI\" }, \"signing_cert_path\": \"urn:isbn:0-476-27557-4\", \"linked_registry_codes\": [ \"22344\" ] }").header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_CREATE).content("{ \"participant_name\": \"Apollo Hospital\", \"primary_mobile\": \"6300009626\", \"primary_email\": \"Apollohospital@gmail.com\", \"roles\": [\"provider\"], \"address\": { \"plot\": \"5-4-199\", \"street\": \"road no 12\", \"landmark\": \"Jawaharlal Nehru Road\", \"locality\": \"Nampally\", \"village\": \"Nampally\", \"district\": \"Hyderabad\", \"state\": \"Telangana\", \"pincode\": \"500805\" }, \"phone\": [ \"040-387658992\" ], \"status\": \"Created\", \"endpoint_url\": \"https://677e6fd9-57cc-466c-80f6-ae0462762872.mock.pstmn.io\", \"payment_details\": { \"account_number\": \"4707890099809809\", \"ifsc_code\": \"ICICI\" }, \"linked_registry_codes\": [ \"22344\" ] }").header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         Map<String,Object> responseBody = JSONUtils.deserialize(response.getContentAsString(), Map.class);
         assertEquals(400, status);
+        System.out.println(responseBody);
         assertEquals(ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS.name(), getResponseErrorCode(responseBody));
         assertEquals("Property 'encryption_cert' is missing or invalid", getResponseErrorMessage(responseBody));
     }
@@ -199,6 +305,27 @@ class ParticipantControllerTests extends BaseSpec{
         doNothing().when(cloudStorageClient).putObject(anyString(), anyString());
         doReturn(getUrl()).when(cloudStorageClient).getUrl(anyString(), anyString());
         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_UPDATE).content(getParticipantUpdateBody()).header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        assertEquals(200, status);
+    }
+
+    @Test
+    void participant_update_success_without_certificate_update_scenario() throws Exception {
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("[{\"osid\":\"1-68c5deca-8299-4feb-b441-923bb649a9a3\",\"osOwner\":[\"0c5763de-732d-4fd4-8547-b3960c1320f5\"]}]")
+                .addHeader("Content-Type", "application/json"));
+        registryServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{ \"message\": \"success\" }")
+                .addHeader("Content-Type", "application/json"));
+        Mockito.when(redisCache.isExists(any())).thenReturn(true);
+        doReturn(getParticipantCreateAuditLog()).when(mockEventGenerator).createAuditLog(anyString(), anyString(), anyMap(), anyMap());
+        doNothing().when(cloudStorageClient).putObject(anyString(), anyString(), anyString());
+        doNothing().when(cloudStorageClient).putObject(anyString(), anyString());
+        doReturn(getUrl()).when(cloudStorageClient).getUrl(anyString(), anyString());
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_UPDATE).content(getParticipantUpdateBodyWithoutCertificateUpdate()).header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         assertEquals(200, status);
