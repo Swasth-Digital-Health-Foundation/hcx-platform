@@ -14,15 +14,16 @@
     "User":{
       "$id":"#/definitions/User",
       "type":"object",
-      "title":"The User Schema",
+      "title":"User",
       "required":[
         "user_id",
+        "email",
         "user_name",
-        "roles",
-        "tenant",
-        "organisation_details"
+        "tenant_roles",
+        "created_by"
       ],
       "properties":{
+
         "user_id":{
           "type":"string"
         },
@@ -37,66 +38,41 @@
         },
         "email":{
           "type":"string",
-          "format":"email"
-        },
-        "roles":{
-          "type":"array",
-          "items":{
-            "type":"string"
-          }
-        },
-        "tenant":{
-          "type":"string"
+          "format": "email"
         },
         "linked_user_id":{
           "type":"string"
         },
-        "organisation_details":{
-          "$ref":"#/definitions/organisation_details"
-        }
-      }
-    },
-    "organisation_details":{
-      "title":"organisation_details",
-      "type":"object",
-      "required":[
-        "organisation_name",
-        "organisation_osid"
-      ],
-      "properties":{
-        "organisation_name":{
-          "type":"string"
+        "tenant_roles":{
+          "type":"array",
+          "items":{
+            "type":"object"
+          }
         },
-        "organisation_osid":{
+        "created_by":{
           "type":"string"
         }
       }
     }
   },
   "_osConfig":{
-    "ownershipAttributes":[
+    "ownershipAttributes": [
       {
-        "email":"/email",
-        "mobile":"/mobile",
-        "userId":"/email"
+        "email": "/email",
+        "mobile": "/mobile",
+        "userId": "/email"
       }
     ],
     "uniqueIndexFields":[
+      "user_id",
       "email"
     ],
-    "subjectJsonPath":"email",
-    "attestationAttributes": [
-      "organisation_details"
+    "systemFields": [
+      "osCreatedAt",
+      "osUpdatedAt"
     ],
-    "attestationPolicies":[
-      {
-        "property": "organisation_details",
-        "paths": [
-          "organisation_details"
-        ],
-        "attestorEntity": "Organisation",
-        "conditions": "(ATTESTOR#$.osid#.contains(REQUESTER#$.organisation_osid#) && ATTESTOR#$.participant_name#.contains(REQUESTER#$.organisation_name#))"
-      }
-    ]
+    "deleteRoles": ["anonymous"],
+    "inviteRoles": ["anonymous"],
+    "roles": ["anonymous"]
   }
 }

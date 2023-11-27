@@ -24,7 +24,7 @@ import static org.swasth.common.utils.Constants.*;
 public class JWTUtils {
 
     public boolean isValidSignature(String payload, String publicKeyUrl) throws Exception {
-        String certificate = IOUtils.toString(new URL(publicKeyUrl), StandardCharsets.UTF_8.toString());
+        String certificate = IOUtils.toString(new URL(publicKeyUrl), StandardCharsets.UTF_8);
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
         InputStream stream = new ByteArrayInputStream(certificate.getBytes()); //StandardCharsets.UTF_8
         Certificate cert = cf.generateCertificate(stream);
