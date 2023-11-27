@@ -495,8 +495,8 @@ public class OnboardService extends BaseController {
         boolean phoneVerified = false;
         String commStatus = PENDING;
         String identityStatus = REJECTED;
-        Map<String, Object> mockProviderDetails = new HashMap<>();
-        Map<String, Object> mockPayorDetails = new HashMap<>();
+        CompletableFuture<Map<String, Object>> mockProviderDetails = new CompletableFuture<>();
+        CompletableFuture<Map<String, Object>> mockPayorDetails = new CompletableFuture<>();
         Map<String, Object> participant = (Map<String, Object>) requestBody.get(PARTICIPANT);
         Map<String,Object> participantDetails = getParticipant(PARTICIPANT_CODE, (String) participant.get(PARTICIPANT_CODE));
         String email = (String) participantDetails.get(PRIMARY_EMAIL);
@@ -533,9 +533,9 @@ public class OnboardService extends BaseController {
                     String searchQuery = String.format("SELECT * FROM %s WHERE parent_participant_code = '%s'", mockParticipantsTable, participant.get(PARTICIPANT_CODE));
                     ResultSet result = (ResultSet) postgresClientMockService.executeQuery(searchQuery);
                     if (!result.next()) {
-                        mockProviderDetails =  createMockParticipant(headers, PROVIDER_HOSPITAL, participantDetails);
-                        mockPayorDetails = createMockParticipant(headers, PAYOR, participantDetails);
-                        kafkaClient.send(messageTopic, EMAIL, eventGenerator.getEmailMessageEvent(successTemplate((String) participant.get(PARTICIPANT_NAME), mockProviderDetails, mockPayorDetails), onboardingSuccessSub, Arrays.asList(email), new ArrayList<>(), new ArrayList<>()));
+                        mockProviderDetails = createMockParticipant(headers, PROVIDER_HOSPITAL, participantDetails,mockProviderDetails);
+                        mockPayorDetails = createMockParticipant(headers, PAYOR, participantDetails,mockPayorDetails);
+                        kafkaClient.send(messageTopic, EMAIL, eventGenerator.getEmailMessageEvent(successTemplate((String) participant.get(PARTICIPANT_NAME),  mockProviderDetails.get(), mockPayorDetails.get()), onboardingSuccessSub, Arrays.asList(email), new ArrayList<>(), new ArrayList<>()));
                     }
                 } else if (participantDetails.getOrDefault(STATUS_DB, "").equals(CREATED)) {
                     kafkaClient.send(messageTopic, EMAIL, eventGenerator.getEmailMessageEvent(pocSuccessTemplate((String) participant.get(PARTICIPANT_NAME)), onboardingSuccessSub, Arrays.asList(email), new ArrayList<>(), new ArrayList<>()));
@@ -1037,14 +1037,21 @@ public class OnboardService extends BaseController {
     }
 
     @Async
-    public Map<String, Object> createMockParticipant(HttpHeaders headers, String role, Map<String, Object> participantDetails) throws Exception {
-        String parentParticipantCode = (String) participantDetails.getOrDefault(PARTICIPANT_CODE, "");
-        logger.info("creating Mock participant for :: parent participant code : {} :: Role: {}",parentParticipantCode, role);
-        Map<String, Object> mockParticipant = getMockParticipantBody(participantDetails, role, parentParticipantCode);
-        String privateKey = (String) mockParticipant.getOrDefault(PRIVATE_KEY, "");
-        mockParticipant.remove(PRIVATE_KEY);
-        String childParticipantCode = createEntity(PARTICIPANT_CREATE, JSONUtils.serialize(mockParticipant), getHeadersMap(headers), ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, PARTICIPANT_CODE);
-        return updateMockDetails(mockParticipant, parentParticipantCode, childParticipantCode, privateKey);
+    private CompletableFuture<Map<String, Object>> createMockParticipant(HttpHeaders headers, String role, Map<String, Object> participantDetails,CompletableFuture<Map<String,Object>> mockDetails) throws Exception {
+        mockDetails = CompletableFuture.supplyAsync(() -> {
+            try{
+                String parentParticipantCode = (String) participantDetails.getOrDefault(PARTICIPANT_CODE, "");
+                logger.info("creating Mock participant for :: parent participant code : " + parentParticipantCode + " :: Role: " + role);
+                Map<String, Object> mockParticipant = getMockParticipantBody(participantDetails, role, parentParticipantCode);
+                String privateKey = (String) mockParticipant.getOrDefault(PRIVATE_KEY, "");
+                mockParticipant.remove(PRIVATE_KEY);
+                String childParticipantCode = createEntity(PARTICIPANT_CREATE, JSONUtils.serialize(mockParticipant), getHeadersMap(headers), ErrorCodes.ERR_INVALID_PARTICIPANT_DETAILS, PARTICIPANT_CODE);
+                return updateMockDetails(mockParticipant, parentParticipantCode, childParticipantCode, privateKey);
+            } catch (Exception e){
+                throw new RuntimeException();
+            }
+        });
+        return mockDetails;
     }
 
     private void getEmailAndName(String role, Map<String, Object> mockParticipant, Map<String, Object> participantDetails, String name) {
@@ -1066,6 +1073,7 @@ public class OnboardService extends BaseController {
             getEmailAndName("mock_provider", mockParticipant, participantDetails, "Mock Provider");
         }
         Map<String, Object> certificate = CertificateUtil.generateCertificates(parentParticipantCode, hcxURL);
+        mockParticipant.put(PARTICIPANT_NAME,certificate.getOrDefault(PARTICIPANT_NAME,""));
         mockParticipant.put(SIGNING_CERT_PATH, certificate.getOrDefault(PUBLIC_KEY, ""));
         mockParticipant.put(ENCRYPTION_CERT, certificate.getOrDefault(PUBLIC_KEY, ""));
         mockParticipant.put(PRIVATE_KEY, certificate.getOrDefault(PRIVATE_KEY, ""));
