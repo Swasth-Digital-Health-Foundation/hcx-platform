@@ -3638,6 +3638,21 @@ class OnboardControllerTests extends BaseSpec{
         int status = response.getStatus();
         Assertions.assertEquals(200, status);
     }
+    @Test
+    void test_applicant_search_success_with_filter_identity_verification() throws Exception {
+        hcxApiServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{ \"timestamp\": 1698382273219," + "\"participants\": [\n" + "{\n" + "\"participant_name\": \"swasth mock provider dev\",\n" + "\"primary_mobile\": \"9493347198\",\n" + "\"primary_email\": \"swasthmockproviderdev@gmail.com\",\n" + "\"roles\": [\n" + "\"provider\"\n" + "],\n" + "\"address\": {\n" + "\"plot\": \"5-4-199\",\n" + "\"street\": \"road no 12\",\n" + "\"landmark\": \"Jawaharlal Nehru Road\",\n" + "\"village\": \"Nampally\",\n" + "\"district\": \"Hyderabad\",\n" + "\"state\": \"Telangana\",\n" + "\"pincode\": \"500805\",\n" + "\"osid\": \"df17d5bd-33da-4b20-a3c3-f159617d17d2\",\n" + "\"@type\": \"address\"\n" + "},\n" + "\"phone\": [\n" + "\"040-387658992\"\n" + "],\n" + "\"status\": \"Created\",\n" +"\"endpoint_url\": \"http://ad3438079870f497093baf41fd7bd763-1439847685.ap-south-1.elb.amazonaws.com:8000/v1\",\n" + "\"payment_details\": {\n" + "\"account_number\": \"4707890099809809\",\n" + "\"ifsc_code\": \"ICICI\",\n" + "\"osid\": \"6dae8930-d30d-474e-b0a8-d3c43e050a1e\"\n" + " },\n" + " \"signing_cert_path\": \"urn:isbn:0-476-27557-4\",\n" + "\"linked_registry_codes\": [\n" + "\"22344\"\n" + "],\n" + "\"encryption_cert\": \"urn:isbn:0-4234\",\n" + "\"participant_code\": \"provider-swasth-mock-provider-dev\",\n" + "\"osOwner\": [\n" + "\"ebadaf81-3517-4545-9fb2-8cf0aa9723b3\"\n" + "],\n" + "\"osid\": \"provider-swasth-mock-provider-dev\",\n" + "\"@type\": \"Organisation\",\n" + "\"payment\": {\n" + "\"ifsc_code\": \"ICICI\",\n" + "\"account_number\": \"4707890099809809\",\n" + "\"@type\": \"payment_details\",\n" + "\"osid\": \"6dae8930-d30d-474e-b0a8-d3c43e050a1e\"\n" + "}\n" + "}\n" + "]\n" + "}")
+                .addHeader("Content-Type", "application/json"));
+        postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verifier");
+        postgreSQLClient.execute("CREATE TABLE onboard_verifier( applicant_email character varying NOT NULL,applicant_code character varying NOT NULL,  verifier_code character varying, status character varying, createdon bigInt,   updatedon bigInt,participant_code character varying)");
+        postgreSQLClient.execute("INSERT INTO onboard_verifier(applicant_email,applicant_code,verifier_code,status,createdon,updatedon,participant_code)"+"VALUES ('swasthmockproviderdev@gmail.com','123445','987655','accepted','1666612517000','1666612517000','provider-swasth-mock-provider-dev')");
+        String requestBodyJson = applicantSearchRequestBody();
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.APPLICANT_SEARCH +"?fields=identity_verification").content(requestBodyJson).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        Assertions.assertEquals(200, status);
+    }
 
     @Test
     void test_applicant_search_exception() throws Exception {

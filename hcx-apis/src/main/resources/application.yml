@@ -155,3 +155,8 @@ email:
 
 api-access-secret:
   expiry-days: ${secret_expiry_days:90}
+
+certificate:
+  validation-enabled: ${certificate_validations_enabled:true}
+  key-size: ${certificate_validations_key_size:2048,4096}
+  trusted-cas: ${trusted_cas:DigiCert Inc, Let's Encrypt, GoDaddy.com , Sectigo Limited , Amazon,swasth}
