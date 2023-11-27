@@ -533,8 +533,8 @@ public class OnboardService extends BaseController {
                     String searchQuery = String.format("SELECT * FROM %s WHERE parent_participant_code = '%s'", mockParticipantsTable, participant.get(PARTICIPANT_CODE));
                     ResultSet result = (ResultSet) postgresClientMockService.executeQuery(searchQuery);
                     if (!result.next()) {
-                        mockProviderDetails = createMockParticipant(headers, PROVIDER_HOSPITAL, participantDetails,mockProviderDetails);
-                        mockPayorDetails = createMockParticipant(headers, PAYOR, participantDetails,mockPayorDetails);
+                        mockProviderDetails = createMockParticipant(headers, PROVIDER_HOSPITAL, participantDetails);
+                        mockPayorDetails = createMockParticipant(headers, PAYOR, participantDetails);
                         kafkaClient.send(messageTopic, EMAIL, eventGenerator.getEmailMessageEvent(successTemplate((String) participant.get(PARTICIPANT_NAME),  mockProviderDetails.get(), mockPayorDetails.get()), onboardingSuccessSub, Arrays.asList(email), new ArrayList<>(), new ArrayList<>()));
                     }
                 } else if (participantDetails.getOrDefault(STATUS_DB, "").equals(CREATED)) {
@@ -1037,8 +1037,8 @@ public class OnboardService extends BaseController {
     }
 
     @Async
-    private CompletableFuture<Map<String, Object>> createMockParticipant(HttpHeaders headers, String role, Map<String, Object> participantDetails,CompletableFuture<Map<String,Object>> mockDetails) throws Exception {
-        mockDetails = CompletableFuture.supplyAsync(() -> {
+    public CompletableFuture<Map<String, Object>> createMockParticipant(HttpHeaders headers, String role, Map<String, Object> participantDetails)  {
+        CompletableFuture<Map<String, Object>> mockDetails = CompletableFuture.supplyAsync(() -> {
             try{
                 String parentParticipantCode = (String) participantDetails.getOrDefault(PARTICIPANT_CODE, "");
                 logger.info("creating Mock participant for :: parent participant code : " + parentParticipantCode + " :: Role: " + role);
