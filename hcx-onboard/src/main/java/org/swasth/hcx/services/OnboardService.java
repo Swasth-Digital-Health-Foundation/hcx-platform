@@ -495,8 +495,8 @@ public class OnboardService extends BaseController {
         boolean phoneVerified = false;
         String commStatus = PENDING;
         String identityStatus = REJECTED;
-        CompletableFuture<Map<String, Object>> mockProviderDetails = new CompletableFuture<>();
-        CompletableFuture<Map<String, Object>> mockPayorDetails = new CompletableFuture<>();
+        CompletableFuture<Map<String, Object>> mockProviderDetails ;
+        CompletableFuture<Map<String, Object>> mockPayorDetails ;
         Map<String, Object> participant = (Map<String, Object>) requestBody.get(PARTICIPANT);
         Map<String,Object> participantDetails = getParticipant(PARTICIPANT_CODE, (String) participant.get(PARTICIPANT_CODE));
         String email = (String) participantDetails.get(PRIMARY_EMAIL);
