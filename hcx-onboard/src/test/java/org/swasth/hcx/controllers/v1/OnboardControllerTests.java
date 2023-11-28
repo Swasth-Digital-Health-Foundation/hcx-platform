@@ -855,37 +855,6 @@ class OnboardControllerTests extends BaseSpec{
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("{\n" +
-                        "    \"timestamp\": 1698928410091,\n" +
-                        "    \"participants\": [\n" +
-                        "        {\n" +
-                        "            \"signing_cert_path\": \"https://dev-hcx-certificates.s3.ap-south-1.amazonaws.com/wemeanhospital%2Bmock_payor.yopmail%40swasth-hcx-dev/signing_cert_path.pem\",\n" +
-                        "            \"participant_name\": \"wemeanhospital Mock Payor\",\n" +
-                        "            \"endpoint_url\": \"http://a6a5d9138995a45b2bf9fd3f72b84367-915129339.ap-south-1.elb.amazonaws.com:8080/v0.7\",\n" +
-                        "            \"roles\": [\n" +
-                        "                \"payor\"\n" +
-                        "            ],\n" +
-                        "            \"scheme_code\": \"default\",\n" +
-                        "            \"primary_email\": \"wemeanhospital+mock_payor@yopmail.com\",\n" +
-                        "            \"encryption_cert\": \"https://dev-hcx-certificates.s3.ap-south-1.amazonaws.com/wemeanhospital%2Bmock_payor.yopmail%40swasth-hcx-dev/encryption_cert.pem\",\n" +
-                        "            \"status\": \"Active\",\n" +
-                        "            \"participant_code\": \"wemeanhospital+mock_payor.yopmail@swasth-hcx-dev\",\n" +
-                        "            \"sigining_cert_expiry\": 1779007885000,\n" +
-                        "            \"encryption_cert_expiry\": 1779007885000,\n" +
-                        "            \"osOwner\": [\n" +
-                        "                \"62c12021-eb1a-49ff-9496-d7a65a616930\"\n" +
-                        "            ],\n" +
-                        "            \"osCreatedAt\": \"2023-05-18T08:51:30.271Z\",\n" +
-                        "            \"osUpdatedAt\": \"2023-09-14T05:34:07.932Z\",\n" +
-                        "            \"osid\": \"93dac853-9089-4df6-9cbe-6b4b9acdc27e\",\n" +
-                        "            \"@type\": \"Organisation\",\n" +
-                        "            \"primary_mobile\": \"\"\n" +
-                        "        }\n" +
-                        "    ]\n" +
-                        "}")
-                .addHeader("Content-Type", "application/json"));
-        hcxApiServer.enqueue(new MockResponse()
-                .setResponseCode(200)
-                .setBody("{\n" +
                         "    \"timestamp\": 1698992466034,\n" +
                         "    \"participants\": [\n" +
                         "        {\n" +
