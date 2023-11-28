@@ -27,19 +27,12 @@ const CardDataStatsProfile: React.FC = () => {
   
   const verifyResend = (type: any) => {
     let payload = {};
-    if (type == "email") {
       payload = {
-        "primary_email": _.get(participantDetails, "primary_email"),
         "participant_code": _.get(participantDetails, "participant_code"),
-        "participant_name": _.get(participantDetails, "participant_name")
+        "channel": [
+          type
+        ] 
       }
-    } else {
-      payload = {
-        "primary_mobile": _.get(participantDetails, "primary_mobile"),
-        "participant_code": _.get(participantDetails, "participant_code"),
-        "participant_name": _.get(participantDetails, "participant_name")
-      }
-    }
     reverifyLink(payload).then((res: any) => {
       toast.success(`Re-verification link successfully sent to ${type}`, {
         position: toast.POSITION.TOP_CENTER
