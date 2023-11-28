@@ -24,6 +24,8 @@ topicCode:
  before-encryption-cert-expiry: ${before_encryption_cert_expiry_topic_code:notif-encryption-key-expiry}
  signing-cert-expired: ${signing_cert_expired_topic_code:notif-signing-cert-expired}
  before-signing-cert-expiry: ${before_signing_cert_expiry_topic_code:notif-signing-key-expiry}
+ secret-expired: ${secret_expired:notif-api-access-secret-expired}
+ before-secret-expiry: ${before_secret_expiry:notif-api-access-secret-expiry}
 
 #postgres config
 postgres:
@@ -31,6 +33,7 @@ postgres:
   user: ${postgres_user:postgres}
   password: ${postgres_password:postgres}
   tablename: ${postgres_tablename:payload}
+  table: ${postgres_table:api_access_secrets_expiry}
 
 #hcx error headers
 plainrequest:
@@ -60,4 +63,7 @@ notification:
   expiry: ${notification_expiry:86400000}
 
 certificate:
+  expiry-days: ${certificate_expiry_days:5,10,15}
+
+api-access-secret:
   expiry-days: ${certificate_expiry_days:5,10,15}

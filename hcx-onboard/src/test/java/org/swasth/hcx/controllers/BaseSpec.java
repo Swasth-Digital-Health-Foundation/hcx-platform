@@ -107,7 +107,7 @@ public class BaseSpec {
         return "Bearer eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiIzYjU1MGM5Mi00MzY0LTRkOGUtOGFmMS0yY2EyN2Q0MDlhM2IiLCJyZXNvdXJjZV9hY2Nlc3MiOnsiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwiZW1haWxfdmVyaWZpZWQiOmZhbHNlLCJpc3MiOiJodHRwOlwvXC9rZXljbG9hay5rZXljbG9hay5zdmMuY2x1c3Rlci5sb2NhbDo4MDgwXC9hdXRoXC9yZWFsbXNcL3N3YXN0aC1oY3gtdXNlcnMiLCJ0eXAiOiJCZWFyZXIiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJoY3h0ZXN0cHJvdmlkZXI5MDAxQHlvcG1haWwuY29tIiwiYXVkIjoiYWNjb3VudCIsImFjciI6IjEiLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsiZGVmYXVsdC1yb2xlcy1zd2FzdGgtaGVhbHRoLWNsYWltLWV4Y2hhbmdlLXVzZXIiLCJvZmZsaW5lX2FjY2VzcyIsInVtYV9hdXRob3JpemF0aW9uIl0sInRlbmFudF9yb2xlcyI6W3sicm9sZSI6ImFkbWluIiwicGFydGljaXBhbnRfY29kZSI6ImhjeHRlc3Rwcm92aWRlcjkwMDAueW9wbWFpbEBzd2FzdGgtaGN4LWRldiJ9XX0sInVzZXJfaWQiOiJoY3h0ZXN0cHJvdmlkZXI5MDAxQHlvcG1haWwuY29tIiwiYXpwIjoicmVnaXN0cnktZnJvbnRlbmQiLCJzY29wZSI6ImVtYWlsIHByb2ZpbGUiLCJleHAiOjE2OTg3NjgzMDYsInNlc3Npb25fc3RhdGUiOiJiODkxODk3YS0xMTI5LTQ3NTEtOTc1Mi03NzA3NjhmOGFhYjkiLCJpYXQiOjE2OTg3MzIzMDYsImp0aSI6ImY2MmFhYzI1LTM2YWItNGQ1My1hOWExLWY1MWY1ODI3ZDBiZSIsImVtYWlsIjoiaGN4dGVzdHByb3ZpZGVyOTAwMUB5b3BtYWlsLmNvbSIsImVudGl0eSI6WyJVc2VyIl19.wMsZUzbopJuru2nSrGaEc_aaQQnF7WV4TLF5vc84ohrFY9GvPX_ngqvdNvYbfcUEksxMn7DR1kDIbA9yQrg26uoBowb4pFsGFT2_Ht9Se7me4PHvOft98HBL3BxoO_2I-h8z4a0gflT8a9tej4KIPTuxoUlMxC1nZVP6HFKdP0x0d2oVgDcBl8yFVj9bwSDNfM1nrkULnkSQY2vfaMpuZQJHrcJvjvL__rvCH1-citkPQtRwNL9i1UOHSe_Ge8uOalbnixcK6zBLXTWOCWpapzQACtbKF8k2doTvGuQayjaUf4rOgwfO975qgzlQDgfdeNLn-B3ai3MJtyRtxfWf0g";
     }
 
-    protected String verifyRequestBody() throws JsonProcessingException {
+    protected String verifySuccessRequestBody() throws JsonProcessingException {
         List<Map<String , Object>> data = new ArrayList<>();
         Map<String,Object> body = new HashMap<>();
         body.put("type", "onboard-through-verifier");
@@ -122,7 +122,7 @@ public class BaseSpec {
         return JSONUtils.serialize(data);
     }
 
-    protected String verifyPayorRequestBody() throws JsonProcessingException {
+    protected String verifyPayorSuccessRequestBody() throws JsonProcessingException {
         List<Map<String , Object>> data = new ArrayList<>();
         Map<String,Object> body = new HashMap<>();
         body.put("type", "onboard-through-verifier");
@@ -137,7 +137,7 @@ public class BaseSpec {
         return JSONUtils.serialize(data);
     }
 
-    protected String updateRequestBody() throws JsonProcessingException {
+    protected String onboardUpdateRequestBody() throws JsonProcessingException {
         Map<String, Object> participant = new HashMap<>();
         Map<String, Object> participantData = new HashMap<>();
         participantData.put("participant_code", "test_user_54.yopmail@swasth-hcx");
@@ -148,7 +148,7 @@ public class BaseSpec {
         return JSONUtils.serialize(participant);
     }
 
-    protected String onboardUpdateRequestBody() throws JsonProcessingException {
+    protected String onboardUpdateSuccessRequestBody() throws JsonProcessingException {
         Map<String, Object> participant = new HashMap<>();
         Map<String, Object> participantData = new HashMap<>();
         participantData.put("participant_code", "test_user_54.yopmail@swasth-hcx");
@@ -326,8 +326,27 @@ public class BaseSpec {
         return query;
     }
 
-    protected String applicantVerifyOnboardVerificationTable(){
+    protected String applicantVerifyOnboardVerificationTableDetails(){
         String query = "INSERT INTO onboard_verification(participant_code,primary_email,primary_mobile,createdon,updatedon,expiry,phone_verified,email_verified,status,regenerate_count,last_regenerate_date,attempt_count, comments,phone_short_url,phone_long_url,onboard_validation_properties,participant_validation_properties) " + " VALUES('testhctes13.yopmail@swasth-hcx','testhctes13@yopmail.com','9620499129','169719173417','169719173417','2555824693417',false,true,'failed',0,'2023-10-12T13:37:12.533Z','5','','','','{\"email\": \"verification\",\"phone\": \"activation\"}',' {\"email\": \"verification\",\"phone\": \"activation\"}')";
         return query;
+    }
+
+    protected String apiAccessSecretExceptionRequestBody() throws JsonProcessingException {
+        Map<String , Object> participant = new HashMap<>();
+        participant.put("email","testhcx@gmail.com");
+        participant.put("participant_code","payr_test1234@swasth-hcx");
+        return JSONUtils.serialize(participant);
+    }
+
+    protected String apiAccessSecretInvaildRequestbody() throws JsonProcessingException {
+        Map<String , Object> participant = new HashMap<>();
+        return JSONUtils.serialize(participant);
+    }
+
+    protected String apiAccessSecretSuccess() throws JsonProcessingException {
+        Map<String , Object> participant = new HashMap<>();
+        participant.put("user_id","hcxtest477@yopmail.com");
+        participant.put("participant_code","hcxtest477.yopmail@swasth-hcx");
+        return JSONUtils.serialize(participant);
     }
 }
