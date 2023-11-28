@@ -1050,10 +1050,10 @@ public class OnboardService extends BaseController {
 
     @Async
     public CompletableFuture<Map<String, Object>> createMockParticipant(HttpHeaders headers, String role, Map<String, Object> participantDetails)  {
-        CompletableFuture<Map<String, Object>> mockDetails = CompletableFuture.supplyAsync(() -> {
+         return CompletableFuture.supplyAsync(() -> {
             try{
                 String parentParticipantCode = (String) participantDetails.getOrDefault(PARTICIPANT_CODE, "");
-                logger.info("creating Mock participant for :: parent participant code : " + parentParticipantCode + " :: Role: " + role);
+                logger.info("creating Mock participant for :: parent participant code : {} :: Role: {}", parentParticipantCode,role );
                 Map<String, Object> mockParticipant = getMockParticipantBody(participantDetails, role, parentParticipantCode);
                 String privateKey = (String) mockParticipant.getOrDefault(PRIVATE_KEY, "");
                 mockParticipant.remove(PRIVATE_KEY);
@@ -1063,7 +1063,6 @@ public class OnboardService extends BaseController {
                 throw new RuntimeException();
             }
         });
-        return mockDetails;
     }
 
     private void getEmailAndName(String role, Map<String, Object> mockParticipant, Map<String, Object> participantDetails, String name) {
