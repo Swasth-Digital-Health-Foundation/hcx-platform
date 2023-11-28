@@ -32,7 +32,7 @@ kafka:
 
 
 registry:
-  basePath: ${registry_basePath:http://aa5c04ed467c04ea89789cead03e4275-320353178.ap-south-1.elb.amazonaws.com:8081}
+  basePath: ${registry_basePath:http://dev-hcx.swasth.app/registry}
   hcxcode: ${registry_hcxcode:1-d2d56996-1b77-4abb-b9e9-0e6e7343c72e}
   organisation-api-path: ${registry_api_path:/api/v1/Organisation}
   user-api-path: ${registry_user_api_path:/api/v1/User}
@@ -152,3 +152,8 @@ email:
   pwd: ${email_pwd:}
   user-token-subject: ${token_generate_subject:HCX - Protocol APIs Access Token Generation credentials}
   user-token-message: ${user_token_message:Hi <b>NAME</b>,<br/><br/> Along with participant username and password, api access token can be generated using the following credentials. <br/> <ul><li> user_name -  USER_ID </li> <li> secret - PASSWORD</li><li> participant_code - PARTICIPANT_CODE</li></ul> This API Access token can be used to make protocol API requests.  Please refer to the instructions provided in the <a href = "https://github.com/Swasth-Digital-Health-Foundation/hcx-platform/blob/main/docs/user-manuals/How%20to%20generate%20an%20access%20token%20to%20make%20use%20of%20protocol%20APIs/README.md">link</a> to generate access token. <br/><br/> If you have any queries, Please reach out HCX team.  <br/><br/> Thanks and Regards <br/> HCX Team.}
+
+certificate:
+  validation-enabled: ${certificate_validations_enabled:true}
+  key-size: ${certificate_validations_key_size:2048,4096}
+  trusted-cas: ${trusted_cas:DigiCert Inc, Let's Encrypt, GoDaddy.com , Sectigo Limited , Amazon,swasth}
