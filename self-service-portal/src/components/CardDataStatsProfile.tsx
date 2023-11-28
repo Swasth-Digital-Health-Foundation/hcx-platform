@@ -164,7 +164,7 @@ const CardDataStatsProfile: React.FC = () => {
             <span className="text-meta-3">Active</span>:
             <>
             <span className="text-red">Inactive</span> 
-            <button onClick={() => verifyResend("phone")} className="text-meta-5 underline">Verify Link</button>
+            <button onClick={() => verifyResend("mobile")} className="text-meta-5 underline">Verify Link</button>
             </>
             }
           </p>
