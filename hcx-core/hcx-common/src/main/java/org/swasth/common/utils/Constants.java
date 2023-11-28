@@ -201,6 +201,7 @@ public class Constants {
     public static final String HEADER_AUDIT = "hcx_audit";
     public static final String PAYOR = "payor";
     public static final String PROVIDER = "provider";
+    public static final String PROVIDER_HOSPITAL = "provider.hospital";
     public static final String AGENCY_TPA = "agency.tpa";
     public static final String MEMBER_ISNP = "member.isnp";
     public static final String ROLES = "roles";
