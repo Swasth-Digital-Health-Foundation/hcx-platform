@@ -187,15 +187,10 @@ public class BaseRequest {
             String entity = getEntity(action);
             validateCondition(!OPERATIONAL_ENTITIES.contains(entity) && action.contains("on_") && ((((List<String>) audit.get(RECIPIENT_ROLE)).contains(PROVIDER)) || ((List<String>) audit.get(RECIPIENT_ROLE)).stream().anyMatch(PROVIDER_SPECIFIC_ROLES::contains)) && audit.get(STATUS).equals(COMPLETE_STATUS), ErrorCodes.ERR_INVALID_CORRELATION_ID, CLOSED_CYCLE_MSG);        }
         String actionEntity = getEntity(jweRequest.getApiAction());
-        if(!apiAction.contains("on_")) {
-            if (!OPERATIONAL_ENTITIES.contains(actionEntity)) {
-                if (!correlationFilteredData.isEmpty()) {
-                    List<Map<String, Object>> filteredList = filteredList(correlationFilteredData, correlationDataCloseDays);
-                    // validating correlation id at sender context
-                    if (filteredList.isEmpty() && correlationFilteredData.get(0).get(HCX_SENDER_CODE).toString().equals(jweRequest.getHcxSenderCode()) && correlationAuditData.get(0).get(CORRELATION_ID).toString().contains(jweRequest.getCorrelationId())) {
-                        throw new ClientException(ErrorCodes.ERR_INVALID_CORRELATION_ID, CORRELATION_ID_DUPLICATE);
-                    }
-                }
+        if (!apiAction.contains("on_") && !OPERATIONAL_ENTITIES.contains(actionEntity) && !correlationFilteredData.isEmpty()) {
+            List<Map<String, Object>> filteredList = filteredList(correlationFilteredData, correlationDataCloseDays);
+            if (filteredList.isEmpty() && correlationFilteredData.get(0).get(HCX_SENDER_CODE).toString().equals(jweRequest.getHcxSenderCode()) && correlationAuditData.get(0).get(CORRELATION_ID).toString().contains(jweRequest.getCorrelationId())) {
+                throw new ClientException(ErrorCodes.ERR_INVALID_CORRELATION_ID, CORRELATION_ID_DUPLICATE);
             }
         }
         if (apiAction.contains("on_")) {
@@ -368,7 +363,6 @@ public class BaseRequest {
     }
 
     private boolean isWithinLastDays(long timestamp,int days) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         Date currentDate = new Date();
         long differenceInMillis = currentDate.getTime() - timestamp;
         long daysDifference = TimeUnit.DAYS.convert(differenceInMillis, TimeUnit.MILLISECONDS);
