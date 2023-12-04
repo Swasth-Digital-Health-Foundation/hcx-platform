@@ -202,6 +202,7 @@ public class BaseSpec {
         return JSONUtils.serialize(participant);
     }
 
+
     protected String applicantGetInfoRequestBody() throws JsonProcessingException {
         Map<String , Object> participant = new HashMap<>();
         participant.put("applicant_code","test_user_95.yopmail@swasth-hcx");
