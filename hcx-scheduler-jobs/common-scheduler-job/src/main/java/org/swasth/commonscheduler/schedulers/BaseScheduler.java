@@ -9,7 +9,6 @@ import org.swasth.common.helpers.EventGenerator;
 import org.swasth.kafka.client.KafkaClient;
 import org.swasth.postgresql.PostgreSQLClient;
 
-import javax.annotation.PostConstruct;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
