@@ -28,6 +28,12 @@ public class ParticipantTests {
         System.out.println(code);
         Assertions.assertEquals("bsp_rakshi_012345@swasth-hcx",code);
     }
+    @Test
+    void generate_payor_role(){
+        Participant participant = new Participant(getPayorRequestBody());
+        String code = participant.generateCode("_", "swasth-hcx");
+        Assertions.assertTrue(code.contains("payr"));
+    }
 
     private Map<String,Object> getPayorRequestBody() {
         Map<String, Object> obj = new HashMap<>();
