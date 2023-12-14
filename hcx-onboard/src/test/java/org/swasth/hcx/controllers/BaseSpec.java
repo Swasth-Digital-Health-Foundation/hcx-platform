@@ -122,6 +122,20 @@ public class BaseSpec {
         return JSONUtils.serialize(data);
     }
 
+    protected String verifySuccessRequestBodyHospitalRole() throws JsonProcessingException {
+        List<Map<String , Object>> data = new ArrayList<>();
+        Map<String,Object> body = new HashMap<>();
+        body.put("type", "onboard-through-verifier");
+        body.put("verifier_code","wemeanhospital+mock_payor.yopmail@swasth-hcx-dev");
+        Map<String , Object> participant = new HashMap<>();
+        participant.put(Constants.PRIMARY_EMAIL,"obama02@yopmail.com");
+        participant.put(Constants.PRIMARY_MOBILE,"9620499129");
+        participant.put(Constants.PARTICIPANT_NAME,"test_user_12");
+        participant.put("roles",List.of(Constants.PROVIDER_HOSPITAL));
+        body.put("participant",participant);
+        data.add(body);
+        return JSONUtils.serialize(data);
+    }
     protected String verifyPayorSuccessRequestBody() throws JsonProcessingException {
         List<Map<String , Object>> data = new ArrayList<>();
         Map<String,Object> body = new HashMap<>();
