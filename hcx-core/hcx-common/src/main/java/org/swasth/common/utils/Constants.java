@@ -201,9 +201,11 @@ public class Constants {
     public static final String HEADER_AUDIT = "hcx_audit";
     public static final String PAYOR = "payor";
     public static final String PROVIDER = "provider";
+    public static final String PROVIDER_HOSPITAL = "provider.hospital";
     public static final String AGENCY_TPA = "agency.tpa";
     public static final String MEMBER_ISNP = "member.isnp";
     public static final String ROLES = "roles";
+    public static final List<String> PROVIDER_SPECIFIC_ROLES = Arrays.asList(PROVIDER_HOSPITAL, "provider.clinic", "provider.practitioner", "provider.diagnostics", "provider.pharmacy");
     public static final String SCHEME_CODE = "scheme_code";
     public static final String PARTICIPANT_CODE = "participant_code";
     public static final String INVITED_BY = "invited_by";
@@ -219,6 +221,7 @@ public class Constants {
     public static final String ENCRYPTION_CERT = "encryption_cert";
     public static final String ENCRYPTION_CERT_EXPIRY = "encryption_cert_expiry";
     public static final String SIGNING_CERT_PATH_EXPIRY = "sigining_cert_expiry";
+    public static final String API_ACCESS_SECRET_GENERATE = "/api-access/secret/generate";
     public static final String PUBLIC_KEY = "public_key";
     public static final String PRIVATE_KEY = "private_key";
     public static final String PASSWORD = "password";
