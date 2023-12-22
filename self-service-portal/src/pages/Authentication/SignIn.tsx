@@ -39,6 +39,7 @@ const SignIn: React.FC = () => {
       if (password == "") setPassError(true);
     } else {
       dispatch(addAppData({ "username": username }));
+      dispatch(addAppData({ "emailRegister": username }));
       generateTokenUser(username, password).then((res) => {
         sessionStorage.setItem('hcx_user_token', res as string);
         sessionStorage.setItem('hcx_user_name', username);
