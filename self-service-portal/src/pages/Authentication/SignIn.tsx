@@ -36,7 +36,6 @@ const SignIn: React.FC = () => {
     }else{
       console.log("i am here")
       dispatch(addAppData({"username":username}));
-      dispatch(addAppData({"emailRegister":username}));
       generateTokenUser(username,password).then((res) => {
         window.console.log("res", res);
         sessionStorage.setItem('hcx_user_token', res as string);
