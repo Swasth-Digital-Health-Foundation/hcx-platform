@@ -3494,36 +3494,7 @@ class OnboardControllerTests extends BaseSpec{
     void test_onboard_invite_with_jwtToken_success() throws Exception {
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
-                .setBody("{\n" +
-                        "    \"timestamp\": 1698647527393,\n" +
-                        "    \"participants\": [\n" +
-                        "        {\n" +
-                        "            \"status\": \"Active\",\n" +
-                        "            \"participant_name\": \"Health Claims Exchange Gateway\",\n" +
-                        "            \"endpoint_url\": \"http://dev-hcx.swasth.app/\",\n" +
-                        "            \"roles\": [\n" +
-                        "                \"HIE/HIO.HCX\"\n" +
-                        "            ],\n" +
-                        "            \"primary_email\": \"hcxgateway@swasth.org\",\n" +
-                        "            \"primary_mobile\": \"\",\n" +
-                        "            \"encryption_cert\": \"https://dev-hcx-certificates.s3.ap-south-1.amazonaws.com/hcxgateway.swasth%40swasth-hcx-dev/encryption_cert.pem\",\n" +
-                        "            \"signing_cert_path\": \"https://dev-hcx-certificates.s3.ap-south-1.amazonaws.com/hcxgateway.swasth%40swasth-hcx-dev/signing_cert_path.pem\",\n" +
-                        "            \"linked_registry_codes\": [\n" +
-                        "                12345\n" +
-                        "            ],\n" +
-                        "            \"participant_code\": \"hcxgateway.swasth@swasth-hcx-dev\",\n" +
-                        "            \"sigining_cert_expiry\": 1993808205000,\n" +
-                        "            \"encryption_cert_expiry\": 1993808205000,\n" +
-                        "            \"osOwner\": [\n" +
-                        "                \"59d43f9b-42e7-4480-9ec2-aa6bd95ccb5f\"\n" +
-                        "            ],\n" +
-                        "            \"osCreatedAt\": \"2023-03-10T12:05:37.736Z\",\n" +
-                        "            \"osUpdatedAt\": \"2023-10-25T05:42:08.924Z\",\n" +
-                        "            \"osid\": \"c776b615-b6cb-481c-8a78-de0c0c80f38a\",\n" +
-                        "            \"@type\": \"Organisation\"\n" +
-                        "        }\n" +
-                        "    ]\n" +
-                        "}")
+                .setBody("{\n" + "\"timestamp\": 1698647527393,\n" + "\"participants\": [\n" + "{\n" + "\"status\": \"Active\",\n" + "\"participant_name\": \"Health Claims Exchange Gateway\",\n" + "\"endpoint_url\": \"http://dev-hcx.swasth.app/\",\n" + "\"roles\": [\n" + "\"HIE/HIO.HCX\"\n" + "],\n" + "\"primary_email\": \"hcxgateway@swasth.org\",\n" + "\"primary_mobile\": \"\",\n" + "\"encryption_cert\": \"https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/hcx-platform/main/hcx-apis/src/test/resources/examples/test-keys/public-key.pem\",\n" + "\"signing_cert_path\": \"https://dev-hcx-certificates.s3.ap-south-1.amazonaws.com/hcxgateway.swasth%40swasth-hcx-dev/signing_cert_path.pem\",\n" + "            \"linked_registry_codes\": [\n" + "12345\n" + "],\n" + "\"participant_code\": \"hcxgateway.swasth@swasth-hcx-dev\",\n" + "\"sigining_cert_expiry\": 1993808205000,\n" + "\"encryption_cert_expiry\": 1993808205000,\n" + "            \"osOwner\": [\n" + "\"59d43f9b-42e7-4480-9ec2-aa6bd95ccb5f\"\n" + "],\n" + "\"osCreatedAt\": \"2023-03-10T12:05:37.736Z\",\n" + "\"osUpdatedAt\": \"2023-10-25T05:42:08.924Z\",\n" + "\"osid\": \"c776b615-b6cb-481c-8a78-de0c0c80f38a\",\n" + "\"@type\": \"Organisation\"\n" + "}\n" + "]\n" + "}")
                 .addHeader("Content-Type", "application/json"));
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
@@ -3545,31 +3516,7 @@ class OnboardControllerTests extends BaseSpec{
                 .addHeader("Content-Type", "application/json"));
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
-                .setBody("{\n" +
-                        "    \"timestamp\": 1698655981554,\n" +
-                        "    \"participants\": [\n" +
-                        "        {\n" +
-                        "            \"primary_email\": \"testhctes13@yopmail.com\",\n" +
-                        "            \"primary_mobile\": \"9620499129\",\n" +
-                        "            \"roles\": [\n" +
-                        "                \"payor\"\n" +
-                        "            ],\n" +
-                        "            \"participant_name\": \"test-payor\",\n" +
-                        "            \"endpoint_url\": \"http://testurl/v0.7\",\n" +
-                        "            \"encryption_cert\": \"https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/hcx-platform/main/hcx-apis/src/test/resources/examples/test-keys/public-key.pem\",\n" +
-                        "            \"status\": \"Created\",\n" +
-                        "            \"scheme_code\": \"default\",\n" +
-                        "            \"participant_code\": \"testhctes13.yopmail@swasth-hcx\",\n" +
-                        "            \"encryption_cert_expiry\": 1840270798000,\n" +
-                        "            \"osOwner\": [\n" +
-                        "                \"24a0835a-42b7-40e1-ab9c-f704e0e9da1b\"\n" +
-                        "            ],\n" +
-                        "            \"osCreatedAt\": \"2023-07-28T06:29:43.893Z\",\n" +
-                        "            \"osUpdatedAt\": \"2023-07-28T06:29:43.893Z\",\n" +
-                        "            \"osid\": \"358ec012-c448-4f4c-9513-40ff8ea20fa9\"\n" +
-                        "        }\n" +
-                        "    ]\n" +
-                        "}")
+                .setBody("{ \"timestamp\": 1703748473235, \"participants\": [ { \"participant_name\": \"tesuserz16\", \"primary_email\": \"tesuserz16@yopmail.com\", \"primary_mobile\": \"9620499129\", \"roles\": [ \"provider.hospital\" ], \"endpoint_url\": \"http://testurl/v0.7\", \"encryption_cert\": \"https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/hcx-platform/main/hcx-apis/src/test/resources/examples/test-keys/public-key.pem\", \"status\": \"Created\", \"applicant_code\": \"36310114\", \"participant_code\": \"hosp_tesuse_36310114@swasth-hcx-dev\", \"encryption_cert_expiry\": 1840270798000, \"osOwner\": [ \"b2f8ef57-3dcb-4660-b8f3-089c65065aae\" ], \"osCreatedAt\": \"2023-12-27T06:34:29.914Z\", \"osUpdatedAt\": \"2023-12-27T06:34:29.914Z\", \"osid\": \"c1212649-88bc-4e1a-a31c-b53bd4f4fec3\" } ] }")
                 .addHeader("Content-Type", "application/json"));
         postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_user_invite_details");
         postgreSQLClient.execute("CREATE TABLE onboard_user_invite_details(participant_code character varying,user_email character varying,invited_by character varying,invite_status character varying ,created_on bigInt,updated_on bigInt)");
@@ -3579,8 +3526,6 @@ class OnboardControllerTests extends BaseSpec{
         String requestBodyJson = onboardInviteJwtTokenSuccess();
         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.ONBOARD_USER_INVITE_ACCEPT).content(requestBodyJson).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
-        System.out.println("-------------------------------------------------");
-        System.out.printf("Response----" + response.getContentAsString());
         int status = response.getStatus();
         Assertions.assertEquals(200, status);
     }
