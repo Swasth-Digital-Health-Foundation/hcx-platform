@@ -24,7 +24,7 @@ class BaseJobConfig(val config: Config, val jobName: String) extends Serializabl
   val kafkaProducerMaxRequestSize: Int = config.getInt("kafka.producer.max-request-size")
   val kafkaProducerBatchSize: Int = config.getInt("kafka.producer.batch.size")
   val kafkaProducerLingerMs: Int = config.getInt("kafka.producer.linger.ms")
-  val groupId: String = config.getString("kafka.groupId")
+  private val groupId: String = config.getString("kafka.groupId")
   val restartAttempts: Int = config.getInt("task.restart-strategy.attempts")
   val delayBetweenAttempts: Long = config.getLong("task.restart-strategy.delay")
   val parallelism: Int = config.getInt("task.parallelism")
@@ -136,10 +136,10 @@ class BaseJobConfig(val config: Config, val jobName: String) extends Serializabl
   def kafkaProducerProperties: Properties = {
     val properties = new Properties()
     properties.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBrokerServers)
-    properties.put(ProducerConfig.LINGER_MS_CONFIG, new Integer(kafkaProducerLingerMs))
-    properties.put(ProducerConfig.BATCH_SIZE_CONFIG, new Integer(kafkaProducerBatchSize))
+    properties.put(ProducerConfig.LINGER_MS_CONFIG, Integer.valueOf(kafkaProducerLingerMs))
+    properties.put(ProducerConfig.BATCH_SIZE_CONFIG, Integer.valueOf(kafkaProducerBatchSize))
     properties.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "snappy")
-    properties.put(ProducerConfig.MAX_REQUEST_SIZE_CONFIG, new Integer(kafkaProducerMaxRequestSize))
+    properties.put(ProducerConfig.MAX_REQUEST_SIZE_CONFIG, Integer.valueOf(kafkaProducerMaxRequestSize))
     properties
   }
 
