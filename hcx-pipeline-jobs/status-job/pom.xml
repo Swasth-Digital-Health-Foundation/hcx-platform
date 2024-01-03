@@ -56,6 +56,11 @@
             <version>${flink.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.typesafe</groupId>
+            <artifactId>config</artifactId>
+            <version>1.4.2</version>
+        </dependency>
+        <dependency>
             <groupId>org.swasth</groupId>
             <artifactId>core</artifactId>
             <version>1.0.0</version>
