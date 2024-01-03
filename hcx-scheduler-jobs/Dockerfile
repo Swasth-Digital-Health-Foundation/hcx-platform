@@ -1,4 +1,4 @@
-FROM sunbird/openjdk-java11-alpine:latest
+FROM eclipse-temurin:11.0.20.1_1-jdk-focal
 ARG JAR_FILE=common-scheduler-job/target/*.jar
 COPY ${JAR_FILE} app.jar
 ENTRYPOINT ["java","-jar","/app.jar"]
