@@ -109,7 +109,7 @@ class BaseProcessFunctionTestSpec extends BaseSpec with Matchers {
     implicit val env: StreamExecutionEnvironment = FlinkUtil.getExecutionContext(bsConfig)
 
     val mapStream =
-      env.fromSource(kafkaConnector.kafkaMapSource(bsConfig.kafkaMapInputTopic), WatermarkStrategy.noWatermarks[mutable.Map[String, AnyRef]](), "map-event-consumer")
+      env.fromSource(kafkaConnector.kafkaMapSource(bsConfig.kafkaMapInputTopic), WatermarkStrategy.noWatermarks[java.util.Map[String, AnyRef]](), "map-event-consumer")
         .process(new TestMapStreamFunc(bsConfig)).name("TestMapEventStream")
 
     mapStream.getSideOutput(bsConfig.mapOutputTag)

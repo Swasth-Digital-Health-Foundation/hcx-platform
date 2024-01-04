@@ -48,7 +48,7 @@ public class ProtocolRequestProcessorStreamTask {
 
     void process(BaseJobConfig baseJobConfig) throws Exception {
         StreamExecutionEnvironment env = FlinkUtil.getExecutionContext(baseJobConfig);
-        KafkaSource kafkaConsumer = kafkaConnector.kafkaMapSource(config.kafkaInputTopic);
+        KafkaSource<Map<String, Object>> kafkaConsumer = kafkaConnector.kafkaMapSource(config.kafkaInputTopic);
 
         SingleOutputStreamOperator<Map<String, Object>> enrichedStream = env.fromSource(kafkaConsumer, WatermarkStrategy.noWatermarks(), config.protocolRequestConsumer)
                 .uid(config.protocolRequestConsumer).setParallelism(config.consumerParallelism)

@@ -47,9 +47,9 @@ public class ClaimsStreamTask {
 
   void process(BaseJobConfig baseJobConfig) throws Exception {
     StreamExecutionEnvironment env = FlinkUtil.getExecutionContext(baseJobConfig);
-    KafkaSource kafkaConsumer =  kafkaConnector.kafkaMapSource(config.kafkaInputTopic);
+    KafkaSource<Map<String, Object>> kafkaConsumer =  kafkaConnector.kafkaMapSource(config.kafkaInputTopic);
 
-    SingleOutputStreamOperator enrichedStream = env.fromSource(kafkaConsumer, WatermarkStrategy.noWatermarks(), config.claimsConsumer)
+    SingleOutputStreamOperator<Map<String, Object>> enrichedStream = env.fromSource(kafkaConsumer, WatermarkStrategy.noWatermarks(), config.claimsConsumer)
             .uid(config.claimsConsumer).setParallelism(config.consumerParallelism)
             .rebalance()
             .process(new ContextEnrichmentFunction(config, TypeExtractor.getForClass(String.class))).setParallelism(config.downstreamOperatorsParallelism);

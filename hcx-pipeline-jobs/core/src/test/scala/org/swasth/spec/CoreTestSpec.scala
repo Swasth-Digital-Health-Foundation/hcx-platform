@@ -18,7 +18,6 @@ import org.swasth.fixture.EventFixture
 import redis.clients.jedis.exceptions.{JedisDataException, JedisException}
 
 import java.util
-import scala.collection.mutable
 
 class CoreTestSpec extends BaseSpec with Matchers with MockitoSugar {
 
@@ -111,7 +110,7 @@ class CoreTestSpec extends BaseSpec with Matchers with MockitoSugar {
     stringDeSerialization.deserialize(cRecord,collector)
     stringSerialization.serialize("test",context, System.currentTimeMillis())
     stringDeSerialization.getProducedType should be
-    val map: mutable.Map[String, AnyRef] = mutable.Map()
+    val map: java.util.Map[String, AnyRef] = java.util.Map[String,AnyRef]
     map.put("country_code", "IN")
     map.put("country", "INDIA")
     mapSerialization.serialize(map,context, System.currentTimeMillis())
