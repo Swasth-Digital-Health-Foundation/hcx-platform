@@ -4,6 +4,11 @@
   allowed_senders:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
     - agency.tpa
     - agency.regulator
     - research
@@ -13,6 +18,11 @@
   allowed_recipients:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
     - agency.tpa
     - agency.regulator
     - research
@@ -36,6 +46,11 @@
   allowed_senders:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
     - agency.tpa
     - agency.regulator
     - research
@@ -45,6 +60,11 @@
   allowed_recipients:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
     - agency.tpa
     - agency.regulator
     - research
@@ -68,6 +88,11 @@
   allowed_senders:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
     - agency.tpa
     - agency.regulator
     - research
@@ -77,6 +102,11 @@
   allowed_recipients:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
     - agency.tpa
     - agency.regulator
     - research
@@ -100,6 +130,11 @@
   allowed_senders:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
     - agency.tpa
     - agency.regulator
     - research
@@ -109,6 +144,11 @@
   allowed_recipients:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
     - agency.tpa
     - agency.regulator
     - research
@@ -132,6 +172,11 @@
     - payor
   allowed_recipients:
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
     - agency.tpa
     - agency.regulator
     - research
@@ -153,6 +198,11 @@
   allowed_senders:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
     - agency.tpa
     - agency.regulator
     - research
@@ -162,6 +212,11 @@
   allowed_recipients:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
     - agency.tpa
     - agency.regulator
     - research
@@ -183,6 +238,11 @@
   allowed_senders:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
     - agency.tpa
     - agency.regulator
     - research
@@ -192,6 +252,11 @@
   allowed_recipients:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
     - agency.tpa
     - agency.regulator
     - research
