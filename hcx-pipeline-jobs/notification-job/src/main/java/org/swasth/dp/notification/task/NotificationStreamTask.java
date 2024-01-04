@@ -49,9 +49,9 @@ public class NotificationStreamTask {
 
     void process(BaseJobConfig baseJobConfig) throws Exception {
         StreamExecutionEnvironment env = FlinkUtil.getExecutionContext(baseJobConfig);
-        KafkaSource notifyConsumer = kafkaConnector.kafkaMapSource(config.kafkaInputTopic);
-        KafkaSource subscriptionConsumer = kafkaConnector.kafkaMapSource(config.subscriptionInputTopic);
-        KafkaSource onSubscriptionConsumer = kafkaConnector.kafkaMapSource(config.onSubscriptionInputTopic);
+        KafkaSource<Map<String, Object>> notifyConsumer = kafkaConnector.kafkaMapSource(config.kafkaInputTopic);
+        KafkaSource<Map<String, Object>> subscriptionConsumer = kafkaConnector.kafkaMapSource(config.subscriptionInputTopic);
+        KafkaSource<Map<String, Object>> onSubscriptionConsumer = kafkaConnector.kafkaMapSource(config.onSubscriptionInputTopic);
         env.enableCheckpointing(config.checkpointingInterval());
         env.getCheckpointConfig().setCheckpointTimeout(config.checkpointingTimeout());
         env.getCheckpointConfig().setMinPauseBetweenCheckpoints(config.checkpointingPauseSeconds());

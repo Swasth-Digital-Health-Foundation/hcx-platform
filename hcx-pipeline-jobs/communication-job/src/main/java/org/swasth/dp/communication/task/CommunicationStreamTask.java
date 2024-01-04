@@ -8,7 +8,6 @@ import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.swasth.dp.communication.functions.CommunicationProcessFunction;
 import org.swasth.dp.core.function.ContextEnrichmentFunction;
 import org.swasth.dp.core.job.BaseJobConfig;
@@ -47,7 +46,7 @@ public class CommunicationStreamTask {
 
 	void process(BaseJobConfig baseJobConfig) throws Exception {
 		StreamExecutionEnvironment env = FlinkUtil.getExecutionContext(baseJobConfig);
-		KafkaSource kafkaConsumer = kafkaConnector.kafkaMapSource(config.kafkaInputTopic);
+		KafkaSource<Map<String, Object>> kafkaConsumer = kafkaConnector.kafkaMapSource(config.kafkaInputTopic);
 
 		SingleOutputStreamOperator<Map<String,Object>> enrichedStream = env.fromSource(kafkaConsumer, WatermarkStrategy.noWatermarks(), config.communicationConsumer)
 				.uid(config.communicationConsumer).setParallelism(config.consumerParallelism)
