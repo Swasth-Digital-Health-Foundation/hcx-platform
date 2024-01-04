@@ -10,6 +10,7 @@ import org.bouncycastle.asn1.x509.AuthorityInformationAccess;
 import org.bouncycastle.asn1.x509.Extension;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.ocsp.*;
+import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.bc.BcDigestCalculatorProvider;
 import org.bouncycastle.x509.extension.X509ExtensionUtil;
 import org.slf4j.Logger;
@@ -35,6 +36,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -316,7 +318,7 @@ public class ParticipantService extends BaseRegistryService {
     }
 
 
-    private OCSPReq generateOCSPRequest(X509Certificate issuerCertificate, X509Certificate issuedCertificate) throws Exception {
+    private OCSPReq generateOCSPRequest(X509Certificate issuerCertificate, X509Certificate issuedCertificate) throws OCSPException, CertificateEncodingException, OperatorCreationException, IOException {
         X509CertificateHolder issuerHolder = new X509CertificateHolder(issuerCertificate.getEncoded());
         CertificateID certId = new CertificateID(new BcDigestCalculatorProvider().get(CertificateID.HASH_SHA1), issuerHolder, issuedCertificate.getSerialNumber());
         OCSPReqBuilder ocspReqBuilder = new OCSPReqBuilder();
