@@ -55,8 +55,8 @@
         <!-- Add connector dependencies here. They must be in the default scope (compile). -->
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-connector-kafka</artifactId>
-            <version>1.17.2</version>
+            <artifactId>flink-connector-kafka_${scala.maj.version}</artifactId>
+            <version>${flink.version}</version>
         </dependency>
         <dependency>
             <groupId>org.swasth</groupId>
