@@ -5,8 +5,6 @@ import org.apache.flink.streaming.api.functions.ProcessFunction
 import org.swasth.dp.core.job.{BaseProcessFunction, Metrics}
 import org.swasth.dp.core.util.Constants
 
-import scala.collection.mutable
-
 
 class TestMapStreamFunc(config: BaseProcessTestConfig)(implicit val stringTypeInfo: TypeInformation[String])
   extends BaseProcessFunction[java.util.Map[String, AnyRef], java.util.Map[String, AnyRef]](config) {
@@ -19,6 +17,6 @@ class TestMapStreamFunc(config: BaseProcessTestConfig)(implicit val stringTypeIn
     metrics.get(config.mapEventCount)
     metrics.reset(config.mapEventCount)
     metrics.incCounter(config.mapEventCount)
-    context.output(config.mapOutputTag,  mutable.Map(Constants.TOPIC -> config.kafkaMapOutputTopic, Constants.MESSAGE -> event))
+    context.output(config.mapOutputTag,  Map(Constants.TOPIC -> config.kafkaMapOutputTopic, Constants.MESSAGE -> event))
   }
 }

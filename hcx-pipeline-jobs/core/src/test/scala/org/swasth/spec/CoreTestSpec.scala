@@ -110,7 +110,7 @@ class CoreTestSpec extends BaseSpec with Matchers with MockitoSugar {
     stringDeSerialization.deserialize(cRecord,collector)
     stringSerialization.serialize("test",context, System.currentTimeMillis())
     stringDeSerialization.getProducedType should be
-    val map: java.util.Map[String, AnyRef] = java.util.Map[String,AnyRef]
+    val map:util.Map[String, AnyRef] = util.Map[String,AnyRef]
     map.put("country_code", "IN")
     map.put("country", "INDIA")
     mapSerialization.serialize(map,context, System.currentTimeMillis())
