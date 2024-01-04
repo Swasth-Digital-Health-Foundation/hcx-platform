@@ -58,7 +58,7 @@
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-connector-kafka</artifactId>
-            <version>1.17.2</version>
+            <version>${flink.version}</version>
         </dependency>
         <dependency>
             <groupId>org.swasth</groupId>
