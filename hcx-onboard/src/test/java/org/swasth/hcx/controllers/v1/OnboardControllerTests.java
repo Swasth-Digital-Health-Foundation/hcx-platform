@@ -105,6 +105,57 @@ class OnboardControllerTests extends BaseSpec{
         int status = response.getStatus();
         Assertions.assertEquals(200, status);
     }
+    @Test
+    void testVerify_success_hospital_role() throws Exception {
+        hcxApiServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{\n" + "    \"timestamp\": 1697191734176,\n" + "    \"participants\": [\n" + "        {\n" + "            \"signing_cert_path\": \"https://dev-hcx-certificates.s3.ap-south-1.amazonaws.com/wemeanhospital%2Bmock_payor.yopmail%40swasth-hcx-dev/signing_cert_path.pem\",\n" + "            \"participant_name\": \"wemeanhospital Mock Payor\",\n" + "            \"endpoint_url\": \"http://a6a5d9138995a45b2bf9fd3f72b84367-915129339.ap-south-1.elb.amazonaws.com:8080/v0.7\",\n" + "            \"roles\": [\n" + "                \"provider\"\n" + "            ],\n" + "            \"scheme_code\": \"default\",\n" + "            \"primary_email\": \"wemeanhospital+mock_payor@yopmail.com\",\n" + "            \"encryption_cert\": \"https://dev-hcx-certificates.s3.ap-south-1.amazonaws.com/wemeanhospital%2Bmock_payor.yopmail%40swasth-hcx-dev/encryption_cert.pem\",\n" + "            \"status\": \"Active\",\n" + "            \"participant_code\": \"wemeanhospital+mock_payor.yopmail@swasth-hcx-dev\",\n" + "            \"sigining_cert_expiry\": 1779007885000,\n" + "            \"encryption_cert_expiry\": 1779007885000,\n" + "            \"osOwner\": [\n" + "                \"62c12021-eb1a-49ff-9496-d7a65a616930\"\n" + "            ],\n" + "            \"osCreatedAt\": \"2023-05-18T08:51:30.271Z\",\n" + "            \"osUpdatedAt\": \"2023-09-14T05:34:07.932Z\",\n" + "            \"osid\": \"93dac853-9089-4df6-9cbe-6b4b9acdc27e\",\n" + "            \"@type\": \"Organisation\",\n" + "            \"primary_mobile\": \"\"\n" + "        }\n" + "    ]\n" + "}")
+                .addHeader("Content-Type", "application/json"));
+        hcxApiServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{\"participant_code\": \"provider.clinic_test_u_312076@swasth-hcx-dev\"}")
+                .addHeader("Content-Type", "application/json"));
+        hcxApiServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{\n" +
+                        "    \"timestamp\": 1697200288894,\n" +
+                        "    \"users\": []\n" +
+                        "}")
+                .addHeader("Content-Type", "application/json"));
+        hcxApiServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{\n" +
+                        "    \"timestamp\": 1697200288894,\n" +
+                        "    \"users\": []\n" +
+                        "}")
+                .addHeader("Content-Type", "application/json"));
+        hcxApiServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{\"user_id\": \"obama02@yopmail.com\"}")
+                .addHeader("Content-Type", "application/json"));
+        hcxApiServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{\n" +
+                        "    \"result\": [\n" +
+                        "        {\n" +
+                        "            \"user_id\": \"obama02@yopmail.com\",\n" +
+                        "            \"status\": \"successful\"\n" +
+                        "        }\n" +
+                        "    ],\n" +
+                        "    \"overallStatus\": \"successful\",\n" +
+                        "    \"timestamp\": 1697199663810\n" +
+                        "}")
+                .addHeader("Content-Type", "application/json"));
+        postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verifier");
+        postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_verification");
+        postgreSQLClient.execute("CREATE TABLE onboard_verifier( applicant_email character varying NOT NULL,applicant_code character varying NOT NULL,  verifier_code character varying, status character varying, createdon bigInt,   updatedon bigInt,participant_code character varying)");
+        postgreSQLClient.execute("CREATE TABLE onboard_verification(participant_code character varying NOT NULL PRIMARY KEY,   primary_email character varying,   primary_mobile character varying,    createdon bigInt,updatedon bigInt,  expiry bigInt,  phone_verified boolean NOT NULL,email_verified boolean NOT NULL,status character varying,  regenerate_count int,last_regenerate_date date, attempt_count bigInt, comments character varying, phone_short_url character varying, phone_long_url character varying, onboard_validation_properties json, participant_validation_properties json)");
+        String requestBody = verifySuccessRequestBodyHospitalRole();
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.PARTICIPANT_VERIFY).content(requestBody).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        Assertions.assertEquals(200, status);
+    }
 
     @Test
     void testVerify_user_exists_success() throws Exception {
@@ -3264,6 +3315,31 @@ class OnboardControllerTests extends BaseSpec{
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();
         Assertions.assertEquals(200, status);
+    }
+    @Test
+    void test_onboard_user_invite_failure() throws Exception {
+        hcxApiServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{\n" + "    \"timestamp\": 1698647527393,\n" + "    \"participants\": [\n" + "        {\n" + "            \"status\": \"Active\",\n" + "            \"participant_name\": \"Health Claims Exchange Gateway\",\n" + "            \"endpoint_url\": \"http://dev-hcx.swasth.app/\",\n" + "            \"roles\": [\n" + "                \"HIE/HIO.HCX\"\n" + "            ],\n" + "            \"primary_email\": \"hcxgateway@swasth.org\",\n" + "            \"primary_mobile\": \"\",\n" + "            \"encryption_cert\": \"https://dev-hcx-certificates.s3.ap-south-1.amazonaws.com/hcxgateway.swasth%40swasth-hcx-dev/encryption_cert.pem\",\n" + "            \"signing_cert_path\": \"https://dev-hcx-certificates.s3.ap-south-1.amazonaws.com/hcxgateway.swasth%40swasth-hcx-dev/signing_cert_path.pem\",\n" + "            \"linked_registry_codes\": [\n" + "                12345\n" + "            ],\n" + "            \"participant_code\": \"hcxgateway.swasth@swasth-hcx-dev\",\n" + "            \"sigining_cert_expiry\": 1993808205000,\n" + "            \"encryption_cert_expiry\": 1993808205000,\n" + "            \"osOwner\": [\n" + "                \"59d43f9b-42e7-4480-9ec2-aa6bd95ccb5f\"\n" + "            ],\n" + "            \"osCreatedAt\": \"2023-03-10T12:05:37.736Z\",\n" + "            \"osUpdatedAt\": \"2023-10-25T05:42:08.924Z\",\n" + "            \"osid\": \"c776b615-b6cb-481c-8a78-de0c0c80f38a\",\n" + "            \"@type\": \"Organisation\"\n" + "        }\n" + "    ]\n" + "}")
+                .addHeader("Content-Type", "application/json"));
+        hcxApiServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{ \"timestamp\": 1702464943378, \"users\": [ { \"user_name\": \"test provider 1 admin\", \"email\": \"testprovider1@apollo.com\", \"mobile\": \"\", \"tenant_roles\": [ { \"participant_code\": \"testprovider1.apollo@swasth-hcx-dev\", \"role\": \"admin\", \"osCreatedAt\": \"2023-08-03T11:58:28.351Z\", \"osUpdatedAt\": \"2023-08-03T11:58:28.351Z\", \"osid\": \"c0f91e2d-8939-4f01-a95e-37ab021a91ee\" }, { \"participant_code\": \"testprovider1.apollo@swasth-hcx-dev\", \"role\": \"config-manager\", \"osCreatedAt\": \"2023-08-03T11:58:28.351Z\", \"osUpdatedAt\": \"2023-08-03T11:58:28.351Z\", \"osid\": \"211f918c-d17a-4d2e-9cf3-b91c969ee0af\" } ], \"created_by\": \"testprovider1.apollo@swasth-hcx-dev\", \"user_id\": \"testprovider1@apollo.com\", \"osOwner\": [ \"a4a75918-0e25-409a-ba97-60de89b5db87\" ], \"osCreatedAt\": \"2023-08-03T11:58:28.351Z\", \"osUpdatedAt\": \"2023-08-03T11:58:28.351Z\", \"osid\": \"7c78627b-2eec-43d1-bb92-5c5af6d0aac8\" } ] }")
+                .addHeader("Content-Type", "application/json"));
+        hcxApiServer.enqueue(new MockResponse()
+                .setResponseCode(400)
+                .setBody("{\"result\":[{\"user_id\":\"mock-invite@yopmail.com\",\"error\":{\"code\":null,\"message\":\"Role 'admin' with Participant Code 'testprovider1.apollo@swasth-hcx-dev already exists.\",\"trace\":null},\"status\":\"failed\"}],\"overallStatus\":\"failed\",\"timestamp\":1702530334468}")
+                .addHeader("Content-Type", "application/json"));
+        postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_user_invite_details");
+        postgreSQLClient.execute("CREATE TABLE onboard_user_invite_details(participant_code character varying,user_email character varying,invited_by character varying,invite_status character varying ,created_on bigInt,updated_on bigInt)");
+        Mockito.doNothing().when(kafkaClient).send(anyString(),anyString(),anyString());
+        Mockito.when(mockEventGenerator.getEmailMessageEvent(anyString(),anyString(),anyList(),anyList(),anyList())).thenReturn("mocked-event");
+        Mockito.when(freemarkerService.renderTemplate(any(),anyMap())).thenReturn("freemarker");
+        String requestBodyJson = onboardUserInviteJwtToken();
+        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.ONBOARD_USER_INVITE_ACCEPT).content(requestBodyJson).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        int status = response.getStatus();
+        Assertions.assertEquals(400, status);
     }
 
     @Test

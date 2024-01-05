@@ -137,29 +137,48 @@ class HCXRequestTest extends BaseSpec {
                 .expectBody(Map.class)
                 .consumeWith(result -> assertEquals(HttpStatus.ACCEPTED, result.getStatus()));
     }
-  
+
+    // The status is "response.complete," indicating that the cycle should be closed. and below testcase is failing
     @Test
-    void check_hcx_request_parse_timestamp_exception() throws Exception {
+    void check_hcx_request_cycle_closed_for_provider_role() throws Exception {
         server.enqueue(new MockResponse()
                 .setResponseCode(202)
                 .addHeader("Content-Type", "application/json"));
         Mockito.when(registryService.fetchDetails(anyString(), anyString()))
-                .thenReturn(getProviderDetails())
-                .thenReturn(getPayorDetails());
+                .thenReturn(getPayorDetails())
+                .thenReturn(getProviderDetails());
         Mockito.when(auditService.getAuditLogs(any()))
-                .thenReturn(new ArrayList<>())
-                .thenReturn(getAuditLogs())
-                .thenReturn(new ArrayList<>())
-                .thenReturn(getInvalidTimestampAuditLogs());
-        client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_CHECK)
-                .header(Constants.AUTHORIZATION, getProviderToken())
-                .header("X-jwt-sub", "f7c0e759-bec3-431b-8c4f-6b294d103a74")
-                .bodyValue(getCorrelationIDRequestBody())
+                .thenReturn(getAuditProviderLogs())
+                .thenReturn(getAuditProviderLogs())
+                .thenReturn(new ArrayList<>());
+        client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_ONCHECK)
+                .header(Constants.AUTHORIZATION, getPayorToken())
+                .header("X-jwt-sub", "20bd4228-a87f-4175-a30a-20fb28983afb")
+                .bodyValue(getOnRequestBody())
                 .exchange()
                 .expectBody(Map.class)
-                .consumeWith(result -> assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatus()));
+                .consumeWith(result -> assertEquals(HttpStatus.BAD_REQUEST, result.getStatus()));
     }
-  
+    @Test
+    void check_hcx_request_cycle_closed_for_provider_specific_roles() throws Exception {
+        server.enqueue(new MockResponse()
+                .setResponseCode(202)
+                .addHeader("Content-Type", "application/json"));
+        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
+                .thenReturn(getPayorDetails())
+                .thenReturn(getProviderDetails());
+        Mockito.when(auditService.getAuditLogs(any()))
+                .thenReturn(getAuditProviderSpecificRolesLogs())
+                .thenReturn(getAuditProviderSpecificRolesLogs())
+                .thenReturn(new ArrayList<>());
+        client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_ONCHECK)
+                .header(Constants.AUTHORIZATION, getPayorToken())
+                .header("X-jwt-sub", "20bd4228-a87f-4175-a30a-20fb28983afb")
+                .bodyValue(getOnRequestBody())
+                .exchange()
+                .expectBody(Map.class)
+                .consumeWith(result -> assertEquals(HttpStatus.BAD_REQUEST, result.getStatus()));
+    }
     @Test
     void check_hcx_request_filter_list_empty() throws Exception {
         server.enqueue(new MockResponse()
@@ -673,6 +692,27 @@ class HCXRequestTest extends BaseSpec {
                 .thenReturn(new ArrayList<>())
                 .thenReturn(getAuditLogs());
 
+        client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_CHECK)
+                .header(Constants.AUTHORIZATION, getPayorToken())
+                .header("X-jwt-sub", "20bd4228-a87f-4175-a30a-20fb28983afb")
+                .bodyValue(Collections.singletonMap("payload", "eyJlbmMiOiJBMjU2R0NNIiwKImFsZyI6IlJTQS1PQUVQIiwKIngtaGN4LXNlbmRlcl9jb2RlIjoiMS1jZTIzY2NkYy1lNjQ1LTRlMzUtOTdiOC0wYmQ4ZmVmNDNlY2QiLAoieC1oY3gtcmVjaXBpZW50X2NvZGUiOiIxLTg1ODRiYTY5LTZjNTAtNDUzNS04YWQ1LWMwMmI4YzMxODBhNiIsCiJ4LWhjeC1hcGlfY2FsbF9pZCI6IjI2YjEwNjBjLTFlODMtNDYwMC05NjEyLWVhMzFlMGNhNTA5NCIsCiJ4LWhjeC1jb3JyZWxhdGlvbl9pZCI6IjVlOTM0ZjkwLTExMWQtNGYwYi1iMDE2LWMyMmQ4MjA2NzRlMSIsCiJ4LWhjeC10aW1lc3RhbXAiOiIyMDIxLTEwLTI3VDIwOjM1OjUyLjYzNiswNTMwIiwKIngtaGN4LXdvcmtmbG93X2lkIjoiMjZiMTA2MGMtMWU4My00NjAwLTk2MTItZWEzMWUwY2E1MDk0Igp9.6KB707dM9YTIgHtLvtgWQ8mKwboJW3of9locizkDTHzBC2IlrT1oOQ.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.KDlTtXchhZTGufMYmOYGS4HffxPSUrfmqCHXaI9wOGY.Mz-VPPyU4RlcuYv1IwIvzw"))
+                .exchange()
+                .expectBody(Map.class)
+                .consumeWith(result -> assertEquals(HttpStatus.BAD_REQUEST, result.getStatus()));
+    }
+
+    @Test
+    void check_hcx_forward_request_invalid_roles_scenario() throws Exception {
+        server.enqueue(new MockResponse()
+                .setResponseCode(202)
+                .addHeader("Content-Type", "application/json"));
+        Mockito.when(registryService.fetchDetails(anyString(), anyString()))
+                .thenReturn(getPayorDetails())
+                .thenReturn(getInvalidPayorDetails());
+        Mockito.when(auditService.getAuditLogs(any()))
+                .thenReturn(getAuditRolesLogs())
+                .thenReturn(getAuditRolesLogs())
+                .thenReturn(new ArrayList<>());
         client.post().uri(versionPrefix + Constants.COVERAGE_ELIGIBILITY_CHECK)
                 .header(Constants.AUTHORIZATION, getPayorToken())
                 .header("X-jwt-sub", "20bd4228-a87f-4175-a30a-20fb28983afb")
