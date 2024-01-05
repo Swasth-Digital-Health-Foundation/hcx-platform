@@ -6,7 +6,7 @@ import org.swasth.dp.core.job.BaseJobConfig
 
 class BaseProcessTestConfig(override val config: Config) extends BaseJobConfig(config, "Test-job") {
   private val serialVersionUID = -2349318979085017498L
-  val mapOutputTag: OutputTag[java.util.Map[String, AnyRef]] = new OutputTag[java.util.Map[String, AnyRef]]("test-map-stream-tag")
+  val mapOutputTag: OutputTag[AnyRef] = new OutputTag[AnyRef]("test-map-stream-tag")
   val stringOutputTag: OutputTag[String] =new OutputTag[String]("test-string-stream-tag")
 
   val kafkaMapInputTopic: String = config.getString("kafka.map.input.topic")
