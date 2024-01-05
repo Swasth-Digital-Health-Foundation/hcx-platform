@@ -55,7 +55,6 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
                 String payload = getPayload(event);
                 DispatcherResult result = dispatcherUtil.dispatch(participant, payload);
                 String email = (String) participant.get(PRIMARY_EMAIL);
-                System.out.println("This came to here ---- email " + email);
                 pushNotificationToMessageTopic(email);
                 System.out.println("Recipient code: " + participantCode + " :: Dispatch status: " + result.success());
                 logger.debug("Recipient code: " + participantCode + " :: Dispatch status: " + result.success());
@@ -89,7 +88,7 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
     private void pushNotificationToMessageTopic(String email) throws Exception {
         if (!StringUtils.isEmpty(email)) {
             String emailEvent = getEmailMessageEvent("This is to test the notifications triggered to the email", "Testing Email Notification", List.of(email), new ArrayList<>(), new ArrayList<>());
-            kafkaClient.send("dev.hcx.request.message", EMAIL, emailEvent);
+            kafkaClient.send(config.messageTopic, EMAIL, emailEvent);
             System.out.println("Email event is pushed to kafka :: " + emailEvent);
             logger.debug("Email event is pushed to kafka :: " + emailEvent);
         }
