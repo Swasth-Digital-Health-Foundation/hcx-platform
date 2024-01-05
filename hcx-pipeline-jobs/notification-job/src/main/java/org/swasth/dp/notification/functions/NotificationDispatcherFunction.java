@@ -55,6 +55,8 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
                 String payload = getPayload(event);
                 DispatcherResult result = dispatcherUtil.dispatch(participant, payload);
                 String email = (String) participant.get(PRIMARY_EMAIL);
+                System.out.println("Email notifications ----"  + config.emailNotificationEnabled);
+                System.out.println("Kafka Topic ---------" + config.messageTopic);
                 if (config.emailNotificationEnabled) {
 //                    pushNotificationToMessageTopic(email);
                     pushEmailNotificationsToKafka(email, context);
@@ -92,6 +94,7 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
         if (!StringUtils.isEmpty(email)) {
             String emailEvent = getEmailMessageEvent("This is to test the notifications triggered to the email", "Testing Email Notification - 2", List.of(email), new ArrayList<>(), new ArrayList<>());
             context.output(config.notifyEmailOutputTag, emailEvent);
+            System.out.println("Email event ---------" + config.notifyEmailOutputTag);
         }
     }
 
