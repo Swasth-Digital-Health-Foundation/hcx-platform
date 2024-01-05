@@ -5,6 +5,7 @@ import com.typesafe.config.{Config, ConfigFactory}
 import net.manub.embeddedkafka.EmbeddedKafka._
 import net.manub.embeddedkafka.{EmbeddedKafka, EmbeddedKafkaConfig}
 import org.apache.flink.api.common.eventtime.WatermarkStrategy
+import org.apache.flink.api.connector.sink2.Sink
 import org.apache.flink.runtime.testutils.MiniClusterResourceConfiguration
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment
 import org.apache.flink.streaming.api.scala._
@@ -15,7 +16,6 @@ import org.swasth.dp.core.job.FlinkKafkaConnector
 import org.swasth.dp.core.util.FlinkUtil
 
 import java.util
-import scala.collection.mutable
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -114,7 +114,7 @@ class BaseProcessFunctionTestSpec extends BaseSpec with Matchers {
 
     mapStream.getSideOutput(bsConfig.mapOutputTag)
       //.addSink(kafkaConnector.kafkaMapSink(bsConfig.kafkaMapOutputTopic))
-      .sinkTo(kafkaConnector.kafkaMapSink(bsConfig.kafkaMapOutputTopic))
+      .sinkTo(kafkaConnector.kafkaMapSink(bsConfig.kafkaMapOutputTopic).asInstanceOf[Sink[AnyRef]])
       .name("Map-Event-Producer")
 
     val stringStream =
