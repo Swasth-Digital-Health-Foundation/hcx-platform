@@ -36,6 +36,7 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
         Map<String,Object> actualEvent = (Map<String, Object>) inputEvent.get(Constants.INPUT_EVENT());
         List<Map<String, Object>> participantDetails = (List<Map<String, Object>>) inputEvent.get(Constants.PARTICIPANT_DETAILS());
         kafkaClient = new KafkaClient(config.kafkaServiceUrl);
+        System.out.println("Input event --------" + inputEvent);
         notificationDispatcher(participantDetails, actualEvent, context);
     }
 
@@ -93,8 +94,8 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
     private void pushEmailNotificationsToKafka(String email, ProcessFunction<Map<String, Object>, Map<String, Object>>.Context context) throws Exception {
         if (!StringUtils.isEmpty(email)) {
             String emailEvent = getEmailMessageEvent("This is to test the notifications triggered to the email", "Testing Email Notification - 2", List.of(email), new ArrayList<>(), new ArrayList<>());
-            context.output(config.notifyEmailOutputTag, emailEvent);
-            System.out.println("Email event ---------" + config.notifyEmailOutputTag);
+            context.output(config.notifyEmailOutputTag, "{\"eid\":\"MESSAGE\",\"ets\":1704452128218,\"subject\":\"Testing Email Notification\",\"recipients\":{\"cc\":[],\"bcc\":[],\"to\":[\"swasthtestuser92@yopmail.com\"]},\"channel\":\"email\",\"mid\":\"4292a01c-b75b-4728-be1d-12dbb083c147\",\"message\":\"This is to test the notifications triggered to the email\"}");
+            System.out.println("Email event ---------" + config.notifyEmailOutputTag + emailEvent);
         }
     }
 
