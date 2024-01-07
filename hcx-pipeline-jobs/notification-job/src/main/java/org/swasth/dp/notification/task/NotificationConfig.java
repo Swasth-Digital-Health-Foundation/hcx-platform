@@ -1,7 +1,6 @@
 package org.swasth.dp.notification.task;
 
 import com.typesafe.config.Config;
-import org.apache.flink.util.OutputTag;
 import org.swasth.dp.core.job.BaseJobConfig;
 
 public class NotificationConfig extends BaseJobConfig {
@@ -20,9 +19,6 @@ public class NotificationConfig extends BaseJobConfig {
     public int consumerParallelism;
     public int downstreamOperatorsParallelism;
     public int dispatcherParallelism;
-    public String notifyEmailProducer = "notify-email-events-sink";
-
-    public OutputTag<String> notifyEmailOutputTag = new OutputTag<String>("notify-email"){};
     public String messageTopic;
     public boolean emailNotificationEnabled;
     public String kafkaServiceUrl;
