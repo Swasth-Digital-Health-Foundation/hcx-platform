@@ -56,8 +56,10 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
                 DispatcherResult result = dispatcherUtil.dispatch(participant, payload);
                 String email = (String) participant.get(PRIMARY_EMAIL);
                 System.out.println("Event -----------"  + event);
-                String topicCode =(String) event.getOrDefault(Constants.TOPIC_CODE(), "");
-                String message = (String) ((Map<String, Object>) ((Map<String, Object>) event.get(Constants.PAYLOAD())).get(Constants.PAYLOAD())).get(Constants.MESSAGE());
+                String topicCode = (String) event.getOrDefault(Constants.TOPIC_CODE(), "");
+                System.out.println("Topic code ------- "+ topicCode);
+                String message = (String) ((Map<String, Object>) event.get("payload")).get("message");
+                System.out.println("Message ---------"+ message);
                 System.out.println("payload ------"  + event.get(Constants.PAYLOAD()));
                 System.out.println("Email notifications ----"  + config.emailNotificationEnabled);
                 System.out.println("Kafka Topic ---------" + config.messageTopic);
