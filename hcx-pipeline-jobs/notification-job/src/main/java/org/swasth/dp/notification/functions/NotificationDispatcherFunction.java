@@ -56,11 +56,13 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
                 DispatcherResult result = dispatcherUtil.dispatch(participant, payload);
                 String email = (String) participant.get(PRIMARY_EMAIL);
                 System.out.println("Event -----------"  + event);
+                String topicCode =(String) event.getOrDefault(Constants.TOPIC_CODE(), "");
+                String message = (String) ((Map<String, Object>) ((Map<String, Object>) event.get(Constants.PAYLOAD())).get(Constants.PAYLOAD())).get(Constants.MESSAGE());
                 System.out.println("payload ------"  + event.get(Constants.PAYLOAD()));
                 System.out.println("Email notifications ----"  + config.emailNotificationEnabled);
                 System.out.println("Kafka Topic ---------" + config.messageTopic);
                 if (config.emailNotificationEnabled) {
-                    pushNotificationToMessageTopic(email);
+                    pushNotificationToMessageTopic(email, topicCode, message);
                 }
                 System.out.println("Recipient code: " + participantCode + " :: Dispatch status: " + result.success());
                 logger.debug("Recipient code: " + participantCode + " :: Dispatch status: " + result.success());
@@ -92,9 +94,9 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
     }
 
 
-    private void pushNotificationToMessageTopic(String email) throws Exception {
+    private void pushNotificationToMessageTopic(String email, String subject, String message) throws Exception {
         if (!StringUtils.isEmpty(email)) {
-            String emailEvent = getEmailMessageEvent("This is to test the notifications triggered to the email", "Testing Email Notification", List.of(email), new ArrayList<>(), new ArrayList<>());
+            String emailEvent = getEmailMessageEvent(message, subject, List.of(email), new ArrayList<>(), new ArrayList<>());
             kafkaClient.send(config.messageTopic, EMAIL, emailEvent);
             System.out.println("Email event is pushed to kafka :: " + emailEvent);
             logger.debug("Email event is pushed to kafka :: " + emailEvent);
