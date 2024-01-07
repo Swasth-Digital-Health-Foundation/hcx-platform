@@ -39,7 +39,7 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
         notificationDispatcher(participantDetails, actualEvent);
     }
 
-    private void notificationDispatcher(List<Map<String, Object>> participantDetails, Map<String, Object> event) throws Exception {
+    private void notificationDispatcher(List<Map<String, Object>> participantDetails, Map<String,Object> event) throws Exception {
         int successfulDispatches = 0;
         int failedDispatches = 0;
         Long expiry = getProtocolLongValue(Constants.EXPIRY(), event);
@@ -57,7 +57,7 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
                 String email = (String) participant.get(PRIMARY_EMAIL);
                 String topicCode = (String) event.getOrDefault(Constants.TOPIC_CODE(), "");
                 String message = (String) event.getOrDefault(Constants.MESSAGE(), "");
-                if (config.emailNotificationEnabled) {
+                if (config.emailNotificationEnabled && StringUtils.isEmpty(message) && StringUtils.isEmpty(topicCode)) {
                     pushNotificationToMessageTopic(email, topicCode, message);
                 }
                 System.out.println("Recipient code: " + participantCode + " :: Dispatch status: " + result.success());
