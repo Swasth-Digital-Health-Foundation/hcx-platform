@@ -90,9 +90,6 @@ public class NotificationStreamTask {
         onSubscriptionEnrichedStream.getSideOutput(config.enrichedSubscriptionsOutputTag())
                 .process(new SubscriptionDispatcherFunction(config)).setParallelism(config.downstreamOperatorsParallelism);
 
-        dispatchedStream.getSideOutput(config.notifyEmailOutputTag).addSink(kafkaConnector.kafkaStringSink(config.messageTopic))
-                .name(config.notifyEmailProducer).uid(config.notifyEmailProducer).setParallelism(config.downstreamOperatorsParallelism);
-
         System.out.println(config.jobName() + " is processing");
         env.execute(config.jobName());
     }
