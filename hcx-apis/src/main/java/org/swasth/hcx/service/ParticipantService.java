@@ -251,8 +251,9 @@ public class ParticipantService extends BaseRegistryService {
             } else {
                 x509Certificate = parseCertificateFromURL(certificate);
             }
-            // Validate Certificate Dates
-            x509Certificate.checkValidity();
+            if (!(x509Certificate.getNotAfter().getTime() > System.currentTimeMillis())) {
+                throw new ClientException(ErrorCodes.ERR_INVALID_CERTIFICATE, "The Certificate has expired. Please ensure the certificate is valid and not expired. Expiry Date: " + x509Certificate.getNotAfter());
+            }
             X509CertificateHolder certHolder = new X509CertificateHolder(x509Certificate.getEncoded());
             RDN[] issuerOrganizationRDNs = certHolder.getIssuer().getRDNs(org.bouncycastle.asn1.x500.X500Name.getDefaultStyle().attrNameToOID("O"));
             String issuerOrganizationName = "";
@@ -262,10 +263,9 @@ public class ParticipantService extends BaseRegistryService {
             List<String> trustedCAListWithReplacedComma = trustedCAs.stream()
                     .map(s -> s.replace("#COMMA#", ","))
                     .collect(Collectors.toList());
-
             // Validate that the issuing certificate authority is in the trusted CA list
             if (!trustedCAListWithReplacedComma.contains(issuerOrganizationName)) {
-                throw new ClientException(ErrorCodes.ERR_INVALID_CERTIFICATE, "The issuing certificate authority should be trusted");
+                throw new ClientException(ErrorCodes.ERR_INVALID_CERTIFICATE, "The issuing certificate authority '" + issuerOrganizationName + "' is not trusted. Trusted certificate authorities: " + trustedCAListWithReplacedComma);
             }
             // Validate that the certificate key size is above 2048 bits
             int keySize = ((RSAPublicKey) x509Certificate.getPublicKey()).getModulus().bitLength();
