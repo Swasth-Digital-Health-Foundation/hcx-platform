@@ -5,9 +5,9 @@ import java.util
 
 class NotificationUtil {
 
-  var notifications: java.util.List[java.util.Map[String, AnyRef]] = null
+  var notifications: util.List[java.util.Map[String, AnyRef]] = null
 
-  var topicCodes: java.util.List[String] = new java.util.ArrayList[String]()
+  var topicCodes: util.List[String] = new util.ArrayList[String]()
 
   loadNotifications()
 
