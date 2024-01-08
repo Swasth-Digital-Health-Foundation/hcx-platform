@@ -22,8 +22,8 @@ import java.util.Map;
 public class NotificationTriggerStreamTask {
 
     private final static Logger logger = LoggerFactory.getLogger(NotificationTriggerStreamTask.class);
-    private NotificationTriggerConfig config;
-    private FlinkKafkaConnector kafkaConnector;
+    private final NotificationTriggerConfig config;
+    private final FlinkKafkaConnector kafkaConnector;
 
     public NotificationTriggerStreamTask(NotificationTriggerConfig config, FlinkKafkaConnector kafkaConnector){
         this.config = config;

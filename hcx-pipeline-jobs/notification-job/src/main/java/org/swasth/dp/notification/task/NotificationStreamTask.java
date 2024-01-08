@@ -24,8 +24,8 @@ import java.util.Map;
 public class NotificationStreamTask {
 
     private final static Logger logger = LoggerFactory.getLogger(NotificationStreamTask.class);
-    private NotificationConfig config;
-    private FlinkKafkaConnector kafkaConnector;
+    private final NotificationConfig config;
+    private final FlinkKafkaConnector kafkaConnector;
 
     public NotificationStreamTask(NotificationConfig config, FlinkKafkaConnector kafkaConnector){
         this.config = config;
@@ -49,9 +49,9 @@ public class NotificationStreamTask {
 
     void process(BaseJobConfig baseJobConfig) throws Exception {
         StreamExecutionEnvironment env = FlinkUtil.getExecutionContext(baseJobConfig);
-        KafkaSource<Map<String, Object>> notifyConsumer = kafkaConnector.kafkaMapSource(config.kafkaInputTopic);
-        KafkaSource<Map<String, Object>> subscriptionConsumer = kafkaConnector.kafkaMapSource(config.subscriptionInputTopic);
-        KafkaSource<Map<String, Object>> onSubscriptionConsumer = kafkaConnector.kafkaMapSource(config.onSubscriptionInputTopic);
+        KafkaSource notifyConsumer = kafkaConnector.kafkaMapSource(config.kafkaInputTopic);
+        KafkaSource subscriptionConsumer = kafkaConnector.kafkaMapSource(config.subscriptionInputTopic);
+        KafkaSource onSubscriptionConsumer = kafkaConnector.kafkaMapSource(config.onSubscriptionInputTopic);
         env.enableCheckpointing(config.checkpointingInterval());
         env.getCheckpointConfig().setCheckpointTimeout(config.checkpointingTimeout());
         env.getCheckpointConfig().setMinPauseBetweenCheckpoints(config.checkpointingPauseSeconds());
