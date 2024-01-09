@@ -18,6 +18,7 @@ import scala.Option;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.swasth.common.utils.Constants.EMAIL;
 import static org.swasth.common.utils.Constants.PRIMARY_EMAIL;
@@ -43,6 +44,11 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
         int successfulDispatches = 0;
         int failedDispatches = 0;
         Long expiry = getProtocolLongValue(Constants.EXPIRY(), event);
+        String topicCode = (String) event.getOrDefault(Constants.TOPIC_CODE(), "");
+        String message = (String) event.getOrDefault(Constants.MESSAGE(), "");
+        if (config.emailNotificationEnabled && !StringUtils.isEmpty(message) && !StringUtils.isEmpty(topicCode)) {
+            getEmailListAndPush(participantDetails, message, topicCode);
+        }
         for(Map<String,Object> participant: participantDetails) {
             String participantCode = (String) participant.get(Constants.PARTICIPANT_CODE());
             String endpointUrl = (String) participant.get(Constants.END_POINT());
@@ -54,20 +60,21 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
                 participant.put(Constants.END_POINT(), endpointUrl + event.get(Constants.ACTION()));
                 String payload = getPayload(event);
                 DispatcherResult result = dispatcherUtil.dispatch(participant, payload);
-                String email = (String) participant.get(PRIMARY_EMAIL);
-                String topicCode = (String) event.getOrDefault(Constants.TOPIC_CODE(), "");
-                String message = (String) event.getOrDefault(Constants.MESSAGE(), "");
-                System.out.println("Topic code ----" + topicCode);
-                System.out.println("Message ------ " + message);
-                if (config.emailNotificationEnabled && !StringUtils.isEmpty(message) && !StringUtils.isEmpty(topicCode)) {
-                    pushNotificationToMessageTopic(email, topicCode, message);
-                }
+//                String email = (String) participant.get(PRIMARY_EMAIL);
+//                String topicCode = (String) event.getOrDefault(Constants.TOPIC_CODE(), "");
+//                String message = (String) event.getOrDefault(Constants.MESSAGE(), "");
+//                    System.out.println("Topic code ----" + topicCode);
+//                    System.out.println("Message ------ " + message);
+//                if (config.emailNotificationEnabled && !StringUtils.isEmpty(message) && !StringUtils.isEmpty(topicCode)) {
+//                    pushEventToMessageTopic(email, topicCode, message);
+//                }
                 System.out.println("Recipient code: " + participantCode + " :: Dispatch status: " + result.success());
                 logger.debug("Recipient code: " + participantCode + " :: Dispatch status: " + result.success());
                 auditService.indexAudit(createNotificationAuditEvent(event, participantCode, createErrorMap(result.error() != null ? result.error().get() : null)));
                 if(result.success()) successfulDispatches++; else failedDispatches++;
             }
         }
+
         int totalDispatches = successfulDispatches + failedDispatches;
         System.out.println("Total number of notifications dispatched: " + totalDispatches + " :: successful dispatches: " + successfulDispatches + " :: failed dispatches: " + failedDispatches);
         logger.debug("Total number of notifications dispatched: " + totalDispatches + " :: successful dispatches: " + successfulDispatches + " :: failed dispatches: " + failedDispatches);
@@ -92,7 +99,7 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
     }
 
 
-    private void pushNotificationToMessageTopic(String email, String subject, String message) throws Exception {
+    private void pushEventToMessageTopic(String email, String subject, String message) throws Exception {
         if (!StringUtils.isEmpty(email)) {
             String emailEvent = getEmailMessageEvent(message + "<br><br>Thanks & Regards<br>HCX Team", subject, List.of(email), new ArrayList<>(), new ArrayList<>());
             kafkaClient.send(config.messageTopic, EMAIL, emailEvent);
@@ -115,5 +122,15 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
         recipients.put("bcc", bcc);
         event.put("recipients", recipients);
         return JSONUtil.serialize(event);
+    }
+
+    public void getEmailListAndPush(List<Map<String, Object>> participantDetails, String message, String subject) throws Exception {
+        List<String> getEmailList = participantDetails.stream()
+                .map(participant -> (String) participant.get(Constants.PRIMARY_EMAIL()))
+                .filter(email -> email != null && !email.isEmpty())
+                .collect(Collectors.toList());
+        String emailEvent = getEmailMessageEvent(message, subject, new ArrayList<>(), new ArrayList<>(), getEmailList);
+        kafkaClient.send(config.messageTopic, EMAIL, emailEvent);
+        System.out.println("Email event is pushed to kafka :: " + emailEvent);
     }
 }
