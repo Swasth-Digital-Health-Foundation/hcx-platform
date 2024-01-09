@@ -6,6 +6,11 @@
   allowed_recipients:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
     - agency.tpa
     - agency.regulator
     - research
@@ -29,6 +34,11 @@
   allowed_recipients:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
     - agency.tpa
     - agency.regulator
     - research
@@ -52,6 +62,11 @@
   allowed_recipients:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
     - agency.tpa
     - agency.regulator
     - research
@@ -76,6 +91,11 @@
   allowed_recipients:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
     - agency.tpa
     - agency.regulator
     - research
@@ -100,6 +120,11 @@
   allowed_recipients:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
     - agency.tpa
     - agency.regulator
     - research
@@ -123,6 +148,11 @@
   allowed_recipients:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
     - agency.tpa
     - agency.regulator
     - research
@@ -148,6 +178,11 @@
   allowed_recipients:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
     - agency.tpa
     - agency.regulator
     - research
@@ -172,6 +207,11 @@
   allowed_recipients:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
     - agency.tpa
     - agency.regulator
     - research
@@ -197,6 +237,11 @@
   allowed_recipients:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
     - agency.tpa
     - agency.regulator
     - research
@@ -221,6 +266,11 @@
   allowed_recipients:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
     - agency.tpa
     - agency.regulator
     - research
@@ -246,6 +296,11 @@
   allowed_recipients:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
     - agency.tpa
     - agency.regulator
     - research
@@ -268,6 +323,11 @@
     - provider
   allowed_recipients:
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
     - payor
     - agency.tpa
     - agency.regulator
@@ -289,6 +349,11 @@
     - HIE/HIO.HCX
   allowed_recipients:
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
     - payor
     - agency.tpa
     - agency.regulator
@@ -310,6 +375,11 @@
     - HIE/HIO.HCX
   allowed_recipients:
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
     - payor
     - agency.tpa
     - agency.regulator
@@ -334,6 +404,11 @@
   allowed_recipients:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
     - agency.tpa
     - agency.regulator
     - research
@@ -359,6 +434,11 @@
   allowed_recipients:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
     - agency.tpa
     - agency.regulator
     - research
@@ -380,6 +460,11 @@
     - HIE/HIO.HCX
   allowed_recipients:
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
     - payor
     - agency.tpa
     - agency.regulator
