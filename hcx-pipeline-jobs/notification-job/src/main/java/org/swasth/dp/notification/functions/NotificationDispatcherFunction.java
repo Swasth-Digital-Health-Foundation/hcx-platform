@@ -57,6 +57,8 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
                 String email = (String) participant.get(PRIMARY_EMAIL);
                 String topicCode = (String) event.getOrDefault(Constants.TOPIC_CODE(), "");
                 String message = (String) event.getOrDefault(Constants.MESSAGE(), "");
+                System.out.println("Topic code ----" + topicCode);
+                System.out.println("Message ------ " + message);
                 if (config.emailNotificationEnabled && !StringUtils.isEmpty(message) && !StringUtils.isEmpty(topicCode)) {
                     pushNotificationToMessageTopic(email, topicCode, message);
                 }
