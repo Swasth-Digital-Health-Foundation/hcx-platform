@@ -31,28 +31,39 @@
             <artifactId>commons-compress</artifactId>
             <version>1.21</version>
         </dependency>
-        <dependency>
-            <groupId>org.swasth</groupId>
-            <artifactId>notification-job</artifactId>
-            <version>1.0.0</version>
-            <type>jar</type>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.swasth</groupId>-->
+<!--            <artifactId>notification-job</artifactId>-->
+<!--            <version>1.0.0</version>-->
+<!--            <type>jar</type>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>org.swasth</groupId>
             <artifactId>notification-trigger-job</artifactId>
             <version>1.0.0</version>
             <type>jar</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.yaml</groupId>
+                    <artifactId>snakeyaml</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
-            <groupId>org.swasth</groupId>
-            <artifactId>protocol-request-processor</artifactId>
-            <version>1.0.0</version>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>1.33</version>
         </dependency>
-        <dependency>
-            <groupId>org.swasth</groupId>
-            <artifactId>message-service</artifactId>
-            <version>1.0.0</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.swasth</groupId>-->
+<!--            <artifactId>protocol-request-processor</artifactId>-->
+<!--            <version>1.0.0</version>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.swasth</groupId>-->
+<!--            <artifactId>message-service</artifactId>-->
+<!--            <version>1.0.0</version>-->
+<!--        </dependency>-->
     </dependencies>
 
     <build>
