@@ -24,7 +24,7 @@ class BaseJobConfig(val config: Config, val jobName: String) extends Serializabl
   val kafkaProducerMaxRequestSize: Int = config.getInt("kafka.producer.max-request-size")
   val kafkaProducerBatchSize: Int = config.getInt("kafka.producer.batch.size")
   val kafkaProducerLingerMs: Int = config.getInt("kafka.producer.linger.ms")
-  private val groupId: String = config.getString("kafka.groupId")
+  val groupId: String = config.getString("kafka.groupId")
   val restartAttempts: Int = config.getInt("task.restart-strategy.attempts")
   val delayBetweenAttempts: Long = config.getLong("task.restart-strategy.delay")
   val parallelism: Int = config.getInt("task.parallelism")

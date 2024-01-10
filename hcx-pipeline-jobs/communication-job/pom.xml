@@ -48,11 +48,6 @@
             <artifactId>flink-clients</artifactId>
             <version>${flink.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.typesafe</groupId>
-            <artifactId>config</artifactId>
-            <version>1.4.2</version>
-        </dependency>
 
         <!-- Add connector dependencies here. They must be in the default scope (compile). -->
         <dependency>
