@@ -36,29 +36,12 @@
             <artifactId>notification-job</artifactId>
             <version>1.0.0</version>
             <type>jar</type>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.yaml</groupId>
-                    <artifactId>snakeyaml</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.swasth</groupId>
             <artifactId>notification-trigger-job</artifactId>
             <version>1.0.0</version>
             <type>jar</type>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.yaml</groupId>
-                    <artifactId>snakeyaml</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.yaml</groupId>
-            <artifactId>snakeyaml</artifactId>
-            <version>1.33</version>
         </dependency>
         <dependency>
             <groupId>org.swasth</groupId>
