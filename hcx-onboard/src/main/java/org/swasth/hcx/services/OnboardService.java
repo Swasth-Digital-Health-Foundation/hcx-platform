@@ -749,6 +749,9 @@ public class OnboardService extends BaseController {
 
     public Response userInviteAccept(HttpHeaders headers, Map<String, Object> body) throws Exception {
         Token token = new Token((String) body.getOrDefault(JWT_TOKEN, ""));
+        if(StringUtils.isEmpty(token.getInvitedBy())){
+            throw new ClientException("The Invited By field is either empty or null.");
+        }
         Map<String, Object> hcxDetails = getParticipant(PARTICIPANT_CODE, hcxCode);
         if (!jwtUtils.isValidSignature(token.getToken(), (String) hcxDetails.get(ENCRYPTION_CERT))) {
             throw new ClientException(ErrorCodes.ERR_INVALID_JWT, INVALID_JWT_TOKEN_SIGNATURE);
