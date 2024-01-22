@@ -9,6 +9,7 @@
     - provider.practitioner
     - provider.diagnostics
     - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -23,6 +24,7 @@
     - provider.practitioner
     - provider.diagnostics
     - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -51,6 +53,7 @@
     - provider.practitioner
     - provider.diagnostics
     - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -65,6 +68,7 @@
     - provider.practitioner
     - provider.diagnostics
     - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -93,6 +97,7 @@
     - provider.practitioner
     - provider.diagnostics
     - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -107,6 +112,7 @@
     - provider.practitioner
     - provider.diagnostics
     - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -135,6 +141,7 @@
     - provider.practitioner
     - provider.diagnostics
     - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -149,6 +156,7 @@
     - provider.practitioner
     - provider.diagnostics
     - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -177,6 +185,7 @@
     - provider.practitioner
     - provider.diagnostics
     - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -203,6 +212,7 @@
     - provider.practitioner
     - provider.diagnostics
     - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -217,6 +227,7 @@
     - provider.practitioner
     - provider.diagnostics
     - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -243,6 +254,7 @@
     - provider.practitioner
     - provider.diagnostics
     - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -257,6 +269,7 @@
     - provider.practitioner
     - provider.diagnostics
     - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
