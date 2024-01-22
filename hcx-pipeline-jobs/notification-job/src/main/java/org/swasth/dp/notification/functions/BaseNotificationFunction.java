@@ -74,9 +74,9 @@ public abstract class BaseNotificationFunction extends ProcessFunction<Map<Strin
     protected Map<String,Object> createErrorMap(ErrorResponse error){
         Map<String,Object> errorMap = new HashMap<>();
         if (error != null) {
-            errorMap.put(Constants.CODE(), error.message().nonEmpty() ? error.message().get() : "");
-            errorMap.put(Constants.MESSAGE(), error.message().nonEmpty() ? error.message().get() : "");
-            errorMap.put(Constants.TRACE(), error.message().nonEmpty() ? error.message().get() : "");
+            errorMap.put(Constants.CODE(), error.code().get());
+            errorMap.put(Constants.MESSAGE(), error.message().get());
+            errorMap.put(Constants.TRACE(), error.trace().get());
         }
         return errorMap;
     }
