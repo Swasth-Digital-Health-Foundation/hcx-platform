@@ -9,7 +9,6 @@ import org.swasth.dp.core.function.{DispatcherResult, ErrorResponse}
 import org.swasth.dp.core.job.BaseJobConfig
 
 import java.nio.charset.StandardCharsets
-import java.util
 
 class DispatcherUtil(config: BaseJobConfig) extends Serializable {
 
@@ -17,7 +16,7 @@ class DispatcherUtil(config: BaseJobConfig) extends Serializable {
 
   val httpClient: CloseableHttpClient = new HttpUtil().getHttpClient()
 
-  def dispatch(ctx: util.Map[String, AnyRef], payload: String): DispatcherResult = {
+  def dispatch(ctx: java.util.Map[String, AnyRef], payload: String): DispatcherResult = {
     val url = ctx.get("endpoint_url").asInstanceOf[String]
     val headers = ctx.getOrDefault("headers", Map[String, String]()).asInstanceOf[Map[String, String]]
     Console.println("URL", url)
@@ -59,8 +58,8 @@ class DispatcherUtil(config: BaseJobConfig) extends Serializable {
   }
 
   private def errorMessageProcess(responseBody: String) = {
-    val responseMap = JSONUtil.deserialize[util.Map[String, AnyRef]](responseBody)
-    val error = responseMap.getOrDefault(Constants.ERROR, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]]
+    val responseMap = JSONUtil.deserialize[java.util.Map[String, AnyRef]](responseBody)
+    val error = responseMap.getOrDefault(Constants.ERROR, new java.util.HashMap[String, AnyRef]()).asInstanceOf[java.util.Map[String, AnyRef]]
     val errorResponse = ErrorResponse(Option(error.getOrDefault(Constants.CODE, "").asInstanceOf[String]), Option(error.getOrDefault(Constants.MESSAGE, responseBody).asInstanceOf[String]), Option(error.getOrDefault(Constants.TRACE, "").asInstanceOf[String]))
     errorResponse
   }

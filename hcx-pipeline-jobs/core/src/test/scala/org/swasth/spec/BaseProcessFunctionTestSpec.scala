@@ -1,11 +1,11 @@
 package org.swasth.spec
 
-import java.util
-
 import com.google.gson.Gson
 import com.typesafe.config.{Config, ConfigFactory}
-import net.manub.embeddedkafka.{EmbeddedKafka, EmbeddedKafkaConfig}
 import net.manub.embeddedkafka.EmbeddedKafka._
+import net.manub.embeddedkafka.{EmbeddedKafka, EmbeddedKafkaConfig}
+import org.apache.flink.api.common.eventtime.WatermarkStrategy
+import org.apache.flink.api.connector.sink2.Sink
 import org.apache.flink.runtime.testutils.MiniClusterResourceConfiguration
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment
 import org.apache.flink.streaming.api.scala._
@@ -15,6 +15,7 @@ import org.scalatest.Matchers
 import org.swasth.dp.core.job.FlinkKafkaConnector
 import org.swasth.dp.core.util.FlinkUtil
 
+import java.util
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -71,7 +72,7 @@ class BaseProcessFunctionTestSpec extends BaseSpec with Matchers {
   val customKafkaConsumerProperties: Map[String, String] =
     Map[String, String]("auto.offset.reset" -> "earliest", "group.id" -> "test-event-schema-group")
   implicit val embeddedKafkaConfig: EmbeddedKafkaConfig =
-    EmbeddedKafkaConfig (
+  EmbeddedKafkaConfig(
       kafkaPort = 9093,
       zooKeeperPort = 2183,
       customConsumerProperties = customKafkaConsumerProperties
@@ -108,19 +109,20 @@ class BaseProcessFunctionTestSpec extends BaseSpec with Matchers {
     implicit val env: StreamExecutionEnvironment = FlinkUtil.getExecutionContext(bsConfig)
 
     val mapStream =
-      env.addSource(kafkaConnector.kafkaMapSource(bsConfig.kafkaMapInputTopic), "map-event-consumer")
+      env.fromSource(kafkaConnector.kafkaMapSource(bsConfig.kafkaMapInputTopic), WatermarkStrategy.noWatermarks[java.util.Map[String, AnyRef]](), "map-event-consumer")
         .process(new TestMapStreamFunc(bsConfig)).name("TestMapEventStream")
 
     mapStream.getSideOutput(bsConfig.mapOutputTag)
-      .addSink(kafkaConnector.kafkaMapSink(bsConfig.kafkaMapOutputTopic))
+      //.addSink(kafkaConnector.kafkaMapSink(bsConfig.kafkaMapOutputTopic))
+      .sinkTo(kafkaConnector.kafkaMapSink(bsConfig.kafkaMapOutputTopic).asInstanceOf[Sink[AnyRef]])
       .name("Map-Event-Producer")
 
     val stringStream =
-      env.addSource(kafkaConnector.kafkaStringSource(bsConfig.kafkaStringInputTopic), "string-event-consumer")
+      env.fromSource(kafkaConnector.kafkaStringSource(bsConfig.kafkaStringInputTopic),WatermarkStrategy.noWatermarks[String](), "string-event-consumer")
       .process(new TestStringStreamFunc(bsConfig)).name("TestStringEventStream")
 
     stringStream.getSideOutput(bsConfig.stringOutputTag)
-      .addSink(kafkaConnector.kafkaStringSink(bsConfig.kafkaStringOutputTopic))
+      .sinkTo(kafkaConnector.kafkaStringSink(bsConfig.kafkaStringOutputTopic))
       .name("String-Producer")
 
     Future {
