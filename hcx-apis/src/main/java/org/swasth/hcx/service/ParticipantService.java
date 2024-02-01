@@ -4,11 +4,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import kong.unirest.HttpResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
+import org.bouncycastle.asn1.DERIA5String;
 import org.bouncycastle.asn1.x500.RDN;
-import org.bouncycastle.asn1.x509.AccessDescription;
-import org.bouncycastle.asn1.x509.AuthorityInformationAccess;
 import org.bouncycastle.asn1.x509.Extension;
+import org.bouncycastle.asn1.x509.*;
 import org.bouncycastle.cert.X509CertificateHolder;
+import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
 import org.bouncycastle.cert.ocsp.*;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.bc.BcDigestCalculatorProvider;
@@ -32,14 +33,14 @@ import org.swasth.postgresql.IDatabaseService;
 import org.swasth.redis.cache.RedisCache;
 
 import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
-import java.security.cert.CertificateEncodingException;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
+import java.net.URLConnection;
+import java.security.cert.*;
 import java.security.interfaces.RSAPublicKey;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -62,7 +63,7 @@ public class ParticipantService extends BaseRegistryService {
     @Value("${registry.organisation-api-path}")
     private String registryOrgnisationPath;
     @Value("${certificate.trusted-cas}")
-    private List<String> trustedCAs ;
+    private List<String> trustedCAs;
     @Value("${certificate.key-size}")
     private List<Integer> allowedCertificateKeySize;
 
@@ -96,7 +97,7 @@ public class ParticipantService extends BaseRegistryService {
     }
 
     public RegistryResponse search(Map<String, Object> requestBody) throws ServerException, AuthorizationException, ClientException, ResourceNotFoundException, JsonProcessingException {
-        return search(requestBody, registryOrgnisationPath,ORGANISATION);
+        return search(requestBody, registryOrgnisationPath, ORGANISATION);
     }
 
     public Map<String, Object> read(String code) throws Exception {
@@ -184,13 +185,14 @@ public class ParticipantService extends BaseRegistryService {
     }
 
     private void generateCreateAudit(String code, String action, Map<String, Object> requestBody, String registryStatus, String createdBy) throws Exception {
-        Map<String,Object> edata = getEData(registryStatus, "", Collections.emptyList());
+        Map<String, Object> edata = getEData(registryStatus, "", Collections.emptyList());
         edata.put("createdBy", createdBy);
-        Map<String,Object> event = eventGenerator.createAuditLog(code, PARTICIPANT, getCData(action, requestBody), edata);
+        Map<String, Object> event = eventGenerator.createAuditLog(code, PARTICIPANT, getCData(action, requestBody), edata);
         eventHandler.createParticipantAudit(event);
     }
+
     private void generateUpdateAudit(String code, String action, Map<String, Object> requestBody, String prevStatus, String currentStatus, List<String> props, String updatedBy) throws Exception {
-        Map<String,Object> event = eventGenerator.createAuditLog(code, PARTICIPANT, getCData(action, requestBody), getEData(currentStatus, prevStatus, props, updatedBy));
+        Map<String, Object> event = eventGenerator.createAuditLog(code, PARTICIPANT, getCData(action, requestBody), getEData(currentStatus, prevStatus, props, updatedBy));
         eventHandler.createParticipantAudit(event);
     }
 
@@ -198,25 +200,25 @@ public class ParticipantService extends BaseRegistryService {
         Token token = new Token(authToken);
         if (token.getRoles().contains(ADMIN_ROLE)) {
             return;
-        } else if (validateRoles(token.getRoles())){
-            if(!StringUtils.equalsIgnoreCase(token.getSubject(), sub))
+        } else if (validateRoles(token.getRoles())) {
+            if (!StringUtils.equalsIgnoreCase(token.getSubject(), sub))
                 throw new ClientException(ErrorCodes.ERR_ACCESS_DENIED, "Invalid authorization token");
         } else if (StringUtils.equals(token.getEntityType(), "User")) {
             boolean result = false;
-            for(Map<String, String> roleMap: token.getTenantRoles()){
-                if(StringUtils.equals(roleMap.get(PARTICIPANT_CODE), participantCode) && (StringUtils.equals(roleMap.get(ROLE), ADMIN) || StringUtils.equals(roleMap.get(ROLE), CONFIG_MANAGER))) {
+            for (Map<String, String> roleMap : token.getTenantRoles()) {
+                if (StringUtils.equals(roleMap.get(PARTICIPANT_CODE), participantCode) && (StringUtils.equals(roleMap.get(ROLE), ADMIN) || StringUtils.equals(roleMap.get(ROLE), CONFIG_MANAGER))) {
                     result = true;
                 }
             }
-            if(!result){
+            if (!result) {
                 throw new ClientException(ErrorCodes.ERR_ACCESS_DENIED, "User does not have permissions to update the participant details");
             }
         }
     }
 
     private boolean validateRoles(List<String> tokenRoles) {
-        for(String role: tokenRoles) {
-            if(Constants.PARTICIPANT_ROLES.contains(role))
+        for (String role : tokenRoles) {
+            if (Constants.PARTICIPANT_ROLES.contains(role))
                 return true;
         }
         return false;
@@ -245,41 +247,17 @@ public class ParticipantService extends BaseRegistryService {
 
     public void certificateValidations(String certificate) throws ClientException {
         try {
-            X509Certificate x509Certificate;
-            if (certificate.startsWith("-----BEGIN CERTIFICATE-----") && certificate.endsWith("-----END CERTIFICATE-----")) {
-                x509Certificate = parseCertificateFromString(certificate);
-            } else {
-                x509Certificate = parseCertificateFromURL(certificate);
-            }
-            if (!(x509Certificate.getNotAfter().getTime() > System.currentTimeMillis())) {
-                throw new ClientException(ErrorCodes.ERR_INVALID_CERTIFICATE, "The Certificate has expired. Please ensure the certificate is valid and not expired. Expiry Date: " + x509Certificate.getNotAfter());
-            }
-            X509CertificateHolder certHolder = new X509CertificateHolder(x509Certificate.getEncoded());
-            RDN[] issuerOrganizationRDNs = certHolder.getIssuer().getRDNs(org.bouncycastle.asn1.x500.X500Name.getDefaultStyle().attrNameToOID("O"));
-            String issuerOrganizationName = "";
-            if (issuerOrganizationRDNs != null && issuerOrganizationRDNs.length > 0) {
-                issuerOrganizationName = String.valueOf(issuerOrganizationRDNs[0].getFirst().getValue());
-            }
-            List<String> trustedCAListWithReplacedComma = trustedCAs.stream()
-                    .map(s -> s.replace("#COMMA#", ","))
-                    .collect(Collectors.toList());
-            // Validate that the issuing certificate authority is in the trusted CA list
-            if (!trustedCAListWithReplacedComma.contains(issuerOrganizationName)) {
-                throw new ClientException(ErrorCodes.ERR_INVALID_CERTIFICATE, "The issuing certificate authority '" + issuerOrganizationName + "' is not trusted. Trusted certificate authorities: " + trustedCAListWithReplacedComma);
-            }
-            // Validate that the certificate key size is above 2048 bits
-            int keySize = ((RSAPublicKey) x509Certificate.getPublicKey()).getModulus().bitLength();
-            if (!allowedCertificateKeySize.contains(keySize)) {
-                throw new ClientException(ErrorCodes.ERR_INVALID_CERTIFICATE, String.format("Certificate must have a minimum key size of 2048 bits. Current key size: %d bits.", keySize));
-            }
-            Map<String, Object> certificateAccessInformation = certificateAccessInformation(x509Certificate);
-            if(!certificateAccessInformation.isEmpty()){
-                OCSPReq ocspReq = generateOCSPRequest(parseCertificateFromURL(certificateAccessInformation.get(ISSUER_CERTIFICATE).toString()), x509Certificate);
-                OCSPResp ocSpResp = sendOCSPRequest(ocspReq, certificateAccessInformation.get(OCSP_URL).toString());
-                if (!checkRevocationStatus(ocSpResp)) {
-                    throw new ClientException(ErrorCodes.ERR_INVALID_CERTIFICATE, "The certificate has been revoked or is invalid.");
-                }
-            }
+            X509Certificate x509Certificate = parseCertificateBasedOnFormat(certificate);
+            // Validate against trusted CA's
+            validateIssuerOrganizationAgainstTrustedCAs(x509Certificate);
+            // validate certificate expiry
+            validateCertificateExpiry(x509Certificate);
+            // validate key size
+            validateCertificateKeySize(x509Certificate);
+            // validate OCSP revocation status
+            validateCertificateRevocationStatusUsingOCSP(x509Certificate);
+            // Validate revocation status using CRL
+            validateCertificateRevocationStatusUsingCRL(x509Certificate);
         } catch (Exception e) {
             throw new ClientException(ErrorCodes.ERR_INVALID_CERTIFICATE, e.getMessage());
         }
@@ -326,7 +304,7 @@ public class ParticipantService extends BaseRegistryService {
         return ocspReqBuilder.build();
     }
 
-    private OCSPResp sendOCSPRequest(OCSPReq ocspReq , String ocspResponderUrl) throws IOException {
+    private OCSPResp sendOCSPRequest(OCSPReq ocspReq, String ocspResponderUrl) throws IOException {
         URL responderURL = new URL(ocspResponderUrl);
         HttpURLConnection connection = (HttpURLConnection) responderURL.openConnection();
         connection.setRequestMethod("POST");
@@ -344,4 +322,89 @@ public class ParticipantService extends BaseRegistryService {
                 .anyMatch(singleResp -> singleResp.getCertStatus() == CertificateStatus.GOOD);
     }
 
+    private X509Certificate parseCertificateBasedOnFormat(String certificate) throws CertificateException, IOException, ClientException {
+        if (certificate.startsWith("-----BEGIN CERTIFICATE-----") && certificate.endsWith("-----END CERTIFICATE-----")) {
+            return parseCertificateFromString(certificate);
+        } else if (certificate.startsWith("http")) {
+            return parseCertificateFromURL(certificate);
+        } else {
+            throw new ClientException("Invalid certificate format. Please provide a valid certificate in PEM format or a valid URL.");
+        }
+    }
+
+    private void validateIssuerOrganizationAgainstTrustedCAs(X509Certificate x509Certificate) throws CertificateEncodingException, ClientException, IOException {
+        X509CertificateHolder certHolder = new X509CertificateHolder(x509Certificate.getEncoded());
+        RDN[] issuerOrganizationRDNs = certHolder.getIssuer().getRDNs(org.bouncycastle.asn1.x500.X500Name.getDefaultStyle().attrNameToOID("O"));
+        String issuerOrganizationName = "";
+        if (issuerOrganizationRDNs != null && issuerOrganizationRDNs.length > 0) {
+            issuerOrganizationName = String.valueOf(issuerOrganizationRDNs[0].getFirst().getValue());
+        }
+        List<String> trustedCAListWithReplacedComma = trustedCAs.stream()
+                .map(s -> s.replace("#COMMA#", ","))
+                .collect(Collectors.toList());
+        if (!trustedCAListWithReplacedComma.contains(issuerOrganizationName)) {
+            throw new ClientException(ErrorCodes.ERR_INVALID_CERTIFICATE, "The issuing certificate authority '" + issuerOrganizationName + "' is not trusted. Trusted certificate authorities: " + trustedCAListWithReplacedComma);
+        }
+    }
+
+    private void validateCertificateExpiry(X509Certificate x509Certificate) throws ClientException {
+        if (!(x509Certificate.getNotAfter().getTime() > System.currentTimeMillis())) {
+            throw new ClientException(ErrorCodes.ERR_INVALID_CERTIFICATE, "The Certificate has expired. Please ensure the certificate is valid and not expired. Expiry Date: " + x509Certificate.getNotAfter());
+        }
+    }
+
+    private void validateCertificateKeySize(X509Certificate x509Certificate) throws ClientException {
+        int keySize = ((RSAPublicKey) x509Certificate.getPublicKey()).getModulus().bitLength();
+        if (!allowedCertificateKeySize.contains(keySize)) {
+            throw new ClientException(ErrorCodes.ERR_INVALID_CERTIFICATE, String.format("Certificate must have a minimum key size of 2048 bits. Current key size: %d bits.", keySize));
+        }
+    }
+
+    private void validateCertificateRevocationStatusUsingOCSP(X509Certificate x509Certificate) throws IOException, ClientException, OCSPException, CertificateEncodingException, OperatorCreationException {
+        Map<String, Object> certificateAccessInformation = certificateAccessInformation(x509Certificate);
+        if (!certificateAccessInformation.isEmpty()) {
+            OCSPReq ocspReq = generateOCSPRequest(parseCertificateFromURL(certificateAccessInformation.get(ISSUER_CERTIFICATE).toString()), x509Certificate);
+            OCSPResp ocSpResp = sendOCSPRequest(ocspReq, certificateAccessInformation.get(OCSP_URL).toString());
+            if (!checkRevocationStatus(ocSpResp)) {
+                throw new ClientException(ErrorCodes.ERR_INVALID_CERTIFICATE, "The certificate has been revoked or is invalid.");
+            }
+        }
+    }
+
+    public void validateCertificateRevocationStatusUsingCRL(X509Certificate x509Certificate) throws IOException, CertificateException, CRLException, ClientException {
+        byte[] crlDistributionPoint = x509Certificate.getExtensionValue(Extension.cRLDistributionPoints.getId());
+        if (crlDistributionPoint == null) {
+            throw new ClientException("Certificate does not include information about Certificate Revocation Lists (CRLs).");
+        }
+        CRLDistPoint distPoint = CRLDistPoint.getInstance(JcaX509ExtensionUtils.parseExtensionValue(crlDistributionPoint));
+        X509CRLEntry revokedCertificate;
+        List<X509CRL> x509CRLList = getDistributedCertificatePoints(distPoint);
+        for (X509CRL crl : x509CRLList) {
+            revokedCertificate = crl.getRevokedCertificate(x509Certificate.getSerialNumber());
+            if (revokedCertificate != null) {
+                throw new ClientException("The certificate has been revoked or is invalid.");
+            }
+        }
+    }
+
+    public List<X509CRL> getDistributedCertificatePoints(CRLDistPoint distPoint) throws IOException, CertificateException, CRLException {
+        List<X509CRL> x509CRLList = new ArrayList<>();
+        CertificateFactory cf = CertificateFactory.getInstance("X509");
+        for (DistributionPoint dp : distPoint.getDistributionPoints()) {
+            for (GeneralName genName : GeneralNames.getInstance(dp.getDistributionPoint().getName()).getNames()) {
+                if (genName.getTagNo() == GeneralName.uniformResourceIdentifier) {
+                    String url = DERIA5String.getInstance(genName.getName()).getString();
+                    X509CRL crl = fetchCRLFromURL(new URL(url), cf);
+                    x509CRLList.add(crl);
+                }
+            }
+        }
+        return x509CRLList;
+    }
+
+    private X509CRL fetchCRLFromURL(URL url, CertificateFactory cf) throws IOException, CRLException {
+        try (InputStream inStream = url.openStream()) {
+            return (X509CRL) cf.generateCRL(inStream);
+        }
+    }
 }
