@@ -22,8 +22,13 @@ public class MessageServiceConfig extends BaseJobConfig {
     public String awsAccessKey;
     public String awsAccessSecret;
     public String awsRegion;
-    public String emailId;
-    public String emailPwd;
+//    public String emailId;
+//    public String emailPwd;
+    public String emailServerHost;
+    public String emailServerPassword;
+    public int emailServerPort;
+    public String emailServerUsername;
+    public String fromEmail;
 
     public String onboardIndex;
 
@@ -49,9 +54,15 @@ public class MessageServiceConfig extends BaseJobConfig {
         awsAccessKey = config.getString("aws.access-key");
         awsAccessSecret = config.getString("aws.access-secret");
         awsRegion = config.getString("aws.region");
-        emailId = config.getString("email.id");
-        emailPwd = config.getString("email.pwd");
+//        emailId = config.getString("email.id");
+//        emailPwd = config.getString("email.pwd");
         onboardIndex = config.getString("audit.onboard.index");
         onboardIndexAlias = config.getString("audit.onboard.alias");
+        System.out.println("----------------------------------------------");
+        fromEmail = config.getString("email.server.from");
+        emailServerUsername = config.getString("email.server.username");
+        emailServerPassword = config.getString("email.server.password");
+        emailServerHost = config.getString("email.server.host");
+        emailServerPort = config.getInt("email.server.port");
     }
 }
