@@ -33,13 +33,10 @@ import org.swasth.postgresql.IDatabaseService;
 import org.swasth.redis.cache.RedisCache;
 
 import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.security.cert.*;
 import java.security.interfaces.RSAPublicKey;
 import java.util.*;
@@ -249,15 +246,20 @@ public class ParticipantService extends BaseRegistryService {
         try {
             X509Certificate x509Certificate = parseCertificateBasedOnFormat(certificate);
             // Validate against trusted CA's
-            validateIssuerOrganizationAgainstTrustedCAs(x509Certificate);
+            validateIssuerAgainstTrustedCAs(x509Certificate);
             // validate certificate expiry
             validateCertificateExpiry(x509Certificate);
             // validate key size
             validateCertificateKeySize(x509Certificate);
-            // validate OCSP revocation status
-            validateCertificateRevocationStatusUsingOCSP(x509Certificate);
-            // Validate revocation status using CRL
-            validateCertificateRevocationStatusUsingCRL(x509Certificate);
+            // validate revocation status of certificate
+            boolean ocspRevoked = isCertificateRevokedUsingOCSP(x509Certificate);
+            boolean crlRevoked = false;
+            if(ocspRevoked){
+                crlRevoked = isCertificateRevokedUsingCRL(x509Certificate);
+            }
+            if (ocspRevoked || crlRevoked) {
+                throw new ClientException(ErrorCodes.ERR_INVALID_CERTIFICATE, "The certificate has been revoked or is invalid.");
+            }
         } catch (Exception e) {
             throw new ClientException(ErrorCodes.ERR_INVALID_CERTIFICATE, e.getMessage());
         }
@@ -332,7 +334,7 @@ public class ParticipantService extends BaseRegistryService {
         }
     }
 
-    private void validateIssuerOrganizationAgainstTrustedCAs(X509Certificate x509Certificate) throws CertificateEncodingException, ClientException, IOException {
+    private void validateIssuerAgainstTrustedCAs(X509Certificate x509Certificate) throws CertificateEncodingException, ClientException, IOException {
         X509CertificateHolder certHolder = new X509CertificateHolder(x509Certificate.getEncoded());
         RDN[] issuerOrganizationRDNs = certHolder.getIssuer().getRDNs(org.bouncycastle.asn1.x500.X500Name.getDefaultStyle().attrNameToOID("O"));
         String issuerOrganizationName = "";
@@ -360,18 +362,21 @@ public class ParticipantService extends BaseRegistryService {
         }
     }
 
-    private void validateCertificateRevocationStatusUsingOCSP(X509Certificate x509Certificate) throws IOException, ClientException, OCSPException, CertificateEncodingException, OperatorCreationException {
+    private boolean isCertificateRevokedUsingOCSP(X509Certificate x509Certificate) throws IOException, ClientException, OCSPException, CertificateEncodingException, OperatorCreationException {
+        boolean isRevoked = false;
         Map<String, Object> certificateAccessInformation = certificateAccessInformation(x509Certificate);
         if (!certificateAccessInformation.isEmpty()) {
             OCSPReq ocspReq = generateOCSPRequest(parseCertificateFromURL(certificateAccessInformation.get(ISSUER_CERTIFICATE).toString()), x509Certificate);
             OCSPResp ocSpResp = sendOCSPRequest(ocspReq, certificateAccessInformation.get(OCSP_URL).toString());
             if (!checkRevocationStatus(ocSpResp)) {
-                throw new ClientException(ErrorCodes.ERR_INVALID_CERTIFICATE, "The certificate has been revoked or is invalid.");
+                isRevoked = true;
             }
         }
+        return isRevoked;
     }
 
-    public void validateCertificateRevocationStatusUsingCRL(X509Certificate x509Certificate) throws IOException, CertificateException, CRLException, ClientException {
+    public boolean isCertificateRevokedUsingCRL(X509Certificate x509Certificate) throws IOException, CertificateException, CRLException, ClientException {
+        boolean isRevoked = false;
         byte[] crlDistributionPoint = x509Certificate.getExtensionValue(Extension.cRLDistributionPoints.getId());
         if (crlDistributionPoint == null) {
             throw new ClientException("Certificate does not include information about Certificate Revocation Lists (CRLs).");
@@ -382,9 +387,10 @@ public class ParticipantService extends BaseRegistryService {
         for (X509CRL crl : x509CRLList) {
             revokedCertificate = crl.getRevokedCertificate(x509Certificate.getSerialNumber());
             if (revokedCertificate != null) {
-                throw new ClientException("The certificate has been revoked or is invalid.");
+                isRevoked = true;
             }
         }
+        return isRevoked;
     }
 
     public List<X509CRL> getDistributedCertificatePoints(CRLDistPoint distPoint) throws IOException, CertificateException, CRLException {
