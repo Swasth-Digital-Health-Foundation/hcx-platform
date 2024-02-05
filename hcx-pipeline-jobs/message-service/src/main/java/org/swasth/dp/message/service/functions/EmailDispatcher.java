@@ -39,8 +39,6 @@ public class EmailDispatcher extends BaseDispatcher {
 
 
     public Boolean sendMail(List<String> to, List<String> cc, List<String> bcc, String subject, String message) throws MessagingException {
-        //compose message
-//        try {
             Session session = Session.getDefaultInstance(getMailProperties());
             MimeMessage mimeMessage = new MimeMessage(session);
             for(String id: to){
@@ -52,14 +50,11 @@ public class EmailDispatcher extends BaseDispatcher {
             for(String id: bcc){
                 mimeMessage.addRecipient(Message.RecipientType.BCC,new InternetAddress(id));
             }
-//            mimeMessage.setSubject(subject);
-//            mimeMessage.setContent(message, "text/html");
             mimeMessage.setFrom(new InternetAddress(config.fromEmail));
             mimeMessage.setSubject(subject);
             mimeMessage.setContent(message,"text/html");
             Transport transport = session.getTransport();
             try {
-                System.out.println("Connecting to Send...");
                 transport.connect(config.emailServerHost, config.emailServerUsername, config.emailServerPassword);
                 transport.sendMessage(mimeMessage, mimeMessage.getAllRecipients());
                 System.out.println("Email sent!");
@@ -72,30 +67,10 @@ public class EmailDispatcher extends BaseDispatcher {
                 transport.close();
             }
             return true;
-            //send message
-//            Transport.send(mimeMessage);
-//            return true;
-//        } catch (MessagingException e) {throw new RuntimeException(e);}
     }
-
-//    private Session getSession() {
-//        return Session.getDefaultInstance(getMailProperties(),
-//                new javax.mail.Authenticator() {
-//                    protected PasswordAuthentication getPasswordAuthentication() {
-//                        return new PasswordAuthentication(config.emailServerUsername, config.emailServerPassword);
-//                    }
-//                });
-//    }
 
     private Properties getMailProperties(){
         Properties properties = new Properties();
-//        properties.put("mail.smtp.host", "smtp.gmail.com");
-//        properties.put("mail.smtp.port", "465");
-//        properties.put("mail.smtp.auth", "true");
-//        properties.put("mail.smtp.starttls.enable", "true");
-//        properties.put("mail.smtp.starttls.required", "true");
-//        properties.put("mail.smtp.ssl.protocols", "TLSv1.2");
-//        properties.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
         properties.put("mail.transport.protocol", "smtp");
         properties.put("mail.smtp.port", config.emailServerPort);
         properties.put("mail.smtp.starttls.enable", "true");
