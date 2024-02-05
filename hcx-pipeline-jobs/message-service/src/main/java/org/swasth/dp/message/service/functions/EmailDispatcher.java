@@ -20,7 +20,7 @@ public class EmailDispatcher extends BaseDispatcher {
     }
 
     @Override
-    public void processElement(Map<String, Object> event, ProcessFunction<Map<String, Object>, Map<String, Object>>.Context context, Collector<Map<String, Object>> collector) {
+    public void processElement(Map<String, Object> event, ProcessFunction<Map<String, Object>, Map<String, Object>>.Context context, Collector<Map<String, Object>> collector) throws MessagingException {
         try{
             System.out.println("Processing Email Event :: Mid: " + event.get("mid"));
             Map<String,Object> recipients = (Map<String,Object>) event.getOrDefault("recipients", new HashMap<>());
@@ -38,9 +38,9 @@ public class EmailDispatcher extends BaseDispatcher {
     }
 
 
-    public Boolean sendMail(List<String> to, List<String> cc, List<String> bcc, String subject, String message){
+    public Boolean sendMail(List<String> to, List<String> cc, List<String> bcc, String subject, String message) throws MessagingException {
         //compose message
-        try {
+//        try {
             Session session = Session.getDefaultInstance(getMailProperties());
             MimeMessage mimeMessage = new MimeMessage(session);
             for(String id: to){
@@ -75,7 +75,7 @@ public class EmailDispatcher extends BaseDispatcher {
             //send message
 //            Transport.send(mimeMessage);
 //            return true;
-        } catch (MessagingException e) {throw new RuntimeException(e);}
+//        } catch (MessagingException e) {throw new RuntimeException(e);}
     }
 
 //    private Session getSession() {

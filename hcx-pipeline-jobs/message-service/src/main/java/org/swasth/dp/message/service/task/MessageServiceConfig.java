@@ -58,7 +58,6 @@ public class MessageServiceConfig extends BaseJobConfig {
 //        emailPwd = config.getString("email.pwd");
         onboardIndex = config.getString("audit.onboard.index");
         onboardIndexAlias = config.getString("audit.onboard.alias");
-        System.out.println("----------------------------------------------");
         fromEmail = config.getString("email.server.from");
         emailServerUsername = config.getString("email.server.username");
         emailServerPassword = config.getString("email.server.password");
