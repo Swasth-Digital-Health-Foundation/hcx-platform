@@ -32,7 +32,7 @@ kafka:
 
 
 registry:
-  basePath: ${registry_basePath:http://aa5c04ed467c04ea89789cead03e4275-320353178.ap-south-1.elb.amazonaws.com:8081}
+  basePath: ${registry_basePath:https://dev-hcx.swasth.app/registry}
   hcxcode: ${registry_hcxcode:1-d2d56996-1b77-4abb-b9e9-0e6e7343c72e}
   organisation-api-path: ${registry_api_path:/api/v1/Organisation}
   user-api-path: ${registry_user_api_path:/api/v1/User}
@@ -159,4 +159,4 @@ api-access-secret:
 certificate:
   validation-enabled: ${certificate_validations_enabled:true}
   key-size: ${certificate_validations_key_size:2048,4096}
-  trusted-cas: ${trusted_cas:DigiCert Inc, Let's Encrypt, GoDaddy.com , Sectigo Limited , Amazon,swasth}
+  trusted-cas: ${trusted_cas:DigiCert#COMMA# Inc., Let's Encrypt, GoDaddy.com , Sectigo Limited , Amazon,swasth,Star Health and Allied Insurance Company Limited}

@@ -8,6 +8,7 @@ server:
 version:
   external07: ${version_external_07:v0.7}
   external08: ${version_external_08:v0.8}
+  external09: ${version_external_09:v0.9}
   internal: ${version_internal:v1}
 
 #hcx headers
@@ -144,11 +145,24 @@ spring:
             - RewritePath=/${version.external08}/notification/on_subscribe, /${version.internal}/notification/on_subscribe
             - RewritePath=/${version.external08}/notification/subscription/update, /${version.internal}/notification/subscription/update
             - RewritePath=/${version.external08}/eob/(?<segment>/?.*), /${version.internal}/eob/$\{segment}
+            - RewritePath=/${version.external09}/coverageeligibility/(?<segment>/?.*), /${version.internal}/coverageeligibility/$\{segment}
+            - RewritePath=/${version.external09}/preauth/(?<segment>/?.*), /${version.internal}/preauth/$\{segment}
+            - RewritePath=/${version.external09}/claim/(?<segment>/?.*), /${version.internal}/claim/$\{segment}
+            - RewritePath=/${version.external09}/paymentnotice/(?<segment>/?.*), /${version.internal}/paymentnotice/$\{segment}
+            - RewritePath=/${version.external09}/hcx/(?<segment>/?.*), /${version.internal}/hcx/$\{segment}
+            - RewritePath=/${version.external09}/predetermination/(?<segment>/?.*), /${version.internal}/predetermination/$\{segment}
+            - RewritePath=/${version.external09}/communication/(?<segment>/?.*), /${version.internal}/communication/$\{segment}
+            - RewritePath=/${version.external09}/notification/subscribe, /${version.internal}/notification/subscribe
+            - RewritePath=/${version.external09}/notification/unsubscribe, /${version.internal}/notification/unsubscribe
+            - RewritePath=/${version.external09}/notification/notify, /${version.internal}/notification/notify
+            - RewritePath=/${version.external09}/notification/subscription/list, /${version.internal}/notification/subscription/list
+            - RewritePath=/${version.external09}/notification/on_subscribe, /${version.internal}/notification/on_subscribe
+            - RewritePath=/${version.external09}/notification/subscription/update, /${version.internal}/notification/subscription/update
+            - RewritePath=/${version.external09}/eob/(?<segment>/?.*), /${version.internal}/eob/$\{segment}
             - CachingRequestBodyFilter
             - HCXValidationFilter
           predicates:
-            - Path=/${version.external07}/coverageeligibility/**, /${version.external07}/preauth/**, /${version.external07}/claim/**, /${version.external07}/paymentnotice/**, /${version.external07}/hcx/**, /${version.external07}/predetermination/**, /${version.external07}/communication/**, /${version.external08}/coverageeligibility/**, /${version.external08}/preauth/**, /${version.external08}/claim/**, /${version.external08}/paymentnotice/**, /${version.external08}/hcx/**, /${version.external08}/predetermination/**, /${version.external08}/communication/**, /${version.external08}/notification/subscribe, /${version.external08}/notification/unsubscribe, /${version.external08}/notification/subscription/list, /${version.external08}/notification/notify, /${version.external08}/notification/subscription/update, /${version.external08}/notification/on_subscribe, /${version.external08}/eob/**
-
+            - Path=/${version.external07}/coverageeligibility/**, /${version.external07}/preauth/**, /${version.external07}/claim/**, /${version.external07}/paymentnotice/**, /${version.external07}/hcx/**, /${version.external07}/predetermination/**, /${version.external07}/communication/**, /${version.external08}/coverageeligibility/**, /${version.external08}/preauth/**, /${version.external08}/claim/**, /${version.external08}/paymentnotice/**, /${version.external08}/hcx/**, /${version.external08}/predetermination/**, /${version.external08}/communication/**, /${version.external08}/notification/subscribe, /${version.external08}/notification/unsubscribe, /${version.external08}/notification/subscription/list, /${version.external08}/notification/notify, /${version.external08}/notification/subscription/update, /${version.external08}/notification/on_subscribe, /${version.external08}/eob/**, /${version.external09}/coverageeligibility/**, /${version.external09}/preauth/**, /${version.external09}/claim/**, /${version.external09}/paymentnotice/**, /${version.external09}/hcx/**, /${version.external09}/predetermination/**, /${version.external09}/communication/**, /${version.external09}/notification/subscribe, /${version.external09}/notification/unsubscribe, /${version.external09}/notification/subscription/list, /${version.external09}/notification/notify, /${version.external09}/notification/subscription/update, /${version.external09}/notification/on_subscribe, /${version.external09}/eob/**
         - id: hcx-api-route-audit
           uri: ${hcx-api.basePath}
           filters:
@@ -159,10 +173,12 @@ spring:
             - RewritePath=/${version.external07}/audit/search, /${version.internal}/audit/search
             - RewritePath=/${version.external08}/audit/search, /${version.internal}/audit/search
             - RewritePath=/${version.external08}/audit/notification/search, /${version.internal}/audit/notification/search
+            - RewritePath=/${version.external09}/audit/search, /${version.internal}/audit/search
+            - RewritePath=/${version.external09}/audit/notification/search, /${version.internal}/audit/notification/search
             - CachingRequestBodyFilter
             - AuditValidationFilter
           predicates:
-            - Path=/${version.external07}/audit/search, /${version.external08}/audit/search, /${version.external08}/audit/notification/search
+            - Path=/${version.external07}/audit/search, /${version.external08}/audit/search, /${version.external08}/audit/notification/search, /${version.external09}/audit/search, /${version.external09}/audit/notification/search
 
         - id: hcx-api-no-filter-route
           uri: ${hcx-api.basePath}
@@ -183,11 +199,21 @@ spring:
             - RewritePath=/${version.external08}/participant/auth/token/generate, /${version.internal}/participant/auth/token/generate
             - RewritePath=/${version.external07}/participant/auth/token/generate, /${version.internal}/participant/auth/token/generate
             - RewritePath=/${version.external08}/user/auth/token/generate, /${version.internal}/user/auth/token/generate
+            - RewritePath=/${version.external09}/participant/(?<segment>/?.*), /${version.internal}/participant/$\{segment}
+            - RewritePath=/${version.external09}/notification/topic/list, /${version.internal}/notification/topic/list
+            - RewritePath=/${version.external09}/request/retry/(?<segment>/?.*), /${version.internal}/request/retry/$\{segment}
+            - RewritePath=/${version.external09}/audit/onboard/search, /${version.internal}/audit/onboard/search
+            - RewritePath=/${version.external09}/user/(?<segment>/?.*), /${version.internal}/user/$\{segment}
+            - RewritePath=/${version.external09}/participant/user/(?<segment>/?.*)}, /${version.internal}/participant/user/$\{segment}
+            - RewritePath=/${version.external09}/audit/participant/search, /${version.internal}/audit/participant/search
+            - RewritePath=/${version.external09}/audit/user/search, /${version.internal}/audit/user/search
+            - RewritePath=/${version.external09}/participant/auth/token/generate, /${version.internal}/participant/auth/token/generate
+            - RewritePath=/${version.external09}/user/auth/token/generate, /${version.internal}/user/auth/token/generate
             - RewritePath=/auth/realms/swasth-health-claim-exchange/protocol/openid-connect/token, /${version.internal}/participant/auth/token/generate
             - RewritePath=/auth/realms/swasth-hcx-participants/protocol/openid-connect/token, /${version.internal}/participant/auth/token/generate
             - RewritePath=/auth/realms/swasth-hcx-users/protocol/openid-connect/token, /${version.internal}/user/auth/token/generate
           predicates:
-            - Path=/${version.external07}/participant/create, /${version.external07}/participant/update, /${version.external07}/participant/search, /${version.external07}/participant/delete, /${version.external08}/participant/create, /${version.external08}/participant/update, /${version.external08}/participant/search, /${version.external08}/participant/delete, /health, /service/health, /${version.external08}/notification/topic/list,  /${version.external08}/request/retry/**, /${version.external08}/audit/onboard/search, /${version.external08}/user/create,/${version.external08}/user/update,/${version.external08}/user/search,/${version.external08}/user/delete,/${version.external08}/participant/user/add,/${version.external08}/participant/user/remove,/${version.external08}/audit/participant/search,/${version.external08}/audit/user/search, /${version.external08}/user/auth/token/generate, /${version.external08}/participant/auth/token/generate, /${version.external07}/participant/auth/token/generate, /auth/realms/swasth-health-claim-exchange/protocol/openid-connect/token, /auth/realms/swasth-hcx-participants/protocol/openid-connect/token, /auth/realms/swasth-hcx-users/protocol/openid-connect/token
+            - Path=/${version.external07}/participant/create, /${version.external07}/participant/update, /${version.external07}/participant/search, /${version.external07}/participant/delete, /${version.external09}/participant/create, /${version.external09}/participant/update, /${version.external09}/participant/search, /${version.external09}/participant/delete,/${version.external08}/participant/create, /${version.external08}/participant/update, /${version.external08}/participant/search, /${version.external08}/participant/delete, /health, /service/health,/${version.external09}/notification/topic/list,  /${version.external09}/request/retry/**, /${version.external09}/audit/onboard/search, /${version.external09}/user/create,/${version.external09}/user/update,/${version.external09}/user/search,/${version.external09}/user/delete, /${version.external08}/notification/topic/list,  /${version.external08}/request/retry/**, /${version.external08}/audit/onboard/search, /${version.external08}/user/create,/${version.external08}/user/update,/${version.external08}/user/search,/${version.external08}/user/delete,/${version.external08}/participant/user/add,/${version.external09}/participant/user/add,/${version.external08}/participant/user/remove,/${version.external09}/participant/user/remove,/${version.external08}/audit/participant/search,/${version.external09}/audit/participant/search,/${version.external08}/audit/user/search,/${version.external09}/audit/user/search, /${version.external08}/user/auth/token/generate,/${version.external09}/user/auth/token/generate, /${version.external08}/participant/auth/token/generate, /${version.external07}/participant/auth/token/generate,/${version.external09}/participant/auth/token/generate, /auth/realms/swasth-health-claim-exchange/protocol/openid-connect/token, /auth/realms/swasth-hcx-participants/protocol/openid-connect/token, /auth/realms/swasth-hcx-users/protocol/openid-connect/token
 
         - id: hcx-onboard-api-route
           uri: ${hcx-onboard.basePath}
@@ -201,8 +227,13 @@ spring:
             - RewritePath=/${version.external08}/applicant/(?<segment>/?.*), /${version.internal}/applicant/$\{segment}
             - RewritePath=/${version.external08}/onboard/user/(?<segment>/?.*), /${version.internal}/onboard/user/$\{segment}
             - RewritePath=/${version.external08}/onboard/applicant/(?<segment>/?.*), /${version.internal}/onboard/applicant/$\{segment}
+            - RewritePath=/${version.external08}/api-access/secret/(?<segment>/?.*), /${version.internal}/api-access/secret/$\{segment}
+            - RewritePath=/${version.external09}/applicant/(?<segment>/?.*), /${version.internal}/applicant/$\{segment}
+            - RewritePath=/${version.external09}/onboard/user/(?<segment>/?.*), /${version.internal}/onboard/user/$\{segment}
+            - RewritePath=/${version.external09}/onboard/applicant/(?<segment>/?.*), /${version.internal}/onboard/applicant/$\{segment}
+            - RewritePath=/${version.external09}/participant/(?<segment>/?.*), /${version.internal}/participant/$\{segment}
           predicates:
-            - Path=/${version.external08}/participant/verify, /${version.external08}/participant/verify/identity, /${version.external08}/participant/verification/link/send, /${version.external08}/participant/onboard/update, /${version.external08}/applicant/getinfo, /${version.external08}/applicant/verify,/${version.external07}/applicant/search*,/${version.external08}/applicant/search*,/url/*, /${version.external08}/onboard/user/invite, /${version.external08}/onboard/user/invite/accept, /${version.external08}/onboard/user/invite/reject, /${version.external08}/onboard/applicant/password/generate
+            - Path=/${version.external08}/participant/verify, /${version.external08}/participant/verify/identity, /${version.external08}/participant/verification/link/send, /${version.external08}/participant/onboard/update, /${version.external08}/applicant/getinfo, /${version.external08}/applicant/verify,/${version.external09}/participant/verify, /${version.external09}/participant/verify/identity, /${version.external09}/participant/verification/link/send, /${version.external09}/participant/onboard/update, /${version.external09}/applicant/getinfo, /${version.external09}/applicant/verify, /${version.external07}/applicant/search*,/${version.external08}/applicant/search*,/${version.external09}/applicant/search*,/url/*, /${version.external08}/onboard/user/invite, /${version.external08}/onboard/user/invite/accept, /${version.external08}/onboard/user/invite/reject, /${version.external08}/onboard/applicant/password/generate, /${version.external08}/api-access/secret/generate /${version.external09}/onboard/user/invite, /${version.external09}/onboard/user/invite/accept, /${version.external09}/onboard/user/invite/reject, /${version.external09}/onboard/applicant/password/generate , /${version.external09}/api-access/secret/generate
 
         - id: hcx-mock-service-route
           uri: ${hcx-mock-service.basePath}

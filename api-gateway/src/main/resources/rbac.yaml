@@ -3,14 +3,16 @@ rbac:
     paths:
       - /health
       - /service/health
+      - /v0.9/participant/auth/token/generate
       - /v0.8/participant/auth/token/generate
       - /v0.7/participant/auth/token/generate
       - /v0.8/user/auth/token/generate
+      - /v0.9/user/auth/token/generate
     regexPaths:
       - /url/**
       - /auth/**
   - role: AUTHENTICATED
-  - role: provider
+  - role: provider,provider.hospital,provider.clinic,provider.practitioner,provider.diagnostics,provider.pharmacy,bsp
     paths:
       - /v0.7/coverageeligibility/check
       - /v0.7/predetermination/submit
@@ -47,9 +49,34 @@ rbac:
       - /v0.8/participant/user/add
       - /v0.8/participant/user/remove
       - /v0.8/eob/fetch
+      - /v0.9/coverageeligibility/check
+      - /v0.9/predetermination/submit
+      - /v0.9/preauth/submit
+      - /v0.9/claim/submit
+      - /v0.9/paymentnotice/on_request
+      - /v0.9/communication/on_request
+      - /v0.9/hcx/status
+      - /v0.9/audit/search
+      - /v0.9/audit/notification/search
+      - /v0.9/participant/search
+      - /v0.9/participant/update
+      - /v0.9/notification/subscribe
+      - /v0.9/notification/unsubscribe
+      - /v0.9/notification/subscription/list
+      - /v0.9/notification/topic/list
+      - /v0.9/notification/notify
+      - /v0.9/notification/subscription/update
+      - /v0.9/notification/on_subscribe
+      - /v0.9/user/create
+      - /v0.9/user/search
+      - /v0.9/user/delete
+      - /v0.9/participant/user/add
+      - /v0.9/participant/user/remove
+      - /v0.9/eob/fetch
     regexPaths:
       - /v0.7/applicant/search**
       - /v0.8/applicant/search**
+      - /v0.9/applicant/search**
 
   - role: payor
     paths:
@@ -96,9 +123,38 @@ rbac:
       - /v0.8/participant/user/add
       - /v0.8/participant/user/remove
       - /v0.8/eob/on_fetch
+      - /v0.9/coverageeligibility/check
+      - /v0.9/preauth/submit
+      - /v0.9/claim/submit
+      - /v0.9/predetermination/submit
+      - /v0.9/coverageeligibility/on_check
+      - /v0.9/predetermination/on_submit
+      - /v0.9/preauth/on_submit
+      - /v0.9/claim/on_submit
+      - /v0.9/paymentnotice/request
+      - /v0.9/communication/request
+      - /v0.9/hcx/on_status
+      - /v0.9/audit/search
+      - /v0.9/audit/notification/search
+      - /v0.9/participant/search
+      - /v0.9/participant/update
+      - /v0.9/notification/subscribe
+      - /v0.9/notification/unsubscribe
+      - /v0.9/notification/subscription/list
+      - /v0.9/notification/topic/list
+      - /v0.9/notification/notify
+      - /v0.9/notification/subscription/update
+      - /v0.9/notification/on_subscribe
+      - /v0.9/user/create
+      - /v0.9/user/search
+      - /v0.9/user/delete
+      - /v0.9/participant/user/add
+      - /v0.9/participant/user/remove
+      - /v0.9/eob/on_fetch
     regexPaths:
       - /v0.7/applicant/search**
       - /v0.8/applicant/search**
+      - /v0.9/applicant/search**
       - /payer/**
 
   - role: agency.tpa
@@ -139,9 +195,31 @@ rbac:
       - /v0.8/participant/user/add
       - /v0.8/participant/user/remove 
       - /v0.8/eob/on_fetch
+      - /v0.9/coverageeligibility/check
+      - /v0.9/preauth/submit
+      - /v0.9/claim/submit
+      - /v0.9/predetermination/submit
+      - /v0.9/coverageeligibility/on_check
+      - /v0.9/predetermination/on_submit
+      - /v0.9/preauth/on_submit
+      - /v0.9/claim/on_submit
+      - /v0.9/paymentnotice/request
+      - /v0.9/communication/request
+      - /v0.9/hcx/on_status
+      - /v0.9/audit/search
+      - /v0.9/audit/notification/search
+      - /v0.9/participant/search
+      - /v0.9/participant/update
+      - /v0.9/user/create
+      - /v0.9/user/search
+      - /v0.9/user/delete
+      - /v0.9/participant/user/add
+      - /v0.9/participant/user/remove
+      - /v0.9/eob/on_fetch
     regexPaths:
       - /v0.7/applicant/search**
       - /v0.8/applicant/search**
+      - /v0.9/applicant/search**
 
   - role: agency.regulator
     paths:
@@ -160,9 +238,20 @@ rbac:
       - /v0.8/user/delete
       - /v0.8/participant/user/add
       - /v0.8/participant/user/remove
+      - /v0.9/hcx/status
+      - /v0.9/audit/search
+      - /v0.9/audit/notification/search
+      - /v0.9/participant/search
+      - /v0.9/participant/update
+      - /v0.9/user/create
+      - /v0.9/user/search
+      - /v0.9/user/delete
+      - /v0.9/participant/user/add
+      - /v0.9/participant/user/remove
     regexPaths:
       - /v0.7/applicant/search**
       - /v0.8/applicant/search**
+      - /v0.9/applicant/search**
 
   - role: research
     paths:
@@ -185,9 +274,22 @@ rbac:
       - /v0.8/user/delete
       - /v0.8/participant/user/add
       - /v0.8/participant/user/remove
+      - /v0.9/coverageeligibility/on_check
+      - /v0.9/predetermination/on_submit
+      - /v0.9/hcx/status
+      - /v0.9/audit/search
+      - /v0.9/audit/notification/search
+      - /v0.9/participant/search
+      - /v0.9/participant/update
+      - /v0.9/user/create
+      - /v0.9/user/search
+      - /v0.9/user/delete
+      - /v0.9/participant/user/add
+      - /v0.9/participant/user/remove
     regexPaths:
       - /v0.7/applicant/search**
       - /v0.8/applicant/search**
+      - /v0.9/applicant/search**
 
   - role: member.isnp
     paths:
@@ -212,9 +314,21 @@ rbac:
       - /v0.8/user/delete
       - /v0.8/participant/user/add
       - /v0.8/participant/user/remove
+      - /v0.9/predetermination/on_submit
+      - /v0.9/hcx/status
+      - /v0.9/audit/search
+      - /v0.9/audit/notification/search
+      - /v0.9/participant/search
+      - /v0.9/participant/update
+      - /v0.9/user/create
+      - /v0.9/user/search
+      - /v0.9/user/delete
+      - /v0.9/participant/user/add
+      - /v0.9/participant/user/remove
     regexPaths:
       - /v0.7/applicant/search**
       - /v0.8/applicant/search**
+      - /v0.9/applicant/search**
 
   - role: agency.sponsor
     paths:
@@ -245,15 +359,33 @@ rbac:
       - /v0.8/user/delete
       - /v0.8/participant/user/add
       - /v0.8/participant/user/remove
+      - /v0.9/coverageeligibility/on_check
+      - /v0.9/predetermination/on_submit
+      - /v0.9/preauth/on_submit
+      - /v0.9/claim/on_submit
+      - /v0.9/paymentnotice/request
+      - /v0.9/communication/request
+      - /v0.9/hcx/on_status
+      - /v0.9/audit/search
+      - /v0.9/audit/notification/search
+      - /v0.9/participant/search
+      - /v0.9/participant/update
+      - /v0.9/user/create
+      - /v0.9/user/search
+      - /v0.9/user/delete
+      - /v0.9/participant/user/add
+      - /v0.9/participant/user/remove
     regexPaths:
       - /v0.7/applicant/search**
       - /v0.8/applicant/search**
+      - /v0.9/applicant/search**
 
   - role: HIE/HIO.HCX
     paths:
     regexPaths:
       - /v0.7/**
       - /v0.8/**
+      - /v0.9/**
   - role: user
     paths:
       - /v0.8/audit/participant/search
@@ -262,8 +394,19 @@ rbac:
       - /v0.8/participant/update
       - /v0.8/onboard/applicant/password/generate
       - /v0.8/participant/onboard/update
+      - /v0.8/api-access/secret/generate
+      - /v0.9/api-access/secret/generate
+      - /v0.9/audit/participant/search
+      - /v0.9/audit/user/search
+      - /v0.9/participant/search
+      - /v0.9/participant/update
+      - /v0.9/onboard/applicant/password/generate
+      - /v0.9/participant/onboard/update
     regexPaths:
       - /v0.8/user/**
       - /v0.8/participant/user/**
       - /v0.7/applicant/search**
       - /v0.8/applicant/search**
+      - /v0.9/user/**
+      - /v0.9/participant/user/**
+      - /v0.9/applicant/search**

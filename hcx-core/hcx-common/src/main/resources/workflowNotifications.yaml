@@ -3,9 +3,21 @@
   description: Notification about coverage eligibility, predetermination, preauth, claim and paymentnotice workflow updates.
   allowed_senders:
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
     - payor
   allowed_recipients:
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
     - payor
     - agency.tpa
     - agency.regulator
@@ -25,6 +37,12 @@
   description: Notification about patient admission for a particular disease
   allowed_senders:
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
   allowed_recipients:
     - payor
     - agency.tpa
@@ -50,6 +68,12 @@
     - payor
   allowed_recipients:
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
     - payor
     - agency.tpa
     - agency.regulator
@@ -72,7 +96,13 @@
     - payor
   allowed_recipients:
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
     - payor
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -94,6 +124,12 @@
     - payor
   allowed_recipients:
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
     - payor
     - agency.tpa
     - agency.regulator
@@ -116,6 +152,12 @@
     - payor
   allowed_recipients:
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
     - payor
     - agency.tpa
     - agency.regulator
@@ -137,8 +179,20 @@
   allowed_senders:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
   allowed_recipients:
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
     - payor
     - agency.tpa
     - agency.regulator

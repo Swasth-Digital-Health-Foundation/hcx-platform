@@ -6,6 +6,12 @@
   allowed_recipients:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -29,6 +35,12 @@
   allowed_recipients:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -52,6 +64,12 @@
   allowed_recipients:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -76,6 +94,12 @@
   allowed_recipients:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -100,6 +124,12 @@
   allowed_recipients:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -123,6 +153,12 @@
   allowed_recipients:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -148,6 +184,12 @@
   allowed_recipients:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -172,6 +214,12 @@
   allowed_recipients:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -197,6 +245,12 @@
   allowed_recipients:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -221,6 +275,12 @@
   allowed_recipients:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -246,6 +306,12 @@
   allowed_recipients:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -266,9 +332,21 @@
   allowed_senders:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
   allowed_recipients:
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
     - payor
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -289,7 +367,13 @@
     - HIE/HIO.HCX
   allowed_recipients:
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
     - payor
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -310,7 +394,13 @@
     - HIE/HIO.HCX
   allowed_recipients:
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
     - payor
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -334,6 +424,12 @@
   allowed_recipients:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -359,6 +455,12 @@
   allowed_recipients:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -380,6 +482,12 @@
     - HIE/HIO.HCX
   allowed_recipients:
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
     - payor
     - agency.tpa
     - agency.regulator

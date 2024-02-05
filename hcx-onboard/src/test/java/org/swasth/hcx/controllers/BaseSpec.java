@@ -122,6 +122,20 @@ public class BaseSpec {
         return JSONUtils.serialize(data);
     }
 
+    protected String verifySuccessRequestBodyHospitalRole() throws JsonProcessingException {
+        List<Map<String , Object>> data = new ArrayList<>();
+        Map<String,Object> body = new HashMap<>();
+        body.put("type", "onboard-through-verifier");
+        body.put("verifier_code","wemeanhospital+mock_payor.yopmail@swasth-hcx-dev");
+        Map<String , Object> participant = new HashMap<>();
+        participant.put(Constants.PRIMARY_EMAIL,"obama02@yopmail.com");
+        participant.put(Constants.PRIMARY_MOBILE,"9620499129");
+        participant.put(Constants.PARTICIPANT_NAME,"test_user_12");
+        participant.put("roles",List.of(Constants.PROVIDER_HOSPITAL));
+        body.put("participant",participant);
+        data.add(body);
+        return JSONUtils.serialize(data);
+    }
     protected String verifyPayorSuccessRequestBody() throws JsonProcessingException {
         List<Map<String , Object>> data = new ArrayList<>();
         Map<String,Object> body = new HashMap<>();
@@ -202,6 +216,7 @@ public class BaseSpec {
         return JSONUtils.serialize(participant);
     }
 
+
     protected String applicantGetInfoRequestBody() throws JsonProcessingException {
         Map<String , Object> participant = new HashMap<>();
         participant.put("applicant_code","test_user_95.yopmail@swasth-hcx");
@@ -265,6 +280,24 @@ public class BaseSpec {
         tenant_roles.add(participants);
         users.put("tenant_roles",tenant_roles);
         users.put( "created_by","testprovider1.apollo@swasth-hcx-dev");
+        participant.put("user",users);
+        return JSONUtils.serialize(participant);
+    }
+
+    protected String onboardInviteJwtTokenSuccess() throws JsonProcessingException {
+        Map<String , Object> participant = new HashMap<>();
+        participant.put("jwt_token", "eyJ0eXBlIjoiand0IiwiYWxnIjoiUlMyNTYifQ.eyJyb2xlIjoiYWRtaW4iLCJwYXJ0aWNpcGFudF9jb2RlIjoiaG9zcF90ZXN1c2VfMzYzMTAxMTRAc3dhc3RoLWhjeC1kZXYiLCJpc3MiOiJoY3hnYXRld2F5LnN3YXN0aEBzd2FzdGgtaGN4LWRldiIsInR5cCI6Imludml0ZSIsImludml0ZWRfYnkiOiJ0ZXN1c2VyejE2QHlvcG1haWwuY29tIiwiZXhwIjoxNzAzNzQ1MzM0NTg3LCJpYXQiOjE3MDM2NTg5MzQ1ODcsImp0aSI6ImQ1NWVjZmUwLTIwZTctNDQxMC1iNzAyLWNkZDY1ZjZhNzJhYSIsImVtYWlsIjoidGVzdXNlcnoxOEB5b3BtYWlsLmNvbSJ9.UTPemyls7XuSA3EDqqE8k4pDupF2Ktu3pkIvz9WqpRnyjzlxBUfOCfFx6CEuyOLZhN0rqtLGbWnQSVg7-Bm-2jqMzwZrTkVJ4HHJriMpC8R7FCAzr8kQceZiGeExOyoB-PCuwtZmnldfjq8admOaJBWGifrchX4K7khe9FF79D7OjSbAUOL6CU4hq-_oHmGwsWpGulsWs1URjLkF8XE7tUIYirZcKK3nOhc9y3yzKdbVDfDN1Y3LG1TkoUCfFGjZJ9paGqPqxOYE1HI5BmUDXI3lTC6WEdKdPzCXls-_DpFTLGJHgZNfoqBsWbfdBbUaO1DOz47GBCfLppa7tp-fqA");
+        Map<String , Object> users = new HashMap<>();
+        users.put( "user_name", "Test");
+        users.put("email","tesuserz18@yopmail.com");
+        users.put("mobile", "9620499129");
+        List<Map<String, Object>> tenant_roles = new ArrayList<>();
+        Map<String, Object> participants = new HashMap<>();
+        participants.put("participant_code","hosp_tesuse_36310114@swasth-hcx-dev");
+        participants.put( "role", "admin");
+        tenant_roles.add(participants);
+        users.put("tenant_roles",tenant_roles);
+        users.put( "created_by","tesuserz16@yopmail.com");
         participant.put("user",users);
         return JSONUtils.serialize(participant);
     }
