@@ -284,24 +284,6 @@ public class BaseSpec {
         return JSONUtils.serialize(participant);
     }
 
-    protected String onboardInviteJwtTokenSuccess() throws JsonProcessingException {
-        Map<String , Object> participant = new HashMap<>();
-        participant.put("jwt_token", "eyJ0eXBlIjoiand0IiwiYWxnIjoiUlMyNTYifQ.eyJyb2xlIjoiYWRtaW4iLCJwYXJ0aWNpcGFudF9jb2RlIjoiaG9zcF90ZXN1c2VfMzYzMTAxMTRAc3dhc3RoLWhjeC1kZXYiLCJpc3MiOiJoY3hnYXRld2F5LnN3YXN0aEBzd2FzdGgtaGN4LWRldiIsInR5cCI6Imludml0ZSIsImludml0ZWRfYnkiOiJ0ZXN1c2VyejE2QHlvcG1haWwuY29tIiwiZXhwIjoxNzAzNzQ1MzM0NTg3LCJpYXQiOjE3MDM2NTg5MzQ1ODcsImp0aSI6ImQ1NWVjZmUwLTIwZTctNDQxMC1iNzAyLWNkZDY1ZjZhNzJhYSIsImVtYWlsIjoidGVzdXNlcnoxOEB5b3BtYWlsLmNvbSJ9.UTPemyls7XuSA3EDqqE8k4pDupF2Ktu3pkIvz9WqpRnyjzlxBUfOCfFx6CEuyOLZhN0rqtLGbWnQSVg7-Bm-2jqMzwZrTkVJ4HHJriMpC8R7FCAzr8kQceZiGeExOyoB-PCuwtZmnldfjq8admOaJBWGifrchX4K7khe9FF79D7OjSbAUOL6CU4hq-_oHmGwsWpGulsWs1URjLkF8XE7tUIYirZcKK3nOhc9y3yzKdbVDfDN1Y3LG1TkoUCfFGjZJ9paGqPqxOYE1HI5BmUDXI3lTC6WEdKdPzCXls-_DpFTLGJHgZNfoqBsWbfdBbUaO1DOz47GBCfLppa7tp-fqA");
-        Map<String , Object> users = new HashMap<>();
-        users.put( "user_name", "Test");
-        users.put("email","tesuserz18@yopmail.com");
-        users.put("mobile", "9620499129");
-        List<Map<String, Object>> tenant_roles = new ArrayList<>();
-        Map<String, Object> participants = new HashMap<>();
-        participants.put("participant_code","hosp_tesuse_36310114@swasth-hcx-dev");
-        participants.put( "role", "admin");
-        tenant_roles.add(participants);
-        users.put("tenant_roles",tenant_roles);
-        users.put( "created_by","tesuserz16@yopmail.com");
-        participant.put("user",users);
-        return JSONUtils.serialize(participant);
-    }
-
     protected String userInviteRejectException() throws JsonProcessingException {
         Map<String , Object> participant = new HashMap<>();
         participant.put("jwt_token","eyJ0eXBlIjoiand0IiwiYWxnIjoiUlMyNTYifQ.eyJyb2xlIjoidmlld2VyIiwicGFydGljaXBhbnRfY29kZSI6InRlc3Rwcm92aWRlcjEuYXBvbGxvQHN3YXN0aC1oY3gtZGV2IiwiaXNzIjoiaGN4Z2F0ZXdheS5zd2FzdGhAc3dhc3RoLWhjeC1kZXYiLCJ0eXAiOiJpbnZpdGUiLCJpbnZpdGVkX2J5IjoibW9jazQyQGdtYWlsLmNvbSIsImV4cCI6MTY4NzQyMDE0NzY3OCwiaWF0IjoxNjg3MzMzNzQ3Njc4LCJqdGkiOiI4YzM0MWEzNS04MDFhLTQwYjQtYjRjYi1mZGQ1ZjcwZDAxZTciLCJlbWFpbCI6Im1vY2staW52aXRlQHlvcG1haWwuY29tIn0.MqyBWyS0sQSHRlXHaWTlb9hJZyqjICOc0oSwviHKQ0wDQ3xNmpBjLKu2naOzfozPIdRHtfYkxb_5fca_cOPV5zyQeyqIH6prcaDKPnPDJIwY2VxvsR2njJnAPK5xRuSaqahTgYfzoVF7PI4nAPCSRYCJqdMXMrBIrY10uoN7EWY9VjfbrYiIgwvEBFCqAI-V0SHziyKh8ufNGT3ueKocm4ittFI3qUMP7i0AYx29CV84kBNPB2-fz_TJY_WmWDRnrSQR536PROlv3MASOsHR3iVa2HSOj9VwDQFwV1MpF8p9VY-gz2K6JOxyJvhw_1iJnmjWKjERlqOjy0KdBl2B5A");

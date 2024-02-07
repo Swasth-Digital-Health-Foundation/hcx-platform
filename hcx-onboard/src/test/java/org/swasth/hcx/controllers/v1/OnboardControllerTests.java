@@ -3386,9 +3386,8 @@ class OnboardControllerTests extends BaseSpec{
         Assertions.assertEquals(400, status);
     }
 
-    // Testcase for empty or null check for invitedBy field in the jwt token
     @Test
-    void test_onboard_invite_with_missing_invitedBy_in_jwt_token() throws Exception {
+    void test_onboard_invite_with_jwtToken_success() throws Exception {
         hcxApiServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("{\n" +
@@ -3483,47 +3482,6 @@ class OnboardControllerTests extends BaseSpec{
         Mockito.when(mockEventGenerator.getEmailMessageEvent(anyString(),anyString(),anyList(),anyList(),anyList())).thenReturn("mocked-event");
         Mockito.when(freemarkerService.renderTemplate(any(),anyMap())).thenReturn("freemarker");
         String requestBodyJson = onboardUserInviteJwtToken();
-        MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.ONBOARD_USER_INVITE_ACCEPT).content(requestBodyJson).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
-        MockHttpServletResponse response = mvcResult.getResponse();
-        int status = response.getStatus();
-        Assertions.assertEquals(400, status);
-    }
-
-
-    @Test
-    void test_onboard_invite_with_jwtToken_success() throws Exception {
-        hcxApiServer.enqueue(new MockResponse()
-                .setResponseCode(200)
-                .setBody("{\n" + "\"timestamp\": 1698647527393,\n" + "\"participants\": [\n" + "{\n" + "\"status\": \"Active\",\n" + "\"participant_name\": \"Health Claims Exchange Gateway\",\n" + "\"endpoint_url\": \"http://dev-hcx.swasth.app/\",\n" + "\"roles\": [\n" + "\"HIE/HIO.HCX\"\n" + "],\n" + "\"primary_email\": \"hcxgateway@swasth.org\",\n" + "\"primary_mobile\": \"\",\n" + "\"encryption_cert\": \"https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/hcx-platform/main/hcx-apis/src/test/resources/examples/test-keys/public-key.pem\",\n" + "\"signing_cert_path\": \"https://dev-hcx-certificates.s3.ap-south-1.amazonaws.com/hcxgateway.swasth%40swasth-hcx-dev/signing_cert_path.pem\",\n" + "            \"linked_registry_codes\": [\n" + "12345\n" + "],\n" + "\"participant_code\": \"hcxgateway.swasth@swasth-hcx-dev\",\n" + "\"sigining_cert_expiry\": 1993808205000,\n" + "\"encryption_cert_expiry\": 1993808205000,\n" + "            \"osOwner\": [\n" + "\"59d43f9b-42e7-4480-9ec2-aa6bd95ccb5f\"\n" + "],\n" + "\"osCreatedAt\": \"2023-03-10T12:05:37.736Z\",\n" + "\"osUpdatedAt\": \"2023-10-25T05:42:08.924Z\",\n" + "\"osid\": \"c776b615-b6cb-481c-8a78-de0c0c80f38a\",\n" + "\"@type\": \"Organisation\"\n" + "}\n" + "]\n" + "}")
-                .addHeader("Content-Type", "application/json"));
-        hcxApiServer.enqueue(new MockResponse()
-                .setResponseCode(200)
-                .setBody("{\n" +
-                        "    \"timestamp\": 1698227893490,\n" +
-                        "    \"users\": []\n" +
-                        "}")
-                .addHeader("Content-Type", "application/json"));
-        hcxApiServer.enqueue(new MockResponse()
-                .setResponseCode(200)
-                .setBody("{\n" +
-                        "    \"timestamp\": 1698649743030,\n" +
-                        "    \"user_id\": \"tesuserz18@yopmail.com\"\n" +
-                        "}")
-                .addHeader("Content-Type", "application/json"));
-        hcxApiServer.enqueue(new MockResponse()
-                .setResponseCode(200)
-                .setBody("{\n" + "\"result\": [\n" + "{\n" + "\"user_id\": \"tesuserz18@yopmail.com\",\n" + " \"status\": \"successful\"\n" + "}\n" + "    ],\n" + "    \"overallStatus\": \"successful\",\n" + "    \"timestamp\": 1698650224041\n" + "}")
-                .addHeader("Content-Type", "application/json"));
-        hcxApiServer.enqueue(new MockResponse()
-                .setResponseCode(200)
-                .setBody("{ \"timestamp\": 1703748473235, \"participants\": [ { \"participant_name\": \"tesuserz16\", \"primary_email\": \"tesuserz16@yopmail.com\", \"primary_mobile\": \"9620499129\", \"roles\": [ \"provider.hospital\" ], \"endpoint_url\": \"http://testurl/v0.7\", \"encryption_cert\": \"https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/hcx-platform/main/hcx-apis/src/test/resources/examples/test-keys/public-key.pem\", \"status\": \"Created\", \"applicant_code\": \"36310114\", \"participant_code\": \"hosp_tesuse_36310114@swasth-hcx-dev\", \"encryption_cert_expiry\": 1840270798000, \"osOwner\": [ \"b2f8ef57-3dcb-4660-b8f3-089c65065aae\" ], \"osCreatedAt\": \"2023-12-27T06:34:29.914Z\", \"osUpdatedAt\": \"2023-12-27T06:34:29.914Z\", \"osid\": \"c1212649-88bc-4e1a-a31c-b53bd4f4fec3\" } ] }")
-                .addHeader("Content-Type", "application/json"));
-        postgreSQLClient.execute("DROP TABLE IF EXISTS onboard_user_invite_details");
-        postgreSQLClient.execute("CREATE TABLE onboard_user_invite_details(participant_code character varying,user_email character varying,invited_by character varying,invite_status character varying ,created_on bigInt,updated_on bigInt)");
-        Mockito.doNothing().when(kafkaClient).send(anyString(),anyString(),anyString());
-        Mockito.when(mockEventGenerator.getEmailMessageEvent(anyString(),anyString(),anyList(),anyList(),anyList())).thenReturn("mocked-event");
-        Mockito.when(freemarkerService.renderTemplate(any(),anyMap())).thenReturn("freemarker");
-        String requestBodyJson = onboardInviteJwtTokenSuccess();
         MvcResult mvcResult = mockMvc.perform(post(Constants.VERSION_PREFIX + Constants.ONBOARD_USER_INVITE_ACCEPT).content(requestBodyJson).header(HttpHeaders.AUTHORIZATION,getAuthorizationHeader()).contentType(MediaType.APPLICATION_JSON)).andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         int status = response.getStatus();

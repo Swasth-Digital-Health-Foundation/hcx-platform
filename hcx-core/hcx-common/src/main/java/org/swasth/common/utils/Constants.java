@@ -206,8 +206,6 @@ public class Constants {
     public static final String MEMBER_ISNP = "member.isnp";
     public static final String ROLES = "roles";
     public static final List<String> PROVIDER_SPECIFIC_ROLES = Arrays.asList(PROVIDER_HOSPITAL, "provider.clinic", "provider.practitioner", "provider.diagnostics", "provider.pharmacy");
-    public static final String OCSP_URL = "ocsp_url";
-    public static final String ISSUER_CERTIFICATE = "issuer_certificate";
     public static final String SCHEME_CODE = "scheme_code";
     public static final String PARTICIPANT_CODE = "participant_code";
     public static final String INVITED_BY = "invited_by";

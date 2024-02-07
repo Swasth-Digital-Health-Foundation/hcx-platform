@@ -9,14 +9,14 @@
       <br/><br/>
       Mock Provider:<br/>
       <ul>
-        <li>Primary Email: ${MOCK_PROVIDER_USER_NAME} </li>
-        <li>Participant Code (Username): ${MOCK_PROVIDER_CODE} </li>
-        <li>Password: ${MOCK_PROVIDER_PASSWORD} </li>
+         <li>Participant Code: ${MOCK_PROVIDER_CODE} </li>
+         <li>Username: ${MOCK_PROVIDER_USER_NAME} </li>
+         <li>Password: ${MOCK_PROVIDER_PASSWORD} </li>
       </ul>
       Mock Payor:<br/>
       <ul>
-         <li>Primary Email: ${MOCK_PAYOR_USER_NAME} </li>
-         <li>Participant Code (Username): ${MOCK_PAYOR_CODE}</li>
+         <li>Participant Code: ${MOCK_PAYOR_CODE}</li>
+         <li>Username: ${MOCK_PAYOR_USER_NAME} </li>
          <li>Password: ${MOCK_PAYOR_PASSWORD} </li>
       </ul>
       Please feel free to reach out to us, in case if you have any queries.
