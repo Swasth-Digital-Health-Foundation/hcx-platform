@@ -11,19 +11,19 @@ import java.util
 
 
 class SubscriptionEnrichmentFunction(config: BaseJobConfig) (implicit val stringTypeInfo: TypeInformation[String])
-  extends BaseProcessFunction[java.util.Map[String, AnyRef], java.util.Map[String, AnyRef]](config) {
+  extends BaseProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]](config) {
 
   override def open(parameters: Configuration): Unit = {
     super.open(parameters)
   }
 
-  override def processElement(event: java.util.Map[String, AnyRef], context: ProcessFunction[java.util.Map[String, AnyRef], java.util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
+  override def processElement(event: util.Map[String, AnyRef], context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
     val senderCode: String = event.get(Constants.HCX_SENDER_CODE).asInstanceOf[String]
     val recipientCode: String = event.get(Constants.HCX_RECIPIENT_CODE).asInstanceOf[String]
     val action: String =  event.get(Constants.ACTION).asInstanceOf[String]
     Console.println(s"Sender: $senderCode : Recipient: $recipientCode : Action: $action")
 
-    val result: java.util.Map[String, AnyRef] = new java.util.HashMap[String, AnyRef]()
+    val result: util.Map[String, AnyRef] = new util.HashMap[String, AnyRef]()
 
     // Fetch the sender and receiver details from registry or cache
     val sender = fetchDetails(senderCode)

@@ -13,7 +13,7 @@ class RegistryService(config: BaseJobConfig) {
 
   val httpClient: CloseableHttpClient = new HttpUtil().getHttpClient()
 
-  def  getParticipantDetails(filters: String): util.ArrayList[java.util.Map[String, AnyRef]]= {
+  def  getParticipantDetails(filters: String): util.ArrayList[util.Map[String, AnyRef]]= {
     // payload for registry search
     val payload = s"""{"entityType":["Organisation"],"filters":$filters}"""
     //Console.println("registry payload", payload)
@@ -27,10 +27,10 @@ class RegistryService(config: BaseJobConfig) {
       //Console.println("registryAPI statusCode", statusCode)
       val entity = response.getEntity
       val inputStream = entity.getContent
-      val content = JSONUtil.deserialize[java.util.Map[String, AnyRef]](Source.fromInputStream(inputStream, "UTF-8").getLines.mkString)
+      val content = JSONUtil.deserialize[util.Map[String, AnyRef]](Source.fromInputStream(inputStream, "UTF-8").getLines.mkString)
       inputStream.close()
       response.close()
-      content.get(Constants.PARTICIPANTS).asInstanceOf[util.ArrayList[java.util.Map[String, AnyRef]]]
+      content.get(Constants.PARTICIPANTS).asInstanceOf[util.ArrayList[util.Map[String, AnyRef]]]
     } catch {
       case ex: Exception => {
         ex.printStackTrace()

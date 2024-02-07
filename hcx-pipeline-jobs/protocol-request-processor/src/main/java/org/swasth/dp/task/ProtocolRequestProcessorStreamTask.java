@@ -2,10 +2,8 @@ package org.swasth.dp.task;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.java.typeutils.TypeExtractor;
 import org.apache.flink.api.java.utils.ParameterTool;
-import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
@@ -48,9 +46,9 @@ public class ProtocolRequestProcessorStreamTask {
 
     void process(BaseJobConfig baseJobConfig) throws Exception {
         StreamExecutionEnvironment env = FlinkUtil.getExecutionContext(baseJobConfig);
-        KafkaSource<Map<String, Object>> kafkaConsumer = kafkaConnector.kafkaMapSource(config.kafkaInputTopic);
+        SourceFunction<Map<String, Object>> kafkaConsumer = kafkaConnector.kafkaMapSource(config.kafkaInputTopic);
 
-        SingleOutputStreamOperator<Map<String, Object>> enrichedStream = env.fromSource(kafkaConsumer, WatermarkStrategy.noWatermarks(), config.protocolRequestConsumer)
+        SingleOutputStreamOperator<Map<String, Object>> enrichedStream = env.addSource(kafkaConsumer, config.protocolRequestConsumer)
                 .uid(config.protocolRequestConsumer).setParallelism(config.consumerParallelism)
                 .rebalance()
                 .process(new ContextEnrichmentFunction(config, TypeExtractor.getForClass(String.class))).setParallelism(config.downstreamOperatorsParallelism);
@@ -110,7 +108,7 @@ public class ProtocolRequestProcessorStreamTask {
 
 
     private <T> void sendAuditToKafka(SingleOutputStreamOperator<Map<String, T>> eventStream, ProtocolRequestProcessorConfig config, FlinkKafkaConnector kafkaConnector,String uid) {
-        eventStream.getSideOutput(config.auditOutputTag()).sinkTo(kafkaConnector.kafkaStringSink(config.auditTopic()))
+        eventStream.getSideOutput(config.auditOutputTag()).addSink(kafkaConnector.kafkaStringSink(config.auditTopic()))
                 .name(config.auditProducer()).uid(uid).setParallelism(config.downstreamOperatorsParallelism);
     }
 }

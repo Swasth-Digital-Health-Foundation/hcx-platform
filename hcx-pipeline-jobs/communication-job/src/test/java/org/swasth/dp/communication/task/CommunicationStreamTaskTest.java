@@ -3,7 +3,6 @@ package org.swasth.dp.communication.task;
 import com.google.gson.Gson;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.runtime.testutils.MiniClusterResourceConfiguration;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
@@ -32,12 +31,11 @@ public class CommunicationStreamTaskTest {
     Config config = ConfigFactory.load("communication-test.conf");
     CommunicationConfig communicationConfig = new CommunicationConfig(config, "CommunicationTestJob");
     BaseJobConfig baseJobConfig = new BaseJobConfig(config, "CommunicationTestJob");
-    FlinkKafkaConnector mockKafkaUtil = mock(FlinkKafkaConnector.class);
+    FlinkKafkaConnector mockKafkaUtil = mock(new FlinkKafkaConnector(baseJobConfig).getClass());
 
     @Before
     public void beforeClass() throws Exception {
-        KafkaSource mockKafkaSource = mock(KafkaSource.class);
-        when(mockKafkaUtil.kafkaMapSource(communicationConfig.kafkaInputTopic)).thenReturn(mockKafkaSource);
+        when(mockKafkaUtil.kafkaMapSource(communicationConfig.kafkaInputTopic)).thenReturn(new CommunicationSource());
         flinkCluster.before();
     }
 

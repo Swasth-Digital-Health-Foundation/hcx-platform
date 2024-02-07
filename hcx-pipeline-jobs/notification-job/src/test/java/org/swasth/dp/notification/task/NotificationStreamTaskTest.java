@@ -3,7 +3,6 @@ package org.swasth.dp.notification.task;
 import com.google.gson.Gson;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.runtime.testutils.MiniClusterResourceConfiguration;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.apache.flink.test.util.MiniClusterWithClientResource;
@@ -42,10 +41,9 @@ public class NotificationStreamTaskTest {
 
     @Before
     public void beforeClass() throws Exception {
-        KafkaSource mockKafkaSource = mock(KafkaSource.class);
-        when(mockKafkaUtil.kafkaMapSource(notificationConfig.kafkaInputTopic)).thenReturn(mockKafkaSource);
-        when(mockKafkaUtil.kafkaMapSource(notificationConfig.subscriptionInputTopic)).thenReturn(mockKafkaSource);
-        when(mockKafkaUtil.kafkaMapSource(notificationConfig.onSubscriptionInputTopic)).thenReturn(mockKafkaSource);
+        when(mockKafkaUtil.kafkaMapSource(notificationConfig.kafkaInputTopic)).thenReturn(new NotificationSource());
+        when(mockKafkaUtil.kafkaMapSource(notificationConfig.subscriptionInputTopic)).thenReturn(new SubscriptionSource());
+        when(mockKafkaUtil.kafkaMapSource(notificationConfig.onSubscriptionInputTopic)).thenReturn(new SubscriptionSource());
         doNothing().when(mockAuditService).indexAudit(anyMap());
         doNothing().when(mockEsUtil).addIndex(anyString(),anyString(),anyString(),anyString());
         doNothing().when(mockEsUtil).addDocumentWithIndex(anyString(),anyString(),anyString());

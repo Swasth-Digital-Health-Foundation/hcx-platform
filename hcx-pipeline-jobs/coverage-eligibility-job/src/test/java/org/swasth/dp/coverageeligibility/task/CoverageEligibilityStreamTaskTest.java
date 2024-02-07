@@ -3,7 +3,6 @@ package org.swasth.dp.coverageeligibility.task;
 import com.google.gson.Gson;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.runtime.testutils.MiniClusterResourceConfiguration;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
@@ -41,8 +40,7 @@ public class CoverageEligibilityStreamTaskTest {
 
     @Before
     public void beforeClass() throws Exception {
-        KafkaSource mockKafkaSource = mock(KafkaSource.class);
-        when(mockKafkaUtil.kafkaMapSource(coverageEligibilityConfig.kafkaInputTopic)).thenReturn(mockKafkaSource);
+        when(mockKafkaUtil.kafkaMapSource(coverageEligibilityConfig.kafkaInputTopic)).thenReturn(new CoverageEligibilitySource());
         flinkCluster.before();
     }
 

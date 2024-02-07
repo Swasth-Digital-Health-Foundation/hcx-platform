@@ -1,12 +1,13 @@
 package org.swasth.spec
 
+import java.util
+
+import com.google.gson.Gson
 import com.typesafe.config.{Config, ConfigFactory}
 import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.api.java.typeutils.TypeExtractor
-import org.apache.flink.connector.kafka.sink.KafkaRecordSerializationSchema
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment
 import org.apache.flink.streaming.api.scala.OutputTag
-import org.apache.flink.util.Collector
 import org.scalatest.Matchers
 import org.scalatestplus.mockito.MockitoSugar
 import org.swasth.dp.contentupdater.core.util.RestUtil
@@ -16,8 +17,6 @@ import org.swasth.dp.core.serde._
 import org.swasth.dp.core.util.FlinkUtil
 import org.swasth.fixture.EventFixture
 import redis.clients.jedis.exceptions.{JedisDataException, JedisException}
-
-import java.util
 
 class CoreTestSpec extends BaseSpec with Matchers with MockitoSugar {
 
@@ -96,24 +95,16 @@ class CoreTestSpec extends BaseSpec with Matchers with MockitoSugar {
     val stringDeSerialization = new StringDeserializationSchema()
     val stringSerialization = new StringSerializationSchema(topic, Some("kafka-key"))
     val mapSerialization: MapSerializationSchema = new MapSerializationSchema(topic, Some("kafka-key"))
-    val context = mock[KafkaRecordSerializationSchema.KafkaSinkContext]
-    val collector = new Collector[String] {
-      var collectedValues: List[String] = List()
-      override def collect(record: String): Unit = {
-        collectedValues = collectedValues :+ record
-      }
-      override def close(): Unit = {}
-    }
     val mapDeSerialization = new MapDeserializationSchema()
     import org.apache.kafka.clients.consumer.ConsumerRecord
     val cRecord: ConsumerRecord[Array[Byte], Array[Byte]] = new ConsumerRecord[Array[Byte], Array[Byte]](topic, partition, offset, key, value)
-    stringDeSerialization.deserialize(cRecord,collector)
-    stringSerialization.serialize("test",context, System.currentTimeMillis())
-    stringDeSerialization.getProducedType should be
-    val map: util.Map[String, AnyRef] = new util.HashMap[String, AnyRef]()
+    stringDeSerialization.deserialize(cRecord)
+    stringSerialization.serialize("test", System.currentTimeMillis())
+    stringDeSerialization.isEndOfStream("") should be(false)
+    val map = new util.HashMap[String, AnyRef]()
     map.put("country_code", "IN")
     map.put("country", "INDIA")
-    mapSerialization.serialize(map,context, System.currentTimeMillis())
+    mapSerialization.serialize(map, System.currentTimeMillis())
   }
 
   "DataCache" should "be able to add the data into redis" in intercept[JedisDataException]{

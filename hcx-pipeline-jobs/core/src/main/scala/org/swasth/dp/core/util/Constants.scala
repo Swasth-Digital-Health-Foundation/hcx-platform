@@ -49,7 +49,6 @@ object Constants {
   val DEBUG_DETAILS = "x-hcx-debug_details"
   val CODE = "code"
   val MESSAGE = "message"
-  val TOPIC = "topic"
   val TRACE = "trace"
   val SUBMITTED = "submitted"
   val EID = "eid"

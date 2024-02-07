@@ -5,7 +5,7 @@ import org.swasth.dp.core.job.BaseJobConfig;
 
 public class NotificationConfig extends BaseJobConfig {
 
-    private final Config config;
+    private Config config;
 
     // kafka
     public String kafkaInputTopic;

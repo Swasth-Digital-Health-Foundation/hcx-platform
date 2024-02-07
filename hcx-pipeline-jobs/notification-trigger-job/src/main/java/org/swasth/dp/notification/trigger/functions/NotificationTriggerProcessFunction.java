@@ -78,7 +78,7 @@ public class NotificationTriggerProcessFunction extends ProcessFunction<Map<Stri
                     nData.put(Constants.PROPERTIES(), edata.get(Constants.PROPS()));
                     String message = resolveTemplate(notification, nData);
                     notifyEvent = createNotifyEvent((String) notification.get(Constants.TOPIC_CODE()), config.hcxRegistryCode(), Constants.PARTICIPANT_CODE(),
-                            Collections.singletonList((String) cdata.get(Constants.RECIPIENT_CODE())), message);
+                            Arrays.asList((String) cdata.get(Constants.RECIPIENT_CODE())), message);
                     pushToKafka(context, notifyEvent);
                 }
             }

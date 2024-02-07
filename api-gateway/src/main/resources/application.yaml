@@ -209,8 +209,6 @@ spring:
             - RewritePath=/${version.external09}/audit/user/search, /${version.internal}/audit/user/search
             - RewritePath=/${version.external09}/participant/auth/token/generate, /${version.internal}/participant/auth/token/generate
             - RewritePath=/${version.external09}/user/auth/token/generate, /${version.internal}/user/auth/token/generate
-            - RewritePath=/${version.external08}/api-access/secret/generate, /${version.internal}/api-access/secret/generate
-            - RewritePath=/${version.external09}/api-access/secret/generate, /${version.internal}/api-access/secret/generate
             - RewritePath=/auth/realms/swasth-health-claim-exchange/protocol/openid-connect/token, /${version.internal}/participant/auth/token/generate
             - RewritePath=/auth/realms/swasth-hcx-participants/protocol/openid-connect/token, /${version.internal}/participant/auth/token/generate
             - RewritePath=/auth/realms/swasth-hcx-users/protocol/openid-connect/token, /${version.internal}/user/auth/token/generate

@@ -11,6 +11,7 @@ import org.swasth.dp.core.job.{BaseJobConfig, BaseProcessFunction, Metrics}
 import org.swasth.dp.core.service.AuditService
 import org.swasth.dp.core.util._
 
+import java.util
 import java.util.{Calendar, UUID}
 
 case class Response(timestamp: Long, correlation_id: String, error: Option[ErrorResponse])
@@ -22,13 +23,13 @@ case class ValidationResult(status: Boolean, error: Option[ErrorResponse])
 case class DispatcherResult(success: Boolean, statusCode: Int, error: Option[ErrorResponse], retry: Boolean)
 
 abstract class BaseDispatcherFunction(config: BaseJobConfig)
-  extends BaseProcessFunction[java.util.Map[String, AnyRef], java.util.Map[String, AnyRef]](config) {
+  extends BaseProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]](config) {
 
   private[this] val logger = LoggerFactory.getLogger(classOf[BaseDispatcherFunction])
 
   var postgresConnect: PostgresConnect = _
   var auditService: AuditService = _
-  var payload: java.util.Map[String, AnyRef] = _
+  var payload: util.Map[String, AnyRef] = _
 
 
   override def open(parameters: Configuration): Unit = {
@@ -42,10 +43,10 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
     postgresConnect.closeConnection()
   }
 
-  def validate(event: java.util.Map[String, AnyRef]): ValidationResult
+  def validate(event: util.Map[String, AnyRef]): ValidationResult
 
   @throws(classOf[Exception])
-  def getPayload(payloadRefId: String): java.util.Map[String, AnyRef] = {
+  def getPayload(payloadRefId: String): util.Map[String, AnyRef] = {
     Console.println("Fetching payload from postgres for mid: " + payloadRefId)
     logger.info("Fetching payload from postgres for mid: " + payloadRefId)
     val postgresQuery = String.format("SELECT data FROM %s WHERE mid = '%s'", config.postgresTable, payloadRefId);
@@ -54,7 +55,7 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
       val resultSet = preparedStatement.executeQuery()
       if (resultSet.next()) {
         val payload = resultSet.getString(1)
-        JSONUtil.deserialize[java.util.Map[String, AnyRef]](payload)
+        JSONUtil.deserialize[util.Map[String, AnyRef]](payload)
       } else {
         throw new Exception("Payload not found for the given reference id: " + payloadRefId)
       }
@@ -67,23 +68,23 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
   }
 
   @throws(classOf[Exception])
-  def audit(event: java.util.Map[String, AnyRef], context: ProcessFunction[java.util.Map[String, AnyRef], java.util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
+  def audit(event: util.Map[String, AnyRef], context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
     auditService.indexAudit(createAuditRecord(event))
     context.output(config.auditOutputTag, JSONUtil.serialize(createAuditLog(event)))
     metrics.incCounter(config.auditEventsCount)
   }
 
 
-  def createErrorMap(error: Option[ErrorResponse]):java.util.Map[String, AnyRef] = {
-    val errorMap:java.util.Map[String, AnyRef] = new java.util.HashMap[String, AnyRef]
+  def createErrorMap(error: Option[ErrorResponse]):util.Map[String, AnyRef] = {
+    val errorMap:util.Map[String, AnyRef] = new util.HashMap[String, AnyRef]
     errorMap.put("code", error.flatMap(_.code).getOrElse(""))
     errorMap.put("message", error.flatMap(_.message).getOrElse(""))
     errorMap.put("trace", error.flatMap(_.trace).getOrElse(""))
     errorMap
   }
 
-  def   dispatchErrorResponse(event: java.util.Map[String, AnyRef], error: Option[ErrorResponse], correlationId: String, payloadRefId: String, senderCtx: java.util.Map[String, AnyRef], context: ProcessFunction[java.util.Map[String, AnyRef], java.util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
-    val protectedMap = new java.util.HashMap[String, AnyRef]
+  def   dispatchErrorResponse(event: util.Map[String, AnyRef], error: Option[ErrorResponse], correlationId: String, payloadRefId: String, senderCtx: util.Map[String, AnyRef], context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
+    val protectedMap = new util.HashMap[String, AnyRef]
     //Update sender code
     protectedMap.put(Constants.HCX_SENDER_CODE, config.hcxRegistryCode)
     //Update recipient code
@@ -108,13 +109,13 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
     }
   }
 
-  override def processElement(event: java.util.Map[String, AnyRef], context: ProcessFunction[java.util.Map[String, AnyRef], java.util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
+  override def processElement(event: util.Map[String, AnyRef], context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
     //TODO Make changes here for handling redirect requests with flat JSON objects
     val correlationId = getProtocolStringValue(event, Constants.HCX_CORRELATION_ID)
     val payloadRefId = event.get(Constants.MID).asInstanceOf[String]
     // TODO change cdata to context after discussion.
-    val senderCtx = event.getOrDefault(Constants.CDATA, new java.util.HashMap[String, AnyRef]()).asInstanceOf[java.util.Map[String, AnyRef]].getOrDefault(Constants.SENDER, new java.util.HashMap[String, AnyRef]()).asInstanceOf[java.util.Map[String, AnyRef]]
-    val recipientCtx = event.getOrDefault(Constants.CDATA, new java.util.HashMap[String, AnyRef]()).asInstanceOf[java.util.Map[String, AnyRef]].getOrDefault(Constants.RECIPIENT, new java.util.HashMap[String, AnyRef]()).asInstanceOf[java.util.Map[String, AnyRef]]
+    val senderCtx = event.getOrDefault(Constants.CDATA, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]].getOrDefault(Constants.SENDER, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]]
+    val recipientCtx = event.getOrDefault(Constants.CDATA, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]].getOrDefault(Constants.RECIPIENT, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]]
     try {
       payload = getPayload(payloadRefId);
       if (MapUtils.isEmpty(senderCtx)) {
@@ -187,7 +188,7 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
     }
   }
 
-  private def dispatchError(payloadRefId: String, event: java.util.Map[String, AnyRef], result: DispatcherResult, correlationId: String, senderCtx: java.util.Map[String, AnyRef], context: ProcessFunction[java.util.Map[String, AnyRef], java.util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
+  private def dispatchError(payloadRefId: String, event: util.Map[String, AnyRef], result: DispatcherResult, correlationId: String, senderCtx: util.Map[String, AnyRef], context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
     updateDBStatus(payloadRefId, Constants.ERROR_STATUS)
     setStatus(event, Constants.ERROR_STATUS)
     setErrorDetails(event, createErrorMap(result.error))
@@ -215,8 +216,8 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
   override def metricsList(): List[String] = {
     List(config.dispatcherSuccessCount, config.dispatcherFailedCount, config.dispatcherRetryCount, config.dispatcherValidationFailedCount, config.dispatcherValidationSuccessCount, config.auditEventsCount, config.coverageEligibilityDispatcherSuccessCount, config.coverageEligibilityOnDispatcherSuccessCount, config.coverageEligibilityDispatcherRetryCount, config.coverageEligibilityOnDispatcherRetryCount, config.coverageEligibilityDispatcherFailedCount, config.coverageEligibilityOnDispatcherFailedCount, config.preAuthDispatcherSuccessCount, config.preAuthOnDispatcherSuccessCount, config.preAuthDispatcherRetryCount, config.preAuthOnDispatcherRetryCount, config.preAuthDispatcherFailedCount, config.preAuthOnDispatcherFailedCount, config.predeterminationDispatcherSuccessCount, config.predeterminationOnDispatcherSuccessCount, config.predeterminationDispatcherFailedCount, config.predeterminationOnDispatcherFailedCount, config.predeterminationDispatcherRetryCount, config.predeterminationOnDispatcherRetryCount, config.claimDispatcherSuccessCount, config.claimOnDispatcherSuccessCount, config.claimDispatcherFailedCount, config.claimOnDispatcherFailedCount, config.claimDispatcherRetryCount, config.claimOnDispatcherRetryCount, config.paymentDispatcherSuccessCount, config.paymentOnDispatcherSuccessCount, config.paymentDispatcherFailedCount, config.paymentOnDispatcherFailedCount, config.paymentDispatcherRetryCount, config.paymentOnDispatcherRetryCount, config.fetchDispatcherSuccessCount, config.fetchOnDispatcherSuccessCount, config.fetchDispatcherFailedCount, config.fetchOnDispatcherFailedCount, config.fetchDispatcherRetryCount, config.fetchOnDispatcherRetryCount, config.communicationDispatcherSuccessCount, config.communicationOnDispatcherSuccessCount, config.communicationDispatcherFailedCount, config.communicationOnDispatcherFailedCount, config.communicationDispatcherRetryCount, config.communicationOnDispatcherRetryCount, config.searchDispatcherSuccessCount, config.searchOnDispatcherSuccessCount, config.searchDispatcherFailedCount, config.searchOnDispatcherFailedCount, config.searchDispatcherRetryCount, config.searchOnDispatcherRetryCount, config.retryDispatcherSuccessCount, config.retryDispatcherFailedCount, config.retryDispatcherRetryCount)}
 
-  def createAuditRecord(event: java.util.Map[String, AnyRef]): java.util.Map[String, AnyRef] = {
-    val audit = new java.util.HashMap[String, AnyRef]();
+  def createAuditRecord(event: util.Map[String, AnyRef]): util.Map[String, AnyRef] = {
+    val audit = new util.HashMap[String, AnyRef]();
     audit.put(Constants.EID, Constants.AUDIT)
     audit.put(Constants.HCX_RECIPIENT_CODE, getProtocolStringValue(event, Constants.HCX_RECIPIENT_CODE))
     audit.put(Constants.HCX_SENDER_CODE, getProtocolStringValue(event, Constants.HCX_SENDER_CODE))
@@ -248,24 +249,24 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
     audit
   }
 
-  def createAuditLog(event: java.util.Map[String, AnyRef]): java.util.Map[String, AnyRef] = {
-    val audit = new java.util.HashMap[String, AnyRef]()
+  def createAuditLog(event: util.Map[String, AnyRef]): util.Map[String, AnyRef] = {
+    val audit = new util.HashMap[String, AnyRef]()
     audit.put(Constants.EID, Constants.AUDIT)
     audit.put(Constants.ETS, Calendar.getInstance().getTime)
     audit.put(Constants.MID, event.get(Constants.MID).asInstanceOf[String])
-    audit.put(Constants.OBJECT, new java.util.HashMap[String, AnyRef]() {
+    audit.put(Constants.OBJECT, new util.HashMap[String, AnyRef]() {
       {
         put(Constants.ID, getProtocolStringValue(event, Constants.HCX_CORRELATION_ID))
         put(Constants.TYPE, getEntity(event.get(Constants.ACTION).asInstanceOf[String]))
       }
     })
-    audit.put(Constants.CDATA, new java.util.HashMap[String, AnyRef]() {
+    audit.put(Constants.CDATA, new util.HashMap[String, AnyRef]() {
       {
         put(Constants.ACTION, event.get(Constants.ACTION).asInstanceOf[String])
-        putAll(event.get(Constants.HEADERS).asInstanceOf[java.util.Map[String, AnyRef]].get(Constants.PROTOCOL).asInstanceOf[java.util.Map[String, AnyRef]])
+        putAll(event.get(Constants.HEADERS).asInstanceOf[util.Map[String, AnyRef]].get(Constants.PROTOCOL).asInstanceOf[util.Map[String, AnyRef]])
       }
     })
-    audit.put(Constants.EDATA, new java.util.HashMap[String, AnyRef]() {
+    audit.put(Constants.EDATA, new util.HashMap[String, AnyRef]() {
       {
         put(Constants.STATUS, getProtocolStringValue(event, Constants.HCX_STATUS))
       }
@@ -273,7 +274,7 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
     audit
   }
 
-  def removeSensitiveData(payload: java.util.Map[String, AnyRef]): String = {
+  def removeSensitiveData(payload: util.Map[String, AnyRef]): String = {
     if (payload.containsKey(Constants.PAYLOAD)) {
       val modifiedPayload = payload.get(Constants.PAYLOAD).asInstanceOf[String].split("\\.").toBuffer
       // remove encryption key
@@ -291,10 +292,10 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
     }
   }
 
-  def dispatchRecipient(baseSenderCode: String, action: String, parsedPayload: java.util.Map[String, AnyRef]) = {
+  def dispatchRecipient(baseSenderCode: String, action: String, parsedPayload: util.Map[String, AnyRef]) = {
     val recipientDetails = fetchDetails(baseSenderCode)
     val recipientContext = createRecipientContext(recipientDetails, action)
-    val updatedPayload = new java.util.HashMap[String, AnyRef]()
+    val updatedPayload = new util.HashMap[String, AnyRef]()
     //TODO Remove this and use the utility for modifying the ciphertext
     updatedPayload.put(Constants.PAYLOAD, JSONUtil.createPayloadByValues(parsedPayload));
     dispatcherUtil.dispatch(recipientContext, JSONUtil.serialize(updatedPayload))
@@ -307,7 +308,7 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
   }
 
 
-  def getTag(event : java.util.Map[String, AnyRef],audit: java.util.HashMap[String, AnyRef]): Unit = {
+  def getTag(event : util.Map[String, AnyRef],audit: util.HashMap[String, AnyRef]): Unit = {
     val tagSet = new java.util.HashSet[String]()
     tagSet.add(getCDataListValue(event, Constants.SENDER, Constants.TAGS).toString)
     tagSet.add(getCDataListValue(event, Constants.RECIPIENT, Constants.TAGS).toString)
@@ -328,7 +329,7 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
     }
   }
 
-  def generateSuccessMetrics(event: java.util.Map[String, AnyRef], metrics: Metrics): Unit = {
+  def generateSuccessMetrics(event: util.Map[String, AnyRef], metrics: Metrics): Unit = {
     val action: String = event.get(Constants.ACTION).asInstanceOf[String];
     action match {
       case Constants.COVERAGE_ELIGIBILITY_CHECK => metrics.incCounter(config.coverageEligibilityDispatcherSuccessCount)
@@ -351,7 +352,7 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
     }
   }
 
-  def generateFailedMetrics(event: java.util.Map[String, AnyRef], metrics: Metrics): Unit = {
+  def generateFailedMetrics(event: util.Map[String, AnyRef], metrics: Metrics): Unit = {
     val action: String = event.get(Constants.ACTION).asInstanceOf[String];
     action match {
       case Constants.COVERAGE_ELIGIBILITY_CHECK => metrics.incCounter(config.coverageEligibilityDispatcherFailedCount)
@@ -374,7 +375,7 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
     }
   }
 
-  def generateRetryMetrics(event: java.util.Map[String, AnyRef], metrics: Metrics): Unit = {
+  def generateRetryMetrics(event: util.Map[String, AnyRef], metrics: Metrics): Unit = {
     val action: String = event.get(Constants.ACTION).asInstanceOf[String];
     action match {
       case Constants.COVERAGE_ELIGIBILITY_CHECK => metrics.incCounter(config.coverageEligibilityDispatcherRetryCount)

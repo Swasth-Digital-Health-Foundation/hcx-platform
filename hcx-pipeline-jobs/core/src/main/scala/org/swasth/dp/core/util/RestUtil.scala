@@ -1,10 +1,13 @@
 package org.swasth.dp.contentupdater.core.util
 
+import java.util
+
+import com.google.gson.Gson
 import org.apache.http.client.methods.{HttpGet, HttpRequestBase}
 import org.apache.http.impl.client.HttpClients
 
 import scala.io.Source
-case class DialCodeResult(result : java.util.HashMap[String,Any])
+case class DialCodeResult(result : util.HashMap[String,Any])
 
 class RestUtil extends Serializable {
 

@@ -1,13 +1,17 @@
 package org.swasth.spec
 
+import java.util
+
 import com.typesafe.config.Config
-import org.apache.flink.util.OutputTag
+import org.apache.flink.api.common.typeinfo.TypeInformation
+import org.apache.flink.api.java.typeutils.TypeExtractor
+import org.apache.flink.streaming.api.scala.OutputTag
 import org.swasth.dp.core.job.BaseJobConfig
 
 class BaseProcessTestConfig(override val config: Config) extends BaseJobConfig(config, "Test-job") {
   private val serialVersionUID = -2349318979085017498L
-  val mapOutputTag: OutputTag[AnyRef] =new OutputTag[ AnyRef]("test-map-stream-tag")
-  val stringOutputTag: OutputTag[String] = new OutputTag[String]("test-string-stream-tag")
+  val mapOutputTag: OutputTag[util.Map[String, AnyRef]] = OutputTag[util.Map[String, AnyRef]]("test-map-stream-tag")
+  val stringOutputTag: OutputTag[String] = OutputTag[String]("test-string-stream-tag")
 
   val kafkaMapInputTopic: String = config.getString("kafka.map.input.topic")
   val kafkaMapOutputTopic: String = config.getString("kafka.map.output.topic")

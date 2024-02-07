@@ -2,11 +2,10 @@ package org.swasth.dp.notification.trigger.task;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.java.utils.ParameterTool;
-import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.swasth.dp.core.job.BaseJobConfig;
@@ -22,8 +21,8 @@ import java.util.Map;
 public class NotificationTriggerStreamTask {
 
     private final static Logger logger = LoggerFactory.getLogger(NotificationTriggerStreamTask.class);
-    private final NotificationTriggerConfig config;
-    private final FlinkKafkaConnector kafkaConnector;
+    private NotificationTriggerConfig config;
+    private FlinkKafkaConnector kafkaConnector;
 
     public NotificationTriggerStreamTask(NotificationTriggerConfig config, FlinkKafkaConnector kafkaConnector){
         this.config = config;
@@ -47,17 +46,17 @@ public class NotificationTriggerStreamTask {
 
     private void process(BaseJobConfig baseJobConfig) throws Exception {
         StreamExecutionEnvironment env = FlinkUtil.getExecutionContext(baseJobConfig);
-        KafkaSource<Map<String, Object>> kafkaConsumer = kafkaConnector.kafkaMapSource(config.kafkaInputTopic);
+        SourceFunction<Map<String,Object>> kafkaConsumer = kafkaConnector.kafkaMapSource(config.kafkaInputTopic);
         env.enableCheckpointing(config.checkpointingInterval());
         env.getCheckpointConfig().setCheckpointTimeout(config.checkpointingTimeout());
         env.getCheckpointConfig().setMinPauseBetweenCheckpoints(config.checkpointingPauseSeconds());
-        SingleOutputStreamOperator<Map<String,Object>> eventStream = env.fromSource(kafkaConsumer, WatermarkStrategy.noWatermarks(), config.notificationTriggerConsumer)
+        SingleOutputStreamOperator<Map<String,Object>> eventStream = env.addSource(kafkaConsumer, config.notificationTriggerConsumer)
                 .uid(config.notificationTriggerConsumer).setParallelism(config.consumerParallelism)
                 .rebalance()
                 .process(new NotificationTriggerProcessFunction(config)).setParallelism(config.downstreamOperatorsParallelism);
 
         /** Sink for notify events */
-        eventStream.getSideOutput(config.notifyOutputTag).sinkTo(kafkaConnector.kafkaStringSink(config.kafkaOutputTopic))
+        eventStream.getSideOutput(config.notifyOutputTag).addSink(kafkaConnector.kafkaStringSink(config.kafkaOutputTopic))
                 .name(config.notifyProducer).uid(config.notifyProducer).setParallelism(config.downstreamOperatorsParallelism);
 
         System.out.println(config.jobName() + " is processing");

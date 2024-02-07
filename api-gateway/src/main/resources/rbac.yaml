@@ -6,11 +6,8 @@ rbac:
       - /v0.9/participant/auth/token/generate
       - /v0.8/participant/auth/token/generate
       - /v0.7/participant/auth/token/generate
-      - /v0.7/api-access/secret/generate
-      - /v0.8/api-access/secret/generate
       - /v0.8/user/auth/token/generate
       - /v0.9/user/auth/token/generate
-      - /v0.9/api-access/secret/generate
     regexPaths:
       - /url/**
       - /auth/**

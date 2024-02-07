@@ -1,11 +1,13 @@
 package org.swasth.dp.core.util
 
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment
+import org.apache.flink.streaming.api.TimeCharacteristic
 import org.apache.flink.api.common.restartstrategy.RestartStrategies
-import org.apache.flink.runtime.state.hashmap.HashMapStateBackend
-import org.apache.flink.streaming.api.CheckpointingMode
-import org.apache.flink.streaming.api.environment.CheckpointConfig.ExternalizedCheckpointCleanup
-import org.apache.flink.streaming.api.environment.{CheckpointConfig, StreamExecutionEnvironment}
 import org.swasth.dp.core.job.BaseJobConfig
+import org.apache.flink.runtime.state.StateBackend
+import org.apache.flink.runtime.state.filesystem.FsStateBackend
+import org.apache.flink.streaming.api.environment.CheckpointConfig
+import org.apache.flink.streaming.api.environment.CheckpointConfig.ExternalizedCheckpointCleanup
 
 object FlinkUtil {
 
@@ -19,16 +21,16 @@ object FlinkUtil {
       */
     config.enableDistributedCheckpointing match {
       case Some(true) => {
-        env.setStateBackend(new HashMapStateBackend())
+        val stateBackend: StateBackend = new FsStateBackend(s"${config.checkpointingBaseUrl.getOrElse("")}/${config.jobName}", true)
+        env.setStateBackend(stateBackend)
         val checkpointConfig: CheckpointConfig = env.getCheckpointConfig
-        checkpointConfig.setExternalizedCheckpointCleanup(ExternalizedCheckpointCleanup.RETAIN_ON_CANCELLATION)
-        checkpointConfig.setMinPauseBetweenCheckpoints(config.checkpointingPauseSeconds)
-        checkpointConfig.setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE)
-        checkpointConfig.setCheckpointStorage(s"${config.checkpointingBaseUrl.getOrElse("")}/${config.jobName}")
+        checkpointConfig.enableExternalizedCheckpoints(ExternalizedCheckpointCleanup.RETAIN_ON_CANCELLATION)
+        checkpointConfig.setMinPauseBetweenCheckpoints(config.checkpointingPauseSeconds     )
       }
       case _ => // Do nothing
     }
 
+    env.setStreamTimeCharacteristic(TimeCharacteristic.IngestionTime)
     env.setRestartStrategy(RestartStrategies.fixedDelayRestart(config.restartAttempts, config.delayBetweenAttempts))
     env
   }

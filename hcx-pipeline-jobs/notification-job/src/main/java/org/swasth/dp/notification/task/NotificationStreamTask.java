@@ -2,12 +2,11 @@ package org.swasth.dp.notification.task;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.java.typeutils.TypeExtractor;
 import org.apache.flink.api.java.utils.ParameterTool;
-import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.swasth.dp.core.function.SubscriptionEnrichmentFunction;
@@ -24,8 +23,8 @@ import java.util.Map;
 public class NotificationStreamTask {
 
     private final static Logger logger = LoggerFactory.getLogger(NotificationStreamTask.class);
-    private final NotificationConfig config;
-    private final FlinkKafkaConnector kafkaConnector;
+    private NotificationConfig config;
+    private FlinkKafkaConnector kafkaConnector;
 
     public NotificationStreamTask(NotificationConfig config, FlinkKafkaConnector kafkaConnector){
         this.config = config;
@@ -49,14 +48,14 @@ public class NotificationStreamTask {
 
     void process(BaseJobConfig baseJobConfig) throws Exception {
         StreamExecutionEnvironment env = FlinkUtil.getExecutionContext(baseJobConfig);
-        KafkaSource<Map<String, Object>> notifyConsumer = kafkaConnector.kafkaMapSource(config.kafkaInputTopic);
-        KafkaSource<Map<String, Object>> subscriptionConsumer = kafkaConnector.kafkaMapSource(config.subscriptionInputTopic);
-        KafkaSource<Map<String, Object>> onSubscriptionConsumer = kafkaConnector.kafkaMapSource(config.onSubscriptionInputTopic);
+        SourceFunction<Map<String,Object>> notifyConsumer = kafkaConnector.kafkaMapSource(config.kafkaInputTopic);
+        SourceFunction<Map<String,Object>> subscriptionConsumer = kafkaConnector.kafkaMapSource(config.subscriptionInputTopic);
+        SourceFunction<Map<String,Object>> onSubscriptionConsumer = kafkaConnector.kafkaMapSource(config.onSubscriptionInputTopic);
         env.enableCheckpointing(config.checkpointingInterval());
         env.getCheckpointConfig().setCheckpointTimeout(config.checkpointingTimeout());
         env.getCheckpointConfig().setMinPauseBetweenCheckpoints(config.checkpointingPauseSeconds());
         //Notification Stream
-        SingleOutputStreamOperator<Map<String,Object>> dispatchedStream = env.fromSource(notifyConsumer, WatermarkStrategy.noWatermarks(), config.notificationConsumer)
+        SingleOutputStreamOperator<Map<String,Object>> dispatchedStream = env.addSource(notifyConsumer, config.notificationConsumer)
                 .uid(config.notificationConsumer).setParallelism(config.consumerParallelism)
                 .rebalance()
                 .process(new NotificationFilterFunction(config)).setParallelism(config.downstreamOperatorsParallelism);
@@ -66,7 +65,7 @@ public class NotificationStreamTask {
 
         //Subscription Stream
         //Filter the records based on the action type
-        SingleOutputStreamOperator<Map<String,Object>> filteredStream = env.fromSource(subscriptionConsumer,WatermarkStrategy.noWatermarks(), config.subscriptionConsumer)
+        SingleOutputStreamOperator<Map<String,Object>> filteredStream = env.addSource(subscriptionConsumer, config.subscriptionConsumer)
                 .uid(config.subscriptionConsumer).setParallelism(config.consumerParallelism).rebalance()
                 .process(new SubscriptionFilterFunction(config)).setParallelism(config.downstreamOperatorsParallelism);
 
@@ -79,7 +78,7 @@ public class NotificationStreamTask {
                 .process(new SubscriptionDispatcherFunction(config)).setParallelism(config.downstreamOperatorsParallelism);
 
         //OnSubscription Stream
-        SingleOutputStreamOperator<Map<String,Object>> onSubscribeStream = env.fromSource(onSubscriptionConsumer,WatermarkStrategy.noWatermarks(), config.onSubscriptionConsumer)
+        SingleOutputStreamOperator<Map<String,Object>> onSubscribeStream = env.addSource(onSubscriptionConsumer, config.onSubscriptionConsumer)
                 .uid(config.onSubscriptionConsumer).setParallelism(config.consumerParallelism).rebalance()
                 .process(new OnSubscriptionFunction(config)).setParallelism(config.downstreamOperatorsParallelism);
 
