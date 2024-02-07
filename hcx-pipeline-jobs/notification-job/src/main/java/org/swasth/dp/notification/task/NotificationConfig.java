@@ -19,7 +19,9 @@ public class NotificationConfig extends BaseJobConfig {
     public int consumerParallelism;
     public int downstreamOperatorsParallelism;
     public int dispatcherParallelism;
-
+    public String messageTopic;
+    public boolean emailNotificationEnabled;
+    public String kafkaServiceUrl;
     // Postgres
     public String subscriptionTableName;
 
@@ -37,6 +39,9 @@ public class NotificationConfig extends BaseJobConfig {
         dispatcherParallelism = config.getInt("task.downstream.operators.dispatcher.parallelism");
         subscriptionInputTopic = config.getString("kafka.subscription.input.topic");
         onSubscriptionInputTopic = config.getString("kafka.onsubscription.input.topic");
+        kafkaServiceUrl = config.getString("kafka.bootstrap.servers");
+        emailNotificationEnabled = config.getBoolean("kafka.email.notification.enabled");
+        messageTopic = config.getString("kafka.message.topic");
     }
 
 }

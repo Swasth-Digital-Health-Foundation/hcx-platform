@@ -397,6 +397,8 @@ rbac:
       - /v0.8/participant/update
       - /v0.8/onboard/applicant/password/generate
       - /v0.8/participant/onboard/update
+      - /v0.8/api-access/secret/generate
+      - /v0.9/api-access/secret/generate
       - /v0.9/audit/participant/search
       - /v0.9/audit/user/search
       - /v0.9/participant/search

@@ -11,6 +11,7 @@
     - provider.practitioner
     - provider.diagnostics
     - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -39,6 +40,7 @@
     - provider.practitioner
     - provider.diagnostics
     - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -67,6 +69,7 @@
     - provider.practitioner
     - provider.diagnostics
     - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -96,6 +99,7 @@
     - provider.practitioner
     - provider.diagnostics
     - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -125,6 +129,7 @@
     - provider.practitioner
     - provider.diagnostics
     - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -153,6 +158,7 @@
     - provider.practitioner
     - provider.diagnostics
     - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -183,6 +189,7 @@
     - provider.practitioner
     - provider.diagnostics
     - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -212,6 +219,7 @@
     - provider.practitioner
     - provider.diagnostics
     - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -242,6 +250,7 @@
     - provider.practitioner
     - provider.diagnostics
     - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -271,6 +280,7 @@
     - provider.practitioner
     - provider.diagnostics
     - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -301,6 +311,7 @@
     - provider.practitioner
     - provider.diagnostics
     - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -321,6 +332,12 @@
   allowed_senders:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
   allowed_recipients:
     - provider
     - provider.hospital
@@ -329,6 +346,7 @@
     - provider.diagnostics
     - provider.pharmacy
     - payor
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -355,6 +373,7 @@
     - provider.diagnostics
     - provider.pharmacy
     - payor
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -381,6 +400,7 @@
     - provider.diagnostics
     - provider.pharmacy
     - payor
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -409,6 +429,7 @@
     - provider.practitioner
     - provider.diagnostics
     - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -439,6 +460,7 @@
     - provider.practitioner
     - provider.diagnostics
     - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -465,6 +487,7 @@
     - provider.practitioner
     - provider.diagnostics
     - provider.pharmacy
+    - bsp
     - payor
     - agency.tpa
     - agency.regulator
