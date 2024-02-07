@@ -49,6 +49,7 @@ public class NotificationFilterFunction extends BaseNotificationFunction {
                 List<Map<String, Object>> fetchParticipants = registryService.getParticipantDetails("{\"roles\":{\"or\":[" + addQuotes(recipients) + "]}}");
                 recipients = fetchParticipants.stream().map(obj -> (String) obj.get(Constants.PARTICIPANT_CODE())).collect(Collectors.toList());
             }
+            System.out.println(notification+"================================");
             if(notification.get(Constants.CATEGORY()).equals(Constants.NETWORK())) {
                 participantCodes = recipients;
             } else {
