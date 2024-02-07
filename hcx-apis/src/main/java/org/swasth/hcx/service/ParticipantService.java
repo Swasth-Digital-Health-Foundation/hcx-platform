@@ -411,7 +411,7 @@ public class ParticipantService extends BaseRegistryService {
         try {
             if (isCertificateRevokedUsingOCSP(x509Certificate)) {
                 if (isCertificateRevokedUsingCRL(x509Certificate)) {
-                    throw new ClientException(ErrorCodes.ERR_INVALID_CERTIFICATE, "The certificate has been revoked.");
+                    throw new ClientException(ErrorCodes.ERR_INVALID_CERTIFICATE, "The certificate has been revoked or is invalid.");
                 }
             }
         } catch (OCSPException | OperatorCreationException | CRLException e) {
