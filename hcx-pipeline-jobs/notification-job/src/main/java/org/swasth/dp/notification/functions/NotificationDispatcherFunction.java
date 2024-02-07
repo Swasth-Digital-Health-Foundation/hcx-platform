@@ -58,8 +58,10 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
                 String email = (String) participant.getOrDefault(PRIMARY_EMAIL, "");
                 String topicCode = (String) event.getOrDefault(Constants.TOPIC_CODE(), "");
                 String message = (String) event.getOrDefault(Constants.MESSAGE(), "");
+                Map<String, Object> notification = notificationUtil.getNotification(topicCode);
+                String title = (String) notification.get("title");
                 if (config.emailNotificationEnabled && !StringUtils.isEmpty(message) && !StringUtils.isEmpty(topicCode)) {
-                    pushEventToMessageTopic(email, topicCode, message);
+                    pushEventToMessageTopic(email, title, message);
                 }
                 System.out.println("Recipient code: " + participantCode + " :: Dispatch status: " + result.success());
                 logger.debug("Recipient code: " + participantCode + " :: Dispatch status: " + result.success());
