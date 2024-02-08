@@ -284,6 +284,34 @@ public class BaseSpec {
         return JSONUtils.serialize(obj);
     }
 
+    public String getParticipantCreateBodyWithInvalidCertificateFormat() throws JsonProcessingException {
+        Map<String, Object> obj = new HashMap<>();
+        obj.put("participant_name", "test user");
+        obj.put("primary_mobile", "9493347239");
+        obj.put("primary_email", "testuser@gmail.com");
+        obj.put("roles", new ArrayList<>(Collections.singleton("provider")));
+        obj.put("address", new HashMap<>() {{
+            put("plot", "5-4-199");
+            put("street", "road no 12");
+            put("landmark", "");
+            put("village", "Nampally");
+            put("district", "Hyd");
+            put("state", "Telangana");
+            put("pincode", "500805");
+        }});
+        obj.put("phone", new ArrayList<>(Collections.singleton("040-387658992")));
+        obj.put("status", "Created");
+        obj.put("endpoint_url", "http://a4a175528daf949a2af3cd141af93de2-1466580421.ap-south-1.elb.amazonaws.com:8080");
+        obj.put("payment_details", new HashMap<>() {{
+            put("account_number", "4707890099809809");
+            put("ifsc_code", "ICICLE");
+        }});
+        obj.put("signing_cert_path", "invalid format");
+        obj.put("linked_registry_codes", new ArrayList<>(Collections.singleton("22344")));
+        obj.put("encryption_cert", "invalid format");
+        return JSONUtils.serialize(obj);
+    }
+
     public String getParticipantCreateBodyWithInvalidKeySize() throws JsonProcessingException {
         Map<String, Object> obj = new HashMap<>();
         obj.put("participant_name", "test user");
