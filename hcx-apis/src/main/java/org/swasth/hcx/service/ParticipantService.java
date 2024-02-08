@@ -245,10 +245,10 @@ public class ParticipantService extends BaseRegistryService {
     public void certificateValidations(String certificate) throws ClientException {
         try {
             X509Certificate x509Certificate = parseCertificateBasedOnFormat(certificate);
-            // Validate against trusted CA's
-            validateIssuerAgainstTrustedCAs(x509Certificate);
             // validate certificate expiry
             validateCertificateExpiry(x509Certificate);
+            // Validate against trusted CA's
+            validateIssuerAgainstTrustedCAs(x509Certificate);
             // validate key size
             validateCertificateKeySize(x509Certificate);
             // validate revocation status of certificate
