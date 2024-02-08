@@ -57,6 +57,7 @@ class BaseJobConfig(val config: Config, val jobName: String) extends Serializabl
 
   // Producers
   val auditProducer = "audit-events-sink"
+  val notificationProducer = "message-events-sink"
 
   // Default job metrics
   val dispatcherSuccessCount = "dispatcher-success-count"
@@ -178,7 +179,7 @@ class BaseJobConfig(val config: Config, val jobName: String) extends Serializabl
 
   val subscribeOutputTag: OutputTag[java.util.Map[String, AnyRef]] = OutputTag[java.util.Map[String, AnyRef]]("subscribed-events")
   val onSubscribeOutputTag: OutputTag[java.util.Map[String, AnyRef]] = OutputTag[java.util.Map[String, AnyRef]]("on-subscribed-events")
-
+  val messageOutputTag: OutputTag[java.util.Map[String, AnyRef]] = OutputTag[java.util.Map[String, AnyRef]]("message-events")
   val hcxInstanceName: String = config.getString("hcx.instanceName")
 
   //tag configuration
