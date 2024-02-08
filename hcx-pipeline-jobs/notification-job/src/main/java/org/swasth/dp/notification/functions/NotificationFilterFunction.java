@@ -34,6 +34,7 @@ public class NotificationFilterFunction extends BaseNotificationFunction {
         Map<String,Object> notificationHeaders = getProtocolMapValue(Constants.NOTIFICATION_HEADERS(), inputEvent);
         String senderCode = (String) notificationHeaders.get(Constants.SENDER_CODE());
         Map<String, Object> notification = notificationUtil.getNotification(topicCode);
+        System.out.println(notification+"---------------------------------");
         System.out.println("Notification Master data template: " + notification);
         logger.debug("Notification Master data template: " + notification);
         consolidatedEvent.put(Constants.MASTER_DATA(), notification);
