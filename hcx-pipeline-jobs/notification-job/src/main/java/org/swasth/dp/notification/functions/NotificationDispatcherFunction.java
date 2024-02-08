@@ -60,7 +60,6 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
 //                    pushEventToMessageTopic(email, topicCode, message);
                     context.output(config.messageOutputTag, emailEvent);
                 }
-                System.out.println( "Adding context -----"    + context.toString());
                 System.out.println("Recipient code: " + participantCode + " :: Dispatch status: " + result.success());
                 logger.debug("Recipient code: " + participantCode + " :: Dispatch status: " + result.success());
                 auditService.indexAudit(createNotificationAuditEvent(event, participantCode, createErrorMap(result.error() != null ? result.error().get() : null)));
