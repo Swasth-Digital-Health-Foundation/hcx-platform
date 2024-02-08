@@ -63,13 +63,7 @@ public class NotificationStreamTask {
 
         dispatchedStream.getSideOutput(config.dispatcherOutputTag())
                 .process(new NotificationDispatcherFunction(config)).setParallelism(config.dispatcherParallelism);
-
-        dispatchedStream.getSideOutput(config.messageOutputTag)
-                .addSink(new LoggingSink(config.messageTopic))
-                .name(config.notificationConsumer)
-                .uid("notification-message-sink")
-                .setParallelism(config.downstreamOperatorsParallelism);
-
+        
         dispatchedStream.getSideOutput(config.messageOutputTag).addSink(kafkaConnector.kafkaStringSink(config.messageTopic))
                 .name(config.notificationConsumer).uid("notification-message-sink").setParallelism(config.downstreamOperatorsParallelism);
 
