@@ -33,8 +33,6 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
     }
 //    private IEventService kafkaClient;
 
-    private NotificationUtil notificationUtil;
-
     @Override
     public void processElement(Map<String, Object> inputEvent, ProcessFunction<Map<String, Object>, Map<String,Object>>.Context context, Collector<Map<String,Object>> collector) throws Exception {
         Map<String,Object> actualEvent = (Map<String, Object>) inputEvent.get(Constants.INPUT_EVENT());
@@ -61,8 +59,9 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
                 String email = (String) participant.getOrDefault("primary_email", "");
                 String topicCode = (String) event.getOrDefault(Constants.TOPIC_CODE(), "");
                 String message = (String) event.getOrDefault(Constants.MESSAGE(), "");
-                Map<String , Object> notificationMap = notificationUtil.getNotification(topicCode);
-                String subject = (String) notificationMap.get("title");
+                System.out.println("-------------------TPOIC CODE----------------------"+topicCode);
+                Map<String, Object> notification = notificationUtil.getNotification(topicCode);
+                String subject = (String) notification.get("title");
                 System.out.println("---------------------------------------------SUB"+subject);
                 String emailEvent = getEmailMessageEvent(message, subject, List.of(email), new ArrayList<>(), new ArrayList<>());
                 System.out.println("---------------------------------------------EMAIL_EVENT"+emailEvent);
