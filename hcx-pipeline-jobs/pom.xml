@@ -17,6 +17,7 @@
     </description>
     <url>https://swasth.org/</url>
     <modules>
+        <module>../hcx-core</module>
         <module>core</module>
         <module>jobs-distribution</module>
         <module>notification-job</module>
