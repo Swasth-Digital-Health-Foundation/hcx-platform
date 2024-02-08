@@ -63,6 +63,8 @@ public class NotificationStreamTask {
         dispatchedStream.getSideOutput(config.dispatcherOutputTag())
                 .process(new NotificationDispatcherFunction(config)).setParallelism(config.dispatcherParallelism);
 
+        sendMessageToKafka(dispatchedStream, config,kafkaConnector, "notification-message-sink");
+
         //Subscription Stream
         //Filter the records based on the action type
         SingleOutputStreamOperator<Map<String,Object>> filteredStream = env.addSource(subscriptionConsumer, config.subscriptionConsumer)
@@ -93,5 +95,11 @@ public class NotificationStreamTask {
         System.out.println(config.jobName() + " is processing");
         env.execute(config.jobName());
     }
+
+    private <T> void sendMessageToKafka(SingleOutputStreamOperator<Map<String, T>> eventStream, NotificationConfig config, FlinkKafkaConnector kafkaConnector, String uid) {
+        eventStream.getSideOutput(config.messageOutputTag()).addSink(kafkaConnector.kafkaMapSink(config.messageTopic))
+                .name(config.notificationProducer).uid(uid).setParallelism(config.downstreamOperatorsParallelism);
+    }
+
     
 }
