@@ -68,7 +68,7 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
                 if (config.emailNotificationEnabled && !StringUtils.isEmpty(message) && !StringUtils.isEmpty(topicCode)) {
 //                    pushEventToMessageTopic(email, topicCode, message);
                     System.out.println("---------------------------------------------ENABLED");
-                    context.output(config.messageOutputTag(), JSONUtil.deserialize(JSONUtil.serialize(emailEvent), Map.class));
+                    context.output(config.messageOutputTag(), JSONUtil.deserialize(emailEvent , Map.class));
                     System.out.println("---------------------------------------------OVER");
                 }
                 System.out.println("Recipient code: " + participantCode + " :: Dispatch status: " + result.success());
