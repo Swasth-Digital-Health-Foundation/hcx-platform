@@ -1,6 +1,7 @@
 package org.swasth.dp.notification.task;
 
 import com.typesafe.config.Config;
+import org.apache.flink.util.OutputTag;
 import org.swasth.dp.core.job.BaseJobConfig;
 
 public class NotificationConfig extends BaseJobConfig {
@@ -12,6 +13,7 @@ public class NotificationConfig extends BaseJobConfig {
     public String subscriptionInputTopic;
     public String onSubscriptionInputTopic;
 
+    public OutputTag<String> messageOutputTag = new OutputTag<String>("message-events"){};
     // Consumers
     public String notificationConsumer = "notification-consumer";
     public String subscriptionConsumer = "subscription-consumer";

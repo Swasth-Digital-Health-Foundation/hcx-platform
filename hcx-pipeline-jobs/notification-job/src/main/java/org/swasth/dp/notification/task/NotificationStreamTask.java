@@ -2,6 +2,7 @@ package org.swasth.dp.notification.task;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import org.apache.flink.api.connector.sink.Sink;
 import org.apache.flink.api.java.typeutils.TypeExtractor;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
@@ -63,7 +64,11 @@ public class NotificationStreamTask {
         dispatchedStream.getSideOutput(config.dispatcherOutputTag())
                 .process(new NotificationDispatcherFunction(config)).setParallelism(config.dispatcherParallelism);
 
-        sendMessageToKafka(dispatchedStream, config,kafkaConnector, "notification-message-sink");
+//        dispatchedStream.getSideOutput(config.messageOutputTag()).sinkTo(kafkaConnector.kafkaStringSink(config.messageTopic()))
+//                .name(config.notificationProducer).uid("notification-message-sink").setParallelism(config.downstreamOperatorsParallelism);
+
+        dispatchedStream.getSideOutput(config.messageOutputTag).addSink(kafkaConnector.kafkaStringSink(config.messageTopic))
+                .name(config.notificationProducer).uid("notification-message-sink").setParallelism(config.downstreamOperatorsParallelism);
 
         //Subscription Stream
         //Filter the records based on the action type
@@ -95,11 +100,4 @@ public class NotificationStreamTask {
         System.out.println(config.jobName() + " is processing");
         env.execute(config.jobName());
     }
-
-    private <T> void sendMessageToKafka(SingleOutputStreamOperator<Map<String, T>> eventStream, NotificationConfig config, FlinkKafkaConnector kafkaConnector, String uid) {
-        eventStream.getSideOutput(config.messageOutputTag()).addSink(kafkaConnector.kafkaMapSink(config.messageTopic))
-                .name(config.notificationProducer).uid(uid).setParallelism(config.downstreamOperatorsParallelism);
-    }
-
-    
 }
