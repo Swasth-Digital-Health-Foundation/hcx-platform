@@ -61,7 +61,7 @@ public class ProtocolRequestProcessorStreamTask {
         SingleOutputStreamOperator<Map<String,Object>> coverageEligibilityJob = eventStream.getSideOutput(config.coverageEligibilityOutputTag)
                 .process(new CoverageEligibilityProcessFunction(config)).setParallelism(config.downstreamOperatorsParallelism);
         sendAuditToKafka(coverageEligibilityJob, config, kafkaConnector,"coverage-eligibility-audit-sink");
-
+        sendAuditToMessageTopic(coverageEligibilityJob, config, kafkaConnector, "coverage-eligibility-audit-sink");
         // claims Job
         SingleOutputStreamOperator<Map<String,Object>> claimsJob = eventStream.getSideOutput(config.claimOutputTag)
                 .process(new ClaimsProcessFunction(config)).setParallelism(config.downstreamOperatorsParallelism);
@@ -109,6 +109,11 @@ public class ProtocolRequestProcessorStreamTask {
 
     private <T> void sendAuditToKafka(SingleOutputStreamOperator<Map<String, T>> eventStream, ProtocolRequestProcessorConfig config, FlinkKafkaConnector kafkaConnector,String uid) {
         eventStream.getSideOutput(config.auditOutputTag()).addSink(kafkaConnector.kafkaStringSink(config.auditTopic()))
+                .name(config.auditProducer()).uid(uid).setParallelism(config.downstreamOperatorsParallelism);
+    }
+
+    private <T> void sendAuditToMessageTopic(SingleOutputStreamOperator<Map<String, T>> eventStream, ProtocolRequestProcessorConfig config, FlinkKafkaConnector kafkaConnector,String uid) {
+        eventStream.getSideOutput(config.messageOutputTag()).addSink(kafkaConnector.kafkaStringSink(config.messageTopic()))
                 .name(config.auditProducer()).uid(uid).setParallelism(config.downstreamOperatorsParallelism);
     }
 }

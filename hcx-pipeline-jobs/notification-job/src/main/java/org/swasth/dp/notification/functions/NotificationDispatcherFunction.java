@@ -56,6 +56,7 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
                 System.out.println("subject ---------" + subject);
                 String emailEvent = getEmailMessageEvent(message, subject, List.of(email), new ArrayList<>(), new ArrayList<>());
                 System.out.println("Email event ------" + emailEvent);
+                System.out.println("Kafka Topic  ----------" + config.messageTopic);
                 if (config.emailNotificationEnabled && !StringUtils.isEmpty(message) && !StringUtils.isEmpty(topicCode)) {
 //                    pushEventToMessageTopic(email, topicCode, message);
                     context.output(config.messageOutputTag, emailEvent);
