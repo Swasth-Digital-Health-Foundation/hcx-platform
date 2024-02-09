@@ -12,7 +12,7 @@ import org.swasth.dp.core.service.AuditService
 import org.swasth.dp.core.util._
 
 import java.util
-import java.util.{Calendar, HashMap, UUID}
+import java.util.{Calendar, UUID}
 
 case class Response(timestamp: Long, correlation_id: String, error: Option[ErrorResponse])
 
@@ -71,26 +71,8 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
   def audit(event: util.Map[String, AnyRef], context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
     auditService.indexAudit(createAuditRecord(event))
     context.output(config.auditOutputTag, JSONUtil.serialize(createAuditLog(event)))
-    context.output(config.messageOutputTag, getEmailMessageEvent("Hello Hi Test Message" , "subject", List("abhishekg@sanketika.in"), List(),List()))
     metrics.incCounter(config.auditEventsCount)
   }
-
-  @throws[Exception]
-  def getEmailMessageEvent(message: String, subject: String, to: List[String], cc: List[String], bcc: List[String]): String = {
-    val event = new util.HashMap[String, AnyRef]
-    event.put("eid", "MESSAGE")
-    event.put("mid", UUID.randomUUID)
-    event.put("channel", "email")
-    event.put("subject", subject)
-    event.put("message", message)
-    val recipients = new util.HashMap[String, AnyRef]
-    recipients.put("to", to)
-    recipients.put("cc", cc)
-    recipients.put("bcc", bcc)
-    event.put("recipients", recipients)
-    JSONUtil.serialize(event)
-  }
-
 
   def createErrorMap(error: Option[ErrorResponse]):util.Map[String, AnyRef] = {
     val errorMap:util.Map[String, AnyRef] = new util.HashMap[String, AnyRef]
