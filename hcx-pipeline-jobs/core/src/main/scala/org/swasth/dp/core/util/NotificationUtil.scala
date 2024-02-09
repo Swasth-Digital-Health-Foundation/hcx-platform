@@ -25,7 +25,6 @@ class NotificationUtil {
   def getNotification(code: String): java.util.Map[String, AnyRef] = {
     print("get notification started")
     var notification = new java.util.HashMap[String, AnyRef]
-    print("===========----------"+notification)
     val result = notifications.stream.filter((obj: java.util.Map[String, AnyRef]) => obj.get(Constants.TOPIC_CODE) == code).findFirst
     print(result+"-------------------------------")
     if (result.isPresent) notification =  result.get.asInstanceOf[java.util.HashMap[String, AnyRef]]

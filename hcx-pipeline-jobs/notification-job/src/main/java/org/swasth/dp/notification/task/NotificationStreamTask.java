@@ -63,7 +63,7 @@ public class NotificationStreamTask {
 
         dispatchedStream.getSideOutput(config.dispatcherOutputTag())
                 .process(new NotificationDispatcherFunction(config)).setParallelism(config.dispatcherParallelism);
-        sendMessageToKafka(dispatchedStream, config, kafkaConnector,"message-events-sink");
+//        sendMessageToKafka(dispatchedStream, config, kafkaConnector,"message-events-sink");
         //Subscription Stream
         //Filter the records based on the action type
         SingleOutputStreamOperator<Map<String,Object>> filteredStream = env.fromSource(subscriptionConsumer,WatermarkStrategy.noWatermarks(), config.subscriptionConsumer)
@@ -95,9 +95,9 @@ public class NotificationStreamTask {
         env.execute(config.jobName());
     }
 
-    private <T> void sendMessageToKafka(SingleOutputStreamOperator<Map<String, T>> eventStream, NotificationConfig config, FlinkKafkaConnector kafkaConnector,String uid) {
-        eventStream.getSideOutput(config.messageOutputTag()).sinkTo(kafkaConnector.kafkaMapSink(config.messageTopic))
-                .name(config.notificationProducer()).uid(uid).setParallelism(config.downstreamOperatorsParallelism);
-    }
+//    private <T> void sendMessageToKafka(SingleOutputStreamOperator<Map<String, T>> eventStream, NotificationConfig config, FlinkKafkaConnector kafkaConnector,String uid) {
+//        eventStream.getSideOutput(config.messageOutputTag()).sinkTo(kafkaConnector.kafkaMapSink(config.messageTopic))
+//                .name(config.notificationProducer()).uid(uid).setParallelism(config.downstreamOperatorsParallelism);
+//    }
     
 }
