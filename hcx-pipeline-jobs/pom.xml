@@ -31,7 +31,7 @@
         <scala.version>2.12.11</scala.version>
         <scala.maj.version>2.12</scala.maj.version>
         <flink.version>1.15.2</flink.version>
-        <kafka.version>2.8.1</kafka.version>
+        <kafka.version>3.1.0</kafka.version>
         <java.target.runtime>11</java.target.runtime>
         <jackson-jaxrs.version>1.9.13</jackson-jaxrs.version>
         <scoverage.plugin.version>1.4.0</scoverage.plugin.version>
