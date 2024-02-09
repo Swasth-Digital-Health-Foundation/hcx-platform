@@ -53,7 +53,8 @@ class BaseJobConfig(val config: Config, val jobName: String) extends Serializabl
   val dispatcherOutputTag: OutputTag[java.util.Map[String, AnyRef]] = OutputTag[java.util.Map[String, AnyRef]]("dispatched-events")
   val enrichedSubscriptionsOutputTag: OutputTag[java.util.Map[String, AnyRef]] = OutputTag[java.util.Map[String, AnyRef]]("enriched-subscription-events")
   val auditOutputTag: OutputTag[String] = OutputTag[String]("audit-events")
-  val auditTopic = if (config.hasPath("kafka.audit.topic")) config.getString("kafka.audit.topic") else ""
+  val auditTopic: String = if (config.hasPath("kafka.audit.topic")) config.getString("kafka.audit.topic") else ""
+  val messageTopic: String = if (config.hasPath("kafka.message.topic")) config.getString("kafka.message.topic") else ""
 
   // Producers
   val auditProducer = "audit-events-sink"
