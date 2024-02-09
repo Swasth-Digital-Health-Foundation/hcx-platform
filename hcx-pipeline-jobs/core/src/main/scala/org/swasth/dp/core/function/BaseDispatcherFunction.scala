@@ -80,7 +80,6 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
     val event = new util.HashMap[String, AnyRef]
     event.put("eid", "MESSAGE")
     event.put("mid", UUID.randomUUID)
-    event.put("ets", System.currentTimeMillis)
     event.put("channel", "email")
     event.put("subject", subject)
     event.put("message", message)
