@@ -50,7 +50,8 @@ public class NotificationFilterFunction extends BaseNotificationFunction {
                 recipients = fetchParticipants.stream().map(obj -> (String) obj.get(Constants.PARTICIPANT_CODE())).collect(Collectors.toList());
             }
             System.out.println("Notification Filter function ----" + notification);
-            System.out.println("notification category -------" + notification.get(Constants.CATEGORY()));
+            System.out.println(" Topic code is ------" + topicCode);
+            System.out.println("notification category -------" + notification.getOrDefault(Constants.CATEGORY(), "No category found"));
             if(notification.get(Constants.CATEGORY()).equals(Constants.NETWORK())) {
                 participantCodes = recipients;
             } else {
