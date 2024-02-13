@@ -32,7 +32,7 @@ public class CertificateRevocation {
 
     public boolean checkRevocationStatus() throws OCSPException, CertificateException, IOException, ClientException, OperatorCreationException, CRLException {
         boolean status = false;
-        if (isCertificateRevokedUsingOCSP(x509Certificate)) {
+        if (!isCertificateRevokedUsingOCSP(x509Certificate)) {
             if (isCertificateRevokedUsingCRL(x509Certificate)) {
                 status = true;
             }
@@ -41,16 +41,13 @@ public class CertificateRevocation {
     }
 
     private boolean isCertificateRevokedUsingOCSP(X509Certificate x509Certificate) throws IOException, ClientException, OCSPException, CertificateEncodingException, OperatorCreationException {
-        boolean isRevoked = false;
         Map<String, Object> certificateAccessInformation = certificateAccessInformation(x509Certificate);
-        if (!certificateAccessInformation.isEmpty()) {
-            OCSPReq ocspReq = generateOCSPRequest(parseCertificateFromURL(certificateAccessInformation.get(ISSUER_CERTIFICATE).toString()), x509Certificate);
-            OCSPResp ocSpResp = sendOCSPRequest(ocspReq, certificateAccessInformation.get(OCSP_URL).toString());
-            if (!checkRevocationStatus(ocSpResp)) {
-                isRevoked = true;
-            }
+        if (certificateAccessInformation.isEmpty()) {
+            throw new ClientException("Certificate revocation details are not available");
         }
-        return isRevoked;
+        OCSPReq ocspReq = generateOCSPRequest(parseCertificateFromURL(certificateAccessInformation.get(ISSUER_CERTIFICATE).toString()), x509Certificate);
+        OCSPResp ocSpResp = sendOCSPRequest(ocspReq, certificateAccessInformation.get(OCSP_URL).toString());
+        return checkRevocationStatus(ocSpResp);
     }
 
     private boolean isCertificateRevokedUsingCRL(X509Certificate x509Certificate) throws IOException, CertificateException, CRLException, ClientException {
