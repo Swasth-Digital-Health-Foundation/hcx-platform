@@ -46,32 +46,27 @@ public class CertificateRevocationScheduler extends BaseScheduler {
 
     @Value("${topicCode.revoked-certificate}")
     private String certificateRevokedTopicCode;
+    @Value("${topicCode.invalid-certificate}")
+    private String invalidCertificateTopicCode;
 
     public void process() throws Exception {
         logger.info("Certificate Revocation validation scheduler started");
         List<Map<String, Object>> participants = registryService.getDetails("{ \"filters\": {} }");
         List<String> revokedParticipantCodes = new ArrayList<>();
+        List<String> invalidCertificates = new ArrayList<>();
         for (Map<String, Object> participant : participants) {
-            String participantCode = (String) participant.get(Constants.PARTICIPANT_CODE);
             String certificatePath = null;
             if (participant.containsKey(Constants.ENCRYPTION_CERT)) {
                 certificatePath = (String) participant.get(Constants.ENCRYPTION_CERT);
             } else if (participant.containsKey(Constants.SIGNING_CERT_PATH)) {
                 certificatePath = (String) participant.get(Constants.SIGNING_CERT_PATH);
             }
-            if (certificatePath != null) {
-                try {
-                    X509Certificate x509Certificate = parseCertificateFromURL(certificatePath);
-                    if (checkRevocationStatus(x509Certificate)) {
-                        revokedParticipantCodes.add(participantCode);
-                    }
-                } catch (Exception e) {
-                    logger.error("Error parsing certificate for participant {}: {}", participantCode, e.getMessage());
-                }
-            }
+            processParticipant(certificatePath, participant, revokedParticipantCodes, invalidCertificates);
         }
+        generateEvent(invalidCertificates, getTemplateMessage(invalidCertificateTopicCode), invalidCertificateTopicCode);
         generateEvent(revokedParticipantCodes, getTemplateMessage(certificateRevokedTopicCode), certificateRevokedTopicCode);
-        logger.info("Total number of participants with revoked certificate are {}", revokedParticipantCodes.size());
+        logger.info("Total number of participants with revoked certificates: {}", revokedParticipantCodes.size());
+        logger.info("Total number of invalid certificates: {}", invalidCertificates.size());
         logger.info("Certificate revocation validation scheduler ended");
     }
 
@@ -99,6 +94,21 @@ public class CertificateRevocationScheduler extends BaseScheduler {
             return (X509Certificate) certificateFactory.generateCertificate(inputStream);
         } catch (Exception e) {
             throw new ClientException(ErrorCodes.ERR_INVALID_CERTIFICATE, "Error parsing certificate from the URL");
+        }
+    }
+
+    private void processParticipant(String certificatePath, Map<String, Object> participant, List<String> revokedParticipantCodes, List<String> invalidCertificates) {
+        String participantCode = (String) participant.get(Constants.PARTICIPANT_CODE);
+        if (certificatePath != null) {
+            try {
+                X509Certificate x509Certificate = parseCertificateFromURL(certificatePath);
+                if (checkRevocationStatus(x509Certificate)) {
+                    revokedParticipantCodes.add(participantCode);
+                }
+            } catch (Exception e) {
+                invalidCertificates.add(participantCode);
+                logger.error("Invalid certificate for participant with code {}: {}", participantCode, e.getMessage());
+            }
         }
     }
 }

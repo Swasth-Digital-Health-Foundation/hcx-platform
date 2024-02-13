@@ -27,6 +27,7 @@ topicCode:
  secret-expired: ${secret_expired:notif-api-access-secret-expired}
  before-secret-expiry: ${before_secret_expiry:notif-api-access-secret-expiry}
  revoked-certificate: ${certificate_revoked:notif-certificate-revocation}
+ invalid-certificate: ${certificate_invalid:notif-invalid-certificate}
 
 #postgres config
 postgres:
