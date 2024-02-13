@@ -1,5 +1,6 @@
 package org.swasth.common.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import kong.unirest.HttpResponse;
 import kong.unirest.UnirestException;
 import org.swasth.common.exception.ErrorCodes;
@@ -7,7 +8,6 @@ import org.swasth.common.exception.ServerException;
 import org.swasth.common.utils.HttpUtils;
 import org.swasth.common.utils.JSONUtils;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,4 +37,10 @@ public class RegistryService {
         return details;
     }
 
+    public HttpResponse<String> updateStatusOnCertificateRevocation(String osid) throws JsonProcessingException {
+        String url = registryUrl + "/api/v1/Organisation/" + osid;
+        Map<String,Object> requestBody = new HashMap<>();
+        requestBody.put("status", "Inactive");
+        return HttpUtils.put(url, JSONUtils.serialize(requestBody), new HashMap<>());
+    }
 }

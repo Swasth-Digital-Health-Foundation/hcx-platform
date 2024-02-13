@@ -1,5 +1,7 @@
 package org.swasth.commonscheduler.schedulers;
 
+import kong.unirest.HttpResponse;
+import kong.unirest.HttpStatus;
 import org.bouncycastle.cert.ocsp.OCSPException;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.slf4j.Logger;
@@ -104,6 +106,10 @@ public class CertificateRevocationScheduler extends BaseScheduler {
                 X509Certificate x509Certificate = parseCertificateFromURL(certificatePath);
                 if (checkRevocationStatus(x509Certificate)) {
                     revokedParticipantCodes.add(participantCode);
+                    HttpResponse<String> response = registryService.updateStatusOnCertificateRevocation((String) participant.get(Constants.OSID));
+                    if (response.getStatus() == 200) {
+                        logger.info("Participant status set to 'Inactive' for participant with code: {}", participantCode);
+                    }
                 }
             } catch (Exception e) {
                 invalidCertificates.add(participantCode);
