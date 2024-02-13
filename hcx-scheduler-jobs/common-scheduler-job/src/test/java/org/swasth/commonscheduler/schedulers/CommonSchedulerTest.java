@@ -41,13 +41,7 @@ import static org.mockito.Mockito.*;
 @SpringBootTest(classes = {ParticipantValidationScheduler.class, CommonSchedulerJob.class, BaseScheduler.class, UserSecretScheduler.class})
 @Import(GenericConfiguration.class)
 @ActiveProfiles("test")
-@EmbeddedKafka(
-        partitions = 1,
-        controlledShutdown = false,
-        brokerProperties = {
-                "listeners=PLAINTEXT://localhost:9092",
-                "port=9092"
-        })
+@EmbeddedKafka(partitions = 1, controlledShutdown = false, brokerProperties = {"listeners=PLAINTEXT://localhost:9092", "port=9092"})
 public class CommonSchedulerTest {
     @Autowired
     private CommonSchedulerJob commonSchedulerJob;

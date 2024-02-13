@@ -60,9 +60,13 @@ public class CertificateRevocationScheduler extends BaseScheduler {
                 certificatePath = (String) participant.get(Constants.SIGNING_CERT_PATH);
             }
             if (certificatePath != null) {
-                X509Certificate x509Certificate = parseCertificateFromURL(certificatePath);
-                if (checkRevocationStatus(x509Certificate)) {
-                    revokedParticipantCodes.add(participantCode);
+                try {
+                    X509Certificate x509Certificate = parseCertificateFromURL(certificatePath);
+                    if (checkRevocationStatus(x509Certificate)) {
+                        revokedParticipantCodes.add(participantCode);
+                    }
+                } catch (Exception e) {
+                    logger.error("Error parsing certificate for participant {}: {}", participantCode, e.getMessage());
                 }
             }
         }
@@ -70,7 +74,6 @@ public class CertificateRevocationScheduler extends BaseScheduler {
         logger.info("Total number of participants with revoked certificate are {}", revokedParticipantCodes.size());
         logger.info("Certificate revocation validation scheduler ended");
     }
-
 
     private void generateEvent(List<String> participantCodes, String message, String topiCode) throws Exception {
         Calendar cal = Calendar.getInstance();
