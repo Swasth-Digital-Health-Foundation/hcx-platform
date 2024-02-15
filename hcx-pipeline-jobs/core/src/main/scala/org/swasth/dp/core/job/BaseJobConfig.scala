@@ -74,6 +74,7 @@ class BaseJobConfig(val config: Config, val jobName: String) extends Serializabl
   val predeterminationDispatcherSuccessCount = "predetermination-dispatcher-success-count"
   val predeterminationOnDispatcherSuccessCount = "predetermination-dispatcher-on-success-count"
   val claimDispatcherSuccessCount = "claim-dispatcher-success-count"
+
   val claimOnDispatcherSuccessCount = "claim-dispatcher-on-success-count"
   val communicationDispatcherSuccessCount = "communication-dispatcher-success-count"
   val communicationOnDispatcherSuccessCount = "communication-dispatcher-on-success-count"
