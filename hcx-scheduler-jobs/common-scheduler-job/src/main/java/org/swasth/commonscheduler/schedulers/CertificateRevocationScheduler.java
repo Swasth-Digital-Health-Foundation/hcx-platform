@@ -60,7 +60,8 @@ public class CertificateRevocationScheduler extends BaseScheduler {
             String certificatePath = null;
             if (participant.containsKey(Constants.ENCRYPTION_CERT)) {
                 certificatePath = (String) participant.get(Constants.ENCRYPTION_CERT);
-            } else if (participant.containsKey(Constants.SIGNING_CERT_PATH)) {
+            }
+            if (participant.containsKey(Constants.SIGNING_CERT_PATH)) {
                 certificatePath = (String) participant.get(Constants.SIGNING_CERT_PATH);
             }
             processParticipant(certificatePath, participant, revokedParticipantCodes, invalidCertificates);
