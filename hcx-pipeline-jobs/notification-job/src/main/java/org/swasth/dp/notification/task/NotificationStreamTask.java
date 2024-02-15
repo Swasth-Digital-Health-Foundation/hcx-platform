@@ -64,11 +64,9 @@ public class NotificationStreamTask {
         SingleOutputStreamOperator<Map<String,Object>> notificationStream = dispatchedStream.getSideOutput(config.dispatcherOutputTag())
                 .process(new NotificationDispatcherFunction(config)).setParallelism(config.dispatcherParallelism);
 
+        // Sink notifications to message topic
         notificationStream.getSideOutput(config.messageOutputTag).addSink(kafkaConnector.kafkaStringSink(config.messageTopic))
-                .name("notifications-message-events").uid("notification-message-sink").setParallelism(config.downstreamOperatorsParallelism);
-
-//        notificationStream.getSideOutput(config.messageOutputTag()).addSink(kafkaConnector.kafkaMapSink(config.messageTopic))
-//                .name(config.notificationConsumer).uid("notification-message-sink").setParallelism(config.downstreamOperatorsParallelism);
+                .name(config.notificationMessageProducer).uid("notification-message-sink").setParallelism(config.downstreamOperatorsParallelism);
 
         //Subscription Stream
         //Filter the records based on the action type
