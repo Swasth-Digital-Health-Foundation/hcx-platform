@@ -19,6 +19,7 @@ public class NotificationConfig extends BaseJobConfig {
     public String subscriptionConsumer = "subscription-consumer";
     public String onSubscriptionConsumer = "on-subscription-consumer";
     public String notificationProducer = "message-events-sink";
+    public OutputTag<String> messageOutputTag = new OutputTag<String>("notify-message-events"){};
     public int consumerParallelism;
     public int downstreamOperatorsParallelism;
     public int dispatcherParallelism;
