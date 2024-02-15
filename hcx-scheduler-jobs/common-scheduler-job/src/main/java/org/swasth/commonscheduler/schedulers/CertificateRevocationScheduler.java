@@ -1,7 +1,6 @@
 package org.swasth.commonscheduler.schedulers;
 
 import kong.unirest.HttpResponse;
-import kong.unirest.HttpStatus;
 import org.bouncycastle.cert.ocsp.OCSPException;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.slf4j.Logger;
