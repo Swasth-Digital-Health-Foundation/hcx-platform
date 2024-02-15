@@ -74,6 +74,7 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
     metrics.incCounter(config.auditEventsCount)
   }
 
+
   def createErrorMap(error: Option[ErrorResponse]):util.Map[String, AnyRef] = {
     val errorMap:util.Map[String, AnyRef] = new util.HashMap[String, AnyRef]
     errorMap.put("code", error.flatMap(_.code).getOrElse(""))
