@@ -22,13 +22,11 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
     public NotificationDispatcherFunction(NotificationConfig config) {
         super(config);
     }
-//    private IEventService kafkaClient;
 
     @Override
     public void processElement(Map<String, Object> inputEvent, ProcessFunction<Map<String, Object>, Map<String,Object>>.Context context, Collector<Map<String,Object>> collector) throws Exception {
         Map<String,Object> actualEvent = (Map<String, Object>) inputEvent.get(Constants.INPUT_EVENT());
         List<Map<String, Object>> participantDetails = (List<Map<String, Object>>) inputEvent.get(Constants.PARTICIPANT_DETAILS());
-//        kafkaClient = new KafkaClient(config.kafkaServiceUrl);
         notificationDispatcher(participantDetails, actualEvent, context);
     }
 
@@ -49,15 +47,11 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
                 DispatcherResult result = dispatcherUtil.dispatch(participant, payload);
                 String email = (String) participant.getOrDefault("primary_email", "");
                 String topicCode = (String) event.getOrDefault(Constants.TOPIC_CODE(), "");
-                System.out.println("Topic code -------" + topicCode);
                 String message = (String) event.getOrDefault(Constants.MESSAGE(), "");
                 Map<String, Object> notification = notificationUtil.getNotification(topicCode);
                 String subject = (String) notification.get("title");
-                System.out.println("subject ---------" + subject);
                 Map<String,Object> emailEvent = getEmailMessageEvent(message, subject, List.of(email), new ArrayList<>(), new ArrayList<>());
-                System.out.println("Email event ------" + emailEvent);
                 if (config.emailNotificationEnabled && !StringUtils.isEmpty(message) && !StringUtils.isEmpty(topicCode)) {
-//                    pushEventToMessageTopic(email, topicCode, message);
                     context.output(config.messageOutputTag, JSONUtil.serialize(emailEvent));
                 }
                 System.out.println("Recipient code: " + participantCode + " :: Dispatch status: " + result.success());
@@ -88,14 +82,6 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
         Map<String, Object> payload = new HashMap<>();
         payload.put(Constants.PAYLOAD(), event.get(Constants.PAYLOAD()));
         return JSONUtil.serialize(payload);
-    }
-
-
-    private void pushEventToMessageTopic(String email, String subject, String message) throws Exception {
-//        String emailEvent = getEmailMessageEvent(message, subject, List.of(email), new ArrayList<>(), new ArrayList<>());
-//        kafkaClient.send(config.messageTopic, EMAIL, emailEvent);
-//        System.out.println("Email event is pushed to kafka :: " + emailEvent);
-//        logger.debug("Email event is pushed to kafka :: " + emailEvent);
     }
 
     public Map<String,Object> getEmailMessageEvent(String message, String subject, List<String> to, List<String> cc, List<String> bcc) throws Exception {
