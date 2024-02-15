@@ -12,8 +12,6 @@ public class NotificationConfig extends BaseJobConfig {
     public String kafkaInputTopic;
     public String subscriptionInputTopic;
     public String onSubscriptionInputTopic;
-
-//    public OutputTag<String> messageOutputTag = new OutputTag<String>("message-events"){};
     // Consumers
     public String notificationConsumer = "notification-consumer";
     public String subscriptionConsumer = "subscription-consumer";
