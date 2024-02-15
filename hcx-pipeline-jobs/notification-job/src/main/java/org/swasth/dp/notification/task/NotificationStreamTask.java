@@ -61,10 +61,10 @@ public class NotificationStreamTask {
                 .rebalance()
                 .process(new NotificationFilterFunction(config)).setParallelism(config.downstreamOperatorsParallelism);
 
-        dispatchedStream.getSideOutput(config.dispatcherOutputTag())
+        SingleOutputStreamOperator<Map<String,Object>> notificationStream = dispatchedStream.getSideOutput(config.dispatcherOutputTag())
                 .process(new NotificationDispatcherFunction(config)).setParallelism(config.dispatcherParallelism);
-        
-        dispatchedStream.getSideOutput(config.messageOutputTag()).addSink(kafkaConnector.kafkaMapSink(config.messageTopic))
+
+        notificationStream.getSideOutput(config.messageOutputTag()).addSink(kafkaConnector.kafkaMapSink(config.messageTopic))
                 .name(config.notificationConsumer).uid("notification-message-sink").setParallelism(config.downstreamOperatorsParallelism);
 
         //Subscription Stream
