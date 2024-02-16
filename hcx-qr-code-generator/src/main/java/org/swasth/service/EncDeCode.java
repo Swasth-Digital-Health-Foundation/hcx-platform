@@ -1,7 +1,8 @@
 package org.swasth.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.swasth.common.utils.JSONUtils;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.util.Base64;
@@ -12,7 +13,7 @@ import static org.swasth.common.utils.JSONUtils.serialize;
 
 public class EncDeCode {
 
-    public static String encodePayload(Map<String, Object> payload) throws JsonProcessingException {
+    public static String encodePayload(String payload) throws IOException {
         String base64EncodedSignature = Base64.getEncoder().encodeToString(serialize(payload).getBytes());
         return base64EncodedSignature;
     }
