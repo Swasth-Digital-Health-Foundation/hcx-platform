@@ -2,6 +2,7 @@ package org.swasth.dp.notification.task;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import org.apache.flink.api.connector.sink.Sink;
 import org.apache.flink.api.java.typeutils.TypeExtractor;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
@@ -60,8 +61,12 @@ public class NotificationStreamTask {
                 .rebalance()
                 .process(new NotificationFilterFunction(config)).setParallelism(config.downstreamOperatorsParallelism);
 
-        dispatchedStream.getSideOutput(config.dispatcherOutputTag())
+        SingleOutputStreamOperator<Map<String,Object>> notificationStream = dispatchedStream.getSideOutput(config.dispatcherOutputTag())
                 .process(new NotificationDispatcherFunction(config)).setParallelism(config.dispatcherParallelism);
+
+        // Sink notifications to message topic
+        notificationStream.getSideOutput(config.messageOutputTag).addSink(kafkaConnector.kafkaStringSink(config.messageTopic))
+                .name(config.notificationMessageProducer).uid("notification-message-sink").setParallelism(config.downstreamOperatorsParallelism);
 
         //Subscription Stream
         //Filter the records based on the action type
@@ -93,5 +98,4 @@ public class NotificationStreamTask {
         System.out.println(config.jobName() + " is processing");
         env.execute(config.jobName());
     }
-    
 }
