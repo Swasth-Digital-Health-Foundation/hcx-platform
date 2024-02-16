@@ -28,15 +28,11 @@ public class NotificationFilterFunction extends BaseNotificationFunction {
     @Override
     public void processElement(Map<String,Object> inputEvent, ProcessFunction<Map<String,Object>, Map<String,Object>>.Context context, Collector<Map<String,Object>> collector) throws Exception {
         consolidatedEvent = new HashMap<>();
-        System.out.println("Event: " + inputEvent);
         logger.debug("Event: " + inputEvent);
         String topicCode = (String) inputEvent.get(Constants.TOPIC_CODE());
-        System.out.println(topicCode+"--------------TOPIC CODE---------------");
         Map<String,Object> notificationHeaders = getProtocolMapValue(Constants.NOTIFICATION_HEADERS(), inputEvent);
         String senderCode = (String) notificationHeaders.get(Constants.SENDER_CODE());
         Map<String, Object> notification = notificationUtil.getNotification(topicCode);
-        System.out.println(notification+"---------------------------------");
-        System.out.println("Notification Master data template: " + notification);
         logger.debug("Notification Master data template: " + notification);
         consolidatedEvent.put(Constants.MASTER_DATA(), notification);
         consolidatedEvent.put(Constants.INPUT_EVENT(), inputEvent);
