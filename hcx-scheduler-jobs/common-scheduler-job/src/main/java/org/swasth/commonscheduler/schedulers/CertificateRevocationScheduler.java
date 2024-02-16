@@ -59,11 +59,11 @@ public class CertificateRevocationScheduler extends BaseScheduler {
     }
 
     private void processCertificate(String certKey, Map<String, Object> participant) throws Exception {
-        if (!participant.containsKey(certKey)) {
-            throw new ClientException("The Participant does not contains certificate");
+        Map<String, List<String>> processedMap = new HashMap<>();
+        if (participant.containsKey(certKey)) {
+            String certificatePath = (String) participant.get(certKey);
+            processedMap = processParticipant(certificatePath, participant);
         }
-        String certificatePath = (String) participant.get(certKey);
-        Map<String, List<String>> processedMap = processParticipant(certificatePath, participant);
         List<String> invalidCertificates = processedMap.getOrDefault("invalidCertificates", new ArrayList<>());
         List<String> revokedCertificates = processedMap.getOrDefault("revokedParticipantCodes", new ArrayList<>());
         generateEvent(invalidCertificates, getTemplateMessage(invalidCertificateTopicCode), invalidCertificateTopicCode);
