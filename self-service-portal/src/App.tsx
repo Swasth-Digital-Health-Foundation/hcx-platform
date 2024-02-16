@@ -37,7 +37,7 @@ function App() {
         >  
         </Route>
         <Route 
-          path="/onboarding/register" 
+          path="/" 
           element={<SignUp/>}
         >    
         </Route>
