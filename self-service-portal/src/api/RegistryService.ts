@@ -25,7 +25,28 @@ export const getParticipantByCode = async (code:any) => {
     return post(applicantSearchAPI, payload);
 }
 
+export const getPayorList = async () => {
+    var payload = { "filters": { "roles": { "eq":  "payor"} }};
+    return post(applicantSearchAPI, payload);
+}
+
+
 export const generateClientSecret = async (code:any, token="") => {
     var payload = { "participant_code": code};
     return post("/onboard/applicant/password/generate", payload, {}, token);
+}
+
+export const generateAPIKey = async (user:string, participant:string, token="") => {
+    var payload = {"user_id":user, "participant_code":participant}
+    return post("/api-access/secret/generate", payload, {}, token);
+}
+
+export const approvePayorList = async(token = "") => {
+    var payload = {"filters" : {}}
+    return post('/applicant/search?fields=identity_verification', payload, {} , token);
+}
+
+export const approvePayor = async(participant_code: string, status: string ,token = "") => {
+    var payload = {"participant_code":participant_code, "status":status}
+    return post('/participant/verify/identity', payload, {} , token);
 }

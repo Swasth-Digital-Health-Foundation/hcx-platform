@@ -1,6 +1,7 @@
 package org.swasth.dp.notification.task;
 
 import com.typesafe.config.Config;
+import org.apache.flink.util.OutputTag;
 import org.swasth.dp.core.job.BaseJobConfig;
 
 public class NotificationConfig extends BaseJobConfig {
@@ -11,11 +12,12 @@ public class NotificationConfig extends BaseJobConfig {
     public String kafkaInputTopic;
     public String subscriptionInputTopic;
     public String onSubscriptionInputTopic;
-
     // Consumers
     public String notificationConsumer = "notification-consumer";
     public String subscriptionConsumer = "subscription-consumer";
     public String onSubscriptionConsumer = "on-subscription-consumer";
+    public String notificationMessageProducer = "message-events-sink";
+    public OutputTag<String> messageOutputTag = new OutputTag<String>("notify-message-events"){};
     public int consumerParallelism;
     public int downstreamOperatorsParallelism;
     public int dispatcherParallelism;
