@@ -65,9 +65,7 @@ public class CertificateRevocationScheduler extends BaseScheduler {
             }
         }
         List<String> invalidCertificates = processedMap.getOrDefault("invalidParticipants", new ArrayList<>());
-        List<String> revokedCertificates = processedMap.getOrDefault("revokedParticipantCodes", new ArrayList<>());
-        System.out.println("Invalid Certificates ----------" + invalidCertificates.size());
-        System.out.println("Revoked certificates----------" + revokedCertificates.size());
+        List<String> revokedCertificates = processedMap.getOrDefault("revokedParticipants", new ArrayList<>());
         generateEvent(invalidCertificates, getTemplateMessage(invalidCertificateTopicCode), invalidCertificateTopicCode);
         generateEvent(revokedCertificates, getTemplateMessage(certificateRevokedTopicCode), certificateRevokedTopicCode);
         logger.info("Total number of participants with revoked {} certificates: {}", certKey, revokedCertificates.size());
@@ -117,11 +115,11 @@ public class CertificateRevocationScheduler extends BaseScheduler {
                     }
                 }
             } catch (Exception e) {
-                invalidCertificates.add(participantCode);
                 logger.error("Invalid certificate for participant with code {}: {}", participantCode, e.getMessage());
+                invalidCertificates.add(participantCode);
             }
         }
-        result.put("revokedParticipantCodes", revokedParticipantCodes);
+        result.put("revokedParticipants", revokedParticipantCodes);
         result.put("invalidParticipants", invalidCertificates);
         return result;
     }
