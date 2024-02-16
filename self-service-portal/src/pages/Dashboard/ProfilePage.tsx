@@ -3,7 +3,7 @@ import CardDataStatsProfile from '../../components/CardDataStatsProfile';
 import _ from 'lodash';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
-import { getParticipant, getParticipantByCode } from '../../api/RegistryService';
+import { generateAPIKey, generateClientSecret, getParticipant, getParticipantByCode } from '../../api/RegistryService';
 import { serachUser, reverifyLink } from '../../api/UserService';
 import { addAppData } from '../../reducers/app_data';
 import { addParticipantDetails } from '../../reducers/participant_details_reducer';
@@ -13,6 +13,7 @@ import { post } from '../../api/APIService';
 import { useNavigate } from 'react-router-dom';
 import SwitcherProfile from '../../components/SwitcherProfile';
 import Loader from '../../common/Loader';
+import ModalConfirmBack from '../../components/ModalConfrimBack';
 
 const ProfilePage: React.FC = () => {
 
@@ -34,6 +35,8 @@ const ProfilePage: React.FC = () => {
   const [actMessage, setActMessage] = useState("Email and Phone verification is required to activate the HCX account");
   const [showModalYesNo, setShowModalYesNo] = useState(false);
   const [showLoader, setShowLoader] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const appData: Object = useSelector((state: RootState) => state.appDataReducer.appData);
 
 
   useEffect(() => {
@@ -80,8 +83,6 @@ const ProfilePage: React.FC = () => {
       }
     }
   }, []);
-
-  //const { login } = useAuthActions();
 
 
   useEffect(() => {
@@ -158,30 +159,33 @@ const ProfilePage: React.FC = () => {
     })
   }
 
-  const verifyResend = (type: any) => {
-    let payload = {};
-    if (type == "email") {
-      payload = {
-        "primary_email": _.get(participantDetails, "primary_email"),
-        "participant_code": _.get(participantDetails, "participant_code"),
-        "participant_name": _.get(participantDetails, "participant_name")
-      }
-    } else {
-      payload = {
-        "primary_mobile": _.get(participantDetails, "primary_mobile"),
-        "participant_code": _.get(participantDetails, "participant_code"),
-        "participant_name": _.get(participantDetails, "participant_name")
-      }
-    }
-    reverifyLink(payload).then((res: any) => {
-      toast.success(`Re-verification link successfully sent to ${type}`, {
+  const secretGenerateCancel = () => {
+    setShowConfirmModal(false);
+  }
+
+  const secretGenerateApproved = () => {
+    setShowConfirmModal(false);
+    generateClientSecret(_.get(participantDetails, "participant_code"), authToken).then((res:any) => {
+      toast.success(`Client Secret has been successfully generated. An email has been sent to all users`, {
         position: toast.POSITION.TOP_CENTER
       });
     }).catch(err => {
       toast.error(_.get(err, 'response.data.error.message') || "Internal Server Error", {
-        position: toast.POSITION.TOP_CENTER
+        position: toast.POSITION.TOP_RIGHT
       });
     });
+  }
+
+  const generateAPISecret = ()=> {
+    generateAPIKey(_.get(appData, "username") || "", _.get(participantDetails, "participant_code") || "").then((res:any) => {
+      toast.success(`User API Key has been successfully generated. An email has to the registered email address`, {
+        position: toast.POSITION.TOP_CENTER
+      });
+    }).catch(err => {
+      toast.error(_.get(err, 'response.data.error.message') || "Internal Server Error", {
+        position: toast.POSITION.TOP_RIGHT
+      });
+    });;
   }
 
   return (
@@ -190,6 +194,10 @@ const ProfilePage: React.FC = () => {
 
       {showLoader ? <Loader></Loader> : null }
       <div className="mt-4 grid md:mt-6 md:gap-6 2xl:mt-7.5 2xl:gap-7.5">
+      {showConfirmModal == true?
+      <ModalConfirmBack show={showConfirmModal} title="Generate Client Secret" body="You are about to generate a new Client Secret which will invalidate existing secret for all users of the participant. An email will be sent to all users." 
+      onCancelClick={secretGenerateCancel} onSubmitClick={secretGenerateApproved}></ModalConfirmBack> :
+      null }
         <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
           <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
             <h3 className="font-medium text-black dark:text-white">
@@ -322,6 +330,33 @@ const ProfilePage: React.FC = () => {
                 </span>
               </div>
 
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="mt-4 grid md:mt-6 md:gap-6 2xl:mt-7.5 2xl:gap-7.5">
+        <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+          <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
+            <h3 className="font-medium text-black dark:text-white">
+              Client Secret and Keys Management
+            </h3>
+          </div>
+          <div className="mb-4.5 flex flex-col gap-5.5 p-6.5 xl:flex-row justify-between">
+          <div className="w-full md:w-1/3">
+              <input
+                type="submit"
+                value="Generate Client Secret"
+                className="w-full cursor-pointer rounded-lg border border-primary bg-primary p-4 text-white transition hover:bg-opacity-90"
+                onClick={(event) => { event.preventDefault(); setShowConfirmModal(true);}}
+              />
+            </div>
+            <div className="w-full md:w-1/3">
+              <input
+                type="submit"
+                value="Generate API Key"
+                className="w-full cursor-pointer rounded-lg border border-primary bg-primary p-4 text-white transition hover:bg-opacity-90"
+                onClick={(event) => { event.preventDefault(); generateAPISecret();}}
+              />
             </div>
           </div>
         </div>

@@ -12,13 +12,11 @@ const InviteUserRegister: React.FC = () => {
     const participantDetails: Object = useSelector((state: RootState) => state.participantDetailsReducer.participantDetails);
     const appData: Object = useSelector((state: RootState) => state.appDataReducer.appData);
   
-
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const [userDetials, setUserDetails] = useState([{ "email": "", "role": "admin" }])
 
     const addAnotherRow = () => {
-        console.log("i came here", userDetials);
         userDetials.push({ "email": "", "role": "" })
         setUserDetails(userDetials.map((value, index) => { return value }));
     }
@@ -26,7 +24,6 @@ const InviteUserRegister: React.FC = () => {
     const updateCreateUserData = (value: string, index: number, field: string) => {
         _.update(userDetials[index], field, function (n) { return value });
         setUserDetails(userDetials.map((value, index) => { return value }));
-        console.log("user details", userDetials);
     }
 
 
@@ -50,9 +47,7 @@ const InviteUserRegister: React.FC = () => {
                 })
             }
         });
-        toast.success("Users have been successfully invited");
         setUserDetails([{ "email": "", "role": "admin" }]);
-        navigate("/onboarding/profile");
     }
 
     return (
@@ -148,8 +143,15 @@ const InviteUserRegister: React.FC = () => {
                     onClick={(event) => { event.preventDefault(); inviteUsers(); }}
                 />
             </div>
+            <div className="flex mb-5 justify-end">
+            <a href="/onboarding/profile" className="text-m text-primary underline">
+                    Skip to Home
+                  </a>
+            </div>
         </>
     )
 }
 
 export default InviteUserRegister;
+
+

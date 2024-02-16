@@ -5,6 +5,12 @@ export interface AppDataInterface {
   appData: Object
 }
 
+interface TerminologyFilter {
+  Code: string;
+  Display: string;
+  System: string;
+}
+
 const initialState: AppDataInterface = {
     appData: {
       termsAccepted:false,
@@ -14,7 +20,10 @@ const initialState: AppDataInterface = {
       sidebar:"Profile",
       linkeduser: "",
       counter : false,
-      stageRegister:"roleSelection"
+      stageRegister:"roleSelection",
+      termSearch:<TerminologyFilter[]>([{"Code":"123","Display":"display text","System":"system"}]),
+      showTermSearch:false,
+      termSearchText:''
     },
 }
 
