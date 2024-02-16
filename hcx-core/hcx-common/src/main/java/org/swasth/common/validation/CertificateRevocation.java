@@ -30,7 +30,7 @@ public class CertificateRevocation {
         this.x509Certificate = x509Certificate;
     }
 
-    public boolean checkRevocationStatus() throws OCSPException, CertificateException, IOException, ClientException, OperatorCreationException, CRLException {
+    public boolean checkStatus() throws OCSPException, CertificateException, IOException, ClientException, OperatorCreationException, CRLException {
         boolean status = false;
         if (!isCertificateRevokedUsingOCSP(x509Certificate)) {
             if (isCertificateRevokedUsingCRL(x509Certificate)) {

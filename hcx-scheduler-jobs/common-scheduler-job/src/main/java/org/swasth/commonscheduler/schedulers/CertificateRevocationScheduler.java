@@ -1,5 +1,6 @@
 package org.swasth.commonscheduler.schedulers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import kong.unirest.HttpResponse;
 import org.bouncycastle.cert.ocsp.OCSPException;
 import org.bouncycastle.operator.OperatorCreationException;
@@ -31,7 +32,7 @@ import java.util.Map;
 @Component
 public class CertificateRevocationScheduler extends BaseScheduler {
 
-    private final Logger logger = LoggerFactory.getLogger(ParticipantValidationScheduler.class);
+    private final Logger logger = LoggerFactory.getLogger(CertificateRevocationScheduler.class);
 
     @Autowired
     private RegistryService registryService;
@@ -54,21 +55,22 @@ public class CertificateRevocationScheduler extends BaseScheduler {
         logger.info("Certificate Revocation validation scheduler started");
         List<Map<String, Object>> participants = registryService.getDetails("{ \"filters\": {} }");
         List<String> revokedParticipantCodes = new ArrayList<>();
-        List<String> invalidCertificates = new ArrayList<>();
+        List<String> invalidCertificateCodes = new ArrayList<>();
         for (Map<String, Object> participant : participants) {
-            String certificatePath = null;
+            String certificatePath;
             if (participant.containsKey(Constants.ENCRYPTION_CERT)) {
                 certificatePath = (String) participant.get(Constants.ENCRYPTION_CERT);
+                processParticipant(certificatePath, participant, revokedParticipantCodes, invalidCertificateCodes);
             }
             if (participant.containsKey(Constants.SIGNING_CERT_PATH)) {
                 certificatePath = (String) participant.get(Constants.SIGNING_CERT_PATH);
+                processParticipant(certificatePath, participant, revokedParticipantCodes, invalidCertificateCodes);
             }
-            processParticipant(certificatePath, participant, revokedParticipantCodes, invalidCertificates);
         }
-        generateEvent(invalidCertificates, getTemplateMessage(invalidCertificateTopicCode), invalidCertificateTopicCode);
+        generateEvent(invalidCertificateCodes, getTemplateMessage(invalidCertificateTopicCode), invalidCertificateTopicCode);
         generateEvent(revokedParticipantCodes, getTemplateMessage(certificateRevokedTopicCode), certificateRevokedTopicCode);
         logger.info("Total number of participants with revoked certificates: {}", revokedParticipantCodes.size());
-        logger.info("Total number of invalid certificates: {}", invalidCertificates.size());
+        logger.info("Total number of invalid certificates: {}", invalidCertificateCodes.size());
         logger.info("Certificate revocation validation scheduler ended");
     }
 
@@ -79,14 +81,14 @@ public class CertificateRevocationScheduler extends BaseScheduler {
         logger.info("Notify event is pushed to kafka: {}", event);
     }
 
-    private String getTemplateMessage(String topicCode) throws Exception {
+    private String getTemplateMessage(String topicCode) throws JsonProcessingException {
         return (String) JSONUtils.deserialize((String) (NotificationUtils.getNotification(topicCode).get(Constants.TEMPLATE)), Map.class).get(Constants.MESSAGE);
     }
 
 
     private boolean checkRevocationStatus(X509Certificate x509Certificate) throws OCSPException, CertificateException, IOException, ClientException, OperatorCreationException, CRLException {
         CertificateRevocation certificateRevocation = new CertificateRevocation(x509Certificate);
-        return certificateRevocation.checkRevocationStatus();
+        return certificateRevocation.checkStatus();
     }
 
     private X509Certificate parseCertificateFromURL(String urlString) throws IOException, ClientException {
