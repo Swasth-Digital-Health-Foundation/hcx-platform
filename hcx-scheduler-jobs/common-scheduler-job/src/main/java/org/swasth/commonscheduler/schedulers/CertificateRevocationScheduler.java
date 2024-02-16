@@ -51,18 +51,18 @@ public class CertificateRevocationScheduler extends BaseScheduler {
     public void process() throws Exception {
         logger.info("Certificate Revocation validation scheduler started");
         List<Map<String, Object>> participants = registryService.getDetails("{ \"filters\": {} }");
-        for (Map<String, Object> participant : participants) {
-            processCertificate(Constants.ENCRYPTION_CERT, participant);
-            processCertificate(Constants.SIGNING_CERT_PATH, participant);
-        }
+        processCertificate(Constants.ENCRYPTION_CERT, participants);
+        processCertificate(Constants.SIGNING_CERT_PATH, participants);
         logger.info("Certificate revocation validation scheduler ended");
     }
 
-    private void processCertificate(String certKey, Map<String, Object> participant) throws Exception {
+    private void processCertificate(String certKey, List<Map<String, Object>> participants) throws Exception {
         Map<String, List<String>> processedMap = new HashMap<>();
-        if (participant.containsKey(certKey)) {
-            String certificatePath = (String) participant.get(certKey);
-            processedMap = processParticipant(certificatePath, participant);
+        for (Map<String, Object> participant : participants) {
+            if (participant.containsKey(certKey)) {
+                String certificatePath = (String) participant.get(certKey);
+                processedMap = processParticipant(certificatePath, participant);
+            }
         }
         List<String> invalidCertificates = processedMap.getOrDefault("invalidCertificates", new ArrayList<>());
         List<String> revokedCertificates = processedMap.getOrDefault("revokedParticipantCodes", new ArrayList<>());
