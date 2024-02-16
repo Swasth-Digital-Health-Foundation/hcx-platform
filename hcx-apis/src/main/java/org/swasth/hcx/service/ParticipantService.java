@@ -264,8 +264,8 @@ public class ParticipantService extends BaseRegistryService {
             if (!allowedCertificateKeySize.contains(keySize)) {
                 throw new ClientException(ErrorCodes.ERR_INVALID_CERTIFICATE, String.format("Certificate must have a minimum key size of 2048 bits. Current key size: %d bits.", keySize));
             }
-            CertificateRevocation certificateRevocation = new CertificateRevocation(x509Certificate);
-            if (certificateRevocation.checkRevocationStatus()) {
+            CertificateRevocation cr = new CertificateRevocation(x509Certificate);
+            if (cr.checkStatus()) {
                 throw new ClientException(ErrorCodes.ERR_INVALID_CERTIFICATE, "The certificate has been revoked or is invalid.");
             }
         } catch (Exception e) {
