@@ -210,6 +210,7 @@ public class CommonSchedulerTest {
                 .setResponseCode(200)
                 .addHeader("Content-Type", "application/json"));
         Mockito.when(registryService.getDetails(anyString())).thenReturn(getProviderDetailsWithRevokedCertificate());
+        Mockito.when(registryService.updateStatusOnCertificateRevocation(anyString())).thenReturn(true);
         Mockito.when(eventGenerator.createNotifyEvent(anyString(), anyString(), anyString(), anyList(), anyLong(), anyString(), anyString()))
                 .thenReturn("mockedEvent");
         lenient().doNothing().when(kafkaClient).send(anyString(), anyString(), anyString());

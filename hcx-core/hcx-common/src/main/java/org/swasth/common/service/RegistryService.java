@@ -37,10 +37,11 @@ public class RegistryService {
         return details;
     }
 
-    public HttpResponse<String> updateStatusOnCertificateRevocation(String osid) throws JsonProcessingException {
+    public boolean updateStatusOnCertificateRevocation(String osid) throws JsonProcessingException {
         String url = registryUrl + "/api/v1/Organisation/" + osid;
         Map<String,Object> requestBody = new HashMap<>();
         requestBody.put("status", "Inactive");
-        return HttpUtils.put(url, JSONUtils.serialize(requestBody), new HashMap<>());
+        HttpResponse<String> response =  HttpUtils.put(url, JSONUtils.serialize(requestBody), new HashMap<>());
+        return response.getStatus() == 200;
     }
 }

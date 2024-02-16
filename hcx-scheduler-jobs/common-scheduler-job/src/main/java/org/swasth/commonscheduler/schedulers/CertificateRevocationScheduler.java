@@ -60,11 +60,11 @@ public class CertificateRevocationScheduler extends BaseScheduler {
             String certificatePath;
             if (participant.containsKey(Constants.ENCRYPTION_CERT)) {
                 certificatePath = (String) participant.get(Constants.ENCRYPTION_CERT);
-                processParticipant(certificatePath, participant, revokedParticipantCodes, invalidCertificateCodes);
+                processParticipantCertificate(certificatePath, participant, revokedParticipantCodes, invalidCertificateCodes);
             }
             if (participant.containsKey(Constants.SIGNING_CERT_PATH)) {
                 certificatePath = (String) participant.get(Constants.SIGNING_CERT_PATH);
-                processParticipant(certificatePath, participant, revokedParticipantCodes, invalidCertificateCodes);
+                processParticipantCertificate(certificatePath, participant, revokedParticipantCodes, invalidCertificateCodes);
             }
         }
         generateEvent(invalidCertificateCodes, getTemplateMessage(invalidCertificateTopicCode), invalidCertificateTopicCode);
@@ -101,15 +101,15 @@ public class CertificateRevocationScheduler extends BaseScheduler {
         }
     }
 
-    private void processParticipant(String certificatePath, Map<String, Object> participant, List<String> revokedParticipantCodes, List<String> invalidCertificates) {
+    private void processParticipantCertificate(String certificatePath, Map<String, Object> participant, List<String> revokedParticipantCodes, List<String> invalidCertificates) {
         String participantCode = (String) participant.get(Constants.PARTICIPANT_CODE);
         if (certificatePath != null) {
             try {
                 X509Certificate x509Certificate = parseCertificateFromURL(certificatePath);
                 if (checkRevocationStatus(x509Certificate)) {
                     revokedParticipantCodes.add(participantCode);
-                    HttpResponse<String> response = registryService.updateStatusOnCertificateRevocation((String) participant.get(Constants.OSID));
-                    if (response.getStatus() == 200) {
+                    boolean response = registryService.updateStatusOnCertificateRevocation((String) participant.get(Constants.OSID));
+                    if (response) {
                         logger.info("Participant status set to 'Inactive' for participant with code: {}", participantCode);
                     }
                 }
