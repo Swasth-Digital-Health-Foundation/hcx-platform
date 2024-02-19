@@ -12,76 +12,77 @@ import { addParticipantDetails } from '../../reducers/participant_details_reduce
 import { addParticipantToken } from '../../reducers/token_reducer';
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import axios from 'axios';
 
 
 const SignIn: React.FC = () => {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  
+
   const [userName, setUserName] = useState('');
   const [password, setPassword] = useState('');
   const [showLoader, setShowLoader] = useState(false);
-  const [userError, setUserError ] = useState(false);
-  const [passError, setPassError ] = useState(false);
+  const [userError, setUserError] = useState(false);
+  const [passError, setPassError] = useState(false);
+  let sessionToken = sessionStorage.getItem("hcx_user_token");
 
-   useEffect(() => {
-     dispatch(addAppData({"sidebar":"Profile"}));
-   },[])
+  useEffect(() => {
+    console.log("session token", sessionToken);
+    sessionStorage.removeItem("hcx_user_token");
+    dispatch(addAppData({ "sidebar": "Profile" }));
+  }, [])
 
   const Signin = (username: string, password: string) => {
-    if (username == "" || password == ""){
-      if(username == "") setUserError(true);
-      if(password == "") setPassError(true);
-    }else{
-      console.log("i am here")
-      dispatch(addAppData({"username":username}));
-      generateTokenUser(username,password).then((res) => {
-        window.console.log("res", res);
+    if (username == "" || password == "") {
+      if (username == "") setUserError(true);
+      if (password == "") setPassError(true);
+    } else {
+      dispatch(addAppData({ "username": username }));
+      dispatch(addAppData({ "emailRegister": username }));
+      generateTokenUser(username, password).then((res) => {
         sessionStorage.setItem('hcx_user_token', res as string);
         sessionStorage.setItem('hcx_user_name', username);
         dispatch(addParticipantToken(res as string));
-        getParticipant(userName).then((res :any) => {
-          console.log("we are in inside get par", res, res["data"]["participants"].length);
-          if( res["data"]["participants"].length !== 0){
-            console.log("came in if")
-           dispatch(addParticipantDetails(res["data"]["participants"][0]));
-          }else{
-            console.log("came in else");
+        getParticipant(userName).then((res: any) => {
+          if (res["data"]["participants"].length !== 0) {
+            dispatch(addParticipantDetails(res["data"]["participants"][0]));
+            navigate("/onboarding/profile");
+            if (res["data"]["participants"].length == 1) {
+              navigate("/onboarding/profile");
+            } else {
+              navigate("/onboarding/participants");
+            }
+          } else {
             serachUser(username).then((res: any) => {
-              console.log("search user res", res);
               let osOwner = res["data"]["users"][0]["osOwner"];
               let participant = res["data"]["users"][0]["tenant_roles"];
-              participant.map((value: any,index: any) => {
+              participant.map((value: any, index: any) => {
                 getParticipantByCode(value.participant_code).then(res => {
-                  console.log("participant info", res);
                   dispatch(addParticipantDetails(res["data"]["participants"][0]));
                 })
-                if(index == 0){
-                  navigate("/onboarding/profile");
-                }else{
-                  navigate("/onboarding/participants");
-                }
+                navigate("/onboarding/participants");
               })
             });
           }
         }).catch((error) => {
           toast.error("Something went wrong. Please contact the administrator" || "Internal Server Error", {
             position: toast.POSITION.TOP_RIGHT
-        });
+          });
         });
         //navigate("/onboarding/profile");
-    }).catch((error) => {
-      toast.error("Unable to login. Please check the credentials" || "Internal Server Error", {
-        position: toast.POSITION.TOP_RIGHT
-    });
-    })}
+      }).catch((error) => {
+        toast.error("Unable to login. Please check the credentials" || "Internal Server Error", {
+          position: toast.POSITION.TOP_RIGHT
+        });
+      })
+    }
   }
 
 
   const forgotPassword = () => {
     console.log("forgot password");
-    if(userName == ""){
+    if (userName == "") {
       toast.error("Please enter the Email Address", {
         position: toast.POSITION.TOP_CENTER
       });
@@ -126,10 +127,10 @@ const SignIn: React.FC = () => {
           <div className="w-full border-stroke dark:border-strokedark xl:w-1/2 xl:border-l-2">
             <div className="w-full p-4 sm:p-12.5 xl:p-17.5">
               <div className="text-center w-full xl:hidden">
-              <Link className="mb-5.5 inline-block" to="#">
-                <img className="hidden dark:block w-48" src={Logo} alt="Logo" />
-                <img className="dark:hidden w-48" src={Logo} alt="Logo" />
-              </Link>
+                <Link className="mb-5.5 inline-block" to="#">
+                  <img className="hidden dark:block w-48" src={Logo} alt="Logo" />
+                  <img className="dark:hidden w-48" src={Logo} alt="Logo" />
+                </Link>
               </div>
               {/* <span className="mb-1.5 block font-medium">Start for free</span> */}
               <h2 className="mb-9 text-2xl font-bold text-black dark:text-white sm:text-title-xl2">
@@ -146,7 +147,7 @@ const SignIn: React.FC = () => {
                       type="email"
                       placeholder="Enter your registered email address"
                       className={"w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary" + (userError ? " !border-danger" : "")}
-                      onChange={(event) => {setUserName(event.target.value); setUserError(false)}}
+                      onChange={(event) => { setUserName(event.target.value); setUserError(false) }}
                     />
 
                     <span className="absolute right-4 top-4">
@@ -167,7 +168,7 @@ const SignIn: React.FC = () => {
                       </svg>
                     </span>
                   </div>
-                  {userError ? <p className='text-danger italic'>* Please enter valid email address</p> : null }
+                  {userError ? <p className='text-danger italic'>* Please enter valid email address</p> : null}
                 </div>
 
                 <div className="mb-6">
@@ -179,7 +180,7 @@ const SignIn: React.FC = () => {
                       type="password"
                       placeholder="Enter your password"
                       className={"w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary" + (passError ? " !border-danger" : "")}
-                      onChange={(event) => {setPassword(event.target.value); setPassError(false)}}
+                      onChange={(event) => { setPassword(event.target.value); setPassError(false) }}
                     />
 
                     <span className="absolute right-4 top-4">
@@ -204,7 +205,7 @@ const SignIn: React.FC = () => {
                       </svg>
                     </span>
                   </div>
-                  {passError ? <p className='text-danger italic'>* Please enter valid password</p> : null }
+                  {passError ? <p className='text-danger italic'>* Please enter valid password</p> : null}
                 </div>
 
                 <div className="mb-5">
@@ -212,7 +213,7 @@ const SignIn: React.FC = () => {
                     type="submit"
                     value="Sign In"
                     className="w-full cursor-pointer rounded-lg border border-primary bg-primary p-4 text-white transition hover:bg-opacity-90"
-                    onClick={(event) => {event.preventDefault(); Signin(userName,password)}}
+                    onClick={(event) => { event.preventDefault(); Signin(userName, password) }}
                   />
                 </div>
                 <div className="mt-2 text-center">
