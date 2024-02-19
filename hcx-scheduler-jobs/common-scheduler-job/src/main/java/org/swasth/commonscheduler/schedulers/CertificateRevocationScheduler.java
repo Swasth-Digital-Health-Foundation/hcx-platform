@@ -57,15 +57,14 @@ public class CertificateRevocationScheduler extends BaseScheduler {
     }
 
     private void processCertificate(String certKey, List<Map<String, Object>> participants) throws Exception {
-        Map<String, List<String>> processedMap = new HashMap<>();
+        List<String> invalidCertificates = new ArrayList<>();
+        List<String> revokedCertificates = new ArrayList<>();
         for (Map<String, Object> participant : participants) {
             if (participant.containsKey(certKey)) {
                 String certificatePath = (String) participant.get(certKey);
-                processedMap = processParticipant(certificatePath, participant);
+                 processParticipant(certificatePath, participant, revokedCertificates, invalidCertificates);
             }
         }
-        List<String> invalidCertificates = processedMap.getOrDefault("invalidParticipants", new ArrayList<>());
-        List<String> revokedCertificates = processedMap.getOrDefault("revokedParticipants", new ArrayList<>());
         generateEvent(invalidCertificates, getTemplateMessage(invalidCertificateTopicCode), invalidCertificateTopicCode);
         generateEvent(revokedCertificates, getTemplateMessage(certificateRevokedTopicCode), certificateRevokedTopicCode);
         logger.info("Total number of participants with revoked {} certificates: {}", certKey, revokedCertificates.size());
@@ -99,10 +98,7 @@ public class CertificateRevocationScheduler extends BaseScheduler {
         }
     }
 
-    private Map<String, List<String>> processParticipant(String certificatePath, Map<String, Object> participant) {
-        Map<String, List<String>> result = new HashMap<>();
-        List<String> revokedParticipantCodes = new ArrayList<>();
-        List<String> invalidCertificates = new ArrayList<>();
+    private void processParticipant(String certificatePath, Map<String, Object> participant, List<String> revokedParticipantCodes, List<String> invalidCertificatesCodes) {
         String participantCode = (String) participant.get(Constants.PARTICIPANT_CODE);
         if (certificatePath != null) {
             try {
@@ -116,11 +112,8 @@ public class CertificateRevocationScheduler extends BaseScheduler {
                 }
             } catch (Exception e) {
                 logger.error("Invalid certificate for participant with code {}: {}", participantCode, e.getMessage());
-                invalidCertificates.add(participantCode);
+                invalidCertificatesCodes.add(participantCode);
             }
         }
-        result.put("revokedParticipants", revokedParticipantCodes);
-        result.put("invalidParticipants", invalidCertificates);
-        return result;
     }
 }
