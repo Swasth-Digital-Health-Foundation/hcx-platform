@@ -97,15 +97,6 @@ const SignUp: React.FC = () => {
     })()
   }, []);
 
-  const [userDetials, setUserDetails] = useState([{ "email": "", "role": "admin" }])
-
-  
-  const setShowTerms = (event: ChangeEvent<HTMLInputElement>) => {
-    console.log("event.target.value", event.target.checked);
-    dispatch(addAppData({ "showTerms": event.target.checked }));
-    dispatch(addAppData({ "termsAccepted": event.target.checked }));
-  }
-
   const onRoleSelection = () => {
     if(_.get(appData,"roleSelectedRegister") == "payor" || _.get(appData,"payorSelectedCodeRegister") == process.env.REACT_APP_MOCK_PAYOR_CODE){
       dispatch(addAppData({ "stageRegister": "accountInfo" }));
@@ -121,7 +112,6 @@ const SignUp: React.FC = () => {
   const getParticipantDetails = () => {
     setShowLoader(true);
     let payload;
-    window.console.log("in get info", _.get(appData,"applicantCodeRegister"),_.get(appData,"payorSelectedCodeRegister"))
       if (_.get(appData,"applicantCodeRegister") && _.get(appData,"payorSelectedCodeRegister")) {
         payload = { "applicant_code": _.get(appData,"applicantCodeRegister"), "verifier_code": _.get(appData,"payorSelectedCodeRegister") }
       } else {
@@ -151,11 +141,6 @@ const SignUp: React.FC = () => {
       })
   }
 
-
-
-
-
-
   // const getPayor = (participantName: string) => {
   //   const participant = payorList?.find(participant => participant.participant_name === participantName);
   //   console.log("participant", participant);
@@ -170,12 +155,12 @@ const SignUp: React.FC = () => {
     let formData: any[];
       if (isJWTPresent) {
         formData = [{ "type": "onboard-through-jwt", "jwt": jwtToken, additionalVerification: fields, "participant": { "participant_name": org, "primary_email": email, "primary_mobile": phoneNumber, "roles": ["provider"] } }];
-      } else if (_.get(appData,"roleSelectedRegister") === 'payor') {
+      } else if (_.get(appData,"roleSelectedRegister") !== 'provider') {
         formData = [{ "participant": { "participant_name": _.get(appData,"organizationNameRegister"), "primary_email": _.get(appData,"emailRegister"), "primary_mobile": _.get(appData,"phoneRegister"), "roles": [_.get(appData,"roleSelectedRegister")] } }];
       } else if ( _.get(appData,"roleSelectedRegister") == "provider" && _.get(appData,"applicantCodeRegister") != "") {
-        formData = [{ "type": "onboard-through-verifier", "verifier_code": _.get(appData,"payorSelectedCodeRegister"), "applicant_code": _.get(appData,"applicantCodeRegister") , additionalVerification: fields, "participant": { "participant_name": _.get(appData,"organizationNameRegister"), "primary_email": _.get(appData,"emailRegister"), "primary_mobile": _.get(appData,"phoneRegister"), "roles": ["provider"] } }];
+        formData = [{ "type": "onboard-through-verifier", "verifier_code": _.get(appData,"payorSelectedCodeRegister"), "applicant_code": _.get(appData,"applicantCodeRegister") , additionalVerification: fields, "participant": { "participant_name": _.get(appData,"organizationNameRegister"), "primary_email": _.get(appData,"emailRegister"), "primary_mobile": _.get(appData,"phoneRegister"), "roles": _.get(appData,"providerOptions")}}];
       } else if (_.get(appData,"roleSelectedRegister") == "provider" && _.get(appData,"applicantCodeRegister") == "") {
-        formData = [{ "type": "onboard-through-verifier", "verifier_code": mockPayorCode, "applicant_code": String(Math.floor(Math.random() * 123456789)), additionalVerification: fields, "participant": { "participant_name": _.get(appData,"organizationNameRegister"), "primary_email": _.get(appData,"emailRegister"), "primary_mobile": _.get(appData,"phoneRegister"), "roles": ["provider"]  } }];
+        formData = [{ "type": "onboard-through-verifier", "verifier_code": mockPayorCode, "applicant_code": String(Math.floor(Math.random() * 123456789)), additionalVerification: fields, "participant": { "participant_name": _.get(appData,"organizationNameRegister"), "primary_email": _.get(appData,"emailRegister"), "primary_mobile": _.get(appData,"phoneRegister"), "roles":  _.get(appData,"providerOptions") } }];
       } else {
         console.log("i came in else");
         formData = [];
@@ -188,8 +173,6 @@ const SignUp: React.FC = () => {
         .then((data => {
           //setState({ ...formState, ...(formData[0]), ...{ "participant_code": _.get(data, 'data.result.participant_code'), "verifier_code": payor.participant_code, "identity_verification": _.get(data, 'data.result.identity_verification') } })
           setTimeout(() => {
-            dispatch(addAppData({ username: email }));
-            console.log("data in register", data);
             if (data["data"]["result"]["is_user_exists"]) {
               dispatch(addAppData({"stageRegister":"onboardingSuccess"}))
             } else {
@@ -214,7 +197,6 @@ const SignUp: React.FC = () => {
             setShowLoader(false);
           }, 500);
         })
-        setShowLoader(false);
   }
 
   const resetPassword = () => {
@@ -222,15 +204,18 @@ const SignUp: React.FC = () => {
         let osOwner;
         setShowLoader(true);
         setCheckResetPass(true);
-
         serachUser(_.get(appData,"emailRegister")).then((res: any) => {
           osOwner = res["data"]["users"][0]["osOwner"];
           setUserPassword(osOwner[0], _.get(appData,"passOneRegister")).then((async function () {
             generateTokenUser(_.get(appData,"emailRegister"), _.get(appData,"passOneRegister")).then((res: any) => {
-              dispatch(addParticipantToken(res));
+              dispatch(addParticipantToken(res as string));
+              sessionStorage.setItem('hcx_user_token', res as string);
             })
             //navigate("/onboarding/dashboard");
-            dispatch(addAppData({"stageRegister":"onboardingSuccess"}))
+            dispatch(addAppData({"stageRegister":"onboardingSuccess"}));
+            dispatch(addAppData({"username":_.get(appData,"emailRegister")}));
+            sessionStorage.setItem('hcx_user_name', _.get(appData,"emailRegister") || "" );
+
           })).catch(err => {
             toast.error(_.get(err, 'response.data.error.message') || "Internal Server Error", {
               position: toast.POSITION.TOP_CENTER
@@ -241,7 +226,6 @@ const SignUp: React.FC = () => {
         });
 
         getParticipant(_.get(appData,"emailRegister")).then((res: any) => {
-          console.log("we are in inside get par", res);
           osOwner = res["data"]["participants"][0]["osOwner"];
           dispatch(addParticipantDetails(res["data"]["participants"][0]));
         })
