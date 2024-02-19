@@ -3,21 +3,27 @@ package org.swasth;
 import com.google.gson.Gson;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.WriterException;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
+import freemarker.template.TemplateException;
 import org.apache.commons.io.IOUtils;
 import org.swasth.service.EncDeCode;
 import org.swasth.utils.JWSUtils;
 import org.yaml.snakeyaml.Yaml;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -37,7 +43,7 @@ public class HcxQRCodeGenerator {
         }
     }
 
-    private static void loadConfig() throws Exception {
+    private static void loadConfig() {
         Yaml yaml = new Yaml();
         try (InputStream inputStream = HcxQRCodeGenerator.class.getResourceAsStream("/application.yml")) {
             Map<String, Object> config = yaml.load(inputStream);
@@ -71,7 +77,7 @@ public class HcxQRCodeGenerator {
         return value;
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws TemplateException, IOException, NoSuchAlgorithmException, InvalidKeySpecException, WriterException, URISyntaxException {
         if (args.length > 0) {
             String json = args[0];
             Gson gson = new Gson();
@@ -92,7 +98,7 @@ public class HcxQRCodeGenerator {
         return privateKey;
     }
 
-    private static String generateQrToken(Map<String, Object> requestBody, String privateKey) throws Exception {
+    private static String generateQrToken(Map<String, Object> requestBody, String privateKey) throws TemplateException, IOException, WriterException, NoSuchAlgorithmException, InvalidKeySpecException {
         Map<String, Object> headers = new HashMap<>();
         String jwsToken = JWSUtils.generate(headers, requestBody, HcxQRCodeGenerator.getPrivateKey(privateKey));
         String participantCode = null;
@@ -105,7 +111,7 @@ public class HcxQRCodeGenerator {
         return payload;
     }
     private static final DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
-    private static String createVerifiableCredential(Map<String, Object> payload, String proofValue) throws Exception {
+    private static String createVerifiableCredential(Map<String, Object> payload, String proofValue) throws IOException, TemplateException {
         Configuration cfg = new Configuration(Configuration.VERSION_2_3_31);
         cfg.setClassForTemplateLoading(HcxQRCodeGenerator.class, "/templates");
         Template template = cfg.getTemplate("verifiable-credential.ftl");
@@ -120,11 +126,10 @@ public class HcxQRCodeGenerator {
         data.put("proofValue", proofValue);
         StringWriter out = new StringWriter();
         template.process(data, out);
-        System.out.println(out);
         return out.toString();
     }
 
-    private static void generateQRCode(String content, String participantCode) throws Exception {
+    private static void generateQRCode(String content, String participantCode) throws WriterException, IOException {
         MultiFormatWriter writer = new MultiFormatWriter();
         BitMatrix matrix = writer.encode(content, BarcodeFormat.QR_CODE, width, height);
         String currentDir = System.getProperty("user.dir");
