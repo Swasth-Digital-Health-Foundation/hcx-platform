@@ -1,9 +1,6 @@
 package org.swasth;
 
 import com.google.gson.Gson;
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.MultiFormatWriter;
-import com.google.zxing.common.BitMatrix;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.junit.jupiter.api.Test;
 import org.swasth.service.EncDeCode;
@@ -12,17 +9,13 @@ import org.swasth.utils.JWSUtils;
 
 import java.io.File;
 import java.io.PrintStream;
-import java.io.Reader;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
 
 public class HcxQRCodeGeneratorTest {
 
