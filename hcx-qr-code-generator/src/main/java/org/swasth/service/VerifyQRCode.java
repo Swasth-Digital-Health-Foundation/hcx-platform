@@ -3,12 +3,14 @@ package org.swasth.service;
 import org.apache.commons.io.IOUtils;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.security.PublicKey;
-import java.security.Signature;
+import java.security.*;
 import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.util.Base64;
 import java.util.Map;
@@ -26,7 +28,7 @@ public class VerifyQRCode {
         return token;
     }
 
-    public static boolean isValidSignature(String payload, String publicKeyUrl) throws Exception {
+    public static boolean isValidSignature(String payload, String publicKeyUrl) throws IOException, CertificateException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
         String certificate = IOUtils.toString(new URL(publicKeyUrl), StandardCharsets.UTF_8.toString());
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
         InputStream stream = new ByteArrayInputStream(certificate.getBytes());
