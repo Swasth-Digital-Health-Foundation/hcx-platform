@@ -41,7 +41,7 @@ public class CertificateRevocation {
     }
 
     private boolean isCertificateRevokedUsingOCSP(X509Certificate x509Certificate) throws IOException, ClientException, OCSPException, CertificateEncodingException, OperatorCreationException {
-        Map<String, Object> certificateAccessInformation = certificateAccessInformation(x509Certificate);
+        Map<String, Object> certificateAccessInformation = getCertificateAccessInformation(x509Certificate);
         if (certificateAccessInformation.isEmpty()) {
             throw new ClientException("Certificate revocation details are not available");
         }
@@ -51,21 +51,15 @@ public class CertificateRevocation {
     }
 
     private boolean isCertificateRevokedUsingCRL(X509Certificate x509Certificate) throws IOException, CertificateException, CRLException, ClientException {
-        boolean isRevoked = false;
         byte[] crlDistributionPoint = x509Certificate.getExtensionValue(Extension.cRLDistributionPoints.getId());
-        if (crlDistributionPoint == null) {
-            throw new ClientException("Certificate does not include information about Certificate Revocation Lists (CRLs).");
-        }
         CRLDistPoint distPoint = CRLDistPoint.getInstance(JcaX509ExtensionUtils.parseExtensionValue(crlDistributionPoint));
-        X509CRLEntry revokedCertificate;
         List<X509CRL> x509CRLList = getDistributedCertificatePoints(distPoint);
         for (X509CRL crl : x509CRLList) {
-            revokedCertificate = crl.getRevokedCertificate(x509Certificate.getSerialNumber());
-            if (revokedCertificate != null) {
-                isRevoked = true;
+            if (crl.getRevokedCertificate(x509Certificate.getSerialNumber()) != null) {
+                return true;
             }
         }
-        return isRevoked;
+        return false;
     }
 
     private List<X509CRL> getDistributedCertificatePoints(CRLDistPoint distPoint) throws IOException, CertificateException, CRLException {
@@ -99,7 +93,7 @@ public class CertificateRevocation {
         }
     }
 
-    private Map<String, Object> certificateAccessInformation(X509Certificate x509Certificate) throws IOException {
+    private Map<String, Object> getCertificateAccessInformation(X509Certificate x509Certificate) throws IOException {
         byte[] extVal = x509Certificate.getExtensionValue(org.bouncycastle.asn1.x509.Extension.authorityInfoAccess.getId());
         Map<String, Object> responseMap = new HashMap<>();
         if (extVal != null) {
