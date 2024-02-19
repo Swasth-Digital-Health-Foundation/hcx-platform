@@ -1,7 +1,6 @@
 package org.swasth;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonIOException;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
@@ -9,18 +8,13 @@ import com.google.zxing.common.BitMatrix;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import org.apache.commons.io.IOUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.swasth.service.EncDeCode;
-import org.swasth.service.VerifyQRCode;
 import org.swasth.utils.JWSUtils;
 import org.yaml.snakeyaml.Yaml;
 
-import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.URI;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
@@ -103,6 +97,7 @@ public class HcxQRCodeGenerator {
         if (requestBody.containsKey("participantCode")) {
             participantCode = (String) requestBody.get("participantCode");
         }
+        System.out.println("QR Token generated");
         String payload = createVerifiableCredential(requestBody, jwsToken);
         generateQRCode(EncDeCode.encodePayload(payload), participantCode);
         return payload;

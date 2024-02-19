@@ -1,27 +1,23 @@
 package org.swasth.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Map;
 
 import static org.swasth.common.utils.JSONUtils.deserialize;
-import static org.swasth.common.utils.JSONUtils.serialize;
 
 public class EncDeCode {
 
-    public static String encodePayload(String payload) throws IOException {
-        String base64EncodedSignature = Base64.getEncoder().encodeToString(serialize(payload).getBytes());
+    public static String encodePayload(String payload) throws Exception {
+        String base64EncodedSignature = Base64.getEncoder().encodeToString(payload.getBytes());
+        System.out.println("Encoded Payload");
         return base64EncodedSignature;
     }
 
-    public static Map<String, Object> decodePayload(String payload) throws IOException {
+    public static Map<String,Object> decodePayload(String payload) throws Exception {
         byte[] decodedBytes = Base64.getDecoder().decode(payload);
-        String decodedString = new String(decodedBytes);
-        Map<String, Object> decode = deserialize(decodedString, Map.class);
+        String decodedString = new String(decodedBytes, StandardCharsets.UTF_8);
+        Map<String,Object> decode = deserialize(decodedString, Map.class);
         return decode;
     }
 
