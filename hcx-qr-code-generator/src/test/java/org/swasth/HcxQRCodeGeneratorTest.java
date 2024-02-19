@@ -7,7 +7,7 @@ import com.google.zxing.common.BitMatrix;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.junit.jupiter.api.Test;
 import org.swasth.service.EncDeCode;
-import org.swasth.service.VerifyQRCode;
+import org.swasth.service.VerifyQrCode;
 import org.swasth.utils.JWSUtils;
 
 import java.io.File;
@@ -28,7 +28,7 @@ public class HcxQRCodeGeneratorTest {
 
     HcxQRCodeGenerator hcxQRCodeGenerator = new HcxQRCodeGenerator();
 
-    VerifyQRCode verifyQRCode = new VerifyQRCode();
+    VerifyQrCode verifyQRCode = new VerifyQrCode();
 
     EncDeCode encDeCode = new EncDeCode();
 

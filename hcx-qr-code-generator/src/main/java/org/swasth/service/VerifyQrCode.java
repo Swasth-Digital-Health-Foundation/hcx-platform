@@ -15,9 +15,9 @@ import java.security.cert.CertificateFactory;
 import java.util.Base64;
 import java.util.Map;
 
-public class VerifyQRCode {
+public class VerifyQrCode {
 
-    public static Map<String, Object> getToken(Map<String, Object> payload) throws Exception {
+    public static Map<String, Object> getToken(Map<String, Object> payload) throws CertificateException, IOException, NoSuchAlgorithmException, SignatureException, InvalidKeyException {
         String publicKeyUrl = "https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/hcx-platform/main/hcx-apis/src/test/resources/examples/test-keys/public-key.pem";
         Map<String, Object> token = (Map<String, Object>) payload.get("proof");
         if (token.containsKey("proofValue")) {
