@@ -33,7 +33,7 @@ public class HcxQRCodeGenerator {
         try {
             loadConfig();
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
     }
 
@@ -46,7 +46,7 @@ public class HcxQRCodeGenerator {
             height = parseWidthHeight((String) qrCodeConfig.get("height"));
             privatekey = resolvePlaceholder((String) qrCodeConfig.get("private_key"));
         }catch (Exception e){
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
     }
 
