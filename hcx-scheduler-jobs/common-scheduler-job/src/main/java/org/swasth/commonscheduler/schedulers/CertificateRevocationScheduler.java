@@ -1,7 +1,6 @@
 package org.swasth.commonscheduler.schedulers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import kong.unirest.HttpResponse;
 import org.bouncycastle.cert.ocsp.OCSPException;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.slf4j.Logger;
@@ -24,7 +23,10 @@ import java.security.cert.CRLException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Map;
 
 @Component
 public class CertificateRevocationScheduler extends BaseScheduler {
@@ -62,7 +64,7 @@ public class CertificateRevocationScheduler extends BaseScheduler {
         for (Map<String, Object> participant : participants) {
             if (participant.containsKey(certKey)) {
                 String certificatePath = (String) participant.get(certKey);
-                 processParticipant(certificatePath, participant, revokedCertificates, invalidCertificates);
+                processParticipant(certificatePath, participant, revokedCertificates, invalidCertificates);
             }
         }
         generateEvent(invalidCertificates, getTemplateMessage(invalidCertificateTopicCode), invalidCertificateTopicCode);
