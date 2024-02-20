@@ -11,6 +11,7 @@ import java.security.*;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -30,16 +31,17 @@ public class VerifyQrCode {
     }
 
     public static boolean isValidSignature(String payload, String publicKeyUrl) throws IOException, CertificateException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
-        String certificate = IOUtils.toString(new URL(publicKeyUrl), StandardCharsets.UTF_8.toString());
+        String certificate = IOUtils.toString(new URL(publicKeyUrl), StandardCharsets.UTF_8);
+        byte[] certificateBytes = certificate.getBytes(StandardCharsets.UTF_8);
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
-        InputStream stream = new ByteArrayInputStream(certificate.getBytes());
+        InputStream stream = new ByteArrayInputStream(certificateBytes);
         Certificate cert = cf.generateCertificate(stream);
         PublicKey publicKey = cert.getPublicKey();
         String[] parts = payload.split("\\.");
-        String data = parts[0] + "." + parts[1];
+        String data = String.join(".", Arrays.copyOfRange(parts, 0, 2));
         Signature sig = Signature.getInstance("SHA256withRSA");
         sig.initVerify(publicKey);
-        sig.update(data.getBytes());
+        sig.update(data.getBytes(StandardCharsets.UTF_8));
         byte[] decodedSignature = Base64.getUrlDecoder().decode(parts[2]);
         return sig.verify(decodedSignature);
     }
