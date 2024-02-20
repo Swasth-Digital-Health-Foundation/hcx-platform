@@ -31,13 +31,10 @@ public class CertificateRevocation {
     }
 
     public boolean checkStatus() throws OCSPException, CertificateException, IOException, ClientException, OperatorCreationException, CRLException {
-        boolean status = false;
         if (!isCertificateRevokedUsingOCSP(x509Certificate)) {
-            if (isCertificateRevokedUsingCRL(x509Certificate)) {
-                status = true;
-            }
+            return isCertificateRevokedUsingCRL(x509Certificate);
         }
-        return status;
+        return false;
     }
 
     private boolean isCertificateRevokedUsingOCSP(X509Certificate x509Certificate) throws IOException, ClientException, OCSPException, CertificateEncodingException, OperatorCreationException {
