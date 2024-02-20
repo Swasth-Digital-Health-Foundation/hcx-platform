@@ -1,6 +1,7 @@
 package org.swasth;
 
-import org.junit.jupiter.api.Test;
+
+import org.junit.Test;
 import org.swasth.service.EncDeCode;
 import org.swasth.service.VerifyQrCode;
 import org.swasth.utils.JWSUtils;
@@ -24,13 +25,13 @@ public class HcxQRCodeGeneratorTest {
 
 
     @Test
-    void test_hcx_qr_generator_success() throws Exception {
+    public void test_hcx_qr_generator_success() throws Exception {
         String[] args = {"{\"payload\":{\"participantCode\":\"test_user_55.yopmail@swasth-hcx\",\"email\":\"test_user_555@yopmail.com\",\"mobile\":\"9899912323\"}}"};
         hcxQRCodeGenerator.main(args);
     }
 
     @Test
-    void test_hcx_qr_generator_no_input_exception() throws Exception {
+    public void test_hcx_qr_generator_no_input_exception() throws Exception {
         String[] args = {};
         HcxQRCodeGenerator.main(args);
     }
