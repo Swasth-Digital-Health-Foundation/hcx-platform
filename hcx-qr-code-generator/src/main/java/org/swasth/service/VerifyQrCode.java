@@ -13,8 +13,10 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.util.Base64;
 import java.util.Map;
+import java.util.logging.Logger;
 
 public class VerifyQrCode {
+    private static final Logger logger = Logger.getLogger(String.valueOf(VerifyQrCode.class));
 
     public static Map<String, Object> getToken(Map<String, Object> payload) throws CertificateException, IOException, NoSuchAlgorithmException, SignatureException, InvalidKeyException {
         String publicKeyUrl = "https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/hcx-platform/main/hcx-apis/src/test/resources/examples/test-keys/public-key.pem";
@@ -22,8 +24,8 @@ public class VerifyQrCode {
         if (token.containsKey("proofValue")) {
             String jwsToken = (String) token.get("proofValue");
             boolean isSignatureValid = isValidSignature(jwsToken, publicKeyUrl);
-            System.out.println(isSignatureValid + " Valid Signature");
-        } else System.out.println("proofValue is empty or null");
+           logger.info(isSignatureValid + " Valid Signature");
+        } else logger.info("proofValue is empty or null");
         return token;
     }
 

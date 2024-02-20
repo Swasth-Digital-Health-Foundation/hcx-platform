@@ -27,10 +27,12 @@ import java.security.spec.InvalidKeySpecException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class HcxQRCodeGenerator {
+    private static final Logger logger = Logger.getLogger(String.valueOf(HcxQRCodeGenerator.class));
     private static int width;
     private static int height;
     private static String privatekey;
@@ -39,7 +41,7 @@ public class HcxQRCodeGenerator {
         try {
             loadConfig();
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+           logger.info(e.getMessage());
         }
     }
 
@@ -52,7 +54,7 @@ public class HcxQRCodeGenerator {
             height = parseWidthHeight((String) qrCodeConfig.get("height"));
             privatekey = resolvePlaceholder((String) qrCodeConfig.get("private_key"));
         }catch (Exception e){
-            System.out.println(e.getMessage());
+            logger.info(e.getMessage());
         }
     }
 
@@ -82,11 +84,11 @@ public class HcxQRCodeGenerator {
             String json = args[0];
             Gson gson = new Gson();
             Map<String, Object> map = gson.fromJson(json, HashMap.class);
-            System.out.println("Map received from command line argument:");
+            logger.info("Map received from command line argument:");
             String certificate = IOUtils.toString(new URI(privatekey), StandardCharsets.UTF_8);
             generateQrToken((Map<String, Object>) map.get("payload"), certificate);
         } else {
-            System.out.println("No input to process");
+            logger.info("No input to process");
         }
     }
 
@@ -105,7 +107,7 @@ public class HcxQRCodeGenerator {
         if (requestBody.containsKey("participantCode")) {
             participantCode = (String) requestBody.get("participantCode");
         }
-        System.out.println("QR Token generated");
+        logger.info("QR Token generated");
         String payload = createVerifiableCredential(requestBody, jwsToken);
         generateQRCode(EncDeCode.encodePayload(payload), participantCode);
         return payload;
@@ -135,6 +137,6 @@ public class HcxQRCodeGenerator {
         String currentDir = System.getProperty("user.dir");
         Path path = FileSystems.getDefault().getPath(currentDir + "/" + participantCode + "_qr_code_" + System.currentTimeMillis() + ".png");
         MatrixToImageWriter.writeToPath(matrix, "PNG", path);
-        System.out.println("QR code image generated and saved to: " + path.toAbsolutePath());
+        logger.info("QR code image generated and saved to: " + path.toAbsolutePath());
     }
 }
