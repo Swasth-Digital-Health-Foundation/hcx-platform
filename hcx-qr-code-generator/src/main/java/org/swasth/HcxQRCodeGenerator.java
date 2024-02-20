@@ -67,7 +67,7 @@ public class HcxQRCodeGenerator {
         return Integer.parseInt(value);
     }
 
-    private static String resolvePlaceholder(String value) {
+    protected static String resolvePlaceholder(String value) {
         if (value.startsWith("${") && value.endsWith("}")) {
             int colonIndex = value.indexOf(':');
             if (colonIndex != -1) {

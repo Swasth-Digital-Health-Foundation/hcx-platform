@@ -10,6 +10,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 
 public class HcxQRCodeGeneratorTest {
@@ -31,6 +33,12 @@ public class HcxQRCodeGeneratorTest {
     }
 
     @Test
+    public void test_hcx_qr_generator() throws Exception {
+        String[] args = {"{\"payload\":{\"email\":\"test_user_555@yopmail.com\",\"mobile\":\"9899912323\"}}"};
+        hcxQRCodeGenerator.main(args);
+    }
+
+    @Test
     public void test_hcx_qr_generator_no_input_exception() throws Exception {
         String[] args = {};
         HcxQRCodeGenerator.main(args);
@@ -44,6 +52,7 @@ public class HcxQRCodeGeneratorTest {
 
     @Test
     public void test_isValid_signature_success() throws Exception {
+        String publicKeyUrl = "https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/hcx-platform/main/hcx-apis/src/test/resources/examples/test-keys/public-key.pem";
         Map<String, Object> jsonData = new HashMap<>();
 
         Map<String, Object> credentialSubject = new HashMap<>();
@@ -65,7 +74,10 @@ public class HcxQRCodeGeneratorTest {
         jsonData.put("expirationDate", "2025-02-19T12:33:55.2799363");
         jsonData.put("credentialSubject", credentialSubject);
         jsonData.put("proof", proof);
-        verifyQRCode.getToken(jsonData);
+        Map<String,Object> verify = verifyQRCode.getToken(jsonData);
+        String token = (String) verify.get("proofValue");
+        boolean assertvalue = verifyQRCode.isValidSignature(token,publicKeyUrl);
+        assertTrue(assertvalue);
     }
 
     @Test
@@ -78,4 +90,41 @@ public class HcxQRCodeGeneratorTest {
         jsonData.put("proof", proof);
          verifyQRCode.getToken(jsonData);
     }
+
+    @Test
+    public void testResolvePlaceholder_NoPlaceholder() {
+        String result = HcxQRCodeGenerator.resolvePlaceholder("testValue");
+        assertEquals("testValue", result);
+    }
+
+    @Test
+    public void testResolvePlaceholder_WithColon() {
+        String result = HcxQRCodeGenerator.resolvePlaceholder("${placeholder:value}");
+        assertEquals("value", result);
+    }
+
+    @Test
+    public void testResolvePlaceholder_WithoutColon() {
+        String result = HcxQRCodeGenerator.resolvePlaceholder("${placeholder}");
+        assertEquals("${placeholder}", result);
+    }
+
+    @Test
+    public void testResolvePlaceholder_NotStartingWithDollarAndCurlyBraces() {
+        String result = HcxQRCodeGenerator.resolvePlaceholder("value}");
+        assertEquals("value}", result);
+    }
+
+    @Test
+    public void testResolvePlaceholder_NotEndingWithCurlyBrace() {
+        String result = HcxQRCodeGenerator.resolvePlaceholder("${value");
+        assertEquals("${value", result);
+    }
+
+    @Test
+    public void testResolvePlaceholder_EmptyString() {
+        String result = HcxQRCodeGenerator.resolvePlaceholder("");
+        assertEquals("", result);
+    }
+
 }
