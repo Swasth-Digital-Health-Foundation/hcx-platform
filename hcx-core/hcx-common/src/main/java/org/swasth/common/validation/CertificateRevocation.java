@@ -50,7 +50,7 @@ public class CertificateRevocation {
         return checkRevocationStatus(ocSpResp);
     }
 
-    private boolean isCertificateRevokedUsingCRL(X509Certificate x509Certificate) throws IOException, CertificateException, CRLException, ClientException {
+    private boolean isCertificateRevokedUsingCRL(X509Certificate x509Certificate) throws IOException, CertificateException, CRLException {
         byte[] crlDistributionPoint = x509Certificate.getExtensionValue(Extension.cRLDistributionPoints.getId());
         CRLDistPoint distPoint = CRLDistPoint.getInstance(JcaX509ExtensionUtils.parseExtensionValue(crlDistributionPoint));
         List<X509CRL> x509CRLList = getDistributedCertificatePoints(distPoint);
