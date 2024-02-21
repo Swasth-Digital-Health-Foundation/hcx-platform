@@ -1107,7 +1107,6 @@ public class OnboardService extends BaseController {
             getEmailAndName("mock_provider", mockParticipant, participantDetails, "Mock Provider");
         }
         Map<String, Object> certificate = CertificateUtil.generateCertificates(parentParticipantCode, hcxURL);
-        mockParticipant.put(PARTICIPANT_NAME,certificate.getOrDefault(PARTICIPANT_NAME,""));
         mockParticipant.put(SIGNING_CERT_PATH, certificate.getOrDefault(PUBLIC_KEY, ""));
         mockParticipant.put(ENCRYPTION_CERT, certificate.getOrDefault(PUBLIC_KEY, ""));
         mockParticipant.put(PRIVATE_KEY, certificate.getOrDefault(PRIVATE_KEY, ""));
