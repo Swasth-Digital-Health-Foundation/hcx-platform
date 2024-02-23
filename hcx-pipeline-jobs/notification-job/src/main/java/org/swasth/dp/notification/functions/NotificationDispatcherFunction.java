@@ -45,12 +45,14 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
                 participant.put(Constants.END_POINT(), endpointUrl + event.get(Constants.ACTION()));
                 String payload = getPayload(event);
                 DispatcherResult result = dispatcherUtil.dispatch(participant, payload);
+                System.out.println("-------DISPATCHER RESULT --------------------------");
                 String email = (String) participant.getOrDefault("primary_email", "");
                 String topicCode = (String) event.getOrDefault(Constants.TOPIC_CODE(), "");
                 String message = (String) event.getOrDefault(Constants.MESSAGE(), "");
                 Map<String, Object> notification = notificationUtil.getNotification(topicCode);
                 String subject = (String) notification.get("title");
                 Map<String,Object> emailEvent = getEmailMessageEvent(message, subject, List.of(email), new ArrayList<>(), new ArrayList<>());
+                System.out.println("-----------------Email Event ------------------");
                 if (config.emailNotificationEnabled && !StringUtils.isEmpty(message) && !StringUtils.isEmpty(topicCode)) {
                     context.output(config.messageOutputTag, JSONUtil.serialize(emailEvent));
                 }

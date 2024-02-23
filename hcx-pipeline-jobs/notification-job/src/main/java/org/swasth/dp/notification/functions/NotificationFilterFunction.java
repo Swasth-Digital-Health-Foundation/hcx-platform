@@ -34,6 +34,7 @@ public class NotificationFilterFunction extends BaseNotificationFunction {
         Map<String,Object> notificationHeaders = getProtocolMapValue(Constants.NOTIFICATION_HEADERS(), inputEvent);
         String senderCode = (String) notificationHeaders.get(Constants.SENDER_CODE());
         Map<String, Object> notification = notificationUtil.getNotification(topicCode);
+        System.out.println("notification-------------------------"+notification);
         System.out.println("Notification Master data template: " + notification);
         logger.debug("Notification Master data template: " + notification);
         consolidatedEvent.put(Constants.MASTER_DATA(), notification);
@@ -49,6 +50,7 @@ public class NotificationFilterFunction extends BaseNotificationFunction {
                 List<Map<String, Object>> fetchParticipants = registryService.getParticipantDetails("{\"roles\":{\"or\":[" + addQuotes(recipients) + "]}}");
                 recipients = fetchParticipants.stream().map(obj -> (String) obj.get(Constants.PARTICIPANT_CODE())).collect(Collectors.toList());
             }
+            System.out.println(notification.getOrDefault(Constants.CATEGORY(), ""));
             if(notification.get(Constants.CATEGORY()).equals(Constants.NETWORK())) {
                 participantCodes = recipients;
             } else {
