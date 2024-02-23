@@ -26,6 +26,14 @@ public class NotificationConfig extends BaseJobConfig {
     public String kafkaServiceUrl;
     // Postgres
     public String subscriptionTableName;
+    public String subGatewayDowntime;
+    public String subEncKeyExpiry;
+    public String subOnboarded;
+    public String subDeboarded;
+    public String subFeatRemoved;
+    public String subPolicyUpdate;
+    public String subCertRevocation;
+    public String subFeatAdded;
 
     public NotificationConfig(Config config, String jobName) {
         super(config, jobName);
@@ -44,6 +52,14 @@ public class NotificationConfig extends BaseJobConfig {
         kafkaServiceUrl = config.getString("kafka.bootstrap.servers");
         emailNotificationEnabled = config.getBoolean("kafka.email.notification.enabled");
         messageTopic = config.getString("kafka.message.topic");
+        subCertRevocation = config.getString("sub.certificate.revocation");
+        subDeboarded = config.getString("sub.participant.deboarded");
+        subOnboarded = config.getString("sub.participant.onboarded");
+        subEncKeyExpiry = config.getString("sub.encryption.key.expiry");
+        subFeatRemoved = config.getString("sub.network.feature.removed");
+        subPolicyUpdate = config.getString("sub.policy.update");
+        subGatewayDowntime = config.getString("sub.gateway.downtime");
+        subFeatAdded = config.getString("sub.feature.added");
     }
 
 }

@@ -1,5 +1,8 @@
 package org.swasth.dp.notification.functions;
 
+import freemarker.template.Configuration;
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.util.Collector;
@@ -12,6 +15,8 @@ import org.swasth.dp.core.util.JSONUtil;
 import org.swasth.dp.notification.task.NotificationConfig;
 import scala.Option;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.*;
 
 
@@ -46,10 +51,44 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
                 String payload = getPayload(event);
                 DispatcherResult result = dispatcherUtil.dispatch(participant, payload);
                 String email = (String) participant.getOrDefault("primary_email", "");
+                String userName = (String) participant.get("participant_name");
                 String topicCode = (String) event.getOrDefault(Constants.TOPIC_CODE(), "");
+                String subject = "";
+                switch (topicCode) {
+                    case "notif-gateway-downtime":
+                        renderTemplate("downtime.ftl",usernameTemplate(userName));
+                        subject = config.subGatewayDowntime;
+                        break;
+                    case "notif-encryption-key-expiry":
+                        renderTemplate("encryption-key-expiration.ftl",usernameTemplate(userName));
+                        subject = config.subEncKeyExpiry;
+                        break;
+                    case "notif-participant-onboarded":
+                        renderTemplate("participant-onboarded.ftl",usernameTemplate(userName));
+                        subject = config.subOnboarded;
+                        break;
+                    case "notif-participant-de-boarded":
+                        renderTemplate("participant-deboarding.ftl",usernameTemplate(userName));
+                        subject = config.subDeboarded;
+                        break;
+                    case "notif-network-feature-removed":
+                        renderTemplate("end-of-feature-support.ftl",usernameTemplate(userName));
+                        subject = config.subFeatRemoved;
+                        break;
+                    case "notif-new-network-feature-added":
+                        renderTemplate("new-feature-support.ftl",usernameTemplate(userName));
+                        subject = config.subFeatAdded;
+                        break;
+                    case "notif-gateway-policy-sla-change":
+                        renderTemplate("policy-update.ftl",usernameTemplate(userName));
+                        subject = config.subPolicyUpdate;
+                        break;
+                    case "notif-certificate-revocation":
+                        renderTemplate("certificate-revocation.ftl",usernameTemplate(userName));
+                        subject = config.subCertRevocation;
+                        break;
+                }
                 String message = (String) event.getOrDefault(Constants.MESSAGE(), "");
-                Map<String, Object> notification = notificationUtil.getNotification(topicCode);
-                String subject = (String) notification.get("title");
                 Map<String,Object> emailEvent = getEmailMessageEvent(message, subject, List.of(email), new ArrayList<>(), new ArrayList<>());
                 if (config.emailNotificationEnabled && !StringUtils.isEmpty(message) && !StringUtils.isEmpty(topicCode)) {
                     context.output(config.messageOutputTag, JSONUtil.serialize(emailEvent));
@@ -98,5 +137,19 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
         recipients.put("bcc", bcc);
         event.put("recipients", recipients);
         return event;
+    }
+    public String renderTemplate(String templateName, String model) throws IOException, TemplateException {
+        Configuration cfg = new Configuration(Configuration.VERSION_2_3_31);
+        cfg.setClassForTemplateLoading(NotificationDispatcherFunction.class, "/templates");
+        Template template = cfg.getTemplate(templateName);
+        StringWriter writer = new StringWriter();
+        template.process(model, writer);
+        return writer.toString();
+    }
+
+    private String usernameTemplate(String userName) throws Exception {
+        Map<String, Object> model = new HashMap<>();
+        model.put("USER_NAME", userName);
+        return JSONUtil.serialize(model);
     }
 }
