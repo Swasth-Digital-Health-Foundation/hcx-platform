@@ -226,6 +226,7 @@ public class Constants {
     public static final String API_ACCESS_SECRET_GENERATE = "/api-access/secret/generate";
     public static final String PUBLIC_KEY = "public_key";
     public static final String PRIVATE_KEY = "private_key";
+    public static final String USAGE_TYPE = "usage_type";
     public static final String PASSWORD = "password";
     public static final String CHILD_PARTICIPANT_CODE = "child_participant_code";
     public static final String PARENT_PARTICIPANT_CODE = "parent_participant_code";

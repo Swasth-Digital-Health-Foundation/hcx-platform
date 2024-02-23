@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.Gson;
 import freemarker.template.TemplateException;
 import kong.unirest.HttpResponse;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.CharacterPredicates;
 import org.apache.commons.text.RandomStringGenerator;
@@ -115,13 +116,10 @@ public class OnboardService extends BaseController {
     private String privatekey;
     @Value("${jwt-token.expiry-time}")
     private Long expiryTime;
-
-    @Value("${mock-service.provider.endpoint-url}")
-    private String mockProviderEndpointURL;
-
-    @Value("${mock-service.payor.endpoint-url}")
-    private String mockPayorEndpointURL;
-
+    @Value("${mock-service.endpoint-url}")
+    private String mockServiceEndPointUrl;
+    @Value("${mock-service.usage-type}")
+    private String usageType;
     @Value("${keycloak.base-url}")
     private String keycloakURL;
     @Value("${keycloak.admin-password}")
@@ -1091,6 +1089,7 @@ public class OnboardService extends BaseController {
     private void getEmailAndName(String role, Map<String, Object> mockParticipant, Map<String, Object> participantDetails, String name) {
         mockParticipant.put(PRIMARY_EMAIL, SlugUtils.makeEmailSlug((String) participantDetails.getOrDefault(PRIMARY_EMAIL, ""), role));
         mockParticipant.put(PARTICIPANT_NAME, participantDetails.getOrDefault(PARTICIPANT_NAME, "") + " " + name);
+        mockParticipant.put(PRIMARY_MOBILE, participantDetails.getOrDefault(PRIMARY_MOBILE, ""));
     }
 
     private Map<String, Object> getMockParticipantBody(Map<String, Object> participantDetails, String role, String parentParticipantCode) throws Exception {
@@ -1098,19 +1097,19 @@ public class OnboardService extends BaseController {
         if (role.equalsIgnoreCase(PAYOR)) {
             mockParticipant.put(ROLES, new ArrayList<>(List.of(PAYOR)));
             mockParticipant.put(SCHEME_CODE, "default");
-            mockParticipant.put(ENDPOINT_URL, mockPayorEndpointURL);
+            mockParticipant.put(ENDPOINT_URL, mockServiceEndPointUrl);
             getEmailAndName("mock_payor", mockParticipant, participantDetails, "Mock Payor");
         }
         if (role.equalsIgnoreCase(PROVIDER_HOSPITAL)) {
             mockParticipant.put(ROLES, new ArrayList<>(List.of(PROVIDER_HOSPITAL)));
-            mockParticipant.put(ENDPOINT_URL, mockProviderEndpointURL);
+            mockParticipant.put(ENDPOINT_URL, mockServiceEndPointUrl);
             getEmailAndName("mock_provider", mockParticipant, participantDetails, "Mock Provider");
         }
         Map<String, Object> certificate = CertificateUtil.generateCertificates(parentParticipantCode, hcxURL);
-        mockParticipant.put(PARTICIPANT_NAME,certificate.getOrDefault(PARTICIPANT_NAME,""));
         mockParticipant.put(SIGNING_CERT_PATH, certificate.getOrDefault(PUBLIC_KEY, ""));
         mockParticipant.put(ENCRYPTION_CERT, certificate.getOrDefault(PUBLIC_KEY, ""));
         mockParticipant.put(PRIVATE_KEY, certificate.getOrDefault(PRIVATE_KEY, ""));
+        mockParticipant.put(USAGE_TYPE, usageType);
         mockParticipant.put(REGISTRY_STATUS, ACTIVE);
         return mockParticipant;
     }
@@ -1217,15 +1216,8 @@ public class OnboardService extends BaseController {
         return gson.toJson(onboardValidations);
     }
 
-    private String generateRandomPassword(int length){
-        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#&*";
-        SecureRandom secureRandom = new SecureRandom();
-        StringBuilder password = new StringBuilder(length);
-        for (int i = 0; i < length; i++) {
-            int randomIndex = secureRandom.nextInt(characters.length());
-            password.append(characters.charAt(randomIndex));
-        }
-        return password.toString();
+    private String generateRandomPassword(int length) {
+        return RandomStringUtils.random(length, true, true);
     }
 
     public Response generateAndSetPassword(HttpHeaders headers, String participantCode) throws Exception {

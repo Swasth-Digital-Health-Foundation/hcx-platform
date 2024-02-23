@@ -60,11 +60,9 @@ hcx-api:
   base-path: ${HCX_API_BASEPATH:http://localhost:8080}
 
 mock-service:
-    payor:
-      endpoint-url: ${mock_service_endpoint_url_provider:http://test-mock-payor-url}
-    provider:
-      endpoint-url: ${mock_service_endpoint_url_payor:http://test-mock-provider-url}
-    allowed-env: ${mock_service_allowed_env:}
+  endpoint-url: ${mock_service_endpoint_url:http://test-mock-payor-url}
+  usage-type: ${mock_service_participant_usage_type:mock}
+  allowed-env: ${mock_service_allowed_env:}
 
 #postgres config
 postgres:
