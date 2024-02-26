@@ -10,7 +10,7 @@
   <h3>What do you need to do?</h3>
   <p>To ensure uninterrupted access and security of your data, it's crucial to update your encryption key before the expiration date. Here's how you can do it:</p>
   <ol>
-    <li>Log in to your [Platform Name] account.</li>
+    <li>Log in to your account.</li>
     <li>Navigate to the security settings or encryption key management section.</li>
     <li>Generate a new encryption key or follow the provided instructions to update your existing key.</li>
   </ol>

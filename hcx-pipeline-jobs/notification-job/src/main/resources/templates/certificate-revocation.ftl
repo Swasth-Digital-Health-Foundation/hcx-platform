@@ -19,7 +19,7 @@ If you are using this certificate for any authentication, encryption, or other p
 </ol>
 
 <p><strong>How can we assist you?</strong><br>
-If you require assistance with generating a new certificate, updating your configurations, or have any questions about this revocation notice, please reach out to our support team at [Support Email/Phone Number]. We are here to help you navigate through this process and ensure minimal disruption to your operations.</p>
+If you require assistance with generating a new certificate, updating your configurations, or have any questions about this revocation notice, please reach out to our support team at <a href="https://swasth.zohodesk.in/">https://swasth.zohodesk.in/</a>. We are here to help you navigate through this process and ensure minimal disruption to your operations.</p>
 
 <p><strong>Why is this necessary?</strong><br>
 Certificate revocation is a critical security measure undertaken to protect our platform and your data from potential vulnerabilities or unauthorized access. By promptly revoking and replacing compromised certificates, we aim to maintain the highest standards of security and integrity for all users.</p>
