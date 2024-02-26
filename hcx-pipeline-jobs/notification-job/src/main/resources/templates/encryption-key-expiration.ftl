@@ -5,6 +5,7 @@
   <p>Dear ${USER_NAME},</p>
   <p>We hope this message finds you well. We're reaching out to inform you about an upcoming change that may affect your access to Open HCX platform. The encryption key associated with your account is set to expire on $(DDMMYYYY).  Please renew your encryption key before $(DDMMYYYY) to carry on
                                                                                                                                                                                                                                            operating on HCX.</p>
+   <p>${MESSAGE}</p>
   <h3>What does this mean for you?</h3>
   <p>When the encryption key expires, it will no longer be valid for securing your data on Open HCX. This could potentially impact your ability to access encrypted files or perform certain operations within the platform.</p>
   <h3>What do you need to do?</h3>

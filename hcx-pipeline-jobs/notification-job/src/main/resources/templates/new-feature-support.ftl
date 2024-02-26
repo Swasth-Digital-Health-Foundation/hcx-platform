@@ -7,10 +7,7 @@
 
   <p>Here's a brief overview of some of the key features you can expect:</p>
 
-  <ul>
-    <li><strong>[Feature 1]:</strong> [Description of feature 1 and its benefits.]</li>
-    <li><strong>[Feature 2]:</strong> [Description of feature 2 and its benefits.]</li>
-  </ul>
+  <p>${MESSAGE}</p>
 
   <p>We're continually working to innovate and improve Open HCX, and these new features represent our commitment to providing you with the best possible platform for your needs.</p>
 
