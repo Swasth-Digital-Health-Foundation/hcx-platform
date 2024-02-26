@@ -29,9 +29,7 @@ Certificate revocation is a critical security measure undertaken to protect our 
 <p>Thank you for your attention to this urgent notification.</p>
 
 <p>Best regards,<br>
-[Your Name]<br>
-[Your Position]<br>
-[Your Contact Information]</p>
+Open HCX support Team<br>
 
 </body>
 </html>
