@@ -52,44 +52,63 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
                 DispatcherResult result = dispatcherUtil.dispatch(participant, payload);
                 String email = (String) participant.getOrDefault("primary_email", "");
                 String userName = (String) participant.get("participant_name");
+                System.out.println(userName + " ------USERNAME------ ");
                 String topicCode = (String) event.getOrDefault(Constants.TOPIC_CODE(), "");
+                System.out.println(topicCode+" TOPIC CODE ");
                 String subject = "";
                 switch (topicCode) {
                     case "notif-gateway-downtime":
+                        System.out.println("----------------DOWN-TIME ----------------");
                         renderTemplate("downtime.ftl",usernameTemplate(userName));
                         subject = config.subGatewayDowntime;
+                        System.out.println(subject+" ====SUBJECT====");
                         break;
                     case "notif-encryption-key-expiry":
+                        System.out.println("--------------ENCRYPTION-KEY-EXPIRY-------------");
                         renderTemplate("encryption-key-expiration.ftl",usernameTemplate(userName));
                         subject = config.subEncKeyExpiry;
+                        System.out.println(subject+" ====SUBJECT====");
                         break;
                     case "notif-participant-onboarded":
+                        System.out.println("------------------PARTICIPANT-ONBOARD--------------");
                         renderTemplate("participant-onboarded.ftl",usernameTemplate(userName));
                         subject = config.subOnboarded;
+                        System.out.println(subject+" ====SUBJECT====");
                         break;
                     case "notif-participant-de-boarded":
+                        System.out.println("----------------PARTICIPANT-DE-BOARD-----------------");
                         renderTemplate("participant-deboarding.ftl",usernameTemplate(userName));
                         subject = config.subDeboarded;
+                        System.out.println(subject+" ====SUBJECT====");
                         break;
                     case "notif-network-feature-removed":
+                        System.out.println("----------------FEATURE-REMOVED----------------");
                         renderTemplate("end-of-feature-support.ftl",usernameTemplate(userName));
                         subject = config.subFeatRemoved;
+                        System.out.println(subject+" ====SUBJECT====");
                         break;
                     case "notif-new-network-feature-added":
+                        System.out.println("----------------NETWORK-FEATURE-ADDED------------");
                         renderTemplate("new-feature-support.ftl",usernameTemplate(userName));
                         subject = config.subFeatAdded;
+                        System.out.println(subject+" ====SUBJECT====");
                         break;
                     case "notif-gateway-policy-sla-change":
+                        System.out.println("---------------GATEWAY-POLICY-SLA-CHANGE-------------");
                         renderTemplate("policy-update.ftl",usernameTemplate(userName));
                         subject = config.subPolicyUpdate;
+                        System.out.println(subject+" ====SUBJECT====");
                         break;
                     case "notif-certificate-revocation":
+                        System.out.println("--------------CERT-REVOCATION-------------------");
                         renderTemplate("certificate-revocation.ftl",usernameTemplate(userName));
                         subject = config.subCertRevocation;
+                        System.out.println(subject+" ====SUBJECT====");
                         break;
                 }
                 String message = (String) event.getOrDefault(Constants.MESSAGE(), "");
                 Map<String,Object> emailEvent = getEmailMessageEvent(message, subject, List.of(email), new ArrayList<>(), new ArrayList<>());
+                System.out.println(emailEvent+"  ------Email Event------");
                 if (config.emailNotificationEnabled && !StringUtils.isEmpty(message) && !StringUtils.isEmpty(topicCode)) {
                     context.output(config.messageOutputTag, JSONUtil.serialize(emailEvent));
                 }
