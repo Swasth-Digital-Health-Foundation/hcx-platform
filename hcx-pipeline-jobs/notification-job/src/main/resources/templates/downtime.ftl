@@ -5,7 +5,7 @@
 <div>
   <p>Dear ${USER_NAME},</p>
 
-  <p>We hope this email finds you well. We wanted to inform you about an upcoming scheduled maintenance window for Open HCX that will occur on <strong>&lt;dd-mm-yyyy&gt;</strong> at <strong>[Time] (timezone)</strong>. During this maintenance period, Open HCX switch will be temporarily unavailable as we perform essential updates and enhancements to ensure the stability, security, and performance of our platform.</p>
+  <p>We hope this email finds you well. We wanted to inform you about an upcoming scheduled maintenance window for Open HCX. During this maintenance period, Open HCX switch will be temporarily unavailable as we perform essential updates and enhancements to ensure the stability, security, and performance of our platform.</p>
 
   <h3>Maintenance Details:</h3>
   <p>${MESSAGE}</p>
