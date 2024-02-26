@@ -60,6 +60,7 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
                     case "notif-gateway-downtime":
                         System.out.println("----------------DOWN-TIME ----------------");
                         renderTemplate("downtime.ftl",usernameTemplate(userName));
+                        System.out.println(renderTemplate("downtime.ftl",usernameTemplate(userName)));
                         subject = config.subGatewayDowntime;
                         System.out.println(subject+" ====SUBJECT====");
                         break;
