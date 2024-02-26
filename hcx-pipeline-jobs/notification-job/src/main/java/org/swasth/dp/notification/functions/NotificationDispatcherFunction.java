@@ -158,7 +158,7 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
         event.put("recipients", recipients);
         return event;
     }
-    public String renderTemplate(String templateName, String model) throws IOException, TemplateException {
+    public String renderTemplate(String templateName, Map<String, Object> model) throws IOException, TemplateException {
         Configuration cfg = new Configuration(Configuration.VERSION_2_3_31);
         cfg.setClassForTemplateLoading(NotificationDispatcherFunction.class, "/templates");
         Template template = cfg.getTemplate(templateName);
@@ -167,9 +167,9 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
         return writer.toString();
     }
 
-    private String usernameTemplate(String userName) throws Exception {
+    private Map<String, Object> usernameTemplate(String userName) throws Exception {
         Map<String, Object> model = new HashMap<>();
         model.put("USER_NAME", userName);
-        return JSONUtil.serialize(model);
+        return model;
     }
 }
