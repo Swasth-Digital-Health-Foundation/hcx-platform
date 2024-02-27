@@ -55,7 +55,11 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
                 String topicCode = (String) event.getOrDefault(Constants.TOPIC_CODE(), "");
                 String message = (String) event.getOrDefault(Constants.MESSAGE(), "");
                 String subject = config.getSubject(topicCode);
-                String textMessage = applyTemplateVars(topicCode, message, (Map<String, Object>) new HashMap<>().put("USERNAME", userName));
+                Map<String , Object > model = new HashMap<>();
+                model.put("USERNAME",userName);
+                System.out.println("-------------APPLY TEMPLATES------------");
+                String textMessage = applyTemplateVars(topicCode, message, model);
+                System.out.println("text message " + textMessage);
                 Map<String, Object> emailEvent = getEmailMessageEvent(textMessage, subject, List.of(email), new ArrayList<>(), new ArrayList<>());
                 if (config.emailNotificationEnabled && !StringUtils.isEmpty(message) && !StringUtils.isEmpty(topicCode)) {
                     context.output(config.messageOutputTag, JSONUtil.serialize(emailEvent));
@@ -115,7 +119,11 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
     }
 
     private String applyTemplateVars(String topicCode, String message, Map<String, Object> model) throws TemplateException, IOException {
+        System.out.println("TOPIC CODE -----"+ topicCode);
+        System.out.println("MESSAGE --------"+ message);
+
         model.put("MESSAGE", message);
+        System.out.println("MODEL "+ model);
         return renderTemplate(topicCode + ".ftl", model);
     }
 }
