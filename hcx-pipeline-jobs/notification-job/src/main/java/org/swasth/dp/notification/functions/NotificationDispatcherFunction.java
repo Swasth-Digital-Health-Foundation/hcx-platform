@@ -29,17 +29,17 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
     }
 
     @Override
-    public void processElement(Map<String, Object> inputEvent, ProcessFunction<Map<String, Object>, Map<String,Object>>.Context context, Collector<Map<String,Object>> collector) throws Exception {
-        Map<String,Object> actualEvent = (Map<String, Object>) inputEvent.get(Constants.INPUT_EVENT());
+    public void processElement(Map<String, Object> inputEvent, ProcessFunction<Map<String, Object>, Map<String, Object>>.Context context, Collector<Map<String, Object>> collector) throws Exception {
+        Map<String, Object> actualEvent = (Map<String, Object>) inputEvent.get(Constants.INPUT_EVENT());
         List<Map<String, Object>> participantDetails = (List<Map<String, Object>>) inputEvent.get(Constants.PARTICIPANT_DETAILS());
         notificationDispatcher(participantDetails, actualEvent, context);
     }
 
-    private void notificationDispatcher(List<Map<String, Object>> participantDetails, Map<String,Object> event , ProcessFunction<Map<String, Object>, Map<String,Object>>.Context context) throws Exception {
+    private void notificationDispatcher(List<Map<String, Object>> participantDetails, Map<String, Object> event, ProcessFunction<Map<String, Object>, Map<String, Object>>.Context context) throws Exception {
         int successfulDispatches = 0;
         int failedDispatches = 0;
         Long expiry = getProtocolLongValue(Constants.EXPIRY(), event);
-        for(Map<String,Object> participant: participantDetails) {
+        for (Map<String, Object> participant : participantDetails) {
             String participantCode = (String) participant.get(Constants.PARTICIPANT_CODE());
             String endpointUrl = (String) participant.get(Constants.END_POINT());
             if (Constants.INVALID_STATUS().contains(participant.get(Constants.STATUS()))) {
@@ -54,43 +54,9 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
                 String userName = (String) participant.get("participant_name");
                 String topicCode = (String) event.getOrDefault(Constants.TOPIC_CODE(), "");
                 String message = (String) event.getOrDefault(Constants.MESSAGE(), "");
-                String subject = "";
-                String textMessage = "";
-                switch (topicCode) {
-                    case "notif-gateway-downtime":
-                        textMessage = renderTemplate("downtime.ftl",usernameTemplate(userName,message));
-                        subject = config.subGatewayDowntime;
-                        break;
-                    case "notif-encryption-key-expiry":
-                        textMessage = renderTemplate("encryption-key-expiration.ftl",usernameTemplate(userName,message));
-                        subject = config.subEncKeyExpiry;
-                        break;
-                    case "notif-participant-onboarded":
-                        textMessage = renderTemplate("participant-onboarded.ftl",usernameTemplate(userName,message));
-                        subject = config.subOnboarded;
-                        break;
-                    case "notif-participant-de-boarded":
-                        textMessage =renderTemplate("participant-deboarding.ftl",usernameTemplate(userName,message));
-                        subject = config.subDeboarded;
-                        break;
-                    case "notif-network-feature-removed":
-                        textMessage = renderTemplate("end-of-feature-support.ftl",usernameTemplate(userName,message));
-                        subject = config.subFeatRemoved;
-                        break;
-                    case "notif-new-network-feature-added":
-                        textMessage = renderTemplate("new-feature-support.ftl",usernameTemplate(userName,message));
-                        subject = config.subFeatAdded;
-                        break;
-                    case "notif-gateway-policy-sla-change":
-                        textMessage = renderTemplate("policy-update.ftl",usernameTemplate(userName,message));
-                        subject = config.subPolicyUpdate;
-                        break;
-                    case "notif-certificate-revocation":
-                        textMessage = renderTemplate("certificate-revocation.ftl",usernameTemplate(userName,message));
-                        subject = config.subCertRevocation;
-                        break;
-                }
-                Map<String,Object> emailEvent = getEmailMessageEvent(textMessage, subject, List.of(email), new ArrayList<>(), new ArrayList<>());
+                String subject = getSubjectForTopic(topicCode);
+                String textMessage = usernameTemplate(userName, message, topicCode);
+                Map<String, Object> emailEvent = getEmailMessageEvent(textMessage, subject, List.of(email), new ArrayList<>(), new ArrayList<>());
                 if (config.emailNotificationEnabled && !StringUtils.isEmpty(message) && !StringUtils.isEmpty(topicCode)) {
                     context.output(config.messageOutputTag, JSONUtil.serialize(emailEvent));
                 }
@@ -118,13 +84,13 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
         return failedDispatches;
     }
 
-    private String getPayload(Map<String,Object> event) throws Exception {
+    private String getPayload(Map<String, Object> event) throws Exception {
         Map<String, Object> payload = new HashMap<>();
         payload.put(Constants.PAYLOAD(), event.get(Constants.PAYLOAD()));
         return JSONUtil.serialize(payload);
     }
 
-    public Map<String,Object> getEmailMessageEvent(String message, String subject, List<String> to, List<String> cc, List<String> bcc) throws Exception {
+    public Map<String, Object> getEmailMessageEvent(String message, String subject, List<String> to, List<String> cc, List<String> bcc) throws Exception {
         Map<String, Object> event = new HashMap<>();
         event.put("eid", "MESSAGE");
         event.put("mid", UUID.randomUUID());
@@ -148,10 +114,32 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
         return writer.toString();
     }
 
-    private Map<String, Object> usernameTemplate(String userName , String message) throws Exception {
+    private String usernameTemplate(String userName, String message, String topicCode) throws Exception {
         Map<String, Object> model = new HashMap<>();
         model.put("USER_NAME", userName);
-        model.put("MESSAGE",message);
-        return model;
+        model.put("MESSAGE", message);
+        return renderTemplate(topicCode + ".ftl", model);
+    }
+    private String getSubjectForTopic(String topicCode) {
+        switch (topicCode) {
+            case "notif-gateway-downtime":
+                return config.subGatewayDowntime;
+            case "notif-encryption-key-expiry":
+                return config.subEncKeyExpiry;
+            case "notif-participant-onboarded":
+                return config.subOnboarded;
+            case "notif-participant-de-boarded":
+                return config.subDeboarded;
+            case "notif-network-feature-removed":
+                return config.subFeatRemoved;
+            case "notif-new-network-feature-added":
+                return config.subFeatAdded;
+            case "notif-gateway-policy-sla-change":
+                return config.subPolicyUpdate;
+            case "notif-certificate-revocation":
+                return config.subCertRevocation;
+            default:
+                return "";
+        }
     }
 }
