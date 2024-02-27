@@ -52,14 +52,14 @@ public class NotificationConfig extends BaseJobConfig {
         kafkaServiceUrl = config.getString("kafka.bootstrap.servers");
         emailNotificationEnabled = config.getBoolean("kafka.email.notification.enabled");
         messageTopic = config.getString("kafka.message.topic");
-        subCertRevocation = config.getString("sub.notif-certificate-revocation");
-        subDeboarded = config.getString("sub.notif-participant-de-boarded");
-        subOnboarded = config.getString("sub.notif-participant-onboarded");
-        subEncKeyExpiry = config.getString("sub.notif-encryption-key-expiry");
-        subFeatRemoved = config.getString("sub.notif-network-feature-removed");
-        subPolicyUpdate = config.getString("sub.notif-gateway-policy-sla-change");
-        subGatewayDowntime = config.getString("sub.notif-gateway-downtime");
-        subFeatAdded = config.getString("sub.notif-new-network-feature-added");
+        subCertRevocation = config.getString("notif-certificate-revocation.subject");
+        subDeboarded = config.getString("notif-participant-de-boarded.subject");
+        subOnboarded = config.getString("notif-participant-onboarded.subject");
+        subEncKeyExpiry = config.getString("notif-encryption-key-expiry.subject");
+        subFeatRemoved = config.getString("notif-network-feature-removed.subject");
+        subPolicyUpdate = config.getString("notif-gateway-policy-sla-change.subject");
+        subGatewayDowntime = config.getString("notif-gateway-downtime.subject");
+        subFeatAdded = config.getString("notif-new-network-feature-added.subject");
     }
 
 }
