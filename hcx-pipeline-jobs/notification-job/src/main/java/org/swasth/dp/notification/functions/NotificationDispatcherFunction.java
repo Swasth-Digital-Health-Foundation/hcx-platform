@@ -55,7 +55,7 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
                 String topicCode = (String) event.getOrDefault(Constants.TOPIC_CODE(), "");
                 String message = (String) event.getOrDefault(Constants.MESSAGE(), "");
                 String subject = config.getSubject(topicCode);
-                String textMessage = usernameTemplate(userName, message, topicCode);
+                String textMessage = applyTemplateVars(topicCode, message, (Map<String, Object>) new HashMap<>().put("USERNAME", userName));
                 Map<String, Object> emailEvent = getEmailMessageEvent(textMessage, subject, List.of(email), new ArrayList<>(), new ArrayList<>());
                 if (config.emailNotificationEnabled && !StringUtils.isEmpty(message) && !StringUtils.isEmpty(topicCode)) {
                     context.output(config.messageOutputTag, JSONUtil.serialize(emailEvent));
