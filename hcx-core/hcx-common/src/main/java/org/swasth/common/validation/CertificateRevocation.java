@@ -93,13 +93,11 @@ public class CertificateRevocation {
         }
     }
 
-    private X509Certificate parseCertificateFromURL(String urlString) throws IOException, ClientException {
+    private X509Certificate parseCertificateFromURL(String urlString) throws IOException, CertificateException {
         URL url = new URL(urlString);
         try (InputStream inputStream = url.openStream()) {
             CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
             return (X509Certificate) certificateFactory.generateCertificate(inputStream);
-        } catch (Exception e) {
-            throw new ClientException(ErrorCodes.ERR_INVALID_CERTIFICATE, "Error parsing certificate from the URL");
         }
     }
 
