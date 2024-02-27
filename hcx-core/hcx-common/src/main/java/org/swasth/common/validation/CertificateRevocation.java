@@ -30,34 +30,47 @@ public class CertificateRevocation {
         this.x509Certificate = x509Certificate;
     }
 
-    public boolean checkStatus() throws OCSPException, CertificateException, IOException, ClientException, OperatorCreationException, CRLException {
+    public boolean checkStatus() {
         if (!isCertificateRevokedUsingOCSP(x509Certificate)) {
             return isCertificateRevokedUsingCRL(x509Certificate);
         }
         return false;
     }
 
-    private boolean isCertificateRevokedUsingOCSP(X509Certificate x509Certificate) throws IOException, ClientException, OCSPException, CertificateEncodingException, OperatorCreationException {
-        Map<String, Object> certificateAccessInformation = getCertificateAccessInformation(x509Certificate);
-        if (certificateAccessInformation.isEmpty()) {
-            throw new ClientException("Certificate revocation details are not available");
+    private boolean isCertificateRevokedUsingOCSP(X509Certificate x509Certificate) {
+        try {
+            Map<String, Object> certificateAccessInformation = getCertificateAccessInformation(x509Certificate);
+            if (certificateAccessInformation.isEmpty()) {
+                throw new ClientException("Certificate revocation details are not available");
+            }
+            OCSPReq ocspReq = generateOCSPRequest(parseCertificateFromURL(certificateAccessInformation.get(ISSUER_CERTIFICATE).toString()), x509Certificate);
+            OCSPResp ocSpResp = sendOCSPRequest(ocspReq, certificateAccessInformation.get(OCSP_URL).toString());
+            return checkRevocationStatus(ocSpResp);
+        } catch (Exception e) {
+            return false;
         }
-        OCSPReq ocspReq = generateOCSPRequest(parseCertificateFromURL(certificateAccessInformation.get(ISSUER_CERTIFICATE).toString()), x509Certificate);
-        OCSPResp ocSpResp = sendOCSPRequest(ocspReq, certificateAccessInformation.get(OCSP_URL).toString());
-        return checkRevocationStatus(ocSpResp);
     }
 
-    private boolean isCertificateRevokedUsingCRL(X509Certificate x509Certificate) throws IOException, CertificateException, CRLException {
-        byte[] crlDistributionPoint = x509Certificate.getExtensionValue(Extension.cRLDistributionPoints.getId());
-        CRLDistPoint distPoint = CRLDistPoint.getInstance(JcaX509ExtensionUtils.parseExtensionValue(crlDistributionPoint));
-        List<X509CRL> x509CRLList = getDistributedCertificatePoints(distPoint);
-        for (X509CRL crl : x509CRLList) {
-            if (crl.getRevokedCertificate(x509Certificate.getSerialNumber()) != null) {
-                return true;
+
+    private boolean isCertificateRevokedUsingCRL(X509Certificate x509Certificate) {
+        try {
+            byte[] crlDistributionPoint = x509Certificate.getExtensionValue(Extension.cRLDistributionPoints.getId());
+            if (crlDistributionPoint == null) {
+                throw new ClientException("The certificate does not include CRL");
             }
+            CRLDistPoint distPoint = CRLDistPoint.getInstance(JcaX509ExtensionUtils.parseExtensionValue(crlDistributionPoint));
+            List<X509CRL> x509CRLList = getDistributedCertificatePoints(distPoint);
+            for (X509CRL crl : x509CRLList) {
+                if (crl.getRevokedCertificate(x509Certificate.getSerialNumber()) != null) {
+                    return true;
+                }
+            }
+            return false;
+        } catch (Exception e) {
+            return true;
         }
-        return false;
     }
+
 
     private List<X509CRL> getDistributedCertificatePoints(CRLDistPoint distPoint) throws IOException, CertificateException, CRLException {
         List<X509CRL> x509CRLList = new ArrayList<>();

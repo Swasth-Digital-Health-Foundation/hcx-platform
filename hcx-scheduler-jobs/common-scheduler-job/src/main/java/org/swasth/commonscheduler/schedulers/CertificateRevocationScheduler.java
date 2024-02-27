@@ -85,7 +85,7 @@ public class CertificateRevocationScheduler extends BaseScheduler {
     }
 
 
-    private boolean checkRevocationStatus(X509Certificate x509Certificate) throws OCSPException, CertificateException, IOException, ClientException, OperatorCreationException, CRLException {
+    private boolean checkRevocationStatus(X509Certificate x509Certificate) throws Exception {
         CertificateRevocation certificateRevocation = new CertificateRevocation(x509Certificate);
         return certificateRevocation.checkStatus();
     }
