@@ -56,7 +56,7 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
                 String message = (String) event.getOrDefault(Constants.MESSAGE(), "");
                 String subject = config.getSubject(topicCode);
                 Map<String , Object > model = new HashMap<>();
-                model.put("USERNAME",userName);
+                model.put("USER_NAME",userName);
                 System.out.println("-------------APPLY TEMPLATES------------");
                 String textMessage = applyTemplateVars(topicCode, message, model);
                 System.out.println("text message " + textMessage);
