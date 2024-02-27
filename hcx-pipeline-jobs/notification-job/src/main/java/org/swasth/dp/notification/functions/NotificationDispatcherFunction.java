@@ -54,7 +54,7 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
                 String userName = (String) participant.get("participant_name");
                 String topicCode = (String) event.getOrDefault(Constants.TOPIC_CODE(), "");
                 String message = (String) event.getOrDefault(Constants.MESSAGE(), "");
-                String subject = getSubjectForTopic(topicCode);
+                String subject = config.getSubject(topicCode);
                 String textMessage = usernameTemplate(userName, message, topicCode);
                 Map<String, Object> emailEvent = getEmailMessageEvent(textMessage, subject, List.of(email), new ArrayList<>(), new ArrayList<>());
                 if (config.emailNotificationEnabled && !StringUtils.isEmpty(message) && !StringUtils.isEmpty(topicCode)) {
@@ -114,32 +114,8 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
         return writer.toString();
     }
 
-    private String usernameTemplate(String userName, String message, String topicCode) throws Exception {
-        Map<String, Object> model = new HashMap<>();
-        model.put("USER_NAME", userName);
+    private String applyTemplateVars(String topicCode, String message, Map<String, Object> model) throws TemplateException, IOException {
         model.put("MESSAGE", message);
         return renderTemplate(topicCode + ".ftl", model);
-    }
-    private String getSubjectForTopic(String topicCode) {
-        switch (topicCode) {
-            case "notif-gateway-downtime":
-                return config.subGatewayDowntime;
-            case "notif-encryption-key-expiry":
-                return config.subEncKeyExpiry;
-            case "notif-participant-onboarded":
-                return config.subOnboarded;
-            case "notif-participant-de-boarded":
-                return config.subDeboarded;
-            case "notif-network-feature-removed":
-                return config.subFeatRemoved;
-            case "notif-new-network-feature-added":
-                return config.subFeatAdded;
-            case "notif-gateway-policy-sla-change":
-                return config.subPolicyUpdate;
-            case "notif-certificate-revocation":
-                return config.subCertRevocation;
-            default:
-                return "";
-        }
     }
 }
