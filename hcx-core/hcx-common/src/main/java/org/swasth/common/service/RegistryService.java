@@ -37,11 +37,16 @@ public class RegistryService {
         return details;
     }
 
-    public boolean updateStatusOnCertificateRevocation(String osid) throws JsonProcessingException {
+    public boolean updateStatusOnCertificateRevocation(String osid) throws JsonProcessingException, ServerException {
         String url = registryUrl + "/api/v1/Organisation/" + osid;
-        Map<String,Object> requestBody = new HashMap<>();
+        Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("status", "Inactive");
-        HttpResponse<String> response =  HttpUtils.put(url, JSONUtils.serialize(requestBody), new HashMap<>());
+        HttpResponse<String> response;
+        try {
+            response = HttpUtils.put(url, JSONUtils.serialize(requestBody), new HashMap<>());
+        } catch (UnirestException e) {
+            throw new ServerException(ErrorCodes.ERR_SERVICE_UNAVAILABLE, "Error connecting to registry service: " + e.getMessage());
+        }
         return response.getStatus() == 200;
     }
 }

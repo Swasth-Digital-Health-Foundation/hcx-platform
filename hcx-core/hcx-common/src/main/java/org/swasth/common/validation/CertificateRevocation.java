@@ -1,8 +1,8 @@
 package org.swasth.common.validation;
 
 import org.bouncycastle.asn1.DERIA5String;
-import org.bouncycastle.asn1.x509.*;
 import org.bouncycastle.asn1.x509.Extension;
+import org.bouncycastle.asn1.x509.*;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
 import org.bouncycastle.cert.ocsp.*;
@@ -10,7 +10,6 @@ import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.bc.BcDigestCalculatorProvider;
 import org.bouncycastle.x509.extension.X509ExtensionUtil;
 import org.swasth.common.exception.ClientException;
-import org.swasth.common.exception.ErrorCodes;
 
 import java.io.IOException;
 import java.io.InputStream;

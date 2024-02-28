@@ -1,8 +1,6 @@
 package org.swasth.commonscheduler.schedulers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.bouncycastle.cert.ocsp.OCSPException;
-import org.bouncycastle.operator.OperatorCreationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +17,6 @@ import org.swasth.common.validation.CertificateRevocation;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.security.cert.CRLException;
-import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -85,7 +81,7 @@ public class CertificateRevocationScheduler extends BaseScheduler {
     }
 
 
-    private boolean checkRevocationStatus(X509Certificate x509Certificate) throws Exception {
+    private boolean checkRevocationStatus(X509Certificate x509Certificate) {
         CertificateRevocation certificateRevocation = new CertificateRevocation(x509Certificate);
         return certificateRevocation.checkStatus();
     }
