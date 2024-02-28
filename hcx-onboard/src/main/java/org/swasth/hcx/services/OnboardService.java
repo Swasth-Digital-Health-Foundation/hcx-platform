@@ -249,7 +249,7 @@ public class OnboardService extends BaseController {
     }
 
     private void addParticipantDetails(Map<String,Object> participant, OnboardRequest request) {
-        participant.put(ENDPOINT_URL, "http://testurl/v0.7");
+        participant.put(ENDPOINT_URL, mockServiceEndPointUrl);
         participant.put(ENCRYPTION_CERT, "https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/hcx-platform/main/hcx-apis/src/test/resources/examples/test-keys/public-key.pem");
         participant.put(REGISTRY_STATUS, CREATED);
         ArrayList<String> roles = (ArrayList<String>) participant.get(ROLES);
@@ -858,7 +858,7 @@ public class OnboardService extends BaseController {
 
     private URL generateURL(Map<String, Object> participant, String type, String sub) throws NoSuchAlgorithmException, InvalidKeySpecException, MalformedURLException {
         String token = generateToken(sub, type, (String) participant.get(PARTICIPANT_NAME), (String) participant.get(PARTICIPANT_CODE));
-        String url = String.format("%s/onboarding/verify?%s=%s&jwt_token=%s", hcxURL, type, sub, token);
+        String url = String.format("%s/ssp/verify?%s=%s&jwt_token=%s", hcxURL, type, sub, token);
         return new URL(url);
     }
 
