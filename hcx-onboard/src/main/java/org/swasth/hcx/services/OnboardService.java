@@ -1217,7 +1217,14 @@ public class OnboardService extends BaseController {
     }
 
     private String generateRandomPassword(int length) {
-        return RandomStringUtils.random(length, true, true);
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        SecureRandom secureRandom = new SecureRandom();
+        StringBuilder password = new StringBuilder(length);
+        for (int i = 0; i < length; i++) {
+            int randomIndex = secureRandom.nextInt(characters.length());
+            password.append(characters.charAt(randomIndex));
+        }
+        return password.toString();
     }
 
     public Response generateAndSetPassword(HttpHeaders headers, String participantCode) throws Exception {
