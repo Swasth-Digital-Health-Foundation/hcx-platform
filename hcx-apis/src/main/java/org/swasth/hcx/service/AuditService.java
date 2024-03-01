@@ -1,9 +1,18 @@
 package org.swasth.hcx.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.http.HttpEntity;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.nio.entity.NStringEntity;
 import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.*;
+import org.elasticsearch.common.io.stream.StreamInput;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +21,7 @@ import org.swasth.common.dto.AuditSearchRequest;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.hcx.utils.SearchUtil;
 
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -24,7 +33,7 @@ public class AuditService {
     private static final Logger logger = LoggerFactory.getLogger(AuditService.class);
 
     @Autowired
-    private RestHighLevelClient client;
+    private RestClient client;
 
     /**
      * Used to search for audit events based on data provided in the {@link AuditSearchRequest} DTO. For more info take a look
@@ -50,13 +59,40 @@ public class AuditService {
     }
 
 
-    private List<Map<String,Object>> searchInternal(final SearchRequest request) throws IOException {
-        final SearchHit[] searchHits = client.search(request, RequestOptions.DEFAULT).getHits().getHits();
-        final List<Map<String, Object>> audit = new ArrayList<>(searchHits.length);
+//    private List<Map<String,Object>> searchInternal(final SearchRequest request) throws IOException {
+//        final SearchHit[] searchHits = client.search(request, RequestOptions.DEFAULT).getHits().getHits();
+//        final List<Map<String, Object>> audit = new ArrayList<>(searchHits.length);
+//        for (SearchHit hit : searchHits) {
+//            audit.add(hit.getSourceAsMap());
+//        }
+//        logger.info("Audit search completed :: count: {}", audit.size());
+//        return audit;
+//    }
+
+    public List<Map<String, Object>> searchInternal(final SearchRequest request) throws IOException {
+        SearchResponse response = getSearchResponse(request);
+        SearchHit[] searchHits = response.getHits().getHits();
+        List<Map<String, Object>> audit = new ArrayList<>(searchHits.length);
         for (SearchHit hit : searchHits) {
             audit.add(hit.getSourceAsMap());
         }
-        logger.info("Audit search completed :: count: {}", audit.size());
+        System.out.println("Audit search completed :: count: " + audit.size());
         return audit;
+    }
+
+    private SearchResponse getSearchResponse(SearchRequest request) throws IOException {
+        String endpoint = "/" + request.indices()[0] + "/_search";
+        String source = SearchSourceBuilder.searchSource().query(QueryBuilders.matchAllQuery()).toString();
+        HttpEntity entity = new StringEntity(source, ContentType.APPLICATION_JSON);
+        Request httpRequest = new Request("GET", endpoint);
+        httpRequest.setEntity(entity);
+        Response response = client.performRequest(httpRequest);
+        return parseResponse(response);
+    }
+
+    private SearchResponse parseResponse(Response response) throws IOException {
+        byte[] bytes = new byte[(int) response.getEntity().getContentLength()];
+        response.getEntity().getContent().read(bytes);
+        return new SearchResponse(StreamInput.wrap(bytes));
     }
 }

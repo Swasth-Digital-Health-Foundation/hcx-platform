@@ -76,10 +76,10 @@ class ElasticSearchUtil(connectionInfo: String, indexName: String, batchSize: In
       if (!isIndexExists(indexName)) {
         val createRequest = new Request("PUT", "/" + indexName)
         val jsonBuilder = XContentFactory.jsonBuilder()
-        if (StringUtils.isNotBlank(alias)) jsonBuilder.startObject("aliases").startObject(alias).endObject()
-        if (StringUtils.isNotBlank(settings)) jsonBuilder.startObject("settings").startObject().field("index", settings).endObject()
-        if (StringUtils.isNotBlank(mappings)) jsonBuilder.startObject("mappings").field("properties", mappings).endObject()
-//        createRequest.setJsonEntity(jsonBuilde)
+        if (StringUtils.isNotBlank(alias)) jsonBuilder.startObject(alias).endObject()
+        if (StringUtils.isNotBlank(settings)) jsonBuilder.startObject(settings).field("index", settings).endObject()
+        if (StringUtils.isNotBlank(mappings)) jsonBuilder.startObject(mappings).field("properties", mappings).endObject()
+        createRequest.setJsonEntity(jsonBuilder.contentType().toString)
         val response: Response = esClient.performRequest(createRequest)
         if (response.getStatusLine.getStatusCode != 200) {
           throw new IOException("Failed to create index: " + indexName)
