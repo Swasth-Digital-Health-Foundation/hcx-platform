@@ -19,13 +19,13 @@ class ContextEnrichmentFunction(config: BaseJobConfig) (implicit val stringTypeI
     super.open(parameters)
   }
 
-  override def processElement(event: util.Map[String, AnyRef], context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
+  override def processElement(event: java.util.Map[String, AnyRef], context: ProcessFunction[java.util.Map[String, AnyRef], java.util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
     val senderCode: String = getProtocolStringValue(event, Constants.HCX_SENDER_CODE)
     val recipientCode: String = getProtocolStringValue(event, Constants.HCX_RECIPIENT_CODE)
     val action: String =  event.get(Constants.ACTION).asInstanceOf[String]
     Console.println(s"Sender: $senderCode : Recipient: $recipientCode : Action: $action")
 
-    val result: util.Map[String, AnyRef] = new util.HashMap[String, AnyRef]()
+    val result: java.util.Map[String, AnyRef] = new java.util.HashMap[String, AnyRef]()
 
     // Fetch the sender and receiver details from registry or cache
     val sender = fetchDetails(senderCode)
