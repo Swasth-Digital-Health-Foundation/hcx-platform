@@ -1,13 +1,11 @@
 package org.swasth.dp.core.util
 
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment
-import org.apache.flink.streaming.api.TimeCharacteristic
 import org.apache.flink.api.common.restartstrategy.RestartStrategies
-import org.swasth.dp.core.job.BaseJobConfig
 import org.apache.flink.runtime.state.StateBackend
 import org.apache.flink.runtime.state.filesystem.FsStateBackend
-import org.apache.flink.streaming.api.environment.CheckpointConfig
 import org.apache.flink.streaming.api.environment.CheckpointConfig.ExternalizedCheckpointCleanup
+import org.apache.flink.streaming.api.environment.{CheckpointConfig, StreamExecutionEnvironment}
+import org.swasth.dp.core.job.BaseJobConfig
 
 object FlinkUtil {
 
@@ -30,7 +28,6 @@ object FlinkUtil {
       case _ => // Do nothing
     }
 
-    env.setStreamTimeCharacteristic(TimeCharacteristic.IngestionTime)
     env.setRestartStrategy(RestartStrategies.fixedDelayRestart(config.restartAttempts, config.delayBetweenAttempts))
     env
   }

@@ -6,6 +6,12 @@
   allowed_recipients:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -20,6 +26,7 @@
     on ${DDMMYYYY}. Transactions relating ${participant_name} can be
     initiated using ${participant_code}."}
   status: Active
+  is_delegate: false
 - topic_code: notif-participant-de-boarded
   title: Participant De-boarding
   description: Notification about new participant leaving the ecosystem.
@@ -28,6 +35,12 @@
   allowed_recipients:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -42,6 +55,7 @@
     ${DDMMYYYY}. Platform will not support the transaction relating
     ${participant_name}."}
   status: Active
+  is_delegate: false
 - topic_code: notif-new-network-feature-added
   title: New Feature Support
   description: Notification about new feature launch for the participants on the network.
@@ -50,6 +64,12 @@
   allowed_recipients:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -60,9 +80,10 @@
   category: Network
   priority: 1
   template: >-
-    {"message": "${hcx_name} now supports $(feature_code) on its platform. All
-    participants can now initiate transactions relating to $(feature_code)."}
+    {"message": "${hcx_name} now supports ${feature_code} on its platform. All
+    participants can now initiate transactions relating to ${feature_code}."}
   status: Active
+  is_delegate: false
 - topic_code: notif-network-feature-removed
   title: End of support for old feature
   description: >-
@@ -73,6 +94,12 @@
   allowed_recipients:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -83,9 +110,10 @@
   category: Network
   priority: 1
   template: >-
-    {"message": "${hcx_name} now does not support $(feature_code) on its
+    {"message": "${hcx_name} now does not support ${feature_code} on its
     platform."}
   status: Active
+  is_delegate: false
 - topic_code: notif-protocol-version-support-ended
   title: End of support for old protocol version
   description: >-
@@ -96,6 +124,12 @@
   allowed_recipients:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -106,10 +140,11 @@
   category: Network
   priority: 1
   template: >-
-    {"message": "${hcx_name} now does not support $(version_code) on its
-    platform. All participants are requested to upgrade to $(version_code) or
-    above to transact on $(hcx_name)."}
+    {"message": "${hcx_name} now does not support ${version_code} on its
+    platform. All participants are requested to upgrade to ${version_code} or
+    above to transact on ${hcx_name}."}
   status: Active
+  is_delegate: false
 - topic_code: notif-gateway-downtime
   title: Network maintenance/Downtime
   description: Notification about planned downtime/maintenance of the gateway switch.
@@ -118,6 +153,12 @@
   allowed_recipients:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -132,6 +173,7 @@
     ${DDMMYYYY} due to planned maintenance. Sorry for inconvenience and please
     plan your operations accordingly."}
   status: Active
+  is_delegate: false
 - topic_code: notif-gateway-policy-sla-change
   title: Policy change - SLA
   description: >-
@@ -142,6 +184,12 @@
   allowed_recipients:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -152,9 +200,10 @@
   category: Network
   priority: 1
   template: >-
-    {"message": "${hcx_name} is changing the SLA policy for the $(Usecase_code)
+    {"message": "${hcx_name} is changing the SLA policy for the ${Usecase_code}
     going forward. Please plan your operations accordingly."}
   status: Active
+  is_delegate: false
 - topic_code: notif-policy-security-update
   title: Policy change - Security & Privacy
   description: >-
@@ -165,6 +214,12 @@
   allowed_recipients:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -179,6 +234,7 @@
     privacy protocols. Please update security and privacy  protocols
     accordingly."}
   status: Active
+  is_delegate: false
 - topic_code: notif-compliance-expiry
   title: Compliance expiry
   description: >-
@@ -189,6 +245,12 @@
   allowed_recipients:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -202,6 +264,7 @@
     {"message": "${participant_name} compliance certificate will be expiring on
     ${DDMMYYYY}. Please renew your compliance certificate before ${DDMMYYYY}."}
   status: Active
+  is_delegate: false
 - topic_code: notif-subscription-expiry
   title: Subscription expiry/renew
   description: >-
@@ -212,6 +275,12 @@
   allowed_recipients:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -226,6 +295,7 @@
     ${participant_name} will be expiring on ${DDMMYYYY}. Please renew your
     subscription before ${DDMMYYYY} to continue receiving notifications."}
   status: Active
+  is_delegate: false
 - topic_code: notif-encryption-key-expiry
   title: Encryption Key expiration
   description: >-
@@ -236,6 +306,12 @@
   allowed_recipients:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -246,16 +322,198 @@
   category: Network
   priority: 1
   template: >-
-    {"message": "${participant_name} encryption key will be expiring on
+    {"message": "Encryption key will be going to expiry in
+    ${days} days.Please renew your encryption certificate."}
+  status: Active
+  is_delegate: false
+- topic_code: notif-subscription-update
+  title: Subscription Update Notification
+  description: Notification about subscription update.
+  allowed_senders:
+    - payor
+    - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
+  allowed_recipients:
+    - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - payor
+    - bsp
+    - agency.tpa
+    - agency.regulator
+    - research
+    - member.isnp
+    - agency.sponsor
+    - HIE/HIO.HCX
+  type: Targeted
+  category: Network
+  priority: 1
+  template: >-
+    {"message": "${participant_name} has updated the subscription: ${subscription_id}, updated properties are: ${properties}"}
+  status: Active
+  is_delegate: false
+- topic_code: notif-encryption-cert-expired
+  title: Encryption certificate expiry
+  description: Notification about encryption certificate expiry
+  allowed_senders:
+    - HIE/HIO.HCX
+  allowed_recipients:
+    - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - payor
+    - bsp
+    - agency.tpa
+    - agency.regulator
+    - research
+    - member.isnp
+    - agency.sponsor
+    - HIE/HIO.HCX
+  type: Targeted
+  category: Network
+  priority: 1
+  template: >-
+    {"message": "Your encryption certificate got expired, please update your details with new certificate."}
+  status: Active
+  is_delegate: false
+- topic_code: notif-signing-cert-expired
+  title: Signing certificate expiry
+  description: Notification about signing certificate expiry
+  allowed_senders:
+    - HIE/HIO.HCX
+  allowed_recipients:
+    - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - payor
+    - bsp
+    - agency.tpa
+    - agency.regulator
+    - research
+    - member.isnp
+    - agency.sponsor
+    - HIE/HIO.HCX
+  type: Targeted
+  category: Network
+  priority: 1
+  template: >-
+    {"message": "Your signing certificate got expired, please update your details with new certificate."}
+  status: Active
+  is_delegate: false
+- topic_code: notif-signing-key-expiry
+  title: Signing Key expiration
+  description: >-
+    Notification about the signing key expiration for the participant in the
+    ecosystem.
+  allowed_senders:
+    - HIE/HIO.HCX
+  allowed_recipients:
+    - payor
+    - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
+    - agency.tpa
+    - agency.regulator
+    - research
+    - member.isnp
+    - agency.sponsor
+    - HIE/HIO.HCX
+  type: Targeted
+  category: Network
+  priority: 1
+  template: >-
+    {"message": "${participant_name} signing key will be expiring on
     ${DDMMYYYY}. Please renew your encryption key before ${DDMMYYYY} to carry on
     operating on HCX."}
   status: Active
+  is_delegate: false
+- topic_code: notif-api-access-secret-expiry
+  title: Api access secret expiry
+  description: >-
+    Notification about the api access secret expiration for the participant in the
+    ecosystem.
+  allowed_senders:
+    - HIE/HIO.HCX
+  allowed_recipients:
+    - payor
+    - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
+    - agency.tpa
+    - agency.regulator
+    - research
+    - member.isnp
+    - agency.sponsor
+    - HIE/HIO.HCX
+  type: Targeted
+  category: Network
+  priority: 1
+  template: >-
+    {"message": "Api access secret will be going to expiry in
+    ${days} days.Please reset your api access secret."}
+  status: Active
+  is_delegate: false
+- topic_code: notif-api-access-secret-expired
+  title: Api access secret expired
+  description: Notification about api access secret expired
+  allowed_senders:
+    - HIE/HIO.HCX
+  allowed_recipients:
+    - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
+    - payor
+    - agency.tpa
+    - agency.regulator
+    - research
+    - member.isnp
+    - agency.sponsor
+    - HIE/HIO.HCX
+  type: Targeted
+  category: Network
+  priority: 1
+  template: >-
+    {"message": "Your api access secret got expired, please update your details with secret."}
+  status: Active
+  is_delegate: false
 - topic_code: notif-participant-system-downtime
   title: System maintenance/Downtime
   description: Notification about participant system downtime/maintenance
   allowed_senders:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -265,6 +523,12 @@
   allowed_recipients:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -279,6 +543,7 @@
     ${DDMMYYYY} due to planned maintenance. Sorry for inconvenience and please
     plan your operations accordingly."}
   status: Active
+  is_delegate: false
 - topic_code: notif-participant-new-protocol-version-support
   title: Support for new version of protocol
   description: >-
@@ -287,6 +552,12 @@
   allowed_senders:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -296,6 +567,12 @@
   allowed_recipients:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -306,10 +583,11 @@
   category: Participant
   priority: 1
   template: >-
-    {"message": "${participant_name} now supports $(version_code) on its
-    platform. All participants are requested to upgrade to $(version_code) or
+    {"message": "${participant_name} now supports ${version_code} on its
+    platform. All participants are requested to upgrade to ${version_code} or
     above to transact with ${participant_name}."}
   status: Active
+  is_delegate: false
 - topic_code: notif-participant-terminology-version-support
   title: Support for prescribed terminologies
   description: >-
@@ -318,6 +596,12 @@
   allowed_senders:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -327,6 +611,12 @@
   allowed_recipients:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -337,10 +627,11 @@
   category: Participant
   priority: 1
   template: >-
-    {"message": "${participant_name} now supports $(Master_list_version) on its
+    {"message": "${participant_name} now supports ${Master_list_version} on its
     platform. All participants are requested to upgrade to
-    $(Master_list_version) or above to transact with ${participant_name}."}
+    ${Master_list_version} or above to transact with ${participant_name}."}
   status: Active
+  is_delegate: false
 - topic_code: notif-participant-remove-protocol-feature
   title: End of life for an existing capability
   description: >-
@@ -349,6 +640,12 @@
   allowed_senders:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -358,6 +655,12 @@
   allowed_recipients:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -368,9 +671,10 @@
   category: Participant
   priority: 1
   template: >-
-    {"message": "${participant_name} now does not support $(feature_code) on its
+    {"message": "${participant_name} now does not support ${feature_code} on its
     platform."}
   status: Active
+  is_delegate: false
 - topic_code: notif-product-change-support
   title: 'New insurance plans/products, end of support for existing products/plans'
   description: >-
@@ -380,6 +684,12 @@
     - payor
   allowed_recipients:
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -390,16 +700,23 @@
   category: Participant
   priority: 1
   template: >-
-    {"message": "${participant_name} now supports $(feature_code) on its
-    platform. All participants can now initiate transactions relationg to
-    $(feature_code)."}
+    {"message": "${participant_name} now supports ${feature_code} on its
+    platform. All participants can now initiate transactions relation to
+    ${feature_code}."}
   status: Active
+  is_delegate: false
 - topic_code: notif-participant-policy-update
   title: Policy Compliance changes  - terms of services
   description: Notification about participant system changing terms of the services.
   allowed_senders:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -409,6 +726,12 @@
   allowed_recipients:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -420,15 +743,22 @@
   priority: 1
   template: >-
     {"message": "${participant_name} is changing the service terms for policy
-    for the $(Usecase_code) going forward. Please plan your operations
+    for the ${Usecase_code} going forward. Please plan your operations
     accordingly."}
   status: Active
+  is_delegate: false
 - topic_code: notif-participant-policy-sla-update
   title: Policy Compliance changes  - SLAs
   description: Notification about participant system SLA of the services.
   allowed_senders:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -438,6 +768,12 @@
   allowed_recipients:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -449,16 +785,29 @@
   priority: 1
   template: >-
     {"message": "${participant_name} is changing the SLA policy for the
-    $(Usecase_code) going forward. Please plan your operations accordingly."}
+    ${Usecase_code} going forward. Please plan your operations accordingly."}
   status: Active
+  is_delegate: false
 - topic_code: notif-workflow-update
   title: Workflow update
   description: Notification about coverage eligibility, predetermination, preauth, claim and paymentnotice workflow updates.
   allowed_senders:
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
     - payor
   allowed_recipients:
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
     - payor
     - agency.tpa
     - agency.regulator
@@ -472,11 +821,18 @@
   template: >-
     {"message": "${participant_name} has updated a ${entity_type} request with correlation id: ${correlation_id} status to ${status}."}
   status: Active
+  is_delegate: true
 - topic_code: notif-admission-case
   title: Admission case - For a particular disease
   description: Notification about patient admission for a particular disease
   allowed_senders:
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
   allowed_recipients:
     - payor
     - agency.tpa
@@ -492,6 +848,7 @@
     {"message": "${participant_name} has initiated a insurance claim workflow on
     admission for ${Disease_code}."}
   status: Active
+  is_delegate: false
 - topic_code: notif-claim-particular-disease
   title: Claim initiation for a particular disease
   description: >-
@@ -501,6 +858,12 @@
     - payor
   allowed_recipients:
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
     - payor
     - agency.tpa
     - agency.regulator
@@ -515,6 +878,7 @@
     {"message": "${participant_name} has initiated a insurance claim workflow on
     admission for ${Disease_code}."}
   status: Active
+  is_delegate: false
 - topic_code: notif-claim-status-update
   title: Notifications about status change of claims of a patient
   description: Notification about workflow updates on a identified policy.
@@ -522,7 +886,13 @@
     - payor
   allowed_recipients:
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
     - payor
+    - bsp
     - agency.tpa
     - agency.regulator
     - research
@@ -536,6 +906,7 @@
     {"message": "${participant_name} has updated the status for ${policy_ID} to
     ${Status}."}
   status: Active
+  is_delegate: false
 - topic_code: notif-coverage-eligibility-change
   title: Notifications about change in coverage eligibility of a patient
   description: Notification about change in coverage eligibility on a identified policy.
@@ -543,6 +914,12 @@
     - payor
   allowed_recipients:
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
     - payor
     - agency.tpa
     - agency.regulator
@@ -557,6 +934,7 @@
     {"message": "${participant_name} has updated the coverage eligibility for
     ${policy_ID}."}
   status: Active
+  is_delegate: false
 - topic_code: notif-claim-reimbursement
   title: Notifications about reimbursements of claim for a patient
   description: Notification about claim reimbursement..
@@ -564,6 +942,12 @@
     - payor
   allowed_recipients:
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
     - payor
     - agency.tpa
     - agency.regulator
@@ -578,14 +962,27 @@
     {"message": "${participant_name} has approved the reimbursement payment for
     ${policy_ID}."}
   status: Active
+  is_delegate: false
 - topic_code: notif-claim-reimbursement-inactive
   title: Notifications about reimbursements of claim for a patient
   description: Notification about claim reimbursement..
   allowed_senders:
     - payor
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
   allowed_recipients:
     - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
     - payor
     - agency.tpa
     - agency.regulator
@@ -600,44 +997,70 @@
     {"message": "${participant_name} has approved the reimbursement payment for
     ${policy_ID}."}
   status: Inactive
-- topic_code: notif-subscription-update
-  title: Subscription Update Notification
-  description: Notification about subscription update.
+  is_delegate: false
+- topic_code:
+    title: Claim initiation for a particular disease
+    description: Notification about workflow updates for claim initiation for a particular disease..
+    allowed_senders:
+      - payor
+    allowed_recipients:
+      - provider
+      - provider.hospital
+      - provider.clinic
+      - provider.practitioner
+      - provider.diagnostics
+      - provider.pharmacy
+      - payor
+      - agency.tpa
+    type: Targeted
+    category: Workflow
+    priority: 1
+    template: >-
+      {\"message\": \"${participant_name} has initiated a insurance claim workflow on 
+      admission for ${Disease_code}.\"}
+    status: Active
+- topic_code: notif-certificate-revocation
+  title: Certificate Revocation Notification
+  description: Notification about the certificate revocation of the participant in the ecosystem.
   allowed_senders:
-    - payor
-    - provider
-  allowed_recipients:
-    - provider
-    - payor
-    - agency.tpa
-    - agency.regulator
-    - research
-    - member.isnp
-    - agency.sponsor
     - HIE/HIO.HCX
-  type: Targeted
+  allowed_recipients:
+    - payor
+    - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - agency.tpa
+  type: Broadcast
   category: Network
   priority: 1
   template: >-
-    {"message": "${participant_name} has updated the subscription: ${subscription_id}, updated properties are: ${properties}"}
+    {\"message\": \"${participant_name} your certificate has been revoked.${DDMMYYYY}. Please renew/obtain new certificate to carry on operating on HCX..\"}
   status: Active
-- topic_code: notif-encryption-cert-expired
-  title: Encryption certificate expiry
-  description: Notification about encryption certificate expiry
+- topic_code: notif-invalid-certificate
+  title: Invalid Certificate Notification
+  description: Notification about the certificate revocation of the participant in the ecosystem.
   allowed_senders:
     - HIE/HIO.HCX
   allowed_recipients:
-    - provider
     - payor
+    - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
     - agency.tpa
     - agency.regulator
     - research
     - member.isnp
     - agency.sponsor
     - HIE/HIO.HCX
-  type: Targeted
+  type: Broadcast
   category: Network
   priority: 1
   template: >-
-    {"message": "Your encryption certificate got expired, please update your details with new certificate."}
+    {\"message\": \"${participant_name} your certificate has been revoked. ${DDMMYYYY}. Please renew/obtain new certificate to carry on operating on HCX.\"}
   status: Active
