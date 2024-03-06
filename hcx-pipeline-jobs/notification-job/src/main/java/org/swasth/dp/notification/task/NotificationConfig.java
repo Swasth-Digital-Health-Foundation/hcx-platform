@@ -26,14 +26,22 @@ public class NotificationConfig extends BaseJobConfig {
     public String kafkaServiceUrl;
     // Postgres
     public String subscriptionTableName;
-
     public NotificationConfig(Config config, String jobName) {
         super(config, jobName);
         this.config = config;
         initValues();
     }
 
-    private void initValues(){
+
+    public String getSubject(String topicCode) {
+        String key = topicCode + ".subject";
+        if(config.hasPath(key))
+            return config.getString(topicCode + ".subject");
+        else
+            return "";
+    }
+
+    private void initValues() {
         kafkaInputTopic = config.getString("kafka.input.topic");
         consumerParallelism = config.getInt("task.consumer.parallelism");
         downstreamOperatorsParallelism = config.getInt("task.downstream.operators.parallelism");
