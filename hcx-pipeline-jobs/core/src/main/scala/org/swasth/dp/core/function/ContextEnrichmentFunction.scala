@@ -8,10 +8,8 @@ import org.slf4j.LoggerFactory
 import org.swasth.dp.core.job.{BaseJobConfig, BaseProcessFunction, Metrics}
 import org.swasth.dp.core.util.Constants
 
-import java.util
-
 class ContextEnrichmentFunction(config: BaseJobConfig) (implicit val stringTypeInfo: TypeInformation[String])
-  extends BaseProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]](config) {
+  extends BaseProcessFunction[java.util.Map[String, AnyRef], java.util.Map[String, AnyRef]](config) {
 
   private[this] val logger = LoggerFactory.getLogger(classOf[ContextEnrichmentFunction])
 

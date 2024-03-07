@@ -11,7 +11,6 @@ import org.swasth.dp.core.job.{BaseJobConfig, BaseProcessFunction, Metrics}
 import org.swasth.dp.core.service.AuditService
 import org.swasth.dp.core.util._
 
-import java.util
 import java.util.{Calendar, UUID}
 
 case class Response(timestamp: Long, correlation_id: String, error: Option[ErrorResponse])
@@ -23,13 +22,13 @@ case class ValidationResult(status: Boolean, error: Option[ErrorResponse])
 case class DispatcherResult(success: Boolean, statusCode: Int, error: Option[ErrorResponse], retry: Boolean)
 
 abstract class BaseDispatcherFunction(config: BaseJobConfig)
-  extends BaseProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]](config) {
+  extends BaseProcessFunction[java.util.Map[String, AnyRef], java.util.Map[String, AnyRef]](config) {
 
   private[this] val logger = LoggerFactory.getLogger(classOf[BaseDispatcherFunction])
 
   var postgresConnect: PostgresConnect = _
   var auditService: AuditService = _
-  var payload: util.Map[String, AnyRef] = _
+  var payload: java.util.Map[String, AnyRef] = _
 
 
   override def open(parameters: Configuration): Unit = {
@@ -83,7 +82,7 @@ abstract class BaseDispatcherFunction(config: BaseJobConfig)
     errorMap
   }
 
-  def   dispatchErrorResponse(event: java.util.Map[String, AnyRef], error: Option[ErrorResponse], correlationId: String, payloadRefId: String, senderCtx: util.Map[String, AnyRef], context: ProcessFunction[util.Map[String, AnyRef], util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
+  def   dispatchErrorResponse(event: java.util.Map[String, AnyRef], error: Option[ErrorResponse], correlationId: String, payloadRefId: String, senderCtx: java.util.Map[String, AnyRef], context: ProcessFunction[java.util.Map[String, AnyRef], java.util.Map[String, AnyRef]]#Context, metrics: Metrics): Unit = {
     val protectedMap = new java.util.HashMap[String, AnyRef]
     //Update sender code
     protectedMap.put(Constants.HCX_SENDER_CODE, config.hcxRegistryCode)
