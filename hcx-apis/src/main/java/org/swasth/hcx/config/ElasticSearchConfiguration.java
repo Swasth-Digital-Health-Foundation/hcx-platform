@@ -14,6 +14,7 @@ import org.swasth.auditindexer.utils.ElasticSearchUtil;
 
 @Configuration
 @EnableElasticsearchRepositories(basePackages = "org.swasth.hcx.repository")
+//@ComponentScan(basePackages = {"org.swasth.hcx"})
 public class ElasticSearchConfiguration extends ElasticsearchConfiguration {
 
     @Value("${es.host:localhost}")

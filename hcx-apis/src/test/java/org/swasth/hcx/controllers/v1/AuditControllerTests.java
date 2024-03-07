@@ -1,7 +1,6 @@
 package org.swasth.hcx.controllers.v1;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,7 +45,7 @@ class AuditControllerTests {
     private AuditService auditService;
 
     @MockBean
-    private RestClient restHighLevelClient;
+    private RestHighLevelClient restHighLevelClient;
 
     @BeforeEach
     public void setup() {
