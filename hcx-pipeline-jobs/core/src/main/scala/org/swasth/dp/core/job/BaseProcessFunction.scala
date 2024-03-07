@@ -60,28 +60,28 @@ abstract class BaseProcessFunction[T, R](config: BaseJobConfig) extends ProcessF
     processElement(event, context, metrics)
   }
 
-  def getProtocolStringValue(event: util.Map[String, AnyRef], key: String): String = {
-    event.get(Constants.HEADERS).asInstanceOf[util.Map[String, AnyRef]].get(Constants.PROTOCOL).asInstanceOf[util.Map[String, AnyRef]].getOrDefault(key,"").asInstanceOf[String]
+  def getProtocolStringValue(event: java.util.Map[String, AnyRef], key: String): String = {
+    event.get(Constants.HEADERS).asInstanceOf[java.util.Map[String, AnyRef]].get(Constants.PROTOCOL).asInstanceOf[java.util.Map[String, AnyRef]].getOrDefault(key,"").asInstanceOf[String]
   }
 
-  def getProtocolMapValue(event: util.Map[String, AnyRef], key: String): util.Map[String, AnyRef] = {
-    event.get(Constants.HEADERS).asInstanceOf[util.Map[String, AnyRef]].get(Constants.PROTOCOL).asInstanceOf[util.Map[String, AnyRef]].getOrDefault(key,new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]]
+  def getProtocolMapValue(event: java.util.Map[String, AnyRef], key: String): java.util.Map[String, AnyRef] = {
+    event.get(Constants.HEADERS).asInstanceOf[java.util.Map[String, AnyRef]].get(Constants.PROTOCOL).asInstanceOf[java.util.Map[String, AnyRef]].getOrDefault(key,new util.HashMap[String, AnyRef]()).asInstanceOf[java.util.Map[String, AnyRef]]
   }
 
-  def getCDataListValue(event: util.Map[String, AnyRef], participant: String, key: String): util.List[String] = {
-    event.getOrDefault(Constants.CDATA, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]].getOrDefault(participant, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]].getOrDefault(key, new util.ArrayList[String]()).asInstanceOf[util.List[String]]  }
+  def getCDataListValue(event: java.util.Map[String, AnyRef], participant: String, key: String): util.List[String] = {
+    event.getOrDefault(Constants.CDATA, new util.HashMap[String, AnyRef]()).asInstanceOf[java.util.Map[String, AnyRef]].getOrDefault(participant, new util.HashMap[String, AnyRef]()).asInstanceOf[java.util.Map[String, AnyRef]].getOrDefault(key, new util.ArrayList[String]()).asInstanceOf[util.List[String]]  }
 
-  def getCDataStringValue(event: util.Map[String, AnyRef], participant: String, key: String): String = {
-    event.getOrDefault(Constants.CDATA, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]].getOrDefault(participant, new util.HashMap[String, AnyRef]()).asInstanceOf[util.Map[String, AnyRef]].get(key).asInstanceOf[String]
+  def getCDataStringValue(event: java.util.Map[String, AnyRef], participant: String, key: String): String = {
+    event.getOrDefault(Constants.CDATA, new util.HashMap[String, AnyRef]()).asInstanceOf[java.util.Map[String, AnyRef]].getOrDefault(participant, new util.HashMap[String, AnyRef]()).asInstanceOf[java.util.Map[String, AnyRef]].get(key).asInstanceOf[String]
   }
 
-  def setStatus(event: util.Map[String, AnyRef], status: String): Unit = {
-    if(Constants.ALLOWED_STATUS_UPDATE.contains(event.get(Constants.HEADERS).asInstanceOf[util.Map[String, AnyRef]].get(Constants.PROTOCOL).asInstanceOf[util.Map[String, AnyRef]].getOrDefault(Constants.HCX_STATUS, "")))
-      event.get(Constants.HEADERS).asInstanceOf[util.Map[String, AnyRef]].get(Constants.PROTOCOL).asInstanceOf[util.Map[String, AnyRef]].put(Constants.HCX_STATUS, status)
+  def setStatus(event: java.util.Map[String, AnyRef], status: String): Unit = {
+    if(Constants.ALLOWED_STATUS_UPDATE.contains(event.get(Constants.HEADERS).asInstanceOf[java.util.Map[String, AnyRef]].get(Constants.PROTOCOL).asInstanceOf[java.util.Map[String, AnyRef]].getOrDefault(Constants.HCX_STATUS, "")))
+      event.get(Constants.HEADERS).asInstanceOf[java.util.Map[String, AnyRef]].get(Constants.PROTOCOL).asInstanceOf[java.util.Map[String, AnyRef]].put(Constants.HCX_STATUS, status)
   }
 
-  def setErrorDetails(event: util.Map[String, AnyRef], errorDetails: util.Map[String, AnyRef]): Unit ={
-    event.get(Constants.HEADERS).asInstanceOf[util.Map[String, AnyRef]].get(Constants.PROTOCOL).asInstanceOf[util.Map[String, AnyRef]].put(Constants.ERROR_DETAILS, errorDetails)
+  def setErrorDetails(event: java.util.Map[String, AnyRef], errorDetails: java.util.Map[String, AnyRef]): Unit ={
+    event.get(Constants.HEADERS).asInstanceOf[java.util.Map[String, AnyRef]].get(Constants.PROTOCOL).asInstanceOf[java.util.Map[String, AnyRef]].put(Constants.ERROR_DETAILS, errorDetails)
   }
 
   def getReplacedAction(actionStr: String): String = {
@@ -92,7 +92,7 @@ abstract class BaseProcessFunction[T, R](config: BaseJobConfig) extends ProcessF
     replacedAction
   }
 
-  def createSenderContext(sender: util.Map[String, AnyRef],actionStr: String): util.Map[String, AnyRef] = {
+  def createSenderContext(sender: java.util.Map[String, AnyRef],actionStr: String): java.util.Map[String, AnyRef] = {
     //Sender Details
     var endpointUrl = sender.getOrDefault(Constants.END_POINT, "").asInstanceOf[String]
     if (!StringUtils.isEmpty(endpointUrl)) {
@@ -109,7 +109,7 @@ abstract class BaseProcessFunction[T, R](config: BaseJobConfig) extends ProcessF
 
   }
 
-  def createRecipientContext(receiver: util.Map[String, AnyRef],actionStr: String): util.Map[String, AnyRef] = {
+  def createRecipientContext(receiver: java.util.Map[String, AnyRef],actionStr: String): java.util.Map[String, AnyRef] = {
     //Receiver Details
     var endpointUrl = receiver.get(Constants.END_POINT).asInstanceOf[String]
     if (!StringUtils.isEmpty(endpointUrl)) {
@@ -123,7 +123,7 @@ abstract class BaseProcessFunction[T, R](config: BaseJobConfig) extends ProcessF
 
   }
 
-  def fetchDetails(code: String): util.Map[String, AnyRef] = {
+  def fetchDetails(code: String): java.util.Map[String, AnyRef] = {
     try {
       if (registryDataCache.isExists(code)) {
         Console.println("Getting details from cache for :" + code)
@@ -144,7 +144,7 @@ abstract class BaseProcessFunction[T, R](config: BaseJobConfig) extends ProcessF
     }
   }
 
-  def getDetails(code: String): util.Map[String, AnyRef] = {
+  def getDetails(code: String): java.util.Map[String, AnyRef] = {
     val key = Constants.PARTICIPANT_CODE
     val responseBody = registryService.getParticipantDetails(s"""{"$key":{"eq":"$code"}}""")
     if (!responseBody.isEmpty) {

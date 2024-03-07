@@ -66,11 +66,11 @@ trait BaseDeduplication {
     val flags: util.HashMap[String, Boolean] = new util.HashMap[String, Boolean]()
     flags.put(flagName, value)
     if (event.isInstanceOf[String]) {
-      val eventMap = gson.fromJson(event.toString, new util.LinkedHashMap[String, AnyRef]().getClass).asInstanceOf[util.Map[String, AnyRef]]
+      val eventMap = gson.fromJson(event.toString, new util.LinkedHashMap[String, AnyRef]().getClass).asInstanceOf[java.util.Map[String, AnyRef]]
       eventMap.put("flags", flags.asInstanceOf[util.HashMap[String, AnyRef]])
       eventMap.asInstanceOf[R]
     } else {
-      event.asInstanceOf[util.Map[String, AnyRef]].put("flags", flags.asInstanceOf[util.HashMap[String, AnyRef]])
+      event.asInstanceOf[java.util.Map[String, AnyRef]].put("flags", flags.asInstanceOf[util.HashMap[String, AnyRef]])
       event.asInstanceOf[R]
     }
   }
