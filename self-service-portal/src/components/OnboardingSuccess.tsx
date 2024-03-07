@@ -55,7 +55,7 @@ const OnboardingSuccess: React.FC<OnboardingSuccessProps> = ({inviteUser}:Onboar
         />
       </div>
       <div className="flex mb-5 justify-end">
-      <a href="/onboarding/profile" className="text-m text-primary underline">
+      <a href="/ssp/profile" className="text-m text-primary underline">
                     Skip to Home
                   </a>
     </div>

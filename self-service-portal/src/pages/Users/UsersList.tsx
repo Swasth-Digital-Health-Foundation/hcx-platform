@@ -11,7 +11,7 @@ const UserList = () => {
                             INVITE USERS TO MANAGE THE PARTICIPANTS
                         </h3>
                         <Link
-                            to="/onboarding/users/invite"
+                            to="/users/invite"
                             className="inline-flex items-center justify-center rounded-md border border-primary py-2 px-10 text-center font-medium text-primary hover:bg-opacity-90 lg:px-8 xl:px-10"
                         >
                             Invite Users

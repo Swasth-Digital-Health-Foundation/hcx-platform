@@ -45,7 +45,7 @@ const ProfilePage: React.FC = () => {
       let sessionToken = sessionStorage.getItem("hcx_user_token");
       let userName = sessionStorage.getItem("hcx_user_name");
       if (sessionToken == null) {
-        navigate("/onboarding/login");
+        navigate("/login");
       } else {
         try {
           dispatch(addParticipantToken(sessionToken));
@@ -78,7 +78,7 @@ const ProfilePage: React.FC = () => {
             }
           })
         } catch {
-          navigate("/onboarding/login");
+          navigate("/login");
         }
       }
     }

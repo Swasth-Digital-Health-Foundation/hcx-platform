@@ -208,7 +208,7 @@ const RoleSelection: React.FC<RoleSelectionProps> = ({ payorList, onRoleSubmit }
       <div className="mt-6 text-center">
         <p>
           Already have an account?{' '}
-          <Link to="/onboarding/login" className="text-primary">
+          <Link to="/login" className="text-primary">
             Sign in
           </Link>
         </p>

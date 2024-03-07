@@ -16,11 +16,11 @@ import * as _ from 'lodash';
 import { toast } from "react-toastify";
 import BasicInformation from '../../components/BasicInformation';
 import SetPassword from '../../components/SetPassword';
-import OnboardingSuccess from '../../components/OnboardingSuccess';
 import RoleSelection from '../../components/RoleSelection';
 import InviteUserRegister from '../../components/InviteUserRegister';
 import { serachUser } from '../../api/UserService';
 import Loader from '../../common/Loader';
+import OnboardingSuccess from '../../components/OnboardingSuccess';
 
 
 type Payor = {
@@ -211,7 +211,7 @@ const SignUp: React.FC = () => {
               dispatch(addParticipantToken(res as string));
               sessionStorage.setItem('hcx_user_token', res as string);
             })
-            //navigate("/onboarding/dashboard");
+            //navigate("/dashboard");
             dispatch(addAppData({"stageRegister":"onboardingSuccess"}));
             dispatch(addAppData({"username":_.get(appData,"emailRegister")}));
             sessionStorage.setItem('hcx_user_name', _.get(appData,"emailRegister") || "" );

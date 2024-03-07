@@ -32,33 +32,33 @@ function App() {
     <>
       <Routes>
         <Route 
-          path="/onboarding/login" 
+          path="/login" 
           element={<SignIn/>}
         >  
         </Route>
         <Route 
-          path="/" 
+          path="/register" 
           element={<SignUp/>}
         >    
         </Route>
         <Route 
-          path="/onboarding/resetpassword" 
+          path="/resetpassword" 
           element={<ResetPassword/>}
         >    
         </Route>
         <Route 
-          path="/onboarding/verify" 
+          path="/verify" 
           element={<CommunicationVerify/>}
         >
         </Route>
         <Route 
-          path="/onboarding/user/invite" 
+          path="/user/invite" 
           element={<UserVerify/>}
         >
         </Route>
         <Route element={<DefaultLayout />}>
           <Route
-            path="/onboarding/users"
+            path="/users"
             element={
               <>
                 <PageTitle title="Users" />
@@ -67,7 +67,7 @@ function App() {
             }
           />
           <Route
-            path="/onboarding/users/invite"
+            path="/users/invite"
             element={
               <>
                 <PageTitle title="Users" />
@@ -76,7 +76,7 @@ function App() {
             }
           />
            <Route
-            path="/onboarding/participants"
+            path="/participants"
             element={
               <>
                 <PageTitle title="Participants" />
@@ -85,7 +85,7 @@ function App() {
             }
           />
           <Route
-            path="/onboarding/profile"
+            path="/profile"
             element={
               <>
                 <PageTitle title="Swasth HCX Self Service Portal" />
@@ -94,7 +94,7 @@ function App() {
             }
           />
           <Route
-            path="/onboarding/terminology"
+            path="/terminology"
             element={
               <>
                 <PageTitle title="Terminology" />
@@ -103,7 +103,7 @@ function App() {
             }
           />
           <Route
-            path="/onboarding/adminconsole"
+            path="/adminconsole"
             element={
               <>
                 <PageTitle title="Admin Console" />
