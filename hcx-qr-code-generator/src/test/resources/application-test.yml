@@ -1,0 +1,4 @@
+qr_code:
+  width: ${width:150}
+  height: ${height:150}
+  private_key: ${private_key:https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/hcx-platform/main/hcx-apis/src/test/resources/examples/test-keys/private-key.pem}
