@@ -21,7 +21,8 @@ public class ElasticSearchConfiguration extends ElasticsearchConfiguration {
 
     @Value("${es.port:9200}")
     public int esPort;
-    
+
+    @Bean
     @Override
     public ClientConfiguration clientConfiguration() {
         return ClientConfiguration.builder()
