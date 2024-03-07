@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Logo from '../../src/images/hcx/swasth_logo.png';
 import HcxImage from '../../src/images/hcx/banner.svg';
 import { useSelector, useDispatch } from 'react-redux';
@@ -12,7 +12,8 @@ import { post } from '../api/APIService';
 
 const CommunicationVerify = () => {
 
-    const dispatch = useDispatch()
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
     const participantToken = useSelector((state: RootState) => state.tokenReducer.participantToken);
 
 
@@ -216,7 +217,7 @@ const CommunicationVerify = () => {
                                                 type="submit"
                                                 value="Proceed to Login"
                                                 className="w-full cursor-pointer rounded-lg border border-primary bg-primary p-4 text-white transition hover:bg-opacity-90"
-                                                onClick={(event) => { event.preventDefault(); }}
+                                                onClick={(event) => { event.preventDefault(); navigate("/login")}}
                                             />
                                         </div>
                                     </>}
