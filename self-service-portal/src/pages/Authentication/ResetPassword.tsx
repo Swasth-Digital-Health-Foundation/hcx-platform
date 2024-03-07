@@ -116,7 +116,7 @@ const ResetPassword: React.FC = () => {
                 <div className="mt-6 text-center">
                   <p>
                     Remember your password ?{' '}
-                    <Link to="/onboarding/login" className="text-primary">
+                    <Link to="/login" className="text-primary">
                       Sign In
                     </Link>
                   </p>
