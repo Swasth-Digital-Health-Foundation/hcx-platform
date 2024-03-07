@@ -1,11 +1,11 @@
 package org.swasth.spec
 
 import java.util
-
 import com.google.gson.Gson
 import com.typesafe.config.{Config, ConfigFactory}
 import net.manub.embeddedkafka.{EmbeddedKafka, EmbeddedKafkaConfig}
 import net.manub.embeddedkafka.EmbeddedKafka._
+import org.apache.flink.api.common.eventtime.WatermarkStrategy
 import org.apache.flink.runtime.testutils.MiniClusterResourceConfiguration
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment
 import org.apache.flink.streaming.api.scala._
@@ -107,21 +107,18 @@ class BaseProcessFunctionTestSpec extends BaseSpec with Matchers {
 
     implicit val env: StreamExecutionEnvironment = FlinkUtil.getExecutionContext(bsConfig)
 
-    val mapStream =
-      env.addSource(kafkaConnector.kafkaMapSource(bsConfig.kafkaMapInputTopic), "map-event-consumer")
-        .process(new TestMapStreamFunc(bsConfig)).name("TestMapEventStream")
-
+    val mapStream = env.fromSource(kafkaConnector.kafkaMapSource(bsConfig.kafkaMapInputTopic), WatermarkStrategy.noWatermarks[util.Map[String, AnyRef]](),
+      "map-event-consumer").process(new TestMapStreamFunc(bsConfig  )).name("TestMapEventStream")
     mapStream.getSideOutput(bsConfig.mapOutputTag)
-      .addSink(kafkaConnector.kafkaMapSink(bsConfig.kafkaMapOutputTopic))
+      .sinkTo(kafkaConnector.kafkaMapSink(bsConfig.kafkaMapOutputTopic))
       .name("Map-Event-Producer")
 
     val stringStream =
-      env.addSource(kafkaConnector.kafkaStringSource(bsConfig.kafkaStringInputTopic), "string-event-consumer")
-      .process(new TestStringStreamFunc(bsConfig)).name("TestStringEventStream")
+      env.fromSource(kafkaConnector.kafkaStringSource(bsConfig.kafkaStringInputTopic), WatermarkStrategy.noWatermarks[String](), "string-event-consumer")
+        .process(new TestStringStreamFunc(bsConfig)).name("TestStringEventStream")
 
-    stringStream.getSideOutput(bsConfig.stringOutputTag)
-      .addSink(kafkaConnector.kafkaStringSink(bsConfig.kafkaStringOutputTopic))
-      .name("String-Producer")
+        .sinkTo(kafkaConnector.kafkaStringSink(bsConfig.kafkaStringOutputTopic))
+        .name("String-Producer")
 
     Future {
       env.execute("TestSerDeFunctionality")
