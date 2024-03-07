@@ -8,14 +8,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.elasticsearch.client.ClientConfiguration;
-import org.springframework.data.elasticsearch.client.elc.ElasticsearchConfiguration;
+import org.springframework.data.elasticsearch.client.RestClients;
+import org.springframework.data.elasticsearch.config.AbstractElasticsearchConfiguration;
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
 import org.swasth.auditindexer.utils.ElasticSearchUtil;
 
 @Configuration
 @EnableElasticsearchRepositories(basePackages = "org.swasth.hcx.repository")
 //@ComponentScan(basePackages = {"org.swasth.hcx"})
-public class ElasticSearchConfiguration extends ElasticsearchConfiguration {
+public class ElasticSearchConfiguration extends AbstractElasticsearchConfiguration {
 
     @Value("${es.host:localhost}")
     public String esHost;
@@ -25,20 +26,13 @@ public class ElasticSearchConfiguration extends ElasticsearchConfiguration {
 
     @Bean
     @Override
-    public ClientConfiguration clientConfiguration() {
-        return ClientConfiguration.builder()
+    public RestHighLevelClient elasticsearchClient() {
+        final ClientConfiguration config = ClientConfiguration.builder()
                 .connectedTo(esHost + ":" + esPort)
                 .build();
+
+        return RestClients.create(config).rest();
     }
-//    @Bean
-//    @Override
-//    public RestHighLevelClient elasticsearchClient() {
-//        final ClientConfiguration config = ClientConfiguration.builder()
-//                .connectedTo(esHost + ":" + esPort)
-//                .build();
-//
-//        return RestClients.create(config).rest();
-//    }
     @Bean
     public ElasticSearchUtil elasticSearchUtil() throws Exception {
         return new ElasticSearchUtil(esHost,esPort);
