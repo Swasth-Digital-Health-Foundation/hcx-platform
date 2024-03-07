@@ -88,7 +88,7 @@ const UserVerify = () => {
             setSubmitted(true);
             toast.success("You have successfully accepted the invite. Please login to continue");
             if (existingOwner) {
-                navigate("/onboarding/login");
+                navigate("/login");
             } else {
                 toast.success("Thank you for accepting the invite");
                 setShowPass(true);
@@ -110,7 +110,7 @@ const UserVerify = () => {
         userInviteReject(_.get(queryString.parse(window.location.search), "jwt_token"), user).then((res: any) => {
             setSubmitted(true);
             toast.success("You have declined the invite");
-            navigate("/onboarding/login");
+            navigate("/login");
         }).catch(err => {
             showError(_.get(err, 'response.data.error.message') || "Internal Server Error");
             setSubmitted(false);
@@ -135,7 +135,7 @@ const UserVerify = () => {
                         generateTokenUser(email, pass1).then((res: any) => {
                             dispatch(addParticipantToken(res["access_token"]));
                         })
-                        navigate("/onboarding/login");
+                        navigate("/login");
                         toast.success("User password created successfully. Please login to continue");
                     })).catch(err => {
                         toast.error(_.get(err, 'response.data.error.message') || "Internal Server Error", {

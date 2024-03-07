@@ -47,11 +47,11 @@ const SignIn: React.FC = () => {
         getParticipant(userName).then((res: any) => {
           if (res["data"]["participants"].length !== 0) {
             dispatch(addParticipantDetails(res["data"]["participants"][0]));
-            navigate("/onboarding/profile");
+            navigate("/profile");
             if (res["data"]["participants"].length == 1) {
-              navigate("/onboarding/profile");
+              navigate("/profile");
             } else {
-              navigate("/onboarding/participants");
+              navigate("/participants");
             }
           } else {
             serachUser(username).then((res: any) => {
@@ -61,7 +61,7 @@ const SignIn: React.FC = () => {
                 getParticipantByCode(value.participant_code).then(res => {
                   dispatch(addParticipantDetails(res["data"]["participants"][0]));
                 })
-                navigate("/onboarding/participants");
+                navigate("/participants");
               })
             });
           }
@@ -70,7 +70,7 @@ const SignIn: React.FC = () => {
             position: toast.POSITION.TOP_RIGHT
           });
         });
-        //navigate("/onboarding/profile");
+        //navigate("/profile");
       }).catch((error) => {
         toast.error("Unable to login. Please check the credentials" || "Internal Server Error", {
           position: toast.POSITION.TOP_RIGHT
@@ -218,7 +218,7 @@ const SignIn: React.FC = () => {
                 </div>
                 <div className="mt-2 text-center">
                   <p>
-                    <Link to="/onboarding/resetpassword" className="text-primary">
+                    <Link to="/resetpassword" className="text-primary">
                       Forgot Password?
                     </Link>
                   </p>
@@ -226,7 +226,7 @@ const SignIn: React.FC = () => {
                 <div className="mt-6 text-center">
                   <p>
                     Don’t have an account?{' '}
-                    <Link to="/onboarding/register" className="text-primary">
+                    <Link to="/register" className="text-primary">
                       Sign Up
                     </Link>
                   </p>

@@ -159,7 +159,7 @@ const DropdownUser = () => {
           </li>
         </ul> */}
         <button className="flex items-center gap-3.5 py-4 px-6 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
-          onClick={() => navigate("/onboarding/login")}>
+          onClick={() => navigate("/login")}>
           <svg
             className="fill-current"
             width="22"

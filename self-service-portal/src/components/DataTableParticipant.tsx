@@ -55,7 +55,7 @@ const DataTableParticipant: React.FC = () => {
       console.log("we are in inside get par", res);
        dispatch(addParticipantDetails(res["data"]["participants"][0]));
     })
-    navigate("/onboarding/profile")
+    navigate("/profile")
   }
 
   useEffect(() => {
