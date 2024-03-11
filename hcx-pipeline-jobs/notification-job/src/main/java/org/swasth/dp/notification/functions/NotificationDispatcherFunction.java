@@ -110,14 +110,31 @@ public class NotificationDispatcherFunction extends BaseNotificationFunction {
     public String renderTemplate(String templateName, Map<String, Object> model) throws IOException, TemplateException {
         Configuration cfg = new Configuration(Configuration.VERSION_2_3_31);
         cfg.setClassForTemplateLoading(NotificationDispatcherFunction.class, "/templates");
-        Template template = cfg.getTemplate(templateName);
         StringWriter writer = new StringWriter();
+        if (templateExists(templateName)) {
+            return "";
+        }
+        Template template = cfg.getTemplate(templateName);
         template.process(model, writer);
         return writer.toString();
     }
 
     private String applyTemplateVars(String topicCode, String message, Map<String, Object> model) throws TemplateException, IOException {
+        if (templateExists(topicCode + ".ftl")) {
+            message = "";
+        }
         model.put("MESSAGE", message);
         return renderTemplate(topicCode + ".ftl", model);
+    }
+
+    private boolean templateExists(String templateName) {
+        Configuration cfg = new Configuration(Configuration.VERSION_2_3_31);
+        cfg.setClassForTemplateLoading(NotificationDispatcherFunction.class, "/templates");
+        try {
+            cfg.getTemplate(templateName);
+            return false;
+        } catch (IOException e) {
+            return true;
+        }
     }
 }
