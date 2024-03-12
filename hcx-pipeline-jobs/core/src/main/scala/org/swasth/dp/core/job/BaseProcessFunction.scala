@@ -65,14 +65,14 @@ abstract class BaseProcessFunction[T, R](config: BaseJobConfig) extends ProcessF
   }
 
   def getProtocolMapValue(event: java.util.Map[String, AnyRef], key: String): java.util.Map[String, AnyRef] = {
-    event.get(Constants.HEADERS).asInstanceOf[java.util.Map[String, AnyRef]].get(Constants.PROTOCOL).asInstanceOf[java.util.Map[String, AnyRef]].getOrDefault(key,new util.HashMap[String, AnyRef]()).asInstanceOf[java.util.Map[String, AnyRef]]
+    event.get(Constants.HEADERS).asInstanceOf[java.util.Map[String, AnyRef]].get(Constants.PROTOCOL).asInstanceOf[java.util.Map[String, AnyRef]].getOrDefault(key,new java.util.HashMap[String, AnyRef]()).asInstanceOf[java.util.Map[String, AnyRef]]
   }
 
   def getCDataListValue(event: java.util.Map[String, AnyRef], participant: String, key: String): util.List[String] = {
-    event.getOrDefault(Constants.CDATA, new util.HashMap[String, AnyRef]()).asInstanceOf[java.util.Map[String, AnyRef]].getOrDefault(participant, new util.HashMap[String, AnyRef]()).asInstanceOf[java.util.Map[String, AnyRef]].getOrDefault(key, new util.ArrayList[String]()).asInstanceOf[util.List[String]]  }
+    event.getOrDefault(Constants.CDATA, new java.util.HashMap[String, AnyRef]()).asInstanceOf[java.util.Map[String, AnyRef]].getOrDefault(participant, new java.util.HashMap[String, AnyRef]()).asInstanceOf[java.util.Map[String, AnyRef]].getOrDefault(key, new util.ArrayList[String]()).asInstanceOf[util.List[String]]  }
 
   def getCDataStringValue(event: java.util.Map[String, AnyRef], participant: String, key: String): String = {
-    event.getOrDefault(Constants.CDATA, new util.HashMap[String, AnyRef]()).asInstanceOf[java.util.Map[String, AnyRef]].getOrDefault(participant, new util.HashMap[String, AnyRef]()).asInstanceOf[java.util.Map[String, AnyRef]].get(key).asInstanceOf[String]
+    event.getOrDefault(Constants.CDATA, new java.util.HashMap[String, AnyRef]()).asInstanceOf[java.util.Map[String, AnyRef]].getOrDefault(participant, new java.util.HashMap[String, AnyRef]()).asInstanceOf[java.util.Map[String, AnyRef]].get(key).asInstanceOf[String]
   }
 
   def setStatus(event: java.util.Map[String, AnyRef], status: String): Unit = {
@@ -105,7 +105,7 @@ abstract class BaseProcessFunction[T, R](config: BaseJobConfig) extends ProcessF
       val appendedSenderUrl = endpointUrl.concat(replacedAction)
       sender.put(Constants.END_POINT, appendedSenderUrl)
       sender
-    } else new util.HashMap[String, AnyRef]()
+    } else new java.util.HashMap[String, AnyRef]()
 
   }
 
@@ -119,7 +119,7 @@ abstract class BaseProcessFunction[T, R](config: BaseJobConfig) extends ProcessF
       val appendedReceiverUrl = endpointUrl.concat(actionStr)
       receiver.put(Constants.END_POINT, appendedReceiverUrl)
       receiver
-    } else new util.HashMap[String, AnyRef]()
+    } else new java.util.HashMap[String, AnyRef]()
 
   }
 
@@ -151,7 +151,7 @@ abstract class BaseProcessFunction[T, R](config: BaseJobConfig) extends ProcessF
       val collectionMap = responseBody.get(0)
       collectionMap
     } else {
-      new util.HashMap[String, AnyRef]
+      new java.util.HashMap[String, AnyRef]
     }
   }
 }
