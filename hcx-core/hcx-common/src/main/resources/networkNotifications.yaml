@@ -502,3 +502,63 @@
     {"message": "Your api access secret got expired, please update your details with secret."}
   status: Active
   is_delegate: false
+- topic_code: notif-certificate-revocation
+  title: Certificate Revocation Notification
+  description: >-
+    Notification about the certificate revocation of the participant in the
+    ecosystem.
+  allowed_senders:
+    - HIE/HIO.HCX
+  allowed_recipients:
+    - payor
+    - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
+    - agency.tpa
+    - agency.regulator
+    - research
+    - member.isnp
+    - agency.sponsor
+    - HIE/HIO.HCX
+  type: Targeted
+  category: Network
+  priority: 1
+  template: >-
+    {"message": "${participant_name} your certificate has been revoked.
+    ${DDMMYYYY}. Please renew/obtain new certificate to carry on
+    operating on HCX."}
+  status: Active
+  is_delegate: false
+- topic_code: notif-invalid-certificate
+  title: Invalid Certificate Notification
+  description: >-
+    Notification about the invalid certificate detected for a participant in the ecosystem.
+  allowed_senders:
+   - HIE/HIO.HCX
+  allowed_recipients:
+    - payor
+    - provider
+    - provider.hospital
+    - provider.clinic
+    - provider.practitioner
+    - provider.diagnostics
+    - provider.pharmacy
+    - bsp
+    - agency.tpa
+    - agency.regulator
+    - research
+    - member.isnp
+    - agency.sponsor
+    - HIE/HIO.HCX
+  type: Targeted
+  category: Network
+  priority: 1
+  template: >-
+    {"message": "${participant_name}, your certificate is invalid as of ${DDMMYYYY}.
+    Please renew or obtain a new certificate to continue operating on HCX."}
+  status: Active
+  is_delegate: false

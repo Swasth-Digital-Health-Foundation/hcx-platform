@@ -6,6 +6,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.swasth.commonscheduler.schedulers.CertificateRevocationScheduler;
 import org.swasth.commonscheduler.schedulers.ParticipantValidationScheduler;
 import org.swasth.commonscheduler.schedulers.RetryScheduler;
 import org.swasth.commonscheduler.schedulers.UserSecretScheduler;
@@ -20,6 +21,9 @@ public class CommonSchedulerJob implements CommandLineRunner {
     RetryScheduler retryScheduler;
     @Autowired
     UserSecretScheduler userSecretScheduler;
+
+    @Autowired
+    CertificateRevocationScheduler certificateRevocationScheduler;
 
     public static void main(String[] args) {
         SpringApplication.run(CommonSchedulerJob.class, args);
@@ -36,6 +40,9 @@ public class CommonSchedulerJob implements CommandLineRunner {
         } else if (args.length > 0 && StringUtils.equalsIgnoreCase("UserSecret", args[0])) {
             userSecretScheduler.init();
             userSecretScheduler.process();
+        } else if (args.length > 0 && StringUtils.equalsIgnoreCase("RevocationStatus", args[0])) {
+            certificateRevocationScheduler.init();
+            certificateRevocationScheduler.process();
         } else {
             System.out.println("No input to process the scheduler.");
         }

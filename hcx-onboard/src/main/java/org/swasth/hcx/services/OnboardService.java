@@ -1216,6 +1216,7 @@ public class OnboardService extends BaseController {
         return gson.toJson(onboardValidations);
     }
 
+
     private String generateRandomPassword(int length) {
         String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         SecureRandom secureRandom = new SecureRandom();
