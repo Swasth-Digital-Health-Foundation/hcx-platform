@@ -18,8 +18,8 @@ class MapDeserializationSchema extends KafkaRecordDeserializationSchema[java.uti
   override def getProducedType: TypeInformation[java.util.Map[String, AnyRef]] = TypeExtractor.getForClass(classOf[java.util.Map[String, AnyRef]])
 
   override def deserialize(record: ConsumerRecord[Array[Byte], Array[Byte]], out: Collector[java.util.Map[String, AnyRef]]): Unit = {
-    val recordMap = JSONUtil.deserialize[java.util.HashMap[String, AnyRef]](record.value())
-    out.collect(recordMap)
+    val msg = JSONUtil.deserialize[java.util.Map[String, AnyRef]](record.value())
+    out.collect(msg)
   }
 }
 
