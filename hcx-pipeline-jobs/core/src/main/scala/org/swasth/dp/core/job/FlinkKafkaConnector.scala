@@ -18,7 +18,7 @@ def kafkaMapSource(kafkaTopic: String): KafkaSource[java.util.Map[String, AnyRef
 
   def kafkaMapSink(kafkaTopic: String): KafkaSink[java.util.Map[String, AnyRef]] = {
     KafkaSink.builder[java.util.Map[String, AnyRef]]()
-      .setDeliverGuarantee(DeliveryGuarantee.AT_LEAST_ONCE)
+      .setDeliveryGuarantee(DeliveryGuarantee.AT_LEAST_ONCE)
       .setRecordSerializer(new MapSerializationSchema(kafkaTopic))
       .setKafkaProducerConfig(config.kafkaProducerProperties)
       .build()
@@ -34,7 +34,7 @@ def kafkaMapSource(kafkaTopic: String): KafkaSource[java.util.Map[String, AnyRef
 
   def kafkaStringSink(kafkaTopic: String): KafkaSink[String] = {
     KafkaSink.builder[String]()
-      .setDeliverGuarantee(DeliveryGuarantee.AT_LEAST_ONCE)
+      .setDeliveryGuarantee(DeliveryGuarantee.AT_LEAST_ONCE)
       .setRecordSerializer(new StringSerializationSchema(kafkaTopic))
       .setKafkaProducerConfig(config.kafkaProducerProperties)
       .build()
