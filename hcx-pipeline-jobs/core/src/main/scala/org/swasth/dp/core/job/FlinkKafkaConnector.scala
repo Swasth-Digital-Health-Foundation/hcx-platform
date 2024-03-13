@@ -5,7 +5,6 @@ import org.apache.flink.connector.kafka.sink.KafkaSink
 import org.apache.flink.connector.kafka.source.KafkaSource
 import org.swasth.dp.core.serde._
 
-import java.util._
 class FlinkKafkaConnector(config: BaseJobConfig) extends Serializable {
 
 def kafkaMapSource(kafkaTopic: String): KafkaSource[java.util.Map[String, AnyRef]] = {
@@ -18,7 +17,7 @@ def kafkaMapSource(kafkaTopic: String): KafkaSource[java.util.Map[String, AnyRef
 
   def kafkaMapSink(kafkaTopic: String): KafkaSink[java.util.Map[String, AnyRef]] = {
     KafkaSink.builder[java.util.Map[String, AnyRef]]()
-      .setDeliverGuarantee(DeliveryGuarantee.AT_LEAST_ONCE)
+//      .setDeliveryGuarantee(DeliveryGuarantee.AT_LEAST_ONCE)
       .setRecordSerializer(new MapSerializationSchema(kafkaTopic))
       .setKafkaProducerConfig(config.kafkaProducerProperties)
       .build()
@@ -34,7 +33,7 @@ def kafkaMapSource(kafkaTopic: String): KafkaSource[java.util.Map[String, AnyRef
 
   def kafkaStringSink(kafkaTopic: String): KafkaSink[String] = {
     KafkaSink.builder[String]()
-      .setDeliverGuarantee(DeliveryGuarantee.AT_LEAST_ONCE)
+//      .setDeliveryGuarantee(DeliveryGuarantee.AT_LEAST_ONCE)
       .setRecordSerializer(new StringSerializationSchema(kafkaTopic))
       .setKafkaProducerConfig(config.kafkaProducerProperties)
       .build()
