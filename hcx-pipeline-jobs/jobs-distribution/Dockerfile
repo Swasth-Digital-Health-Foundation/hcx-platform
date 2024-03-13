@@ -1,11 +1,4 @@
-#FROM flink:1.15.2
-#
-#USER flink
-#ADD target/jobs-distribution-1.0.tar.gz $FLINK_HOME/lib/
+FROM flink:1.18.1-scala_2.12-java17
 
-FROM eclipse-temurin:17.0.9_9-jdk-focal AS builder
-FROM flink:1.15.2
 USER flink
-ADD target/jobs-distribution-1.0.tar.gz $FLINK_HOME/lib/
-ENTRYPOINT ["java","-jar","/app.jar"]
-
+ADD target/jobs-distribution-1.0.tar.gz $FLINK_HOME/lib/ 
