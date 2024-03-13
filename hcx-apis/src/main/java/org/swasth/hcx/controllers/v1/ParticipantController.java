@@ -54,7 +54,7 @@ public class ParticipantController extends BaseController {
             service.validate(requestBody, true);
             requestBody.put(PRIMARY_EMAIL, participant.getprimaryEmail().toLowerCase());
             String code = participant.generateCode(fieldSeparator, hcxInstanceName);
-            if (certificateValidationEnabled) {
+            if (certificateValidationEnabled && !(requestBody.containsKey(USAGE_TYPE))) {
                 service.validateAndProcessCertificate(requestBody, ENCRYPTION_CERT);
                 service.validateAndProcessCertificate(requestBody, SIGNING_CERT_PATH);
             }
@@ -74,7 +74,7 @@ public class ParticipantController extends BaseController {
             String code = participant.getParticipantCode();
             service.getCertificatesUrl(requestBody, code);
             service.validate(requestBody, false);
-            if (certificateValidationEnabled) {
+            if (certificateValidationEnabled && !(requestBody.containsKey(USAGE_TYPE))) {
                 service.validateAndProcessCertificate(requestBody, ENCRYPTION_CERT);
                 service.validateAndProcessCertificate(requestBody, SIGNING_CERT_PATH);
             }

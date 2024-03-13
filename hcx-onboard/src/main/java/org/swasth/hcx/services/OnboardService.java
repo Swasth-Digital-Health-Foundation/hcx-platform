@@ -250,7 +250,7 @@ public class OnboardService extends BaseController {
 
     private void addParticipantDetails(Map<String,Object> participant, OnboardRequest request) {
         participant.put(ENDPOINT_URL, mockServiceEndPointUrl);
-        participant.put(ENCRYPTION_CERT, "https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/hcx-platform/main/hcx-apis/src/test/resources/examples/test-keys/public-key.pem");
+        participant.put(ENCRYPTION_CERT, "https://raw.githubusercontent.com/Swasth-Digital-Health-Foundation/hcx-platform/main/hcx-apis/src/test/resources/examples/test-keys/X509.pem");
         participant.put(REGISTRY_STATUS, CREATED);
         ArrayList<String> roles = (ArrayList<String>) participant.get(ROLES);
         if (roles.contains(PAYOR))
