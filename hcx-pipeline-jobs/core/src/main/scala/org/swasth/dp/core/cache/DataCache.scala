@@ -1,13 +1,12 @@
 package org.swasth.dp.core.cache
 
-import java.util
 import com.google.gson.Gson
 import org.slf4j.LoggerFactory
 import org.swasth.dp.core.job.BaseJobConfig
-import org.swasth.dp.core.util.Constants
 import redis.clients.jedis.Jedis
 import redis.clients.jedis.exceptions.{JedisConnectionException, JedisException}
 
+import java.util
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.collection.mutable.Map
@@ -43,10 +42,10 @@ class DataCache(val config: BaseJobConfig, val redisConnect: RedisConnect, val d
     redisValue.length > 0 && redisValue.startsWith("[")
   }
 
-   def isObject(value: String) = {
-     val redisValue = value.trim
-     redisValue.length > 0 && redisValue.startsWith("{")
-   }
+  def isObject(value: String) = {
+    val redisValue = value.trim
+    redisValue.length > 0 && redisValue.startsWith("{")
+  }
 
   def convertToComplexDataTypes(data: mutable.Map[String, String]): mutable.Map[String, AnyRef] = {
     val result = mutable.Map[String, AnyRef]()

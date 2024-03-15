@@ -2,7 +2,9 @@ package org.swasth.dp.notification.trigger.task;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.java.utils.ParameterTool;
+import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
@@ -46,17 +48,17 @@ public class NotificationTriggerStreamTask {
 
     private void process(BaseJobConfig baseJobConfig) throws Exception {
         StreamExecutionEnvironment env = FlinkUtil.getExecutionContext(baseJobConfig);
-        SourceFunction<Map<String,Object>> kafkaConsumer = kafkaConnector.kafkaMapSource(config.kafkaInputTopic);
+        KafkaSource<Map<String,Object>> kafkaConsumer = kafkaConnector.kafkaMapSource(config.kafkaInputTopic);
         env.enableCheckpointing(config.checkpointingInterval());
         env.getCheckpointConfig().setCheckpointTimeout(config.checkpointingTimeout());
         env.getCheckpointConfig().setMinPauseBetweenCheckpoints(config.checkpointingPauseSeconds());
-        SingleOutputStreamOperator<Map<String,Object>> eventStream = env.addSource(kafkaConsumer, config.notificationTriggerConsumer)
+        SingleOutputStreamOperator<Map<String,Object>> eventStream = env.fromSource(kafkaConsumer, WatermarkStrategy.noWatermarks(), config.notificationTriggerConsumer)
                 .uid(config.notificationTriggerConsumer).setParallelism(config.consumerParallelism)
                 .rebalance()
                 .process(new NotificationTriggerProcessFunction(config)).setParallelism(config.downstreamOperatorsParallelism);
 
         /** Sink for notify events */
-        eventStream.getSideOutput(config.notifyOutputTag).addSink(kafkaConnector.kafkaStringSink(config.kafkaOutputTopic))
+        eventStream.getSideOutput(config.notifyOutputTag).sinkTo(kafkaConnector.kafkaStringSink(config.kafkaOutputTopic))
                 .name(config.notifyProducer).uid(config.notifyProducer).setParallelism(config.downstreamOperatorsParallelism);
 
         System.out.println(config.jobName() + " is processing");

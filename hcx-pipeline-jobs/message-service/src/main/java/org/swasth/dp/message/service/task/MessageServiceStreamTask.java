@@ -2,7 +2,9 @@ package org.swasth.dp.message.service.task;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.java.utils.ParameterTool;
+import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
@@ -48,11 +50,11 @@ public class MessageServiceStreamTask {
 
     private void process(BaseJobConfig baseJobConfig) throws Exception {
         StreamExecutionEnvironment env = FlinkUtil.getExecutionContext(baseJobConfig);
-        SourceFunction<Map<String,Object>> kafkaConsumer = kafkaConnector.kafkaMapSource(config.inputTopic);
+        KafkaSource<Map<String,Object>> kafkaConsumer = kafkaConnector.kafkaMapSource(config.inputTopic);
         env.enableCheckpointing(config.checkpointingInterval());
         env.getCheckpointConfig().setCheckpointTimeout(config.checkpointingTimeout());
         env.getCheckpointConfig().setMinPauseBetweenCheckpoints(config.checkpointingPauseSeconds());
-        SingleOutputStreamOperator<Map<String,Object>> eventStream = env.addSource(kafkaConsumer, config.messageServiceConsumer)
+        SingleOutputStreamOperator<Map<String,Object>> eventStream = env.fromSource(kafkaConsumer,WatermarkStrategy.noWatermarks(), config.messageServiceConsumer)
                 .uid(config.messageServiceConsumer).setParallelism(config.consumerParallelism)
                 .rebalance()
                 .process(new MessageFilterFunction(config)).setParallelism(config.downstreamOperatorsParallelism);
