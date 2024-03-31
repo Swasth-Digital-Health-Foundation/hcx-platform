@@ -25,6 +25,7 @@
                 <module>api-gateway</module>
                 <module>hcx-scheduler-jobs</module>
                 <module>hcx-onboard</module>
+                <module>hcx-qr-code-generator</module>
             </modules>
         </profile>
         <profile>
