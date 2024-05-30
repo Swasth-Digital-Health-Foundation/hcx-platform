@@ -49,6 +49,10 @@ public class Participant {
             return "bsp";
         } else if (getRoles().contains("provider")) {
             return "hosp";
+        } else if (getRoles().contains("tsp")){
+            return "tsp";
+        } else if (getRoles().contains("rcm")) {
+            return "rcm";
         }
         return getRoles().get(0);
     }

@@ -9,6 +9,8 @@
     - provider.diagnostics
     - provider.pharmacy
     - bsp
+    - tsp
+    - rcm
     - payor
   allowed_recipients:
     - provider
@@ -18,6 +20,8 @@
     - provider.diagnostics
     - provider.pharmacy
     - bsp
+    - tsp
+    - rcm
     - payor
     - agency.tpa
     - agency.regulator
@@ -43,6 +47,8 @@
     - provider.diagnostics
     - provider.pharmacy
     - bsp
+    - tsp
+    - rcm
   allowed_recipients:
     - payor
     - agency.tpa
@@ -74,6 +80,8 @@
     - provider.diagnostics
     - provider.pharmacy
     - bsp
+    - tsp
+    - rcm
     - payor
     - agency.tpa
     - agency.regulator
@@ -103,6 +111,8 @@
     - provider.pharmacy
     - payor
     - bsp
+    - tsp
+    - rcm
     - agency.tpa
     - agency.regulator
     - research
@@ -130,6 +140,8 @@
     - provider.diagnostics
     - provider.pharmacy
     - bsp
+    - tsp
+    - rcm
     - payor
     - agency.tpa
     - agency.regulator
@@ -158,6 +170,8 @@
     - provider.diagnostics
     - provider.pharmacy
     - bsp
+    - tsp
+    - rcm
     - payor
     - agency.tpa
     - agency.regulator
@@ -185,6 +199,8 @@
     - provider.diagnostics
     - provider.pharmacy
     - bsp
+    - tsp
+    - rcm
   allowed_recipients:
     - provider
     - provider.hospital
@@ -193,6 +209,8 @@
     - provider.diagnostics
     - provider.pharmacy
     - bsp
+    - tsp
+    - rcm
     - payor
     - agency.tpa
     - agency.regulator

@@ -10,6 +10,8 @@
     - provider.diagnostics
     - provider.pharmacy
     - bsp
+    - tsp
+    - rcm
     - agency.tpa
     - agency.regulator
     - research
@@ -25,6 +27,8 @@
     - provider.diagnostics
     - provider.pharmacy
     - bsp
+    - tsp
+    - rcm
     - agency.tpa
     - agency.regulator
     - research
@@ -54,6 +58,8 @@
     - provider.diagnostics
     - provider.pharmacy
     - bsp
+    - tsp
+    - rcm
     - agency.tpa
     - agency.regulator
     - research
@@ -69,6 +75,8 @@
     - provider.diagnostics
     - provider.pharmacy
     - bsp
+    - tsp
+    - rcm
     - agency.tpa
     - agency.regulator
     - research
@@ -98,6 +106,8 @@
     - provider.diagnostics
     - provider.pharmacy
     - bsp
+    - tsp
+    - rcm
     - agency.tpa
     - agency.regulator
     - research
@@ -113,6 +123,8 @@
     - provider.diagnostics
     - provider.pharmacy
     - bsp
+    - tsp
+    - rcm
     - agency.tpa
     - agency.regulator
     - research
@@ -142,6 +154,8 @@
     - provider.diagnostics
     - provider.pharmacy
     - bsp
+    - tsp
+    - rcm
     - agency.tpa
     - agency.regulator
     - research
@@ -157,6 +171,8 @@
     - provider.diagnostics
     - provider.pharmacy
     - bsp
+    - tsp
+    - rcm
     - agency.tpa
     - agency.regulator
     - research
@@ -186,6 +202,8 @@
     - provider.diagnostics
     - provider.pharmacy
     - bsp
+    - tsp
+    - rcm
     - agency.tpa
     - agency.regulator
     - research
@@ -213,6 +231,8 @@
     - provider.diagnostics
     - provider.pharmacy
     - bsp
+    - tsp
+    - rcm
     - agency.tpa
     - agency.regulator
     - research
@@ -228,6 +248,8 @@
     - provider.diagnostics
     - provider.pharmacy
     - bsp
+    - tsp
+    - rcm
     - agency.tpa
     - agency.regulator
     - research
@@ -255,6 +277,8 @@
     - provider.diagnostics
     - provider.pharmacy
     - bsp
+    - tsp
+    - rcm
     - agency.tpa
     - agency.regulator
     - research
@@ -270,6 +294,8 @@
     - provider.diagnostics
     - provider.pharmacy
     - bsp
+    - tsp
+    - rcm
     - agency.tpa
     - agency.regulator
     - research

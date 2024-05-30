@@ -12,6 +12,8 @@
     - provider.diagnostics
     - provider.pharmacy
     - bsp
+    - tsp
+    - rcm
     - agency.tpa
     - agency.regulator
     - research
@@ -41,6 +43,8 @@
     - provider.diagnostics
     - provider.pharmacy
     - bsp
+    - tsp
+    - rcm
     - agency.tpa
     - agency.regulator
     - research
@@ -70,6 +74,8 @@
     - provider.diagnostics
     - provider.pharmacy
     - bsp
+    - tsp
+    - rcm
     - agency.tpa
     - agency.regulator
     - research
@@ -100,6 +106,8 @@
     - provider.diagnostics
     - provider.pharmacy
     - bsp
+    - tsp
+    - rcm
     - agency.tpa
     - agency.regulator
     - research
@@ -130,6 +138,8 @@
     - provider.diagnostics
     - provider.pharmacy
     - bsp
+    - tsp
+    - rcm
     - agency.tpa
     - agency.regulator
     - research
@@ -159,6 +169,8 @@
     - provider.diagnostics
     - provider.pharmacy
     - bsp
+    - tsp
+    - rcm
     - agency.tpa
     - agency.regulator
     - research
@@ -190,6 +202,8 @@
     - provider.diagnostics
     - provider.pharmacy
     - bsp
+    - tsp
+    - rcm
     - agency.tpa
     - agency.regulator
     - research
@@ -220,6 +234,8 @@
     - provider.diagnostics
     - provider.pharmacy
     - bsp
+    - tsp
+    - rcm
     - agency.tpa
     - agency.regulator
     - research
@@ -251,6 +267,8 @@
     - provider.diagnostics
     - provider.pharmacy
     - bsp
+    - tsp
+    - rcm
     - agency.tpa
     - agency.regulator
     - research
@@ -281,6 +299,8 @@
     - provider.diagnostics
     - provider.pharmacy
     - bsp
+    - tsp
+    - rcm
     - agency.tpa
     - agency.regulator
     - research
@@ -312,6 +332,8 @@
     - provider.diagnostics
     - provider.pharmacy
     - bsp
+    - tsp
+    - rcm
     - agency.tpa
     - agency.regulator
     - research
@@ -338,6 +360,8 @@
     - provider.diagnostics
     - provider.pharmacy
     - bsp
+    - tsp
+    - rcm
   allowed_recipients:
     - provider
     - provider.hospital
@@ -347,6 +371,8 @@
     - provider.pharmacy
     - payor
     - bsp
+    - tsp
+    - rcm
     - agency.tpa
     - agency.regulator
     - research
@@ -374,6 +400,8 @@
     - provider.pharmacy
     - payor
     - bsp
+    - tsp
+    - rcm
     - agency.tpa
     - agency.regulator
     - research
@@ -401,6 +429,8 @@
     - provider.pharmacy
     - payor
     - bsp
+    - tsp
+    - rcm
     - agency.tpa
     - agency.regulator
     - research
@@ -430,6 +460,8 @@
     - provider.diagnostics
     - provider.pharmacy
     - bsp
+    - tsp
+    - rcm
     - agency.tpa
     - agency.regulator
     - research
@@ -461,6 +493,8 @@
     - provider.diagnostics
     - provider.pharmacy
     - bsp
+    - tsp
+    - rcm
     - agency.tpa
     - agency.regulator
     - research
@@ -488,6 +522,8 @@
     - provider.diagnostics
     - provider.pharmacy
     - bsp
+    - tsp
+    - rcm
     - payor
     - agency.tpa
     - agency.regulator
@@ -518,6 +554,8 @@
     - provider.diagnostics
     - provider.pharmacy
     - bsp
+    - tsp
+    - rcm
     - agency.tpa
     - agency.regulator
     - research
@@ -548,6 +586,8 @@
     - provider.diagnostics
     - provider.pharmacy
     - bsp
+    - tsp
+    - rcm
     - agency.tpa
     - agency.regulator
     - research
