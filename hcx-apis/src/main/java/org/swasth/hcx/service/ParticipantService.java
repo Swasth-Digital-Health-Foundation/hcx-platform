@@ -5,14 +5,7 @@ import kong.unirest.HttpResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.bouncycastle.asn1.x500.RDN;
-import org.bouncycastle.asn1.x509.AccessDescription;
-import org.bouncycastle.asn1.x509.AuthorityInformationAccess;
-import org.bouncycastle.asn1.x509.Extension;
 import org.bouncycastle.cert.X509CertificateHolder;
-import org.bouncycastle.cert.ocsp.*;
-import org.bouncycastle.operator.OperatorCreationException;
-import org.bouncycastle.operator.bc.BcDigestCalculatorProvider;
-import org.bouncycastle.x509.extension.X509ExtensionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,15 +21,14 @@ import org.swasth.common.exception.*;
 import org.swasth.common.utils.Constants;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.common.utils.JWTUtils;
+import org.swasth.common.validation.CertificateRevocation;
 import org.swasth.postgresql.IDatabaseService;
 import org.swasth.redis.cache.RedisCache;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.URL;
-import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -272,13 +264,9 @@ public class ParticipantService extends BaseRegistryService {
             if (!allowedCertificateKeySize.contains(keySize)) {
                 throw new ClientException(ErrorCodes.ERR_INVALID_CERTIFICATE, String.format("Certificate must have a minimum key size of 2048 bits. Current key size: %d bits.", keySize));
             }
-            Map<String, Object> certificateAccessInformation = certificateAccessInformation(x509Certificate);
-            if(!certificateAccessInformation.isEmpty()){
-                OCSPReq ocspReq = generateOCSPRequest(parseCertificateFromURL(certificateAccessInformation.get(ISSUER_CERTIFICATE).toString()), x509Certificate);
-                OCSPResp ocSpResp = sendOCSPRequest(ocspReq, certificateAccessInformation.get(OCSP_URL).toString());
-                if (!checkRevocationStatus(ocSpResp)) {
-                    throw new ClientException(ErrorCodes.ERR_INVALID_CERTIFICATE, "The certificate has been revoked or is invalid.");
-                }
+            CertificateRevocation cr = new CertificateRevocation(x509Certificate);
+            if (cr.checkStatus()) {
+                throw new ClientException(ErrorCodes.ERR_INVALID_CERTIFICATE, "The certificate has been revoked or is invalid.");
             }
         } catch (Exception e) {
             throw new ClientException(ErrorCodes.ERR_INVALID_CERTIFICATE, e.getMessage());
@@ -305,43 +293,4 @@ public class ParticipantService extends BaseRegistryService {
             throw new ClientException(ErrorCodes.ERR_INVALID_CERTIFICATE, "Error parsing certificate from the URL");
         }
     }
-
-    private Map<String, Object> certificateAccessInformation(X509Certificate x509Certificate) throws IOException {
-        byte[] extVal = x509Certificate.getExtensionValue(Extension.authorityInfoAccess.getId());
-        Map<String, Object> responseMap = new HashMap<>();
-        if (extVal != null) {
-            AuthorityInformationAccess aia = AuthorityInformationAccess.getInstance(X509ExtensionUtil.fromExtensionValue(extVal));
-            Arrays.stream(aia.getAccessDescriptions())
-                    .forEach(ad -> responseMap.put(ad.getAccessMethod().equals(AccessDescription.id_ad_caIssuers) ? ISSUER_CERTIFICATE : OCSP_URL, ad.getAccessLocation().getName()));
-        }
-        return responseMap;
-    }
-
-
-    private OCSPReq generateOCSPRequest(X509Certificate issuerCertificate, X509Certificate issuedCertificate) throws OCSPException, CertificateEncodingException, OperatorCreationException, IOException {
-        X509CertificateHolder issuerHolder = new X509CertificateHolder(issuerCertificate.getEncoded());
-        CertificateID certId = new CertificateID(new BcDigestCalculatorProvider().get(CertificateID.HASH_SHA1), issuerHolder, issuedCertificate.getSerialNumber());
-        OCSPReqBuilder ocspReqBuilder = new OCSPReqBuilder();
-        ocspReqBuilder.addRequest(certId);
-        return ocspReqBuilder.build();
-    }
-
-    private OCSPResp sendOCSPRequest(OCSPReq ocspReq , String ocspResponderUrl) throws IOException {
-        URL responderURL = new URL(ocspResponderUrl);
-        HttpURLConnection connection = (HttpURLConnection) responderURL.openConnection();
-        connection.setRequestMethod("POST");
-        connection.setRequestProperty("Content-Type", "application/ocsp-request");
-        connection.setDoOutput(true);
-        connection.getOutputStream().write(ocspReq.getEncoded());
-        byte[] responseBytes = connection.getInputStream().readAllBytes();
-        return new OCSPResp(responseBytes);
-    }
-
-    private boolean checkRevocationStatus(OCSPResp ocspResp) throws OCSPException {
-        BasicOCSPResp basicOCSPResp = (BasicOCSPResp) ocspResp.getResponseObject();
-        SingleResp[] response = basicOCSPResp.getResponses();
-        return Arrays.stream(response)
-                .anyMatch(singleResp -> singleResp.getCertStatus() == CertificateStatus.GOOD);
-    }
-
 }

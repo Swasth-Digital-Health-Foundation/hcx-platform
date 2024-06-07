@@ -11,4 +11,9 @@ public class RegistryServiceTest {
         RegistryService service = new RegistryService("localhost:8081");
         service.getDetails("{ \"filters\": { } }");
     }
+    @Test(expected = ServerException.class)
+    public void test_update_details_server_exception() throws Exception {
+        RegistryService service = new RegistryService("localhost:8081");
+        service.updateStatusOnCertificateRevocation("748848487479");
+    }
 }
