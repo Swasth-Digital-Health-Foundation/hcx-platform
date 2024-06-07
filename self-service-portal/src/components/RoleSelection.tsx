@@ -71,7 +71,8 @@ const RoleSelection: React.FC<RoleSelectionProps> = ({ payorList, onRoleSubmit }
             <option value="payor">Payor</option>
             <option value="bsp">BSP</option>
             <option value="member.isnp">Member ISNP</option>
-        
+            <option value="tsp">TSP</option>
+            <option value="rcm">RCM</option>
           </select>
           <span className="absolute top-1/2 right-4 z-30 -translate-y-1/2">
             <svg
