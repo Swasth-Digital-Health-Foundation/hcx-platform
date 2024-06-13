@@ -20,7 +20,7 @@ public class EmailDispatcher extends BaseDispatcher {
     }
 
     @Override
-    public void processElement(Map<String, Object> event, ProcessFunction<Map<String, Object>, Map<String, Object>>.Context context, Collector<Map<String, Object>> collector) {
+    public void processElement(Map<String, Object> event, ProcessFunction<Map<String, Object>, Map<String, Object>>.Context context, Collector<Map<String, Object>> collector) throws MessagingException {
         try{
             System.out.println("Processing Email Event :: Mid: " + event.get("mid"));
             Map<String,Object> recipients = (Map<String,Object>) event.getOrDefault("recipients", new HashMap<>());
@@ -38,42 +38,43 @@ public class EmailDispatcher extends BaseDispatcher {
     }
 
 
-    public Boolean sendMail(List<String> to, List<String> cc, List<String> bcc, String subject, String message){
-        //compose message
+    public Boolean sendMail(List<String> to, List<String> cc, List<String> bcc, String subject, String message) throws MessagingException {
+        Session session = Session.getDefaultInstance(getMailProperties());
+        MimeMessage mimeMessage = new MimeMessage(session);
+        for(String id: to){
+            mimeMessage.addRecipient(Message.RecipientType.TO,new InternetAddress(id));
+        }
+        for(String id: cc){
+            mimeMessage.addRecipient(Message.RecipientType.CC,new InternetAddress(id));
+        }
+        for(String id: bcc){
+            mimeMessage.addRecipient(Message.RecipientType.BCC,new InternetAddress(id));
+        }
+        mimeMessage.setFrom(new InternetAddress(config.fromEmail));
+        mimeMessage.setSubject(subject);
+        mimeMessage.setContent(message,"text/html");
+        Transport transport = session.getTransport();
         try {
-            MimeMessage mimeMessage = new MimeMessage(getSession());
-            for(String id: to){
-                mimeMessage.addRecipient(Message.RecipientType.TO,new InternetAddress(id));
-            }
-            for(String id: cc){
-                mimeMessage.addRecipient(Message.RecipientType.CC,new InternetAddress(id));
-            }
-            for(String id: bcc){
-                mimeMessage.addRecipient(Message.RecipientType.BCC,new InternetAddress(id));
-            }
-            mimeMessage.setSubject(subject);
-            mimeMessage.setContent(message, "text/html");
-            //send message
-            Transport.send(mimeMessage);
-            return true;
-        } catch (MessagingException e) {throw new RuntimeException(e);}
-    }
-
-    private Session getSession() {
-        return Session.getDefaultInstance(getMailProperties(),
-                new javax.mail.Authenticator() {
-                    protected PasswordAuthentication getPasswordAuthentication() {
-                        return new PasswordAuthentication(config.emailId, config.emailPwd);
-                    }
-                });
+            transport.connect(config.emailServerHost, config.emailServerUsername, config.emailServerPassword);
+            transport.sendMessage(mimeMessage, mimeMessage.getAllRecipients());
+            System.out.println("Email sent!");
+        }
+        catch (Exception ex) {
+            System.out.println("The email was not sent.");
+            System.out.println("Error message: " + ex.getMessage());
+        }
+        finally {
+            transport.close();
+        }
+        return true;
     }
 
     private Properties getMailProperties(){
         Properties properties = new Properties();
-        properties.put("mail.smtp.host", "smtp.gmail.com");
-        properties.put("mail.smtp.port", "465");
-        properties.put("mail.smtp.auth", "true");
+        properties.put("mail.transport.protocol", "smtp");
+        properties.put("mail.smtp.port", config.emailServerPort);
         properties.put("mail.smtp.starttls.enable", "true");
+        properties.put("mail.smtp.auth", "true");
         properties.put("mail.smtp.starttls.required", "true");
         properties.put("mail.smtp.ssl.protocols", "TLSv1.2");
         properties.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
