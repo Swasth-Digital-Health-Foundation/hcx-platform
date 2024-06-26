@@ -9,6 +9,7 @@ import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.swasth.dp.claims.functions.ClaimsProcessFunction;
 import org.swasth.dp.core.function.ContextEnrichmentFunction;
 import org.swasth.dp.core.job.BaseJobConfig;
@@ -25,7 +26,7 @@ public class ClaimsStreamTask {
   private final ClaimsConfig config;
   private final FlinkKafkaConnector kafkaConnector;
 
-  public ClaimsStreamTask(ClaimsConfig config, FlinkKafkaConnector kafkaConnector){
+  public ClaimsStreamTask(ClaimsConfig config, FlinkKafkaConnector kafkaConnector) {
     this.config = config;
     this.kafkaConnector = kafkaConnector;
   }
@@ -34,7 +35,7 @@ public class ClaimsStreamTask {
     Option<String> configFilePath = new Some<>(ParameterTool.fromArgs(args).get("config.file.path"));
     Config conf = configFilePath.map(path -> ConfigFactory.parseFile(new File(path)).resolve())
             .getOrElse(() -> ConfigFactory.load("resources/claims.conf").withFallback(ConfigFactory.systemEnvironment()));
-    ClaimsConfig config = new ClaimsConfig(conf,"Claims-Job");
+    ClaimsConfig config = new ClaimsConfig(conf, "Claims-Job");
     FlinkKafkaConnector kafkaConnector = new FlinkKafkaConnector(config);
     ClaimsStreamTask task = new ClaimsStreamTask(config, kafkaConnector);
     try {
@@ -47,14 +48,16 @@ public class ClaimsStreamTask {
 
   void process(BaseJobConfig baseJobConfig) throws Exception {
     StreamExecutionEnvironment env = FlinkUtil.getExecutionContext(baseJobConfig);
-    KafkaSource<Map<String, Object>> kafkaConsumer =  kafkaConnector.kafkaMapSource(config.kafkaInputTopic);
+//    SourceFunction<Map<String,Object>> kafkaConsumer = kafkaConnector.kafkaMapSource(config.kafkaInputTopic);
+    KafkaSource kafkaConsumer = kafkaConnector.kafkaMapSource(config.kafkaInputTopic);
 
-    SingleOutputStreamOperator<Map<String, Object>> enrichedStream = env.fromSource(kafkaConsumer, WatermarkStrategy.noWatermarks(), config.claimsConsumer)
+//    SingleOutputStreamOperator<Map<String,Object>> enrichedStream = env.addSource(kafkaConsumer, config.claimsConsumer)
+    SingleOutputStreamOperator enrichedStream = env.fromSource(kafkaConsumer, WatermarkStrategy.noWatermarks(), config.claimsConsumer)
             .uid(config.claimsConsumer).setParallelism(config.consumerParallelism)
             .rebalance()
             .process(new ContextEnrichmentFunction(config, TypeExtractor.getForClass(String.class))).setParallelism(config.downstreamOperatorsParallelism);
 
-    SingleOutputStreamOperator<Map<String,Object>> eventStream = enrichedStream.getSideOutput(config.enrichedOutputTag())
+    SingleOutputStreamOperator<Map<String, Object>> eventStream = enrichedStream.getSideOutput(config.enrichedOutputTag())
             .process(new ClaimsProcessFunction(config)).setParallelism(config.downstreamOperatorsParallelism);
 
     /** Sink for audit events */
@@ -62,9 +65,6 @@ public class ClaimsStreamTask {
             .name(config.auditProducer()).uid(config.auditProducer()).setParallelism(config.downstreamOperatorsParallelism);
 
     System.out.println(config.jobName() + " is processing");
-    env.execute(config.jobName());
   }
-
 }
-
 

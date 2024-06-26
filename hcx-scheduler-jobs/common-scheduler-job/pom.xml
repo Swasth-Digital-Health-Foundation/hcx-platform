@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.5.5</version>
+		<version>3.2.0</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 
@@ -14,8 +14,8 @@
 	<packaging>jar</packaging>
 
 	<properties>
-		<spring.version>2.5.5</spring.version>
-		<java.version>11</java.version>
+		<spring.version>3.2.0</spring.version>
+		<java.version>17</java.version>
 		<log4j.version>2.20.0</log4j.version>
 	</properties>
 
@@ -97,6 +97,11 @@
 			<version>${log4j.version}</version>
 			<scope>runtime</scope>
 		</dependency>
+		<dependency>
+			<groupId>com.typesafe</groupId>
+			<artifactId>config</artifactId>
+			<version>1.4.2</version>
+		</dependency>
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>mockwebserver</artifactId>
@@ -112,7 +117,7 @@
 		<dependency>
 			<groupId>org.springframework.kafka</groupId>
 			<artifactId>spring-kafka-test</artifactId>
-			<version>2.7.1</version>
+			<version>3.0.13</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.5.5</version>
+		<version>3.2.0</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>org.swasth</groupId>
 	<artifactId>hcx-onboard</artifactId>
 	<version>1.0-SNAPSHOT</version>
 	<properties>
-		<java.version>11</java.version>
-		<spring.version>2.5.5</spring.version>
+		<java.version>17</java.version>
+		<spring.version>3.2.0</spring.version>
 		<log4j2.version>2.16.0</log4j2.version>
 	</properties>
 	<dependencies>
@@ -86,6 +86,17 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-elasticsearch</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.data</groupId>
+					<artifactId>spring-data-elasticsearch</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.data</groupId>
+			<artifactId>spring-data-elasticsearch</artifactId>
+			<version>4.2.5</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -93,30 +104,30 @@
 			<version>${spring.version}</version>
 			<scope>test</scope>
 		</dependency>
-        <dependency>
-            <groupId>com.squareup.okhttp3</groupId>
-            <artifactId>mockwebserver</artifactId>
-            <version>3.14.9</version>
-            <scope>test</scope>
-        </dependency>
+		<dependency>
+			<groupId>com.squareup.okhttp3</groupId>
+			<artifactId>mockwebserver</artifactId>
+			<version>3.14.9</version>
+			<scope>test</scope>
+		</dependency>
 		<dependency>
 			<groupId>com.squareup.okhttp3</groupId>
 			<artifactId>okhttp</artifactId>
 			<version>3.14.9</version>
 			<scope>test</scope>
 		</dependency>
-        <dependency>
-            <groupId>org.swasth</groupId>
-            <artifactId>postgresql-client</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-text</artifactId>
-            <version>1.10.0</version>
-            <scope>compile</scope>
-        </dependency>
+		<dependency>
+			<groupId>org.swasth</groupId>
+			<artifactId>postgresql-client</artifactId>
+			<version>1.0-SNAPSHOT</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-text</artifactId>
+			<version>1.10.0</version>
+			<scope>compile</scope>
+		</dependency>
 		<!-- BouncyCastle -->
 		<dependency>
 			<groupId>org.bouncycastle</groupId>
@@ -141,7 +152,7 @@
 		<dependency>
 			<groupId>org.springframework.kafka</groupId>
 			<artifactId>spring-kafka-test</artifactId>
-			<version>2.7.1</version>
+			<version>3.0.13</version>
 			<scope>test</scope>
 		</dependency>
 
