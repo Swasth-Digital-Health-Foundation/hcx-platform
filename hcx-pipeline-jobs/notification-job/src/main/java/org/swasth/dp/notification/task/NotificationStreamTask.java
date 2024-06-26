@@ -2,9 +2,11 @@ package org.swasth.dp.notification.task;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.connector.sink.Sink;
 import org.apache.flink.api.java.typeutils.TypeExtractor;
 import org.apache.flink.api.java.utils.ParameterTool;
+import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
@@ -49,14 +51,14 @@ public class NotificationStreamTask {
 
     void process(BaseJobConfig baseJobConfig) throws Exception {
         StreamExecutionEnvironment env = FlinkUtil.getExecutionContext(baseJobConfig);
-        SourceFunction<Map<String,Object>> notifyConsumer = kafkaConnector.kafkaMapSource(config.kafkaInputTopic);
-        SourceFunction<Map<String,Object>> subscriptionConsumer = kafkaConnector.kafkaMapSource(config.subscriptionInputTopic);
-        SourceFunction<Map<String,Object>> onSubscriptionConsumer = kafkaConnector.kafkaMapSource(config.onSubscriptionInputTopic);
+        KafkaSource kafkaConsumer = kafkaConnector.kafkaMapSource(config.kafkaInputTopic);
+        KafkaSource  subscriptionConsumer = kafkaConnector.kafkaMapSource(config.subscriptionInputTopic);
+        KafkaSource  onSubscriptionConsumer = kafkaConnector.kafkaMapSource(config.onSubscriptionInputTopic);
         env.enableCheckpointing(config.checkpointingInterval());
         env.getCheckpointConfig().setCheckpointTimeout(config.checkpointingTimeout());
         env.getCheckpointConfig().setMinPauseBetweenCheckpoints(config.checkpointingPauseSeconds());
         //Notification Stream
-        SingleOutputStreamOperator<Map<String,Object>> dispatchedStream = env.addSource(notifyConsumer, config.notificationConsumer)
+        SingleOutputStreamOperator<Map<String,Object>> dispatchedStream = env.fromSource(kafkaConsumer, WatermarkStrategy.noWatermarks(), config.notificationConsumer)
                 .uid(config.notificationConsumer).setParallelism(config.consumerParallelism)
                 .rebalance()
                 .process(new NotificationFilterFunction(config)).setParallelism(config.downstreamOperatorsParallelism);
@@ -65,12 +67,12 @@ public class NotificationStreamTask {
                 .process(new NotificationDispatcherFunction(config)).setParallelism(config.dispatcherParallelism);
 
         // Sink notifications to message topic
-        notificationStream.getSideOutput(config.messageOutputTag).addSink(kafkaConnector.kafkaStringSink(config.messageTopic))
+        notificationStream.getSideOutput(config.messageOutputTag).sinkTo(kafkaConnector.kafkaStringSink(config.messageTopic))
                 .name(config.notificationMessageProducer).uid("notification-message-sink").setParallelism(config.downstreamOperatorsParallelism);
 
         //Subscription Stream
         //Filter the records based on the action type
-        SingleOutputStreamOperator<Map<String,Object>> filteredStream = env.addSource(subscriptionConsumer, config.subscriptionConsumer)
+        SingleOutputStreamOperator<Map<String,Object>> filteredStream = env.fromSource(kafkaConsumer, WatermarkStrategy.noWatermarks(), config.notificationConsumer)
                 .uid(config.subscriptionConsumer).setParallelism(config.consumerParallelism).rebalance()
                 .process(new SubscriptionFilterFunction(config)).setParallelism(config.downstreamOperatorsParallelism);
 
@@ -83,7 +85,7 @@ public class NotificationStreamTask {
                 .process(new SubscriptionDispatcherFunction(config)).setParallelism(config.downstreamOperatorsParallelism);
 
         //OnSubscription Stream
-        SingleOutputStreamOperator<Map<String,Object>> onSubscribeStream = env.addSource(onSubscriptionConsumer, config.onSubscriptionConsumer)
+        SingleOutputStreamOperator<Map<String,Object>> onSubscribeStream = env.fromSource(kafkaConsumer, WatermarkStrategy.noWatermarks(), config.notificationConsumer)
                 .uid(config.onSubscriptionConsumer).setParallelism(config.consumerParallelism).rebalance()
                 .process(new OnSubscriptionFunction(config)).setParallelism(config.downstreamOperatorsParallelism);
 
