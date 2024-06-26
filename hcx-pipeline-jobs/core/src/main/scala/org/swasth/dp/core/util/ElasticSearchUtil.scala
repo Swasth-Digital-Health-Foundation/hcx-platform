@@ -44,7 +44,7 @@ class ElasticSearchUtil(connectionInfo: String, indexName: String, batchSize: In
   @throws[IOException]
   def addDocumentWithIndex(document: String, indexName: String, identifier: String): Unit = {
     try {
-      val doc = mapper.readValue(document, new TypeReference[util.Map[String, AnyRef]]() {})
+      val doc = mapper.readValue(document, new TypeReference[java.util.Map[String, AnyRef]]() {})
       val indexRequest = new IndexRequest(indexName)
       indexRequest.id(identifier)
       val response = esClient.index(indexRequest.source(doc), RequestOptions.DEFAULT)

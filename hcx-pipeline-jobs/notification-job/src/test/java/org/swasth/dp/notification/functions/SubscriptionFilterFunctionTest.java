@@ -8,7 +8,7 @@ import org.apache.flink.streaming.util.OneInputStreamOperatorTestHarness;
 import org.apache.flink.streaming.util.ProcessFunctionTestHarnesses;
 import org.junit.Test;
 import org.swasth.dp.core.util.JSONUtil;
-import org.swasth.dp.notification.task.NotificationConfig;
+import org.swasth.dp.notification.task      .NotificationConfig;
 import org.swasth.fixture.EventFixture;
 
 import java.util.HashMap;

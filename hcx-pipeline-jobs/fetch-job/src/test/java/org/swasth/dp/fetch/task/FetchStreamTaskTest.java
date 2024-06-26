@@ -3,6 +3,7 @@ package org.swasth.dp.fetch.task;
 import com.google.gson.Gson;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.runtime.testutils.MiniClusterResourceConfiguration;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
@@ -38,7 +39,8 @@ public class FetchStreamTaskTest {
 
     @Before
     public void beforeClass() throws Exception {
-        when(mockKafkaUtil.kafkaMapSource(fetchConfig.kafkaInputTopic)).thenReturn(new FetchSource());
+        KafkaSource mockKafkaSource = mock(KafkaSource.class);
+        when(mockKafkaUtil.kafkaMapSource(fetchConfig.kafkaInputTopic)).thenReturn(mockKafkaSource);
         flinkCluster.before();
     }
 

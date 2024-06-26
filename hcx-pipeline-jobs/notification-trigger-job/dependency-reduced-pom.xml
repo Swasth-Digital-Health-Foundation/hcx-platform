@@ -14,7 +14,7 @@
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.8.1</version>
+        <version>3.11.0</version>
         <configuration>
           <source>${java.target.runtime}</source>
           <target>${java.target.runtime}</target>
@@ -122,8 +122,8 @@
     </dependency>
     <dependency>
       <groupId>org.apache.flink</groupId>
-      <artifactId>flink-streaming-java_2.12</artifactId>
-      <version>1.12.0</version>
+      <artifactId>flink-streaming-java</artifactId>
+      <version>1.15.2</version>
       <classifier>tests</classifier>
       <scope>test</scope>
     </dependency>

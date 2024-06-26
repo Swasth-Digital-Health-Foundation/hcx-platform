@@ -52,7 +52,7 @@
         <!-- Add connector dependencies here. They must be in the default scope (compile). -->
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-connector-kafka_${scala.maj.version}</artifactId>
+            <artifactId>flink-connector-kafka</artifactId>
             <version>${flink.version}</version>
         </dependency>
         <dependency>
@@ -105,6 +105,11 @@
             <artifactId>flink-test-utils_2.12</artifactId>
             <version>1.12.0</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.typesafe</groupId>
+            <artifactId>config</artifactId>
+            <version>1.4.2</version>
         </dependency>
         <dependency>
             <groupId>org.swasth</groupId>
