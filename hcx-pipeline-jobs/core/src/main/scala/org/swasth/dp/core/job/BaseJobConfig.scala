@@ -15,7 +15,7 @@ class BaseJobConfig(val config: Config, val jobName: String) extends Serializabl
   private val serialVersionUID = - 4515020556926788923L
 
   implicit val metricTypeInfo: TypeInformation[String] = TypeExtractor.getForClass(classOf[String])
-  implicit val mapTypeInfo: TypeInformation[util.Map[String, AnyRef]] = TypeExtractor.getForClass(classOf[util.Map[String, AnyRef]])
+  implicit val mapTypeInfo: TypeInformation[java.util.Map[String, AnyRef]] = TypeExtractor.getForClass(classOf[java.util.Map[String, AnyRef]])
   implicit val objectTypeInfo: TypeInformation[Object] = TypeExtractor.getForClass(classOf[Object])
 
   val kafkaBrokerServers: String = config.getString("kafka.broker-servers")
@@ -24,7 +24,7 @@ class BaseJobConfig(val config: Config, val jobName: String) extends Serializabl
   val kafkaProducerMaxRequestSize: Int = config.getInt("kafka.producer.max-request-size")
   val kafkaProducerBatchSize: Int = config.getInt("kafka.producer.batch.size")
   val kafkaProducerLingerMs: Int = config.getInt("kafka.producer.linger.ms")
-  val groupId: String = config.getString("kafka.groupId")
+  private val groupId: String = config.getString("kafka.groupId")
   val restartAttempts: Int = config.getInt("task.restart-strategy.attempts")
   val delayBetweenAttempts: Long = config.getLong("task.restart-strategy.delay")
   val parallelism: Int = config.getInt("task.parallelism")
@@ -49,14 +49,16 @@ class BaseJobConfig(val config: Config, val jobName: String) extends Serializabl
   val checkpointingTimeout: Long = if (config.hasPath("task.checkpointing.timeout")) config.getLong("task.checkpointing.timeout") else 1800000L
 
   // Default output configurations
-  val enrichedOutputTag: OutputTag[util.Map[String, AnyRef]] = OutputTag[util.Map[String, AnyRef]]("enriched-events")
-  val dispatcherOutputTag: OutputTag[util.Map[String, AnyRef]] = OutputTag[util.Map[String, AnyRef]]("dispatched-events")
-  val enrichedSubscriptionsOutputTag: OutputTag[util.Map[String, AnyRef]] = OutputTag[util.Map[String, AnyRef]]("enriched-subscription-events")
+  val enrichedOutputTag: OutputTag[java.util.Map[String, AnyRef]] = OutputTag[java.util.Map[String, AnyRef]]("enriched-events")
+  val dispatcherOutputTag: OutputTag[java.util.Map[String, AnyRef]] = OutputTag[java.util.Map[String, AnyRef]]("dispatched-events")
+  val enrichedSubscriptionsOutputTag: OutputTag[java.util.Map[String, AnyRef]] = OutputTag[java.util.Map[String, AnyRef]]("enriched-subscription-events")
   val auditOutputTag: OutputTag[String] = OutputTag[String]("audit-events")
-  val auditTopic = if (config.hasPath("kafka.audit.topic")) config.getString("kafka.audit.topic") else ""
+  val auditTopic: String = if (config.hasPath("kafka.audit.topic")) config.getString("kafka.audit.topic") else ""
+  val messageTopic: String = if (config.hasPath("kafka.message.topic")) config.getString("kafka.message.topic") else ""
 
   // Producers
   val auditProducer = "audit-events-sink"
+  val notificationProducer = "message-events-sink"
 
   // Default job metrics
   val dispatcherSuccessCount = "dispatcher-success-count"
@@ -176,9 +178,8 @@ class BaseJobConfig(val config: Config, val jobName: String) extends Serializabl
   val successCodes: util.List[Integer] = config.getIntList("errorCodes.successCodes")
   val errorCodes: util.List[Integer] = config.getIntList("errorCodes.errorCodes")
 
-  val subscribeOutputTag: OutputTag[util.Map[String, AnyRef]] = OutputTag[util.Map[String, AnyRef]]("subscribed-events")
-  val onSubscribeOutputTag: OutputTag[util.Map[String, AnyRef]] = OutputTag[util.Map[String, AnyRef]]("on-subscribed-events")
-
+  val subscribeOutputTag: OutputTag[java.util.Map[String, AnyRef]] = OutputTag[java.util.Map[String, AnyRef]]("subscribed-events")
+  val onSubscribeOutputTag: OutputTag[java.util.Map[String, AnyRef]] = OutputTag[java.util.Map[String, AnyRef]]("on-subscribed-events")
   val hcxInstanceName: String = config.getString("hcx.instanceName")
 
   //tag configuration

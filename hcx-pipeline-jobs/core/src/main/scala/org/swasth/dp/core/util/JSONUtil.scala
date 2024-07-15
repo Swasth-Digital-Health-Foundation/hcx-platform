@@ -7,7 +7,6 @@ import com.fasterxml.jackson.core.`type`.TypeReference
 import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper, SerializationFeature}
 
 import java.lang.reflect.{ParameterizedType, Type}
-import java.util
 import java.util.Base64
 import scala.collection.JavaConverters._
 
@@ -67,10 +66,10 @@ object JSONUtil {
   }
 
   @throws[Exception]
-  def parsePayload(encodedPayload: String): util.HashMap[String, AnyRef] = {
+  def parsePayload(encodedPayload: String): java.util.HashMap[String, AnyRef] = {
     val strArray = encodedPayload.split("\\.")
     if (strArray.length > 0 && strArray.length == Constants.PAYLOAD_LENGTH) {
-      val event = new util.HashMap[String, AnyRef]
+      val event = new java.util.HashMap[String, AnyRef]
       event.put(Constants.PROTECTED, strArray(0))
       event.put(Constants.ENCRYPTED_KEY, strArray(1))
       event.put(Constants.IV, strArray(2))
@@ -81,7 +80,7 @@ object JSONUtil {
     else throw new Exception("payload is not complete")
   }
 
-  def createPayloadByValues(payload: util.Map[String, AnyRef]): String = {
+  def createPayloadByValues(payload: java.util.Map[String, AnyRef]): String = {
     var encodedString = ""
     for (objValue <- payload.asScala.values) {
       encodedString = encodedString + objValue + "."
