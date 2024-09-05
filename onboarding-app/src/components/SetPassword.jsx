@@ -97,7 +97,7 @@ export const SetPassword = ({ changeTab, formState, setState }) => {
         setSending(true)
         setFormErrors({})
         let body = { "client_id": "registry-frontend", "username": _.get(formState, 'participant.primary_email'), "password": password, "grant_type": "password" }
-        return getToken("/auth/realms/swasth-health-claim-exchange/protocol/openid-connect/token", body)
+        return getToken("auth/realms/swasth-health-claim-exchange/protocol/openid-connect/token", body)
             .then((data => {
                 return _.get(data, 'data.access_token');
             })).catch((err => {

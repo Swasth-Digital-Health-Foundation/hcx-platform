@@ -76,7 +76,7 @@ export const UpdateDetails = () => {
     setFormErrors({})
     let participant = await getParticipant(participantCode)
     let body = { "client_id": "registry-frontend", "username": participant.primary_email, "password": password, "grant_type": "password" }
-    getToken("/auth/realms/swasth-health-claim-exchange/protocol/openid-connect/token", body)
+    getToken("auth/realms/swasth-health-claim-exchange/protocol/openid-connect/token", body)
       .then((data => {
         console.log('data', data)
         setToken(_.get(data, 'data.access_token'))
