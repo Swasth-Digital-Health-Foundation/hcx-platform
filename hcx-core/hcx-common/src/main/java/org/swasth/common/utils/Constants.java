@@ -8,6 +8,10 @@ public class Constants {
     public static final String VERSION_PREFIX = "/v1";
 
     // Health APIs
+    public static final String GATEWAY_SERVICE_HEALTH = "/gateway/service/health";
+    public static final String GATEWAY_HEALTH = "/gateway/health";
+    public static final String HCX_APIs_HEALTH = "http://localhost:8095/service/health";
+    public static final String HCX_APIs ="hcxApiStatus";
     public static final String HEALTH = "/health";
     public static final String SERVICE_HEALTH = "/service/health";
 

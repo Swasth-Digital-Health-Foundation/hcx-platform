@@ -1,5 +1,5 @@
 import { lazy, useEffect, useState } from 'react';
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 
 import SignIn from './pages/Authentication/SignIn';
 import SignUp from './pages/Authentication/SignUp';
@@ -14,6 +14,7 @@ import UsersInvite from './pages/Users/UsersInvite';
 import ResetPassword from './pages/Authentication/ResetPassword';
 import Terminology from './pages/Terminology';
 import AdminPayorApprove from './pages/AdminApprovePayors';
+import NotFound from './components/NotFound';
 
 const DefaultLayout = lazy(() => import('./layout/DefaultLayout'));
 
@@ -31,6 +32,7 @@ function App() {
   ) : (
     <>
       <Routes>
+      <Route path="/" element={<Navigate to="/login" />} />
         <Route 
           path="/login" 
           element={<SignIn/>}
@@ -112,7 +114,7 @@ function App() {
             }
           />
         </Route>
-        
+        <Route path="*" element={<NotFound />} /> {/* Wildcard route */}
       </Routes>
     </>
   );
