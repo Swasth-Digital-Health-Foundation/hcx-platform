@@ -2,26 +2,18 @@ package org.swasth.auditindexer.utils;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.mapping.TypeMapping;
+import co.elastic.clients.elasticsearch.cluster.HealthResponse;
 import co.elastic.clients.elasticsearch.core.IndexRequest;
-import co.elastic.clients.elasticsearch.indices.Alias;
 import co.elastic.clients.elasticsearch.indices.CreateIndexRequest;
 import co.elastic.clients.elasticsearch.indices.ExistsRequest;
-import co.elastic.clients.elasticsearch.indices.GetIndexRequest;
-import co.elastic.clients.elasticsearch.transform.Settings;
 import co.elastic.clients.transport.rest_client.RestClientTransport;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import org.apache.http.HttpHost;
-import org.apache.http.util.EntityUtils;
-import org.elasticsearch.client.Request;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.UUID;
 
 public class ElasticSearchUtil {
 
@@ -103,6 +95,17 @@ public class ElasticSearchUtil {
             } catch (IOException e) {
                 throw new Exception("ElasticSearchUtil :: Error while closing RestClient connection : " + e.getMessage());
             }
+        }
+    }
+
+    public boolean isHealthy() {
+        try {
+            HealthResponse response = esClient.cluster().health();
+            String status = response.status().jsonValue();
+            return "green".equals(status) || "yellow".equals(status);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
         }
     }
 }
