@@ -1,22 +1,19 @@
 package org.swasth.hcx.config;
 
-
-
-import org.elasticsearch.client.RestHighLevelClient;
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.transport.rest_client.RestClientTransport;
+import co.elastic.clients.json.jackson.JacksonJsonpMapper;
+import org.apache.http.HttpHost;
+import org.elasticsearch.client.RestClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.elasticsearch.client.ClientConfiguration;
-import org.springframework.data.elasticsearch.client.RestClients;
-import org.springframework.data.elasticsearch.config.AbstractElasticsearchConfiguration;
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
 import org.swasth.auditindexer.utils.ElasticSearchUtil;
 
 @Configuration
 @EnableElasticsearchRepositories(basePackages = "org.swasth.hcx.repository")
-//@ComponentScan(basePackages = {"org.swasth.hcx"})
-public class ElasticSearchConfiguration extends AbstractElasticsearchConfiguration {
+public class ElasticSearchConfiguration {
 
     @Value("${es.host:localhost}")
     public String esHost;
@@ -25,16 +22,15 @@ public class ElasticSearchConfiguration extends AbstractElasticsearchConfigurati
     public int esPort;
 
     @Bean
-    @Override
-    public RestHighLevelClient elasticsearchClient() {
-        final ClientConfiguration config = ClientConfiguration.builder()
-                .connectedTo(esHost + ":" + esPort)
-                .build();
-
-        return RestClients.create(config).rest();
+    public ElasticsearchClient elasticsearchClient() {
+        RestClient restClient = RestClient.builder(new HttpHost(esHost, esPort)).build();
+        RestClientTransport transport = new RestClientTransport(restClient, new JacksonJsonpMapper());
+        return new ElasticsearchClient(transport);
     }
+
     @Bean
     public ElasticSearchUtil elasticSearchUtil() throws Exception {
-        return new ElasticSearchUtil(esHost,esPort);
+        return new ElasticSearchUtil(esHost, esPort);
     }
 }
+
