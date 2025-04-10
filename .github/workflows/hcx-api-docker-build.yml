@@ -9,37 +9,38 @@ on:
         required: false
       branch:
         description: Custom build branch to be used
-        default: sprint-
+        default: main
         required: true
-
-#    tags:
-#      - *
 
 jobs:
   build:
     name: Build and Push Docker Image
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout Repository
+        uses: actions/checkout@v3
         with:
-          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0
           repository: ${{ github.event.inputs.repo }}
           ref: ${{ github.event.inputs.branch }}
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v3
         with:
-          java-version: 17
+          distribution: 'temurin'
+          java-version: '17'
 
-#      - name: Cache Maven dependencies
-#        uses: actions/cache@v4
-#        with:
-#          path: ~/.m2/repository
-#          key: ${{ runner.os }}-maven-hcx-apis
-#          restore-keys: ${{ runner.os }}-maven-hcx-apis
+      - name: Cache Maven dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-hcx-apis-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-hcx-apis
 
       - name: Maven Build
-        run: mvn clean install  -P hcx-apis -DskipTests
+        run: mvn clean install -P hcx-apis --batch-mode
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -50,15 +51,17 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Set the Image TAG
+      - name: Set Image Tag
         run: echo "IMAGE_TAG=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
-      - name: Build and push Docker image for HCX-APIs
+      - name: Build and Push Docker Image
         uses: docker/build-push-action@v3
         with:
           context: ./hcx-apis
           push: true
           tags: |
             swasth2021/hcx-api:${{ env.IMAGE_TAG }}_${{ github.run_number }}
-            swasth2021/hcx-api
-          labels: hcx-api image
+            swasth2021/hcx-api:latest
+          labels: |
+            maintainer=swasth2021
+            app=hcx-api
