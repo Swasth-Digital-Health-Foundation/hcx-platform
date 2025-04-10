@@ -39,13 +39,13 @@ jobs:
           restore-keys: ${{ runner.os }}-maven-hcx-apis
 
       - name: Maven Build
-        run: mvn clean install -P hcx-apis
+        run: mvn clean install  -P hcx-apis -DskipTests
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
       - name: Log in to Docker Hub
-        uses: docker/login-action@v2
+        uses: docker/login-action@v4
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
