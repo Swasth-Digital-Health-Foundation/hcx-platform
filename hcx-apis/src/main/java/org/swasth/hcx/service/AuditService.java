@@ -12,6 +12,7 @@ import org.swasth.common.dto.AuditSearchRequest;
 import org.swasth.common.utils.JSONUtils;
 import org.swasth.hcx.utils.SearchUtil;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -39,14 +40,16 @@ public class AuditService {
         }
     }
 
-    private List<Map<String, Object>> searchInternal(final SearchRequest request) throws Exception {
-        SearchResponse<Map<String, Object>> response = esClient.search(request, (Class<Map<String, Object>>)(Class<?>) Map.class);
-
-        List<Map<String, Object>> audit = new ArrayList<>();
+    private List<Map<String, Object>> searchInternal(final SearchRequest request) throws IOException {
+        SearchResponse<?> rawResponse = esClient.search(request, Map.class);
+        SearchResponse<Map<String, Object>> response = (SearchResponse<Map<String, Object>>) rawResponse;
+        List<Map<String, Object>> audit = new ArrayList<>(response.hits().hits().size());
         for (Hit<Map<String, Object>> hit : response.hits().hits()) {
-            audit.add(hit.source());
+            Map<String, Object> source = hit.source();
+            if (source != null) {
+                audit.add(source);
+            }
         }
-
         logger.info("Audit search completed :: count: {}", audit.size());
         return audit;
     }
