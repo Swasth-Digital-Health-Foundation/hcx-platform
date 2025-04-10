@@ -1,90 +1,108 @@
 package org.swasth.auditindexer.utils;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.lang3.StringUtils;
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.mapping.TypeMapping;
+import co.elastic.clients.elasticsearch.core.IndexRequest;
+import co.elastic.clients.elasticsearch.indices.Alias;
+import co.elastic.clients.elasticsearch.indices.CreateIndexRequest;
+import co.elastic.clients.elasticsearch.indices.ExistsRequest;
+import co.elastic.clients.elasticsearch.indices.GetIndexRequest;
+import co.elastic.clients.elasticsearch.transform.Settings;
+import co.elastic.clients.transport.rest_client.RestClientTransport;
+import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import org.apache.http.HttpHost;
-import org.elasticsearch.action.admin.indices.alias.Alias;
-import org.elasticsearch.action.index.IndexRequest;
+import org.apache.http.util.EntityUtils;
+import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
-import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.client.indices.CreateIndexRequest;
-import org.elasticsearch.client.indices.GetIndexRequest;
-import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.xcontent.XContentType;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.UUID;
 
 public class ElasticSearchUtil {
 
     private final String esHost;
     private final int esPort;
-    private final RestHighLevelClient esClient;
+    private final ElasticsearchClient esClient;
+    private final RestClient restClient;
     private static final ObjectMapper mapper = new ObjectMapper();
 
     public ElasticSearchUtil(String esHost, int esPort) throws Exception {
-       this.esHost = esHost;
-       this.esPort = esPort;
-       this.esClient = createClient();
+        this.esHost = esHost;
+        this.esPort = esPort;
+        this.restClient = RestClient.builder(new HttpHost(esHost, esPort)).build();
+        this.esClient = createClient();
     }
 
-    public RestHighLevelClient createClient() throws Exception {
+    public ElasticsearchClient createClient() throws Exception {
         try {
-            return new RestHighLevelClient(RestClient.builder(new HttpHost(esHost, esPort)));
-        }  catch (Exception e) {
+            RestClientTransport transport = new RestClientTransport(restClient, new JacksonJsonpMapper());
+            return new ElasticsearchClient(transport);
+        } catch (Exception e) {
             throw new Exception("ElasticSearchUtil :: Error while creating elastic search connection : " + e.getMessage());
         }
     }
 
     public void addDocumentWithIndex(String document, String indexName, String identifier) throws Exception {
         try {
-            Map<String,Object> doc = mapper.readValue(document, Map.class);
-            IndexRequest indexRequest = new IndexRequest(indexName);
-            indexRequest.id(identifier);
-            esClient.index(indexRequest.source(doc), RequestOptions.DEFAULT);
-        }  catch (Exception e) {
+            Map<String, Object> doc = mapper.readValue(document, Map.class);
+            IndexRequest<Map<String, Object>> indexRequest = IndexRequest.of(i -> i
+                .index(indexName)
+                .id(identifier)
+                .document(doc)
+            );
+            esClient.index(indexRequest);
+        } catch (Exception e) {
             throw new Exception("ElasticSearchUtil :: Error while adding document to index : " + indexName + " : " + e.getMessage());
         }
     }
 
     public void addIndex(String settings, String mappings, String indexName, String alias) throws Exception {
         try {
-            if(!isIndexExists(indexName)) {
-                CreateIndexRequest createRequest = new CreateIndexRequest(indexName);
-                if (StringUtils.isNotBlank(alias)) createRequest.alias(new Alias(alias));
-                if (StringUtils.isNotBlank(settings)) createRequest.settings(Settings.builder().loadFromSource(settings, XContentType.JSON));
-                if (StringUtils.isNotBlank(mappings)) createRequest.mapping(mappings, XContentType.JSON);
-                esClient.indices().create(createRequest, RequestOptions.DEFAULT);
+            if (!isIndexExists(indexName)) {
+                CreateIndexRequest.Builder createRequestBuilder = new CreateIndexRequest.Builder()
+                    .index(indexName);
+
+                if (settings != null && !settings.isEmpty()) {
+                    createRequestBuilder.settings(s -> s.withJson(new java.io.ByteArrayInputStream(settings.getBytes())));
+                }
+                if (mappings != null && !mappings.isEmpty()) {
+                    createRequestBuilder.mappings(TypeMapping.of(m -> m.withJson(new java.io.ByteArrayInputStream(mappings.getBytes()))));
+                }
+                esClient.indices().create(createRequestBuilder.build());
             }
         } catch (Exception e) {
-            throw new Exception("ElasticSearchUtil :: Error while creating index : " + indexName + " : " + e.getMessage());
+            throw new Exception("ElasticSearchUtil :: Error while creating index : " + indexName + " : " + e.getMessage(), e);
         }
     }
 
-    public boolean isIndexExists(String indexName){
+    public boolean isIndexExists(String indexName) {
         try {
-            return esClient.indices().exists(new GetIndexRequest(indexName), RequestOptions.DEFAULT);
+            ExistsRequest existsRequest = ExistsRequest.of(e -> e.index(indexName));
+            return esClient.indices().exists(existsRequest).value();
         } catch (IOException e) {
             return false;
         }
     }
 
-     public void close() throws Exception {
-         if (null != esClient)
-             try {
-                 esClient.close();
-             } catch (IOException e) {
-                 throw new Exception("ElasticSearchUtil :: Error while closing elastic search connection : " + e.getMessage());
-             }
-     }
-
-     public boolean isHealthy(){
-        try {
-            esClient.indices().exists(new GetIndexRequest("test"), RequestOptions.DEFAULT);
-            return true;
-        } catch (Exception e){
-            return false;
+    public void close() throws Exception {
+        if (esClient != null) {
+            try {
+                esClient._transport().close();
+            } catch (IOException e) {
+                throw new Exception("ElasticSearchUtil :: Error while closing elastic search connection : " + e.getMessage());
+            }
+        }
+        if (restClient != null) {
+            try {
+                restClient.close();
+            } catch (IOException e) {
+                throw new Exception("ElasticSearchUtil :: Error while closing RestClient connection : " + e.getMessage());
+            }
         }
     }
 }
