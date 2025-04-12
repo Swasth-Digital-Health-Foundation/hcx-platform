@@ -16,6 +16,17 @@
 		<spring.version>3.2.0</spring.version>
 		<log4j2.version>2.16.0</log4j2.version>
 	</properties>
+	<dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.fasterxml.jackson</groupId>
+                <artifactId>jackson-bom</artifactId>
+                <version>2.17.0</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -46,7 +57,6 @@
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
-			<version>2.17.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.swasth</groupId>
