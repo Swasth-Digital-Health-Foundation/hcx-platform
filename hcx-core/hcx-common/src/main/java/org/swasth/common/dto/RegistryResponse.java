@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang3.StringUtils;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -57,6 +58,11 @@ public class RegistryResponse {
 
     public void setTimestamp(Long timestamp) {
         this.timestamp = timestamp;
+    }
+
+    // To handle issue of receiving string timestamp from the api call
+    public void setTimestamp(String timestamp) {
+        this.timestamp = OffsetDateTime.parse(timestamp).toInstant().toEpochMilli();
     }
 
     public String getParticipantCode() {
