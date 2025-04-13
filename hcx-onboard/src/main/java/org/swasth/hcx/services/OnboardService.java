@@ -452,6 +452,7 @@ public class OnboardService extends BaseController {
     }
 
     private void updateParticipant(String participantCode, HttpHeaders headers, String communicationStatus) throws Exception{
+        System.out.println("Updating participant details" + participantCode);
         Map<String,Object> participantDetails = getParticipant(PARTICIPANT_CODE, participantCode);
         String identityStatus = "";
         ResultSet resultSet1 = (ResultSet) postgreSQLClient.executeQuery(query(onboardingVerifierTable,participantCode));
@@ -479,7 +480,7 @@ public class OnboardService extends BaseController {
     }
 
     private Map<String, Object> getParticipant(String key, String value) throws JsonProcessingException, ClientException {
-        HttpResponse<String> searchResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_SEARCH, "{ \"filters\": { \"" + key + "\": { \"eq\": \" " + value + "\" } } }", new HashMap<>());
+        HttpResponse<String> searchResponse = HttpUtils.post(hcxAPIBasePath + VERSION_PREFIX + PARTICIPANT_SEARCH, "{ \"filters\": { \"" + key + "\": { \"eq\": \"" + value + "\" } } }", new HashMap<>());
         RegistryResponse registryResponse = JSONUtils.deserialize(searchResponse.getBody(), RegistryResponse.class);
         if (registryResponse.getParticipants().isEmpty())
             throw new ClientException(ErrorCodes.ERR_INVALID_PARTICIPANT_CODE, INVALID_PARTICIPANT_CODE);
@@ -616,6 +617,7 @@ public class OnboardService extends BaseController {
 
     private void updateParticipant(HttpHeaders headers, String identityStatus, Map<String,Object> participantDetails) throws Exception{
         String onboardingQuery = String.format("SELECT * FROM %s WHERE participant_code='%s'", onboardVerificationTable, participantDetails.get(PARTICIPANT_CODE));
+        System.out.println("Updating participant details for participant code: " + participantDetails.get(PARTICIPANT_CODE));
         ResultSet resultSet1 = (ResultSet) postgreSQLClient.executeQuery(onboardingQuery);
         String communicationStatus = "";
         if (resultSet1.next()) {
