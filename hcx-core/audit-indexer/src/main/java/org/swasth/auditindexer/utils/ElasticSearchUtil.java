@@ -54,6 +54,11 @@ public class ElasticSearchUtil {
     }
 
     public void addIndex(String settings, String mappings, String indexName, String alias) throws Exception {
+        System.out.println("ElasticSearchUtil :: Creating index : " + indexName);
+        System.out.println("ElasticSearchUtil :: Settings : " + settings);
+        System.out.println("ElasticSearchUtil :: Mappings : " + mappings);
+        System.out.println("ElasticSearchUtil :: Alias : " + alias);
+
         try {
             if (!isIndexExists(indexName)) {
                 CreateIndexRequest.Builder createRequestBuilder = new CreateIndexRequest.Builder()

@@ -347,7 +347,9 @@ public class OnboardService extends BaseController {
         String updateQuery = String.format("UPDATE %s SET updatedOn=%d, expiry=%d, regenerate_count=%d, last_regenerate_date='%s', phone_short_url='%s', phone_long_url='%s' WHERE participant_code='%s'",
                 onboardVerificationTable, System.currentTimeMillis(), System.currentTimeMillis() + linkExpiry, regenerateCount, currentDate, shortUrl, longUrl, requestBody.get(PARTICIPANT_CODE));
         postgreSQLClient.execute(updateQuery);
+        System.out.println("Update query executed: " + updateQuery);
         auditIndexer.createDocument(eventGenerator.getSendLinkEvent(requestBody, regenerateCount, currentDate));
+        logger.info("Verification link sent to participant_code: {} :: email_verified: {} :: phone_verified: {}", requestBody.get(PARTICIPANT_CODE), emailVerified, phoneVerified);
         return getSuccessResponse(new Response());
     }
 
