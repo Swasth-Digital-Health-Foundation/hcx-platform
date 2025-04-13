@@ -41,7 +41,7 @@ jobs:
       - name: Maven Build
         run: |
           cd hcx-pipeline-jobs
-          mvn clean install -DskipTests -X
+          mvn clean install -DskipTests
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
