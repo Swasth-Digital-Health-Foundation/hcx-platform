@@ -1,7 +1,7 @@
 package org.swasth.hcx.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.elasticsearch.client.RestHighLevelClient;
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -82,7 +82,7 @@ public class BaseSpec {
     protected RegistryService mockRegistryService;
 
     @MockBean
-    protected RestHighLevelClient restHighLevelClient;
+    protected ElasticsearchClient elasticsearchClient;
 
     @MockBean
     protected JWTUtils jwtUtils;

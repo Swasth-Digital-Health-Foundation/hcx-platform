@@ -46,11 +46,11 @@
             <id>apache-releases</id>
             <url>https://repository.apache.org/content/groups/public</url>
         </repository>
-        <repository>
+        <!-- <repository>
             <id>scala-tools.org</id>
             <name>Scala-tools Maven2 Repository</name>
             <url>https://oss.sonatype.org/content/groups/scala-tools</url>
-        </repository>
+        </repository> -->
     </repositories>
     <pluginRepositories>
         <pluginRepository>

@@ -1,6 +1,6 @@
 package org.swasth.hcx.utils;
 
-import org.elasticsearch.action.search.SearchRequest;
+import co.elastic.clients.elasticsearch.core.SearchRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ContextConfiguration;
 import org.swasth.common.dto.AuditSearchRequest;
@@ -30,7 +30,7 @@ class SearchUtilsTests extends BaseSpec {
         }});
         searchRequest.setAction(Constants.AUDIT_SEARCH);
         SearchRequest result = SearchUtil.buildSearchRequest("hcx_audit",searchRequest);
-        assertEquals("hcx_audit", result.indices()[0]);
+        assertEquals("hcx_audit", result.index().get(0));
     }
 
     @Test
