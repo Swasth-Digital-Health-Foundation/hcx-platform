@@ -76,7 +76,8 @@ public class RegistryResponse {
     // To handle issue of receiving string timestamp from the api call
     public void setTimestamp(String timestamp) {
         System.out.println("Setting timestamp from string: " + timestamp);
-        this.timestamp = OffsetDateTime.parse(timestamp).toInstant().toEpochMilli();
+        // this.timestamp = OffsetDateTime.parse(timestamp).toInstant().toEpochMilli();
+        this.timestamp = System.currentTimeMillis();
     }
 
     public String getParticipantCode() {
