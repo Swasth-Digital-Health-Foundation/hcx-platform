@@ -172,7 +172,7 @@ public class ParticipantService extends BaseRegistryService {
     }
 
     private String getRequestBody(String code) {
-        return "{ \"filters\": { \"participant_code\": { \"eq\": \" " + code + "\" } } }";
+        return "{ \"filters\": { \"participant_code\": { \"eq\": \"" + code + "\" } } }";
     }
 
     private void generateCreateAudit(String code, String action, Map<String, Object> requestBody, String registryStatus, String createdBy) throws Exception {

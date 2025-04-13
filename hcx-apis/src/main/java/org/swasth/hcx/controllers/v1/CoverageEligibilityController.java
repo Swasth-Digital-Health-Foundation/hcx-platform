@@ -36,7 +36,7 @@ public class CoverageEligibilityController extends BaseController {
     public ResponseEntity<Object> onCheckCoverageEligibility(@RequestHeader HttpHeaders headers, @RequestBody Map<String, Object> requestBody) throws Exception {
         Request request = new Request(requestBody, Constants.COVERAGE_ELIGIBILITY_ONCHECK, Objects.requireNonNull(headers.get(AUTHORIZATION)).get(0));
         // fetch the recipient roles,create request body with filters for registry search
-        List<Map<String,Object>> participantResponse = registryService.getDetails("{ \"filters\": { \"participant_code\": { \"eq\": \" " + request.getHcxRecipientCode() + "\" } } }");
+        List<Map<String,Object>> participantResponse = registryService.getDetails("{ \"filters\": { \"participant_code\": { \"eq\": \"" + request.getHcxRecipientCode() + "\" } } }");
         List<String> roles = (List) (participantResponse.get(0)).get(ROLES);
         if(roles.contains(MEMBER_ISNP)){
             //Create subscription audit event for on_check call for any HIU user
