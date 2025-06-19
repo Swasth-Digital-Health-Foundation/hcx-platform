@@ -35,6 +35,12 @@ public class UserController extends BaseController {
             if(requestBody.containsKey(EMAIL)) {
                 requestBody.put(EMAIL,requestBody.get(EMAIL).toString().toLowerCase());
             }
+            if(requestBody.containsKey(MOBILE)) {
+                Object mobileValue = requestBody.get(MOBILE);
+                if (!(mobileValue instanceof String)) {
+                    requestBody.put(MOBILE, mobileValue.toString());
+                }
+            }
             List<Map<String,Object>> tenantRoleList = (List<Map<String, Object>>) requestBody.getOrDefault(TENANT_ROLES,"");
             for(Map<String,Object> tenant : tenantRoleList){
                 userService.authorizeToken(header,(String) tenant.getOrDefault(PARTICIPANT_CODE,""));

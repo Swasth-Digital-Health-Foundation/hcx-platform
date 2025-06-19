@@ -151,7 +151,7 @@ public class UserService extends BaseRegistryService {
     }
 
     private String getUserRequest(String userId) {
-        return "{ \"filters\": { \"user_id\": { \"eq\": \" " + userId + "\" } } }";
+        return "{ \"filters\": { \"user_id\": { \"eq\": \"" + userId + "\" } } }";
     }
 
     private void generateUserAudit(String userId, String action, Map<String, Object> requestBody, String updatedBy) throws Exception {
